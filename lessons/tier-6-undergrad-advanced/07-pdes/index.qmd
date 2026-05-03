@@ -1,0 +1,336 @@
+---
+title: "07 · Partial Differential Equations — Heat, Wave, Laplace"
+subtitle: "The three equations that govern most of physics"
+lesson-id: "t6.pdes"
+tier: 6
+prerequisites: ["t6.second-order-odes", "t5.partial-derivatives"]
+unlocks: []
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [06 · Second-Order ODEs](../06-second-order-odes/index.qmd)
+   and [T5 L05 — Partial Derivatives](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd)?
+2. Comfortable with $\partial/\partial t$ vs $\partial/\partial x$?
+3. Recall vector calculus: $\nabla, \nabla^2$ (Laplacian).
+:::
+
+## Touch
+
+A **partial differential equation (PDE)** involves partial derivatives
+of a multivariable function. The three classical PDEs:
+
+```{ojs}
+viewof pdeSel = Inputs.select(["heat: u_t = α u_xx", "wave: u_tt = c² u_xx", "Laplace: u_xx + u_yy = 0", "Schrödinger: iℏ ψ_t = −(ℏ²/2m) ψ_xx + V ψ"], {value: "wave: u_tt = c² u_xx", label: "PDE:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(pdeSel) {
+    case "heat: u_t = α u_xx": info = "Heat diffusion in a rod. Initial temperature distribution → smooths out over time. Solutions: e^(−αk²t) sin(kx). Diffusion is irreversible (entropy increases)."; break;
+    case "wave: u_tt = c² u_xx": info = "1D wave (string vibration). Solutions travel left and right at speed c. d'Alembert: u(x,t) = f(x−ct) + g(x+ct). Reversible (no entropy)."; break;
+    case "Laplace: u_xx + u_yy = 0": info = "Steady-state (no time). Heat after long time, electrostatic potential, fluid potential. 'Average' property: u(x,y) is the average over any small disc around it."; break;
+    case "Schrödinger: iℏ ψ_t = −(ℏ²/2m) ψ_xx + V ψ": info = "Quantum-mechanical wavefunction. Heat-equation-like but COMPLEX-valued and time-reversible. The fundamental equation of quantum mechanics."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. The heat equation diffuses; the wave equation propagates. Why the
+   difference?
+2. Laplace's equation has no time variable — it's a *steady state*.
+3. **Separation of variables** turns a PDE into ODEs.
+
+## Discover
+
+### Problem 1
+
+The **1D heat equation:** $u_t = \alpha u_{xx}$ where $u(x, t)$ is
+temperature.
+
+Try a **separable solution** $u(x, t) = X(x) T(t)$. What ODEs do $X$
+and $T$ satisfy?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T'/T = \alpha X''/X$. Both sides depend on different variables, so
+both equal a constant $-\lambda$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T'/T = \alpha X''/X = -\lambda$ (separation constant).
+
+So $T' = -\lambda T \Rightarrow T = T_0 e^{-\lambda t}$.
+$X'' = -\lambda/\alpha \cdot X$.
+
+If $\lambda > 0$: $X$ is sinusoidal — $X(x) = A \sin(kx) + B \cos(kx)$
+where $k^2 = \lambda/\alpha$. Combined: $u = e^{-\alpha k^2 t} \sin(kx)$
+(say).
+
+**The general solution is a linear combination (Fourier series — Lesson 12)
+of these.**
+</details>
+
+### Problem 2
+
+For the heat equation on $[0, L]$ with boundary $u(0) = u(L) = 0$:
+which $k$ are allowed?
+
+<details class="hint"><summary>Full solution</summary>
+$\sin(kL) = 0 \Rightarrow k = n\pi/L$ for $n = 1, 2, \ldots$.
+
+So allowed solutions: $u_n(x, t) = e^{-\alpha (n\pi/L)^2 t} \sin(n\pi
+x/L)$.
+
+General: $u(x, t) = \sum_n c_n u_n$ — a Fourier series in $x$. The
+coefficients $c_n$ come from initial condition $u(x, 0)$.
+</details>
+
+### Problem 3
+
+The **1D wave equation:** $u_{tt} = c^2 u_{xx}$. Verify $u(x, t) =
+\sin(x - ct)$ is a solution.
+
+<details class="hint"><summary>Full solution</summary>
+$u_t = -c \cos(x - ct)$, $u_{tt} = -c^2 \sin(x - ct) = -c^2 u$.
+$u_x = \cos(x - ct)$, $u_{xx} = -\sin(x - ct) = -u$.
+
+So $u_{tt} = c^2 u_{xx}$ ✓ (both equal $-c^2 u$).
+
+This is a **right-travelling wave** at speed $c$. Generally:
+$u(x, t) = f(x - ct) + g(x + ct)$ — d'Alembert's solution: any sum of
+left- and right-travelling waves.
+</details>
+
+### Problem 4
+
+**Laplace's equation:** $u_{xx} + u_{yy} = 0$. Solutions are called
+**harmonic functions**.
+
+Verify $u(x, y) = x^2 - y^2$ is harmonic.
+
+<details class="hint"><summary>Full solution</summary>
+$u_{xx} = 2$, $u_{yy} = -2$. Sum: 0 ✓.
+
+**Mean value property:** $u(x_0, y_0)$ equals the average of $u$ over
+any small circle around $(x_0, y_0)$. Tied deeply to complex analysis
+(real part of analytic functions).
+
+Laplace describes: electrostatic potential, steady-state heat, fluid
+flow potential.
+</details>
+
+### Problem 5
+
+The **Schrödinger equation** $i \hbar \psi_t = -\dfrac{\hbar^2}{2m}
+\psi_{xx} + V(x) \psi$ governs quantum mechanics. The wavefunction
+$\psi$ is complex-valued; $|\psi|^2$ is a probability density.
+
+What's special about the imaginary $i$ on the left?
+
+<details class="hint"><summary>Full solution</summary>
+**It makes the equation reversible** (unlike the heat equation, where
+$\partial_t$ alone makes it dissipative). The factor $i$ corresponds
+to *unitary time evolution* — probabilities are preserved over time.
+
+Solutions oscillate (in time) like $\psi \sim e^{-i E t/\hbar}$ for
+energy $E$. This is the source of quantum mechanics' wave-particle
+duality.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **partial differential equation (PDE)** relates a function of
+several variables to its partial derivatives.
+
+**The three classical linear PDEs in 1D:**
+
+| PDE | Equation | Models |
+|---|---|---|
+| Heat | $u_t = \alpha u_{xx}$ | Diffusion of heat / particles |
+| Wave | $u_{tt} = c^2 u_{xx}$ | Vibrating strings, sound, light |
+| Laplace | $u_{xx} + u_{yy} = 0$ | Steady state of heat / electrostatic |
+
+In higher dimensions: replace $u_{xx}$ with $\nabla^2 u$ (the
+**Laplacian**).
+
+**Separation of variables:** assume $u = X(x) T(t)$, derive separate
+ODEs.
+
+**Boundary conditions:**
+
+- **Dirichlet:** value of $u$ specified on boundary.
+- **Neumann:** value of $\partial u / \partial n$ specified.
+- **Periodic:** $u$ at one boundary = $u$ at another.
+
+**Initial conditions** for time-dependent PDEs: $u(x, 0)$ (and
+$u_t(x, 0)$ for second-order in $t$).
+
+The **general solution** is a sum (or integral) of separable
+solutions — Fourier series for bounded domains, Fourier transform
+for unbounded.
+
+:::
+
+> *PDEs: equations involving partial derivatives;*
+> *Heat (diffuses), wave (propagates), Laplace (steady state);*
+> *Separation of variables → ODEs → Fourier-style sum.*
+
+## Apply
+
+### Worked example
+
+> The temperature in a thin rod $[0, \pi]$ with insulated boundary
+> ($u_x(0) = u_x(\pi) = 0$) and initial $u(x, 0) = \cos x$ obeys the
+> heat equation. Find $u(x, t)$.
+
+Separable: $u_n = e^{-\alpha n^2 t} \cos(nx)$ (Neumann boundary
+gives cosines).
+
+$u(x, 0) = \cos x$ → only $n = 1$ survives. So $u(x, t) = e^{-\alpha
+t} \cos x$.
+
+(Initial cosine pattern decays exponentially.)
+
+### Practice — Warm
+
+**W1.** Is $u_{tt} = c^2 u_{xx}$ first-order or second-order?
+
+<details class="hint"><summary>Full solution</summary>
+**Second-order** in both $x$ and $t$.
+</details>
+
+**W2.** Is $u(x) = e^x$ harmonic?
+
+<details class="hint"><summary>Full solution</summary>
+1D Laplace would be $u'' = 0$. $e^x$ has $u'' = e^x \ne 0$. **No.** (1D
+harmonic = linear functions.)
+</details>
+
+**W3.** Wave equation in 3D: replace $\partial_x^2$ by ...?
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla^2 = \partial_x^2 + \partial_y^2 + \partial_z^2$ (Laplacian).
+</details>
+
+### Practice — Working
+
+**P1.** Verify $u(x, t) = e^{-t} \sin x$ solves the heat equation
+$u_t = u_{xx}$.
+
+<details class="hint"><summary>Full solution</summary>
+$u_t = -e^{-t} \sin x$. $u_{xx} = -e^{-t} \sin x$. Equal ✓.
+</details>
+
+**P2.** Verify $u(x, t) = \sin(x + 2t)$ solves the wave equation
+$u_{tt} = 4 u_{xx}$.
+
+<details class="hint"><summary>Full solution</summary>
+$u_{tt} = -4 \sin(x + 2t)$. $u_{xx} = -\sin(x + 2t)$. $u_{tt} = 4
+u_{xx}$ ✓. (Speed $c = 2$.)
+</details>
+
+**P3.** Verify $u(x, y) = \ln(x^2 + y^2)$ is harmonic away from the
+origin.
+
+<details class="hint"><summary>Full solution</summary>
+$u_x = 2x/(x^2 + y^2)$. $u_{xx} = 2(y^2 - x^2)/(x^2 + y^2)^2$.
+Similarly $u_{yy} = 2(x^2 - y^2)/(x^2 + y^2)^2$. Sum: 0 ✓.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why does the heat equation make time irreversible** but
+the wave equation reversible?
+
+<details class="hint"><summary>Full solution</summary>
+Heat equation has *first-order* time derivative ($u_t$). Reversing
+time ($t \to -t$): $u_t \to -u_t$. Equation becomes $-u_t = \alpha
+u_{xx}$ — *different* equation. Heat dissipates only in one direction.
+
+Wave equation has *second-order* time ($u_{tt}$). Reversing time:
+$u_{tt}$ unchanged. Equation invariant. Waves travel in either time
+direction.
+
+This *time asymmetry* of the heat equation is the mathematical face
+of the **second law of thermodynamics**: entropy always increases.
+</details>
+
+**S2.** **In games:** smoke / fluid simulation often uses simplified
+heat or wave equations. Why?
+
+<details class="hint"><summary>Full solution</summary>
+**Heat equation** models smoke / fog *diffusion* — concentration
+spreads out smoothly.
+
+**Wave equation** models surface ripples on water, sound propagation
+in caves.
+
+**Navier-Stokes** (Tier 7) is more accurate but expensive. Real
+games use *simplified* PDEs that look right but compute fast.
+
+GPU compute shaders solve PDEs by discretising space and time
+(stencil computations) — millions of grid cells updated per frame.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"PDEs always have closed-form solutions."** Mostly not. Heat,
+   wave, Laplace are special cases. Most PDEs need numerical methods
+   (Lesson 08).
+2. **"Separation always works."** Only for *linear* PDEs with
+   compatible boundary conditions.
+3. **"PDE is just an ODE with several variables."** Connected but
+   distinct subjects. PDEs are vastly more complex.
+:::
+
+### Self-Assessment
+
+1. Could you state the heat, wave, Laplace equations?
+2. Without scrolling back, what's the d'Alembert form of the wave
+   solution?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $u(x, t) = f(x - ct) + g(x + ct)$.)
+
+- **3 yes:** ready for **[08 · Numerical Methods](../08-numerical-methods/index.qmd)**.
+- **2 yes:** redo **S1** (irreversibility).
+- **0–1 yes:** re-read *Discover P1 and P3*.
+
+## Connect
+
+### Prerequisites used
+
+- **[06 · Second-Order ODEs](../06-second-order-odes/index.qmd)**
+- **[T5 L05 — Partial Derivatives](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd)**
+
+### What this unlocks
+
+- **Tier 7 — PDE Theory & Functional Analysis** — Sobolev spaces,
+  weak solutions, Navier-Stokes.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Fluid / smoke / wave simulation (S2).
+:::
+
+::: {.applied-callout}
+**Physics.** Maxwell's equations are PDEs. Schrödinger's equation
+is a PDE. General relativity is a tensor PDE.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Navier-Stokes existence and smoothness is
+a $1M Clay Millennium Prize problem.
+:::
