@@ -1,0 +1,339 @@
+---
+title: "09 · Convex Optimisation"
+subtitle: "When the loss landscape has a single bottom — and how we know"
+lesson-id: "t6.convex-optimization"
+tier: 6
+prerequisites: ["t5.partial-derivatives", "t5.eigenvalues"]
+unlocks: ["t6.gradient-methods"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L05 — Partial Derivatives](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd)
+   and [T5 L04 — Eigenvalues](../../tier-5-undergrad-core/04-eigenvalues/index.qmd)?
+2. Comfortable with gradients and the Hessian matrix (T4 L06 S1)?
+3. Recall positive-definite matrices (eigenvalues > 0)?
+:::
+
+## Touch
+
+A function $f: \mathbb{R}^n \to \mathbb{R}$ is **convex** if its
+graph lies below any chord. Equivalently, $f((1-t) x + t y) \le (1-t)
+f(x) + t f(y)$ for all $x, y$ and $t \in [0, 1]$.
+
+```{ojs}
+viewof cvSel = Inputs.select(["f(x) = x²: convex (parabola)", "f(x) = e^x: strictly convex", "f(x) = |x|: convex but not differentiable", "f(x) = sin(x): NOT convex", "f(x) = x³: NOT convex on ℝ"], {value: "f(x) = x²: convex (parabola)", label: "Function:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(cvSel) {
+    case "f(x) = x²: convex (parabola)": info = "Twice differentiable; f''(x) = 2 ≥ 0 everywhere. **Strictly convex.** Unique global min at x = 0."; break;
+    case "f(x) = e^x: strictly convex": info = "f''(x) = e^x > 0. Strictly convex. No min on R (decreases as x → −∞)."; break;
+    case "f(x) = |x|: convex but not differentiable": info = "Convex (kink at 0 still satisfies chord inequality), but f' undefined at 0. Subgradient methods handle this."; break;
+    case "f(x) = sin(x): NOT convex": info = "Oscillates between concave and convex regions. No global structure."; break;
+    case "f(x) = x³: NOT convex on ℝ": info = "f''(x) = 6x: positive for x > 0, negative for x < 0. Convex on [0, ∞) only."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why is "convex" so important for optimisation?
+2. Quadratic functions $f(x) = (1/2) x^T A x + b^T x + c$ — when are
+   they convex?
+3. Are sums of convex functions convex?
+
+## Discover
+
+### Problem 1
+
+A function $f: \mathbb{R} \to \mathbb{R}$ is convex iff $f''(x) \ge 0$
+everywhere (for twice-differentiable $f$).
+
+Verify $f(x) = x^4$ is convex.
+
+<details class="hint"><summary>Full solution</summary>
+$f''(x) = 12 x^2 \ge 0$ ✓. Convex.
+
+(*Strictly* convex except at $x = 0$.)
+</details>
+
+### Problem 2
+
+For multivariate $f$, **convex iff Hessian $\nabla^2 f$ is positive
+semi-definite** (eigenvalues $\ge 0$).
+
+Determine: is $f(x, y) = x^2 + 2 x y + 3 y^2$ convex?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$H = \begin{pmatrix} 2 & 2 \\ 2 & 6 \end{pmatrix}$. Eigenvalues?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\det(H - \lambda I) = (2 - \lambda)(6 - \lambda) - 4 = \lambda^2 - 8
+\lambda + 8 = 0 \Rightarrow \lambda = 4 \pm 2 \sqrt{2} \approx 6.83,
+1.17$. Both positive ⇒ Hessian PD ⇒ **strictly convex**.
+</details>
+
+### Problem 3
+
+**Why convexity matters:** every local minimum of a convex function
+is a *global* minimum.
+
+Sketch: if $x^*$ is a local min and $y$ has $f(y) < f(x^*)$, then on
+the segment from $x^*$ to $y$, by convexity, $f$ stays $\le f(y) <
+f(x^*)$ near $x^*$ — contradicting local min.
+
+Why is this practically huge?
+
+<details class="hint"><summary>Full solution</summary>
+**No "saddle" or "local minimum" traps.** Gradient descent (and many
+other algorithms) on convex functions reach the global optimum
+*reliably*. For non-convex problems (most real ML), you might get
+stuck.
+
+This is why much of machine learning theory focuses on convex
+problems first: results there are clean, then extended (with
+caveats) to non-convex.
+</details>
+
+### Problem 4
+
+**Operations preserving convexity:**
+
+- Sum of convex functions is convex.
+- $\max\{f_1, f_2\}$ of convex functions is convex.
+- Composition $g \circ f$: convex if $g$ is convex *non-decreasing*
+  and $f$ is convex (e.g.).
+
+Show: $f(x) = \max(0, x)$ (ReLU) is convex.
+
+<details class="hint"><summary>Full solution</summary>
+ReLU is the max of two convex functions: $0$ (constant — convex) and
+$x$ (linear — convex). Max of convex is convex.
+
+ReLU is convex but not strictly convex (flat for $x < 0$). Still,
+it's the standard activation in deep networks.
+</details>
+
+### Problem 5
+
+**Convex optimisation problems** have well-developed theory:
+
+- **Linear Programming (LP):** linear objective, linear constraints.
+  Polynomial-time algorithms.
+- **Quadratic Programming (QP):** quadratic objective, linear
+  constraints. Solved efficiently.
+- **Convex programming (general):** convex objective, convex
+  constraints. Polynomial-time interior-point methods.
+
+Why is "non-convex" a hard line in computer science?
+
+<details class="hint"><summary>Full solution</summary>
+**Non-convex problems may have many local minima, requiring
+exponential time in the worst case.** Many NP-hard problems are
+non-convex.
+
+But many *practically* important problems (LP, semidefinite, certain
+ML losses for shallow models) are convex. Modern ML is mostly *non-
+convex* — yet works well in practice via stochastic gradient methods
+and architectural tricks.
+
+Understanding **why non-convex deep learning works** is one of the
+biggest open theoretical questions in AI.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A set $C \subseteq \mathbb{R}^n$ is **convex** if for $x, y \in C$
+and $t \in [0, 1]$: $(1 - t) x + t y \in C$.
+
+A function $f$ is **convex** on $C$ if for $x, y \in C, t \in [0, 1]$:
+$$f((1-t) x + t y) \le (1-t) f(x) + t f(y).$$
+
+For twice-differentiable $f$:
+
+- 1D: convex iff $f'' \ge 0$.
+- $\mathbb{R}^n$: convex iff Hessian $\nabla^2 f$ is positive
+  semi-definite.
+
+**Strict convexity:** strict inequality for $t \in (0, 1), x \neq y$.
+
+**Properties:**
+
+- **Local min = global min** for convex $f$.
+- Sum, max, non-negative-scaling of convex are convex.
+- Composition with monotone functions sometimes preserves convexity.
+
+**Convex optimisation problem:**
+$$\min_{x \in C} f(x), \quad C \text{ convex}, f \text{ convex}.$$
+
+**Common classes:** linear (LP), quadratic (QP), semidefinite (SDP),
+general convex (interior-point methods).
+
+**Duality:** primal problem ↔ dual problem; under regularity, equal
+optima.
+
+:::
+
+> *Convex = lies below chords; convex set = closed under midpoints;*
+> *Convex optimisation: local min = global min; tractable;*
+> *Non-convex: hard, but ML works in practice via SGD.*
+
+## Apply
+
+### Worked example
+
+> Show $f(x) = e^x + x^2$ is convex.
+
+$f''(x) = e^x + 2 > 0$ for all $x$. **Strictly convex.**
+
+(Sum of convex functions $e^x$ and $x^2$ is convex.)
+
+### Practice — Warm
+
+**W1.** Is $f(x) = -x^2$ convex?
+
+<details class="hint"><summary>Full solution</summary>
+$f''(x) = -2 < 0$. **No** (concave).
+</details>
+
+**W2.** Convex set: $\{x : x \ge 0\}$?
+
+<details class="hint"><summary>Full solution</summary>
+**Yes** (half-line).
+</details>
+
+**W3.** Convex set: union of two intervals?
+
+<details class="hint"><summary>Full solution</summary>
+Generally **no** (midpoint between intervals isn't included).
+</details>
+
+### Practice — Working
+
+**P1.** Is the unit ball $\{x : \|x\| \le 1\}$ convex?
+
+<details class="hint"><summary>Full solution</summary>
+Yes. By triangle inequality: $\|t x + (1-t) y\| \le t \|x\| + (1-t)
+\|y\| \le 1$.
+</details>
+
+**P2.** Convex Hessian for $f(x, y) = 5 x^2 + 4 x y + 3 y^2$?
+
+<details class="hint"><summary>Full solution</summary>
+$H = \begin{pmatrix} 10 & 4 \\ 4 & 6 \end{pmatrix}$. Det = 60 - 16 = 44
+> 0; trace 16 > 0 ⇒ both eigenvalues positive ⇒ **convex**.
+</details>
+
+**P3.** Is the function $f(x) = -\log x$ (for $x > 0$) convex?
+
+<details class="hint"><summary>Full solution</summary>
+$f''(x) = 1/x^2 > 0$. **Convex.** (Used in interior-point methods as
+a "barrier function" enforcing $x > 0$.)
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why is least squares regression convex?** $L(\beta) = \|y -
+X\beta\|^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Quadratic in $\beta$: $\beta^T X^T X \beta - 2 y^T X \beta + y^T y$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$L(\beta) = \beta^T (X^T X) \beta - 2 (X^T y)^T \beta + y^T y$.
+
+Hessian: $2 X^T X$, which is **positive semi-definite** (Gram
+matrix). So $L$ is convex.
+
+Hence linear regression has a *unique* (or affine subspace of)
+minima — solvable in closed form (normal equations T5 L02 S2).
+This is why classical regression is so well-behaved.
+</details>
+
+**S2.** **In modern ML, neural network losses are NOT convex.** Why
+does training still work?
+
+<details class="hint"><summary>Full solution</summary>
+**Several theoretical reasons** (active research):
+
+1. *Over-parameterisation:* enough capacity → loss landscape becomes
+   "benign" (saddle points easy to escape, minima are wide and
+   equivalent).
+2. *Stochastic gradient noise:* SGD's noise helps escape saddles.
+3. *Implicit bias:* gradient descent finds particular nice minima
+   (e.g., low-norm in linear models).
+4. *Architecture:* skip connections (ResNets) and normalisation
+   (BatchNorm) shape the loss landscape favourably.
+
+Despite non-convexity, modern deep nets reach (essentially) global
+minima reliably. **Why** is one of the biggest open theoretical
+questions in modern ML.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Convex set and convex function are the same."** Different
+   things. A function is convex; its **epigraph** (region above its
+   graph) is a convex set.
+2. **"Convex = bowl-shaped only."** Higher dimensions: convex shapes
+   include simplices, polyhedra, balls, ellipsoids — many forms.
+3. **"All ML is non-convex."** Linear regression, logistic
+   regression, SVM, many generative models *are* convex. Deep nets
+   are not.
+:::
+
+### Self-Assessment
+
+1. Could you state when a 1D function is convex?
+2. Without scrolling back, is ReLU convex?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: yes.)
+
+- **3 yes:** ready for **[10 · Gradient Methods](../10-gradient-methods/index.qmd)**.
+- **2 yes:** redo **S1** (least squares).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L05 — Partial Derivatives](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd)**
+- **[T5 L04 — Eigenvalues](../../tier-5-undergrad-core/04-eigenvalues/index.qmd)** —
+  for Hessian PD test.
+
+### What this unlocks
+
+- **[10 · Gradient Methods](../10-gradient-methods/index.qmd)**
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Classical convex methods (linear/logistic
+regression, SVM); modern (non-convex) deep learning that works
+"empirically convex" via tricks (S2).
+:::
+
+::: {.applied-callout}
+**Operations research.** LP, QP, network flow, scheduling,
+portfolio optimisation — all rest on convex optimisation theory.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Convex analysis is a polished subject
+(Rockafellar's *Convex Analysis*). Deep ties to functional analysis
+and game theory.
+:::
