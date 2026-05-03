@@ -1,0 +1,439 @@
+---
+title: "The Number Line"
+subtitle: "Every number has a place; every place names a number"
+lesson-id: "t1.number-line"
+tier: 1
+prerequisites: ["t1.what-is-a-number"]
+unlocks: ["t1.add-subtract", "t1.negative-numbers"]
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Are you ready for this lesson?
+
+1. Can you say the counting numbers in order from 1 to 20?
+2. If asked "is 7 bigger or smaller than 4?", do you know the answer
+   immediately?
+3. Have you read [Lesson 1 — *What is a Number?*](../01-what-is-a-number/index.qmd)
+   and understood that a number is a quantity, not a symbol?
+
+If you said no to (3), go back and read it first — the present lesson
+genuinely depends on it.
+:::
+
+## Touch
+
+Drag the slider. Watch the marker move along the line.
+
+```{ojs}
+viewof position = Inputs.range([-10, 10], {value: 0, step: 1, label: "Pick a position:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 110, pad = 30;
+  const xMin = -10, xMax = 10;
+  const x = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const ticks = d3.range(xMin, xMax + 1);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("style", "width:100%; max-width:760px;");
+  // axis
+  svg.append("line")
+    .attr("x1", pad).attr("x2", W - pad).attr("y1", H/2).attr("y2", H/2)
+    .attr("stroke", "#1f2933").attr("stroke-width", 2);
+  // arrows
+  svg.append("path")
+    .attr("d", `M ${pad-2},${H/2} l 8,-5 l 0,10 z`).attr("fill", "#1f2933");
+  svg.append("path")
+    .attr("d", `M ${W-pad+2},${H/2} l -8,-5 l 0,10 z`).attr("fill", "#1f2933");
+  // tick marks + labels
+  for (const t of ticks) {
+    svg.append("line")
+      .attr("x1", x(t)).attr("x2", x(t)).attr("y1", H/2 - 6).attr("y2", H/2 + 6)
+      .attr("stroke", "#1f2933").attr("stroke-width", 1.4);
+    svg.append("text")
+      .attr("x", x(t)).attr("y", H/2 + 24)
+      .attr("text-anchor", "middle").attr("font-size", "13")
+      .attr("fill", t === 0 ? "#c2185b" : "#1f2933")
+      .attr("font-weight", t === 0 ? "bold" : "normal")
+      .text(t);
+  }
+  // marker
+  svg.append("circle")
+    .attr("cx", x(position)).attr("cy", H/2).attr("r", 9)
+    .attr("fill", "#2c5f7c").attr("stroke", "#fff").attr("stroke-width", 2);
+  svg.append("text")
+    .attr("x", x(position)).attr("y", H/2 - 16)
+    .attr("text-anchor", "middle").attr("font-size", "14")
+    .attr("font-weight", "bold").attr("fill", "#2c5f7c")
+    .text(position);
+  return svg.node();
+}
+```
+
+Move the marker right. The number gets bigger.
+Move it left. The number gets smaller.
+Pass through the red mark in the middle. Notice that the line **keeps going**
+on both sides.
+
+## Wonder
+
+Sit with these for a moment. No need to write.
+
+1. If you stand at position **5** and someone tells you to go to position
+   **8**, which way do you walk?
+2. What about from **5** to **2**?
+3. There is no tick mark for **7.5** on the picture above. Could **7.5** still
+   live somewhere on this line? Where exactly?
+4. The line had numbers to the left of **0**. What kind of number is to the
+   left of zero? When in real life would you ever need such a number?
+
+## Discover
+
+Work through these in order. Use the slider above when it helps.
+
+### Problem 1
+
+Place these numbers on a number line, in your head:
+$$3, \quad 7, \quad 1, \quad 5, \quad 0$$
+
+Now sweep your finger from left to right. In what order do you meet them?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Smaller numbers are to the left.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**0, 1, 3, 5, 7.** The number line gives you ordering for free — left to
+right *is* smallest to largest. You did not have to reason; you just looked.
+</details>
+
+### Problem 2
+
+Anu is at position **4**. Bina is at position **9**.
+
+- Who is "ahead" if "right means more"?
+- How many steps must Anu take (and in which direction) to catch up to Bina?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Move the slider above to 4. Now move it to 9. Count the ticks you crossed.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Bina is ahead** (further right). Anu must take **5 steps to the right** to
+reach her: $9 - 4 = 5$. The number line turns "how many more?" into "how far
+along?".
+</details>
+
+### Problem 3
+
+Look between the ticks for **3** and **4** on the line above. Is there
+anything *between* them?
+
+If someone asked you to point to **3.5**, where would you put your finger?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Between 3 and 4 is a gap. The gap has a middle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes — the line is solid, not a row of separate dots.** Between 3 and 4
+there is a whole stretch of positions, and "3.5" is exactly the midpoint.
+
+The ticks are just labels we drew. The line itself doesn't care where we put
+ticks; it has a place for every number, including ones with halves and
+tenths and hundredths in them. We will name those numbers properly in
+**Lesson 7: Fractions** and **Lesson 8: Decimals**.
+</details>
+
+### Problem 4
+
+A weather station reports today's temperature as **3 degrees**. Tomorrow's
+forecast is "**5 degrees colder than today**". Where would tomorrow's
+temperature sit on the line?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Start at 3. "Colder" means smaller — go left. Move 5 steps left.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+3, then 2, then 1, then 0... and now what? You went past zero. Keep going.
+</details>
+<details class="hint"><summary>Full solution</summary>
+You land at **−2** — *negative* two — two steps to the *left* of zero.
+
+The line keeps going past 0; we just write a small dash before the number
+to mean "to the left of zero". These are called **negative numbers**, and
+they get their own lesson — **Lesson 10**.
+
+The fact that you can answer this question even though you have not formally
+met negative numbers is the point. The number line *forces* the answer to
+exist.
+</details>
+
+### Problem 5
+
+Two friends sketch number lines.
+
+- Tina's line marks every whole-number stop: $0, \ 1, \ 2, \ 3, \ 4, \ \ldots$
+- Vimal's line only marks the even stops: $0, \ 2, \ 4, \ 6, \ 8, \ \ldots$
+
+Are they both number lines? What is the difference?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Did Vimal *get rid* of the odd numbers, or did he just not draw them?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Both are number lines.** Vimal hasn't deleted the odd numbers — they are
+still there in the line, between his ticks. He has just chosen a less
+detailed labelling. The number line is one thing; tick marks are decorations
+we add.
+
+This is a quietly important idea. The mathematician's number line is the
+underlying continuous line. The marks are bookkeeping.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **number line** is a straight line on which every number has a unique
+position.
+
+We pick one position and call it **0** (the **origin**). To its right are
+numbers that grow without end: 1, 2, 3, 4, ... To its left are numbers that
+shrink without end: −1, −2, −3, ... For any two numbers, the smaller one is
+to the **left** of the larger one.
+
+:::
+
+The mnemonic, in the Bhāskara style:
+
+> *Zero in the middle, growing right and shrinking left,*
+> *Every number — whole or fraction, plus or minus —*
+> *Has its single home on the unending line.*
+
+## Apply
+
+### Worked example
+
+> Order these numbers from smallest to largest, using the number line to
+> reason: $\ 6, \ 2, \ 9, \ 4, \ 0$.
+
+A competent solver thinks like this:
+
+1. Picture the line. Find the position for each number — at least roughly.
+   - **0** is the origin.
+   - **2, 4, 6, 9** are all to the right of 0, at increasing distances.
+2. Sweep left-to-right. Read them off in the order I meet them.
+3. The order I meet them is the order from smallest to largest.
+
+**Answer:** $0, \ 2, \ 4, \ 6, \ 9$.
+
+The point is *I did not compare them in pairs*. The line ordered them all at
+once, just by where they sit.
+
+### Practice — Warm
+
+**W1.** Place these on the number line above (slide the marker to each in
+turn): **8**, **−4**, **0**, **3**, **−1**.
+
+<details class="hint"><summary>Full solution</summary>
+Slide to 8 (eight ticks right of 0). Slide to −4 (four ticks left of 0).
+Slide to 0 (the red mark). Slide to 3 (three ticks right). Slide to −1 (one
+tick left). The marker physically traces the answer; nothing more to do.
+</details>
+
+**W2.** Which is larger: **−2** or **−7**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+On the line, "larger" means "to the right".
+</details>
+<details class="hint"><summary>Full solution</summary>
+**−2** is larger. It sits to the *right* of −7. Many adults guess −7
+because "7 is bigger than 2", but on the number line the negative sign
+flips which side you are on. (See *Common confusions* below.)
+</details>
+
+**W3.** Sketch a number line on a scrap of paper. Mark **0**, then **5**,
+then **−5**. What do you notice about the distance from 0 to 5 and the
+distance from 0 to −5?
+
+<details class="hint"><summary>Full solution</summary>
+The two distances are **the same** — five steps. Negative and positive
+numbers are mirror images of each other across 0.
+</details>
+
+### Practice — Working
+
+**P1.** A frog starts at position **2**. It hops **3 to the right**, then
+**5 to the left**, then **4 to the right**. Where does it land?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the slider. Track the frog one hop at a time.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+2 → 5 → 0 → 4. Read each step on the line.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 + 3 = 5$. $5 - 5 = 0$. $0 + 4 = 4$. **The frog lands at position 4.**
+The number line lets you see the journey, not just the answer.
+</details>
+
+**P2.** True or false: between every pair of different numbers on the
+number line, there is at least one more number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick two numbers — say 3 and 4. Is there a number between them? Now pick 3
+and 3.5. Is there one between *those*?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**True.** Between 3 and 4 is 3.5. Between 3 and 3.5 is 3.25. Between any
+two numbers, however close, you can always find one in the middle. The
+number line is *dense* with numbers — there are no gaps.
+
+This is one of the deepest facts about numbers. We will revisit it carefully
+in **Tier 5** when we build the *real numbers* properly.
+</details>
+
+**P3.** Order these from smallest to largest using the number line:
+$$-3, \ 5, \ 0, \ -1, \ 4, \ -8$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Bigger negatives are *further left*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-8, \ -3, \ -1, \ 0, \ 4, \ 5$. Read left to right. The −8 is the
+furthest *left*, hence smallest.
+</details>
+
+### Practice — Stretch
+
+**S1.** Two friends both sketch a number line. Tina marks every whole
+number: 0, 1, 2, 3, ... Mira marks only every tenth one: 0, 10, 20, 30, ...
+
+If both lines are drawn the same length on the page, **whose line "shows"
+more numbers between 0 and the right edge of the page?**
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is a trick question.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**They show the same numbers — they just *labelled* different ones.** Both
+lines contain every number; the choice of tick marks doesn't add or remove
+numbers. Mira's line covers a wider stretch (because her ticks are spaced
+the same, but her labels jump by 10), but every number that lives on Tina's
+line also lives on Mira's, and vice versa. The line itself is one continuous
+object.
+
+This idea — that the *scale* of a picture is independent of *what is
+drawn* — comes back when we meet **graphs**, **coordinate systems**, and
+eventually **functions** in Tiers 2 and 3.
+</details>
+
+**S2.** Imagine a number line stretching from your kitchen to the moon. Pick
+any two real positions on it — say "the third floorboard in your kitchen"
+and "the moon". How many numbers lie between them?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You established in P2 that between any two numbers there is another. Apply
+that.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Infinitely many.** Between any two positions you can always find a
+midpoint, and then a midpoint of *that*, and again, forever. Even between
+two grains of dust on the kitchen floor there are infinitely many number-line
+positions. This is one of the strangest and most beautiful facts in
+mathematics. We will return to it carefully in **Tier 5: Real Analysis**.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"−7 is bigger than −2 because 7 is bigger than 2."** No. On the number
+   line, −7 is *further to the left* than −2, so it is *smaller*. The minus
+   sign flips which side of zero you are on, and "left = smaller" wins.
+2. **"The number line stops at the edge of the page."** No. The arrows on
+   the ends mean the line continues *forever* in both directions. The page
+   is a window onto a much longer line.
+3. **"Only whole numbers belong on the number line."** No. Every number —
+   whole, fraction, decimal, even numbers we have not yet met — has a unique
+   position. The whole-number ticks are a labelling convenience.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you explain to a friend why **−7 is smaller than −2**, using the
+   word "left"?
+2. Without scrolling up, can you state in one sentence what the number line
+   *is*?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+- **3 yes:** move on to **Lesson 3 — Place Value**.
+- **2 yes:** redo *S1* and *S2*, then move on.
+- **0–1 yes:** re-read *Discover* and pay particular attention to *Problem
+  3* (the line is solid, not dots) and *Problem 4* (the line continues left
+  of 0). These two ideas carry most of the weight.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 1 — *What is a Number?*](../01-what-is-a-number/index.qmd)** —
+  we needed to understand that numbers are quantities (not symbols) before
+  we could ask where they "live".
+
+### What this unlocks
+
+- **Addition and Subtraction, Re-grounded** — every addition is "step
+  right"; every subtraction is "step left". The number line *is* arithmetic
+  in pictures. *(planned — see [Tier 1 index](../index.qmd))*
+- **Negative Numbers** — we have already met them informally here; the next
+  step is to operate on them. *(planned — see [Tier 1 index](../index.qmd))*
+- **Place Value** — the number line shows that 13 is somewhere far to the
+  right of 0, but the *digits* "1" and "3" don't live on the line at all;
+  they are part of the *naming* system. *(planned — see [Tier 1 index](../index.qmd))*
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every coordinate axis in a game engine is a number
+line. The position of a character along the floor is a number on the
+horizontal line; the height of a jump is a number on the vertical line.
+When we meet **vectors** in Tier 4, we are stacking number lines together.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** The number line is the picture behind the
+**real numbers** — one of the central objects in modern mathematics.
+Calculus, analysis, probability, and most of physics live on this line.
+The 19th century saw it rebuilt from the ground up by Dedekind and Cantor;
+we will retrace that journey in **Tier 5**.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Thermometers, rulers, clocks (time as a one-way line),
+elevation maps, audio waveforms, even the address of a byte in computer
+memory — all of these are number lines wearing different hats.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the slider widget makes the line
+  literally a thing the learner moves on), Boole (the Wonder questions
+  surface temperature, position, distance — intuitions the learner already
+  has), Russian school (Problems 3 and 4 force the learner to *invent*
+  fractions and negative numbers before we name them), Bhāskara (the
+  *Name* beat is a single box plus a verse), 3Blue1Brown (the visual
+  primacy: the line is the lesson; words follow).
+- **No forward references** beyond the planned lessons listed in *Unlocks*,
+  all of which appear in `_curriculum.yml`.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (visual line, verbal "step right/left", numerical examples) ✓, graduated
+  hints on every exercise ✓, worked solutions ✓, common-confusions
+  callout ✓, self-assessment ✓.
+:::
