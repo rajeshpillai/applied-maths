@@ -1,0 +1,365 @@
+---
+title: "09 · Square Roots and Irrationals"
+subtitle: "Undoing squaring — and meeting numbers that aren't fractions"
+lesson-id: "t2.square-roots-irrationals"
+tier: 2
+prerequisites: ["t2.exponents-powers"]
+unlocks: ["t2.pythagorean-theorem"]
+applied-domains: ["research", "encryption"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [07 · Exponents](../07-exponents-powers/index.qmd)?
+2. Can you compute $7^2 = 49$ and $12^2 = 144$?
+3. Comfortable with the idea of an *inverse operation* (subtraction
+   undoes addition, division undoes multiplication)?
+:::
+
+## Touch
+
+Pick a number $a$. The widget shows $\sqrt{a}$ — and tells you whether
+the square root is **rational** (a fraction) or **irrational** (not).
+
+```{ojs}
+viewof aVal = Inputs.range([0, 100], {value: 16, step: 1, label: "a:"})
+```
+
+```{ojs}
+{
+  const sq = Math.sqrt(aVal);
+  const isInt = Number.isInteger(sq);
+  const knownIrrational = !isInt && aVal > 0;
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.6rem;">
+      √<span style="color:#c2185b; font-weight:bold;">${aVal}</span>
+      &nbsp;=&nbsp;
+      <span style="color:#1f2933; font-weight:bold;">
+        ${isInt ? sq : sq.toFixed(6) + '...'}
+      </span>
+    </div>
+    <div style="font-size: 1rem; margin-top:0.4rem; color:${isInt ? '#2e7d32' : '#c2185b'};">
+      ${aVal === 0 ? '√0 = 0 (boundary case)'
+        : isInt ? `Rational! (${sq})² = ${aVal} exactly`
+        : `Irrational — decimal continues forever, no repeating pattern`}
+    </div>
+  </div>`;
+}
+```
+
+The square root of a *perfect square* (1, 4, 9, 16, 25, ...) is a whole
+number. Otherwise it is **irrational** — its decimal goes on forever
+without ever repeating.
+
+## Wonder
+
+1. What is $\sqrt{16}$? $\sqrt{25}$? $\sqrt{100}$?
+2. What is $\sqrt{2}$? Roughly?
+3. Could $\sqrt{2}$ be written as a fraction $\frac{p}{q}$?
+
+## Discover
+
+### Problem 1
+
+Compute (without a calculator): $\sqrt{1}, \sqrt{4}, \sqrt{9}, \sqrt{36}, \sqrt{81}$.
+
+<details class="hint"><summary>Full solution</summary>
+$1, 2, 3, 6, 9$. The "perfect squares" are the squares of the natural
+numbers; their square roots are whole.
+</details>
+
+### Problem 2
+
+Estimate $\sqrt{50}$ without a calculator.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$50$ is between $49 = 7^2$ and $64 = 8^2$. So $\sqrt{50}$ is between
+$7$ and $8$. Closer to which?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{50}$ is just slightly above 7 — closer to 7 than to 8. Try
+$7.07$: $7.07^2 \approx 49.98$. So $\sqrt{50} \approx 7.07$.
+
+Estimating by *bracketing between perfect squares* is a useful
+technique that survives all the way into high-end engineering — quick
+sanity checks on calculator output.
+</details>
+
+### Problem 3
+
+Use exponent rules to simplify $\sqrt{a^2}$ for $a \ge 0$. (Recall
+$\sqrt{a} = a^{1/2}$ — the square root is the half-power.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sqrt{a^2} = (a^2)^{1/2} = a^{2 \cdot 1/2} = a^1 = a$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{a^2} = a$ (for $a \ge 0$). And $\sqrt{a} \cdot \sqrt{a} = a$ —
+that's the *definition*.
+
+Square root and squaring are **inverse operations**, just like
+addition/subtraction and multiplication/division. The notation
+$a^{1/2}$ for $\sqrt{a}$ extends the exponent laws to fractional
+exponents — we just discovered fractional exponents implicitly.
+</details>
+
+### Problem 4
+
+Compute $\sqrt{2} \cdot \sqrt{8}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sqrt{a} \cdot \sqrt{b} = \sqrt{ab}$ (since both sides squared equal
+$ab$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{2} \cdot \sqrt{8} = \sqrt{16} = 4$.
+
+The product of two irrationals can be rational. Often, simplifying a
+product of square roots reveals a clean answer.
+</details>
+
+### Problem 5
+
+Suppose $\sqrt{2} = \dfrac{p}{q}$ for some integers $p, q$ in lowest
+terms (no common factor). Squaring: $2 = \dfrac{p^2}{q^2}$, so $p^2 =
+2 q^2$.
+
+This means $p^2$ is *even*, so $p$ must be even. Write $p = 2k$:
+$(2k)^2 = 2q^2$, i.e. $4k^2 = 2q^2$, i.e. $2k^2 = q^2$. So $q^2$ is
+also even, so $q$ is even.
+
+But then $p$ and $q$ are *both even* — contradicting "lowest terms".
+
+What does this prove?
+
+<details class="hint"><summary>Full solution</summary>
+**$\sqrt{2}$ cannot be written as a fraction** — it is **irrational**.
+
+This is the famous proof, attributed to the school of Pythagoras
+(c. 500 BCE). Legend has it that the Pythagoreans had built their
+philosophy on the belief that *all numbers are rational*, and
+the discovery of irrationals was so disturbing that they tried to keep
+it secret — and supposedly drowned the discoverer (Hippasus) at sea.
+The truth of the legend is debated; the truth of the proof is not.
+
+Since then we know that *most* numbers are irrational. Beyond
+$\sqrt{2}$: $\sqrt{3}, \sqrt{5}, \sqrt{6}, \ldots$ are all irrational
+(unless the input is a perfect square). $\pi$ is irrational. $e$ (the
+calculus constant) is irrational.
+
+The number system extends from naturals → integers → rationals →
+**reals**. The reals contain both rational and irrational numbers.
+We will build the reals carefully in Tier 5.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **square root** $\sqrt{a}$ of a non-negative number $a$ is the
+non-negative number whose square is $a$:
+$$\sqrt{a} \cdot \sqrt{a} = a.$$
+Equivalently, $\sqrt{a} = a^{1/2}$ — square root is the half-power.
+
+For $a < 0$, $\sqrt{a}$ is not a real number (we will meet *complex
+numbers* in Tier 6).
+
+A real number is **rational** if it can be written as a fraction
+$\dfrac{p}{q}$ of integers ($q \neq 0$); otherwise it is **irrational**.
+
+**Key facts:**
+
+- $\sqrt{ab} = \sqrt{a} \cdot \sqrt{b}$.
+- $\sqrt{a/b} = \sqrt{a} / \sqrt{b}$.
+- $\sqrt{2}, \sqrt{3}, \sqrt{5}, \pi, e, \ldots$ are all irrational.
+- The set of rationals + irrationals = the **real numbers**, $\mathbb{R}$.
+
+:::
+
+> *Square root undoes squaring — the inverse operation;*
+> *Half-power notation: $\sqrt{a} = a^{1/2}$;*
+> *Most numbers are irrational — including $\sqrt{2}$, proved by Pythagoras.*
+
+## Apply
+
+### Worked example
+
+> Simplify $\sqrt{72}$.
+
+A competent solver factors out *perfect squares*:
+
+1. $72 = 36 \times 2 = 6^2 \times 2$.
+2. $\sqrt{72} = \sqrt{36 \cdot 2} = \sqrt{36} \cdot \sqrt{2} = 6\sqrt{2}$.
+
+**Answer: $6\sqrt{2}$.** This is the *simplified radical form* — pull
+out perfect-square factors. The remaining $\sqrt{2}$ is irrational and
+can't be reduced further.
+
+### Practice — Warm
+
+**W1.** Compute: $\sqrt{49}, \sqrt{121}, \sqrt{0.25}$.
+
+<details class="hint"><summary>Full solution</summary>
+$7, 11, 0.5$.
+</details>
+
+**W2.** Estimate: $\sqrt{30}$, $\sqrt{200}$ (give whole-number bounds).
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{30}$ is between 5 ($5^2=25$) and 6 ($6^2 = 36$); closer to 5.
+$\sqrt{200}$ is between 14 ($14^2 = 196$) and 15 ($15^2 = 225$);
+closer to 14.
+</details>
+
+**W3.** Simplify: $\sqrt{20}$, $\sqrt{50}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{20} = \sqrt{4 \cdot 5} = 2\sqrt{5}$.
+$\sqrt{50} = \sqrt{25 \cdot 2} = 5\sqrt{2}$.
+</details>
+
+### Practice — Working
+
+**P1.** Simplify $\sqrt{75} + \sqrt{12}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Simplify each first; then combine like radicals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{75} = 5\sqrt{3}$. $\sqrt{12} = 2\sqrt{3}$. Sum: $7\sqrt{3}$.
+Like radicals (same number under the root) add like algebraic terms.
+</details>
+
+**P2.** Solve $x^2 = 25$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Two* numbers square to 25.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = 5$ **or** $x = -5$. Both square to 25. The *positive* root is
+$\sqrt{25} = 5$ by convention; but the *equation* $x^2 = 25$ has two
+solutions, written $x = \pm \sqrt{25} = \pm 5$.
+</details>
+
+**P3.** Solve $x^2 = 18$. Give the answer in simplified radical form.
+
+<details class="hint"><summary>Full solution</summary>
+$x = \pm \sqrt{18} = \pm \sqrt{9 \cdot 2} = \pm 3\sqrt{2}$.
+
+The solutions are *irrational* — exact values that no decimal fully
+captures. Solving quadratic equations (Lesson 14) often produces such
+irrational solutions.
+</details>
+
+### Practice — Stretch
+
+**S1.** A right triangle has both shorter sides of length 1. What is
+the length of its hypotenuse? (Hint: Pythagorean theorem, which we
+prove formally next lesson, says hypotenuse² = leg₁² + leg₂².)
+
+<details class="hint"><summary>Full solution</summary>
+$h^2 = 1^2 + 1^2 = 2$, so $h = \sqrt{2}$.
+
+The hypotenuse of a unit right-isoceles triangle is **$\sqrt{2}$**.
+This is the original geometric appearance of the irrational number
+$\sqrt{2}$ — and is what made the Pythagoreans realise irrationals
+exist (Discover P5). Geometry built the question; algebra answered it.
+</details>
+
+**S2.** Many encryption schemes (notably **Diffie–Hellman key
+exchange**) work *modulo a prime $p$* but use exponents that themselves
+have square-root operations on the side. Why might irrational numbers
+be inconvenient for cryptography?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Computers store finite digits. Irrationals have infinite, non-
+repeating decimals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Cryptography needs *exact* arithmetic** — the slightest rounding
+error can break a key or a signature. Irrationals can only be stored
+*approximately*. So cryptography uses **integers and modular
+arithmetic** exclusively, where everything is exact.
+
+Yet square roots *do* appear in crypto, in the form of "modular square
+roots" — solutions of $x^2 \equiv a \pmod p$. These are integer
+solutions, computed exactly, and are central to schemes like
+Rabin's cryptosystem.
+
+The takeaway: applied maths often *avoids* irrationals not for
+philosophical reasons but for engineering ones (exact storage). This
+shapes how cryptography is built. (Tier 7 elaborates.)
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sqrt{a + b} = \sqrt{a} + \sqrt{b}$."** **False.** $\sqrt{9 +
+   16} = \sqrt{25} = 5$, but $\sqrt{9} + \sqrt{16} = 3 + 4 = 7$.
+   Square root does *not* distribute over addition.
+2. **"Every decimal is rational."** No. Decimals that *terminate* or
+   *eventually repeat* are rational. Decimals that go on forever
+   *without* repeating (like $\pi$ or $\sqrt{2}$) are irrational.
+3. **"$\sqrt{x^2} = x$."** Only if $x \ge 0$. For $x < 0$, $\sqrt{x^2}
+   = |x|$. (E.g. $\sqrt{(-3)^2} = \sqrt{9} = 3$, not $-3$.)
+:::
+
+### Self-Assessment
+
+1. Could you walk through the proof that $\sqrt{2}$ is irrational, in
+   your own words?
+2. Without scrolling back, can you simplify $\sqrt{48}$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $\sqrt{48} = \sqrt{16 \cdot 3} = 4\sqrt{3}$.)
+
+- **3 yes:** ready for **[10 · The Pythagorean Theorem](../10-pythagorean-theorem/index.qmd)**.
+- **2 yes:** redo **S1** (hypotenuse of unit right triangle).
+- **0–1 yes:** re-read *Discover P5* (the irrationality proof).
+
+## Connect
+
+### Prerequisites used
+
+- **[07 · Exponents and Powers](../07-exponents-powers/index.qmd)** —
+  $\sqrt{a} = a^{1/2}$ extends the exponent laws to fractional
+  exponents.
+
+### What this unlocks
+
+- **[10 · The Pythagorean Theorem](../10-pythagorean-theorem/index.qmd)** —
+  needs square roots to extract side lengths from squared lengths.
+- **Tier 5 — Real Analysis** — careful construction of the real
+  numbers, including the proof that $\sqrt{2}$ exists as a real
+  number (not obvious!).
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** Irrationals are the bulk of the real
+numbers (in a measure-theoretic sense, the rationals have *measure
+zero*). Most of analysis lives in the irrational realm.
+:::
+
+::: {.applied-callout}
+**Encryption.** Stretch S2 explains why crypto avoids irrationals
+in practice — and uses *modular* analogues like quadratic residues.
+:::
+
+::: {.applied-callout}
+**Game development & physics.** Distance computations
+(Pythagorean theorem next lesson) routinely produce irrational
+results. Game engines compute $\sqrt{x^2 + y^2 + z^2}$ countless
+times per frame.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Standard paper sizes (A4, A3) are scaled by
+$\sqrt{2}$ — so each step preserves aspect ratio. Musical
+intervals (the 12-tone equal temperament) are built on
+$\sqrt[12]{2}$. Architecture and design routinely use irrational
+ratios.
+:::
