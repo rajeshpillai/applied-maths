@@ -1,0 +1,335 @@
+---
+title: "12 · Graphs and Their Algorithms"
+subtitle: "Networks of nodes and edges — and how to traverse them"
+lesson-id: "t5.graphs-algorithms"
+tier: 5
+prerequisites: ["t5.sets-logic-proofs", "t3.combinatorics-counting"]
+unlocks: []
+applied-domains: ["databases", "ai-ml", "systems", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [11 · Sets, Logic, Proofs](../11-sets-logic-proofs/index.qmd)?
+2. Have you used a map app, social network, or family tree? Those are
+   graphs.
+3. Comfortable with set notation?
+:::
+
+## Touch
+
+A **graph** is a set $V$ of **vertices** with a set $E$ of **edges**
+connecting pairs.
+
+```{ojs}
+viewof gSel = Inputs.select(["complete graph K₄", "cycle C₅", "tree (5 nodes)", "social-network-style"], {value: "complete graph K₄", label: "Graph type:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(gSel) {
+    case "complete graph K₄": info = "K_n: every pair of vertices connected. K₄ has 4 vertices, 6 edges. Edge count for K_n: n(n−1)/2 (combinations)."; break;
+    case "cycle C₅": info = "C_n: each vertex connected to two neighbours, forming a single closed loop. C₅ has 5 vertices, 5 edges."; break;
+    case "tree (5 nodes)": info = "Tree: connected graph with no cycles. n vertices ⇒ exactly n−1 edges. 5 nodes ⇒ 4 edges."; break;
+    case "social-network-style": info = "Random sparse graph. Real-world social networks: degree distribution roughly power-law (few hubs, many leaves)."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+Graphs model: roads, social networks, web pages, neural networks,
+chemical molecules, dependencies between tasks.
+
+## Wonder
+
+1. How many edges does the complete graph $K_n$ have?
+2. A tree on $n$ vertices has exactly $n - 1$ edges. Why?
+3. Given a graph, how do you find the shortest path between two
+   vertices?
+
+## Discover
+
+### Problem 1
+
+A **graph** $G = (V, E)$ has vertex set $V$ and edge set $E \subseteq
+\binom{V}{2}$ (unordered pairs). The **degree** of a vertex is the
+number of edges touching it.
+
+For the complete graph $K_4$: $V = \{1, 2, 3, 4\}$, $E$ = all pairs.
+How many edges? Degree of each vertex?
+
+<details class="hint"><summary>Full solution</summary>
+$|E| = \binom{4}{2} = 6$. Each vertex is connected to 3 others, so
+degree 3.
+
+$K_n$ has $\binom{n}{2} = n(n-1)/2$ edges; every vertex has degree
+$n - 1$.
+</details>
+
+### Problem 2
+
+**Handshake lemma.** Sum of all vertex degrees = $2 |E|$ (each edge
+contributes to *two* vertices). Verify for $K_4$.
+
+<details class="hint"><summary>Full solution</summary>
+Sum: $4 \cdot 3 = 12 = 2 \cdot 6$ ✓.
+
+**Corollary:** the number of odd-degree vertices is even.
+
+(This is a tiny but very useful structural fact. Proof of the
+handshake lemma: count edge-endpoint incidences in two ways.)
+</details>
+
+### Problem 3
+
+A **path** is a sequence of distinct vertices $v_0 v_1 \cdots v_k$
+with each consecutive pair connected. A **cycle** is a path that
+returns to start. A graph is **connected** if any two vertices have a
+path between them.
+
+A **tree** is a connected graph with **no cycles**. Show that a tree
+on $n$ vertices has exactly $n - 1$ edges.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Induction on $n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Base:** $n = 1$: 0 edges = $1 - 1$ ✓.
+
+**Step:** A tree $T$ on $n$ vertices has a *leaf* (vertex of degree
+1; trees always have leaves). Remove the leaf and its edge: the
+remaining graph $T'$ has $n - 1$ vertices, is still connected and
+acyclic, hence a tree. By IH, $T'$ has $n - 2$ edges. So $T$ has
+$n - 1$ edges. $\square$
+
+Trees are the *minimal* connected graphs.
+</details>
+
+### Problem 4
+
+**Breadth-First Search (BFS)**: explore neighbours level by level. Use
+a *queue*. Finds the **shortest path** in unweighted graphs.
+
+Sketch the BFS exploration order from vertex 1 in this graph:
+$1 - 2, 1 - 3, 2 - 4, 3 - 4, 4 - 5$.
+
+<details class="hint"><summary>Full solution</summary>
+Level 0: {1}. Level 1: {2, 3}. Level 2: {4}. Level 3: {5}.
+
+BFS order: 1, 2, 3, 4, 5. Distance from 1 to 5: 3.
+</details>
+
+### Problem 5
+
+**Dijkstra's algorithm** finds shortest paths in *weighted* graphs.
+At each step, pick the unvisited vertex with smallest tentative
+distance; update its neighbours' distances.
+
+Why does Dijkstra fail with negative edge weights?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Once you "finalise" a vertex's distance, you don't reconsider it.
+A future negative edge might allow a shorter path.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Dijkstra assumes that once a vertex's shortest distance is
+*finalised*, it cannot be improved. With negative edges, a route
+through future vertices might shorten an already-finalised vertex.
+
+**Bellman-Ford algorithm** handles negative edges (allows
+$O(VE)$ complexity vs Dijkstra's $O((V+E) \log V)$). Negative
+*cycles* break shortest paths entirely (you can loop infinitely).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **graph** $G = (V, E)$. Edges may be **directed** or **undirected**,
+**weighted** or unweighted.
+
+**Degree** of a vertex: number of edges incident to it.
+**Handshake lemma:** $\sum_{v} \deg(v) = 2 |E|$.
+
+**Path:** sequence of distinct vertices, each consecutive pair an
+edge.
+**Cycle:** path returning to start.
+**Connected graph:** every pair has a path.
+
+**Tree:** connected, no cycles. $n$ vertices ⇒ $n - 1$ edges.
+
+**Common graph algorithms:**
+
+- **BFS** (breadth-first search): O(V + E). Shortest path in
+  unweighted graphs.
+- **DFS** (depth-first search): O(V + E). Connectivity, cycle
+  detection, topological sort.
+- **Dijkstra:** shortest path with non-negative weights. O((V+E) log V).
+- **Bellman-Ford:** handles negative weights. O(VE).
+- **Kruskal / Prim:** minimum spanning tree.
+
+**Common graph types:**
+
+- $K_n$: complete graph.
+- $C_n$: cycle on $n$ vertices.
+- Tree, forest.
+- Bipartite (vertices in two groups, edges only across).
+- DAG (directed acyclic graph): used for dependencies.
+
+:::
+
+> *Graphs = vertices + edges; degree = edge count at a vertex;*
+> *Trees = minimally connected; BFS / DFS / Dijkstra: classic
+> traversals;*
+> *Graphs model anything with structured pairwise relationships.*
+
+## Apply
+
+### Worked example
+
+> A graph has 7 vertices and degrees $4, 4, 3, 3, 2, 2, 2$. How many
+> edges?
+
+Sum of degrees: $4 + 4 + 3 + 3 + 2 + 2 + 2 = 20$. So $|E| = 10$
+(handshake lemma).
+
+### Practice — Warm
+
+**W1.** Edges in $K_5$?
+
+<details class="hint"><summary>Full solution</summary>
+$\binom{5}{2} = 10$.
+</details>
+
+**W2.** A tree on 100 vertices has how many edges?
+
+<details class="hint"><summary>Full solution</summary>
+$99$.
+</details>
+
+**W3.** Sum of degrees if a graph has 8 edges?
+
+<details class="hint"><summary>Full solution</summary>
+$16$.
+</details>
+
+### Practice — Working
+
+**P1.** Is the graph with degrees $1, 2, 2, 3, 3$ possible?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum = 11 — odd. By handshake lemma, must be even.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**No** — odd sum impossible.
+</details>
+
+**P2.** How does DFS detect a cycle in an undirected graph?
+
+<details class="hint"><summary>Full solution</summary>
+While DFS-traversing, if you reach a vertex you've visited *that
+isn't your parent in the DFS tree*, you've found a cycle.
+</details>
+
+**P3.** Web pages and hyperlinks: graph or not? Directed or
+undirected?
+
+<details class="hint"><summary>Full solution</summary>
+**Directed graph.** Hyperlinks are one-way (page A → page B doesn't
+imply B → A). PageRank (T5 L04 S2) uses this directed graph.
+</details>
+
+### Practice — Stretch
+
+**S1.** **The seven bridges of Königsberg** (Euler, 1735): 7 bridges
+connect 4 landmasses. Can you walk a path crossing each bridge
+exactly once?
+
+<details class="hint"><summary>Full solution</summary>
+**No.** An *Eulerian path* exists iff the graph has exactly 0 or 2
+vertices of odd degree (and is connected). Königsberg's graph has 4
+odd-degree vertices.
+
+This 1735 problem launched **graph theory** as a discipline. Euler's
+proof was the first major result.
+</details>
+
+**S2.** **Why are graphs central to modern AI?** Graph Neural
+Networks (GNNs) operate on graph-structured data: molecules, social
+networks, knowledge graphs, recommender systems. Why is this
+abstraction useful?
+
+<details class="hint"><summary>Full solution</summary>
+**Graphs naturally model relations.** A molecule = graph of atoms +
+bonds; a social network = graph of users + friendships; a knowledge
+graph = entities + relations.
+
+GNNs apply neural-network message-passing along edges, learning
+representations that respect graph structure. This is now state-of-
+the-art for many ML problems where the data has natural graph
+structure.
+
+Graph theory you just learned (BFS-style traversals, edge
+representations) underlies the *implementation* of every GNN.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Graph = the picture."** A graph is mathematically just $V$ and
+   $E$; the *drawing* is a visualisation. The same graph has many
+   drawings.
+2. **"BFS vs DFS — what's the difference?"** BFS explores neighbours
+   first (queue, shortest path). DFS goes deep first (stack /
+   recursion, used for connectivity, cycles, topological sort).
+3. **"Trees are about plants."** In CS / maths, *trees* are connected
+   acyclic graphs. The biological metaphor stuck.
+:::
+
+### Self-Assessment
+
+1. Could you state the handshake lemma?
+2. Without scrolling back, how many edges in $K_6$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $\binom{6}{2} = 15$.)
+
+- **3 yes:** ready for **[13 · Modular Arithmetic & RSA](../13-modular-arithmetic-rsa/index.qmd)**.
+- **2 yes:** redo **S2** (GNNs).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[11 · Sets, Logic, Proofs](../11-sets-logic-proofs/index.qmd)**
+- **[T3 L11 — Combinatorics](../../tier-3-algebra2-geometry-trig/11-combinatorics-counting/index.qmd)**
+
+### What this unlocks
+
+- **Tier 6 — Graph Theory** (advanced) — colourings, planarity,
+  matching theorems, spectral graph theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** Graph databases (Neo4j, Neptune) store entities and
+relationships natively. Many query problems reduce to graph traversal.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** GNNs (S2). Knowledge graphs.
+Computational graphs in deep learning frameworks.
+:::
+
+::: {.applied-callout}
+**Systems & networks.** Routing protocols (OSPF uses Dijkstra),
+DNS, social network analysis, dependency resolution (package managers,
+build systems).
+:::
