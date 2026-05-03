@@ -1,0 +1,430 @@
+---
+title: "Ratio and Proportion"
+subtitle: "Comparison of two quantities, and what stays the same when you scale"
+lesson-id: "t1.ratio-proportion"
+tier: 1
+prerequisites: ["t1.fractions-as-parts"]
+unlocks: []
+applied-domains: ["game-dev", "ai-ml", "databases"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Lesson 7 — Fractions](../07-fractions-as-parts/index.qmd)?
+2. Can you compute $\tfrac{6}{8} = \tfrac{3}{4}$ — i.e. simplify a
+   fraction by dividing numerator and denominator by their common
+   factor?
+3. Can you scale a recipe — for example, double the ingredients?
+:::
+
+## Touch
+
+Two glasses. The left holds **water**; the right holds **lemon juice**.
+Drag to set how much of each. The colour of the resulting "lemonade" on
+the right shows the strength.
+
+```{ojs}
+viewof waterParts = Inputs.range([1, 12], {value: 4, step: 1, label: "Parts of water:"})
+```
+
+```{ojs}
+viewof juiceParts = Inputs.range([1, 12], {value: 1, step: 1, label: "Parts of lemon juice:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 200, pad = 30;
+  const total = waterParts + juiceParts;
+  const juiceFrac = juiceParts / total;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px;");
+
+  // left: water glass
+  const drawGlass = (x0, label, count, color) => {
+    const gW = 100, gH = 130;
+    svg.append("rect").attr("x", x0).attr("y", 30).attr("width", gW).attr("height", gH)
+      .attr("fill", "#fff").attr("stroke", "#1f2933").attr("stroke-width", 2);
+    // Cells stacked
+    const maxCells = 12;
+    const cellH = (gH - 6) / maxCells;
+    for (let i = 0; i < count; i++) {
+      svg.append("rect")
+        .attr("x", x0 + 3).attr("y", 30 + gH - 3 - (i + 1) * cellH)
+        .attr("width", gW - 6).attr("height", cellH - 1)
+        .attr("fill", color);
+    }
+    svg.append("text").attr("x", x0 + gW/2).attr("y", 22).attr("text-anchor", "middle")
+      .attr("font-size", "13").attr("font-weight", "bold").text(label);
+    svg.append("text").attr("x", x0 + gW/2).attr("y", 175).attr("text-anchor", "middle")
+      .attr("font-size", "12").text(`${count} parts`);
+  };
+  drawGlass(pad, "Water", waterParts, "#90caf9");
+  drawGlass(pad + 130, "Lemon juice", juiceParts, "#fff59d");
+
+  // mixture glass
+  const mixColor = `rgb(${Math.round(255 * (1 - juiceFrac * 0.4))}, ${Math.round(245 * (1 - juiceFrac * 0.05))}, ${Math.round(180 * (1 - juiceFrac * 0.5))})`;
+  const x0 = pad + 320;
+  const gW = 140, gH = 130;
+  svg.append("rect").attr("x", x0).attr("y", 30).attr("width", gW).attr("height", gH)
+    .attr("fill", mixColor).attr("stroke", "#1f2933").attr("stroke-width", 2);
+  svg.append("text").attr("x", x0 + gW/2).attr("y", 22).attr("text-anchor", "middle")
+    .attr("font-size", "13").attr("font-weight", "bold").text("Lemonade");
+  svg.append("text").attr("x", x0 + gW/2).attr("y", 175).attr("text-anchor", "middle")
+    .attr("font-size", "12").text(`${total} parts total`);
+
+  // ratio label
+  svg.append("text").attr("x", pad + 510).attr("y", 80)
+    .attr("font-size", "16").attr("font-weight", "bold").attr("fill", "#2c5f7c")
+    .text(`Ratio (water : juice)`);
+  svg.append("text").attr("x", pad + 510).attr("y", 105).attr("font-size", "20").attr("fill", "#1f2933")
+    .text(`${waterParts} : ${juiceParts}`);
+  svg.append("text").attr("x", pad + 510).attr("y", 135).attr("font-size", "13").attr("fill", "#666")
+    .text(`Juice is ${(juiceFrac * 100).toFixed(0)}% of the mix`);
+  return svg.node();
+}
+```
+
+The **ratio** $4 : 1$ means: for every 4 parts water, 1 part juice. Try
+$8 : 2$, then $12 : 3$. The lemonade looks (and tastes) the same.
+
+## Wonder
+
+1. Set $4 : 1$, then $8 : 2$, then $12 : 3$. The mixture colour stays
+   the same. Why?
+2. What if you set $4 : 4$? What does the mixture look like compared to
+   $1 : 1$?
+3. A recipe says "milk and flour in the ratio 2:5". You have only 200ml
+   of milk. How much flour?
+
+## Discover
+
+### Problem 1
+
+Set the ratio to **4 : 1**. Then **8 : 2**. Then **12 : 3**. The strength
+of the lemonade did not change. What's going on?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each ratio reduces to the same simpler form.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4:1$ and $8:2$ and $12:3$ are all the same ratio — they all reduce to
+$4:1$ (divide both sides by their common factor).
+
+A **ratio** is just a fraction in different clothes:
+$$\frac{\text{water}}{\text{juice}} = \frac{4}{1} = \frac{8}{2} = \frac{12}{3}.$$
+
+Equivalent fractions (Lesson 7) and equivalent ratios are the same idea.
+The "strength" depends only on the ratio, not the absolute amounts.
+</details>
+
+### Problem 2
+
+A class has **boys and girls in the ratio 3 : 2**. The class has **30
+students** in total. How many boys, how many girls?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The ratio means: out of every 5 students, 3 are boys and 2 are girls.
+30 ÷ 5 = ?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Total ratio parts: $3 + 2 = 5$. So $30 \div 5 = 6$ students per "part".
+Boys: $3 \times 6 = 18$. Girls: $2 \times 6 = 12$. Check: $18 + 12 = 30$. ✓
+
+This is the standard "split a quantity in a given ratio" recipe: divide
+the total by the sum of the ratio parts, then multiply by each.
+</details>
+
+### Problem 3
+
+A recipe says **flour : sugar = 5 : 2**. You have **300 g of flour**. How
+much sugar?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"For every 5 g of flour, you need 2 g of sugar." How many "5 g of flour"
+go into 300 g?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$300 \div 5 = 60$ "units" of flour. Each unit needs 2 g of sugar. Sugar:
+$60 \times 2 = 120$ g.
+
+Equivalently: set up the **proportion**
+$$\frac{5}{2} = \frac{300}{x} \quad \Rightarrow \quad x = \frac{2 \times 300}{5} = 120.$$
+Cross-multiplying gives the same answer. Both methods are correct; pick
+whichever feels natural.
+</details>
+
+### Problem 4
+
+A map has scale **1 cm = 25 km**. Two cities are **8 cm apart on the
+map**. How far apart in real life?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The map is just a *scaled-down* picture. Each cm is 25 km.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$8 \text{ cm} \times 25 \text{ km/cm} = 200$ km. Same idea as the recipe —
+ratio scaling. Maps, blueprints, model trains, and game-engine
+"world-to-screen" coordinates are all scale ratios.
+</details>
+
+### Problem 5
+
+A snail moves **3 metres in 5 minutes**. At the same pace, how far does
+it travel in **20 minutes**? In **1 hour**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find "metres per minute" first, then scale.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Speed: $3 \div 5 = 0.6$ m/minute.
+
+In 20 minutes: $0.6 \times 20 = 12$ m.
+In 60 minutes: $0.6 \times 60 = 36$ m.
+
+A speed (or rate) is a ratio with a *unit* attached: m/minute,
+km/litre, $/kg, beats/second. Every "per" expression in the world is a
+ratio. We use the same arithmetic for "per litre" and "per minute" as
+for "boys per girl" — that is the unifying power of the idea.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **ratio** $a : b$ compares two quantities. It is the same number as the
+fraction $\dfrac{a}{b}$. Two ratios are **equivalent** if they reduce to
+the same fraction:
+$$a : b \ = \ k a : k b \quad \text{for any } k \neq 0.$$
+
+A **proportion** is a statement that two ratios are equal:
+$$\frac{a}{b} = \frac{c}{d} \quad \Longleftrightarrow \quad a \times d = b \times c.$$
+This is **cross-multiplication** — the workhorse for solving "given
+three of $a, b, c, d$, find the fourth".
+
+A **rate** is a ratio of two quantities with different units (km/litre,
+$/kg, m/minute). Every "per" expression is a rate.
+
+:::
+
+> *Two quantities in a ratio — multiply both by the same number,*
+> *And the ratio holds.*
+> *Set two ratios equal — cross-multiply to find the missing piece.*
+> *Per-this-per-that is a rate, and a rate is a ratio in disguise.*
+
+## Apply
+
+### Worked example
+
+> A car travels **240 km on 16 litres of petrol**. At the same fuel
+> efficiency, how far can it travel on **25 litres**?
+
+A competent solver sets up a proportion:
+$$\frac{240 \text{ km}}{16 \text{ L}} = \frac{x \text{ km}}{25 \text{ L}}.$$
+
+Cross-multiply: $240 \times 25 = 16 \times x$. So $x = \dfrac{240 \times
+25}{16} = \dfrac{6000}{16} = 375$ km.
+
+**Answer: 375 km.** Or, equivalently: efficiency = $240 \div 16 = 15$
+km/L, then $15 \times 25 = 375$ km. Same answer; same idea.
+
+### Practice — Warm
+
+**W1.** Reduce these ratios to simplest form: $6 : 9$, $\ 20 : 50$,
+$\ 100 : 25$.
+
+<details class="hint"><summary>Full solution</summary>
+$2 : 3$, $\ 2 : 5$, $\ 4 : 1$. (Divide both sides by the largest common
+factor.)
+</details>
+
+**W2.** Split **42** in the ratio $3 : 4$.
+
+<details class="hint"><summary>Full solution</summary>
+Total parts: $3 + 4 = 7$. Each part: $42 \div 7 = 6$. Result: $18$ and
+$24$. Check: $18 + 24 = 42$, and $18 : 24 = 3 : 4$ ✓.
+</details>
+
+**W3.** A bicycle wheel makes **120 turns per minute**. How many turns in
+**5 minutes**?
+
+<details class="hint"><summary>Full solution</summary>
+$120 \times 5 = 600$ turns.
+</details>
+
+### Practice — Working
+
+**P1.** A photograph is **6 inches wide and 4 inches tall**. To enlarge
+it without distortion, you keep the **width : height ratio**. If the
+enlarged width is **15 inches**, what is the new height?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Original ratio: $6 : 4$. Set up the proportion with the new width.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{6}{4} = \dfrac{15}{h}$. Cross-multiply: $6h = 60$, so $h = 10$
+inches. The "aspect ratio" idea is the heart of every image, video,
+and screen-design decision.
+</details>
+
+**P2.** A recipe for 4 people uses **300 g of pasta** and **2 eggs**.
+You're cooking for **10 people**. How much pasta and how many eggs?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find the *per-person* quantities first; then scale.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Per person: $300 \div 4 = 75$ g pasta and $2 \div 4 = 0.5$ eggs.
+For 10: $75 \times 10 = 750$ g pasta and $0.5 \times 10 = 5$ eggs.
+
+Recipe scaling is one of the oldest applications of proportion in human
+history.
+</details>
+
+**P3.** **Percentages are just ratios with denominator 100.** Convert:
+(a) $\tfrac{3}{4}$ to a percentage; (b) 0.85 to a percentage; (c) "30%
+off" on an Rs. 1200 item — what is the discount?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Percent literally means "per hundred". $x\% = \tfrac{x}{100}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) $\tfrac{3}{4} = \tfrac{75}{100} = 75\%$.
+(b) $0.85 = \tfrac{85}{100} = 85\%$.
+(c) $30\% \text{ of } 1200 = \tfrac{30}{100} \times 1200 = 360$. **Rs. 360
+off**, leaving Rs. 840 to pay.
+</details>
+
+### Practice — Stretch
+
+**S1.** Two recipes for orange squash:
+
+- Recipe A: **3 parts juice : 5 parts water**
+- Recipe B: **2 parts juice : 4 parts water**
+
+Which is stronger (more concentrated)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the *fraction of juice* in each total mix.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Recipe A: juice fraction = $\dfrac{3}{3+5} = \dfrac{3}{8} = 37.5\%$.
+Recipe B: juice fraction = $\dfrac{2}{2+4} = \dfrac{2}{6} = \dfrac{1}{3}
+\approx 33.3\%$.
+
+**Recipe A is slightly stronger.** Many learners get this wrong by
+comparing $3 : 5$ to $2 : 4$ part-by-part. The right comparison is the
+fraction of juice in the total mix.
+</details>
+
+**S2.** A neural network learns by adjusting weights based on a *learning
+rate* — typically a small ratio like $0.001$ or $0.0001$. What is this
+expressing? Why does the choice matter?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A learning rate is "how much to change the weight per unit of error". A
+rate is a ratio with units.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The learning rate is the **ratio "weight change per unit of error"**. If
+it's too high, weights jump around wildly and never settle. If it's too
+low, training takes forever. Choosing it well — the field calls this
+"hyperparameter tuning" — is one of the practical arts of machine
+learning.
+
+Behind every modern AI system is a careful set of ratios — gradient
+scaling, regularisation strength, dropout rates, batch fractions —
+each a Tier 1 idea applied at scale.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Ratio is the same as 'difference'."** No. A ratio of $4 : 1$ does
+   not mean "4 more"; it means "4 times as much". The two ideas
+   (additive vs multiplicative comparison) get confused all the time.
+2. **"Compare ratios part by part."** As *Stretch S1* showed, $3:5$ vs
+   $2:4$ doesn't yield to part-by-part. Always compute the *fraction of
+   the total* (or equivalent decimals) and compare those.
+3. **"Percentage is a different thing from a ratio."** Percent is just
+   "per hundred" — a ratio with a fixed denominator. $25\%$ is the same
+   as $\tfrac{1}{4}$ is the same as $0.25$ is the same as $1 : 3$ in
+   "part : rest" form (careful: $1 : 3$ means 1 of every 4, not 1 of
+   every 3 — see common error #1).
+:::
+
+### Self-Assessment
+
+1. Could you explain to a friend why $4 : 1$, $8 : 2$, and $12 : 3$ are
+   the same ratio?
+2. Without scrolling back, can you split 60 in the ratio $2 : 3 : 5$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(For W2-style three-term split: total parts $=2+3+5=10$, each part
+$=60 \div 10 = 6$, so split is $12, 18, 30$.)
+
+- **3 yes:** ready for **[Lesson 10 — Negative Numbers](../10-negative-numbers/index.qmd)**.
+- **2 yes:** redo **S1** — comparing two ratios *correctly* is genuinely
+  hard.
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 7 — Fractions](../07-fractions-as-parts/index.qmd)** — a
+  ratio *is* a fraction with two named parts.
+
+### What this unlocks
+
+- **Tier 2 — Linear functions** — every linear relationship $y = mx$
+  is a *constant ratio* between $x$ and $y$.
+- **Tier 3 — Trigonometry** — the basic trig ratios (sin, cos, tan)
+  are just ratios of triangle sides.
+- **Tier 5 — Probability** — every probability is a ratio:
+  favourable outcomes over total outcomes.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every image, sprite, and screen has an *aspect
+ratio*. Coordinate systems are linear maps — pure ratios. Physics
+constants (gravity per second-squared, drag per velocity) are rates.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Learning rate (*Stretch S2*), batch size
+ratio, train/validation/test splits, dropout rate, label-class ratios
+in imbalanced datasets — modern ML is a thicket of carefully chosen
+ratios.
+:::
+
+::: {.applied-callout}
+**Databases.** SQL aggregates yield ratios constantly: percentages,
+counts-per-group, averages. The very query "the percentage of users
+who clicked the link" is a ratio computation.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Currency exchange rates, mortgage interest rates,
+nutritional labels (per 100 g), election results (vote shares), sports
+statistics, fuel efficiency, exam scores out of 100 — the world is
+governed by ratios.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the lemonade widget makes ratio
+  a *tasteable* property), Boole (the *why does the colour stay the
+  same?* question precedes the equivalence rule), Russian school
+  (S1 forces the part-by-part comparison error to be caught), Bhāskara
+  (single-box Name + verse — the Indian tradition is the source of
+  most of the cross-multiplication intuition for proportions, going
+  back at least to Brahmagupta).
+- **Self-study guarantees** all present.
+:::
