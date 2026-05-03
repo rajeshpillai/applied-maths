@@ -1,0 +1,361 @@
+---
+title: "12 · The Binomial Theorem"
+subtitle: "Pascal's triangle and the formula for $(a + b)^n$"
+lesson-id: "t3.binomial-theorem"
+tier: 3
+prerequisites: ["t3.combinatorics-counting", "t2.polynomials"]
+unlocks: []
+applied-domains: ["research", "encryption"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [11 · Combinatorics](../11-combinatorics-counting/index.qmd)?
+2. Comfortable with $\binom{n}{r} = n!/(r!(n-r)!)$?
+3. Comfortable with polynomial expansion: $(x+1)^2 = x^2 + 2x + 1$?
+:::
+
+## Touch
+
+Pick $n$. The widget shows the expansion of $(a + b)^n$ and the
+corresponding row of **Pascal's triangle**.
+
+```{ojs}
+viewof nBin = Inputs.range([0, 8], {value: 4, step: 1, label: "n:"})
+```
+
+```{ojs}
+{
+  const factorial = n => n <= 1 ? 1 : n * factorial(n - 1);
+  const choose = (n, r) => factorial(n) / (factorial(r) * factorial(n - r));
+  const coeffs = [];
+  for (let r = 0; r <= nBin; r++) coeffs.push(choose(nBin, r));
+  // Build expansion text
+  const term = (r) => {
+    const c = coeffs[r];
+    const aPow = nBin - r, bPow = r;
+    let aStr = aPow === 0 ? "" : (aPow === 1 ? "a" : `a<sup>${aPow}</sup>`);
+    let bStr = bPow === 0 ? "" : (bPow === 1 ? "b" : `b<sup>${bPow}</sup>`);
+    let coeffStr = c === 1 && (aPow > 0 || bPow > 0) ? "" : c;
+    return `${coeffStr}${aStr}${bStr}`;
+  };
+  const expansion = coeffs.map((_, r) => term(r)).filter(Boolean).join(" + ");
+  // Build Pascal's triangle (rows 0 .. nBin)
+  let triangle = "";
+  for (let row = 0; row <= nBin; row++) {
+    const rowCoeffs = [];
+    for (let r = 0; r <= row; r++) rowCoeffs.push(choose(row, r));
+    triangle += `<div style="text-align:center; font-family:monospace; ${row === nBin ? 'color:#c2185b; font-weight:bold;' : 'color:#666;'}">${rowCoeffs.join(' ')}</div>`;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="text-align:center; font-family:monospace; font-size:1.2rem; padding: 0.5rem;">
+      (a + b)<sup>${nBin}</sup> = <span style="color:#c2185b; font-weight:bold;">${expansion}</span>
+    </div>
+    <details style="margin: 1rem auto; max-width: 320px;"><summary style="text-align:center; cursor:pointer;">Pascal's triangle (rows 0–${nBin})</summary>
+      ${triangle}
+    </details>
+  </div>`;
+}
+```
+
+The coefficients of $(a + b)^n$ are exactly the $n$-th row of Pascal's
+triangle — and they are exactly the **binomial coefficients**
+$\binom{n}{r}$.
+
+## Wonder
+
+1. $(a + b)^2 = a^2 + 2ab + b^2$. Coefficients: 1, 2, 1. Where did
+   the 2 come from?
+2. $(a + b)^3 = a^3 + 3a^2 b + 3ab^2 + b^3$. Coefficients: 1, 3, 3, 1.
+   Pattern in Pascal's triangle?
+3. The sum of any row of Pascal's triangle: $1, 2, 4, 8, 16, \ldots$
+   Why?
+
+## Discover
+
+### Problem 1
+
+Expand $(a + b)^4$ by direct multiplication: $(a + b)^2 \cdot (a + b)^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a + b)^2 = a^2 + 2ab + b^2$. Multiply by itself.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a^2 + 2ab + b^2)(a^2 + 2ab + b^2) = a^4 + 2a^3b + a^2b^2 + 2a^3b
++ 4a^2b^2 + 2ab^3 + a^2b^2 + 2ab^3 + b^4$.
+
+Collect: $a^4 + 4a^3 b + 6 a^2 b^2 + 4 a b^3 + b^4$. Coefficients: 1,
+4, 6, 4, 1.
+
+Tedious. The binomial theorem gives the answer directly.
+</details>
+
+### Problem 2
+
+The coefficients of $(a+b)^4$ are 1, 4, 6, 4, 1. Verify:
+$\binom{4}{0}, \binom{4}{1}, \binom{4}{2}, \binom{4}{3}, \binom{4}{4}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\binom{4}{0} = 1, \binom{4}{1} = 4, \binom{4}{2} = 6, \binom{4}{3} =
+4, \binom{4}{4} = 1$ ✓.
+
+This is the **binomial theorem**:
+$$(a + b)^n = \sum_{r=0}^{n} \binom{n}{r} a^{n-r} b^r.$$
+The combinatorics from Lesson 11 *is* the polynomial expansion from
+Tier 2.
+</details>
+
+### Problem 3
+
+**Why?** When you expand $(a+b)^n = (a+b)(a+b)\cdots(a+b)$ ($n$
+factors), each term is built by choosing $a$ or $b$ from each factor.
+The number of ways to choose $b$ from exactly $r$ of the $n$ factors
+is $\binom{n}{r}$. Hence the coefficient.
+
+<details class="hint"><summary>Full solution</summary>
+**That's the proof of the binomial theorem in one paragraph.**
+Choosing "which factors contribute $b$" is a *combination* problem —
+$\binom{n}{r}$ choices for $r$ factors out of $n$. Each such choice
+gives a term $a^{n-r} b^r$.
+
+This is why combinatorics and algebra are tied together: the
+polynomial coefficient counts something combinatorial.
+</details>
+
+### Problem 4
+
+**Pascal's triangle.** Each entry is the sum of the two above it. Use
+this to compute row 5 from row 4 (1, 4, 6, 4, 1).
+
+<details class="hint"><summary>Full solution</summary>
+Row 5: 1, (1+4), (4+6), (6+4), (4+1), 1 = 1, 5, 10, 10, 5, 1.
+
+So $(a+b)^5 = a^5 + 5a^4 b + 10 a^3 b^2 + 10 a^2 b^3 + 5 a b^4 + b^5$.
+
+The Pascal's-triangle pattern is just the identity $\binom{n}{r} =
+\binom{n-1}{r-1} + \binom{n-1}{r}$ — provable directly from the
+formula or by combinatorial argument.
+</details>
+
+### Problem 5
+
+Compute the **sum of all entries** in row $n$ of Pascal's triangle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $a = b = 1$ in $(a+b)^n$. Both sides become...
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1 + 1)^n = 2^n$ on the left. On the right (binomial theorem):
+$\sum_{r=0}^{n} \binom{n}{r}$.
+
+So **$\sum_{r=0}^{n} \binom{n}{r} = 2^n$.** The sum of any row $n$ of
+Pascal's triangle is $2^n$. (Row 0: 1. Row 1: 2. Row 2: 4. Row 3: 8.
+Etc.)
+
+This identity has a beautiful combinatorial interpretation: $2^n$ is
+the total number of subsets of an $n$-set; $\binom{n}{r}$ counts
+subsets of each size; together they partition.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**The Binomial Theorem.** For any non-negative integer $n$ and any
+$a, b$:
+$$(a + b)^n = \sum_{r=0}^{n} \binom{n}{r} a^{n-r} b^r.$$
+
+The coefficients $\binom{n}{r}$ are the **binomial coefficients** —
+the same numbers that count $r$-subsets of an $n$-set.
+
+**Pascal's triangle:** rows are binomial coefficient rows. Each entry
+is the sum of the two above it ($\binom{n}{r} = \binom{n-1}{r-1} +
+\binom{n-1}{r}$).
+
+**Useful identities:**
+
+- $\binom{n}{r} = \binom{n}{n-r}$ (symmetry — Pascal's rows are
+  palindromes).
+- $\sum_{r=0}^{n} \binom{n}{r} = 2^n$ (set $a = b = 1$).
+- $\sum_{r=0}^{n} (-1)^r \binom{n}{r} = 0$ for $n \ge 1$ (set $a = 1,
+  b = -1$).
+
+:::
+
+> *Coefficients of $(a + b)^n$ are binomial coefficients;*
+> *Pascal's triangle: each entry is the sum of the two above;*
+> *Combinatorics chooses which factors contribute $b$ — that's the proof.*
+
+## Apply
+
+### Worked example
+
+> Expand $(2x + 3)^4$.
+
+Apply the binomial theorem with $a = 2x, b = 3, n = 4$:
+
+$\binom{4}{0} (2x)^4 + \binom{4}{1} (2x)^3 (3) + \binom{4}{2} (2x)^2
+(3)^2 + \binom{4}{3} (2x)(3)^3 + \binom{4}{4} (3)^4$
+
+$= 16 x^4 + 4 \cdot 8 x^3 \cdot 3 + 6 \cdot 4 x^2 \cdot 9 + 4 \cdot 2x
+\cdot 27 + 81$
+
+$= 16 x^4 + 96 x^3 + 216 x^2 + 216 x + 81$.
+
+### Practice — Warm
+
+**W1.** Row 4 of Pascal's triangle?
+
+<details class="hint"><summary>Full solution</summary>
+1, 4, 6, 4, 1.
+</details>
+
+**W2.** Coefficient of $a^2 b^3$ in $(a + b)^5$?
+
+<details class="hint"><summary>Full solution</summary>
+$\binom{5}{3} = 10$. (3 factors contribute $b$.)
+</details>
+
+**W3.** $(x + 1)^4 = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$x^4 + 4x^3 + 6x^2 + 4x + 1$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the coefficient of $x^3$ in $(2x - 1)^5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+General term: $\binom{5}{r} (2x)^{5-r} (-1)^r$. Want $x^3$, so
+$5 - r = 3 \Rightarrow r = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{5}{2} (2x)^3 (-1)^2 = 10 \cdot 8 x^3 \cdot 1 = 80 x^3$.
+**Coefficient: 80.**
+</details>
+
+**P2.** Show that $\binom{6}{2} = \binom{6}{4}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\binom{6}{2} = 15, \binom{6}{4} = 15$ ✓. Both equal $6!/(2! \cdot 4!)$
+since $r$ and $n - r$ swap symmetrically.
+</details>
+
+**P3.** Expand $(1 - x)^4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Treat as $(1 + (-x))^4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 - 4x + 6x^2 - 4x^3 + x^4$. (Alternating signs because of the
+$(-x)^r$.)
+</details>
+
+### Practice — Stretch
+
+**S1.** **Approximation by binomial expansion.** $(1 + x)^n \approx 1
++ nx$ when $x$ is small. Use this to estimate $(1.02)^{10}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x = 0.02, n = 10$. Linear approximation: $1 + 10 \cdot 0.02 = 1.2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 + 10 \cdot 0.02 = 1.20$. (Exact value: $1.219$, so the linear
+estimate is close.)
+
+This is the **first-order Taylor approximation** in disguise (Tier
+4+). It powers the **Rule of 72** (compound interest doubling time)
+and many quick mental-arithmetic tricks.
+</details>
+
+**S2.** **Why does the binomial theorem matter for cryptography?**
+The Frobenius endomorphism $x \mapsto x^p$ on $\mathbb{F}_p$ (a finite
+field of prime order $p$) has the surprising property that
+$(a + b)^p = a^p + b^p$ in $\mathbb{F}_p$. Use the binomial theorem
+to explain.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at $\binom{p}{r}$ for $1 \le r \le p - 1$ when $p$ is prime.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{p}{r} = \dfrac{p!}{r!(p-r)!} = \dfrac{p \cdot (p-1) \cdots (p-r+1)}{r!}$.
+The numerator has a factor of $p$ that the denominator (for $1 \le r
+\le p - 1$) does not (since $p$ is prime, no smaller factorial
+contains it). So $p$ divides $\binom{p}{r}$, which means in
+$\mathbb{F}_p$ (arithmetic mod $p$), $\binom{p}{r} \equiv 0$.
+
+Result: $(a + b)^p = a^p + b^p$ in $\mathbb{F}_p$. The "freshman's
+dream" identity, normally false, becomes true in finite fields of
+prime characteristic.
+
+This identity underlies **AES**, **Reed-Solomon codes**, and most
+modern cryptography. The binomial theorem you just learned is doing
+load-bearing work in security at industrial scale.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$(a + b)^n = a^n + b^n$."** **False** — that's the freshman's
+   dream, true only in special algebraic settings (Stretch S2). The
+   binomial theorem has cross-terms.
+2. **"Pascal's triangle starts at row 1."** Convention is row 0 (with
+   single entry 1, the case $n = 0$). Indexing matters: row $n$ has
+   $n + 1$ entries.
+3. **"Binomial coefficients are unrelated to combinations."** They are
+   *exactly* combinations: $\binom{n}{r} = C(n, r)$.
+:::
+
+### Self-Assessment
+
+1. Could you explain why $(a + b)^n$ has $\binom{n}{r}$ as the
+   coefficient of $a^{n-r} b^r$?
+2. Without scrolling back, can you write the row 5 of Pascal's
+   triangle?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: 1, 5, 10, 10, 5, 1.)
+
+- **3 yes:** ready for **[13 · Basic Probability](../13-basic-probability/index.qmd)**.
+- **2 yes:** redo **S2** (Frobenius endomorphism) — surprising and
+  consequential.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[11 · Combinatorics — Counting](../11-combinatorics-counting/index.qmd)** —
+  binomial coefficients = combinations.
+- **[T2 L11 — Polynomials](../../tier-2-prealgebra/11-polynomials/index.qmd)** —
+  expanding products of binomials.
+
+### What this unlocks
+
+- **Tier 4 — Calculus** — Taylor series generalise binomial expansion
+  to arbitrary functions.
+- **Tier 5 — Probability** — binomial distribution counts $k$
+  successes in $n$ trials.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** Frobenius / freshman's dream identity (S2)
+underpins modern cryptography in finite fields.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Generalised binomial coefficients (Newton's
+generalised binomial theorem) extend to negative and fractional $n$,
+giving infinite series for $(1 + x)^{-1}, (1 + x)^{1/2}$, etc.
+:::
+
+::: {.applied-callout}
+**Statistics & ML.** Binomial distribution = $\binom{n}{k} p^k
+(1-p)^{n-k}$ — the building block of many statistical models.
+Logistic regression and naive Bayes use this directly.
+:::
