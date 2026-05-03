@@ -1,0 +1,604 @@
+---
+title: "Place Value — Why Position Matters"
+subtitle: "Ten digits, infinite numbers — and the trick that makes it work"
+lesson-id: "t1.place-value"
+tier: 1
+prerequisites: ["t1.what-is-a-number"]
+unlocks: ["t1.add-subtract", "t1.decimals"]
+applied-domains: ["systems", "encryption", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Are you ready for this lesson?
+
+1. Can you read the number **357** out loud as "three hundred and
+   fifty-seven"?
+2. Have you read [Lesson 1 — *What is a Number?*](../01-what-is-a-number/index.qmd)
+   and accepted that the symbol "3" is a *name* for a number, not the
+   number itself?
+3. Can you do simple multiplication by 10 and 100 in your head — for
+   example, $5 \times 10 = 50$, $4 \times 100 = 400$?
+
+If you said no to (3), don't panic — it will become natural during this
+lesson. If you said no to (2), revisit Lesson 1 first.
+:::
+
+## Touch
+
+Below are three columns labelled **Hundreds**, **Tens**, and **Ones**. Each
+column starts empty. Drag the sliders. Watch what happens to the number on
+top — and watch the *picture* change.
+
+```{ojs}
+viewof h = Inputs.range([0, 9], {value: 3, step: 1, label: "Hundreds:"})
+viewof t = Inputs.range([0, 9], {value: 5, step: 1, label: "Tens:"})
+viewof o = Inputs.range([0, 9], {value: 7, step: 1, label: "Ones:"})
+```
+
+```{ojs}
+{
+  const n = h * 100 + t * 10 + o;
+  const W = 720, H = 320, pad = 20;
+  const colW = (W - 2 * pad) / 3;
+  const cellSize = 8;
+  const gap = 1;
+  const svg = d3.create("svg")
+    .attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px;");
+
+  // Column headers
+  const headers = [
+    {x: pad + colW * 0.5, label: "Hundreds", count: h, value: 100, color: "#c2185b"},
+    {x: pad + colW * 1.5, label: "Tens",     count: t, value: 10,  color: "#2c5f7c"},
+    {x: pad + colW * 2.5, label: "Ones",     count: o, value: 1,   color: "#2e7d32"},
+  ];
+  for (const c of headers) {
+    svg.append("text").attr("x", c.x).attr("y", 22)
+      .attr("text-anchor", "middle").attr("font-size", "14").attr("font-weight", "bold")
+      .attr("fill", c.color).text(c.label);
+    svg.append("text").attr("x", c.x).attr("y", 40)
+      .attr("text-anchor", "middle").attr("font-size", "11").attr("fill", "#666")
+      .text(`each worth ${c.value}`);
+  }
+  // Vertical separators
+  svg.append("line").attr("x1", pad + colW).attr("x2", pad + colW)
+    .attr("y1", 50).attr("y2", H - 10).attr("stroke", "#ddd");
+  svg.append("line").attr("x1", pad + 2 * colW).attr("x2", pad + 2 * colW)
+    .attr("y1", 50).attr("y2", H - 10).attr("stroke", "#ddd");
+
+  // Hundreds column: each 100 = 10x10 block
+  for (let i = 0; i < h; i++) {
+    const blockW = 10 * cellSize + 9 * gap;
+    const startX = pad + colW * 0.5 - blockW / 2;
+    const startY = 60 + i * (blockW + 6);
+    if (startY + blockW > H - 10) break;
+    svg.append("rect")
+      .attr("x", startX - 2).attr("y", startY - 2)
+      .attr("width", blockW + 4).attr("height", blockW + 4)
+      .attr("fill", "none").attr("stroke", "#c2185b").attr("stroke-width", 1.5);
+    for (let row = 0; row < 10; row++) {
+      for (let col = 0; col < 10; col++) {
+        svg.append("rect")
+          .attr("x", startX + col * (cellSize + gap))
+          .attr("y", startY + row * (cellSize + gap))
+          .attr("width", cellSize).attr("height", cellSize)
+          .attr("fill", "#f8bbd0");
+      }
+    }
+  }
+  // Tens column: each 10 = row of 10
+  for (let i = 0; i < t; i++) {
+    const rowW = 10 * cellSize + 9 * gap;
+    const startX = pad + colW * 1.5 - rowW / 2;
+    const startY = 60 + i * (cellSize + 4);
+    if (startY > H - 20) break;
+    for (let col = 0; col < 10; col++) {
+      svg.append("rect")
+        .attr("x", startX + col * (cellSize + gap))
+        .attr("y", startY)
+        .attr("width", cellSize).attr("height", cellSize)
+        .attr("fill", "#90caf9");
+    }
+  }
+  // Ones column: o single squares
+  for (let i = 0; i < o; i++) {
+    const startX = pad + colW * 2.5 - cellSize / 2;
+    const startY = 60 + i * (cellSize + 4);
+    svg.append("rect")
+      .attr("x", startX).attr("y", startY)
+      .attr("width", cellSize).attr("height", cellSize)
+      .attr("fill", "#a5d6a7");
+  }
+  // Counts shown at top of each column
+  for (const c of headers) {
+    svg.append("text").attr("x", c.x).attr("y", H - 18)
+      .attr("text-anchor", "middle").attr("font-size", "13").attr("fill", c.color)
+      .text(`${c.count} × ${c.value} = ${c.count * c.value}`);
+  }
+  return svg.node();
+}
+```
+
+```{ojs}
+{
+  const n = h * 100 + t * 10 + o;
+  return html`
+  <div style="text-align:center; margin: 1rem 0;">
+    <div style="font-size: 0.9rem; color: #666;">written as a single number:</div>
+    <div style="font-size: 3rem; font-weight: bold; color: #1f2933; font-family: monospace; letter-spacing: 0.1em;">
+      ${String(n).padStart(3, '0').split('').map((d, i) => {
+        const colors = ['#c2185b', '#2c5f7c', '#2e7d32'];
+        return `<span style="color:${colors[i]}">${d}</span>`;
+      }).join('')}
+    </div>
+    <div style="font-size: 1rem; color: #666; font-family: monospace;">
+      = ${h} × 100 + ${t} × 10 + ${o} × 1
+    </div>
+  </div>`;
+}
+```
+
+Try this: set all three sliders to **3**. You wrote the digit "3" three
+times — but the three 3's are not equal. The leftmost 3 is worth **300**;
+the middle is worth **30**; the right is worth **3**.
+
+The same digit, in different *columns*, has different values.
+
+That is **place value**.
+
+## Wonder
+
+Sit with these. No need to write.
+
+1. If you write the digit "3" in two different columns, how can it mean two
+   different things? What is doing the work?
+2. Why do we need the digit **0**? In a number like **305**, what would go
+   wrong if we just left a gap and wrote "3 5"?
+3. Without using the word "ten", explain what the "1" in "10" is doing.
+
+## Discover
+
+Work through these in order. Use the sliders above when it helps.
+
+### Problem 1
+
+Look at three numbers built from the same digits:
+$$32, \quad 23, \quad 322$$
+
+Are they the same number? If not, what makes each one different from the
+others?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Where is the **3** in each number? What column?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**They are three different numbers.**
+
+- In **32**, the 3 is in the *tens* column (worth 30); the 2 is in the
+  *ones* column (worth 2). Total: 32.
+- In **23**, the digits have *swapped columns*. Now the 2 is worth 20 and
+  the 3 is worth 3. Total: 23.
+- In **322**, there are three columns: 3 hundreds (300) + 2 tens (20) +
+  2 ones (2) = 322.
+
+Same digits, completely different numbers. The columns are doing all the
+work.
+</details>
+
+### Problem 2
+
+A shopkeeper's stockroom has:
+
+- **7 sealed crates**, each holding **100 marbles**
+- **4 boxes**, each holding **10 marbles**
+- **3 loose marbles** on the counter
+
+How many marbles does she have in total? Write the answer **without doing
+any addition**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The crates are hundreds. The boxes are tens. The loose ones are ones. Now
+write the answer in the obvious way.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**743 marbles.**
+
+You did not have to compute $700 + 40 + 3$ — you just *wrote* the totals
+into the right columns. That is the whole power of place value: arithmetic
+becomes bookkeeping.
+
+This is also exactly how a shopkeeper organises stock, why we count change
+in coin denominations, and why bytes are grouped into bits. The pattern is
+everywhere.
+</details>
+
+### Problem 3
+
+Using each of the digits **1, 2, 3, 4, 5** exactly once, what is the
+**largest** five-digit number you can make? What is the **smallest**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Which column is worth the most? Which digit do you want there?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Largest: 54,321.** Put the biggest digit (5) in the most valuable column
+(ten-thousands), the next biggest (4) in the next column (thousands), and
+so on.
+
+**Smallest: 12,345.** Reverse the strategy — smallest digit in the most
+valuable column.
+
+The columns made the answer obvious. You didn't have to try permutations.
+</details>
+
+### Problem 4
+
+Look at this number with one digit missing:
+$$4 \ \square \ 7$$
+
+What digits could go in the gap? **How many different numbers does this
+make?**
+
+How does each one differ from the next?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The gap is in the *tens* column. What can a single digit be?
+</details>
+<details class="hint"><summary>Full solution</summary>
+There are **ten possibilities** — 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 — giving:
+$$407, \ 417, \ 427, \ 437, \ 447, \ 457, \ 467, \ 477, \ 487, \ 497$$
+
+Each one is **10 more** than the one before. That makes sense: increasing
+the *tens* digit by 1 increases the whole number by 10.
+
+Also notice: **407** is in the list. The 0 is doing real work — it tells us
+the tens column is empty. Without it, we would write "47", which is a
+completely different (smaller) number.
+</details>
+
+### Problem 5
+
+We use ten digits (0 through 9), and each step left in a column **multiplies
+the value by 10**. That's why we call it base-10.
+
+What if we built a different number system where each step left **multiplied
+the value by 2** instead?
+
+In such a system, what would the columns be worth (from right to left)?
+
+What digits would you need?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Start with the rightmost column being worth 1. Multiply by 2 each step left.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Columns: 1, then 1×2 = 2, then 2×2 = 4, then 4×2 = 8, then 8×2 = 16...
+
+If each step left multiplies by 2, you only need digits 0 and 1. (Why?)
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Columns** (right to left): 1, 2, 4, 8, 16, 32, 64, 128, ...
+
+**Digits needed:** just **0 and 1**. The reason: as soon as you have *two*
+of anything in a column, you can replace them with *one* in the next column
+to the left (since two of value $v$ equals one of value $2v$). So the digit
+"2" is never needed.
+
+This is **binary** — the number system every computer uses inside its
+chips. The number "1011" in binary means
+$$1 \times 8 + 0 \times 4 + 1 \times 2 + 1 \times 1 = 11.$$
+
+You just invented the foundation of digital computing. The general idea —
+"pick a number, call it the *base*, build a place-value system on it" — is
+the most reused trick in mathematics. Base 2 (binary), base 8 (octal), base
+16 (hex), and base 60 (the Babylonian system, still used for hours and
+minutes) are all the same idea with a different number on the dial.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+In the **base-10** number system we use, the **value of a digit depends on
+its column**. From right to left, the columns are:
+
+$$\underbrace{\ldots}_{\text{thousands}} \ \underbrace{\ldots}_{\text{hundreds}} \ \underbrace{\ldots}_{\text{tens}} \ \underbrace{\ldots}_{\text{ones}}$$
+
+Each step left **multiplies the value by 10**. The number written
+$d_3 d_2 d_1 d_0$ means
+$$d_3 \times 1000 + d_2 \times 100 + d_1 \times 10 + d_0 \times 1.$$
+
+The digit **0** is essential: it marks a column that has nothing in it but
+must still be there to keep the other columns in their right places.
+
+:::
+
+The mnemonic, in the Bhāskara style:
+
+> *Each step to the left, the value grows ten times;*
+> *Each step to the right, it shrinks ten times.*
+> *Zero holds the place where nothing lives —*
+> *Without zero, the columns would collapse.*
+
+## Apply
+
+### Worked example
+
+> Write **4,062** in expanded form, and explain what each digit means.
+
+A competent solver reads the columns from left to right:
+
+1. The **4** sits in the *thousands* column → worth $4 \times 1000 = 4000$.
+2. The **0** sits in the *hundreds* column → worth $0 \times 100 = 0$. It
+   is doing *placeholder duty* — without it, the next digits would shift
+   left.
+3. The **6** sits in the *tens* column → worth $6 \times 10 = 60$.
+4. The **2** sits in the *ones* column → worth $2 \times 1 = 2$.
+
+**Expanded form:** $4000 + 0 + 60 + 2 = 4062$.
+
+Notice what would happen *without the zero*: writing "462" gives a
+completely different (and much smaller) number. The 0 is a real digit, not
+a "missing digit".
+
+### Practice — Warm
+
+**W1.** What is the value of the digit **5** in each of these numbers?
+
+(a) 53 \quad (b) 250 \quad (c) 5,007 \quad (d) 50,000
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find the column the 5 is sitting in.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) **50** (tens column) \quad (b) **50** (tens column) \quad
+(c) **5000** (thousands column) \quad (d) **50,000** (ten-thousands column)
+
+Same digit, very different values, depending on the column.
+</details>
+
+**W2.** Write each number in expanded form:
+
+(a) 27 \quad (b) 309 \quad (c) 1,406
+
+<details class="hint"><summary>Full solution</summary>
+(a) $27 = 2 \times 10 + 7 \times 1$
+(b) $309 = 3 \times 100 + 0 \times 10 + 9 \times 1$
+(c) $1406 = 1 \times 1000 + 4 \times 100 + 0 \times 10 + 6 \times 1$
+
+In (b) and (c), the **0** is doing placeholder duty. Don't drop it.
+</details>
+
+**W3.** Read these numbers out loud, without skipping the zeros mentally:
+
+(a) 1,001 \quad (b) 7,070 \quad (c) 100,100
+
+<details class="hint"><summary>Full solution</summary>
+(a) "**One thousand and one**." The middle two zeros are placeholders — the
+1 in the thousands column needs to stay where it is.
+(b) "**Seven thousand and seventy**." Two 7's, in completely different
+columns: one worth 7000, one worth 70.
+(c) "**One hundred thousand, one hundred**." Two 1's, separated by three
+zeros — the second 1 is far smaller.
+</details>
+
+### Practice — Working
+
+**P1.** Reorder the digits **3, 8, 0, 5** to make:
+
+(a) the *largest* possible four-digit number
+(b) the *smallest* possible four-digit number (your answer must still
+have four digits — so no leading zero)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For the largest, biggest digit goes in the most valuable column. For the
+smallest, smallest digit goes in the most valuable column — *but you can't
+start with 0*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) **8,530** — biggest digit (8) in thousands, then 5, 3, 0.
+(b) **3,058** — smallest non-zero digit (3) in thousands, then 0, 5, 8.
+The 0 hops to the second column because we are not allowed to start the
+number with it.
+
+The "no leading zero" rule is a convention: if we allowed it, "0358" would
+just be the number 358, with a redundant 0 hanging off the front.
+</details>
+
+**P2.** A pile of beads contains **2,453** beads. You count them by
+removing groups: first all the groups of **1000**, then all the groups of
+**100** from what's left, then groups of **10**, then ones. How many groups
+of each size do you take out?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The digits of the number **are** the answer. Read them column by column.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**2 groups of 1000, 4 groups of 100, 5 groups of 10, 3 ones.** The number
+2,453 *is* a record of exactly that count. That is what place-value
+notation *is*: a compact recipe for "how many of each size group."
+
+This is also why decimal money (rupees, dollars, euros) is so easy to work
+with: coins and notes come in powers of 10, so place value matches the
+physical denominations.
+</details>
+
+**P3.** What does the binary number **101** mean? (Recall from *Discover
+P5*: in binary, columns are worth 1, 2, 4, 8, ... from right to left.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Read the digits left to right. The leftmost 1 is in the column worth 4.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 \times 4 + 0 \times 2 + 1 \times 1 = 5$.
+
+So **101 in binary = 5 in our usual notation.** Same idea (place value),
+different base. Computers use binary because their physical components
+naturally have two states (on/off, high/low voltage) — so a base-2 system
+is the easy fit.
+</details>
+
+### Practice — Stretch
+
+**S1.** Imagine a number system used by an alien race that has **only three
+fingers per hand** (and so naturally counts in groups of 6 — three on each
+hand). They use base 6. The columns from right to left are worth 1, 6, 36,
+216, ...
+
+The digits they use are 0, 1, 2, 3, 4, 5 (no need for 6 — that would be
+"10" in their system).
+
+What does the alien-base-6 number "**213**" mean in our base 10?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Read it like place value. The 2 is in the column worth 36; the 1 is in
+the column worth 6; the 3 is in the column worth 1.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 \times 36 + 1 \times 6 + 3 \times 1 = 72 + 6 + 3 = 81$ (in our base
+10).
+
+"213" written by an alien and "81" written by a human are **the same
+number** — just two different ways of *naming* it. The number itself
+doesn't care which base we use.
+
+This is the deep idea: the number lives above its representation. We met
+this in [Lesson 1 — *What is a Number?*](../01-what-is-a-number/index.qmd)
+when we saw 12, XII, and 一二 all naming the same quantity. Different
+*bases* are just another version of the same thing.
+</details>
+
+**S2.** The number **1,000,000** (one million) has six zeros. How does the
+*number* a million compare to a thousand? Write a sentence using the
+phrase "a thousand times".
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each step left in a place-value column multiplies by 10. Count the columns
+between the 1 in "1,000" and the 1 in "1,000,000".
+</details>
+<details class="hint"><summary>Full solution</summary>
+There are **three columns** between the two 1's, so a million is
+$10 \times 10 \times 10 = 1000$ times bigger than a thousand. **A million
+is a thousand thousands.**
+
+This is why people genuinely struggle with large numbers in the news: a
+"million-pound budget" and a "billion-pound budget" *sound* similar — only
+one syllable apart — but a billion is a *thousand* millions. Place value
+is what makes these very different sizes look almost identical when
+written.
+
+Practising reading large numbers out loud, column by column, fixes this
+intuition. We will return to it when we meet **scientific notation** and
+**exponents** in Tier 2.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Zero is just a placeholder, not a real number."** Zero is a real
+   number (it answers "how many of nothing?"). And as a placeholder it is
+   *load-bearing* — without it, "305" collapses into "35" and means
+   something completely different.
+2. **"The value of a digit is the digit itself."** No. The digit 5 is
+   worth 5 in the ones column, 50 in the tens, 500 in the hundreds. Its
+   value is *digit × column-weight*, never just the digit.
+3. **"Bigger digit = bigger number."** No. Compare 19 and 21. The 9 is the
+   biggest digit anywhere in either number, but 21 > 19 because the *tens*
+   column wins. The leftmost differing column always decides which number
+   is larger.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain to a friend why **305** and **35** are different
+   numbers, using the word "column"?
+2. Without scrolling back, can you read **4,062** and say what each digit
+   is *worth*?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+- **3 yes:** ready for **Lesson 4 — Addition & Subtraction, Re-grounded**.
+- **2 yes:** redo *S1* (the alien base) — that one really proves you get
+  it. Then move on.
+- **0–1 yes:** re-read *Discover, Problem 1* and *Problem 5*. Those carry
+  most of the lesson's weight.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 1 — *What is a Number?*](../01-what-is-a-number/index.qmd)** —
+  we needed the distinction between a number and a *symbol* before we
+  could ask why the same symbol means different things in different
+  positions.
+
+### What this unlocks
+
+- **Addition and Subtraction, Re-grounded** — the algorithms you may have
+  learned ("carry the one", "borrow") are pure place-value: when a column
+  overflows past 9, one moves to the next column on the left.
+  *(planned — see [Tier 1 index](../index.qmd))*
+- **Decimals — Fractions in a New Costume** — extends the column idea
+  *rightward* across a decimal point, so each step right divides the
+  value by 10. *(planned — see [Tier 1 index](../index.qmd))*
+
+### Where this matters
+
+::: {.applied-callout}
+**Systems.** Every byte in computer memory is a base-2 (binary) place-value
+representation. Hex (base 16) and octal (base 8) are programmer shorthands
+for grouping bits. RGB colour values, IP addresses, file sizes — all of
+these are place-value numbers in some base. Understanding bases is half of
+"thinking like a systems person".
+:::
+
+::: {.applied-callout}
+**Encryption.** Modern cryptography depends on operations performed on
+very large numbers — often hundreds or thousands of digits long. The way
+those numbers are stored, transmitted, and operated on is built directly
+on place-value arithmetic, usually in base 2 or base $2^{32}$.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** The general place-value construction —
+"pick a base $b$, write a number as $\sum d_i b^i$" — is one of the most
+reused ideas in mathematics. It comes back in **polynomials** (Tier 2),
+**power series** (Tier 4), and **$p$-adic numbers** (an exotic and
+beautiful Tier 6 / Tier 7 topic in number theory).
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Currency denominations, the metric system,
+scientific notation, and the way the news talks about millions and
+billions — all of these stand on the place-value idea. The Hindu–Arabic
+numeral system, developed in India between roughly 200 BCE and 600 CE
+and carried to Europe by Persian and Arab mathematicians (notably
+al-Khwārizmī, from whose name we get "algorithm"), made arithmetic
+practical for everyone. Before it, ordinary calculation required physical
+counting boards and was largely the preserve of trained scribes.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the base-10 blocks widget — pink
+  100-grids, blue 10-rows, green 1-squares — is the classic Dienes block
+  manipulative, given an interactive form), Boole (the Wonder questions
+  about "what is the 1 in 10 doing?" surface intuitions before
+  vocabulary), Russian school (Problem 5 forces the learner to *invent*
+  binary before it is named), Bhāskara (single-box Name plus verse),
+  Better Explained (the "Aha!" framing is *position multiplies value*).
+- **No forward references** beyond planned lessons in *Unlocks* and Tier 2
+  topics named only as future material.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (visual blocks, verbal explanation, digit-and-column notation, expanded
+  form) ✓, graduated hints on every exercise ✓, worked solutions ✓,
+  common-confusions callout ✓, self-assessment ✓.
+:::
