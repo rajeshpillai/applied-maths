@@ -1,0 +1,362 @@
+---
+title: "09 · Variance, Standard Deviation, and the Central Limit Theorem"
+subtitle: "Spread of a distribution — and why averages are normal"
+lesson-id: "t5.variance-clt"
+tier: 5
+prerequisites: ["t5.continuous-distributions"]
+unlocks: ["t5.statistical-inference"]
+applied-domains: ["ai-ml", "research", "databases"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [08 · Continuous Distributions](../08-continuous-distributions/index.qmd)?
+2. Comfortable with $E[X] = \int x f(x) \, dx$?
+3. Recall the average from [T1 L14](../../tier-1-foundations/14-data-and-average/index.qmd)?
+:::
+
+## Touch
+
+The **variance** measures spread. The **central limit theorem (CLT)**
+says: averages of many independent samples converge to a normal
+distribution.
+
+```{ojs}
+viewof cltSel = Inputs.select(["one die roll: uniform 1..6", "average of 2 dice", "average of 30 dice (≈ normal)"], {value: "average of 30 dice (≈ normal)", label: "Distribution:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(cltSel) {
+    case "one die roll: uniform 1..6": info = "PMF flat: P=1/6 each. Mean = 3.5. Variance = 35/12 ≈ 2.92. SD ≈ 1.71. Decidedly NOT bell-shaped."; break;
+    case "average of 2 dice": info = "Triangular distribution centred at 3.5. Variance ≈ 1.46 (= 2.92 / 2). Already bell-curve-ish."; break;
+    case "average of 30 dice (≈ normal)": info = "Approximately normal, mean 3.5, variance 2.92/30 ≈ 0.097, SD ≈ 0.31. CLT in action: averaging 30 i.i.d. variables looks Gaussian."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. The variance of one die roll is $\approx 2.92$. Of the average of
+   30 dice: $0.097$. Why so much smaller?
+2. The original distribution doesn't look normal — but the average
+   does. Why?
+3. As $n$ grows, the average converges to the mean (Law of Large
+   Numbers). What's CLT's *additional* claim?
+
+## Discover
+
+### Problem 1
+
+The **variance** of $X$ is
+$$\text{Var}(X) = E[(X - \mu)^2] = E[X^2] - \mu^2.$$
+
+Compute $\text{Var}(X)$ for $X \sim \text{Uniform}[0, 1]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\mu = 1/2$. $E[X^2] = \int_0^1 x^2 dx = 1/3$. So $\text{Var} = 1/3 -
+1/4 = 1/12$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$\text{Var}(X) = 1/12$.** Standard deviation $\sigma = 1/\sqrt{12}
+\approx 0.289$.
+</details>
+
+### Problem 2
+
+For independent $X_1, \ldots, X_n$ with mean $\mu$ and variance
+$\sigma^2$, the **sample mean** $\bar X_n = (X_1 + \cdots + X_n)/n$
+satisfies:
+$$E[\bar X_n] = \mu, \quad \text{Var}(\bar X_n) = \sigma^2/n.$$
+
+Why does the variance shrink by $1/n$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Variance of sum (independent): $\text{Var}(X_1 + \cdots + X_n) = n
+\sigma^2$. Then $\bar X = \text{sum}/n$ scales variance by $1/n^2$:
+$n \sigma^2 / n^2 = \sigma^2/n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Variance of sum of independent = sum of variances.** Then
+$\text{Var}(c X) = c^2 \text{Var}(X)$, so dividing by $n$ scales
+variance by $1/n^2$.
+
+This is the **Law of Large Numbers** intuition: $\bar X_n$ tightens
+around $\mu$ as $n$ grows. Standard error: $\sigma/\sqrt{n}$.
+</details>
+
+### Problem 3
+
+The **Central Limit Theorem (CLT)**: for i.i.d. $X_i$ with finite
+mean $\mu$ and variance $\sigma^2$,
+$$\dfrac{\bar X_n - \mu}{\sigma / \sqrt{n}} \xrightarrow{d} N(0, 1).$$
+
+In words: the sample mean (suitably standardised) tends to a *standard
+normal* distribution, regardless of the original distribution.
+
+Why is this remarkable?
+
+<details class="hint"><summary>Full solution</summary>
+**Universality.** The original $X_i$ could be anything — uniform,
+exponential, weird custom distribution — and the *average* still
+ends up normal.
+
+This is why the normal distribution dominates statistics: most
+real-world quantities are *averages* (or sums) of many small
+random influences, and CLT makes them all normal.
+
+The CLT's proof uses *characteristic functions* (Fourier transforms
+of densities) — Tier 6 / Tier 7 material.
+</details>
+
+### Problem 4
+
+A coin is flipped 100 times. Number of heads $X \sim \text{Bin}(100,
+0.5)$. By CLT, $X$ is approximately normal with mean $np = 50$ and
+variance $np(1-p) = 25$.
+
+What's the approximate probability of getting between 45 and 55 heads?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sigma = 5$. So 45-55 is within $\pm 1\sigma$. By 68-95-99.7 rule:
+$\approx 68\%$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$\approx 68\%$.** The binomial $\text{Bin}(100, 0.5)$ is well
+approximated by $N(50, 25)$ for inference purposes.
+
+CLT lets us use the normal distribution as a *practical
+approximation* for many discrete distributions when $n$ is large.
+</details>
+
+### Problem 5
+
+An ML model trained on different random subsets of data gives
+different test accuracies. Each accuracy is a sample mean over the
+test set. What does CLT say about the variability of these accuracy
+estimates?
+
+<details class="hint"><summary>Full solution</summary>
+**The accuracy estimates are approximately normal**, with standard
+error $\sigma/\sqrt{n_{\text{test}}}$ where $n_{\text{test}}$ is test-
+set size and $\sigma$ depends on per-example accuracy variability.
+
+This means: with a 10K-example test set, accuracies will vary by
+roughly $\sqrt{p(1-p)/10000} \approx 0.005$ (half a percentage
+point) at $p = 0.5$. **Reporting "85.36%" implies precision the
+data doesn't support.**
+
+Most ML papers' accuracy claims should report confidence intervals
+based on this calculation.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Variance** $\sigma^2 = E[(X - \mu)^2] = E[X^2] - \mu^2$.
+
+**Standard deviation** $\sigma = \sqrt{\text{Var}}$.
+
+**Properties:**
+
+- $\text{Var}(c X) = c^2 \text{Var}(X)$.
+- $\text{Var}(X + c) = \text{Var}(X)$ (shift invariant).
+- For *independent* $X, Y$: $\text{Var}(X + Y) = \text{Var}(X) + \text{Var}(Y)$.
+- $\text{Var}(\bar X_n) = \sigma^2 / n$ (for i.i.d. sample mean).
+
+**Standard error** of $\bar X_n$: $\sigma / \sqrt{n}$ — measures
+typical deviation of sample mean from true mean.
+
+**Law of Large Numbers (LLN):** $\bar X_n \to \mu$ as $n \to \infty$
+(in probability).
+
+**Central Limit Theorem (CLT):**
+$$\dfrac{\bar X_n - \mu}{\sigma / \sqrt{n}} \xrightarrow{d} N(0, 1).$$
+Sample mean is *approximately normal* with mean $\mu$ and SD
+$\sigma/\sqrt{n}$, regardless of the original distribution (assuming
+finite variance).
+
+**Empirical rule** ($N(\mu, \sigma^2)$):
+
+- $\approx 68\%$ within $\mu \pm \sigma$.
+- $\approx 95\%$ within $\mu \pm 2\sigma$.
+- $\approx 99.7\%$ within $\mu \pm 3\sigma$.
+
+:::
+
+> *Variance = expected squared deviation; SD has units of $X$;*
+> *Sample mean has variance $\sigma^2/n$ (LLN);*
+> *CLT: sample mean is approximately normal — universally.*
+
+## Apply
+
+### Worked example
+
+> A factory produces resistors with target resistance 100 Ω, SD 5 Ω.
+> A sample of 25 resistors is tested. What's the SD of the *sample
+> mean*?
+
+$\sigma_{\bar X} = \sigma / \sqrt{n} = 5 / \sqrt{25} = 1$ Ω.
+
+So the sample mean of 25 resistors is approximately $N(100, 1^2)$.
+By 68-95-99.7: about 68% chance the sample mean is in $[99, 101]$.
+
+This is the foundation of *quality control*.
+
+### Practice — Warm
+
+**W1.** $\text{Var}(\text{constant}) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$0$.
+</details>
+
+**W2.** SD of $X \sim N(0, 9)$?
+
+<details class="hint"><summary>Full solution</summary>
+$3$.
+</details>
+
+**W3.** Sample mean of 100 i.i.d. with $\sigma = 10$. SD of sample
+mean?
+
+<details class="hint"><summary>Full solution</summary>
+$10/\sqrt{100} = 1$.
+</details>
+
+### Practice — Working
+
+**P1.** $X \sim \text{Bin}(100, 0.3)$. Mean and SD?
+
+<details class="hint"><summary>Full solution</summary>
+$\mu = np = 30$, $\sigma = \sqrt{np(1-p)} = \sqrt{21} \approx 4.58$.
+</details>
+
+**P2.** Coin flipped 1000 times. Approximate $P(\text{heads} > 540)$
+using CLT.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\mu = 500, \sigma \approx 15.81$. Compute $z = (540 - 500)/15.81
+\approx 2.53$. Standard normal table: $P(Z > 2.53) \approx 0.006$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$\approx 0.6\%$.** Significantly more than 540 heads in 1000 fair
+flips would be statistically very unusual.
+</details>
+
+**P3.** $\text{Var}(2X + 3Y)$ for *independent* $X, Y$ with
+$\text{Var}(X) = 4, \text{Var}(Y) = 9$.
+
+<details class="hint"><summary>Full solution</summary>
+$2^2 \cdot 4 + 3^2 \cdot 9 = 16 + 81 = 97$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why does CLT need finite variance?** The Cauchy distribution
+has *infinite variance*; the CLT fails for it. Sample means don't
+narrow as $n$ grows.
+
+What practical implication does this have for outlier-prone data?
+
+<details class="hint"><summary>Full solution</summary>
+**Heavy-tailed distributions (Cauchy, Pareto, Lévy) violate CLT.**
+For such data, sample means are unreliable: outliers dominate, and
+larger samples don't help.
+
+Practical examples: financial returns sometimes look like power-law
+tails; risk models that assume normality (and thus CLT) underestimate
+extreme losses (the *fat tail* problem). The 2008 financial crisis
+exposed widespread misuse of the normal-distribution assumption.
+
+For heavy-tailed data, use **median** (robust to outliers) instead
+of mean, or *trimmed* / *winsorised* estimators.
+</details>
+
+**S2.** **Bootstrap confidence intervals.** Given a single dataset of
+size $n$, you can estimate the SD of the sample mean (= standard error)
+by *resampling*: draw $n$ items *with replacement* many times, compute
+the sample mean each time, look at the SD of those many sample means.
+
+Why does this work?
+
+<details class="hint"><summary>Full solution</summary>
+**Empirical distribution → bootstrap distribution → sampling distribution.**
+The empirical distribution (your dataset's frequencies) approximates
+the true distribution. Resampling from it generates "synthetic
+datasets" of the same size; their sample means approximate the
+sampling distribution of the true sample mean.
+
+By CLT, this sampling distribution is approximately normal with SD
+$= \sigma/\sqrt{n}$. Bootstrap *empirically* estimates this SD
+without needing to know $\sigma$.
+
+Bootstrap (Efron, 1979) is the dominant practical method for
+confidence intervals when no closed form exists. Used in nearly
+every modern data-analysis pipeline.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Variance and SD are the same thing."** No — SD = $\sqrt{\text{Var}}$.
+   SD has same units as $X$; variance has *squared* units.
+2. **"CLT applies to any sum."** Needs *finite variance* of the
+   summands and (technically) some independence / identical
+   distribution. Heavy-tailed (Cauchy) breaks it.
+3. **"Sample size $n = 30$ is enough for CLT."** Old rule of thumb;
+   often true but can fail for very skewed distributions. Modern
+   advice: check the actual distribution.
+:::
+
+### Self-Assessment
+
+1. Could you derive $\text{Var}(\bar X_n) = \sigma^2/n$ from
+   independence?
+2. Without scrolling back, what's CLT's claim?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: sample mean is approximately normal regardless of original
+distribution.)
+
+- **3 yes:** ready for **[10 · Statistical Inference](../10-statistical-inference/index.qmd)**.
+- **2 yes:** redo **S2** (bootstrap).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[08 · Continuous Distributions](../08-continuous-distributions/index.qmd)**
+
+### What this unlocks
+
+- **[10 · Statistical Inference](../10-statistical-inference/index.qmd)** —
+  applies CLT to confidence intervals.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Standard errors on accuracy / loss
+estimates (P3, S2). Stochastic gradient descent inherits CLT-style
+behaviour for batch averages. Many ML theorems assume CLT-like
+concentration.
+:::
+
+::: {.applied-callout}
+**Statistics.** Hypothesis testing, confidence intervals,
+$p$-values — all rest on CLT.
+:::
+
+::: {.applied-callout}
+**Finance & risk.** Heavy-tailed risks (S1) violate normality
+assumptions; sophisticated models account for this.
+:::
