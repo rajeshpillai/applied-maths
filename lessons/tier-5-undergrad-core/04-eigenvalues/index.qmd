@@ -1,0 +1,344 @@
+---
+title: "04 · Eigenvalues and Eigenvectors"
+subtitle: "Special directions a matrix only stretches"
+lesson-id: "t5.eigenvalues"
+tier: 5
+prerequisites: ["t5.linear-systems-gaussian", "t5.vector-spaces"]
+unlocks: []
+applied-domains: ["ai-ml", "research", "game-dev"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [02 · Linear Systems](../02-linear-systems-gaussian/index.qmd)
+   and [03 · Vector Spaces](../03-vector-spaces/index.qmd)?
+2. Comfortable with matrix-vector multiplication and determinants?
+3. Recall solving polynomial equations (Tier 3)?
+:::
+
+## Touch
+
+For a matrix $A$, an **eigenvector** $v$ satisfies $Av = \lambda v$ for
+some scalar $\lambda$ (the **eigenvalue**). The matrix simply *scales*
+$v$ — doesn't rotate.
+
+```{ojs}
+viewof eigSel = Inputs.select(["A=[2,0;0,3]: eigenvectors are axes", "A=[3,1;0,2]: upper triangular", "A=[0,-1;1,0]: rotation by 90° (no real eigenvectors)"], {value: "A=[2,0;0,3]: eigenvectors are axes", label: "Matrix:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(eigSel) {
+    case "A=[2,0;0,3]: eigenvectors are axes": info = "Eigenvalues: 2, 3. Eigenvectors: e₁=(1,0) (scaled by 2), e₂=(0,1) (scaled by 3). Diagonal matrix's eigenvectors are the standard basis."; break;
+    case "A=[3,1;0,2]: upper triangular": info = "Eigenvalues: 3, 2 (diagonal entries of triangular matrix). Eigenvectors: (1,0) for λ=3; (1,−1) for λ=2."; break;
+    case "A=[0,-1;1,0]: rotation by 90° (no real eigenvectors)": info = "Eigenvalues: ±i (complex). No real direction is preserved — every vector rotates 90°."; break;
+  }
+  return html`<div style="margin: 1rem 0; text-align:center;">
+    <div style="font-family:monospace; font-size:1rem; color:#c2185b;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why might "directions a matrix only stretches" be useful?
+2. Why does a rotation matrix have no real eigenvectors?
+3. The product of eigenvalues = the determinant. Why?
+
+## Discover
+
+### Problem 1
+
+For $A = \begin{pmatrix} 2 & 0 \\ 0 & 3 \end{pmatrix}$, verify $(1,
+0)$ is an eigenvector with eigenvalue 2.
+
+<details class="hint"><summary>Full solution</summary>
+$A (1, 0)^T = (2, 0)^T = 2 \cdot (1, 0)^T$ ✓.
+
+Diagonal matrices have the standard basis vectors as eigenvectors,
+with the diagonal entries as eigenvalues.
+</details>
+
+### Problem 2
+
+For general $A$, the equation $A v = \lambda v$ rewrites as $(A -
+\lambda I) v = 0$. For non-zero $v$, the matrix $A - \lambda I$ must
+be **singular**, i.e., $\det(A - \lambda I) = 0$. This is the
+**characteristic equation**.
+
+For $A = \begin{pmatrix} 4 & 1 \\ 2 & 3 \end{pmatrix}$, compute the
+characteristic polynomial.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$A - \lambda I = \begin{pmatrix} 4 - \lambda & 1 \\ 2 & 3 - \lambda
+\end{pmatrix}$. Determinant.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\det = (4 - \lambda)(3 - \lambda) - 2 = \lambda^2 - 7 \lambda + 10$.
+
+Set to zero: $(\lambda - 5)(\lambda - 2) = 0 \Rightarrow \lambda = 5,
+2$. **Eigenvalues 5 and 2.**
+
+To find eigenvectors: solve $(A - \lambda I) v = 0$ for each $\lambda$.
+For $\lambda = 5$: $\begin{pmatrix} -1 & 1 \\ 2 & -2 \end{pmatrix} v
+= 0 \Rightarrow v_1 = v_2$. Eigenvector: $(1, 1)^T$ (or any scalar
+multiple).
+</details>
+
+### Problem 3
+
+Find the eigenvalues and eigenvectors of $A = \begin{pmatrix} 0 & -1
+\\ 1 & 0 \end{pmatrix}$ (90° rotation).
+
+<details class="hint"><summary>Full solution</summary>
+$\det(A - \lambda I) = \lambda^2 + 1 = 0 \Rightarrow \lambda = \pm i$.
+**No real eigenvalues.**
+
+Geometrically: a 90° rotation has *no* direction preserved (every
+vector rotates). Real eigenvalues correspond to "preserved
+directions" — rotations have none unless trivial. (Complex
+eigenvalues describe rotations + scalings in the *complex* sense.)
+</details>
+
+### Problem 4
+
+Find eigenvalues and eigenvectors of $A = \begin{pmatrix} 1 & 1 \\ 1
+& 1 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Char eq: $(1 - \lambda)^2 - 1 = \lambda^2 - 2\lambda = \lambda(\lambda
+- 2) = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Eigenvalues: $\lambda = 0, 2$.
+
+For $\lambda = 0$: $\begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix} v =
+0 \Rightarrow v_1 + v_2 = 0$. Eigenvector: $(1, -1)^T$.
+
+For $\lambda = 2$: $\begin{pmatrix} -1 & 1 \\ 1 & -1 \end{pmatrix} v
+= 0 \Rightarrow v_1 = v_2$. Eigenvector: $(1, 1)^T$.
+
+A zero eigenvalue means $A$ has a *null space* — there's a non-zero
+vector mapped to zero. The matrix is *singular*.
+</details>
+
+### Problem 5
+
+**Diagonalisation.** If a matrix $A$ has $n$ independent
+eigenvectors, $A = P D P^{-1}$ where $P$ is the matrix of
+eigenvectors and $D$ is diagonal with eigenvalues. Then $A^k = P D^k
+P^{-1}$ — easy power computation.
+
+What's $\begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix}^{10}$?
+
+<details class="hint"><summary>Full solution</summary>
+From P4: eigenvalues 0, 2. $D = \begin{pmatrix} 0 & 0 \\ 0 & 2
+\end{pmatrix}$.
+$D^{10} = \begin{pmatrix} 0 & 0 \\ 0 & 1024 \end{pmatrix}$.
+
+$P = \begin{pmatrix} 1 & 1 \\ -1 & 1 \end{pmatrix}, P^{-1} = \tfrac{1}{2}
+\begin{pmatrix} 1 & -1 \\ 1 & 1 \end{pmatrix}$.
+
+$A^{10} = P D^{10} P^{-1} = \begin{pmatrix} 512 & 512 \\ 512 & 512
+\end{pmatrix}$.
+
+(Check: each step doubles the matrix entries since $A^2 = 2A$, so
+$A^{10} = 2^9 A = 512 A$ ✓.)
+
+**Diagonalisation makes powers easy** — a major reason eigenvalues
+matter.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For a square matrix $A$, a non-zero vector $v$ is an **eigenvector**
+with **eigenvalue** $\lambda$ if $A v = \lambda v$.
+
+**Characteristic equation:** $\det(A - \lambda I) = 0$. Roots are the
+eigenvalues.
+
+**Eigenvectors** for each $\lambda$ are non-zero vectors in the **null
+space** of $(A - \lambda I)$.
+
+**Properties:**
+
+- Sum of eigenvalues = $\text{trace}(A)$ (sum of diagonal).
+- Product of eigenvalues = $\det(A)$.
+- Diagonal/triangular matrices have eigenvalues = diagonal entries.
+
+**Diagonalisation:** if $A$ has $n$ linearly independent
+eigenvectors, $A = P D P^{-1}$. Then $A^k = P D^k P^{-1}$.
+
+Real symmetric matrices are *always* diagonalisable, with real
+eigenvalues and orthogonal eigenvectors. (Spectral theorem.)
+
+:::
+
+> *Eigenvectors: directions a matrix only stretches;*
+> *Eigenvalues: the stretching factors;*
+> *Diagonalisation = "find eigenvectors as a basis" — hugely useful for powers.*
+
+## Apply
+
+### Worked example
+
+> Find eigenvalues and eigenvectors of $A = \begin{pmatrix} 3 & 1 \\
+> 0 & 2 \end{pmatrix}$.
+
+Triangular → eigenvalues are diagonal entries: **3, 2**.
+
+For $\lambda = 3$: $(A - 3I) v = \begin{pmatrix} 0 & 1 \\ 0 & -1
+\end{pmatrix} v = 0 \Rightarrow v_2 = 0$. Eigenvector: $(1, 0)^T$.
+
+For $\lambda = 2$: $(A - 2I) v = \begin{pmatrix} 1 & 1 \\ 0 & 0
+\end{pmatrix} v = 0 \Rightarrow v_1 + v_2 = 0$. Eigenvector: $(1,
+-1)^T$.
+
+### Practice — Warm
+
+**W1.** Eigenvalues of $\begin{pmatrix} 5 & 0 \\ 0 & 7 \end{pmatrix}$?
+
+<details class="hint"><summary>Full solution</summary>
+$5, 7$.
+</details>
+
+**W2.** Trace of $\begin{pmatrix} 3 & 1 \\ -1 & 2 \end{pmatrix}$?
+
+<details class="hint"><summary>Full solution</summary>
+$3 + 2 = 5$.
+</details>
+
+**W3.** $\det \begin{pmatrix} 2 & 0 \\ 0 & 3 \end{pmatrix}$?
+
+<details class="hint"><summary>Full solution</summary>
+$6$, also = product of eigenvalues.
+</details>
+
+### Practice — Working
+
+**P1.** Eigenvalues of $\begin{pmatrix} 4 & 1 \\ 2 & 3 \end{pmatrix}$?
+
+<details class="hint"><summary>Full solution</summary>
+$\lambda^2 - 7\lambda + 10 = 0 \Rightarrow \lambda = 5, 2$. (Discover
+P2.)
+</details>
+
+**P2.** Eigenvectors for $\lambda = 5$ in P1?
+
+<details class="hint"><summary>Full solution</summary>
+$(A - 5I) v = 0 \Rightarrow v_1 = v_2$. $(1, 1)^T$.
+</details>
+
+**P3.** Compute $\det A$ via product of eigenvalues for the matrix
+in P1.
+
+<details class="hint"><summary>Full solution</summary>
+$5 \cdot 2 = 10$. Direct: $4 \cdot 3 - 1 \cdot 2 = 10$ ✓.
+</details>
+
+### Practice — Stretch
+
+**S1.** **PCA in ML.** **Principal Component Analysis** decomposes a
+data covariance matrix into eigenvectors (the *principal components*).
+Why are the eigenvectors with the largest eigenvalues the "most
+informative" directions?
+
+<details class="hint"><summary>Full solution</summary>
+**Eigenvalues of the covariance matrix = variances along the
+corresponding eigenvector directions.** The eigenvector with largest
+eigenvalue is the direction of *greatest variance* — where the data
+spreads most. PCA projects high-dim data onto top-$k$ eigenvectors,
+preserving as much variance as possible while reducing dimension.
+
+PCA is *the* classic dimensionality reduction technique. Modern
+self-supervised representation learning (SimCLR, BYOL) often
+*implicitly* learns directions analogous to PCA components.
+</details>
+
+**S2.** **Google's PageRank** algorithm assigns each web page an
+*importance score* given by the eigenvector of the link matrix
+corresponding to eigenvalue 1. Why does this work?
+
+<details class="hint"><summary>Full solution</summary>
+The link matrix $A_{ij}$ encodes "fraction of page $j$'s outgoing
+links that go to page $i$." The eigenvector $r$ with $A r = r$
+satisfies "score $r_i$ equals weighted sum of scores of pages linking
+*to* $i$" — exactly the recursive definition of importance.
+
+Existence is guaranteed by the **Perron-Frobenius theorem** for non-
+negative matrices. The eigenvector is computed iteratively (the
+*power method*).
+
+Google's $250B+ valuation initially rested on this eigenvalue
+calculation. Linear algebra you learned in 30 minutes built one of
+the most consequential companies of the modern era.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Every matrix has real eigenvalues."** No — rotations have only
+   complex (non-real) eigenvalues.
+2. **"Eigenvectors are unique."** Eigenvectors are unique up to
+   *scalar multiple*. The whole *eigenspace* (1D for distinct
+   eigenvalues, possibly higher for repeated) shares the same
+   eigenvalue.
+3. **"All matrices diagonalise."** No — *defective* matrices have
+   fewer eigenvectors than dimensions; they don't diagonalise. (Jordan
+   form handles them, Tier 6+.)
+:::
+
+### Self-Assessment
+
+1. Could you compute the characteristic polynomial of a 2×2 matrix?
+2. Without scrolling back, what are the eigenvalues of $\begin{pmatrix}
+   6 & 0 \\ 0 & -2 \end{pmatrix}$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $6, -2$.)
+
+- **3 yes:** ready for **[05 · Partial Derivatives](../05-partial-derivatives/index.qmd)**.
+- **2 yes:** redo **S2** (PageRank).
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[02 · Linear Systems](../02-linear-systems-gaussian/index.qmd)** —
+  to find eigenvectors.
+- **[03 · Vector Spaces](../03-vector-spaces/index.qmd)** —
+  eigenspaces are subspaces.
+
+### What this unlocks
+
+- **Tier 6 — Spectral Theorem** — symmetric matrices fully
+  diagonalise.
+- **Tier 7 — Functional Analysis** — operators on infinite-dimensional
+  spaces (eigenvalues become spectra).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** PCA (S1), spectral methods, attention
+in Transformers (computing eigenvalues for matrix decompositions),
+random matrix theory in deep learning theory.
+:::
+
+::: {.applied-callout}
+**Search & ranking.** PageRank (S2), HITS, modern recommender
+systems all use eigenvector computations.
+:::
+
+::: {.applied-callout}
+**Physics.** Quantum mechanics: observables are operators;
+eigenvalues are *measured values*; eigenvectors are *energy
+states*. Atomic and molecular structure is fundamentally an
+eigenvalue problem.
+:::
