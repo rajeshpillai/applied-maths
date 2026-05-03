@@ -1,0 +1,427 @@
+---
+title: "10 · The Pythagorean Theorem"
+subtitle: "The deepest fact about right triangles — proved by rearranging squares"
+lesson-id: "t2.pythagorean-theorem"
+tier: 2
+prerequisites: ["t1.shapes-angles", "t1.area-perimeter-volume", "t2.square-roots-irrationals"]
+unlocks: []
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T1 L12 — Shapes and Angles](../../tier-1-foundations/12-shapes-angles/index.qmd)
+   and [09 · Square Roots](../09-square-roots-irrationals/index.qmd)?
+2. Do you know what a *right triangle* is — a triangle with one 90°
+   corner?
+3. Comfortable with $a^2 + b^2 = c^2$ as algebra?
+:::
+
+## Touch
+
+Drag the two shorter sides $a$ and $b$ of a right triangle. The
+hypotenuse $c$ updates — and the squares built on each side show the
+theorem in action.
+
+```{ojs}
+viewof aSide = Inputs.range([1, 10], {value: 3, step: 1, label: "a (vertical leg):"})
+viewof bSide = Inputs.range([1, 10], {value: 4, step: 1, label: "b (horizontal leg):"})
+```
+
+```{ojs}
+{
+  const c = Math.sqrt(aSide**2 + bSide**2);
+  const W = 720, H = 480, scale = 22;
+  const ox = 200, oy = 250;  // top-right corner of the right angle
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa;");
+
+  // Triangle vertices
+  const A = {x: ox, y: oy - aSide * scale};       // top of vertical leg
+  const B = {x: ox, y: oy};                        // right angle
+  const C = {x: ox + bSide * scale, y: oy};        // right end of horizontal leg
+
+  // Square on a (left)
+  svg.append("rect").attr("x", ox - aSide * scale).attr("y", oy - aSide * scale)
+    .attr("width", aSide * scale).attr("height", aSide * scale)
+    .attr("fill", "#90caf9").attr("opacity", 0.6).attr("stroke", "#2c5f7c");
+  svg.append("text").attr("x", ox - aSide * scale / 2).attr("y", oy - aSide * scale / 2 + 6)
+    .attr("text-anchor", "middle").attr("font-size", "16").attr("font-weight", "bold").attr("fill", "#2c5f7c")
+    .text(`a² = ${aSide**2}`);
+
+  // Square on b (bottom)
+  svg.append("rect").attr("x", ox).attr("y", oy)
+    .attr("width", bSide * scale).attr("height", bSide * scale)
+    .attr("fill", "#a5d6a7").attr("opacity", 0.6).attr("stroke", "#2e7d32");
+  svg.append("text").attr("x", ox + bSide * scale / 2).attr("y", oy + bSide * scale / 2 + 6)
+    .attr("text-anchor", "middle").attr("font-size", "16").attr("font-weight", "bold").attr("fill", "#2e7d32")
+    .text(`b² = ${bSide**2}`);
+
+  // Square on hypotenuse — rotated rectangle
+  // Hypotenuse goes from A (top of vertical) to C (end of horizontal)
+  // The square sits *outside* the triangle, on the hypotenuse
+  // Direction along hypotenuse from A to C
+  const dx = C.x - A.x, dy = C.y - A.y;
+  // Perpendicular (outward from triangle) — rotate 90° clockwise from AC direction
+  const px = -dy, py = dx;  // rotate (dx, dy) by 90° → (-dy, dx) outward
+  const len = Math.sqrt(dx*dx + dy*dy);
+  const nx = px / len, ny = py / len;
+  // Square corners
+  const SQ = [A, C, {x: C.x + dx/len * 0 + nx * len, y: C.y + ny * len}, {x: A.x + nx * len, y: A.y + ny * len}];
+  // Adjust: third corner is C + perpendicular*len; fourth is A + perpendicular*len
+  SQ[2] = {x: C.x + nx * len, y: C.y + ny * len};
+  SQ[3] = {x: A.x + nx * len, y: A.y + ny * len};
+  const pathStr = `M ${SQ[0].x},${SQ[0].y} L ${SQ[1].x},${SQ[1].y} L ${SQ[2].x},${SQ[2].y} L ${SQ[3].x},${SQ[3].y} Z`;
+  svg.append("path").attr("d", pathStr)
+    .attr("fill", "#f8bbd0").attr("opacity", 0.6).attr("stroke", "#c2185b");
+  // Centroid for label
+  const cx = (SQ[0].x + SQ[1].x + SQ[2].x + SQ[3].x) / 4;
+  const cy = (SQ[0].y + SQ[1].y + SQ[2].y + SQ[3].y) / 4;
+  svg.append("text").attr("x", cx).attr("y", cy + 6)
+    .attr("text-anchor", "middle").attr("font-size", "16").attr("font-weight", "bold").attr("fill", "#c2185b")
+    .text(`c² = ${(c**2).toFixed(1)}`);
+
+  // Triangle outline
+  svg.append("polygon")
+    .attr("points", `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`)
+    .attr("fill", "none").attr("stroke", "#1f2933").attr("stroke-width", 2);
+  // Right-angle marker
+  svg.append("rect").attr("x", B.x).attr("y", B.y - 12).attr("width", 12).attr("height", 12)
+    .attr("fill", "none").attr("stroke", "#1f2933");
+
+  // Side labels
+  svg.append("text").attr("x", B.x - 12).attr("y", (A.y + B.y)/2)
+    .attr("text-anchor", "end").attr("font-size", "14").attr("font-weight", "bold").text(`a = ${aSide}`);
+  svg.append("text").attr("x", (B.x + C.x)/2).attr("y", B.y + 18)
+    .attr("text-anchor", "middle").attr("font-size", "14").attr("font-weight", "bold").text(`b = ${bSide}`);
+
+  // Equation
+  svg.append("text").attr("x", W - 30).attr("y", 30)
+    .attr("text-anchor", "end").attr("font-size", "16").attr("font-family", "monospace")
+    .text(`a² + b² = c²`);
+  svg.append("text").attr("x", W - 30).attr("y", 52)
+    .attr("text-anchor", "end").attr("font-size", "14").attr("font-family", "monospace").attr("fill", "#666")
+    .text(`${aSide**2} + ${bSide**2} = ${(c**2).toFixed(1)}`);
+  svg.append("text").attr("x", W - 30).attr("y", 70)
+    .attr("text-anchor", "end").attr("font-size", "14").attr("font-family", "monospace").attr("fill", "#c2185b").attr("font-weight", "bold")
+    .text(`c = √${(c**2).toFixed(1)} = ${c.toFixed(2)}`);
+
+  return svg.node();
+}
+```
+
+The blue square + the green square = the pink square. Always. That's
+the **Pythagorean theorem**.
+
+## Wonder
+
+1. Set $a = 3, b = 4$. The hypotenuse comes out to *exactly* 5. Check:
+   $9 + 16 = 25 = 5^2$.
+2. What if $a = 5, b = 5$? What is $c$?
+3. The theorem only works for **right** triangles. Why might the right
+   angle be special?
+
+## Discover
+
+### Problem 1
+
+For a right triangle with legs $a = 5$ and $b = 12$, find $c$.
+
+<details class="hint"><summary>Full solution</summary>
+$c^2 = 5^2 + 12^2 = 25 + 144 = 169$. $c = \sqrt{169} = 13$.
+
+A 5-12-13 triangle is another **Pythagorean triple** — three integers
+satisfying $a^2 + b^2 = c^2$. There are infinitely many.
+</details>
+
+### Problem 2
+
+For a right triangle with hypotenuse $c = 10$ and one leg $a = 6$, find
+the other leg.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Rearrange: $b^2 = c^2 - a^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$b^2 = 100 - 36 = 64$. $b = 8$. (Yet another Pythagorean triple:
+6-8-10, which is a 3-4-5 scaled by 2.)
+</details>
+
+### Problem 3
+
+What is the diagonal of a square with side 1?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The diagonal is the hypotenuse of a right triangle with both legs of
+length 1.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$d^2 = 1^2 + 1^2 = 2$. $d = \sqrt{2} \approx 1.414$.
+
+This is the irrational number from [Lesson 9](../09-square-roots-irrationals/index.qmd) — and
+its first geometric appearance in human history was as the diagonal of
+a unit square. The Pythagoreans (who proved $\sqrt{2}$ irrational)
+encountered it precisely *here*.
+</details>
+
+### Problem 4
+
+Use the coordinate plane (Lesson 4): find the **distance** from
+$(1, 2)$ to $(4, 6)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sketch the segment. The horizontal change is $4 - 1 = 3$, the vertical
+change is $6 - 2 = 4$. The distance is the hypotenuse of a right
+triangle with legs 3 and 4.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$d^2 = 3^2 + 4^2 = 25$, so $d = 5$.
+
+In general, the distance between $(x_1, y_1)$ and $(x_2, y_2)$ is
+$$d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}.$$
+
+This is the **distance formula** — Pythagoras applied to coordinates.
+Together with [Lesson 4](../04-coordinate-plane/index.qmd) (the
+plane), this completes the bridge between geometry and algebra.
+</details>
+
+### Problem 5
+
+A 5-metre ladder leans against a wall, with its base **3 m from the
+wall**. How high up the wall does it reach?
+
+<details class="hint"><summary>Full solution</summary>
+The ladder, the wall, and the ground form a right triangle with legs
+$h$ (height) and 3 (distance from wall), and hypotenuse 5 (ladder
+length).
+$h^2 + 9 = 25 \Rightarrow h^2 = 16 \Rightarrow h = 4$ m.
+
+The classic ladder problem. Pythagoras shows up in carpentry,
+construction, surveying, navigation — anywhere you need a quick
+right-triangle calculation.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Pythagorean Theorem.** In a right triangle with legs $a, b$ and
+hypotenuse $c$ (the side opposite the right angle, always the longest):
+$$a^2 + b^2 = c^2.$$
+
+**A Pythagorean triple** is a set of three positive integers
+$(a, b, c)$ satisfying this equation. Examples: $(3, 4, 5), (5, 12, 13),
+(8, 15, 17), (7, 24, 25)$ — and any positive multiple of these.
+
+**Distance formula** in the coordinate plane: distance from $(x_1, y_1)$
+to $(x_2, y_2)$ is
+$$d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}.$$
+
+The theorem also has a **converse**: if $a^2 + b^2 = c^2$ for the three
+sides of a triangle, then the triangle is right-angled.
+
+:::
+
+> *Square the legs, add — that equals the square of the hypotenuse;*
+> *Take the square root for the actual length;*
+> *Right angles only — but the world is full of them.*
+
+## Apply
+
+### Worked example
+
+> A field is rectangular, **40 m by 30 m**. A walkway runs diagonally
+> from one corner to the opposite. How long is it?
+
+The diagonal of a rectangle is the hypotenuse of a right triangle with
+legs equal to the rectangle's sides:
+$$d^2 = 40^2 + 30^2 = 1600 + 900 = 2500 \quad \Rightarrow \quad d = 50 \text{ m}.$$
+
+**Answer: 50 m.** (Notice this is a 30-40-50 right triangle — a
+3-4-5 scaled by 10.) The diagonal saves 20 m versus walking around
+two sides (30 + 40 = 70).
+
+### Practice — Warm
+
+**W1.** $a = 6, b = 8$. Find $c$.
+
+<details class="hint"><summary>Full solution</summary>
+$c^2 = 36 + 64 = 100$, $c = 10$.
+</details>
+
+**W2.** $c = 17, a = 8$. Find $b$.
+
+<details class="hint"><summary>Full solution</summary>
+$b^2 = 289 - 64 = 225$, $b = 15$.
+</details>
+
+**W3.** Distance from $(0, 0)$ to $(3, 4)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{9 + 16} = 5$.
+</details>
+
+### Practice — Working
+
+**P1.** A right triangle has legs 9 and 12. Find the hypotenuse.
+
+<details class="hint"><summary>Full solution</summary>
+$c^2 = 81 + 144 = 225$, $c = 15$. (Another 3-4-5 multiple, scaled by 3.)
+</details>
+
+**P2.** Distance from $(-2, 1)$ to $(4, 9)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\Delta x = 6$, $\Delta y = 8$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$d = \sqrt{36 + 64} = \sqrt{100} = 10$.
+</details>
+
+**P3.** A TV is advertised as **42 inches** — that's the *diagonal*
+length of the screen. If the screen has aspect ratio 16:9 (width:height),
+what are the actual width and height?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let width = $16k$, height = $9k$. Diagonal: $\sqrt{(16k)^2 + (9k)^2}
+= 42$. Solve for $k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(16k)^2 + (9k)^2 = 42^2 \Rightarrow 256k^2 + 81k^2 = 1764 \Rightarrow
+337 k^2 = 1764 \Rightarrow k^2 \approx 5.235 \Rightarrow k \approx 2.288$.
+
+Width $\approx 16 \times 2.288 \approx 36.6$ inches. Height $\approx
+9 \times 2.288 \approx 20.6$ inches. Quick check: $\sqrt{36.6^2 + 20.6^2}
+\approx \sqrt{1340 + 424} \approx 42$ ✓.
+
+TV manufacturers quote the diagonal because it's slightly larger and
+sounds more impressive, and because it's a single number.
+</details>
+
+### Practice — Stretch
+
+**S1.** **3D distance.** A cuboid measures 3 × 4 × 12. What is the length
+of its space diagonal (corner to opposite corner through the interior)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First find the diagonal of the base ($3 \times 4$ rectangle). Then the
+space diagonal is the hypotenuse of a right triangle with legs (base
+diagonal) and 12.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Base diagonal: $\sqrt{9 + 16} = 5$.
+Space diagonal: $\sqrt{5^2 + 12^2} = \sqrt{25 + 144} = \sqrt{169} = 13$.
+
+**Generalised:** for a cuboid $a \times b \times c$, space diagonal $=
+\sqrt{a^2 + b^2 + c^2}$ — the 3D Pythagorean theorem. By induction,
+in any dimension $n$ the diagonal of an $n$-orthotope is the square
+root of the sum of squared edges.
+
+This is exactly the formula every game engine uses to compute distances
+in 3D space, millions of times per frame.
+</details>
+
+**S2.** **Why does the theorem work?** Below is one of dozens of known
+proofs. Consider a large square of side $a + b$. Inside, four right
+triangles (legs $a, b$, hypotenuse $c$) are arranged to leave an
+inner square of side $c$. The total area is $(a + b)^2$. The four
+triangles contribute $4 \cdot \tfrac{1}{2} ab = 2ab$. So the inner
+square has area $(a + b)^2 - 2ab = a^2 + 2ab + b^2 - 2ab = a^2 + b^2$.
+But it is also $c^2$. Hence $a^2 + b^2 = c^2$.
+
+What is the *one move* that makes this proof work?
+
+<details class="hint"><summary>Full solution</summary>
+**Counting the same area two different ways.** Once as $(a + b)^2$
+minus four triangles; once as $c^2$. Both expressions describe the same
+inner region, so they must be equal.
+
+Counting area two ways is one of the most powerful proof techniques in
+geometry. Pythagoras' theorem has hundreds of proofs in this style.
+The Indian mathematician Bhāskara II (12th century) gave a famously
+elegant one-word proof: he drew the rearrangement above and wrote
+just "**Behold!**" — a complete proof.
+
+Tier 3 will revisit Pythagoras using *similar triangles* (Lesson 13)
+for a proof from a totally different direction.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$a + b = c$."** No — that's the *sum of legs*, not the
+   hypotenuse. $3 + 4 = 7$, but the hypotenuse is 5. The squares are
+   essential.
+2. **"Pythagoras applies to all triangles."** **No** — only **right**
+   triangles. For general triangles you need the *Law of Cosines* (Tier
+   3 trig), which generalises Pythagoras with a correction term.
+3. **"The hypotenuse is *always* labelled $c$."** It's the *longest*
+   side, opposite the right angle. The labelling $a, b$ for legs and
+   $c$ for hypotenuse is convention.
+:::
+
+### Self-Assessment
+
+1. Could you sketch a right triangle and explain why $a^2 + b^2 = c^2$,
+   using the area-counting argument?
+2. Without scrolling back, can you find the distance from $(2, 1)$ to
+   $(7, 13)$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $\sqrt{25 + 144} = 13$.)
+
+- **3 yes:** ready for **[11 · Polynomials](../11-polynomials/index.qmd)**.
+- **2 yes:** redo **S1** (3D distance) — the formula generalises
+  cleanly.
+- **0–1 yes:** re-read *Discover P4* and the worked example.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L12 — Shapes and Angles](../../tier-1-foundations/12-shapes-angles/index.qmd)**
+- **[T1 L13 — Area, Perimeter, Volume](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)**
+- **[09 · Square Roots and Irrationals](../09-square-roots-irrationals/index.qmd)**
+
+### What this unlocks
+
+- **Tier 3 — Trigonometry** — sine, cosine, tangent are ratios of
+  right-triangle sides; Pythagoras gives the identity
+  $\sin^2 \theta + \cos^2 \theta = 1$.
+- **Tier 4 — 3D Geometry & Vectors** — the distance formula extends
+  to 3D and beyond; magnitude of a vector is a Pythagorean
+  computation.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & graphics.** Distance, collision detection,
+camera-to-object measurement — every frame of every 3D game runs
+millions of Pythagorean calculations. Many engines compute the
+*squared* distance to skip the square root for speed.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** **Euclidean distance** between feature
+vectors is the basic similarity measure for many ML algorithms
+(k-nearest-neighbours, k-means clustering). It is Pythagoras
+generalised to many dimensions.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Pythagoras' theorem generalises in
+beautiful directions: to inner-product spaces (Tier 5+ linear
+algebra), to non-Euclidean geometries (different formulas hold on
+spheres and hyperbolic spaces), and to abstract metric spaces.
+It is the *defining* formula for Euclidean geometry.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Construction (squaring corners with a 3-4-5
+triangle is an ancient builder's trick), navigation (great-circle
+distances), surveying, archaeology — Pythagoras has been
+indispensable in human practice for over 2500 years.
+:::
