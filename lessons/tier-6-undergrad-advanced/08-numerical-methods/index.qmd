@@ -1,0 +1,357 @@
+---
+title: "08 · Numerical Methods"
+subtitle: "When closed forms fail — algorithms for the rest"
+lesson-id: "t6.numerical-methods"
+tier: 6
+prerequisites: ["t4.related-rates", "t5.linear-systems-gaussian"]
+unlocks: []
+applied-domains: ["systems", "research", "ai-ml"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T4 L07 — Related Rates / Linear Approximation](../../tier-4-precalc-calculus/07-related-rates/index.qmd)?
+2. Recall Newton's method (T4 L06 S2)?
+3. Comfortable with linear systems (T5 L02)?
+:::
+
+## Touch
+
+Numerical methods solve problems for which no closed-form solution
+exists, by *iterative* approximation.
+
+```{ojs}
+viewof nmSel = Inputs.select(["Newton's method for roots", "bisection method", "Euler's method for ODEs", "Runge-Kutta 4 for ODEs", "trapezoidal rule for integrals"], {value: "Newton's method for roots", label: "Method:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(nmSel) {
+    case "Newton's method for roots": info = "x_(n+1) = x_n − f(x_n)/f'(x_n). Converges quadratically: errors square. Fast but needs good initial guess."; break;
+    case "bisection method": info = "Bracket sign-change [a, b]. Test midpoint, recurse on the half containing the root. Linear convergence (one bit/iter). Always works if IVT applies."; break;
+    case "Euler's method for ODEs": info = "y_(n+1) = y_n + h·f(t_n, y_n). Simplest ODE solver. Error per step: O(h²). Total error: O(h)."; break;
+    case "Runge-Kutta 4 for ODEs": info = "Higher-order: averages 4 evaluations per step. Total error: O(h^4). Standard for general-purpose ODE solving."; break;
+    case "trapezoidal rule for integrals": info = "∫ f dx ≈ h·(f(x₀)/2 + f(x₁) + ... + f(x_n)/2). Error O(h²). Simpson's rule (parabolic) gives O(h⁴)."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Newton's method is fast but needs $f'$. Bisection is slow but
+   robust. What's the trade-off?
+2. ODE solvers integrate forward in time. How accurate is a single
+   step?
+3. Why does halving the step often *quadruple* the accuracy in good
+   methods?
+
+## Discover
+
+### Problem 1
+
+**Newton's method.** To find a root of $f$: iterate $x_{n+1} = x_n -
+f(x_n)/f'(x_n)$.
+
+Find a root of $f(x) = x^3 - 2$ starting at $x_0 = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f'(x) = 3 x^2$. $x_{n+1} = x_n - (x_n^3 - 2)/(3 x_n^2) = (2 x_n^3 +
+2)/(3 x_n^2) = (2 x_n + 2/x_n^2)/3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $x_0 = 1$. $f(1) = -1$. $x_1 = 1 - (-1)/3 = 4/3 \approx 1.333$.
+- $x_1 = 1.333$. $x_1^3 = 2.370$. $f = 0.370$. $x_2 = 1.333 -
+  0.370/(3 \cdot 1.778) = 1.264$.
+- $x_3 \approx 1.260$, $x_4 \approx 1.2599$ — converging to $\sqrt[3]{2}
+  \approx 1.2599$.
+
+**Quadratic convergence** when close: number of correct digits roughly
+doubles each step.
+</details>
+
+### Problem 2
+
+**Bisection method.** Find a root of $f$ on $[a, b]$ with $f(a) \cdot
+f(b) < 0$ (sign change). Iteratively halve.
+
+Apply to $f(x) = x^2 - 2$ on $[1, 2]$ for 4 iterations.
+
+<details class="hint"><summary>Full solution</summary>
+- $f(1) = -1, f(2) = 2$. Midpoint 1.5, $f(1.5) = 0.25 > 0$. Recurse
+  on $[1, 1.5]$.
+- Midpoint 1.25, $f = -0.4375$. Recurse on $[1.25, 1.5]$.
+- Midpoint 1.375, $f = -0.109$. Recurse on $[1.375, 1.5]$.
+- Midpoint 1.4375, $f = 0.066$. Recurse on $[1.375, 1.4375]$.
+
+After 4 iterations: root in $[1.375, 1.4375]$. **Linear
+convergence:** one bit per iteration. Slow but always works.
+</details>
+
+### Problem 3
+
+**Euler's method.** For $y' = f(t, y)$ with $y(t_0) = y_0$: iterate
+$y_{n+1} = y_n + h f(t_n, y_n)$.
+
+Apply to $y' = y, y(0) = 1$, $h = 0.1$, for 3 steps. Compare with
+exact $y = e^t$.
+
+<details class="hint"><summary>Full solution</summary>
+- $y_0 = 1$. $y_1 = 1 + 0.1 \cdot 1 = 1.1$. (Exact: $e^{0.1} \approx
+  1.1052$.)
+- $y_2 = 1.1 + 0.1 \cdot 1.1 = 1.21$. (Exact: $e^{0.2} \approx 1.2214$.)
+- $y_3 = 1.331$. (Exact: $e^{0.3} \approx 1.3499$.)
+
+Error grows $\sim h$ per step → cumulative $O(h)$ over fixed time.
+**First-order method.**
+</details>
+
+### Problem 4
+
+**Runge-Kutta 4 (RK4).** Higher-order ODE solver:
+$$k_1 = f(t_n, y_n), \quad k_2 = f(t_n + h/2, y_n + h k_1/2),$$
+$$k_3 = f(t_n + h/2, y_n + h k_2/2), \quad k_4 = f(t_n + h, y_n + h k_3),$$
+$$y_{n+1} = y_n + (h/6)(k_1 + 2 k_2 + 2 k_3 + k_4).$$
+
+Why is this so much better than Euler?
+
+<details class="hint"><summary>Full solution</summary>
+**RK4 has $O(h^4)$ accuracy per step**, vs Euler's $O(h^2)$. Halving
+$h$ → 16× more accurate (vs Euler's 4×).
+
+For most problems, RK4 is the **default**: cheap, accurate, easy to
+implement. Built into MATLAB, SciPy, virtually every numerical
+library.
+</details>
+
+### Problem 5
+
+**Trapezoidal rule.** $\int_a^b f \approx h (f(x_0)/2 + f(x_1) +
+\cdots + f(x_{n-1}) + f(x_n)/2)$ with $h = (b-a)/n$.
+
+Apply to $\int_0^1 x^2 \, dx$ with $n = 4$.
+
+<details class="hint"><summary>Full solution</summary>
+$h = 0.25$. $f$ values at $0, 0.25, 0.5, 0.75, 1$: $0, 0.0625, 0.25,
+0.5625, 1$.
+
+Sum: $0/2 + 0.0625 + 0.25 + 0.5625 + 1/2 = 1.375$. Trapezoid:
+$0.25 \cdot 1.375/4$... let me redo.
+
+Trap formula: $h \cdot$ (sum). $0.25 \cdot 1.375 = 0.34375$.
+
+Exact: $1/3 \approx 0.333$. **Slightly over** (trap rule
+*overestimates* for convex functions). Error $O(h^2)$ scales
+predictably.
+
+**Simpson's rule** (uses parabolic interpolation): error $O(h^4)$ —
+much faster convergence.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Numerical methods** = algorithms that *approximate* solutions when
+closed forms are unavailable.
+
+**Root finding:**
+
+- **Newton's method:** $x_{n+1} = x_n - f(x_n)/f'(x_n)$. Quadratic
+  convergence; needs derivative.
+- **Bisection:** halve a sign-change bracket. Linear; always works.
+- **Secant method:** Newton-like without derivative; superlinear.
+
+**ODE integration ($y' = f(t, y)$):**
+
+- **Euler:** $y_{n+1} = y_n + h f(t_n, y_n)$. $O(h)$ accuracy.
+- **RK4:** averages 4 evaluations. $O(h^4)$.
+- **Stiff** equations need *implicit* methods (backward Euler,
+  Rosenbrock).
+
+**Numerical integration:**
+
+- **Trapezoidal rule:** $O(h^2)$.
+- **Simpson's rule:** $O(h^4)$ for smooth integrands.
+- **Gauss quadrature:** ultra-high order via clever node placement.
+
+**Linear systems:**
+
+- **Gaussian elimination:** $O(n^3)$ direct.
+- **Iterative:** Jacobi, Gauss-Seidel, conjugate gradient, GMRES —
+  faster for sparse / large systems.
+
+**Convergence order $p$:** error per step $\sim h^p$. Higher $p$ =
+better accuracy for given $h$.
+
+:::
+
+> *Numerical methods solve what algebra can't;*
+> *Order p: halving step → 2^p improvement;*
+> *Newton (fast), bisection (robust), RK4 (default ODE), Simpson (default integral).*
+
+## Apply
+
+### Worked example
+
+> Use Newton's method to find $\sqrt{5}$ to 4 decimals.
+
+$f(x) = x^2 - 5$. Newton: $x_{n+1} = (x_n + 5/x_n)/2$.
+
+- $x_0 = 2$. $x_1 = (2 + 2.5)/2 = 2.25$.
+- $x_2 = (2.25 + 5/2.25)/2 = (2.25 + 2.222)/2 = 2.236$.
+- $x_3 = (2.236 + 2.236)/2 \approx 2.2361$.
+
+**$\sqrt{5} \approx 2.2361$** in 3 iterations.
+
+### Practice — Warm
+
+**W1.** Newton's update for $f(x) = x^2 - a$?
+
+<details class="hint"><summary>Full solution</summary>
+$x_{n+1} = (x_n + a/x_n)/2$ — Babylonian square root.
+</details>
+
+**W2.** Bisection on $[0, 1]$ for 5 iterations: bracket width?
+
+<details class="hint"><summary>Full solution</summary>
+$1/32 \approx 0.031$.
+</details>
+
+**W3.** Order of trapezoidal rule?
+
+<details class="hint"><summary>Full solution</summary>
+$2$.
+</details>
+
+### Practice — Working
+
+**P1.** Apply Newton's method to find a root of $f(x) = \cos x - x$
+starting at $x_0 = 0.5$, 3 iterations.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = -\sin x - 1$. $x_1 = 0.5 - (\cos 0.5 - 0.5)/(-\sin 0.5 - 1) =
+0.5 - 0.378/(-1.479) \approx 0.7552$.
+
+$x_2 \approx 0.7391$. $x_3 \approx 0.7391$. **Dottie number**.
+</details>
+
+**P2.** One Euler step for $y' = y^2, y(0) = 1, h = 0.1$.
+
+<details class="hint"><summary>Full solution</summary>
+$y_1 = 1 + 0.1 \cdot 1 = 1.1$. (Exact $y = 1/(1 - t) = 1.111$, blows
+up at $t = 1$.)
+</details>
+
+**P3.** $\int_0^\pi \sin x \, dx$ by trapezoidal rule with $n = 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$h = \pi/2$. $f(0) = 0, f(\pi/2) = 1, f(\pi) = 0$. Sum: $0/2 + 1 +
+0/2 = 1$. Trap: $\pi/2 \cdot 1 = \pi/2 \approx 1.571$.
+
+(Exact: $2$. Coarse $n$ gives 21% error.)
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why is the *condition number* important?** A linear system
+$Ax = b$ might have a "well-determined" solution mathematically but
+be wildly sensitive to small errors in $A$ or $b$ — *ill-conditioned*.
+
+<details class="hint"><summary>Full solution</summary>
+**Condition number** $\kappa(A) = \|A\| \cdot \|A^{-1}\|$. If
+$\kappa$ is huge, small input errors get amplified. Newton's method,
+matrix inversion, and many algorithms degrade.
+
+In ML: ill-conditioned Hessians cause slow convergence of gradient
+descent. Modern optimisers (Adam) effectively rescale the gradient
+to handle this.
+
+In physics simulation: $\kappa$ governs stability and accuracy
+budgets. Sometimes the model is *intrinsically* ill-conditioned and
+needs a different formulation.
+
+**Numerical analysis** is the discipline of designing algorithms to
+control these errors.
+</details>
+
+**S2.** **Why are GPUs so fast at numerical linear algebra?**
+
+<details class="hint"><summary>Full solution</summary>
+**Matrix operations are *embarrassingly parallel*** — each output
+entry can be computed independently. GPUs have thousands of small
+cores; each handles a subset of the matrix.
+
+The *theoretical peak* of a top GPU is ~50 TFLOPS (50 trillion
+floating-point ops/sec). Modern AI training relies entirely on this
+parallelism.
+
+**Tensor cores** (NVIDIA, since Volta 2017) accelerate
+mixed-precision matrix multiply specifically for ML, achieving even
+higher throughput.
+
+The numerical methods you just learned scale up to industrial
+training runs because of this hardware-algorithm co-evolution.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Newton's method always converges."** Only with a good initial
+   guess in a region where $f'$ doesn't vanish.
+2. **"Higher order = better."** Not for non-smooth integrands. Choose
+   method based on problem.
+3. **"Numerical = approximate (so inferior)."** Most real-world
+   problems have *no* closed form. Numerical methods are the only
+   answer.
+:::
+
+### Self-Assessment
+
+1. Could you state Newton's method?
+2. Without scrolling back, what's the order of RK4?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $4$.)
+
+- **3 yes:** ready for **[09 · Convex Optimisation](../09-convex-optimization/index.qmd)**.
+- **2 yes:** redo **S1** (condition number).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T4 L07 — Related Rates / Linear Approximation](../../tier-4-precalc-calculus/07-related-rates/index.qmd)** —
+  Newton's method.
+- **[T5 L02 — Linear Systems](../../tier-5-undergrad-core/02-linear-systems-gaussian/index.qmd)**
+
+### What this unlocks
+
+- **[09 · Convex Optimisation](../09-convex-optimization/index.qmd)**
+- **[10 · Gradient Methods](../10-gradient-methods/index.qmd)**
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Every training step is numerical
+linear algebra at scale (S2). Optimisers, ODE solvers (in neural
+ODEs), Bayesian methods — all numerical.
+:::
+
+::: {.applied-callout}
+**Engineering.** Finite element, finite volume methods are
+discretised PDEs. Computational fluid dynamics, structural
+analysis.
+:::
+
+::: {.applied-callout}
+**Game development.** Physics integrators (Verlet, RK4, semi-implicit
+Euler). Real-time collision detection. Procedural generation.
+:::
