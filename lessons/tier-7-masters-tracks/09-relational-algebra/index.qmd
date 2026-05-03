@@ -1,0 +1,380 @@
+---
+title: "09 · Relational Algebra and Query Optimisation"
+subtitle: "Why every database query is just an algebra expression — and why that matters."
+lesson-id: "t7.relational-algebra"
+tier: 7
+prerequisites: ["t5.sets-logic-proofs"]
+unlocks: []
+applied-domains: ["databases"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L01 — Sets, Logic, Proofs](../../tier-5-undergrad-core/01-sets-logic-proofs/index.qmd)?
+2. Have you used SQL? `SELECT ... FROM ... WHERE ... JOIN ...`?
+3. Familiar with sets and Cartesian product?
+:::
+
+## Touch
+
+A database table — students, courses, enrolments — is a *set of
+tuples*. SQL queries are *algebra expressions* over these sets.
+
+```{ojs}
+viewof opSel = Inputs.select(["σ Selection (filter rows)", "π Projection (pick columns)", "⋈ Join (combine tables)", "∪ Union", "− Difference"], {value: "⋈ Join (combine tables)", label: "Operation:"})
+```
+
+```{ojs}
+{
+  let formula, info;
+  switch(opSel) {
+    case "σ Selection (filter rows)": formula = "σ_φ(R) = { t ∈ R : φ(t) }"; info = "Like SQL WHERE clause."; break;
+    case "π Projection (pick columns)": formula = "π_{a,b,c}(R) = { (t.a, t.b, t.c) : t ∈ R }"; info = "Like SQL SELECT a, b, c."; break;
+    case "⋈ Join (combine tables)": formula = "R ⋈ S = { rs : r ∈ R, s ∈ S, r.x = s.x }"; info = "Combine matching tuples — the heart of SQL."; break;
+    case "∪ Union": formula = "R ∪ S = tuples in R or S"; info = "Tables must have same schema."; break;
+    case "− Difference": formula = "R − S = { t ∈ R : t ∉ S }"; info = "Like SQL EXCEPT."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.05rem; color:#1a237e;">${formula}</div>
+    <div style="font-family:monospace; font-size:0.95rem; color:#444;">${info}</div>
+  </div>`;
+}
+```
+
+Every SQL query has an algebraic representation. The optimiser
+*rewrites* this expression to a faster equivalent.
+
+## Wonder
+
+1. **Codd's theorem** (1970): SQL = relational algebra = first-order
+   logic (over finite structures).
+2. **Logical equivalences** let the optimiser swap operations
+   (e.g., push selections inside joins).
+3. **Cost-based optimisation** picks the algebraic form with the
+   cheapest physical plan.
+
+## Discover
+
+### Problem 1
+
+A **relation** $R$ over schema $\{A_1, \ldots, A_n\}$: subset of
+$\text{dom}(A_1) \times \cdots \times \text{dom}(A_n)$.
+
+A **table** in SQL is essentially a relation (with bag semantics —
+duplicates allowed in SQL but not in pure relational algebra).
+
+The five **primitive operators**:
+
+- $\sigma_\phi(R)$ — selection.
+- $\pi_L(R)$ — projection (where $L$ is a list of attributes).
+- $R \times S$ — Cartesian product.
+- $R \cup S$ — union.
+- $R - S$ — difference.
+
+Show that **join** $R \bowtie S$ can be expressed in terms of these.
+
+<details class="hint"><summary>Full solution</summary>
+$R \bowtie_\phi S = \sigma_\phi(R \times S)$ for theta-join.
+
+For natural join (matching on common attributes): take Cartesian
+product, filter by equality, project away duplicates.
+
+So join is *derived*, not primitive. Intersection: $R \cap S = R - (R - S)$ —
+also derived.
+</details>
+
+### Problem 2
+
+**Selection-projection commute (sort of).**
+
+Show: $\sigma_\phi(\pi_L(R)) = \pi_L(\sigma_\phi(R))$ when $\phi$ uses
+only attributes in $L$.
+
+<details class="hint"><summary>Full solution</summary>
+If $\phi$ depends on $L$ alone, both sides equal "tuples with
+attributes $L$ where $\phi$ holds." Order doesn't matter.
+
+This is a **rewrite rule** for the optimiser: prefer the order that
+filters earlier (less data downstream).
+
+If $\phi$ uses an attribute *outside* $L$: cannot push selection past
+projection — it would need that column.
+</details>
+
+### Problem 3
+
+**Selection pushdown into joins.**
+
+If predicate $\phi$ depends only on attributes of $R$:
+$$
+\sigma_\phi(R \bowtie S) = \sigma_\phi(R) \bowtie S.
+$$
+Why is this a *huge* optimisation?
+
+<details class="hint"><summary>Full solution</summary>
+Doing $\sigma_\phi(R \bowtie S)$ first computes the join (potentially
+huge), then filters. The right side filters $R$ first (much smaller),
+then joins.
+
+If $|R| = 10^6$ and $\phi$ is selective ($10^3$ rows), and $|S| = 10^6$:
+
+- **Left side:** join size $\sim 10^6 \cdot k$ for some $k$ depending on
+  matching, then filter.
+- **Right side:** join $10^3 \times 10^6$ — much smaller intermediate.
+
+This is **predicate pushdown** — fundamental to every SQL optimiser.
+</details>
+
+### Problem 4
+
+**Joins are associative AND commutative** up to attribute renaming.
+
+Why does this matter?
+
+<details class="hint"><summary>Full solution</summary>
+Means $R \bowtie S \bowtie T$ can be evaluated as $(R \bowtie S) \bowtie
+T$ or $R \bowtie (S \bowtie T)$ or $(R \bowtie T) \bowtie S$ etc. —
+**different orders, same result, vastly different costs.**
+
+For $n$-way join: number of orderings is $\sim n!$ — exponential.
+
+Optimisers (DP-based, à la Selinger 1979 / System R, or genetic for
+many tables) search this space using cardinality estimates.
+</details>
+
+### Problem 5
+
+**Codd's theorem** (informal): A query is expressible in relational
+algebra iff it's expressible in (domain-restricted, first-order)
+predicate logic.
+
+State a query *not* expressible in relational algebra.
+
+<details class="hint"><summary>Full solution</summary>
+**Transitive closure.** "Find all ancestors" — recursion. RA is *first-
+order*; transitive closure is genuinely recursive.
+
+SQL extended with `WITH RECURSIVE` (Codd's relational calculus +
+fixpoints, aka Datalog) handles this.
+
+Other not-expressible: "is the graph connected?", "count tuples"
+(without aggregates).
+
+Aggregates (SUM, COUNT) extend RA — modern SQL is "SQL/92 RA + bag
+semantics + aggregates + recursion."
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Relation:** subset of Cartesian product of domains.
+
+**Primitive operators:** $\sigma$ (selection), $\pi$ (projection),
+$\times$ (Cartesian), $\cup$ (union), $-$ (difference).
+
+**Derived:** $\bowtie$ (join), $\cap$, $\div$ (division).
+
+**Equivalences (rewrite rules):**
+
+- $\sigma_{\phi_1}(\sigma_{\phi_2}(R)) = \sigma_{\phi_1 \wedge \phi_2}(R)$.
+- Selection commutes with $\bowtie$ when predicates apply.
+- Projection commutes with $\bowtie$ if attributes preserved.
+- Joins commutative + associative (up to renaming).
+
+**Optimisation:**
+
+- **Logical:** apply equivalences (selection pushdown, projection pushdown,
+  join reordering).
+- **Physical:** pick algorithm (hash join vs sort-merge join vs nested
+  loop) per operator.
+- **Cost-based:** estimate cardinality from statistics (histograms),
+  pick min-cost plan.
+
+**Codd's theorem:** RA = (domain-restricted) FOL over finite structures.
+
+**SQL standard:** RA + bag semantics + aggregates + nulls + recursion
+(`WITH RECURSIVE`).
+
+:::
+
+> *A table is a set of tuples; a query is an algebra expression;*
+> *Equivalences reorder cheaply; the optimiser picks the cheapest plan.*
+
+## Apply
+
+### Worked example
+
+> Two tables: `Students(sid, name, dept)` 50,000 rows;
+> `Enroll(sid, course)` 200,000 rows. Query: students named "Alice" who
+> took CS101.
+
+SQL:
+```sql
+SELECT s.name FROM Students s
+JOIN Enroll e ON s.sid = e.sid
+WHERE s.name = 'Alice' AND e.course = 'CS101';
+```
+
+Algebra (literal): $\pi_{\text{name}}(\sigma_{\text{name}=\text{Alice} \wedge \text{course}=\text{CS101}}(S \bowtie E))$.
+
+After **predicate pushdown:** $\pi_{\text{name}}(\sigma_{\text{name}=\text{Alice}}(S) \bowtie \sigma_{\text{course}=\text{CS101}}(E))$.
+
+Now $\sigma_{\text{name}=\text{Alice}}(S)$ has maybe 50 rows, $\sigma_{\text{course}=\text{CS101}}(E)$
+has maybe 200 — join of 50 × 200 is trivial.
+
+This rewrite is the *single most important* optimisation in SQL.
+
+### Practice — Warm
+
+**W1.** What does $\pi_{\text{name}}(\sigma_{\text{age} > 18}(\text{Person}))$ compute?
+
+<details class="hint"><summary>Full solution</summary>
+Names of people over 18.
+</details>
+
+**W2.** Is $R \bowtie S = S \bowtie R$?
+
+<details class="hint"><summary>Full solution</summary>
+Yes (modulo column ordering).
+</details>
+
+**W3.** What's the difference between $R \bowtie S$ and $R \times S$?
+
+<details class="hint"><summary>Full solution</summary>
+$\bowtie$ matches on common attributes (equi-join); $\times$ doesn't —
+all combinations.
+</details>
+
+### Practice — Working
+
+**P1.** Show: $\pi_L(R \cup S) = \pi_L(R) \cup \pi_L(S)$.
+
+<details class="hint"><summary>Full solution</summary>
+Tuple $t \in \pi_L(R \cup S)$ ⇔ exists $r \in R \cup S$ with $r$ projecting
+to $t$ ⇔ exists $r \in R$ or $r \in S$ projecting to $t$ ⇔ $t \in \pi_L(R)
+\cup \pi_L(S)$.
+
+Useful for pushing projections through unions.
+</details>
+
+**P2.** Why is **join order** the hardest optimization problem in SQL?
+
+<details class="hint"><summary>Full solution</summary>
+For $n$-way join: $n!$ orderings × choice of join algorithm at each
+step = exponential plan space.
+
+System R (Selinger 1979): dynamic programming over left-deep trees,
+$O(2^n)$.
+
+Bushy plans: $O(3^n)$ Postgres uses genetic optimization for $n > 12$
+relations.
+
+Cardinality estimation errors compound — optimiser may pick a bad plan.
+**Cardinality estimation is the open problem.**
+</details>
+
+**P3.** What's a **hash join** and when is it best?
+
+<details class="hint"><summary>Full solution</summary>
+Build hash table on smaller relation $R$ keyed on join attribute.
+Probe with each tuple of $S$. Time $O(|R| + |S|)$.
+
+Best when:
+
+- One relation fits in memory (hash table).
+- Equi-join (hash needs equality).
+- No pre-sorted input (else sort-merge wins).
+
+Versus nested-loop ($O(|R| \cdot |S|)$): hash wins for big tables.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Datalog and recursive queries.**
+
+<details class="hint"><summary>Full solution</summary>
+Datalog: relational algebra + recursion via fixpoint.
+
+Example: ancestor relation.
+
+```
+parent(P, C) :- ...
+ancestor(X, Y) :- parent(X, Y).
+ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).
+```
+
+Equivalent to SQL `WITH RECURSIVE`.
+
+Used in: **graph databases** (Neo4j, TigerGraph), **program analysis**
+(Doop), **knowledge graphs**.
+</details>
+
+**S2.** **Vector databases and ANN.**
+
+<details class="hint"><summary>Full solution</summary>
+Modern AI: store embeddings as vectors; query by similarity (k-NN in
+cosine or L2).
+
+Approximate nearest neighbour: HNSW, IVF, ScaNN — sub-linear time,
+high recall.
+
+Vector databases (Pinecone, Weaviate, Milvus, pgvector) extend the
+relational model: tables of vectors, queries return top-k by distance.
+
+The new query primitive: $\text{topk}(R, q, k)$ — operations
+generalise but the ALGEBRA is being extended.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"SQL is procedural."** No — declarative. You say *what*, the
+   optimiser figures out *how*.
+2. **"Relational algebra = SQL."** Almost — SQL allows duplicates (bag
+   semantics), nulls, aggregates beyond pure RA.
+3. **"More indexes = faster."** Indexes speed reads but slow writes.
+   And the optimiser must *choose* to use them.
+:::
+
+### Self-Assessment
+
+1. Name the five primitive operators.
+2. State predicate pushdown into joins.
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: $\sigma, \pi, \times, \cup, -$.)
+
+- **3 yes:** ready for **[10 · Queueing Theory](../10-queueing-theory/index.qmd)**.
+- **2 yes:** redo **P2** (join order).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L01 — Sets, Logic, Proofs](../../tier-5-undergrad-core/01-sets-logic-proofs/index.qmd)**
+
+### What this unlocks
+
+- Datalog, query optimisation theory, descriptive complexity.
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** Every modern DBMS (Postgres, MySQL, Oracle, SQL Server,
+SQLite) implements RA + optimiser.
+:::
+
+::: {.applied-callout}
+**Distributed systems.** Spark, BigQuery, Snowflake — same algebra,
+distributed execution.
+:::
+
+::: {.applied-callout}
+**AI / ML.** Vector databases for embeddings; SQL-like APIs for ML
+(BigQuery ML, Snowflake Cortex).
+:::
