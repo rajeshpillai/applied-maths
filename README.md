@@ -25,10 +25,10 @@ world*, reached incrementally.
 
 ## Status
 
-**Tiers 1–5 are complete: 75 lessons built (Grades 5 through Undergraduate Year 2).**
+**Tiers 1–6 are complete: 90 lessons built (Grades 5 through Undergraduate Year 4).**
 Begin at [01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-number/index.qmd).
 
-Tiers 6–7 are outlined in [`_curriculum.yml`](_curriculum.yml) and will be
+Tier 7 is outlined in [`_curriculum.yml`](_curriculum.yml) and will be
 built next. See [`CLAUDE.md`](CLAUDE.md) for the authoring contract.
 
 ## Building locally

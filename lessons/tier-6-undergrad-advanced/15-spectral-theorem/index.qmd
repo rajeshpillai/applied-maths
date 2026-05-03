@@ -1,0 +1,429 @@
+---
+title: "15 · The Spectral Theorem and Functional Analysis Preview"
+subtitle: "Symmetric matrices, infinite dimensions, and the unification of linear algebra and analysis"
+lesson-id: "t6.spectral-theorem"
+tier: 6
+prerequisites: ["t5.eigenvalues", "t5.real-analysis-foundation"]
+unlocks: []
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L04 — Eigenvalues](../../tier-5-undergrad-core/04-eigenvalues/index.qmd)
+   and [T5 L15 — Real Analysis Foundation](../../tier-5-undergrad-core/15-real-analysis-foundation/index.qmd)?
+2. Comfortable with eigenvalues, eigenvectors, diagonalisation?
+3. Recall ε-δ continuity?
+:::
+
+## Touch
+
+The **spectral theorem** for real symmetric matrices: every symmetric
+matrix is **orthogonally diagonalisable** — has a complete basis of
+orthogonal eigenvectors with real eigenvalues.
+
+```{ojs}
+viewof stSel = Inputs.select(["symmetric A: real eigenvalues + orthogonal eigenvectors", "complex Hermitian: same conclusion (Schur)", "PSD A: all eigenvalues ≥ 0", "infinite dim: Hilbert space generalisation"], {value: "symmetric A: real eigenvalues + orthogonal eigenvectors", label: "Statement:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(stSel) {
+    case "symmetric A: real eigenvalues + orthogonal eigenvectors": info = "If A = A^T, then A = Q D Q^T where Q orthogonal (Q^T Q = I), D diagonal with real eigenvalues. EVERY symmetric matrix."; break;
+    case "complex Hermitian: same conclusion (Schur)": info = "If A* = A (Hermitian, complex conjugate transpose equals itself), then A = U D U* with U unitary, D real diagonal."; break;
+    case "PSD A: all eigenvalues ≥ 0": info = "Symmetric A is positive semi-definite iff x^T A x ≥ 0 for all x iff all eigenvalues ≥ 0. Foundation of convex optimisation."; break;
+    case "infinite dim: Hilbert space generalisation": info = "Self-adjoint operators on Hilbert spaces have spectral decompositions involving spectral measures (Tier 7). Quantum mechanics' observables are self-adjoint."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why are real symmetric matrices so special?
+2. **PCA, SVD, Fourier expansions** are all spectral decompositions
+   in disguise. Why?
+3. The infinite-dimensional generalisation: Hilbert spaces and
+   self-adjoint operators (preview of Tier 7).
+
+## Discover
+
+### Problem 1
+
+For symmetric $A = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$,
+find eigenvalues and eigenvectors.
+
+<details class="hint"><summary>Full solution</summary>
+$\det(A - \lambda I) = (2-\lambda)^2 - 1 = 0 \Rightarrow \lambda = 1,
+3$.
+
+For $\lambda = 1$: $\begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix} v = 0
+\Rightarrow v_1 = -v_2$. Eigenvector $(1, -1)^T$.
+
+For $\lambda = 3$: $v_1 = v_2$. Eigenvector $(1, 1)^T$.
+
+**Note:** the two eigenvectors are *orthogonal*: $(1, -1) \cdot (1, 1)
+= 0$. **No coincidence** — symmetric matrices always have orthogonal
+eigenvectors for distinct eigenvalues.
+</details>
+
+### Problem 2
+
+The **spectral theorem (real)**: every symmetric matrix $A$ admits
+$$A = Q D Q^T$$
+where $Q$ is orthogonal ($Q^T Q = I$) and $D$ is diagonal with real
+eigenvalues.
+
+For $A$ from Problem 1: write the decomposition.
+
+<details class="hint"><summary>Full solution</summary>
+Normalised eigenvectors: $(1/\sqrt{2}, -1/\sqrt{2})^T$ and
+$(1/\sqrt{2}, 1/\sqrt{2})^T$.
+
+$Q = \dfrac{1}{\sqrt{2}} \begin{pmatrix} 1 & 1 \\ -1 & 1 \end{pmatrix}$,
+$D = \begin{pmatrix} 1 & 0 \\ 0 & 3 \end{pmatrix}$.
+
+Check: $Q D Q^T = A$. ✓
+
+**Geometric meaning:** $A$ scales by 1 along $(1, -1)/\sqrt{2}$ and
+by 3 along $(1, 1)/\sqrt{2}$. Pure stretching, no rotation, in the
+orthogonal eigenbasis.
+</details>
+
+### Problem 3
+
+**SVD (Singular Value Decomposition):** for *any* matrix $A$ (not
+just symmetric), $A = U \Sigma V^T$ where $U, V$ orthogonal, $\Sigma$
+diagonal with non-negative entries (singular values).
+
+How does SVD generalise the spectral theorem?
+
+<details class="hint"><summary>Full solution</summary>
+**SVD applies to any matrix**, including non-symmetric and
+rectangular. Eigenvalues of $A^T A$ are squared singular values.
+
+For a symmetric $A$: SVD reduces (essentially) to spectral
+decomposition.
+
+**SVD is the workhorse of:**
+
+- *PCA:* SVD of the data matrix.
+- *Latent semantic analysis* (search, NLP).
+- *Image compression:* keep only top-$k$ singular values.
+- *Matrix completion* (Netflix prize): assume low-rank structure.
+
+**Eckart-Young theorem:** truncated SVD gives the optimal low-rank
+approximation in Frobenius norm.
+</details>
+
+### Problem 4
+
+**PCA via SVD.** Centre data matrix $X$ ($n \times p$, $n$ samples,
+$p$ features). Compute SVD: $X = U \Sigma V^T$. Columns of $V$ are
+**principal components**.
+
+Why?
+
+<details class="hint"><summary>Full solution</summary>
+**Covariance matrix** $C = X^T X / n$ has eigenvectors = principal
+components, eigenvalues = variances. Spectral decomposition of $C$ =
+columns of $V$ from SVD of $X$.
+
+**Top principal components** = directions of greatest variance =
+columns of $V$ for largest singular values.
+
+Used pervasively: data visualisation (project to top 2-3 PCs),
+dimensionality reduction before clustering, denoising, feature
+extraction.
+</details>
+
+### Problem 5
+
+**Functional analysis preview.** Generalise: a **Hilbert space** is
+an infinite-dim inner product space, complete (Cauchy sequences
+converge).
+
+Examples:
+
+- $\ell^2$: square-summable sequences.
+- $L^2[a, b]$: square-integrable functions on $[a, b]$.
+
+A **self-adjoint operator** $T$ on a Hilbert space generalises a
+symmetric matrix. The **spectral theorem** generalises:
+
+$$T = \int_\sigma \lambda \, dE(\lambda)$$
+
+(integral against a *spectral measure*).
+
+Quantum mechanical observables are self-adjoint operators —
+*eigenvalues are measured values*.
+
+<details class="hint"><summary>Full solution</summary>
+**Eigenvalues of position operator: continuous spectrum (the real
+line). Eigenvalues of energy of harmonic oscillator: discrete
+($E_n = \hbar \omega (n + 1/2)$).**
+
+The spectral theorem unifies:
+
+- Linear algebra (finite dim).
+- Fourier analysis (operators on $L^2$ — Fourier basis is the
+  spectral decomposition of differentiation).
+- Quantum mechanics (observables → spectra → measurement outcomes).
+
+A genuine *unification* across mathematics.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Spectral theorem (real, finite-dim):** every real symmetric matrix
+$A$ admits
+$$A = Q D Q^T$$
+with $Q$ orthogonal and $D$ diagonal with real eigenvalues.
+**Equivalently:** $\mathbb{R}^n$ has an orthonormal basis of
+eigenvectors of $A$.
+
+**Hermitian (complex) version:** $A^* = A \Rightarrow A = U D U^*$.
+
+**Positive (semi-)definite:** symmetric with all eigenvalues $> 0$
+($\ge 0$).
+
+**Singular value decomposition (SVD):** any $m \times n$ matrix
+$A = U \Sigma V^T$ with $U \in O(m), V \in O(n)$, $\Sigma$
+non-negative diagonal.
+
+**Functional analysis (Tier 7 preview):**
+
+- **Hilbert space** = complete inner-product space.
+- **Self-adjoint operator:** $\langle T x, y \rangle = \langle x, T y
+  \rangle$.
+- **Spectral theorem:** every self-adjoint operator has a spectral
+  decomposition.
+
+Examples:
+
+- Quantum observables: position $X$, momentum $P$, Hamiltonian $H$ —
+  all self-adjoint on $L^2$.
+- Multiplication and differentiation operators.
+
+:::
+
+> *Spectral theorem: symmetric/self-adjoint = orthogonal eigenbasis with real eigenvalues;*
+> *SVD: every matrix has a decomposition (PCA, compression, denoising);*
+> *Generalises to infinite dimensions: Hilbert spaces, quantum mechanics.*
+
+## Apply
+
+### Worked example
+
+> Find the SVD of $A = \begin{pmatrix} 3 & 0 \\ 0 & 4 \end{pmatrix}$.
+
+Already diagonal with non-negative entries. **$U = I, \Sigma = A, V =
+I$.** Trivial SVD.
+
+For non-square or non-trivial: more work, but doable in closed form
+for small matrices.
+
+### Practice — Warm
+
+**W1.** Symmetric: $\begin{pmatrix} 1 & 2 \\ 2 & 3 \end{pmatrix}$?
+
+<details class="hint"><summary>Full solution</summary>
+Yes (entries above and below diagonal match).
+</details>
+
+**W2.** Diagonal of a positive-definite matrix?
+
+<details class="hint"><summary>Full solution</summary>
+All entries $> 0$ (necessary, not sufficient).
+</details>
+
+**W3.** Singular values of $A = \begin{pmatrix} 2 & 0 \\ 0 & 5
+\end{pmatrix}$?
+
+<details class="hint"><summary>Full solution</summary>
+$5, 2$ (always sorted descending).
+</details>
+
+### Practice — Working
+
+**P1.** Eigenvalues of $A = \begin{pmatrix} 4 & 1 \\ 1 & 4
+\end{pmatrix}$? Verify orthogonal eigenvectors.
+
+<details class="hint"><summary>Full solution</summary>
+$(4 - \lambda)^2 - 1 = 0 \Rightarrow \lambda = 3, 5$. Eigenvectors
+$(1, -1), (1, 1)$ — orthogonal ✓.
+</details>
+
+**P2.** Is $A = \begin{pmatrix} 1 & 2 \\ 2 & 0 \end{pmatrix}$
+positive semi-definite?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Eigenvalues: $\lambda^2 - \lambda - 4 = 0 \Rightarrow \lambda = (1
+\pm \sqrt{17})/2 \approx -1.56, 2.56$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**No** — one negative eigenvalue.
+</details>
+
+**P3.** What does SVD compute that eigendecomposition can't?
+
+<details class="hint"><summary>Full solution</summary>
+**Decomposition for *non-square* and *non-symmetric* matrices.**
+Eigendecomposition only works for square matrices, and only nicely
+(diagonalisable) for some. SVD is the universal generalisation.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why is the SVD the foundation of modern data analysis?**
+
+<details class="hint"><summary>Full solution</summary>
+**SVD reveals low-rank structure.** Most real-world data matrices are
+approximately low-rank: top few singular values capture most of the
+variance.
+
+Applications:
+
+- **PCA / dimensionality reduction.**
+- **Latent semantic analysis** (NLP — find topics in documents).
+- **Recommendation systems** (Netflix Prize, collaborative
+  filtering).
+- **Image compression.**
+- **Computational physics** (model reduction).
+- **Pseudoinverse** (handle non-invertible / over-determined
+  systems).
+
+The SVD's combination of universality (works on any matrix),
+optimality (Eckart-Young), and computational efficiency makes it
+*the* tool for matrix analysis.
+</details>
+
+**S2.** **Quantum mechanics in one sentence.** A quantum state is a
+unit vector in a Hilbert space; observables are self-adjoint operators;
+measurement of observable $O$ yields one of $O$'s eigenvalues, with
+the post-measurement state being the corresponding eigenvector.
+
+The full machinery of QM rests on the spectral theorem in Hilbert
+space.
+
+<details class="hint"><summary>Full solution</summary>
+- **Particle position:** continuous spectrum on $\mathbb{R}$.
+- **Energy of bound state:** discrete (quantised) spectrum.
+- **Spin:** finite spectrum (e.g., $\pm 1/2$ for electrons).
+
+Interference and uncertainty principles emerge from the *non-
+commutativity* of observables: $XP - PX = i\hbar$.
+
+The 20th-century triumph of mathematical physics: realising that
+quantum phenomena require infinite-dimensional spectral theory.
+Tier 7 (research track) develops this.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Spectral theorem only applies to symmetric matrices."** It
+   applies to *normal* matrices ($A A^* = A^* A$), which include
+   symmetric, Hermitian, unitary, orthogonal — many cases.
+2. **"PCA is exotic."** It's just the spectral decomposition of the
+   covariance matrix.
+3. **"Infinite dim is too abstract."** Functional analysis is *the*
+   language of quantum mechanics, signal processing, modern PDE
+   theory.
+:::
+
+### Self-Assessment
+
+1. Could you state the spectral theorem for real symmetric matrices?
+2. Without scrolling back, what's SVD for any matrix?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $A = U \Sigma V^T$ with orthogonal $U, V$ and diagonal
+non-negative $\Sigma$.)
+
+- **3 yes:** **You have completed Tier 6!** Tier 7 (Masters
+  specialisation tracks: AI/ML, Game Dev, Encryption, Databases,
+  Systems, Research) awaits.
+- **2 yes:** redo **S1** (SVD applications).
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L04 — Eigenvalues](../../tier-5-undergrad-core/04-eigenvalues/index.qmd)**
+- **[T5 L15 — Real Analysis Foundation](../../tier-5-undergrad-core/15-real-analysis-foundation/index.qmd)**
+
+### What this unlocks
+
+- **Tier 7 — Functional Analysis** — full spectral theory in Hilbert
+  space; bounded vs unbounded operators.
+- **Tier 7 — Operator Algebras** — von Neumann algebras, C*-algebras.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** SVD-based decompositions everywhere
+(S1). Spectral methods for graphs, kernels, embeddings.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Spectral theory unifies linear algebra
+(finite), Fourier analysis (operators on $L^2$), and quantum
+mechanics. Riemann hypothesis, Langlands program — all rely on
+spectral ideas.
+:::
+
+::: {.applied-callout}
+**Physics.** Quantum mechanics (S2). Vibration analysis (eigenmodes
+of structures). Quantum field theory uses operators on infinite-dim
+spaces.
+:::
+
+---
+
+## You have finished Tier 6
+
+This lesson closes Tier 6 — Undergraduate Advanced.
+
+Across 15 lessons you have:
+
+1. Met **groups, rings, fields** and **group actions** — abstract
+   algebra.
+2. Worked with **complex numbers** and **complex analysis** through
+   Cauchy's theorem.
+3. Solved **second-order ODEs** and analysed the **classical PDEs**
+   (heat, wave, Laplace).
+4. Mastered **numerical methods** for roots, integrals, ODEs.
+5. Learned **convex optimisation** and modern **gradient methods**
+   (SGD, Adam).
+6. Quantified information with **entropy, mutual information,
+   channel capacity**.
+7. Decomposed signals via **Fourier series** and **Fourier transform**.
+8. Used **spectral graph theory** for clustering and partitioning.
+9. Met the **spectral theorem** and a preview of **functional
+   analysis**.
+
+You are now ready for **Tier 7 — Masters Specialisation Tracks**
+(planned), with parallel paths in:
+
+- **Mathematical Research** (measure theory, functional analysis,
+  topology).
+- **AI / Machine Learning** (statistical learning theory, manifolds,
+  RL).
+- **Game Development** (differential geometry, quaternions,
+  computational geometry).
+- **Databases** (relational algebra, query optimisation, set
+  theory).
+- **Systems** (queueing theory, formal methods).
+- **Encryption** (algebraic number theory, ECC, lattice crypto).
+
+Congratulations.
