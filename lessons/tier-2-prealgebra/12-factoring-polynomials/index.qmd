@@ -1,0 +1,376 @@
+---
+title: "12 · Factoring Polynomials"
+subtitle: "Multiplication run backwards — and the door to solving equations"
+lesson-id: "t2.factoring-polynomials"
+tier: 2
+prerequisites: ["t2.polynomials", "t1.divisibility-primes"]
+unlocks: ["t2.quadratic-equations-intro"]
+applied-domains: ["research", "encryption"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [11 · Polynomials](../11-polynomials/index.qmd)?
+2. Comfortable with $(x + 2)(x + 3) = x^2 + 5x + 6$?
+3. Can you list the divisors of 12 (1, 2, 3, 4, 6, 12) — recall
+   [T1 L15 — Primes](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)?
+:::
+
+## Touch
+
+Pick a quadratic $x^2 + px + q$. The widget tries to factor it as
+$(x + r)(x + s)$.
+
+```{ojs}
+viewof pCoef = Inputs.range([-10, 10], {value: 5, step: 1, label: "p (x coefficient):"})
+viewof qCoef = Inputs.range([-20, 20], {value: 6, step: 1, label: "q (constant):"})
+```
+
+```{ojs}
+{
+  // Try to find integer r, s with r + s = p, r * s = q
+  let r = null, s = null;
+  for (let i = -25; i <= 25; i++) {
+    for (let j = i; j <= 25; j++) {
+      if (i + j === pCoef && i * j === qCoef) {
+        r = i; s = j; break;
+      }
+    }
+    if (r !== null) break;
+  }
+  const fmt = n => n >= 0 ? `+ ${n}` : `− ${-n}`;
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.4rem;">
+      x² ${pCoef >= 0 ? '+' : '−'} ${Math.abs(pCoef)}x ${qCoef >= 0 ? '+' : '−'} ${Math.abs(qCoef)}
+    </div>
+    <div style="margin-top:0.5rem;">
+      ${r !== null
+        ? `= <span style="color:#c2185b; font-weight:bold; font-family:monospace; font-size:1.3rem;">(x ${fmt(r)})(x ${fmt(s)})</span>`
+        : `<span style="color:#c62828;">does not factor over the integers (no integer r, s with r+s = ${pCoef}, r·s = ${qCoef})</span>`}
+    </div>
+  </div>`;
+}
+```
+
+The puzzle: find two numbers that **add to $p$ and multiply to $q$**. If
+they exist, factoring works. If they don't, the polynomial is
+*irreducible* over the integers.
+
+## Wonder
+
+1. To factor $x^2 + 5x + 6$: find two numbers that add to 5 and multiply
+   to 6. Can you guess them?
+2. What about $x^2 + 7x + 12$? $x^2 - 7x + 12$? $x^2 + x - 12$?
+3. What if the constant is *prime* — say $x^2 + px + 7$?
+
+## Discover
+
+### Problem 1
+
+Factor $x^2 + 5x + 6$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two numbers, sum 5, product 6.
+</details>
+<details class="hint"><summary>Full solution</summary>
+2 and 3: $2 + 3 = 5$ ✓, $2 \cdot 3 = 6$ ✓. So $x^2 + 5x + 6 = (x + 2)
+(x + 3)$.
+
+Check: expand $(x+2)(x+3) = x^2 + 5x + 6$ ✓.
+
+This is the **inverse of multiplication** from Lesson 11. The Tier 1
+inverse pairs (add ↔ subtract, multiply ↔ divide) get a polynomial-
+level companion (multiply ↔ factor).
+</details>
+
+### Problem 2
+
+Factor $x^2 - 7x + 12$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum $-7$, product $+12$ → both factors negative.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-3$ and $-4$: $-3 + -4 = -7$ ✓, $(-3)(-4) = 12$ ✓.
+
+$x^2 - 7x + 12 = (x - 3)(x - 4)$.
+
+When the constant is positive but the middle coefficient is negative:
+both factors are negative.
+</details>
+
+### Problem 3
+
+Factor $x^2 + x - 12$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum $+1$, product $-12$ → one positive, one negative; positive larger.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$+4$ and $-3$: $+4 + (-3) = +1$ ✓, $(+4)(-3) = -12$ ✓.
+
+$x^2 + x - 12 = (x + 4)(x - 3)$.
+
+When the constant is negative: factors have opposite signs. Sign of
+the middle coefficient tells you which is bigger.
+</details>
+
+### Problem 4
+
+Factor $x^2 - 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is a *difference of squares* (Lesson 11): $x^2 - a^2 = (x + a)(x
+- a)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 9 = x^2 - 3^2 = (x + 3)(x - 3)$.
+
+The difference of squares is one of the most-used factoring patterns.
+Whenever you see $\text{something}^2 - \text{something}^2$, factor it.
+</details>
+
+### Problem 5
+
+Try to factor $x^2 + 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Looking for $r$ and $s$ with $r + s = 0$ and $r s = 1$. So $s = -r$,
+and $-r^2 = 1$ ⇒ $r^2 = -1$. Is there a real $r$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Cannot be factored over the real numbers.** $x^2 + 1$ is *irreducible*
+over $\mathbb{R}$.
+
+To factor it, we'd need a number whose square is $-1$ — which leads
+to **complex numbers** $i = \sqrt{-1}$. Over the complex numbers,
+$x^2 + 1 = (x + i)(x - i)$. We meet complex numbers in Tier 6.
+
+Until then: not every polynomial factors with real numbers. The
+Fundamental Theorem of Algebra (Tier 6) says every polynomial of
+degree $n$ has *exactly* $n$ roots — once you allow complex numbers.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Factoring** a polynomial means writing it as a product of simpler
+polynomials.
+
+For a **quadratic** $x^2 + px + q$:
+
+> Find integers $r, s$ such that $r + s = p$ and $r \cdot s = q$.
+> Then $x^2 + px + q = (x + r)(x + s)$.
+
+If no such integers exist, the polynomial is **irreducible** over the
+integers.
+
+**Common patterns to recognise instantly:**
+
+| Pattern | Factored form |
+|---|---|
+| $x^2 - a^2$ (difference of squares) | $(x + a)(x - a)$ |
+| $x^2 + 2ax + a^2$ (square of a binomial) | $(x + a)^2$ |
+| $x^2 - 2ax + a^2$ | $(x - a)^2$ |
+| $x^3 + a^3$ (sum of cubes) | $(x + a)(x^2 - ax + a^2)$ |
+| $x^3 - a^3$ (difference of cubes) | $(x - a)(x^2 + ax + a^2)$ |
+
+Always **check by expanding**.
+
+:::
+
+> *Find two numbers that add to the middle and multiply to the end;*
+> *Difference of squares: factor as $(x + a)(x - a)$;*
+> *Always check by multiplying back.*
+
+## Apply
+
+### Worked example
+
+> Factor $x^2 - 5x - 14$.
+
+A competent solver looks for two numbers with **sum $-5$** and
+**product $-14$**.
+
+1. Pairs of integers with product $-14$: $(1, -14), (-1, 14), (2, -7),
+   (-2, 7)$.
+2. Of these, sum $-5$? **$(2, -7)$**: $2 + (-7) = -5$ ✓.
+3. So $x^2 - 5x - 14 = (x + 2)(x - 7)$.
+4. **Check:** expand $(x + 2)(x - 7) = x^2 - 7x + 2x - 14 = x^2 - 5x -
+   14$ ✓.
+
+**Answer: $(x + 2)(x - 7)$.**
+
+### Practice — Warm
+
+**W1.** Factor $x^2 + 7x + 12$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x + 3)(x + 4)$.
+</details>
+
+**W2.** Factor $x^2 - 16$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Difference of squares.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x + 4)(x - 4)$.
+</details>
+
+**W3.** Factor $x^2 + 6x + 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Recognise the perfect square: $(x + 3)^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x + 3)^2$. (Sum 6, product 9, and 3+3=6, 3·3=9 — both factors equal.)
+</details>
+
+### Practice — Working
+
+**P1.** Factor $x^2 - 11x + 28$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum $-11$, product $+28$ → both negative.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-4$ and $-7$. $(x - 4)(x - 7)$.
+</details>
+
+**P2.** Factor $2x^2 + 6x$. (Pull out the **greatest common factor**
+first.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+GCF of $2x^2$ and $6x$ is $2x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2x^2 + 6x = 2x(x + 3)$.
+
+Always look for a GCF first — it simplifies what's left to factor.
+This is the same idea as factoring a number into primes (Tier 1
+Lesson 15) extended to polynomials.
+</details>
+
+**P3.** Factor $x^2 + 2x - 15$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum 2, product −15 → opposite signs, positive a bit larger.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$+5$ and $-3$. $(x + 5)(x - 3)$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Factor $x^2 - 4x + 4 - y^2$. (Hint: group the first three
+terms; recognise as a square; then *difference of squares* with the
+$y^2$.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 - 4x + 4 = (x - 2)^2$. Then $(x - 2)^2 - y^2$ is a difference of
+squares.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 4x + 4 - y^2 = (x - 2)^2 - y^2 = ((x - 2) + y)((x - 2) - y) =
+(x - 2 + y)(x - 2 - y)$.
+
+Combining factoring patterns is one of the keys to advanced algebraic
+manipulation. Recognising "$x^2 - 4x + 4$" as a perfect square is a
+pattern-recognition skill that develops with practice.
+</details>
+
+**S2.** Why does the *Fundamental Theorem of Arithmetic* (T1 L15) have
+a **polynomial cousin**? In words: every polynomial can be written
+*essentially uniquely* as a product of irreducible polynomial factors.
+This is true for polynomials over the rationals, the reals, and the
+complex numbers. Why is uniqueness important?
+
+<details class="hint"><summary>Full solution</summary>
+**Uniqueness of factorisation makes algorithms predictable and
+provable.** If a polynomial could be factored in two genuinely different
+ways, equations would have ambiguous solutions and many algorithms
+(simplification, root-finding, integration in calculus) would have no
+canonical form to work with.
+
+The polynomial-ring analogue of the Fundamental Theorem of Arithmetic
+is *the reason* commutative algebra (Tier 6) and algebraic geometry
+work as cleanly as they do. The integers and the polynomial ring
+$\mathbb{R}[x]$ share the property of being **unique factorisation
+domains** (UFDs).
+
+(Not every ring is a UFD. $\mathbb{Z}[\sqrt{-5}]$ is a famous
+counter-example, where $6 = 2 \cdot 3 = (1 + \sqrt{-5})(1 - \sqrt{-5})$
+in two genuinely different ways. Recovering uniqueness for such rings
+required *ideal theory*, which transformed 19th-century algebra. This
+is graduate-level material — Tier 7.)
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Every polynomial factors over the integers."** False. $x^2 + 1$
+   doesn't (Discover P5). $x^2 + x + 1$ doesn't either. Many quadratics
+   are *irreducible* over $\mathbb{Z}$ but factor over $\mathbb{R}$ or
+   $\mathbb{C}$.
+2. **"FOIL is the universal multiplication method."** No — FOIL works
+   only for two binomials. The general method is *distribute every
+   term across every term*, which generalises to any polynomials.
+3. **"To factor, just guess."** Guessing helps for simple cases. For
+   harder cases, use the systematic search ($r + s = p$ and $r s = q$),
+   the GCF method first, and recognise the standard patterns.
+:::
+
+### Self-Assessment
+
+1. Could you explain *why* finding $r, s$ with $r + s = p$ and $rs = q$
+   factors $x^2 + px + q$, by expanding $(x+r)(x+s)$?
+2. Without scrolling back, can you factor $x^2 + 8x + 15$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $(x + 3)(x + 5)$.)
+
+- **3 yes:** ready for **[13 · Similarity and Scale](../13-similarity-scale/index.qmd)**.
+- **2 yes:** redo **S1** — combining patterns is where factoring becomes
+  art.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[11 · Polynomials](../11-polynomials/index.qmd)** — multiplication;
+  factoring is its inverse.
+- **[T1 L15 — Divisibility and Primes](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)** —
+  the analogous *integer* idea.
+
+### What this unlocks
+
+- **[14 · Quadratic Equations](../14-quadratic-equations-intro/index.qmd)** —
+  if $(x - r)(x - s) = 0$, the solutions are $x = r$ or $x = s$.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption & error correction.** Factoring polynomials is the heart
+of Reed-Solomon error correction (used in QR codes, CD/DVD storage,
+deep-space communication). Polynomial factoring algorithms over
+finite fields are central to coding theory.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Polynomial rings as **unique factorisation
+domains** are foundational to commutative algebra. The failure of
+unique factorisation in some number rings led to the invention of
+*ideals* — one of the central concepts of modern algebra.
+:::
+
+::: {.applied-callout}
+**Computer algebra systems.** SymPy, Mathematica, and Maple all use
+sophisticated polynomial-factoring algorithms (Berlekamp-Zassenhaus,
+LLL) — directly applying these ideas at industrial scale.
+:::
