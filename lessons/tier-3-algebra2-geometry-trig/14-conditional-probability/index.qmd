@@ -1,0 +1,384 @@
+---
+title: "14 · Conditional Probability and Independence"
+subtitle: "What changes when you know more — and Bayes' rule"
+lesson-id: "t3.conditional-probability"
+tier: 3
+prerequisites: ["t3.basic-probability"]
+unlocks: []
+applied-domains: ["ai-ml", "research", "encryption"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [13 · Basic Probability](../13-basic-probability/index.qmd)?
+2. Comfortable with sample spaces and $P(E) = \text{favourable}/\text{total}$?
+3. Comfortable with inclusion-exclusion and complement rules?
+:::
+
+## Touch
+
+Pick the disease prevalence and a test's accuracy. The widget computes
+$P(\text{disease} \mid \text{positive test})$ — the conditional
+probability that you actually have the disease, given a positive
+result. The answer is often shockingly low.
+
+```{ojs}
+viewof prev = Inputs.range([0.001, 0.10], {value: 0.01, step: 0.001, label: "Disease prevalence (P(D)):"})
+viewof sens = Inputs.range([0.80, 1.0], {value: 0.99, step: 0.01, label: "Test sensitivity (P(+|D)):"})
+viewof spec = Inputs.range([0.80, 1.0], {value: 0.95, step: 0.01, label: "Test specificity (P(−|¬D)):"})
+```
+
+```{ojs}
+{
+  const pD = prev;
+  const pNotD = 1 - pD;
+  const pPosGivenD = sens;
+  const pPosGivenNotD = 1 - spec;
+  const pPos = pPosGivenD * pD + pPosGivenNotD * pNotD;
+  const pDGivenPos = (pPosGivenD * pD) / pPos;
+  return html`<div style="margin: 1rem 0;">
+    <div style="text-align:center; font-family:monospace; font-size:1.2rem;">
+      P(D | +) = ${(pPosGivenD * pD).toFixed(4)} / ${pPos.toFixed(4)}
+      = <strong style="color:#c2185b;">${(pDGivenPos * 100).toFixed(1)}%</strong>
+    </div>
+    <div style="text-align:center; font-size:0.95rem; margin-top:0.5rem; color:#666;">
+      With a ${(prev*100).toFixed(1)}% prevalence and a ${(sens*100).toFixed(0)}%-sensitive,
+      ${(spec*100).toFixed(0)}%-specific test, only ${(pDGivenPos * 100).toFixed(1)}%
+      of positive results indicate true disease.
+    </div>
+  </div>`;
+}
+```
+
+A positive test on a "99% accurate" screening for a 1% prevalent
+disease gives only **17% probability of actually being sick**. Set
+the sliders. Watch the surprise. This is **Bayes' theorem** at work.
+
+## Wonder
+
+1. P(disease | positive) — why isn't it 99%?
+2. What changes if disease prevalence is 50% instead of 1%?
+3. Two events $A, B$ are **independent** if knowing $A$ doesn't change
+   the probability of $B$. Examples?
+
+## Discover
+
+### Problem 1
+
+Two cards are drawn (without replacement) from a 52-card deck.
+P(second is red **given** first is red)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+After removing one red card, 51 cards remain — 25 red.
+</details>
+<details class="hint"><summary>Full solution</summary>
+P(second red | first red) = 25/51 ≈ 0.490.
+
+(Without conditioning, P(red) = 26/52 = 0.5. The condition lowers it
+slightly because one red was already taken.)
+
+**Notation:** $P(A | B)$ means "probability of $A$ given $B$" — the
+*conditional* probability.
+</details>
+
+### Problem 2
+
+Define $P(A | B) = \dfrac{P(A \cap B)}{P(B)}$. Verify with the card
+problem.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(A \cap B)$ = P(both red) = $\dfrac{26}{52} \cdot \dfrac{25}{51}$.
+$P(B)$ = P(first red) = 26/52.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(A \cap B) = \dfrac{26}{52} \cdot \dfrac{25}{51} = \dfrac{650}{2652}$.
+$P(B) = \dfrac{26}{52}$.
+$\dfrac{P(A \cap B)}{P(B)} = \dfrac{25}{51}$ ✓.
+
+The definition formalises "given B, restrict the sample space to B
+and re-normalise."
+</details>
+
+### Problem 3
+
+Two events $A, B$ are **independent** if $P(A | B) = P(A)$
+(equivalently, $P(A \cap B) = P(A) \cdot P(B)$).
+
+Are coin tosses independent? Are card draws **without replacement**
+independent?
+
+<details class="hint"><summary>Full solution</summary>
+**Coin tosses:** independent. The first toss tells you nothing about
+the second.
+
+**Card draws (no replacement):** **not** independent — Problem 1
+showed P(red | red) = 25/51, not P(red) = 26/52. The first draw
+*affects* the second.
+
+**Card draws *with* replacement:** independent. After replacing the
+card, the deck is restored.
+</details>
+
+### Problem 4
+
+Apply the definition: P(A | B) · P(B) = P(A ∩ B). And by symmetry,
+P(B | A) · P(A) = P(A ∩ B). Equate: $P(A|B) P(B) = P(B|A) P(A)$, giving:
+$$P(A | B) = \dfrac{P(B | A) \cdot P(A)}{P(B)}.$$
+This is **Bayes' theorem.**
+
+<details class="hint"><summary>Full solution</summary>
+Direct algebra from the definition. The theorem is named after
+Thomas Bayes (1701–1761).
+
+**Importance:** lets us "flip" a conditional probability. Often P(B
+| A) is easy to know (sensitivity of a test, frequency of a symptom
+given a disease) but P(A | B) is what we *want* to know (probability
+of disease given a positive test, probability of a hypothesis given
+data).
+</details>
+
+### Problem 5
+
+A disease has prevalence 1% (P(D) = 0.01). A test has sensitivity 99%
+(P(+|D) = 0.99) and specificity 95% (P(−|¬D) = 0.95, so P(+|¬D) =
+0.05). You test positive. What is P(D | +)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply Bayes: $P(D|+) = \dfrac{P(+|D) P(D)}{P(+)}$.
+$P(+) = P(+|D) P(D) + P(+|\neg D) P(\neg D) = 0.99 \cdot 0.01 + 0.05
+\cdot 0.99 \approx 0.059$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(D|+) = \dfrac{0.99 \cdot 0.01}{0.0594} \approx 0.167$ — only
+**17%**.
+
+The reason: with 1% prevalence and a 5% false-positive rate, *most*
+positives come from healthy people (because there are 99× more of
+them). Even with a "99% accurate" test, the rare disease and the
+common false-positive together make positive results unreliable.
+
+This is the **base rate fallacy** — and it explains why screening
+tests for rare conditions need follow-up confirmation.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Conditional probability:** $P(A | B) = \dfrac{P(A \cap B)}{P(B)}$,
+provided $P(B) > 0$.
+
+**Multiplication rule:** $P(A \cap B) = P(A | B) \cdot P(B) = P(B | A) \cdot P(A)$.
+
+**Independence:** $A$ and $B$ are independent iff
+$$P(A \cap B) = P(A) \cdot P(B), \quad \text{equivalently} \quad P(A | B) = P(A).$$
+
+**Bayes' theorem:**
+$$P(A | B) = \dfrac{P(B | A) \cdot P(A)}{P(B)}.$$
+
+**Law of total probability:** if $\{B_1, \ldots, B_k\}$ partitions
+the sample space,
+$$P(A) = \sum_{i} P(A | B_i) P(B_i).$$
+
+:::
+
+> *Conditional probability restricts to the conditioning event;*
+> *Independence: knowing one tells you nothing about the other;*
+> *Bayes' theorem flips $P(A|B)$ into $P(B|A)$ — the inference rule.*
+
+## Apply
+
+### Worked example
+
+> A factory has two machines. M1 produces 60% of parts, with 2%
+> defective. M2 produces 40%, with 5% defective. A defective part is
+> found. What is the probability it came from M1?
+
+A competent solver applies Bayes' theorem:
+
+1. **Setup:** $P(M_1) = 0.6, P(M_2) = 0.4, P(D|M_1) = 0.02, P(D|M_2) =
+   0.05$.
+2. **Total:** $P(D) = 0.02 \cdot 0.6 + 0.05 \cdot 0.4 = 0.012 + 0.02 =
+   0.032$.
+3. **Bayes:** $P(M_1 | D) = \dfrac{0.02 \cdot 0.6}{0.032} = \dfrac{0.012}{0.032}
+   = 0.375$.
+
+**Answer: 37.5%.** Despite M1 producing more parts overall, M2
+contributes more to defective parts (proportionally). Posterior
+probabilities flip your intuition.
+
+### Practice — Warm
+
+**W1.** P(rolling 6 | rolling even) on a die?
+
+<details class="hint"><summary>Full solution</summary>
+P(6 ∩ even)/P(even) = (1/6)/(3/6) = 1/3.
+</details>
+
+**W2.** Two coin tosses. Independent? P(2nd H | 1st H)?
+
+<details class="hint"><summary>Full solution</summary>
+Independent. P(2nd H | 1st H) = P(2nd H) = 1/2.
+</details>
+
+**W3.** Bayes: $P(A|B) = ?$ given $P(A) = 0.3, P(B|A) = 0.4, P(B) = 0.5$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(A|B) = (0.4 \cdot 0.3)/0.5 = 0.24$.
+</details>
+
+### Practice — Working
+
+**P1.** A bag has 4 red and 6 blue marbles. Draw two without
+replacement. P(both red)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(R_1 \cap R_2) = P(R_1) \cdot P(R_2 | R_1) = (4/10)(3/9)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$= 12/90 = 2/15 \approx 0.133$.
+</details>
+
+**P2.** Email spam filter: P(spam) = 0.4. P(contains "free" | spam)
+= 0.7. P(contains "free" | not spam) = 0.05. An email contains "free."
+P(spam | "free")?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Bayes. P("free") = 0.7·0.4 + 0.05·0.6 = 0.31.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{spam} | \text{"free"}) = \dfrac{0.7 \cdot 0.4}{0.31} \approx 0.903$.
+
+About **90%**. Modern spam filters (Naive Bayes, originally) use
+Bayes' theorem on many keywords simultaneously.
+</details>
+
+**P3.** A and B are independent with P(A) = 0.3, P(B) = 0.5. P(A or B)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Inclusion-exclusion: $P(A) + P(B) - P(A) P(B)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0.3 + 0.5 - 0.15 = 0.65$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Monty Hall problem.** Three doors. Behind one: a car. Behind
+the other two: goats. You pick door A. The host (who knows where the
+car is) opens door B revealing a goat and offers you the chance to
+switch to door C. Should you switch?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+P(car behind A) = 1/3. P(car behind B or C) = 2/3. After host opens
+B (always a goat), where is that 2/3 concentrated?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Switch.** P(car behind A) is still 1/3 (the host's reveal didn't
+change it — he was forced to open a goat door). The remaining 2/3
+probability is now entirely on door C.
+
+So P(win | stay) = 1/3, P(win | switch) = 2/3. Switching doubles your
+chances.
+
+This problem gained fame in the 1990s when Marilyn vos Savant
+correctly explained it in *Parade* magazine and was deluged with
+angry letters from PhDs (including Paul Erdős!) insisting she was
+wrong. She wasn't. Conditional probability defies intuition.
+</details>
+
+**S2.** **Naive Bayes classifier.** With features $x_1, \ldots, x_n$
+and class $C$, assume features are *conditionally independent* given
+$C$:
+$$P(C | x_1, \ldots, x_n) \propto P(C) \prod_i P(x_i | C).$$
+Why is this useful — and why "naive"?
+
+<details class="hint"><summary>Full solution</summary>
+**Useful:** turns a high-dimensional joint probability into a product
+of one-dimensional conditionals — vastly simpler to estimate and
+compute.
+
+**Naive:** real features are usually *not* conditionally independent
+(in spam filtering, "free" and "money" co-occur more than independence
+predicts). Yet Naive Bayes works *surprisingly well* in practice — for
+many tasks, the assumption errs only on probability magnitudes, not
+on which class wins.
+
+Naive Bayes is one of the oldest and still useful classifiers,
+especially as a baseline. It exemplifies a common ML strategy: make a
+simplifying assumption, derive a tractable model, and let empirical
+performance vindicate it.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$P(A|B) = P(B|A)$."** **Almost never.** Bayes' theorem relates
+   them: $P(A|B) = P(B|A) \cdot P(A)/P(B)$. Confusing the two is the
+   *prosecutor's fallacy* (P(evidence|innocent) ≠ P(innocent|evidence)).
+2. **"Independent events have nothing to do with each other."** They
+   *can* both occur — they're just probabilistically uncorrelated.
+   Don't confuse with mutually exclusive (which means they *cannot*
+   both occur).
+3. **"P(B|A) is always smaller than P(B)."** Not necessarily — it can
+   be larger or smaller, depending on whether $A$ makes $B$ more or
+   less likely.
+:::
+
+### Self-Assessment
+
+1. Could you state Bayes' theorem and apply it to a simple disease-
+   testing scenario?
+2. Without scrolling back, are coin tosses independent? Card draws
+   without replacement?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: yes; no.)
+
+- **3 yes:** ready for **[15 · Discrete Distributions](../15-discrete-distributions/index.qmd)**.
+- **2 yes:** redo **S1** (Monty Hall) — most-debated problem in
+  popular probability.
+- **0–1 yes:** re-read *Discover P4 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[13 · Basic Probability](../13-basic-probability/index.qmd)**
+
+### What this unlocks
+
+- **[15 · Discrete Distributions](../15-discrete-distributions/index.qmd)** —
+  full probability functions on values.
+- **Tier 5 — Statistics & Probability Theory** — Bayes' theorem in
+  full generality (continuous variables).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Naive Bayes (S2) is a classic classifier.
+**Bayesian inference** is an entire approach to ML — every model is a
+*posterior probability* updated from data. Bayesian deep learning is
+an active research area.
+:::
+
+::: {.applied-callout}
+**Encryption.** Side-channel attacks use Bayes' theorem on partial
+observations to recover keys. Probabilistic security proofs are
+foundational.
+:::
+
+::: {.applied-callout}
+**Medicine & policy.** Diagnostic test interpretation (S5) requires
+Bayes thinking. Public-health policy on screening is shaped by base-
+rate considerations.
+:::
+
+::: {.applied-callout}
+**Law & forensics.** The prosecutor's fallacy (confusion 1) has
+caused multiple high-profile miscarriages of justice. Sound legal
+reasoning needs Bayes thinking.
+:::
