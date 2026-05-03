@@ -1,0 +1,361 @@
+---
+title: "02 · Linear Equations in One Variable"
+subtitle: "The art of isolating the unknown"
+lesson-id: "t2.linear-equations-one-var"
+tier: 2
+prerequisites: ["t1.intro-variables", "t1.negative-numbers"]
+unlocks: ["t2.linear-inequalities", "t2.systems-linear-equations"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T1 L11 — Variables](../../tier-1-foundations/11-intro-variables/index.qmd)?
+2. In Lesson 11 you solved $2x + 5 = 17$ and got $x = 6$. Comfortable
+   with that?
+3. Have you done [T1 L10 — Negative Numbers](../../tier-1-foundations/10-negative-numbers/index.qmd)?
+   We'll need to handle negative coefficients here.
+:::
+
+## Touch
+
+Adjust the equation $ax + b = c$. The widget shows the *one* value of
+$x$ that makes it true, and how the balance scale balances.
+
+```{ojs}
+viewof aCoeff = Inputs.range([-5, 5], {value: 3, step: 1, label: "a:"})
+viewof bConst = Inputs.range([-10, 10], {value: 4, step: 1, label: "b:"})
+viewof cRhs   = Inputs.range([-20, 20], {value: 13, step: 1, label: "c:"})
+```
+
+```{ojs}
+{
+  const xSol = aCoeff !== 0 ? (cRhs - bConst) / aCoeff : null;
+  const W = 720, H = 130, pad = 20;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px;");
+  // Equation
+  svg.append("text").attr("x", W/2).attr("y", 40).attr("text-anchor", "middle")
+    .attr("font-size", "26").attr("font-family", "monospace")
+    .text(`${aCoeff}x ${bConst >= 0 ? '+' : '−'} ${Math.abs(bConst)} = ${cRhs}`);
+  // Solution
+  svg.append("text").attr("x", W/2).attr("y", 80).attr("text-anchor", "middle")
+    .attr("font-size", "16").attr("fill", "#666")
+    .text(xSol === null ? "(no solution if c ≠ b; infinite solutions if c = b)" : "Solution:");
+  if (xSol !== null) {
+    svg.append("text").attr("x", W/2).attr("y", 110).attr("text-anchor", "middle")
+      .attr("font-size", "22").attr("fill", "#c2185b").attr("font-weight", "bold").attr("font-family", "monospace")
+      .text(`x = ${xSol % 1 === 0 ? xSol : xSol.toFixed(2)}`);
+  }
+  return svg.node();
+}
+```
+
+Try $3x + 4 = 13$ — the solution is 3. Try $3x + 4 = 14$ — the
+solution is $\tfrac{10}{3}$, no longer an integer. Solutions don't have
+to be whole; the equation just *picks them out*.
+
+## Wonder
+
+1. For $3x + 4 = 13$, can you guess $x$? Now check: substitute back.
+2. What is the solution to $0 \cdot x + 5 = 5$? To $0 \cdot x + 5 = 7$?
+3. If you multiply *both* sides of $3x = 12$ by 2, do you get a
+   different equation? Does it have the same solution?
+
+## Discover
+
+### Problem 1
+
+Solve $5x = 30$. Then $5x + 7 = 30$. Then $5x + 7 = 32$.
+
+<details class="hint"><summary>Full solution</summary>
+$5x = 30 \Rightarrow x = 6$.
+$5x + 7 = 30 \Rightarrow 5x = 23 \Rightarrow x = 23/5 = 4.6$.
+$5x + 7 = 32 \Rightarrow 5x = 25 \Rightarrow x = 5$.
+
+Same shape, three different solutions. The equation is a *frame*; the
+specific numbers fill it.
+</details>
+
+### Problem 2
+
+Solve $4x - 3 = 2x + 9$ (variable on **both sides**).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Get all the $x$'s on one side first: subtract $2x$ from both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4x - 3 = 2x + 9$. Subtract $2x$ from both sides: $2x - 3 = 9$. Add 3:
+$2x = 12$. Divide by 2: **$x = 6$.**
+
+The "fundamental move" (do the same thing to both sides) handles
+variables-on-both-sides without trouble. *Strategy:* collect $x$'s on
+one side, constants on the other, then divide.
+</details>
+
+### Problem 3
+
+Solve $2(x + 3) = 14$. Solve it two ways: (a) distribute first, (b)
+divide first.
+
+<details class="hint"><summary>Full solution</summary>
+**(a) Distribute first:** $2x + 6 = 14 \Rightarrow 2x = 8 \Rightarrow x
+= 4$.
+**(b) Divide first:** $x + 3 = 7 \Rightarrow x = 4$.
+
+Both work — and (b) is faster. Recognising that *both sides* are
+divisible by 2 saves a step.
+</details>
+
+### Problem 4
+
+Solve $\dfrac{x}{3} + 2 = 7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract 2 first; then *multiply* both sides by 3 to undo the division.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{x}{3} = 5 \Rightarrow x = 15$. Check: $\tfrac{15}{3} + 2 = 5 +
+2 = 7$ ✓.
+
+The inverses pair up: addition undoes subtraction; multiplication
+undoes division.
+</details>
+
+### Problem 5
+
+Solve $0x + 5 = 5$. Then solve $0x + 5 = 7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$0x = 0$ regardless of $x$. So both equations reduce to "is 5 = 5?" and
+"is 5 = 7?".
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$0x + 5 = 5$:** any $x$ satisfies this — every value of $x$ is a
+solution. **Infinitely many solutions.**
+
+**$0x + 5 = 7$:** no $x$ satisfies this — it reduces to "5 = 7", which
+is false. **No solution.**
+
+So a linear equation can have **one solution** (the typical case),
+**no solution**, or **infinitely many solutions**. This trichotomy
+reappears when we meet *systems* of equations in Lesson 6.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **linear equation in one variable** has the form
+$$ax + b = c$$
+(possibly with several terms involving $x$, which can always be
+collected). Here $a, b, c$ are *known* constants and $x$ is the
+*unknown*.
+
+To **solve** is to find the value(s) of $x$ that make the equation
+true. The fundamental move: do the same operation to both sides to
+preserve the balance.
+
+**Strategy:**
+
+1. Distribute / clear brackets.
+2. Collect like terms (variables on one side, constants on the other).
+3. Divide to isolate $x$.
+4. Always check by substituting the solution into the *original*
+   equation.
+
+**Three possible outcomes:**
+
+- **Unique solution:** the typical case ($a \neq 0$).
+- **No solution:** if the equation reduces to a false statement
+  ($0 = 5$).
+- **Infinitely many solutions:** if it reduces to a true statement
+  ($0 = 0$, meaning every $x$ works).
+
+:::
+
+> *Distribute, collect, divide — three moves to isolate the unknown;*
+> *Always do the same to both sides;*
+> *Always check by substitution.*
+
+## Apply
+
+### Worked example
+
+> Solve $3(2x - 5) + 4 = x + 14$.
+
+A competent solver works systematically:
+
+1. **Distribute:** $6x - 15 + 4 = x + 14$, i.e., $6x - 11 = x + 14$.
+2. **Collect $x$:** subtract $x$ from both sides: $5x - 11 = 14$.
+3. **Collect constants:** add 11 to both sides: $5x = 25$.
+4. **Divide:** $x = 5$.
+5. **Check** in the *original*: $3(2 \cdot 5 - 5) + 4 = 3 \cdot 5 + 4 =
+   19$. RHS: $5 + 14 = 19$. ✓
+
+**Answer: $x = 5$.**
+
+### Practice — Warm
+
+**W1.** Solve: $7x = 49$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 7$.
+</details>
+
+**W2.** Solve: $2x + 11 = 23$.
+
+<details class="hint"><summary>Full solution</summary>
+$2x = 12 \Rightarrow x = 6$.
+</details>
+
+**W3.** Solve: $5x - 8 = 17$.
+
+<details class="hint"><summary>Full solution</summary>
+$5x = 25 \Rightarrow x = 5$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve: $4(x - 2) = 20$.
+
+<details class="hint"><summary>Full solution</summary>
+$x - 2 = 5 \Rightarrow x = 7$. (Or distribute: $4x - 8 = 20$, etc.)
+</details>
+
+**P2.** Solve: $3x - 5 = 7x + 11$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract $7x$ from both sides: $-4x - 5 = 11$. Add 5; divide.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x - 5 = 7x + 11 \Rightarrow -4x = 16 \Rightarrow x = -4$.
+
+When the variable's coefficient becomes negative, divide normally —
+the answer is just negative. (T1 L10 trained this reflex.)
+</details>
+
+**P3.** A father is **3 times** as old as his son. In **12 years**, the
+father will be **twice** as old as his son. How old is the son now?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the son's current age be $s$. Father is $3s$. In 12 years: son is
+$s + 12$, father is $3s + 12$. Father is twice the son: $3s + 12 = 2(s
++ 12)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3s + 12 = 2s + 24 \Rightarrow s = 12$. Son is **12**; father is **36**.
+Check: in 12 years, son is 24, father is 48. $48 = 2 \cdot 24$ ✓.
+
+Word problems become equations once you give the unknown a name.
+That's the entire skill of *modelling* — translating life into
+algebra.
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve: $\dfrac{2x - 3}{4} = \dfrac{x + 1}{3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cross-multiply (Tier 1 Lesson 9, proportions): $3(2x - 3) = 4(x + 1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3(2x - 3) = 4(x + 1) \Rightarrow 6x - 9 = 4x + 4 \Rightarrow 2x = 13
+\Rightarrow x = 6.5$.
+
+Check: LHS $= (2 \cdot 6.5 - 3)/4 = 10/4 = 2.5$. RHS $= (6.5 + 1)/3 =
+7.5/3 = 2.5$. ✓
+
+Solutions need not be whole numbers. Algebra is honest about that.
+</details>
+
+**S2.** A neural network with one weight $w$ and one bias $b$ outputs
+$y = wx + b$ for input $x$. To make it predict 7 when $x = 2$, we need
+$2w + b = 7$. To make it predict 11 when $x = 4$, we need $4w + b = 11$.
+*Two* equations in *two* unknowns. By inspection (or by clever
+manipulation) — what are $w$ and $b$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract the first from the second: $(4w + b) - (2w + b) = 11 - 7$, so
+$2w = 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2w = 4 \Rightarrow w = 2$. Then $2 \cdot 2 + b = 7 \Rightarrow b = 3$.
+
+So $y = 2x + 3$. Check: $y(2) = 7$ ✓, $y(4) = 11$ ✓.
+
+You just *trained* a one-weight, one-bias linear model — by hand, with
+two data points. Real neural networks have *millions* of weights and
+*millions* of equations, and they are solved approximately by gradient
+descent (Tier 6). But the underlying idea — find the parameters that
+make the equations hold — is exactly what you did here.
+
+We meet **systems of two equations in two unknowns** properly in
+[Lesson 06](../06-systems-linear-equations/index.qmd).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"You can't subtract a variable."** You can — variables behave
+   like numbers under all the standard operations. $4x - 2x = 2x$
+   exactly as $4 - 2 = 2$.
+2. **"Always solve in the order written."** No — collect like terms
+   first, then isolate. The order of *operations* and the *strategy*
+   for solving are different things.
+3. **"If you can't get a whole-number answer, you've made a mistake."**
+   No — algebraic solutions can be fractions, decimals, irrational, or
+   negative. Trust the algebra, then check.
+:::
+
+### Self-Assessment
+
+1. Could you explain the "do the same thing to both sides" rule and
+   why it preserves equality?
+2. Without scrolling back, can you solve $3x + 4 = 5x - 8$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $-2x + 4 = -8 \Rightarrow -2x = -12 \Rightarrow x = 6$.)
+
+- **3 yes:** ready for **[03 · Linear Inequalities](../03-linear-inequalities/index.qmd)**.
+- **2 yes:** redo the age-problem **P3** — translation skill matters.
+- **0–1 yes:** re-read *Discover P2* (variables on both sides) and the
+  worked example.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L11 — Variables](../../tier-1-foundations/11-intro-variables/index.qmd)**
+- **[T1 L10 — Negative Numbers](../../tier-1-foundations/10-negative-numbers/index.qmd)**
+
+### What this unlocks
+
+- **[T2 L03 — Linear Inequalities](../03-linear-inequalities/index.qmd)** —
+  the same strategy with one twist around negation.
+- **[T2 L06 — Systems of Linear Equations](../06-systems-linear-equations/index.qmd)** —
+  two equations, two unknowns.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** *Stretch S2* is the entire game in
+miniature: ML training is solving equations to find parameters that fit
+data.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Equation-solving is one of the oldest
+mathematical activities. The systematic algorithmic style — al-jabr —
+that you used here is named after al-Khwārizmī's 9th-century book.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Pricing analysis, budget balancing, planning,
+chemistry stoichiometry, physics motion problems, every spreadsheet
+"goal seek" — anywhere you need to *find* a value that satisfies a
+constraint.
+:::
