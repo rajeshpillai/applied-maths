@@ -1,0 +1,402 @@
+---
+title: "15 · Continuity and Differentiability — Rigorous Foundation"
+subtitle: "ε-δ continuity, the real numbers, and the foundation of analysis"
+lesson-id: "t5.real-analysis-foundation"
+tier: 5
+prerequisites: ["t4.continuity", "t5.sequences-series-convergence"]
+unlocks: []
+applied-domains: ["research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T4 L02 — Continuity](../../tier-4-precalc-calculus/02-continuity/index.qmd)
+   and [14 · Sequences & Convergence](../14-sequences-series-convergence/index.qmd)?
+2. Comfortable with the $\epsilon$-$N$ definition of sequence
+   convergence?
+3. Recall that the rationals "miss" $\sqrt{2}$ (T2 L09 P5)?
+:::
+
+## Touch
+
+The **rigorous definition of continuity at $a$**: for every $\epsilon
+> 0$, there exists $\delta > 0$ such that $|x - a| < \delta \Rightarrow
+|f(x) - f(a)| < \epsilon$.
+
+```{ojs}
+viewof epsSel = Inputs.range([0.05, 1], {value: 0.5, step: 0.05, label: "ε:"})
+```
+
+```{ojs}
+{
+  const eps = epsSel;
+  const delta = eps; // for f(x) = x at a = 0, δ = ε works
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; text-align:center;">
+      For f(x) = x, continuity at 0: given ε = ${eps.toFixed(2)},
+      <br>can pick δ = ${delta.toFixed(2)} (since |x - 0| < δ ⇒ |x - 0| < ε).
+    </div>
+  </div>`;
+}
+```
+
+The $\epsilon$-$\delta$ definition formalises the intuitive "you can
+make $f(x)$ as close to $f(a)$ as you like by taking $x$ close enough
+to $a$."
+
+## Wonder
+
+1. Why isn't the intuitive "no jumps" definition of continuity
+   sufficient?
+2. The real numbers $\mathbb{R}$ are *complete*: every Cauchy sequence
+   converges. Why does this matter?
+3. **Differentiable ⇒ continuous**, but not vice versa. Why?
+
+## Discover
+
+### Problem 1
+
+The **$\epsilon$-$\delta$ definition** of continuity:
+
+$f$ is continuous at $a$ if: $\forall \epsilon > 0, \exists \delta > 0
+: |x - a| < \delta \Rightarrow |f(x) - f(a)| < \epsilon$.
+
+Verify $f(x) = 2x + 3$ is continuous at $a = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(1) = 5$. $|f(x) - 5| = |2x + 3 - 5| = 2 |x - 1|$. So $\delta =
+\epsilon/2$ works.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Given $\epsilon > 0$. Choose $\delta = \epsilon/2$. Then $|x - 1| <
+\delta \Rightarrow |f(x) - 5| = 2 |x - 1| < 2 \delta = \epsilon$ ✓.
+
+The art of $\epsilon$-$\delta$: given $\epsilon$, *find* a working
+$\delta$ (typically $\delta$ depends on $\epsilon$ and possibly $a$).
+</details>
+
+### Problem 2
+
+A **Cauchy sequence** is a sequence whose terms become arbitrarily
+close to each other (not necessarily to a specific limit):
+$\forall \epsilon > 0, \exists N: m, n \ge N \Rightarrow |a_m - a_n| <
+\epsilon$.
+
+A space is **complete** if every Cauchy sequence converges to a
+limit *in the space*.
+
+Why are the rationals $\mathbb{Q}$ *not* complete?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Consider a sequence of rational approximations to $\sqrt{2}$ (e.g.,
+$1, 1.4, 1.41, 1.414, \ldots$). Cauchy in $\mathbb{Q}$, but the
+"limit" $\sqrt{2}$ isn't in $\mathbb{Q}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The sequence $1, 1.4, 1.41, 1.414, \ldots$ (decimal approximations
+to $\sqrt{2}$) is Cauchy in $\mathbb{Q}$, but its limit $\sqrt{2}$
+is irrational — *not* in $\mathbb{Q}$.
+
+So $\mathbb{Q}$ has "holes." **Filling them** gives the real numbers
+$\mathbb{R}$, which are complete by construction.
+
+Construction of $\mathbb{R}$ (Tier 6 / Tier 7): equivalence classes
+of Cauchy sequences in $\mathbb{Q}$, or **Dedekind cuts**.
+</details>
+
+### Problem 3
+
+The **completeness axiom** has many equivalent forms:
+
+- Every Cauchy sequence converges.
+- Every bounded above set has a least upper bound (supremum).
+- Every monotone bounded sequence converges.
+
+Use completeness to prove: $\sup\{x \in \mathbb{Q} : x^2 < 2\}$
+exists in $\mathbb{R}$.
+
+<details class="hint"><summary>Full solution</summary>
+The set is bounded above (by 2, say). By completeness, it has a sup
+$L$. We can show $L^2 = 2$ (proof by contradiction in two cases:
+$L^2 < 2$ or $L^2 > 2$ both fail).
+
+So $L = \sqrt{2}$ exists in $\mathbb{R}$. Completeness is *what
+guarantees* irrational numbers exist.
+</details>
+
+### Problem 4
+
+**Differentiable ⇒ continuous** (but not the converse).
+
+Show: if $f$ is differentiable at $a$, then $f$ is continuous at $a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(x) - f(a) = (x - a) \cdot [f(x) - f(a)]/(x - a)$. The bracket
+tends to $f'(a)$ (a finite number) and $(x - a) \to 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\lim_{x \to a} [f(x) - f(a)] = \lim_{x \to a} (x - a) \cdot \dfrac{f(x)
+- f(a)}{x - a} = 0 \cdot f'(a) = 0$.
+
+So $f(x) \to f(a)$ ⇒ continuous.
+
+The converse fails: $f(x) = |x|$ is continuous everywhere but not
+differentiable at 0.
+
+Even more: there exist continuous functions *nowhere differentiable*
+(Weierstrass function) — extreme pathology.
+</details>
+
+### Problem 5
+
+The **mean value theorem (MVT):** if $f$ is continuous on $[a, b]$
+and differentiable on $(a, b)$, then there exists $c \in (a, b)$ with
+$f'(c) = (f(b) - f(a))/(b - a)$.
+
+Visualise: somewhere in $(a, b)$, the tangent has the same slope as
+the chord.
+
+Apply: for $f(x) = x^2$ on $[0, 2]$, find $c$ where $f'(c) = $ slope
+of chord.
+
+<details class="hint"><summary>Full solution</summary>
+Slope of chord: $(4 - 0)/(2 - 0) = 2$. $f'(x) = 2x$. $2x = 2 \Rightarrow
+c = 1$.
+
+MVT proves many calculus facts: monotonicity, error bounds for
+Taylor approximations, etc. It's the *workhorse* theorem of single-
+variable analysis.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**$\epsilon$-$\delta$ continuity:** $f$ is continuous at $a$ iff
+$\forall \epsilon > 0, \exists \delta > 0 : |x - a| < \delta \Rightarrow
+|f(x) - f(a)| < \epsilon$.
+
+**Uniform continuity:** the same $\delta$ works for all $a$ in a set
+(not just at one point).
+
+**Cauchy sequence:** $|a_m - a_n| \to 0$ as $m, n \to \infty$.
+
+**Complete metric space:** every Cauchy sequence converges. $\mathbb{R}$
+is complete; $\mathbb{Q}$ is not.
+
+**Completeness axiom (one form):** every nonempty bounded-above set in
+$\mathbb{R}$ has a supremum.
+
+**Differentiable ⇒ continuous.** Converse fails.
+
+**Mean Value Theorem (MVT):** continuous on $[a, b]$, differentiable
+on $(a, b)$ ⇒ $\exists c$ with $f'(c) = (f(b) - f(a))/(b - a)$.
+
+**Extreme Value Theorem (EVT):** continuous on closed bounded
+$[a, b]$ ⇒ attains max and min.
+
+**Intermediate Value Theorem (IVT):** continuous, takes every value
+between $f(a)$ and $f(b)$.
+
+These three (MVT, EVT, IVT) are the *fundamental theorems* of
+single-variable analysis — provable from completeness.
+
+:::
+
+> *ε-δ: continuity made rigorous;*
+> *Completeness of ℝ: no holes (no Cauchy sequence is left without a limit);*
+> *MVT, EVT, IVT: the classical theorems analysis earns from completeness.*
+
+## Apply
+
+### Worked example
+
+> Show $f(x) = x^2$ is continuous at $a = 3$ using $\epsilon$-$\delta$.
+
+Given $\epsilon$. $|f(x) - 9| = |x^2 - 9| = |x - 3| \cdot |x + 3|$.
+
+Restrict to $|x - 3| < 1$: then $|x + 3| < 7$. So $|x - 3| < 1$ and
+$|x - 3| < \epsilon/7$ together imply $|f(x) - 9| < \epsilon$.
+
+**Choose $\delta = \min(1, \epsilon/7)$.** ✓
+
+### Practice — Warm
+
+**W1.** Is $|x|$ continuous at 0?
+
+<details class="hint"><summary>Full solution</summary>
+**Yes.**
+</details>
+
+**W2.** Is $|x|$ differentiable at 0?
+
+<details class="hint"><summary>Full solution</summary>
+**No** (left and right derivatives differ).
+</details>
+
+**W3.** $f(x) = c$ (constant). $\delta$ for any $\epsilon$?
+
+<details class="hint"><summary>Full solution</summary>
+Any $\delta$ works: $|f(x) - f(a)| = 0 < \epsilon$.
+</details>
+
+### Practice — Working
+
+**P1.** Show $f(x) = 5x$ continuous at $a = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$|f(x)| = 5 |x|$. Pick $\delta = \epsilon/5$.
+</details>
+
+**P2.** Apply MVT: $f(x) = \ln x$ on $[1, e]$. Find $c$.
+
+<details class="hint"><summary>Full solution</summary>
+$(\ln e - \ln 1)/(e - 1) = 1/(e - 1)$. $f'(x) = 1/x$. $1/c = 1/(e -
+1) \Rightarrow c = e - 1 \approx 1.718$.
+</details>
+
+**P3.** Show $\mathbb{R}$ has the property: every monotone bounded
+sequence converges.
+
+<details class="hint"><summary>Full solution</summary>
+Suppose $\{a_n\}$ increasing and bounded above. $L = \sup\{a_n\}$
+exists by completeness. Show $a_n \to L$: given $\epsilon > 0$, $L -
+\epsilon$ is not an upper bound, so some $a_N > L - \epsilon$. By
+monotonicity, $a_n > L - \epsilon$ for $n \ge N$. So $|a_n - L| <
+\epsilon$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **The Banach fixed-point theorem.** Let $T: X \to X$ be a
+contraction on a complete metric space. Then $T$ has a unique fixed
+point. Why is *completeness* essential?
+
+<details class="hint"><summary>Full solution</summary>
+Iterating $T$ produces a Cauchy sequence (contraction shrinks
+distances). By completeness, it converges to a limit, which is the
+fixed point.
+
+In an incomplete space, the iterates would be Cauchy but might have
+no limit *in the space*. Banach's theorem powers algorithms in
+optimisation, machine learning, and dynamical systems analysis.
+</details>
+
+**S2.** **Why does the rigorous foundation matter?** Calculus
+"worked" for 200 years before Cauchy and Weierstrass made it
+rigorous in the 1800s. Why bother with $\epsilon$-$\delta$?
+
+<details class="hint"><summary>Full solution</summary>
+**Three reasons.**
+
+1. **Pathology.** Continuous-but-not-differentiable functions
+   (Weierstrass), space-filling curves, fractals — informal
+   reasoning gives no traction. Rigorous foundations clarify what
+   theorems require.
+
+2. **Generalisation.** $\epsilon$-$\delta$ generalises to *metric
+   spaces*, *topological spaces*, *infinite-dimensional spaces*
+   (Hilbert / Banach) — entire branches of modern mathematics.
+
+3. **Computability.** "Compute $\sqrt{2}$ to $\epsilon$ accuracy" is
+   meaningful only with $\epsilon$-style precision. Modern numerical
+   computing inherits this language.
+
+The rigour is *not* fussiness — it's what allows mathematics to
+extend confidently into spaces no human can directly visualise.
+This bridge (intuition → rigorous proof → broad applicability) is the
+*pattern* of modern mathematics, repeated in every advanced subject.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\epsilon$-$\delta$ is needlessly fussy."** It's the only
+   definition that handles weird cases consistently. Modern analysis
+   *requires* it.
+2. **"Cauchy sequences and convergent sequences are the same."** In
+   *complete* spaces, yes. In general, every convergent is Cauchy
+   but not vice versa.
+3. **"Continuous functions are 'almost' differentiable."** No —
+   Weierstrass-type continuous functions are *nowhere* differentiable.
+:::
+
+### Self-Assessment
+
+1. Could you write the $\epsilon$-$\delta$ proof that $f(x) = 3x$ is
+   continuous at $a$?
+2. Without scrolling back, what is the completeness axiom?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $\delta = \epsilon/3$. Every nonempty bounded-above set has
+a supremum.)
+
+- **3 yes:** **You have completed Tier 5!** The undergraduate core.
+  Tier 6 (Undergraduate Advanced) and Tier 7 (Masters Tracks) await.
+- **2 yes:** redo **S2** (why rigour matters).
+- **0–1 yes:** re-read *Discover P2 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T4 L02 — Continuity](../../tier-4-precalc-calculus/02-continuity/index.qmd)**
+- **[14 · Convergence](../14-sequences-series-convergence/index.qmd)** —
+  $\epsilon$-style precision.
+
+### What this unlocks
+
+- **Tier 6 — Real Analysis (full)** — measure theory, Lebesgue
+  integration, function spaces.
+- **Tier 7 — Functional Analysis & Topology** — analysis on
+  abstract spaces.
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** $\epsilon$-$\delta$ is the language of
+all modern analysis. Banach's theorem (S1) and many other results
+require completeness.
+:::
+
+::: {.applied-callout}
+**Numerical computing.** Algorithm convergence and error bounds are
+expressed in $\epsilon$-$\delta$ style.
+:::
+
+::: {.applied-callout}
+**Theoretical computer science.** Logic, computability, and
+complexity inherit the rigorous tradition that real analysis built.
+:::
+
+---
+
+## You have finished Tier 5
+
+This lesson closes Tier 5 — the Undergraduate Core.
+
+Across 15 lessons you have:
+
+1. Mastered **linear algebra** through eigenvalues — the language of
+   high-dimensional ML and graphics.
+2. Worked with **multivariable calculus** through partial derivatives,
+   multiple integrals, and vector fields — the calculus of fluids,
+   physics, and optimisation.
+3. Built **probability** from continuous distributions through
+   variance, the **CLT**, and **statistical inference**.
+4. Learned the **language of proof** (sets, logic, induction,
+   contradiction).
+5. Met **graphs and their algorithms** — the data-structure of
+   networks.
+6. Built **modular arithmetic** all the way to **RSA**.
+7. Set the rigorous foundation for **convergence**, $\epsilon$-$\delta$
+   continuity, and the great theorems of analysis.
+
+You are now ready for **Tier 6 — Undergraduate Advanced** (planned),
+which includes abstract algebra, complex analysis, optimisation
+theory, and the deeper structures of mathematics.
+
+Congratulations.
