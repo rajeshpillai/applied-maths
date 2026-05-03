@@ -1,0 +1,436 @@
+---
+title: "Shapes and Angles"
+subtitle: "Lines that meet, corners that turn — the alphabet of geometry"
+lesson-id: "t1.shapes-angles"
+tier: 1
+prerequisites: []
+unlocks: ["t1.area-perimeter-volume"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+This lesson stands alone — it has no maths prerequisites in this
+curriculum. You only need:
+
+1. To know what a **straight line** looks like (a taut string, the edge
+   of a ruler).
+2. The willingness to think about *shape* and *direction* rather than
+   numbers for a while.
+3. (Optional) Pencil and paper to sketch.
+:::
+
+## Touch
+
+Drag the slider to set the **angle** between two lines meeting at a
+point. Watch the corner open and close.
+
+```{ojs}
+viewof angleDeg = Inputs.range([0, 180], {value: 60, step: 5, label: "Angle (degrees):"})
+```
+
+```{ojs}
+{
+  const W = 480, H = 280, cx = W/2, cy = H - 40, len = 180;
+  const a = angleDeg * Math.PI / 180;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:520px; display:block; margin: 0 auto;");
+
+  // Reference line (horizontal right)
+  const x1 = cx + len, y1 = cy;
+  // Rotating line
+  const x2 = cx + len * Math.cos(-a), y2 = cy + len * Math.sin(-a);
+
+  svg.append("line").attr("x1", cx).attr("y1", cy).attr("x2", x1).attr("y2", y1)
+    .attr("stroke", "#888").attr("stroke-width", 2);
+  svg.append("line").attr("x1", cx).attr("y1", cy).attr("x2", x2).attr("y2", y2)
+    .attr("stroke", "#2c5f7c").attr("stroke-width", 2.5);
+
+  // Arc showing the angle
+  const arcR = 50;
+  const arcEndX = cx + arcR * Math.cos(-a), arcEndY = cy + arcR * Math.sin(-a);
+  const large = a > Math.PI ? 1 : 0;
+  svg.append("path")
+    .attr("d", `M ${cx + arcR},${cy} A ${arcR},${arcR} 0 ${large} 0 ${arcEndX},${arcEndY}`)
+    .attr("fill", "none").attr("stroke", "#c2185b").attr("stroke-width", 2);
+  // Angle label
+  const labA = -a / 2;
+  svg.append("text")
+    .attr("x", cx + (arcR + 20) * Math.cos(labA))
+    .attr("y", cy + (arcR + 20) * Math.sin(labA))
+    .attr("font-size", "16").attr("fill", "#c2185b").attr("font-weight", "bold")
+    .text(`${angleDeg}°`);
+  // Vertex
+  svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", 4).attr("fill", "#1f2933");
+
+  // Name annotations
+  let name;
+  if (angleDeg === 0) name = "(zero — lines coincide)";
+  else if (angleDeg < 90) name = "acute (less than 90°)";
+  else if (angleDeg === 90) name = "right (exactly 90°)";
+  else if (angleDeg < 180) name = "obtuse (between 90° and 180°)";
+  else name = "straight (exactly 180°)";
+
+  svg.append("text").attr("x", cx).attr("y", 28).attr("text-anchor", "middle")
+    .attr("font-size", "16").attr("fill", "#1f2933").attr("font-weight", "bold")
+    .text(name);
+
+  return svg.node();
+}
+```
+
+An **angle** measures *how much one line turns away from another*, in
+**degrees**. A full turn (back to the start) is 360°. A half-turn is
+180°. A quarter-turn is **90°** — the **right angle**.
+
+## Wonder
+
+1. Open and close the angle. Is the *length* of the lines part of the
+   angle? Or only the spread between them?
+2. What angles do you see in the corners of a book, a window, a phone
+   screen?
+3. A triangle has three corners. If you measured the angles at each
+   corner and added them up, do you think the answer would always be the
+   same?
+
+## Discover
+
+### Problem 1
+
+Sketch (or imagine) these shapes and name them:
+
+(a) Three straight sides.
+(b) Four straight sides, all the same length, all corners right-angled.
+(c) Four straight sides, opposite sides equal, all corners right-angled.
+(d) A flat curve where every point is the same distance from one fixed
+    centre.
+
+<details class="hint"><summary>Full solution</summary>
+(a) **Triangle.** (b) **Square.** (c) **Rectangle.** (d) **Circle.**
+
+Notice the structure: shapes are described by *number of sides*, *side
+lengths*, and *angles*. These three pieces of data determine almost
+every elementary shape.
+</details>
+
+### Problem 2
+
+Sketch a triangle. Cut it out (or just imagine cutting it). Tear off the
+three corners. Place them next to each other along a straight line.
+
+What do you find?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A straight line corresponds to an angle of 180°.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**The three corners exactly fill a straight line — i.e. they sum to 180°.**
+
+This is the most famous fact in elementary geometry:
+
+> **The three angles of any triangle sum to 180°.**
+
+True for *any* triangle — pointy, flat, equilateral, scalene. The
+classroom experiment with torn corners is a *physical proof*. Tier 3
+will give a careful proof using parallel lines.
+</details>
+
+### Problem 3
+
+A triangle has angles **40°** and **75°**. What is the third angle?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the rule from *P2*: total = 180°.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$180 - 40 - 75 = 65°$. **65°.** Algebra (Lesson 11) makes the calculation
+trivial: if the third angle is $x$, then $40 + 75 + x = 180$, so
+$x = 65$.
+</details>
+
+### Problem 4
+
+Imagine walking around the boundary of a square. Each corner, you turn
+by 90° (a right angle). After four corners, you've turned through how
+much in total — and back to your starting direction?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Four right angles, each 90°. Sum?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4 \times 90° = 360°$ — a **full turn**. After walking around any
+*convex* shape, you turn through 360° in total.
+
+This generalises beautifully: a triangle's *exterior angles* (the turn
+at each corner if you walked along it) also sum to 360°. So do a
+pentagon's, a hexagon's, and any convex shape. The interior angles add
+up differently for each shape, but the *exterior* angles always sum to
+360°. Geometry is full of such conserved totals.
+</details>
+
+### Problem 5
+
+Two lines meet, forming an angle of **53°** on one side. What is the
+angle on the *other* side of the same line?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two angles together fill a straight line.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$180 - 53 = 127°$. **127°.** Two angles forming a straight line are
+called **supplementary**, and they sum to 180° by definition. Two angles
+forming a right angle are called **complementary** and sum to 90°.
+
+The two angles on opposite sides of a single straight line are called
+**vertical angles** when two lines cross — and an important Tier 3 fact
+is that they are *always equal*.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **point** has position but no size. A **line** is the path traced by
+moving in one fixed direction. A **line segment** is a finite piece of a
+line, with two endpoints.
+
+An **angle** measures the turn between two lines (or segments) that meet
+at a common point — the **vertex**. We measure angles in **degrees**: a
+full turn is **360°**, a half-turn 180°, a quarter-turn **90°** (a
+**right angle**).
+
+Special angle names:
+
+- **Acute:** less than 90°.
+- **Right:** exactly 90°.
+- **Obtuse:** between 90° and 180°.
+- **Straight:** exactly 180°.
+
+A **polygon** is a closed shape with straight sides. Common ones:
+
+- **Triangle** (3 sides), **quadrilateral** (4), **pentagon** (5),
+  **hexagon** (6), ...
+- A **square** has 4 equal sides and 4 right angles.
+- A **rectangle** has opposite sides equal and 4 right angles.
+- A **regular** polygon has all sides equal and all angles equal.
+
+A **circle** is the set of points at a fixed **radius** from a centre.
+
+**The triangle angle-sum:** the three interior angles of any triangle
+sum to **180°**.
+
+:::
+
+> *Two lines meeting — the angle between them;*
+> *Three lines closing — a triangle, whose corners always sum to 180°;*
+> *A walk around a closed shape returns you 360° to the start.*
+
+## Apply
+
+### Worked example
+
+> A triangle has two equal sides and a vertex angle (between the equal
+> sides) of **50°**. Find the other two angles.
+
+A competent solver uses a small fact about isoceles triangles:
+
+> **In an isoceles triangle, the angles opposite the two equal sides are
+> equal.**
+
+So the other two angles are equal — call each $x$. Sum to 180°:
+$$50 + x + x = 180 \quad \Longrightarrow \quad 2x = 130 \quad \Longrightarrow \quad x = 65°.$$
+
+**Answer:** the other two angles are **65° each**. Verify: $50 + 65 + 65
+= 180°$ ✓.
+
+The "equal sides imply equal opposite angles" fact will be proved
+properly in Tier 2 / Tier 3 geometry.
+
+### Practice — Warm
+
+**W1.** Classify each: 30°, 90°, 130°, 180°.
+
+<details class="hint"><summary>Full solution</summary>
+acute, right, obtuse, straight.
+</details>
+
+**W2.** A triangle has two angles of 50° and 70°. Find the third.
+
+<details class="hint"><summary>Full solution</summary>
+$180 - 50 - 70 = 60°$.
+</details>
+
+**W3.** A square's four angles are all equal and sum to... ? Hence each
+is... ?
+
+<details class="hint"><summary>Full solution</summary>
+Sum $= 360°$ (the four corners). Each $= 90°$ — confirming squares are
+right-angled.
+</details>
+
+### Practice — Working
+
+**P1.** A triangle has all three angles equal. What is each angle?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three equal angles summing to 180°. So each is...
+</details>
+<details class="hint"><summary>Full solution</summary>
+$180 \div 3 = 60°$. This is the **equilateral** triangle: all three
+sides equal, all three angles equal to 60°. The most symmetric triangle.
+</details>
+
+**P2.** A regular pentagon has 5 equal interior angles. The interior
+angles of *any* pentagon sum to $(5 - 2) \times 180° = 540°$. What is
+each interior angle of a regular pentagon?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total ÷ 5.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$540 \div 5 = 108°$. (Each angle of a regular pentagon is 108°.)
+
+The general formula for the interior-angle sum of a polygon with $n$
+sides is $(n - 2) \times 180°$. You can derive it by noticing that any
+$n$-sided polygon can be sliced into $(n - 2)$ triangles from a single
+vertex.
+</details>
+
+**P3.** Two angles of a triangle are equal, and the third is *twice*
+each of them. Find all three angles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let each equal angle be $x$. Then the third is $2x$. Use Lesson 11.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + x + 2x = 180$, so $4x = 180$ and $x = 45°$. The angles are 45°, 45°,
+90°. **A right-angled isoceles triangle.** This shape is the diagonal of
+a square — a recurring shape in geometry.
+</details>
+
+### Practice — Stretch
+
+**S1.** What angle do the hands of a clock make at exactly **3:00**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The clock face is a circle (360°) divided into 12 equal segments.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At 3:00, the minute hand is at 12 and the hour hand is at 3. They are
+3 hours apart, which is $\tfrac{3}{12} = \tfrac{1}{4}$ of the full
+circle. $\tfrac{1}{4} \times 360 = 90°$.
+
+**90° — a right angle.** That's why a clock at 3:00 (or 9:00) makes a
+visually familiar L-shape.
+</details>
+
+**S2.** A 3D triangle in a video game is described by three points
+(vertices). The game engine needs to compute the angles between pairs
+of edges to do *lighting* (which way is the surface facing?). The
+**angle between two vectors** $\vec{u}$ and $\vec{v}$ is given by
+$$\cos\theta = \frac{\vec{u} \cdot \vec{v}}{|\vec{u}|\,|\vec{v}|}.$$
+You don't need to compute this now — but recognise: even *3D shading*
+is a question about angles. What does this say about the importance of
+angles?
+
+<details class="hint"><summary>Full solution</summary>
+Every modern game renders 3D scenes by decomposing surfaces into
+millions of tiny triangles, and computing the angle between each
+triangle's surface direction and the direction of the light. The result
+controls the brightness of each pixel.
+
+The simple "three corners of a triangle add to 180°" you met today
+generalises into the **trigonometry** of Tier 3 and the **vector
+algebra** of Tier 5. From a child's protractor to real-time 3D graphics,
+the same idea — *angle between two directions* — is the through line.
+
+Angles are *not* a small topic. They are one of the most reused ideas
+in all of applied mathematics.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Bigger lines mean a bigger angle."** No — angle measures only the
+   *turn* between the lines, not their length. Two short pencils at a
+   wide angle, and two long swords at a narrow angle, can have very
+   different angles regardless of length.
+2. **"All four-sided shapes are squares or rectangles."** No — there
+   are also rhombuses (equal sides, no right angles), parallelograms,
+   trapeziums, and irregular quadrilaterals.
+3. **"360° is special — it's the only full turn."** It's the
+   *convention* for full turn (chosen by the Babylonians for their
+   base-60 number system). Mathematicians often use **radians** instead
+   (a full turn is $2\pi$), which we'll meet in Tier 3.
+:::
+
+### Self-Assessment
+
+1. Could you tear the corners off a paper triangle and convince a friend
+   that they sum to 180°?
+2. Without scrolling back, can you find the third angle of a triangle
+   given two of them are 35° and 95°?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $180 - 35 - 95 = 50°$.)
+
+- **3 yes:** ready for **[Lesson 13 — Area, Perimeter, Volume](../13-area-perimeter-volume/index.qmd)**.
+- **2 yes:** redo **P2** — the polygon angle-sum formula is one of
+  geometry's gems.
+- **0–1 yes:** re-read *Discover P2 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+None within this curriculum. Geometry has its own logical foundation —
+this lesson sits at the start of the geometric strand.
+
+### What this unlocks
+
+- **[Area, Perimeter, Volume](../13-area-perimeter-volume/index.qmd)** —
+  with shapes and angles named, we can measure them.
+- **Tier 3 — Trigonometry** — the *ratios* of triangle sides as
+  functions of the angles. Every angle calculation in physics or
+  graphics ultimately uses trigonometry.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & graphics.** Every 3D model is a mesh of triangles.
+Every lighting calculation is an angle calculation. The angle between
+the camera and a surface determines what you see. *Stretch S2* gives
+the high-level view.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Geometry is one of mathematics' two oldest
+branches (with arithmetic). Euclid's *Elements* (c. 300 BCE) systematised
+plane geometry from a few axioms — its method (axiom → theorem → proof)
+is the model for all subsequent rigorous mathematics. Kiselev's
+*Geometry* (Russia, 19th century) is the modern reincarnation.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Architecture, navigation (compass bearings),
+astronomy (positions of stars), surveying, engineering, art and design,
+sports (camera angles in cricket replays), and traffic engineering
+(intersection angles) all depend on the angle vocabulary.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the angle widget makes turning
+  literal), Boole (the *do the angles depend on the lengths?* question
+  surfaces a key intuition), Russian school (the corner-tearing
+  experiment is a physical *proof*; Kiselev's geometry texts use this
+  exact demonstration), Bhāskara (single-box Name + verse), Euclid (the
+  whole geometric vocabulary traces to *Elements*).
+- **Self-study guarantees** all present.
+:::
