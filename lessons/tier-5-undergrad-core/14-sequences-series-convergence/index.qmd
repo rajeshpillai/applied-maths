@@ -1,0 +1,328 @@
+---
+title: "14 · Sequences, Series, and Convergence"
+subtitle: "Rigorous limits — and the convergence tests"
+lesson-id: "t5.sequences-series-convergence"
+tier: 5
+prerequisites: ["t4.limits", "t3.sequences-series"]
+unlocks: ["t5.real-analysis-foundation"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T4 L01 — Limits](../../tier-4-precalc-calculus/01-limits/index.qmd)
+   and [T3 L04 — Sequences and Series](../../tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd)?
+2. Comfortable with the harmonic-series-diverges fact?
+3. Recall geometric series convergence: $|r| < 1$.
+:::
+
+## Touch
+
+A **sequence** $a_n$ converges to $L$ if for every $\epsilon > 0$,
+there's $N$ such that $|a_n - L| < \epsilon$ for $n \ge N$.
+
+```{ojs}
+viewof seqSel = Inputs.select(["a_n = 1/n → 0", "a_n = (-1)^n: oscillates", "a_n = (1 + 1/n)^n → e"], {value: "a_n = 1/n → 0", label: "Sequence:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(seqSel) {
+    case "a_n = 1/n → 0": info = "Converges to 0. ε-N: given ε > 0, pick N > 1/ε. Then n ≥ N ⇒ 1/n ≤ 1/N < ε."; break;
+    case "a_n = (-1)^n: oscillates": info = "Diverges (no limit). ±1 alternation."; break;
+    case "a_n = (1 + 1/n)^n → e": info = "Converges to e ≈ 2.71828. The classic definition of e (T4 L01 S1)."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. The $\epsilon$-$N$ definition of convergence: what does it
+   *really* say?
+2. Some series diverge despite their terms going to 0 (harmonic).
+   How to test convergence?
+3. Power series like $\sum x^n / n!$ converge for *all* $x$. Why?
+
+## Discover
+
+### Problem 1
+
+The **rigorous definition**: $\lim_{n \to \infty} a_n = L$ means: for
+every $\epsilon > 0$, there exists $N \in \mathbb{N}$ such that
+$|a_n - L| < \epsilon$ for all $n \ge N$.
+
+Verify $\lim 1/n = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Given $\epsilon > 0$. Need $1/n < \epsilon$ for $n \ge N$. So pick
+$N > 1/\epsilon$ (any integer works).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Given $\epsilon$. Choose $N > 1/\epsilon$ (e.g., $N = \lceil
+1/\epsilon \rceil + 1$). For $n \ge N$: $1/n \le 1/N < \epsilon$ ✓.
+
+This is the **archetypal $\epsilon$-$N$ proof** — the foundation of
+real analysis.
+</details>
+
+### Problem 2
+
+A series $\sum a_n$ **converges** if its partial sums $S_n = \sum_{k
+\le n} a_k$ converge. We saw geometric series converge for $|r| < 1$
+(T3 L04).
+
+**$n$-th term test:** if $\sum a_n$ converges, then $a_n \to 0$.
+Contrapositive: if $a_n \not\to 0$, the series diverges.
+
+Apply: does $\sum (1 + 1/n)$ converge?
+
+<details class="hint"><summary>Full solution</summary>
+$a_n = 1 + 1/n \to 1 \neq 0$. **Diverges.**
+
+(Note: $a_n \to 0$ is necessary but not sufficient — harmonic series
+has $a_n = 1/n \to 0$ yet diverges.)
+</details>
+
+### Problem 3
+
+**Comparison test:** if $0 \le a_n \le b_n$ and $\sum b_n$ converges,
+then $\sum a_n$ converges. Conversely, if $\sum a_n$ diverges, so
+does $\sum b_n$.
+
+Use to determine: does $\sum 1/(n^2 + 1)$ converge?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$1/(n^2 + 1) \le 1/n^2$. And $\sum 1/n^2$ converges.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum 1/n^2 = \pi^2/6$ (a famous result by Euler). By comparison,
+$\sum 1/(n^2 + 1)$ also converges (smaller positive terms).
+
+The **$p$-series** $\sum 1/n^p$ converges iff $p > 1$. (Comparison
+with $\int 1/x^p dx$.)
+</details>
+
+### Problem 4
+
+**Ratio test:** for $\sum a_n$ with $a_n > 0$, if $\lim a_{n+1}/a_n =
+L$:
+
+- $L < 1$: converges.
+- $L > 1$: diverges.
+- $L = 1$: inconclusive.
+
+Apply to $\sum 1/n!$.
+
+<details class="hint"><summary>Full solution</summary>
+$a_{n+1}/a_n = n!/(n+1)! = 1/(n+1) \to 0 < 1$. **Converges.**
+
+(The sum $\sum_{n=0}^\infty 1/n! = e$, the natural exponential at 1.)
+</details>
+
+### Problem 5
+
+The **Taylor series** of $e^x$ is $\sum_{n=0}^\infty x^n / n!$.
+Show this converges for all real $x$.
+
+<details class="hint"><summary>Full solution</summary>
+Apply ratio test: $|a_{n+1}/a_n| = |x|/(n+1) \to 0$ for any fixed
+$x$. So **converges for all $x$**.
+
+The **radius of convergence** of this power series is $\infty$. (For
+some power series like $\sum x^n$, radius is finite — here, 1.)
+
+Power series let you define functions ($\sin, \cos, e^x$) as
+*infinite polynomials* — a major theme in analysis.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Sequence convergence:** $a_n \to L$ iff for every $\epsilon > 0$,
+there exists $N$ such that $n \ge N \Rightarrow |a_n - L| < \epsilon$.
+
+**Series convergence:** $\sum a_n$ converges iff partial sums
+converge.
+
+**Tests for series convergence:**
+
+| Test | Statement |
+|---|---|
+| $n$-th term | If $\sum a_n$ converges, $a_n \to 0$. (Necessary, not sufficient.) |
+| Geometric | $\sum r^n$ converges iff $|r| < 1$. |
+| $p$-series | $\sum 1/n^p$ converges iff $p > 1$. |
+| Comparison | $0 \le a_n \le b_n$, $\sum b_n$ converges ⇒ $\sum a_n$ converges. |
+| Ratio | If $\lim |a_{n+1}/a_n| = L$: $< 1$ converge, $> 1$ diverge. |
+| Root | If $\lim |a_n|^{1/n} = L$: $< 1$ converge, $> 1$ diverge. |
+| Integral | $f$ positive decreasing, $\sum f(n)$ and $\int f$ converge together. |
+
+**Absolute convergence:** $\sum |a_n|$ converges. Implies
+convergence of $\sum a_n$ (and rearrangements behave nicely).
+
+**Conditional convergence:** $\sum a_n$ converges but $\sum |a_n|$
+diverges (e.g., $\sum (-1)^n / n$). Rearrangements can change the
+sum (Riemann series theorem).
+
+**Power series:** $\sum a_n x^n$. Converges in some interval (radius
+of convergence $R$, possibly $0$ or $\infty$).
+
+:::
+
+> *ε-N: limits made rigorous;*
+> *Tests for convergence: ratio, comparison, integral, p-series;*
+> *Power series define functions analytically.*
+
+## Apply
+
+### Worked example
+
+> Does $\sum n / 2^n$ converge?
+
+Ratio: $a_{n+1}/a_n = ((n+1)/2^{n+1}) / (n/2^n) = (n+1)/(2n) \to 1/2
+< 1$. **Converges.**
+
+### Practice — Warm
+
+**W1.** Does $\sum 1/n$ converge?
+
+<details class="hint"><summary>Full solution</summary>
+**No** — harmonic series, diverges.
+</details>
+
+**W2.** Does $\sum 1/n^2$ converge?
+
+<details class="hint"><summary>Full solution</summary>
+**Yes** ($p$-series with $p = 2 > 1$).
+</details>
+
+**W3.** Does $\sum (-1)^n$ converge?
+
+<details class="hint"><summary>Full solution</summary>
+$a_n \not\to 0$. **Diverges.**
+</details>
+
+### Practice — Working
+
+**P1.** Does $\sum n^2 / 2^n$ converge?
+
+<details class="hint"><summary>Full solution</summary>
+Ratio: $((n+1)^2/2^{n+1}) / (n^2/2^n) = (n+1)^2/(2 n^2) \to 1/2 < 1$.
+**Converges.**
+</details>
+
+**P2.** Radius of convergence of $\sum n! \cdot x^n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Ratio: $|(n+1)! x^{n+1}/(n! x^n)| = (n+1) |x| \to \infty$ for any $x
+\neq 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Radius 0.** Converges only at $x = 0$.
+</details>
+
+**P3.** Does $\sum 1/n^{1.001}$ converge?
+
+<details class="hint"><summary>Full solution</summary>
+$p = 1.001 > 1$. **Yes**, $p$-series.
+
+(Just barely above 1; sums very slowly.)
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why does the harmonic series diverge but $\sum 1/n^{1.01}$
+converge?** They look almost the same — what's the difference?
+
+<details class="hint"><summary>Full solution</summary>
+**The terms decay just barely fast enough.** The integral test:
+$\sum 1/n^p \sim \int_1^\infty x^{-p} dx = 1/(p - 1)$ if $p > 1$,
+which is finite. For $p = 1$: $\int 1/x dx = \ln x \to \infty$.
+
+The transition at $p = 1$ is *sharp*. $\sum 1/(n \ln n)$ also
+diverges (just barely); $\sum 1/(n (\ln n)^2)$ converges.
+
+Convergence/divergence is a *quantitative* question with
+fascinating boundary cases.
+</details>
+
+**S2.** **Why are power series (Taylor series) so important in
+science?** Most useful functions are *analytic* — equal to their Taylor
+series in some region. Why is this practical?
+
+<details class="hint"><summary>Full solution</summary>
+**Polynomials are easy to compute.** A truncated Taylor series gives
+a polynomial *approximation* of $f(x)$ — easy to evaluate,
+differentiate, integrate. Calculators and computers compute
+$\sin x, e^x, \ln x$ this way internally.
+
+**Properties transfer.** Solutions of differential equations are
+often analytic; you can find them as power series (Frobenius method).
+
+**Theory.** Analytic functions have remarkable rigidity properties
+(if they agree on a small interval, they agree everywhere).
+Foundation of complex analysis (Tier 6).
+
+The infinite series you're learning to test for convergence are *the*
+representation of every smooth function in mathematics.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$a_n \to 0$ ⇒ $\sum a_n$ converges."** *Necessary*, not
+   sufficient. Harmonic counterexample.
+2. **"Power series have radius 1 always."** Different series have
+   different radii: 0, finite, or $\infty$.
+3. **"Conditionally convergent = convergent enough."** Only
+   *unconditionally* convergent series can be rearranged freely
+   (Riemann's rearrangement theorem).
+:::
+
+### Self-Assessment
+
+1. Could you state the $\epsilon$-$N$ definition of $a_n \to L$?
+2. Without scrolling back, does $\sum 1/n^3$ converge?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: yes, $p = 3 > 1$.)
+
+- **3 yes:** ready for **[15 · Real Analysis Foundation](../15-real-analysis-foundation/index.qmd)**.
+- **2 yes:** redo **S1** (harmonic boundary).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T4 L01 — Limits](../../tier-4-precalc-calculus/01-limits/index.qmd)**
+- **[T3 L04 — Sequences & Series](../../tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd)**
+
+### What this unlocks
+
+- **[15 · Real Analysis Foundation](../15-real-analysis-foundation/index.qmd)** —
+  the rigorous foundation.
+- **Tier 6 — Complex Analysis & Functional Analysis** — power series
+  in $\mathbb{C}$; Fourier series; Hilbert spaces.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Convergence guarantees for optimisation
+algorithms (e.g., SGD with proper learning-rate schedule). Power
+series approximations of activation functions for theoretical
+analysis.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Series and convergence tests are
+foundational to all of analysis. Series solutions to differential
+equations, asymptotic series, generating functions in combinatorics.
+:::
