@@ -1,0 +1,427 @@
+---
+title: "15 · Sequences (Intro)"
+subtitle: "Numbers in a deliberate order — and the two patterns that govern much of the world"
+lesson-id: "t2.sequences-intro"
+tier: 2
+prerequisites: ["t1.intro-variables", "t2.exponents-powers"]
+unlocks: []
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T1 L11 — Variables](../../tier-1-foundations/11-intro-variables/index.qmd)
+   and [07 · Exponents](../07-exponents-powers/index.qmd)?
+2. Can you compute $2^5 = 32$?
+3. Have you ever heard "compound interest" or "Moore's Law"? They are
+   *geometric* sequences — the topic of this lesson.
+:::
+
+## Touch
+
+Pick a starting value and a rule. The widget shows the first 10 terms
+of the resulting sequence.
+
+```{ojs}
+viewof seqType = Inputs.select(["arithmetic (add d)", "geometric (multiply r)"], {value: "arithmetic (add d)", label: "Type:"})
+viewof seqStart = Inputs.range([-5, 10], {value: 2, step: 1, label: "First term a₁:"})
+viewof seqStep = Inputs.range([-5, 5], {value: 3, step: 0.5, label: "Step (d or r):"})
+```
+
+```{ojs}
+{
+  const terms = [];
+  let cur = seqStart;
+  for (let i = 0; i < 10; i++) {
+    terms.push(cur);
+    cur = (seqType === "arithmetic (add d)") ? cur + seqStep : cur * seqStep;
+  }
+  const formula = (seqType === "arithmetic (add d)")
+    ? `aₙ = ${seqStart} + (n−1) × ${seqStep}`
+    : `aₙ = ${seqStart} × ${seqStep}^(n−1)`;
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; text-align:center; font-size:1.2rem;">
+      ${terms.map((t, i) => `<span style="color:${i === 0 ? '#c2185b' : '#1f2933'};font-weight:${i === 0 ? 'bold' : 'normal'};">${typeof t === 'number' && Math.abs(t) > 9999 ? t.toExponential(2) : (Number.isInteger(t) ? t : t.toFixed(2))}</span>`).join(', ')}, ...
+    </div>
+    <div style="font-family:monospace; text-align:center; margin-top:0.6rem; color:#666;">${formula}</div>
+  </div>`;
+}
+```
+
+A **sequence** is an ordered list of numbers. **Arithmetic** sequences
+add the same amount each step. **Geometric** sequences multiply by the
+same factor each step. The first is *linear*; the second is
+*exponential*.
+
+## Wonder
+
+1. Pick "arithmetic (add d)" with start 2 and d = 3. Read the terms
+   aloud. Each is bigger than the last by how much?
+2. Now switch to "geometric (multiply r)" with start 2 and r = 3. Read
+   the terms. How fast do they grow?
+3. Set arithmetic with d = 0.5. Now geometric with r = 0.5. What
+   happens?
+
+## Discover
+
+### Problem 1
+
+The sequence $3, 7, 11, 15, \ldots$ — what kind of sequence is it, and
+what's the next term?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each step, what is added?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Common difference $d = 4$. **Arithmetic** sequence. Next term: $19$.
+
+Formula: $a_n = a_1 + (n - 1)d = 3 + (n - 1) \cdot 4$. The 10th term:
+$a_{10} = 3 + 9 \cdot 4 = 39$.
+</details>
+
+### Problem 2
+
+The sequence $2, 6, 18, 54, \ldots$ — what kind, and what's the next?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each step, what is multiplied?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Common ratio $r = 3$. **Geometric** sequence. Next term: $162$.
+
+Formula: $a_n = a_1 \cdot r^{n-1} = 2 \cdot 3^{n-1}$.
+</details>
+
+### Problem 3
+
+You deposit Rs. 10000 in a savings account at **5% interest, compounded
+annually**. After year 1: Rs. 10500. After year 2: 5% on the new
+balance, so Rs. 10500 × 1.05 = Rs. 11025. After year 3: 11025 × 1.05.
+
+Is the *balance over years* an arithmetic or geometric sequence?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each year, you *multiply* by the same factor (1.05).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Geometric**, with $r = 1.05$. After $n$ years: balance $=
+10000 \cdot 1.05^n$.
+
+After 10 years: $10000 \cdot 1.05^{10} \approx 16289$ rupees.
+After 30 years: $10000 \cdot 1.05^{30} \approx 43219$ rupees.
+
+Compound interest is *exponential*, not linear. Doubling time at 5%:
+about 14 years. (The "Rule of 72" estimates doubling time as 72/rate.)
+</details>
+
+### Problem 4
+
+A geometric sequence with $r > 1$ grows fast. With $r < 1$ (but
+positive), it *shrinks*. Compute the first 5 terms of a geometric
+sequence with $a_1 = 100$ and $r = 0.5$.
+
+<details class="hint"><summary>Full solution</summary>
+$100, 50, 25, 12.5, 6.25, \ldots$ Each term is half the previous.
+
+This is the pattern of **radioactive decay** (half the substance
+remains after each "half-life"), of **drug elimination from the body**
+(approximately), and of any **damped oscillation**.
+
+If you continue forever, the terms approach 0 — they have a
+*limit*. The infinite sum is bounded too: $100 + 50 + 25 + \cdots =
+200$. We meet *infinite series* properly in Tier 3.
+</details>
+
+### Problem 5
+
+An arithmetic sequence has $a_3 = 11$ and $a_7 = 23$. Find $a_1$ and
+$d$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Going from $a_3$ to $a_7$ is 4 steps, each of size $d$. So $a_7 - a_3
+= 4d$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$23 - 11 = 12 = 4d \Rightarrow d = 3$.
+$a_3 = a_1 + 2d \Rightarrow 11 = a_1 + 6 \Rightarrow a_1 = 5$.
+
+Check: sequence is $5, 8, 11, 14, 17, 20, 23, \ldots$. $a_3 = 11$ ✓,
+$a_7 = 23$ ✓.
+
+Two pieces of information about an arithmetic (or geometric) sequence
+are enough to pin down all terms. This is the same "two equations, two
+unknowns" idea from [Lesson 6](../06-systems-linear-equations/index.qmd).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **sequence** is an ordered list of numbers $a_1, a_2, a_3, \ldots$.
+The number in position $n$ is $a_n$, the **$n$-th term**.
+
+**Arithmetic sequence:** common difference $d$. Each term is the
+previous plus $d$.
+$$a_n = a_1 + (n - 1) d.$$
+
+**Geometric sequence:** common ratio $r$. Each term is the previous
+times $r$.
+$$a_n = a_1 \cdot r^{n - 1}.$$
+
+**Sum of an arithmetic sequence** ($n$ terms):
+$$S_n = \dfrac{n}{2}(a_1 + a_n) = \dfrac{n}{2}(2 a_1 + (n-1)d).$$
+
+**Sum of a geometric sequence** ($n$ terms, $r \neq 1$):
+$$S_n = a_1 \cdot \dfrac{r^n - 1}{r - 1}.$$
+
+:::
+
+> *Arithmetic — add a fixed step; the formula is linear in $n$.*
+> *Geometric — multiply by a fixed factor; the formula is exponential in $n$.*
+> *Two terms determine the whole sequence; sums have closed forms.*
+
+## Apply
+
+### Worked example
+
+> Find the **sum of the first 100 positive integers**: $1 + 2 + 3 +
+> \cdots + 100$.
+
+A competent solver recognises this as an arithmetic sequence with
+$a_1 = 1, d = 1, n = 100, a_n = 100$.
+
+$$S = \dfrac{100}{2}(1 + 100) = 50 \cdot 101 = 5050.$$
+
+**Answer: 5050.** Legend has it that the young Carl Friedrich Gauss
+(later one of the greatest mathematicians) was set this exact problem
+by a teacher who hoped to keep him quiet for an hour. Gauss returned
+the answer in minutes by pairing terms ($1 + 100, 2 + 99, \ldots, 50
++ 51$ — fifty pairs each summing to 101) and computing $50 \cdot 101 =
+5050$. The same trick yields the general formula.
+
+### Practice — Warm
+
+**W1.** Identify each as arithmetic or geometric, and give the next
+two terms:
+
+(a) $5, 8, 11, 14, \ldots$
+(b) $3, 6, 12, 24, \ldots$
+(c) $20, 17, 14, 11, \ldots$
+
+<details class="hint"><summary>Full solution</summary>
+(a) Arithmetic, $d = 3$: $17, 20$.
+(b) Geometric, $r = 2$: $48, 96$.
+(c) Arithmetic, $d = -3$: $8, 5$.
+</details>
+
+**W2.** For arithmetic sequence $a_1 = 4, d = 5$, find $a_{10}$.
+
+<details class="hint"><summary>Full solution</summary>
+$a_{10} = 4 + 9 \cdot 5 = 49$.
+</details>
+
+**W3.** For geometric sequence $a_1 = 3, r = 2$, find $a_5$.
+
+<details class="hint"><summary>Full solution</summary>
+$a_5 = 3 \cdot 2^4 = 48$.
+</details>
+
+### Practice — Working
+
+**P1.** Sum of the first 50 positive even integers ($2 + 4 + 6 + \cdots
++ 100$).
+
+<details class="hint"><summary>Full solution</summary>
+Arithmetic with $a_1 = 2, d = 2, n = 50, a_n = 100$.
+$S = \dfrac{50}{2}(2 + 100) = 25 \cdot 102 = 2550$.
+</details>
+
+**P2.** Find the **8th term** of the sequence $1, 2, 4, 8, 16, \ldots$.
+
+<details class="hint"><summary>Full solution</summary>
+Geometric, $a_1 = 1, r = 2$. $a_8 = 1 \cdot 2^7 = 128$.
+
+This is the doubling sequence — the same one from the chess-board
+problem (T2 L07 Stretch S1).
+</details>
+
+**P3.** A car worth Rs. 800,000 depreciates by **20% each year**. What
+is its value after 5 years?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each year multiplies by $(1 - 0.20) = 0.80$. Geometric sequence with
+$r = 0.8$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a_5 = 800000 \cdot 0.8^5 = 800000 \cdot 0.32768 \approx 262{,}144$
+rupees.
+
+Depreciation, drug elimination, atmospheric absorption — many
+real-world quantities decay geometrically.
+</details>
+
+### Practice — Stretch
+
+**S1.** A neural network's **learning rate** is often **decayed
+geometrically**: each epoch, the rate is multiplied by $0.95$ (say).
+Starting at $0.01$, what is the learning rate after 50 epochs? After
+100 epochs?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\text{rate}_n = 0.01 \cdot 0.95^n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+After 50: $0.01 \cdot 0.95^{50} \approx 0.01 \cdot 0.0769 \approx
+7.7 \times 10^{-4}$.
+After 100: $0.01 \cdot 0.95^{100} \approx 0.01 \cdot 0.0059 \approx
+5.9 \times 10^{-5}$.
+
+By epoch 100 the rate has shrunk to about 0.6% of its starting value
+— still positive, but very small. This **annealing** of the learning
+rate is one of the most common training tricks in deep learning, and
+it is exactly a geometric sequence.
+</details>
+
+**S2.** **The Fibonacci sequence** is neither arithmetic nor
+geometric: each term is the *sum of the two previous*. Starting from
+1, 1: $1, 1, 2, 3, 5, 8, 13, 21, \ldots$. Compute the next 5 terms.
+What is unusual about this rule compared to arithmetic/geometric?
+
+<details class="hint"><summary>Full solution</summary>
+Continuing: $34, 55, 89, 144, 233, \ldots$.
+
+**Unusual:** the rule is *recursive*: $a_n = a_{n-1} + a_{n-2}$ — each
+term depends on **two** previous terms, not just one. This places
+Fibonacci outside the simple arithmetic/geometric world.
+
+Yet a closed form *does* exist: Binet's formula
+$$a_n = \dfrac{\phi^n - (1 - \phi)^n}{\sqrt{5}}, \qquad \phi = \dfrac{1 + \sqrt{5}}{2}.$$
+
+The number $\phi \approx 1.618$ is the **golden ratio** — and $a_{n+1}
+/ a_n \to \phi$ as $n$ grows. So Fibonacci is *asymptotically*
+geometric with ratio $\phi$, even though it isn't exactly so.
+
+The Fibonacci sequence appears in nature (sunflower spirals, pinecone
+patterns), in art (the golden rectangle), in algorithms (Fibonacci
+heaps, Euclidean algorithm complexity), and in finance (technical
+analysis "Fibonacci retracements"). A whole journal, *The Fibonacci
+Quarterly*, is dedicated to it. Recursive sequences are a major topic
+of Tier 5+ discrete mathematics.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Arithmetic = numbers; geometric = shapes."** No — both are
+   types of *sequence*. Arithmetic adds a fixed amount; geometric
+   multiplies by a fixed factor. The names are historical.
+2. **"$a_1$ is term zero."** Convention varies. Most school texts
+   start with $a_1$; computer scientists often use $a_0$.
+   Be consistent within one problem.
+3. **"All sequences are arithmetic or geometric."** No — most
+   sequences are neither (e.g., Fibonacci, the prime numbers, the
+   sequence of perfect squares $1, 4, 9, 16, \ldots$ — which is
+   *quadratic*).
+:::
+
+### Self-Assessment
+
+1. Could you explain the difference between arithmetic and geometric
+   sequences using "step" vs "factor"?
+2. Without scrolling back, can you find the 10th term of an arithmetic
+   sequence with $a_1 = 7, d = 4$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $a_{10} = 7 + 9 \cdot 4 = 43$.)
+
+- **3 yes:** **You have completed Tier 2!** Begin Tier 3 (planned) or
+  consult an [applied bridge](../../../applied-bridges/encryption.qmd).
+- **2 yes:** redo **S1** (geometric LR decay) — common in modern ML.
+- **0–1 yes:** re-read *Discover P3* (compound interest) and the
+  worked example.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L11 — Variables](../../tier-1-foundations/11-intro-variables/index.qmd)**
+- **[07 · Exponents and Powers](../07-exponents-powers/index.qmd)** —
+  needed for geometric sequences.
+
+### What this unlocks
+
+- **Tier 3 — Sequences and Series** — infinite sums, convergence,
+  the geometric series formula.
+- **Tier 4 — Calculus** — limits of sequences are the foundation of
+  calculus.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Learning-rate annealing (S1), exponential
+moving averages, batch-size warmup schedules — all are sequences in
+the training loop. Many model-architecture choices (hidden layer
+widths, attention head counts) are also sequences.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Recursive sequences, Fibonacci, the prime
+counting function — sequences are a major topic of analytic number
+theory and combinatorics.
+:::
+
+::: {.applied-callout}
+**Finance.** Compound interest is the most consequential geometric
+sequence in human life — it underlies retirement planning, debt
+accumulation, mortgage amortisation, inflation, and economic growth.
+:::
+
+::: {.applied-callout}
+**Physics & biology.** Radioactive decay, population growth (under
+unlimited resources), pharmacokinetics, sound attenuation —
+geometric sequences and their continuous counterpart, the
+exponential function (Tier 3+), are everywhere.
+:::
+
+---
+
+## You have finished Tier 2
+
+This lesson closes Tier 2 — Pre-Algebra & Algebra I. Across 15
+lessons you have:
+
+1. Met **functions** and the input-output picture.
+2. Solved **linear equations** and **inequalities**.
+3. Mapped points on the **coordinate plane**, drawn **linear
+   functions** as lines, and solved **systems** of two equations.
+4. Mastered **exponents**, **scientific notation**, and met the
+   irrational $\sqrt{2}$.
+5. Proved the **Pythagorean theorem** and the **distance formula**.
+6. **Multiplied and factored polynomials**, **solved quadratics** by
+   factoring.
+7. Reasoned about **similarity** and the square-cube law.
+8. Met **arithmetic and geometric sequences** — the two simplest
+   patterns governing growth.
+
+You are now ready for **Tier 3 — Algebra II / Geometry / Trigonometry**
+(planned), or for any of the [applied bridges](../../../applied-bridges/encryption.qmd).
+
+Congratulations.
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the live-terms widget),
+  Boole (Wonder questions distinguish add-vs-multiply step),
+  Russian school (P5 forces "two terms determine all" thinking),
+  Bhāskara (single-box Name + verse — and Indian mathematicians
+  including Bhāskara I and II contributed extensively to
+  arithmetic and geometric series formulas), Gauss
+  (the worked-example anecdote).
+- **Self-study guarantees** all present.
+:::
