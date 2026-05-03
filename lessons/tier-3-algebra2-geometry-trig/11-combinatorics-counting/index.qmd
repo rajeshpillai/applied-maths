@@ -1,0 +1,332 @@
+---
+title: "11 · Combinatorics — Counting"
+subtitle: "How many ways? Three rules underlie all of counting"
+lesson-id: "t3.combinatorics-counting"
+tier: 3
+prerequisites: ["t1.divide-fair-share"]
+unlocks: ["t3.binomial-theorem", "t3.basic-probability"]
+applied-domains: ["encryption", "ai-ml", "research", "databases"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Comfortable with multiplication and division ([T1
+   L05](../../tier-1-foundations/05-multiply-as-area/index.qmd) and
+   [T1 L06](../../tier-1-foundations/06-divide-fair-share/index.qmd))?
+2. Have you played card games — and ever wondered "how many possible
+   hands?"
+3. Comfortable with the factorial: $5! = 5 \cdot 4 \cdot 3 \cdot 2 \cdot 1
+   = 120$?
+:::
+
+## Touch
+
+Pick $n$ and $r$. The widget shows three counts:
+
+- **arrangements ($n^r$)** — choices with repetition, order matters
+- **permutations $P(n,r) = n!/(n-r)!$** — without repetition, order matters
+- **combinations $C(n,r) = n!/(r!(n-r)!)$** — without repetition, order doesn't matter
+
+```{ojs}
+viewof nVal = Inputs.range([1, 12], {value: 5, step: 1, label: "n (items available):"})
+viewof rVal = Inputs.range([0, 12], {value: 3, step: 1, label: "r (items chosen):"})
+```
+
+```{ojs}
+{
+  const factorial = n => n <= 1 ? 1 : n * factorial(n - 1);
+  const safeR = Math.min(rVal, nVal);
+  const arr = Math.pow(nVal, rVal);
+  const perm = safeR > nVal ? 0 : factorial(nVal) / factorial(nVal - safeR);
+  const comb = safeR > nVal ? 0 : perm / factorial(safeR);
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <table style="margin: 0 auto; border-collapse:collapse; font-family:monospace; font-size:1.05rem;">
+      <tr style="background:#f5f5f5;"><th style="padding:6px 14px;">Count</th><th style="padding:6px 14px;">Formula</th><th style="padding:6px 14px;">Value</th></tr>
+      <tr style="border-top:1px solid #ccc;"><td style="padding:4px 14px;color:#1565c0;">Arrangements (with repetition)</td><td style="padding:4px 14px;">${nVal}<sup>${rVal}</sup></td><td style="padding:4px 14px;font-weight:bold;">${arr.toLocaleString()}</td></tr>
+      <tr style="border-top:1px solid #ccc;"><td style="padding:4px 14px;color:#c2185b;">Permutations P(${nVal},${rVal})</td><td style="padding:4px 14px;">${nVal}!/(${nVal}−${safeR})!</td><td style="padding:4px 14px;font-weight:bold;">${perm.toLocaleString()}</td></tr>
+      <tr style="border-top:1px solid #ccc;"><td style="padding:4px 14px;color:#2e7d32;">Combinations C(${nVal},${rVal})</td><td style="padding:4px 14px;">${nVal}!/(${safeR}!(${nVal}−${safeR})!)</td><td style="padding:4px 14px;font-weight:bold;">${comb.toLocaleString()}</td></tr>
+    </table>
+  </div>`;
+}
+```
+
+The three central counts. Order? Repetition? — answer those questions
+and the right formula picks itself.
+
+## Wonder
+
+1. From 4 letters, how many 3-letter "words" if letters can repeat?
+   Cannot repeat?
+2. Why are the *combinations* fewer than the *permutations*?
+3. From 50 students, how many ways to pick a committee of 5?
+
+## Discover
+
+### Problem 1
+
+A pizza shop offers **3 sizes**, **5 crust types**, and **8 toppings**
+(pick one). How many distinct pizzas?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+**Multiplication principle:** if step 1 has $a$ options, step 2 has
+$b$, ..., total is $a \cdot b \cdot \ldots$
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 \cdot 5 \cdot 8 = 120$ pizzas. The **multiplication principle** is
+the foundation of all counting.
+</details>
+
+### Problem 2
+
+How many ways to arrange 5 books on a shelf?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First slot: 5 choices. Second: 4. Third: 3. Etc.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5 \cdot 4 \cdot 3 \cdot 2 \cdot 1 = 5! = 120$ arrangements.
+
+The number of arrangements of $n$ distinct objects is **$n!$**
+(*"$n$ factorial"*). For $n = 10$, that's already 3.6 million.
+</details>
+
+### Problem 3
+
+A 3-digit PIN can use digits 0–9, repetition allowed. How many?
+
+<details class="hint"><summary>Full solution</summary>
+$10 \cdot 10 \cdot 10 = 10^3 = 1000$. With repetition allowed:
+$n^r$ arrangements (here $n = 10, r = 3$).
+</details>
+
+### Problem 4
+
+How many 3-digit codes using 0–9 with **no repetition**?
+
+<details class="hint"><summary>Full solution</summary>
+$10 \cdot 9 \cdot 8 = 720$.
+
+This is the **permutation** count: $P(n, r) = \dfrac{n!}{(n-r)!}$.
+$P(10, 3) = 10!/7! = 720$.
+</details>
+
+### Problem 5
+
+A committee of **3 people** is chosen from a class of **10**. How
+many committees? (Order doesn't matter — Anil-Bina-Cara is the same
+committee as Cara-Anil-Bina.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Permutations $P(10, 3) = 720$ over-count, because every committee is
+counted $3! = 6$ times (once per ordering). So divide.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{P(10, 3)}{3!} = \dfrac{720}{6} = 120$.
+
+This is the **combination** count: $C(n, r) = \binom{n}{r} =
+\dfrac{n!}{r!(n - r)!}$.
+
+$C(10, 3) = 120$. **120 possible committees.**
+
+The "n choose r" notation $\binom{n}{r}$ is read aloud as "n choose r"
+and is the number of $r$-element *subsets* of an $n$-set.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Multiplication principle:** if a process has $k$ independent steps
+with $n_1, n_2, \ldots, n_k$ choices each, the total number of
+outcomes is $n_1 \cdot n_2 \cdots n_k$.
+
+**Factorial:** $n! = n(n-1)(n-2) \cdots 1$. By convention $0! = 1$.
+
+**Three counting formulas:**
+
+| Question | Order matters? | Repetition? | Formula |
+|---|:-:|:-:|---|
+| Arrangements with rep | yes | yes | $n^r$ |
+| Permutations | yes | no | $P(n, r) = \dfrac{n!}{(n-r)!}$ |
+| Combinations | no | no | $C(n, r) = \binom{n}{r} = \dfrac{n!}{r! (n-r)!}$ |
+
+**Always ask:** *Does order matter? Can items repeat?* The answer
+picks the formula.
+
+:::
+
+> *Multiplication principle: choices multiply across independent steps;*
+> *Permutations count ordered selections; combinations count unordered;*
+> *Order matters? Repetition allowed? — those two questions decide.*
+
+## Apply
+
+### Worked example
+
+> A 5-card poker hand is dealt from a standard 52-card deck. How
+> many distinct hands?
+
+Order doesn't matter (the same five cards form the same hand
+regardless of dealing order); repetition impossible (each card is
+unique).
+
+$\binom{52}{5} = \dfrac{52!}{5! \cdot 47!} = \dfrac{52 \cdot 51 \cdot 50
+\cdot 49 \cdot 48}{120} = 2{,}598{,}960$ hands.
+
+### Practice — Warm
+
+**W1.** How many ways to arrange the letters of "MATH"?
+
+<details class="hint"><summary>Full solution</summary>
+$4! = 24$ (all letters distinct).
+</details>
+
+**W2.** $C(7, 2) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{7!}{2! \cdot 5!} = \dfrac{42}{2} = 21$.
+</details>
+
+**W3.** A 4-digit PIN using digits 0–9, repetition allowed. How many?
+
+<details class="hint"><summary>Full solution</summary>
+$10^4 = 10{,}000$.
+</details>
+
+### Practice — Working
+
+**P1.** A team of 4 players is chosen from 12 candidates. How many
+teams?
+
+<details class="hint"><summary>Full solution</summary>
+$\binom{12}{4} = \dfrac{12!}{4! \cdot 8!} = 495$.
+</details>
+
+**P2.** How many distinct 5-letter "words" (real or made-up) using the
+26 English letters, with **no repeated letter**?
+
+<details class="hint"><summary>Full solution</summary>
+$P(26, 5) = 26 \cdot 25 \cdot 24 \cdot 23 \cdot 22 = 7{,}893{,}600$.
+</details>
+
+**P3.** From 8 different books, you choose 3 for a holiday. How many
+choices? Then: in how many *orders* can you read them?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First a combination, then a permutation of those 3.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Choices: $\binom{8}{3} = 56$ sets. Orders for each: $3! = 6$.
+**Total order-and-choice combinations: $56 \cdot 6 = 336 = P(8, 3)$**.
+
+This shows: $P(n, r) = C(n, r) \cdot r!$ — permutations =
+combinations times orderings of the chosen subset.
+</details>
+
+### Practice — Stretch
+
+**S1.** **A password.** Pick **8 characters** from a–z (26), A–Z
+(26), 0–9 (10), and 10 special characters — total **72 distinct
+characters**, repetition allowed. How many distinct passwords?
+
+<details class="hint"><summary>Full solution</summary>
+$72^8 \approx 7.2 \times 10^{14}$ — about **720 trillion**
+passwords. At a billion guesses per second, brute-forcing through all
+of them takes ~8 days. (In reality, weak password choices reduce the
+*effective* space dramatically; that's why diceware-style passphrases
+and password managers are recommended.)
+
+The size of a password space is *the* measure of brute-force
+strength. The exponential function makes a small character-set
+expansion (62 → 72) much more dramatic than it sounds.
+</details>
+
+**S2.** **Lottery odds.** A lottery draws 6 numbers from 49 (no
+repetition, order doesn't matter). What's the chance a single ticket
+wins the jackpot?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total combinations: $\binom{49}{6}$. One ticket = 1 favourable.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{49}{6} = \dfrac{49!}{6! \cdot 43!} = 13{,}983{,}816$.
+
+Chance per ticket: $1 / 13{,}983{,}816 \approx 7.15 \times 10^{-8}$
+— roughly **1 in 14 million**. To put it in perspective: you are
+several times more likely to be struck by lightning in a year (about
+1 in a million in many places).
+
+This is why lotteries are sometimes called "a tax on people who can't
+do mathematics."
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$P(n, r)$ and $C(n, r)$ are interchangeable."** No — order
+   matters for $P$, doesn't for $C$. Different problems need different
+   formulas.
+2. **"$n!$ for very small or very large $n$ is weird."** $0! = 1$ by
+   convention (makes formulas work). $50! \approx 3 \times 10^{64}$ —
+   astronomically large.
+3. **"$\binom{n}{r}$ is just shorthand for some number."** It's a
+   genuine count — the number of $r$-element subsets of an $n$-set.
+   Has rich combinatorial meaning.
+:::
+
+### Self-Assessment
+
+1. Could you state the multiplication principle and apply it to a
+   3-step decision?
+2. Without scrolling back, what is $\binom{6}{2}$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: 15.)
+
+- **3 yes:** ready for **[12 · Binomial Theorem](../12-binomial-theorem/index.qmd)**.
+- **2 yes:** redo **S1** (password space) — counting argument
+  central to security.
+- **0–1 yes:** re-read *Discover P5* (the C = P/r! derivation).
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L06 — Division as Fair Share](../../tier-1-foundations/06-divide-fair-share/index.qmd)** —
+  combination formula uses division of factorials.
+
+### What this unlocks
+
+- **[12 · Binomial Theorem](../12-binomial-theorem/index.qmd)** —
+  $\binom{n}{r}$ is the coefficient.
+- **[13 · Basic Probability](../13-basic-probability/index.qmd)** —
+  probability often = (favourable count) / (total count), both
+  combinatorial.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** Brute-force attack times depend on space sizes
+(passwords, key spaces). Modern crypto designs key spaces to be at
+least $2^{128}$ — beyond reach of any future computer.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Combinatorial explosion underlies why
+exhaustive search is intractable for many ML problems — driving the
+need for *gradient*-based and *probabilistic* methods.
+:::
+
+::: {.applied-callout}
+**Databases.** Counting query optimisation, set sizes, join
+cardinalities, group-by aggregates — all combinatorics underneath.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Combinatorics is a vast field — graph
+theory, design theory, partition theory, algebraic combinatorics —
+all built on the basic counting arguments here.
+:::
