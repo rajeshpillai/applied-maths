@@ -1,0 +1,347 @@
+---
+title: "02 · Topology — Open Sets, Continuity, Compactness"
+subtitle: "Geometry without distance — and the right level of abstraction for continuity"
+lesson-id: "t7.topology"
+tier: 7
+prerequisites: ["t5.real-analysis-foundation"]
+unlocks: []
+applied-domains: ["research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L15 — Real Analysis Foundation](../../tier-5-undergrad-core/15-real-analysis-foundation/index.qmd)?
+2. Comfortable with $\epsilon$-$\delta$ continuity?
+3. Recall sequences and convergence.
+:::
+
+## Touch
+
+A **topological space** $(X, \tau)$: $X$ is a set, $\tau$ is a
+collection of "open" subsets satisfying:
+
+- $\emptyset, X \in \tau$.
+- $\tau$ closed under arbitrary unions and finite intersections.
+
+```{ojs}
+viewof topSel = Inputs.select(["Standard topology on ℝ", "Discrete: every set is open", "Trivial: only ∅ and X open", "Subspace: induced from a parent"], {value: "Standard topology on ℝ", label: "Topology:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(topSel) {
+    case "Standard topology on ℝ": info = "Open sets = unions of open intervals. Familiar topology of the real line."; break;
+    case "Discrete: every set is open": info = "Most refined topology. Every function is continuous. Useless for analysis but conceptually instructive."; break;
+    case "Trivial: only ∅ and X open": info = "Most coarse. Only constant functions are continuous to most spaces."; break;
+    case "Subspace: induced from a parent": info = "Y ⊆ X gets topology {Y ∩ U : U open in X}. The natural inheritance."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why generalise beyond metric spaces?
+2. **Continuity** in topology: $f^{-1}(\text{open}) = \text{open}$.
+   Why does this match the $\epsilon$-$\delta$ definition?
+3. **Compactness** is the topological version of "bounded and
+   closed" — but more general.
+
+## Discover
+
+### Problem 1
+
+A **topological space** $(X, \tau)$: $\tau \subseteq 2^X$ contains
+$\emptyset, X$, is closed under arbitrary unions and finite
+intersections.
+
+For $\mathbb{R}$ with the standard topology, is $[0, 1]$ open?
+Closed?
+
+<details class="hint"><summary>Full solution</summary>
+**Closed but not open** in standard topology. $[0, 1] \subset
+\mathbb{R}$ has boundary points $0, 1$ that are not interior — so
+not open. Its complement $\mathbb{R} \setminus [0, 1] = (-\infty, 0)
+\cup (1, \infty)$ is open — so $[0, 1]$ is closed.
+
+Sets can be open, closed, both ($\emptyset, X$), or neither (e.g.,
+$[0, 1)$).
+</details>
+
+### Problem 2
+
+**Continuity, topological version.** $f: X \to Y$ is continuous iff
+$f^{-1}(V)$ is open in $X$ for every open $V \subseteq Y$.
+
+Verify: for $\mathbb{R} \to \mathbb{R}$, this matches
+$\epsilon$-$\delta$.
+
+<details class="hint"><summary>Full solution</summary>
+$f$ $\epsilon$-$\delta$-continuous at $a$: for every open ball $B(f(a),
+\epsilon)$ around $f(a)$, $f^{-1}$ contains an open ball $B(a,
+\delta)$.
+
+Topologically: $f^{-1}$ of any open set is open — exactly the same
+information, just phrased without explicit metrics. The
+*topological* definition extends to spaces without distance
+(quotient spaces, product spaces).
+</details>
+
+### Problem 3
+
+A **homeomorphism** $f: X \to Y$ is a continuous bijection with
+continuous inverse. Topologically, $X$ and $Y$ are "the same."
+
+Are $(0, 1)$ and $\mathbb{R}$ homeomorphic?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(x) = \tan(\pi x - \pi/2)$ maps $(0, 1)$ continuously, bijectively
+to $\mathbb{R}$, with continuous inverse $\arctan$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes, homeomorphic.** Topology can't distinguish "bounded" from
+"unbounded" intervals.
+
+But: $(0, 1)$ and $[0, 1]$ are *not* homeomorphic. The latter is
+**compact**, the former isn't.
+</details>
+
+### Problem 4
+
+**Compactness.** $X$ is compact iff every open cover has a finite
+subcover.
+
+For $\mathbb{R}^n$: compact iff closed and bounded (Heine-Borel).
+For general spaces: compactness is a deep property.
+
+Why is compactness so useful?
+
+<details class="hint"><summary>Full solution</summary>
+**Compactness lets you reduce infinite to finite.** Continuous
+functions on compact spaces:
+
+- Attain their max and min (extreme value theorem).
+- Are uniformly continuous.
+
+Compact sets in metric spaces are *complete and totally bounded* —
+they "almost behave like finite sets."
+
+In analysis: a sequence in a compact set has a convergent
+subsequence (Bolzano-Weierstrass).
+
+In algebra: compact groups have powerful representation theory.
+</details>
+
+### Problem 5
+
+**Connectedness.** $X$ is connected iff it cannot be written as a
+disjoint union of two non-empty open sets.
+
+Is $[0, 1] \cup [2, 3] \subset \mathbb{R}$ connected? Is the unit
+disk?
+
+<details class="hint"><summary>Full solution</summary>
+**$[0, 1] \cup [2, 3]$:** disconnected — splits into two open-in-
+subspace pieces.
+
+**Unit disk:** connected — can't split.
+
+The **fundamental group** $\pi_1$ measures "holes" in connected
+spaces — the discipline of *algebraic topology* (Tier 7+).
+
+Connectedness explains: why intermediate value theorem holds
+(continuous image of connected is connected), why some equations
+must have solutions.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **topological space** $(X, \tau)$: $\tau$ a collection of subsets
+("opens") containing $\emptyset, X$, closed under arbitrary unions
+and finite intersections.
+
+**Closed sets** = complements of open sets.
+
+**Continuous function** $f: X \to Y$: $f^{-1}(\text{open}) = \text{open}$.
+
+**Homeomorphism:** continuous bijection with continuous inverse.
+Topological "sameness."
+
+**Compactness:** every open cover has a finite subcover.
+
+- In $\mathbb{R}^n$: compact ⇔ closed and bounded (Heine-Borel).
+- Continuous image of compact is compact.
+- Continuous functions on compact spaces attain max/min.
+
+**Connectedness:** can't split into disjoint non-empty opens.
+
+**Path-connected:** every pair connected by a continuous path. Path-
+connected ⇒ connected (converse not always).
+
+**Hausdorff (T2):** distinct points have disjoint neighbourhoods.
+"Reasonable" spaces (most analysis happens here).
+
+**Common topologies:**
+
+- Discrete (all subsets open).
+- Trivial (only $\emptyset, X$).
+- Standard on $\mathbb{R}^n$ (open balls).
+- Product, subspace, quotient topologies.
+
+:::
+
+> *Topology = sets + open subsets, closed under unions/finite intersections;*
+> *Continuous: pre-image of open is open;*
+> *Compact = "tame infinity"; connected = "one piece".*
+
+## Apply
+
+### Worked example
+
+> Show that the function $f: \mathbb{R} \to \mathbb{R}, f(x) = x^3$ is
+> a homeomorphism.
+
+Continuous (polynomial). Bijective ($f$ strictly increasing).
+
+Inverse $f^{-1}(y) = y^{1/3}$ — continuous on $\mathbb{R}$.
+
+So $\mathbb{R} \cong \mathbb{R}$ (trivially) via $x \mapsto x^3$. (More
+interesting: $f(x) = x^3$ is a homeomorphism even though it's not
+*differentiably* invertible at 0.)
+
+### Practice — Warm
+
+**W1.** Is $(0, 1)$ open in $\mathbb{R}$?
+
+<details class="hint"><summary>Full solution</summary>
+Yes.
+</details>
+
+**W2.** Is $\mathbb{Z}$ closed in $\mathbb{R}$?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — its complement (union of open intervals) is open.
+</details>
+
+**W3.** Is the unit sphere $S^2$ in $\mathbb{R}^3$ compact?
+
+<details class="hint"><summary>Full solution</summary>
+Yes (closed and bounded).
+</details>
+
+### Practice — Working
+
+**P1.** Is the open interval $(0, \infty)$ compact?
+
+<details class="hint"><summary>Full solution</summary>
+**No** — unbounded.
+</details>
+
+**P2.** Is the rationals $\mathbb{Q}$ in $\mathbb{R}$ open? Closed?
+
+<details class="hint"><summary>Full solution</summary>
+**Neither.** Not open (no interval is fully rational). Not closed
+(its closure is $\mathbb{R}$).
+</details>
+
+**P3.** Are the unit circle $S^1$ and unit interval $[0, 1]$
+homeomorphic?
+
+<details class="hint"><summary>Full solution</summary>
+**No.** Removing one point from $S^1$ keeps it connected; from $[0,
+1]$, splitting at an interior point disconnects it. Topological
+invariant differs.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Topological data analysis.** Persistent homology computes
+topological features (connected components, holes, voids) of point
+clouds at multiple scales. Used in ML for shape analysis.
+
+<details class="hint"><summary>Full solution</summary>
+Given a point cloud, build a *Vietoris-Rips complex* at each scale
+$\epsilon$; track which holes appear and disappear as $\epsilon$
+grows. Long-persisting features = real structure; short ones =
+noise.
+
+Applications: drug discovery, sensor networks, neural network
+analysis. The mathematics rests squarely on Tier 7+ algebraic
+topology.
+</details>
+
+**S2.** **Why is topology pre-foundational for many fields?**
+
+<details class="hint"><summary>Full solution</summary>
+**Topology supplies the bare-minimum framework for continuity.**
+Wherever you have a notion of "limit" or "near", topology applies.
+
+Examples:
+
+- Real and complex analysis (continuity, compactness).
+- Functional analysis (topologies on infinite-dim spaces).
+- Algebraic geometry (Zariski topology).
+- Quantum field theory (manifolds with boundary).
+- Computer science (Scott topology for domains in semantics).
+
+The minimal axioms make it generalise everywhere.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Open and closed are opposites."** A set can be both ($\emptyset,
+   X$) or neither ($[0, 1)$ in $\mathbb{R}$).
+2. **"Compact = bounded."** True in $\mathbb{R}^n$ (Heine-Borel) but
+   not in general.
+3. **"All topologies are useful."** Discrete and trivial topologies
+   are mostly pedagogical; standard, product, quotient, and Zariski
+   are practical workhorses.
+:::
+
+### Self-Assessment
+
+1. Could you state the topological definition of continuity?
+2. Without scrolling back, what's compactness?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: every open cover has a finite subcover.)
+
+- **3 yes:** ready for **[03 · Galois Theory](../03-galois-theory/index.qmd)**.
+- **2 yes:** redo **S1** (TDA).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L15 — Real Analysis Foundation](../../tier-5-undergrad-core/15-real-analysis-foundation/index.qmd)**
+
+### What this unlocks
+
+- Algebraic topology, differential topology, manifold theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** *The* foundation of analysis, algebraic
+geometry, and many branches of pure math.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Topological data analysis (S1).
+Manifold learning. Theoretical analysis of neural network landscapes.
+:::
+
+::: {.applied-callout}
+**Theoretical computer science.** Topological semantics of
+programming languages, domain theory, knot theory in DNA computing.
+:::
