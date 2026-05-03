@@ -1,0 +1,349 @@
+---
+title: "03 · Vector Spaces, Linear Independence, Basis"
+subtitle: "The abstraction that captures every linear setting at once"
+lesson-id: "t5.vector-spaces"
+tier: 5
+prerequisites: ["t5.matrices", "t4.vectors-2d-3d"]
+unlocks: ["t5.eigenvalues"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [01 · Matrices](../01-matrices/index.qmd) and
+   [T4 L13 — Vectors](../../tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd)?
+2. Comfortable with vector addition and scalar multiplication?
+3. Recall the standard basis $\hat{i}, \hat{j}, \hat{k}$ in 3D?
+:::
+
+## Touch
+
+A **linear combination** of vectors $v_1, \ldots, v_k$ is $c_1 v_1 +
+\cdots + c_k v_k$ for scalars $c_i$. Pick a few vectors and the widget
+shows their **span** (all linear combinations).
+
+```{ojs}
+viewof spanSel = Inputs.select(["{(1,0)}: a line", "{(1,0), (0,1)}: all of ℝ²", "{(1,0), (2,0)}: a line (collinear)", "{(1,1), (-2,-2)}: a line (collinear)"], {value: "{(1,0), (0,1)}: all of ℝ²", label: "Vectors:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(spanSel) {
+    case "{(1,0)}: a line": info = "Span = x-axis. Independent set (only one vector). Dimension 1."; break;
+    case "{(1,0), (0,1)}: all of ℝ²": info = "Span = entire plane ℝ². Linearly independent. Forms a basis. Dimension 2."; break;
+    case "{(1,0), (2,0)}: a line (collinear)": info = "Span = x-axis only. Linearly DEPENDENT (one is multiple of the other). Doesn't form a basis."; break;
+    case "{(1,1), (-2,-2)}: a line (collinear)": info = "Span = the line y = x. Dependent (second is −2× first). Dim 1."; break;
+  }
+  return html`<div style="margin: 1rem 0; text-align:center;">
+    <div style="font-family:monospace; font-size:1.1rem; color:#c2185b;">${info}</div>
+  </div>`;
+}
+```
+
+A **vector space** is a set closed under linear combinations. The
+**span** of vectors is everything reachable by linear combination. A
+**basis** is a minimal spanning set.
+
+## Wonder
+
+1. Two vectors in the plane: when do they "span" the whole plane?
+2. Three vectors in the plane: must one be a combination of the
+   others?
+3. The **standard basis** $\{\hat{i}, \hat{j}\}$ for $\mathbb{R}^2$ has
+   2 vectors. Can a basis have a different number?
+
+## Discover
+
+### Problem 1
+
+A **vector space** $V$ is a set with operations $+$ (addition) and
+$\cdot$ (scalar multiplication) satisfying eight axioms (associativity,
+commutativity, identity, inverses, distributivity, etc.). Examples:
+
+- $\mathbb{R}^n$ (column vectors).
+- The set of all polynomials.
+- The set of all continuous functions on $[0, 1]$.
+
+Verify: $\mathbb{R}^2$ is a vector space. (Add a few axioms.)
+
+<details class="hint"><summary>Full solution</summary>
+$(a + b) + c = a + (b + c)$ ✓ (componentwise associativity).
+$a + 0 = a$ ✓ (zero vector identity).
+$c(a + b) = ca + cb$ ✓ (distributivity).
+
+These are *familiar* properties for $\mathbb{R}^n$. The abstraction's
+power: **the same theorems apply to any vector space**, not just
+$\mathbb{R}^n$.
+</details>
+
+### Problem 2
+
+The **span** of $\{v_1, v_2\}$ is $\{c_1 v_1 + c_2 v_2 : c_1, c_2 \in
+\mathbb{R}\}$.
+
+What's the span of $\{(1, 0), (0, 1)\}$? Of $\{(1, 0), (2, 0)\}$?
+
+<details class="hint"><summary>Full solution</summary>
+First: $c_1 (1, 0) + c_2 (0, 1) = (c_1, c_2)$ — *every* 2-vector. Span
+$= \mathbb{R}^2$.
+
+Second: $c_1 (1, 0) + c_2 (2, 0) = (c_1 + 2 c_2, 0)$ — only x-axis.
+Span = $x$-axis (1D line).
+
+The first set "spans more" because the vectors point in *different*
+directions; the second set is collinear.
+</details>
+
+### Problem 3
+
+Vectors $v_1, \ldots, v_k$ are **linearly independent** iff the only
+solution to $c_1 v_1 + \cdots + c_k v_k = 0$ is $c_1 = \cdots = c_k =
+0$.
+
+Are $(1, 0)$ and $(0, 1)$ independent? Are $(1, 1)$ and $(2, 2)$?
+
+<details class="hint"><summary>Full solution</summary>
+**$(1, 0)$ and $(0, 1)$:** $c_1 (1, 0) + c_2 (0, 1) = (c_1, c_2) = (0,
+0) \Rightarrow c_1 = c_2 = 0$. **Independent.**
+
+**$(1, 1)$ and $(2, 2)$:** $c_1 (1, 1) + c_2 (2, 2) = (c_1 + 2 c_2,
+c_1 + 2 c_2) = 0 \Rightarrow c_1 = -2 c_2$. Many non-zero solutions
+(e.g., $c_1 = 2, c_2 = -1$). **Dependent.**
+
+Equivalently: dependence means at least one vector is a linear
+combination of the others.
+</details>
+
+### Problem 4
+
+A **basis** of a vector space $V$ is an *independent* set whose
+*span* is all of $V$. Every basis has the same size — the **dimension**
+of $V$.
+
+What's the dimension of $\mathbb{R}^2$? Of $\mathbb{R}^3$? Of the
+space of degree-≤ 3 polynomials?
+
+<details class="hint"><summary>Full solution</summary>
+$\dim \mathbb{R}^2 = 2$ (basis $\{\hat{i}, \hat{j}\}$).
+$\dim \mathbb{R}^3 = 3$ (basis $\{\hat{i}, \hat{j}, \hat{k}\}$).
+$\dim$(degree-≤ 3 polynomials) = 4 (basis $\{1, x, x^2, x^3\}$).
+
+Dimension is the *number of degrees of freedom* — a deeply important
+concept.
+</details>
+
+### Problem 5
+
+Show that any 3 vectors in $\mathbb{R}^2$ are linearly **dependent**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You have 3 vectors and want to find $(c_1, c_2, c_3) \neq (0, 0, 0)$
+with $c_1 v_1 + c_2 v_2 + c_3 v_3 = 0$. That's a homogeneous linear
+system in 3 unknowns and 2 equations.
+</details>
+<details class="hint"><summary>Full solution</summary>
+A homogeneous system with more unknowns than equations *always* has
+non-trivial solutions (rank trichotomy from Lesson 02). So 3 vectors
+in $\mathbb{R}^2$ are always dependent.
+
+**General fact:** any set of more than $\dim V$ vectors in $V$ is
+dependent. Equivalently: a basis is a *maximal* independent set, or
+*minimal* spanning set.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **vector space** is a set $V$ with $+$ and scalar multiplication
+satisfying the standard axioms.
+
+**Linear combination:** $c_1 v_1 + \cdots + c_k v_k$.
+
+**Span**$(v_1, \ldots, v_k)$ = set of all linear combinations.
+
+**Linearly independent:** the only $c_i$ making $\sum c_i v_i = 0$ are
+all zero.
+
+**Basis:** independent + spanning = both. Every basis of $V$ has the
+same size: $\dim V$.
+
+**Dimension** of common spaces:
+
+- $\dim \mathbb{R}^n = n$.
+- $\dim$(degree-$\le k$ polynomials) $= k + 1$.
+- $\dim$(continuous functions on $[0, 1]$) $= \infty$.
+
+**Subspaces:** subsets of $V$ closed under $+$ and scalar
+multiplication. Every subspace has its own dimension.
+
+:::
+
+> *Vector spaces unify diverse linear settings;*
+> *Span = reachable; independent = no redundancy; basis = both;*
+> *Dimension = degrees of freedom = size of any basis.*
+
+## Apply
+
+### Worked example
+
+> Are $v_1 = (1, 2, 3)$, $v_2 = (4, 5, 6)$, $v_3 = (7, 8, 9)$
+> linearly independent in $\mathbb{R}^3$?
+
+Solve $c_1 v_1 + c_2 v_2 + c_3 v_3 = 0$, equivalently the system with
+matrix $A = [v_1 | v_2 | v_3]^T$. Row-reduce: the third row becomes
+zero. So rank 2 < 3. **Dependent.** Indeed, $v_3 - 2 v_2 + v_1 = (7,
+8, 9) - (8, 10, 12) + (1, 2, 3) = (0, 0, 0)$.
+
+The set spans only a 2D subspace (a *plane* in $\mathbb{R}^3$).
+
+### Practice — Warm
+
+**W1.** Span of $\{(1, 0)\}$?
+
+<details class="hint"><summary>Full solution</summary>
+The $x$-axis (a 1D line).
+</details>
+
+**W2.** Are $(1, 0, 0)$ and $(2, 0, 0)$ independent?
+
+<details class="hint"><summary>Full solution</summary>
+No (one is twice the other).
+</details>
+
+**W3.** Dim of $\mathbb{R}^5$?
+
+<details class="hint"><summary>Full solution</summary>
+$5$.
+</details>
+
+### Practice — Working
+
+**P1.** Are $(1, 1)$ and $(1, -1)$ independent? Do they form a basis
+of $\mathbb{R}^2$?
+
+<details class="hint"><summary>Full solution</summary>
+$c_1 (1, 1) + c_2 (1, -1) = (0, 0) \Rightarrow c_1 + c_2 = 0$ and $c_1
+- c_2 = 0 \Rightarrow c_1 = c_2 = 0$. **Independent.** Two independent
+vectors in $\mathbb{R}^2$ form a basis. Yes.
+</details>
+
+**P2.** Dim of the subspace spanned by $\{(1, 1, 0), (0, 1, 1), (1, 2,
+1)\}$ in $\mathbb{R}^3$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set up matrix, row-reduce. Rank = dimension of span.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The third is sum of the first two: $(1, 1, 0) + (0, 1, 1) = (1, 2, 1)$.
+**Dependent.** Span has dim 2 (a plane).
+</details>
+
+**P3.** Find a basis for the plane $x + y + z = 0$ in $\mathbb{R}^3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$z = -x - y$. Free parameters $x, y$. Express vectors as $(x, y, -x -
+y)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x, y, -x - y) = x (1, 0, -1) + y (0, 1, -1)$. **Basis: $\{(1, 0,
+-1), (0, 1, -1)\}$.** Plane has dim 2.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Polynomial vector space.** The set $P_2$ of polynomials of
+degree ≤ 2 is a vector space. Is $\{1, 1 + x, 1 + x + x^2\}$ a basis?
+
+<details class="hint"><summary>Full solution</summary>
+Try to express $1, x, x^2$ (the standard basis) in terms of these.
+$1 = 1 \cdot 1$. $x = (1 + x) - 1$. $x^2 = (1 + x + x^2) - (1 + x)$.
+**Yes — basis.**
+
+(Alternatively: the matrix of coefficients $\begin{pmatrix} 1 & 1 & 1
+\\ 0 & 1 & 1 \\ 0 & 0 & 1 \end{pmatrix}$ is upper triangular with non-
+zero diagonal — invertible — so the columns are independent.)
+
+Vector space abstraction lets the *exact same theorems* apply to
+polynomials, functions, sequences, matrices, etc.
+</details>
+
+**S2.** **Why is dim crucial in ML?** A neural network's *latent
+representation* lives in a high-dimensional vector space. A typical
+embedding might be 768-dimensional (BERT base), 1024 (GPT-2), or
+even 4096+. Why this scale?
+
+<details class="hint"><summary>Full solution</summary>
+**Capacity to disambiguate.** $n$ distinct concepts need at least
+$\log_2 n$ bits — but for *graceful interpolation* between concepts,
+much higher dimension is helpful. In high dimensions, "almost all"
+random vectors are nearly orthogonal, allowing many distinct
+features to coexist without interfering.
+
+Modern ML embeddings exploit the geometry of high-dimensional vector
+spaces. The vector space abstraction (linear combinations,
+independence, basis) is the underlying language. Dimension is a
+*resource*: more dimensions = more features representable, but more
+parameters to train.
+
+Choosing embedding dimension is one of the central architectural
+decisions in modern ML.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Span = the vectors themselves."** Span = *all* linear
+   combinations, usually a much larger set.
+2. **"Independence and orthogonality are the same."** Orthogonal
+   implies independent (if non-zero), but not vice versa. $(1, 0)$
+   and $(1, 1)$ are independent but not orthogonal.
+3. **"A basis is unique."** Many bases exist for any vector space —
+   they all have the same size (the dimension), but the vectors
+   themselves can differ.
+:::
+
+### Self-Assessment
+
+1. Could you state the definition of linear independence?
+2. Without scrolling back, what's the dimension of $\mathbb{R}^4$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $4$.)
+
+- **3 yes:** ready for **[04 · Eigenvalues](../04-eigenvalues/index.qmd)**.
+- **2 yes:** redo **S2** (high-dim embeddings).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[01 · Matrices](../01-matrices/index.qmd)** — for the matrix view
+  of linear systems.
+- **[T4 L13 — Vectors](../../tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd)**
+
+### What this unlocks
+
+- **[04 · Eigenvalues](../04-eigenvalues/index.qmd)** — eigenvectors
+  span important subspaces.
+- **Tier 6 — Abstract Algebra** — vector spaces are *modules over a
+  field*, the gateway to module theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Embeddings live in high-dimensional vector
+spaces (S2). Dimensionality reduction (PCA, t-SNE, UMAP) finds
+lower-dim subspaces preserving important structure.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Linear algebra is the foundation of
+functional analysis (vector spaces of functions), representation
+theory, and quantum mechanics (states are vectors in Hilbert spaces).
+:::
