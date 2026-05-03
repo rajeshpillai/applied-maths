@@ -1,0 +1,373 @@
+---
+title: "08 · The Unit Circle"
+subtitle: "Trig for all angles — and the entry of radians"
+lesson-id: "t3.unit-circle"
+tier: 3
+prerequisites: ["t3.trig-ratios", "t2.coordinate-plane"]
+unlocks: ["t3.trig-identities"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [07 · Trig Ratios](../07-trig-ratios/index.qmd) and
+   [T2 L04 — Coordinate Plane](../../tier-2-prealgebra/04-coordinate-plane/index.qmd)?
+2. Comfortable with $\sin 30° = 1/2$, $\cos 60° = 1/2$, $\sin 90° = 1$?
+3. Recall the equation of a unit circle from [03 — Conics](../03-conic-sections/index.qmd):
+   $x^2 + y^2 = 1$.
+:::
+
+## Touch
+
+Drag the angle around the unit circle. Watch the point's coordinates
+$(x, y) = (\cos \theta, \sin \theta)$ update.
+
+```{ojs}
+viewof angDeg = Inputs.range([0, 720], {value: 30, step: 5, label: "Angle θ (degrees):"})
+```
+
+```{ojs}
+{
+  const W = 480, H = 480, scale = 180, ox = W/2, oy = H/2;
+  const t = angDeg * Math.PI / 180;
+  const px = ox + scale * Math.cos(t);
+  const py_ = oy - scale * Math.sin(t);
+
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:520px; display:block; margin: 0 auto; background:#fafafa;");
+
+  // axes
+  svg.append("line").attr("x1", 20).attr("x2", W - 20).attr("y1", oy).attr("y2", oy).attr("stroke", "#bbb");
+  svg.append("line").attr("x1", ox).attr("x2", ox).attr("y1", 20).attr("y2", H - 20).attr("stroke", "#bbb");
+  // unit circle
+  svg.append("circle").attr("cx", ox).attr("cy", oy).attr("r", scale).attr("fill", "none").attr("stroke", "#666").attr("stroke-width", 1);
+  // arc
+  const reducedT = ((t % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  const arcR = 30, large = reducedT > Math.PI ? 1 : 0;
+  svg.append("path").attr("d", `M ${ox + arcR},${oy} A ${arcR},${arcR} 0 ${large} 0 ${ox + arcR * Math.cos(-reducedT)},${oy + arcR * Math.sin(-reducedT)}`)
+    .attr("fill", "none").attr("stroke", "#c2185b").attr("stroke-width", 2);
+  // dashed lines for cos and sin
+  svg.append("line").attr("x1", px).attr("y1", oy).attr("x2", px).attr("y2", py_).attr("stroke", "#1565c0").attr("stroke-dasharray", "3 3");
+  svg.append("line").attr("x1", ox).attr("y1", py_).attr("x2", px).attr("y2", py_).attr("stroke", "#2e7d32").attr("stroke-dasharray", "3 3");
+  // radius
+  svg.append("line").attr("x1", ox).attr("y1", oy).attr("x2", px).attr("y2", py_).attr("stroke", "#1f2933").attr("stroke-width", 2);
+  // point
+  svg.append("circle").attr("cx", px).attr("cy", py_).attr("r", 7).attr("fill", "#c2185b").attr("stroke", "#fff").attr("stroke-width", 2);
+  svg.append("text").attr("x", px + 8).attr("y", py_ - 6).attr("font-size", "12").attr("font-weight", "bold").attr("fill", "#c2185b").text(`(${Math.cos(t).toFixed(2)}, ${Math.sin(t).toFixed(2)})`);
+
+  // labels at axis intersections
+  const ringLabels = [["1", scale + 16, oy - 4], ["−1", -scale - 18, oy - 4], ["1", -8, -scale - 6], ["−1", -10, scale + 16]];
+  for (const [lbl, dx, dy] of ringLabels)
+    svg.append("text").attr("x", ox + dx).attr("y", oy + dy).attr("font-size", "11").attr("fill", "#666").text(lbl);
+
+  // info
+  svg.append("text").attr("x", 20).attr("y", 30).attr("font-size", "13").attr("fill", "#1565c0").attr("font-weight", "bold").text(`cos θ = ${Math.cos(t).toFixed(3)}`);
+  svg.append("text").attr("x", 20).attr("y", 50).attr("font-size", "13").attr("fill", "#2e7d32").attr("font-weight", "bold").text(`sin θ = ${Math.sin(t).toFixed(3)}`);
+  svg.append("text").attr("x", W - 80).attr("y", 30).attr("font-size", "13").attr("fill", "#c2185b").attr("font-weight", "bold").text(`θ = ${angDeg}°`);
+  svg.append("text").attr("x", W - 80).attr("y", 50).attr("font-size", "13").attr("fill", "#666").text(`= ${(t / Math.PI).toFixed(3)} π rad`);
+
+  return svg.node();
+}
+```
+
+The **unit circle** has radius 1 centred at the origin. For angle
+$\theta$ measured counter-clockwise from the positive $x$-axis, the
+point on the circle is $(\cos \theta, \sin \theta)$.
+
+This *defines* sin and cos for **every angle** — including angles
+beyond 90° and negative angles.
+
+## Wonder
+
+1. Set $\theta = 0$. Where is the point? What are sin, cos?
+2. Set $\theta = 180°$. Now $\theta = 270°$. What signs do sin and cos
+   have?
+3. Set $\theta = 360°$. Same as $0°$ — periodic. What about $720°$?
+
+## Discover
+
+### Problem 1
+
+What are $\sin 90°, \cos 90°, \sin 180°, \cos 180°, \sin 270°, \cos
+270°$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Read off the unit-circle coordinates at each cardinal angle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- 90°: point is $(0, 1)$. $\cos = 0, \sin = 1$.
+- 180°: point is $(-1, 0)$. $\cos = -1, \sin = 0$.
+- 270°: point is $(0, -1)$. $\cos = 0, \sin = -1$.
+
+The unit-circle definition extends sin and cos to all angles — and
+they take negative values when the point is in the left or bottom
+half.
+</details>
+
+### Problem 2
+
+What's $\sin 150°$? (Hint: $150° = 180° - 30°$. The sine has the same
+*magnitude* as $\sin 30°$.)
+
+<details class="hint"><summary>Full solution</summary>
+$\sin 150° = \sin 30° = 1/2$.
+
+The point at $150°$ is the *reflection* of the point at $30°$ across
+the $y$-axis. Same height (sine), opposite horizontal position
+(cosine). So $\cos 150° = -\cos 30° = -\sqrt{3}/2$.
+
+This is the "reference angle" technique: any angle's trig values
+match those of its reference angle (the acute angle to the nearest
+$x$-axis), with signs determined by the *quadrant*.
+</details>
+
+### Problem 3
+
+Set $\theta = 360°$. Same point as $0°$. What about $\theta = 720°$?
+
+<details class="hint"><summary>Full solution</summary>
+Both same as $0°$. Sin and cos are **periodic with period $360°$**:
+$$\sin(\theta + 360°) = \sin \theta, \quad \cos(\theta + 360°) = \cos \theta.$$
+
+This periodicity is *the* defining feature of trig functions — and
+why they describe waves, oscillations, and rotations.
+</details>
+
+### Problem 4
+
+What's $\sin(-30°)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Negative angle = clockwise rotation. The point lands at the
+reflection of the $30°$ point across the $x$-axis.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin(-30°) = -1/2$.
+
+**Sin is odd:** $\sin(-\theta) = -\sin \theta$.
+**Cos is even:** $\cos(-\theta) = \cos \theta$.
+
+These reflect the unit-circle reflection symmetry: across the $x$-axis,
+$y$ flips sign (sin) but $x$ doesn't (cos).
+</details>
+
+### Problem 5
+
+**Radians.** A radian is the angle that subtends an arc length equal
+to the radius. A full revolution = $2\pi$ rad (since the
+circumference of the unit circle is $2\pi$). So:
+
+- $360° = 2\pi$ rad.
+- $180° = \pi$ rad.
+- $90° = \pi/2$ rad.
+- $60° = \pi/3$ rad.
+- $30° = \pi/6$ rad.
+
+What's $45°$ in radians? $\sin(\pi/4) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$45° = \pi/4$ rad. $\sin(\pi/4) = \sqrt{2}/2$ (same as $\sin 45°$).
+
+**Conversion:** $\theta_{\text{rad}} = \theta_{\text{deg}} \cdot
+\dfrac{\pi}{180}$ and vice versa.
+
+Radians become essential in calculus (Tier 4), where $\dfrac{d}{d\theta}
+\sin \theta = \cos \theta$ *only* if $\theta$ is in radians. From now
+on, mathematicians prefer radians.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **unit circle** is the circle $x^2 + y^2 = 1$ centred at the
+origin. For an angle $\theta$ measured counter-clockwise from the
+positive $x$-axis, the point on the unit circle is
+$$(\cos \theta, \sin \theta).$$
+
+This **defines sin and cos for all real $\theta$** (positive,
+negative, more than $360°$).
+
+**Periodicity:** $\sin(\theta + 2\pi) = \sin \theta$, $\cos(\theta +
+2\pi) = \cos \theta$.
+
+**Symmetry:** $\sin(-\theta) = -\sin \theta$ (odd), $\cos(-\theta) =
+\cos \theta$ (even).
+
+**Quadrant signs:**
+
+| Quadrant | sin | cos | tan |
+|:-:|:-:|:-:|:-:|
+| I (0°–90°) | + | + | + |
+| II (90°–180°) | + | − | − |
+| III (180°–270°) | − | − | + |
+| IV (270°–360°) | − | + | − |
+
+**Radians:** $360° = 2\pi$ rad, $180° = \pi$ rad. The conversion is
+$\theta_{\text{rad}} = \theta_{\text{deg}} \cdot \pi/180$.
+
+:::
+
+> *On the unit circle, sin and cos are y and x of the rotating point;*
+> *Periodic, sign-flipping by quadrant, defined for every angle;*
+> *Radians scale by π/180 from degrees — the natural angular unit.*
+
+## Apply
+
+### Worked example
+
+> Compute $\sin 210°$ and $\cos 210°$.
+
+A competent solver:
+
+1. **Quadrant:** $210°$ is in QIII (between 180° and 270°). Sin
+   negative, cos negative.
+2. **Reference angle:** $210° - 180° = 30°$.
+3. **Apply signs:** $\sin 210° = -\sin 30° = -1/2$. $\cos 210° = -\cos
+   30° = -\sqrt{3}/2$.
+
+**Answer: $\sin 210° = -1/2$, $\cos 210° = -\sqrt{3}/2$.**
+
+### Practice — Warm
+
+**W1.** $\cos 0°, \sin 90°, \cos 180°, \sin 270°$?
+
+<details class="hint"><summary>Full solution</summary>
+$1, 1, -1, -1$.
+</details>
+
+**W2.** Convert: $90°$ to rad. $\pi/3$ to degrees.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi/2$ and $60°$.
+</details>
+
+**W3.** $\sin(-60°)$?
+
+<details class="hint"><summary>Full solution</summary>
+$-\sqrt{3}/2$ (sin is odd).
+</details>
+
+### Practice — Working
+
+**P1.** Compute $\sin 135°$ and $\cos 135°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+QII. Reference angle 45°.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin 135° = \sin 45° = \sqrt{2}/2$.
+$\cos 135° = -\cos 45° = -\sqrt{2}/2$.
+</details>
+
+**P2.** Compute $\sin 300°$ and $\cos 300°$.
+
+<details class="hint"><summary>Full solution</summary>
+QIV. Reference: 60°. Sin negative, cos positive.
+$\sin 300° = -\sqrt{3}/2$, $\cos 300° = 1/2$.
+</details>
+
+**P3.** Verify the **Pythagorean identity** $\sin^2 \theta + \cos^2
+\theta = 1$ for $\theta = 240°$ using the unit circle.
+
+<details class="hint"><summary>Full solution</summary>
+$\sin 240° = -\sqrt{3}/2, \cos 240° = -1/2$.
+$\sin^2 + \cos^2 = 3/4 + 1/4 = 1$ ✓.
+
+The identity is just "the point lies on the unit circle" — i.e.,
+$y^2 + x^2 = 1^2$. Pythagoras lurking.
+</details>
+
+### Practice — Stretch
+
+**S1.** A point on the unit circle is **rotated 60°** counter-
+clockwise. If it started at angle 100°, where is it now? What are its
+new coordinates?
+
+<details class="hint"><summary>Full solution</summary>
+New angle: $100° + 60° = 160°$. Coordinates: $(\cos 160°, \sin 160°)
+\approx (-0.940, 0.342)$.
+
+**Rotation = adding to the angle.** This is why complex multiplication
+($e^{i \alpha} \cdot e^{i \beta} = e^{i(\alpha + \beta)}$, Tier 6) is
+the natural way to compose rotations — and why every game engine
+under the hood uses *quaternions* (Tier 7), the 4D extension.
+</details>
+
+**S2.** A swinging pendulum has angle from vertical $\theta(t) =
+A \cos(\omega t)$, where $A$ is the *amplitude* and $\omega$ is the
+*angular frequency*. Why does cosine model it perfectly?
+
+<details class="hint"><summary>Full solution</summary>
+**Because the pendulum's motion is uniform circular motion projected
+onto a line.** For small angles, the pendulum's deflection traces a
+horizontal sinusoid in time. The unit-circle picture *is* the
+underlying physics.
+
+Ditto for AC electricity (a sinusoid in time), audio (sums of
+sinusoids), light waves, ocean tides — all are projections of
+*rotation* onto an axis. This is one of the most consequential
+unifications in physics: rotation and oscillation are the same thing
+seen differently.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Sin and cos are between 0 and 1."** **False** — they are
+   between $-1$ and $+1$. Negative values appear in QII, QIII, QIV.
+2. **"Degrees and radians are interchangeable."** They measure the
+   same thing but use different units. Calculator mode matters!
+3. **"Radians need $\pi$ in them."** Not always — radians can be any
+   real number. $1$ radian $\approx 57.3°$.
+:::
+
+### Self-Assessment
+
+1. Could you locate $(\cos 120°, \sin 120°)$ on the unit circle by
+   eye?
+2. Without scrolling back, what is $\cos 270°$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: 0.)
+
+- **3 yes:** ready for **[09 · Trig Identities](../09-trig-identities/index.qmd)**.
+- **2 yes:** redo **S2** (pendulum) — a deep connection.
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[07 · Trig Ratios](../07-trig-ratios/index.qmd)**
+- **[T2 L04 — Coordinate Plane](../../tier-2-prealgebra/04-coordinate-plane/index.qmd)**
+
+### What this unlocks
+
+- **[09 · Trig Identities](../09-trig-identities/index.qmd)** — many
+  identities follow from unit-circle symmetries.
+- **Tier 4 — Calculus** — derivatives of sin/cos, written most
+  cleanly in radians.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** All 2D rotations are unit-circle traversals.
+Direction/orientation/aim/recoil are angles. Quaternions (Tier 7) are
+the 3D extension.
+:::
+
+::: {.applied-callout}
+**Physics & engineering.** Simple harmonic motion, AC current,
+pendulums, waves — every sinusoid in physics is a unit-circle
+projection.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Euler's formula $e^{i\theta} = \cos\theta
++ i\sin\theta$ (Tier 6) makes the unit circle the natural home of
+complex numbers. The deepest unification in elementary mathematics.
+:::
