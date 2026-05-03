@@ -1,0 +1,348 @@
+---
+title: "10 · Solving Trigonometric Equations"
+subtitle: "Find the angles — usually infinitely many"
+lesson-id: "t3.solving-trig-equations"
+tier: 3
+prerequisites: ["t3.trig-identities"]
+unlocks: []
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [09 · Trig Identities](../09-trig-identities/index.qmd)?
+2. Recall the unit-circle picture and quadrant signs.
+3. Comfortable with $\arcsin, \arccos, \arctan$ as inverse functions
+   ([T2 L01](../../tier-2-prealgebra/01-functions-as-machines/index.qmd))?
+:::
+
+## Touch
+
+Pick a value $k$. The widget plots $y = \sin\theta$ and $y = k$, and
+marks the **solutions** in $[0, 360°]$.
+
+```{ojs}
+viewof kVal = Inputs.range([-1, 1], {value: 0.5, step: 0.05, label: "k:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 280, pad = 30;
+  const xMin = 0, xMax = 720, yMin = -1.2, yMax = 1.2;
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - ((v - yMin) / (yMax - yMin)) * (H - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa;");
+  // axes
+  svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(0)).attr("y2", py(0)).attr("stroke", "#1f2933");
+  for (let v = 0; v <= 720; v += 90) {
+    svg.append("line").attr("x1", px(v)).attr("x2", px(v)).attr("y1", py(0) - 4).attr("y2", py(0) + 4).attr("stroke", "#666");
+    svg.append("text").attr("x", px(v)).attr("y", py(0) + 18).attr("text-anchor", "middle").attr("font-size", "11").attr("fill", "#666").text(v + "°");
+  }
+  // sin curve
+  let p = "";
+  for (let x = 0; x <= 720; x += 1) {
+    const y = Math.sin(x * Math.PI / 180);
+    p += (p ? " L " : "M ") + `${px(x)},${py(y)}`;
+  }
+  svg.append("path").attr("d", p).attr("fill", "none").attr("stroke", "#c2185b").attr("stroke-width", 2);
+  // horizontal line y = k
+  svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(kVal)).attr("y2", py(kVal)).attr("stroke", "#1565c0").attr("stroke-dasharray", "4 4");
+  svg.append("text").attr("x", W - pad - 50).attr("y", py(kVal) - 6).attr("font-size", "12").attr("fill", "#1565c0").attr("font-weight", "bold").text(`y = ${kVal.toFixed(2)}`);
+  // mark solutions
+  const refDeg = Math.asin(Math.abs(kVal)) * 180 / Math.PI;
+  let solutions = [];
+  if (Math.abs(kVal) <= 1) {
+    if (kVal >= 0) {
+      solutions = [refDeg, 180 - refDeg, 360 + refDeg, 540 - refDeg];
+    } else {
+      solutions = [180 + refDeg, 360 - refDeg, 540 + refDeg, 720 - refDeg];
+    }
+  }
+  for (const s of solutions) {
+    if (s < 0 || s > 720) continue;
+    svg.append("circle").attr("cx", px(s)).attr("cy", py(kVal)).attr("r", 5).attr("fill", "#2e7d32");
+    svg.append("text").attr("x", px(s)).attr("y", py(kVal) + 22).attr("text-anchor", "middle").attr("font-size", "11").attr("fill", "#2e7d32").attr("font-weight", "bold").text(`${s.toFixed(0)}°`);
+  }
+  return svg.node();
+}
+```
+
+The equation $\sin\theta = k$ has **infinitely many solutions** —
+two per $360°$ period. Trig equations have *families* of solutions,
+not unique answers.
+
+## Wonder
+
+1. For $\sin\theta = 0.5$, the widget shows multiple solutions. List
+   them.
+2. What if $k > 1$ or $k < -1$? Will there be any solutions?
+3. The solutions are spaced by $360°$ within each "branch." Why?
+
+## Discover
+
+### Problem 1
+
+Solve $\sin\theta = 1/2$ for $\theta$ in $[0°, 360°]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin\theta > 0$ in QI and QII. Reference angle: $\arcsin(1/2) = 30°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+QI: $\theta = 30°$. QII: $\theta = 180° - 30° = 150°$.
+**Solutions in $[0, 360°]$: $\theta = 30°, 150°$.**
+
+For *all* $\theta$: $\theta = 30° + 360° k$ or $\theta = 150° + 360° k$
+for any integer $k$.
+</details>
+
+### Problem 2
+
+Solve $\cos\theta = -\sqrt{3}/2$ in $[0°, 360°]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos\theta < 0$ in QII and QIII. Reference: $\arccos(\sqrt{3}/2) =
+30°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+QII: $\theta = 180° - 30° = 150°$. QIII: $\theta = 180° + 30° = 210°$.
+**$\theta = 150°, 210°$.**
+</details>
+
+### Problem 3
+
+Solve $\tan\theta = 1$ in $[0°, 360°]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\tan\theta > 0$ in QI and QIII. Reference: $45°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\theta = 45°, 225°$. (Tan repeats every $180°$, so two solutions per
+$360°$ — half as many as sin and cos.)
+</details>
+
+### Problem 4
+
+Solve $2 \sin\theta + 1 = 0$ in $[0°, 360°]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Isolate sin first: $\sin\theta = -1/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin\theta = -1/2$. QIII: $180° + 30° = 210°$. QIV: $360° - 30° =
+330°$. **$\theta = 210°, 330°$.**
+
+Treat trig equations like algebraic ones: isolate the trig function,
+then use the unit circle.
+</details>
+
+### Problem 5
+
+Solve $\sin^2 \theta - \sin\theta = 0$ in $[0°, 360°]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor: $\sin\theta (\sin\theta - 1) = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Either $\sin\theta = 0$ or $\sin\theta = 1$.
+$\sin\theta = 0$: $\theta = 0°, 180°, 360°$.
+$\sin\theta = 1$: $\theta = 90°$.
+**$\theta = 0°, 90°, 180°, 360°$** (using "0° and 360° are the same"
+or both depending on convention).
+
+Trig equations often factor like polynomial equations. The same
+algebra (factoring, zero-product property) carries over.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+To **solve a trig equation**:
+
+1. **Isolate** the trig function (algebra).
+2. Find the **reference angle** (using $\arcsin, \arccos, \arctan$).
+3. Use **quadrant signs** (Lesson 8) to find all solutions in one
+   period.
+4. Add multiples of the period for the **general solution**:
+   - $\sin, \cos$: period $360°$ (or $2\pi$).
+   - $\tan$: period $180°$ (or $\pi$).
+
+**Standard solution counts in $[0, 360°]$:**
+
+| Equation | Solutions |
+|---|---|
+| $\sin\theta = k$, $|k| < 1$ | 2 (QI/QII or QIII/QIV) |
+| $\sin\theta = \pm 1$ | 1 |
+| $\cos\theta = k$, $|k| < 1$ | 2 (QI/QIV or QII/QIII) |
+| $\tan\theta = k$ | 2 (QI/QIII or QII/QIV) |
+| $\sin\theta = k$, $|k| > 1$ | 0 |
+
+:::
+
+> *Isolate, find reference angle, apply quadrant signs;*
+> *Add multiples of the period for the full family;*
+> *Algebra of trig equations parallels polynomial equations.*
+
+## Apply
+
+### Worked example
+
+> Solve $2 \cos\theta - 1 = 0$ in $[0, 2\pi]$ (radians).
+
+A competent solver:
+
+1. **Isolate:** $\cos\theta = 1/2$.
+2. **Reference:** $\arccos(1/2) = \pi/3$ (60°).
+3. **Quadrants:** $\cos > 0$ in QI and QIV.
+4. **Solutions:** $\theta = \pi/3$ (QI) and $\theta = 2\pi - \pi/3 = 5\pi/3$ (QIV).
+
+**$\theta = \pi/3, 5\pi/3$.**
+
+### Practice — Warm
+
+**W1.** Solve $\sin\theta = 0$ in $[0, 360°]$.
+
+<details class="hint"><summary>Full solution</summary>
+$\theta = 0°, 180°, 360°$.
+</details>
+
+**W2.** Solve $\cos\theta = 1$ in $[0, 360°]$.
+
+<details class="hint"><summary>Full solution</summary>
+$\theta = 0°$ (or $360°$).
+</details>
+
+**W3.** Solve $\tan\theta = -1$ in $[0, 360°]$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan < 0$ in QII and QIV. $\theta = 135°, 315°$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $\sqrt{2} \sin\theta = 1$ in $[0, 360°]$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sin\theta = 1/\sqrt{2}$. Reference: 45°. QI/QII. $\theta = 45°,
+135°$.
+</details>
+
+**P2.** Solve $4 \cos^2\theta - 1 = 0$ in $[0, 360°]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos^2\theta = 1/4 \Rightarrow \cos\theta = \pm 1/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos\theta = +1/2 \Rightarrow \theta = 60°, 300°$.
+$\cos\theta = -1/2 \Rightarrow \theta = 120°, 240°$.
+**Four solutions: $60°, 120°, 240°, 300°$.**
+</details>
+
+**P3.** Solve $\sin 2\theta = 1$ in $[0, 360°]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $\phi = 2\theta$. Solve $\sin\phi = 1$ for $\phi$ in
+$[0, 720°]$, then divide by 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin\phi = 1 \Rightarrow \phi = 90°, 450°$ in $[0, 720°]$.
+So $\theta = 45°, 225°$.
+
+When the trig argument is $n\theta$, the period **shrinks by $n$** —
+giving more solutions in $[0, 360°]$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve $\sin\theta = \cos\theta$ in $[0, 360°]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide both sides by $\cos\theta$: $\tan\theta = 1$. Then solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tan\theta = 1 \Rightarrow \theta = 45°, 225°$.
+
+(Caveat: dividing by $\cos\theta$ assumes $\cos\theta \neq 0$. Check
+the cases $\theta = 90°, 270°$ separately: there $\cos = 0$ and
+$\sin = \pm 1$, so $\sin \neq \cos$ — those aren't solutions
+anyway.)
+</details>
+
+**S2.** A spring's position satisfies $x(t) = 5 \sin(2 \pi t)$
+(amplitude 5, frequency 1 Hz). When does $x(t) = 2.5$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin(2\pi t) = 0.5$. Solve for $2\pi t$, then $t$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin(2\pi t) = 0.5 \Rightarrow 2\pi t = \pi/6, 5\pi/6, 13\pi/6, \ldots$.
+
+So $t = 1/12, 5/12, 13/12, 17/12, \ldots$ seconds — i.e., the spring
+is at $x = 2.5$ at infinitely many times, twice per period (1 second).
+
+Trig equations as functions of *time* describe oscillations and
+periodic events — heart beats, traffic light cycles, planetary
+positions. Predicting "when next?" is a trig-equation question.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"There's only one solution."** Almost never. Trig equations have
+   2 (or more) per period and infinitely many overall. Always state
+   the interval of interest.
+2. **"$\arcsin(0.5) = 30°$ is the only answer."** It's the *principal*
+   answer (in $[-90°, 90°]$). Use unit-circle reasoning to find the
+   others.
+3. **"Squared equations like $\sin^2 = 1/4$ have one solution."** Two
+   roots from the square root: $\pm 1/2$. Each gives multiple angles.
+:::
+
+### Self-Assessment
+
+1. Could you solve $\sin\theta = 1/2$ in $[0, 360°]$ from memory?
+2. Without scrolling back, can you solve $2\sin\theta + \sqrt{3} = 0$
+   in $[0, 360°]$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $\sin\theta = -\sqrt{3}/2 \Rightarrow \theta = 240°, 300°$.)
+
+- **3 yes:** ready for **[11 · Combinatorics — Counting](../11-combinatorics-counting/index.qmd)**.
+- **2 yes:** redo **P3** (sin 2θ = 1) — the argument-substitution
+  technique is essential.
+- **0–1 yes:** re-read *Discover P1 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[09 · Trig Identities](../09-trig-identities/index.qmd)** —
+  identities reduce complex equations to simpler standard forms.
+
+### What this unlocks
+
+- **Tier 4 — Calculus** — finding zeros of trigonometric functions
+  appears in optimisation, root-finding, oscillator analysis.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** "When does the projectile hit the ground at
+height 0?" "When does the rotating gear reach this angle?" — trig
+equations.
+:::
+
+::: {.applied-callout}
+**Engineering.** AC circuits with phase shifts: solving when current
+or voltage equals a target value.
+:::
+
+::: {.applied-callout}
+**Physics.** Pendulum clocks, planetary orbits, wave interference —
+all generate trig equations whose solutions are physically
+meaningful events.
+:::
