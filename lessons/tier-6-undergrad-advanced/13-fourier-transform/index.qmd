@@ -1,0 +1,355 @@
+---
+title: "13 · The Fourier Transform"
+subtitle: "Decomposing arbitrary signals into frequencies"
+lesson-id: "t6.fourier-transform"
+tier: 6
+prerequisites: ["t6.fourier-series"]
+unlocks: []
+applied-domains: ["research", "systems", "ai-ml"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [12 · Fourier Series](../12-fourier-series/index.qmd)?
+2. Comfortable with $\int e^{ikx} f(x) \, dx$ as a formal expression?
+3. Recall the Gaussian integral $\int e^{-x^2} dx = \sqrt{\pi}$.
+:::
+
+## Touch
+
+The **Fourier transform** generalises Fourier series from periodic
+to *arbitrary* (square-integrable) functions:
+$$\hat f(k) = \int_{-\infty}^\infty f(x) e^{-i k x} \, dx.$$
+
+The inverse:
+$$f(x) = \dfrac{1}{2\pi} \int_{-\infty}^\infty \hat f(k) e^{i k x} \, dk.$$
+
+```{ojs}
+viewof ftSel = Inputs.select(["f(x) = e^(−x²/2): Gaussian → Gaussian", "f(x) = rectangle: → sinc(k)", "f(x) = δ(x) (delta): → 1 (constant)", "f(x) = sin(ωx): → δ(k − ω) − δ(k + ω)"], {value: "f(x) = e^(−x²/2): Gaussian → Gaussian", label: "Transform pair:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(ftSel) {
+    case "f(x) = e^(−x²/2): Gaussian → Gaussian": info = "Gaussian is its own (re-scaled) Fourier transform: F[e^(−x²/2)] = √(2π) e^(−k²/2). Self-dual under FT."; break;
+    case "f(x) = rectangle: → sinc(k)": info = "Indicator on [−a, a]: F = 2 sin(ak)/k = 2a sinc(ak). Sharp time domain → wide spread in frequency."; break;
+    case "f(x) = δ(x) (delta): → 1 (constant)": info = "Dirac delta: 'all frequencies equally'. Conversely, F[1] = 2π δ(k)."; break;
+    case "f(x) = sin(ωx): → δ(k − ω) − δ(k + ω)": info = "A pure sinusoid concentrates all its 'energy' at a single frequency. Spectrum: two delta peaks."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. The Fourier transform turns a function of time into a function of
+   frequency. Why is this useful?
+2. The Gaussian is its own Fourier transform — what does that mean
+   geometrically?
+3. **Heisenberg's uncertainty principle** comes from Fourier theory:
+   you can't be sharp in both time and frequency simultaneously.
+
+## Discover
+
+### Problem 1
+
+Compute $\hat f(k)$ for $f(x) = e^{-x^2/2}$ (the Gaussian).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\hat f(k) = \int e^{-x^2/2 - ikx} dx$. Complete the square in the
+exponent: $-x^2/2 - ikx = -(x + ik)^2/2 - k^2/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\hat f(k) = e^{-k^2/2} \int e^{-(x + ik)^2/2} dx = e^{-k^2/2} \cdot
+\sqrt{2\pi}$.
+
+So **$\hat f(k) = \sqrt{2\pi} \, e^{-k^2/2}$** — same Gaussian shape,
+scaled by $\sqrt{2\pi}$.
+
+The Gaussian is the *unique* (up to scaling) function self-dual
+under FT — fundamental to QM (Gaussian wavepackets) and probability
+(normal distribution).
+</details>
+
+### Problem 2
+
+**Convolution theorem.** $\widehat{f * g}(k) = \hat f(k) \cdot \hat
+g(k)$, where $(f * g)(x) = \int f(y) g(x - y) dy$.
+
+Why is this so useful?
+
+<details class="hint"><summary>Full solution</summary>
+**Convolution becomes multiplication in frequency space.** Computing
+convolution directly: $O(n^2)$. Via FFT: forward transform $O(n \log
+n)$ + multiplication $O(n)$ + inverse $O(n \log n)$ = $O(n \log n)$
+total.
+
+**Massive speedup** for image processing (filters), large-scale
+signal correlation, polynomial multiplication.
+
+This is the algorithmic miracle: turn a costly time-domain operation
+into a cheap frequency-domain one.
+</details>
+
+### Problem 3
+
+**Uncertainty principle.** If $\sigma_x$ is the spread of $f$ and
+$\sigma_k$ is the spread of $\hat f$:
+$$\sigma_x \sigma_k \ge \dfrac{1}{2}.$$
+
+What does this say physically?
+
+<details class="hint"><summary>Full solution</summary>
+**You cannot simultaneously be precisely localised in space *and* in
+frequency.** Sharper time-localisation → wider frequency spread, and
+vice versa.
+
+In **quantum mechanics:** position and momentum are Fourier-related,
+so $\sigma_x \sigma_p \ge \hbar/2$. This is *the* uncertainty
+principle.
+
+In **signal processing:** a brief pulse contains a wide range of
+frequencies; a pure tone is infinitely long in time. Music
+production navigates this trade-off constantly.
+</details>
+
+### Problem 4
+
+**Plancherel's theorem** (Parseval for FT):
+$$\int |f(x)|^2 dx = \dfrac{1}{2\pi} \int |\hat f(k)|^2 dk.$$
+Energy preserved.
+
+If $f$ has $\int |f|^2 = 1$, what's $\int |\hat f|^2 / (2\pi)$?
+
+<details class="hint"><summary>Full solution</summary>
+**$1$.** FT is a unitary operator on $L^2(\mathbb{R})$ — preserves
+norms. Generalisation of orthogonal change of basis.
+</details>
+
+### Problem 5
+
+**Differentiation in time → multiplication in frequency:**
+$\widehat{f'}(k) = i k \hat f(k)$.
+
+Why does this make Fourier methods great for solving differential
+equations?
+
+<details class="hint"><summary>Full solution</summary>
+**Differential equations turn into algebraic equations.** A PDE like
+$u_t = u_{xx}$ becomes (after FT in $x$): $\hat u_t = -k^2 \hat u$, a
+*first-order ODE in time*, easily solved.
+
+This is the **fundamental trick of mathematical physics:** Fourier-
+transform the spatial variables, solve the resulting ODE, then
+inverse-transform back.
+
+It works for the heat equation, wave equation, Laplace's equation,
+Schrödinger — virtually all linear PDEs.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Fourier transform** of $f \in L^1$ (or $L^2$):
+$$\hat f(k) = \int_{-\infty}^\infty f(x) e^{-ikx} \, dx.$$
+
+**Inverse Fourier transform:**
+$$f(x) = \dfrac{1}{2\pi} \int_{-\infty}^\infty \hat f(k) e^{ikx} \, dk.$$
+
+(Conventions vary on $1/(2\pi)$ placement and sign; check yours.)
+
+**Properties:**
+
+- **Linearity:** $\widehat{a f + b g} = a \hat f + b \hat g$.
+- **Convolution:** $\widehat{f * g} = \hat f \cdot \hat g$.
+- **Multiplication:** $\widehat{f g} = \hat f * \hat g / (2\pi)$.
+- **Differentiation:** $\widehat{f'}(k) = i k \hat f(k)$.
+- **Translation:** $\widehat{f(x - a)}(k) = e^{-ika} \hat f(k)$.
+- **Modulation:** $\widehat{e^{i\omega x} f(x)}(k) = \hat f(k - \omega)$.
+
+**Plancherel:** $\int |f|^2 = (1/2\pi) \int |\hat f|^2$. FT is
+unitary on $L^2$.
+
+**Famous transform pairs:**
+
+| $f(x)$ | $\hat f(k)$ |
+|---|---|
+| $e^{-x^2/2}$ | $\sqrt{2\pi} e^{-k^2/2}$ |
+| $\delta(x)$ | $1$ |
+| $1$ | $2\pi \delta(k)$ |
+| $e^{-a|x|}$ | $2a/(a^2 + k^2)$ |
+| Rect on $[-a, a]$ | $2 \sin(ak)/k$ |
+
+**Uncertainty:** $\sigma_x \sigma_k \ge 1/2$.
+
+:::
+
+> *Fourier transform: function of time → function of frequency;*
+> *Convolution ↔ multiplication; differentiation ↔ multiplication by ik;*
+> *Uncertainty: time vs frequency localisation cannot both be sharp.*
+
+## Apply
+
+### Worked example
+
+> Use the FT to solve the heat equation $u_t = \alpha u_{xx}$ with
+> initial condition $u(x, 0) = f(x)$.
+
+Take FT in $x$: $\hat u_t = -\alpha k^2 \hat u$. ODE solution: $\hat
+u(k, t) = \hat f(k) e^{-\alpha k^2 t}$.
+
+Inverse-FT to get $u(x, t)$ — convolution of $f$ with the **heat
+kernel** $e^{-x^2/(4 \alpha t)}/\sqrt{4 \pi \alpha t}$.
+
+Heat diffuses by being convolved with a Gaussian whose width grows as
+$\sqrt{t}$.
+
+### Practice — Warm
+
+**W1.** $\hat \delta(k) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\int \delta(x) e^{-ikx} dx = e^0 = 1$.
+</details>
+
+**W2.** Convolution theorem: $\widehat{f * g} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\hat f \cdot \hat g$.
+</details>
+
+**W3.** $\widehat{f'} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$ik \hat f$.
+</details>
+
+### Practice — Working
+
+**P1.** $\hat f(k)$ for $f(x) = e^{-x}$ for $x \ge 0$, 0 otherwise.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\int_0^\infty e^{-x} e^{-ikx} dx = \int_0^\infty e^{-(1+ik)x} dx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{1 + ik}$.
+</details>
+
+**P2.** What's the FT of a rectangle of width $2a$?
+
+<details class="hint"><summary>Full solution</summary>
+$2 \sin(ak)/k = 2a \, \text{sinc}(ak)$.
+
+Rectangle (sharp in time) → sinc (oscillating, slow decay in
+frequency). Shows the uncertainty trade-off.
+</details>
+
+**P3.** $\hat f$ if $f$ is real-valued. What's the symmetry?
+
+<details class="hint"><summary>Full solution</summary>
+$\hat f(-k) = \overline{\hat f(k)}$ (Hermitian symmetry).
+
+For purely real signals: only need to compute $\hat f$ for $k \ge 0$
+(other half determined). Halves storage in DSP.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why are JPG images "blocky" when over-compressed?** JPG
+breaks images into 8×8 blocks, applies DCT (a Fourier cousin), keeps
+top-$k$ coefficients. What goes wrong with aggressive truncation?
+
+<details class="hint"><summary>Full solution</summary>
+**Truncating high frequencies destroys sharp edges within blocks** —
+they require high-frequency components. Smooth interiors look fine
+but edges and detail vanish.
+
+The 8×8 block boundaries become visible (the famous "JPG
+artifacts"). More sophisticated compressions (JPEG 2000, BPG, AVIF)
+use wavelets or larger blocks to mitigate.
+
+The Fourier mathematics directly determines what can and can't be
+compressed.
+</details>
+
+**S2.** **Why is the Fourier transform central to MRI?** MRI machines
+acquire data in *k-space* (frequency domain) and reconstruct images
+via inverse FT.
+
+<details class="hint"><summary>Full solution</summary>
+**MRI hardware naturally produces frequency-domain data:** the
+applied magnetic gradients spatially encode the signal in $k$. The
+machine collects $\hat I(k)$ for many $k$; the image $I(x)$ is the
+inverse FT.
+
+**Faster scans:** sample fewer $k$-points. *Compressed sensing* uses
+sparsity priors to reconstruct from undersampled data — saves
+patient time.
+
+**ML for MRI:** trained networks reconstruct images from highly
+undersampled $k$-space, dramatically faster than classical methods.
+
+The Fourier transform is the *interface* between MRI hardware and
+medical imagery. Tier 7 (Research track) develops the theory.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"FT only works for periodic signals."** Series do; the *transform*
+   handles arbitrary $L^2$ signals.
+2. **"$\hat f(k)$ is the 'amount' of frequency $k$."** Closer: a
+   *density* of frequency content. Integration over a band gives
+   total content there.
+3. **"FT and DFT are the same."** Continuous vs discrete. DFT is the
+   discrete version computed by FFT.
+:::
+
+### Self-Assessment
+
+1. Could you state the convolution theorem?
+2. Without scrolling back, what's $\widehat{\delta}$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $\widehat{f * g} = \hat f \hat g$. $\hat \delta = 1$.)
+
+- **3 yes:** ready for **[14 · Spectral Graph Theory](../14-spectral-graph-theory/index.qmd)**.
+- **2 yes:** redo **S2** (MRI).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[12 · Fourier Series](../12-fourier-series/index.qmd)**
+
+### What this unlocks
+
+- **Tier 7 — Harmonic Analysis** — Fourier on locally compact
+  abelian groups; Pontryagin duality.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Spectral analysis of weights and
+activations. Fourier features in implicit neural representations
+(NeRF). FFT-based convolutions speed up CNN training.
+:::
+
+::: {.applied-callout}
+**Engineering.** DSP, telecommunications (OFDM), radar, sonar, MRI
+(S2), CT scans, JPEG/MPEG (S1). Quantum mechanics (FT links
+position and momentum).
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Distribution theory, microlocal analysis,
+representation theory, modular forms — major branches built on FT.
+:::
