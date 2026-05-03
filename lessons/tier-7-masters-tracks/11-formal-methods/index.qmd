@@ -1,0 +1,382 @@
+---
+title: "11 · Formal Methods — Model Checking and Temporal Logic"
+subtitle: "Mathematical proof of correctness for software and hardware."
+lesson-id: "t7.formal-methods"
+tier: 7
+prerequisites: ["t5.sets-logic-proofs", "t6.graph-theory"]
+unlocks: []
+applied-domains: ["systems"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L01 — Sets, Logic, Proofs](../../tier-5-undergrad-core/01-sets-logic-proofs/index.qmd) and [T6 L05 — Graph Theory](../../tier-6-undergrad-advanced/05-graph-theory/index.qmd)?
+2. Recall: propositional logic, predicate logic, finite-state machines.
+3. Have you debugged a concurrent program? (For the motivation.)
+:::
+
+## Touch
+
+A traffic light controller. Specification: "the light is *never* red on
+both directions simultaneously." How do you **prove** this for the
+real implementation, across all possible runs?
+
+```{ojs}
+viewof verifyMethod = Inputs.select(["Testing (incomplete)", "Model checking (exhaustive on finite model)", "Theorem proving (Coq/Lean)", "Static analysis (sound abstract domain)"], {value: "Model checking (exhaustive on finite model)", label: "Method:"})
+```
+
+```{ojs}
+{
+  let info, guarantee;
+  switch(verifyMethod) {
+    case "Testing (incomplete)": info = "Run on inputs; catch what you tried. Cannot prove absence of bugs."; guarantee = "Sound on tested inputs only."; break;
+    case "Model checking (exhaustive on finite model)": info = "Explore all reachable states; check property holds. Decidable for finite-state systems."; guarantee = "Sound and complete on the model."; break;
+    case "Theorem proving (Coq/Lean)": info = "Express system + property in higher-order logic; prove correctness with computer-checked proofs."; guarantee = "Sound; relies on hand-written proofs."; break;
+    case "Static analysis (sound abstract domain)": info = "Sound over-approximation of behavior. Fast, but reports false positives."; guarantee = "Sound; not complete."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#1a237e;">${info}</div>
+    <div style="font-family:monospace; font-size:0.9rem; color:#1b5e20;">${guarantee}</div>
+  </div>`;
+}
+```
+
+**Formal methods**: mathematical proof that a system meets its
+specification.
+
+## Wonder
+
+1. **Linear Temporal Logic (LTL):** properties over infinite traces of
+   states.
+2. **Computation Tree Logic (CTL):** properties branching across all
+   possible executions.
+3. **Model checking** automates verification by exploring the state
+   space.
+
+## Discover
+
+### Problem 1
+
+A **Kripke structure** $(S, S_0, R, L)$:
+
+- States $S$.
+- Initial states $S_0 \subseteq S$.
+- Transition relation $R \subseteq S \times S$.
+- Labelling $L : S \to 2^{AP}$ (which atomic propositions hold).
+
+Model a 2-state traffic-light controller (green / red). Add states for
+2 directions (NS, EW). Define the safety property "never both red."
+
+<details class="hint"><summary>Full solution</summary>
+States: $\{(NS \in \{G, R\}, EW \in \{G, R\})\}$ — 4 states. Initial:
+$(G, R)$. Transitions: alternate.
+
+Safety: "never both red" = for every reachable $s$, $\neg
+(s.NS = R \wedge s.EW = R)$.
+
+If we add a "yellow" buffer, can we still preserve this? Yes — design
+ensures alternation.
+
+Model checking traverses all 4 (or 6) reachable states and verifies.
+</details>
+
+### Problem 2
+
+**Linear Temporal Logic (LTL).** Formulas over future-time operators:
+
+- $\mathbf{X} \phi$ — next state satisfies $\phi$.
+- $\mathbf{F} \phi$ — eventually $\phi$.
+- $\mathbf{G} \phi$ — globally / always $\phi$.
+- $\phi \mathbf{U} \psi$ — $\phi$ until $\psi$.
+
+Translate: "the request is *eventually* served, and *never* lost."
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbf{G}(\text{request} \to \mathbf{F}\,\text{served}) \wedge \mathbf{G} \neg \text{lost}$.
+
+Or: every request leads-to (◇) a served, AND no lost.
+
+This **liveness + safety** decomposition (Lamport) is core to specs.
+</details>
+
+### Problem 3
+
+**Safety vs liveness.**
+
+- Safety: "bad never happens." E.g., $\mathbf{G} \neg \text{deadlock}$.
+- Liveness: "good eventually happens." E.g., $\mathbf{G} \mathbf{F} \text{progress}$.
+
+Why is the distinction useful?
+
+<details class="hint"><summary>Full solution</summary>
+**Lamport's theorem:** every property is the conjunction of a safety
+property and a liveness property.
+
+Safety violations are detected by *finite* counterexamples (a bad
+trace prefix). Liveness needs *infinite* counterexamples (loops).
+
+Model checkers handle these differently: safety via reachability,
+liveness via fair cycles in the state-transition graph.
+</details>
+
+### Problem 4
+
+**Model checking algorithm (LTL).**
+
+1. Convert LTL formula $\phi$ to a Büchi automaton $A_{\neg \phi}$.
+2. Compute product $M \times A_{\neg \phi}$.
+3. Check for a *fair* infinite run accepted by $A_{\neg \phi}$.
+
+If yes: counterexample trace. If no: $M \models \phi$.
+
+What's the complexity?
+
+<details class="hint"><summary>Full solution</summary>
+**LTL model checking:** PSPACE-complete in formula size, polynomial in
+state space.
+
+For finite-state systems with $|S|$ states and LTL formula of size
+$|\phi|$: $O(|S| \cdot 2^{|\phi|})$.
+
+Tools: SPIN (Promela), NuSMV. Used in protocol verification, hardware
+design.
+</details>
+
+### Problem 5
+
+**State space explosion.** A system with $n$ Boolean variables has
+$2^n$ states. For $n = 100$: $2^{100} \approx 10^{30}$.
+
+How do model checkers handle this?
+
+<details class="hint"><summary>Full solution</summary>
+**Symbolic model checking:** represent state sets as Binary Decision
+Diagrams (BDDs). Reachability set is a BDD; image computation is
+operations on BDDs.
+
+OBDD canonical form often compact for "structured" states. McMillan
+(1990s) verified hardware with $10^{20}$ states.
+
+**SAT-based:** Bounded model checking unrolls to depth $k$, checks SAT.
+Fast for finding shallow bugs.
+
+**Abstraction:** CEGAR (counterexample-guided abstraction refinement) —
+predicate abstraction tools (BLAST, SLAM). Microsoft's SLAM verified
+Windows drivers.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Kripke structure** $M = (S, S_0, R, L)$.
+
+**LTL** (Linear Temporal Logic):
+- $\mathbf{X}, \mathbf{F}, \mathbf{G}, \mathbf{U}$.
+- Properties over linear traces.
+
+**CTL** (Computation Tree Logic): branching-time. Path quantifiers
+$\mathbf{A}, \mathbf{E}$ + temporal operators.
+
+**CTL\*** = LTL ∪ CTL. More expressive.
+
+**Safety** = bad finite trace. **Liveness** = good never-reached.
+Lamport: every property = safety ∧ liveness.
+
+**Model checking:** $M \models \phi$? Algorithmic for finite $M$ + LTL/
+CTL.
+
+**Büchi automata:** finite automata over infinite words; recognise LTL.
+
+**Symbolic model checking:** BDDs for state set; image computation.
+
+**Bounded model checking:** SAT-based; finite unrolling.
+
+**Tools:**
+
+- **SPIN** (LTL on Promela models — protocols).
+- **NuSMV / nuXmv** (BDD-based, hardware).
+- **TLA+** (Lamport's spec language; AWS, Microsoft Azure).
+- **Coq / Lean / Isabelle** (interactive theorem provers).
+- **Z3 / CVC5** (SMT solvers — automated).
+
+**Theorem proving:** machine-checked proofs. CompCert (verified C
+compiler), seL4 (verified microkernel).
+
+:::
+
+> *Spec: LTL formula over states;*
+> *Implementation: finite-state model M;*
+> *Model check M ⊨ φ — counterexample if not.*
+
+## Apply
+
+### Worked example
+
+> **Mutual exclusion (Peterson's algorithm).**
+
+Two processes $P_0, P_1$, each with critical section. Variables: $\text{flag}_0, \text{flag}_1, \text{turn}$.
+
+Properties:
+
+- **Mutual exclusion** (safety): $\mathbf{G} \neg(\text{cs}_0 \wedge \text{cs}_1)$.
+- **Progress** (liveness): if $P_0$ wants in, eventually gets in:
+  $\mathbf{G}(\text{want}_0 \to \mathbf{F}\,\text{cs}_0)$.
+
+Modelled in Promela / TLA+: SPIN verifies both in milliseconds.
+
+This is *the* canonical exercise — every formal-methods student does
+Peterson's.
+
+### Practice — Warm
+
+**W1.** What does $\mathbf{F} \mathbf{G} \phi$ mean?
+
+<details class="hint"><summary>Full solution</summary>
+"Eventually, $\phi$ holds forever." Stabilisation.
+</details>
+
+**W2.** Is $\mathbf{G} \mathbf{F} \phi$ a safety or liveness property?
+
+<details class="hint"><summary>Full solution</summary>
+**Liveness** — "infinitely often $\phi$."
+</details>
+
+**W3.** What's the difference between LTL and CTL?
+
+<details class="hint"><summary>Full solution</summary>
+LTL: properties of *each* trace separately. CTL: properties of the
+*tree* of executions, with explicit path quantifiers $\mathbf{A}, \mathbf{E}$.
+
+Example: $\mathbf{AG}(\mathbf{EF}\,p)$ — "always possible to reach
+$p$." Inexpressible in LTL.
+</details>
+
+### Practice — Working
+
+**P1.** What's a **Büchi automaton** and why are they used for LTL?
+
+<details class="hint"><summary>Full solution</summary>
+A Büchi automaton accepts an infinite word if it visits an *accept*
+state infinitely often.
+
+LTL formula $\phi$ → Büchi automaton $A_\phi$. Trace satisfies $\phi$ iff
+accepted by $A_\phi$.
+
+Composition with the system gives a model-checking algorithm.
+</details>
+
+**P2.** Why is **TLA+** popular at AWS / Microsoft Azure?
+
+<details class="hint"><summary>Full solution</summary>
+TLA+ specs distributed protocols at high level. AWS used it to
+verify DynamoDB, S3 consistency, EBS replication. Found bugs that
+*testing did not*.
+
+Lamport: design, then verify before implementation. Catches subtle
+race conditions, weakenings, edge cases.
+
+Modern industrial use: TLA+ has saved real money by catching bugs
+pre-deployment.
+</details>
+
+**P3.** Why is **CompCert** a milestone?
+
+<details class="hint"><summary>Full solution</summary>
+**Verified C compiler.** Coq proof: source program semantics =
+compiled program semantics, modulo undefined behaviour.
+
+Yang et al. (2011) compared CompCert vs gcc/clang via random testing.
+gcc/clang had compiler bugs; **CompCert had zero**.
+
+Used in: critical avionics, automotive software (where compiler bugs
+can kill).
+</details>
+
+### Practice — Stretch
+
+**S1.** **seL4** — verified operating-system microkernel.
+
+<details class="hint"><summary>Full solution</summary>
+seL4 (Klein et al., 2009): formally verified that the C
+implementation refines an abstract spec. ~10,000 lines of C, hundreds
+of thousands of lines of Isabelle proofs.
+
+Guarantees: no buffer overflows, no null pointer dereferences,
+process isolation.
+
+Used in: military, automotive, secure devices.
+
+This is the **gold standard** for formally verified systems software.
+</details>
+
+**S2.** **Smart contracts and formal verification.**
+
+<details class="hint"><summary>Full solution</summary>
+Smart contracts (Solidity, Move): bugs lose millions of dollars
+(DAO hack, Parity wallet, etc.).
+
+Tools:
+
+- **Certora Prover:** SMT-based, applies to Solidity.
+- **K Framework:** semantic specs of EVM.
+- **Move Prover:** for Diem (Aptos / Sui).
+
+Specs: invariants, access control, no reentrancy. Industry adoption
+growing rapidly.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Tested = correct."** Testing finds bugs but cannot prove their
+   absence. (Dijkstra, 1969.)
+2. **"Verified = bug-free."** Verified against the spec. If the spec
+   is wrong, system is wrong.
+3. **"Formal methods are too expensive."** True 30 years ago. Today:
+   model checkers run in seconds, theorem provers help write proofs,
+   SMT solvers solve millions of constraints.
+:::
+
+### Self-Assessment
+
+1. State an LTL formula expressing "every request is eventually served."
+2. Why is model checking PSPACE-complete in formula size?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: $\mathbf{G}(\text{req} \to \mathbf{F}\,\text{served})$.)
+
+- **3 yes:** ready for **[12 · Algebraic Number Theory](../12-algebraic-number-theory/index.qmd)**.
+- **2 yes:** redo **P2** (TLA+).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L01 — Sets, Logic, Proofs](../../tier-5-undergrad-core/01-sets-logic-proofs/index.qmd)**
+- **[T6 L05 — Graph Theory](../../tier-6-undergrad-advanced/05-graph-theory/index.qmd)**
+
+### What this unlocks
+
+- Process algebras, separation logic, dependent type theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**Systems / Distributed.** Protocol verification (Paxos, Raft); cloud
+infrastructure (TLA+).
+:::
+
+::: {.applied-callout}
+**Hardware.** Intel Pentium FDIV bug → industry-wide formal methods
+adoption.
+:::
+
+::: {.applied-callout}
+**Security.** Verified microkernels (seL4); cryptographic protocol
+analysis (Tamarin).
+:::
