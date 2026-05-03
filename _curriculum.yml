@@ -1,0 +1,154 @@
+# _curriculum.yml — single source of truth for the curriculum dependency graph.
+#
+# Every lesson on the site is registered here. The lesson's YAML front matter
+# (lesson-id, prerequisites, unlocks, applied-domains) MUST match the entry
+# below. The landing-page Mermaid graph and the applied-bridges paths are
+# derived from this file.
+#
+# Schema:
+#   tiers:
+#     - id: t1
+#       title: "..."
+#       grade-range: "..."
+#       summary: "..."
+#       lessons:
+#         - id: t1.what-is-a-number       # globally unique
+#           title: "..."
+#           prerequisites: []             # list of lesson ids
+#           applied-domains: [encryption] # subset of: ai-ml, game-dev, databases,
+#                                         #   systems, encryption, research
+#           status: done | drafted | planned
+#           path: lessons/tier-1-foundations/01-what-is-a-number/index.qmd
+
+applied-domains:
+  - id: ai-ml
+    title: "AI / Machine Learning"
+  - id: game-dev
+    title: "Game Development"
+  - id: databases
+    title: "Databases"
+  - id: systems
+    title: "Systems"
+  - id: encryption
+    title: "Encryption"
+  - id: research
+    title: "Mathematical Research"
+
+tiers:
+  - id: t1
+    title: "Foundations"
+    grade-range: "Grade 5–7"
+    summary: "Number sense, the four operations re-grounded, fractions, ratio, basic geometry, and the seed of every later idea — including primes (the door to encryption)."
+    lessons:
+      - id: t1.what-is-a-number
+        title: "What is a Number?"
+        prerequisites: []
+        applied-domains: [encryption, research]
+        status: done
+        path: lessons/tier-1-foundations/01-what-is-a-number/index.qmd
+      - id: t1.number-line
+        title: "The Number Line"
+        prerequisites: [t1.what-is-a-number]
+        applied-domains: [research]
+        status: planned
+      - id: t1.place-value
+        title: "Place Value (Why Position Matters)"
+        prerequisites: [t1.what-is-a-number]
+        applied-domains: [systems, encryption]
+        status: planned
+      - id: t1.add-subtract
+        title: "Addition and Subtraction, Re-grounded"
+        prerequisites: [t1.number-line, t1.place-value]
+        applied-domains: []
+        status: planned
+      - id: t1.multiply-as-area
+        title: "Multiplication as Area"
+        prerequisites: [t1.add-subtract]
+        applied-domains: [game-dev]
+        status: planned
+      - id: t1.divide-fair-share
+        title: "Division as Fair Share"
+        prerequisites: [t1.multiply-as-area]
+        applied-domains: []
+        status: planned
+      - id: t1.fractions-as-parts
+        title: "Fractions as Parts of a Whole"
+        prerequisites: [t1.divide-fair-share]
+        applied-domains: [databases]
+        status: planned
+      - id: t1.decimals
+        title: "Decimals — Fractions in a New Costume"
+        prerequisites: [t1.fractions-as-parts, t1.place-value]
+        applied-domains: [systems]
+        status: planned
+      - id: t1.ratio-proportion
+        title: "Ratio and Proportion"
+        prerequisites: [t1.fractions-as-parts]
+        applied-domains: [game-dev, ai-ml]
+        status: planned
+      - id: t1.negative-numbers
+        title: "Negative Numbers (Below the Ground)"
+        prerequisites: [t1.number-line, t1.add-subtract]
+        applied-domains: []
+        status: planned
+      - id: t1.intro-variables
+        title: "Variables — Names for Unknown Numbers"
+        prerequisites: [t1.add-subtract, t1.multiply-as-area]
+        applied-domains: [ai-ml, research]
+        status: planned
+      - id: t1.shapes-angles
+        title: "Shapes and Angles"
+        prerequisites: []
+        applied-domains: [game-dev]
+        status: planned
+      - id: t1.area-perimeter-volume
+        title: "Area, Perimeter, Volume"
+        prerequisites: [t1.shapes-angles, t1.multiply-as-area]
+        applied-domains: [game-dev]
+        status: planned
+      - id: t1.data-and-average
+        title: "Data and the Average"
+        prerequisites: [t1.divide-fair-share]
+        applied-domains: [ai-ml, databases]
+        status: planned
+      - id: t1.divisibility-primes
+        title: "Divisibility and Primes (the Encryption Seed)"
+        prerequisites: [t1.divide-fair-share]
+        applied-domains: [encryption]
+        status: planned
+
+  - id: t2
+    title: "Pre-Algebra & Algebra I"
+    grade-range: "Grade 8–9"
+    summary: "Linear equations and systems, functions as machines, exponents, polynomials, similarity, and the Pythagorean theorem."
+    lessons: []  # to be populated when Tier 2 build begins
+
+  - id: t3
+    title: "Algebra II / Geometry / Trigonometry"
+    grade-range: "Grade 10–11"
+    summary: "Quadratics and conics, trigonometry, sequences and series, logs and exponentials, combinatorics, basic probability."
+    lessons: []
+
+  - id: t4
+    title: "Pre-Calculus and Calculus"
+    grade-range: "Grade 12"
+    summary: "Limits, derivatives, integrals, the fundamental theorem, vectors in 2D and 3D — the first explicit Game Dev bridge."
+    lessons: []
+
+  - id: t5
+    title: "Undergraduate Core"
+    grade-range: "Years 1–2"
+    summary: "Linear algebra, multivariable and vector calculus, discrete mathematics and logic, probability and statistics, intro number theory, real analysis."
+    lessons: []
+
+  - id: t6
+    title: "Undergraduate Advanced"
+    grade-range: "Years 3–4"
+    summary: "Abstract algebra, complex analysis, numerical methods, ODEs/PDEs, optimisation, graph theory, information theory, Fourier analysis."
+    lessons: []
+
+  - id: t7
+    title: "Masters Specialisation Tracks"
+    grade-range: "Masters"
+    summary: "Six parallel tracks branching from Tier 6, one per applied domain."
+    lessons: []

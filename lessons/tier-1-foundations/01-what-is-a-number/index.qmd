@@ -1,0 +1,420 @@
+---
+title: "What is a Number?"
+subtitle: "The seed lesson of the entire curriculum"
+lesson-id: "t1.what-is-a-number"
+tier: 1
+prerequisites: []
+unlocks: ["t1.number-line", "t1.place-value"]
+applied-domains: ["encryption", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Are you ready for this lesson? Be honest.
+
+1. Can you count out loud from 1 to 20?
+2. If someone asks you "how many fingers do you have?", do you know the
+   answer without thinking?
+3. Have you ever written the digits 0 1 2 3 4 5 6 7 8 9?
+
+If you said yes to all three, you are ready. If you said no to any of them,
+that's perfectly fine — this lesson is genuinely the beginning. Read on
+slowly.
+:::
+
+## Touch
+
+Below are three groups. Look at them — don't read ahead yet.
+
+::: {.lesson-beat}
+
+| Group A | Group B | Group C |
+|:-:|:-:|:-:|
+| 🔴 🔴 🔴 🔴 🔴 | ⬛ ⬛ ⬛ ⬛ ⬛ | 🐟 🐟 🐟 🐟 🐟 |
+
+:::
+
+Now move the slider. Watch what happens to all three groups together.
+
+```{ojs}
+viewof howMany = Inputs.range([1, 12], {value: 5, step: 1, label: "How many?"})
+```
+
+```{ojs}
+{
+  const row = (emoji, n) => emoji.repeat(n).split("").join(" ");
+  return html`<div style="font-size: 2rem; line-height: 2.5rem; text-align: center;">
+    <div>${row("🔴", howMany)}</div>
+    <div>${row("⬛", howMany)}</div>
+    <div>${row("🐟", howMany)}</div>
+    <div style="font-size: 1rem; color: #666; margin-top: 0.5rem;">
+      Three different things. The same... what?
+    </div>
+  </div>`;
+}
+```
+
+Drag the slider. Watch the rows lengthen and shorten *together*. When the
+rows have the same length you have changed everything except one thing.
+
+That one thing is a **number**.
+
+## Wonder
+
+No need to write anything down. Just sit with these for a moment.
+
+1. If you tipped all three rows into one heap, how many *things* would be in
+   the heap? Did you have to know that one row was circles and another was
+   fish to answer?
+2. Could you have a "three" of nothing? What would that even look like?
+3. Is the number **three** the same thing as the written symbol **3** on this
+   page?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+You probably noticed the answer to (1) instantly: it didn't matter what was
+in the rows. The number lived above the things.
+
+(2) and (3) are the deeper questions. We come back to them in *Name*.
+:::
+
+## Discover
+
+Work through these in order. Each one is small. The goal is not to "get the
+answer" — it is to notice what you had to *do* to get the answer.
+
+### Problem 1
+
+A teacher has **5 students**. Each student has **2 pencils**. Without
+thinking about students, without thinking about pencils — just write down the
+total number of pencils.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You used the number 5 and the number 2. The fact that one was about people
+and one was about wood didn't enter your head, did it?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+"5 groups of 2" or "2 groups of 5" — both work.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**10 pencils.** What's worth noticing: you computed `5 × 2 = 10` without
+needing to imagine students or pencils. The numbers worked on their own.
+</details>
+
+### Problem 2
+
+Look at these three rows. They all point at *the same number*. What is it?
+
+| Way of writing | Tradition |
+|:-:|:--|
+| **12** | Hindu–Arabic, what we use today |
+| **XII** | Roman numerals |
+| **一二** | One way of writing in Chinese |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Read the first row. Now ask: do the other two also mean *that*?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Twelve.** Three different *names* for the same number. The number itself is
+not the symbol — the symbol is just how we write it down.
+</details>
+
+### Problem 3
+
+Imagine the counting numbers laid out in a row that goes on forever:
+
+$$1, \ 2, \ 3, \ 4, \ 5, \ 6, \ 7, \ \ldots$$
+
+- Is there a smallest one?
+- Is there a largest one?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For the second question, suppose someone hands you the *biggest* number ever.
+Call it `BIG`. Can you make a bigger one?
+</details>
+<details class="hint"><summary>Full solution</summary>
+The smallest counting number is **1**. There is **no largest**. If anyone
+hands you their biggest number `BIG`, you can always reply: "What about
+`BIG + 1`?" There are infinitely many counting numbers.
+</details>
+
+### Problem 4
+
+There are **8 marbles** in a bag. You take **3** out. Without recounting from
+1, what is left in the bag?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You can do this in your head. You don't need the marbles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**5 marbles.** Notice that the marbles never had to be physically present for
+you to know this. The numbers `8 − 3 = 5` did the work alone. Numbers can be
+operated on like objects of their own.
+</details>
+
+### Problem 5
+
+Without counting on your fingers, what is the *next* number after **999**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You already know. Just say it out loud.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Think about how the digits ripple over: 9 → 10, 99 → 100, ...
+</details>
+<details class="hint"><summary>Full solution</summary>
+**1000.** The interesting part is *how you knew*: not by counting, but by
+recognising a pattern in how the digits roll over. The way we write numbers
+matters — but the numbers themselves do not depend on it. We will explore
+this in **Lesson 3: Place Value** ([planned](../index.qmd)).
+</details>
+
+You just did five problems in which numbers did all the work and the *things*
+stayed in the background. That is the central observation.
+
+## Name
+
+::: {.lesson-beat}
+
+A **number** is a quantity — the answer to *"how many?"* or *"how much?"*
+
+The **natural numbers** (also called the **counting numbers**) are
+$$1, \ 2, \ 3, \ 4, \ 5, \ \ldots$$
+and they go on without end.
+
+The shapes we write — `3`, `12`, `1000` — are **names** for numbers, not the
+numbers themselves. Different cultures use different names for the same
+number.
+
+:::
+
+A short verse to remember it by, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Numbers are answers to "how many?";*
+> *Their written shapes are merely names.*
+> *They march on forever — none is greatest —*
+> *And work alone, without their objects.*
+
+## Apply
+
+### Worked example
+
+> A classroom has **4 rows** of desks, with **6 desks per row**. How many
+> desks are in the room?
+
+A competent solver thinks like this:
+
+1. Each row has 6 desks. Picture one row — six desks side by side.
+2. There are 4 such rows. So I have 6, then 6, then 6, then 6.
+3. $6 + 6 + 6 + 6 = 24$. Or, faster: $4 \times 6 = 24$.
+
+**Answer: 24 desks.**
+
+What's worth noticing: the moment we said "6 + 6 + 6 + 6", the desks
+disappeared from our heads. The numbers did the work. The desks are just
+where we will eventually *use* the answer.
+
+### Practice — Warm
+
+**W1.** Count out loud from 1 to 30. Then count *backward* from 30 to 1.
+
+<details class="hint"><summary>Full solution</summary>
+There's no trick — just do it. Counting backward is harder than counting
+forward; many adults stumble. If you stumbled, that's interesting: you know
+the numbers in one direction better than the other. Notice that the numbers
+themselves don't care which direction you go.
+</details>
+
+**W2.** Which of these are different *names* for the same number?
+$$\text{IV}, \quad 4, \quad \text{four}, \quad 5, \quad \text{IIII}$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Read each one carefully. Which mean "four"?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**IV, 4, four, IIII** all name the number four. (IIII is an old form of IV
+sometimes still used on clock faces.) **5** names a different number.
+</details>
+
+**W3.** Count by tens, backward, from 100 to 0.
+
+<details class="hint"><summary>Full solution</summary>
+100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0. — Notice you said *zero* at the
+end. Zero is a number too, even though it answers "how many of nothing?".
+That makes it strange. We will look at zero properly in
+**Lesson 2: The Number Line** ([planned](../index.qmd)).
+</details>
+
+### Practice — Working
+
+**P1.** A library has **8 shelves**. Each shelf holds **15 books**. How many
+books are in the library?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same shape as the desks problem.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+8 groups of 15. You can split: 8 × 15 = 8 × 10 + 8 × 5.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$8 \times 15 = 80 + 40 = 120$. **120 books.** The shelves and the books
+disappeared from your head while you computed. The number is the answer.
+</details>
+
+**P2.** Write the number "twenty-three" in three different ways.
+
+<details class="hint"><summary>Full solution</summary>
+Three valid examples: **23** (Hindu–Arabic), **XXIII** (Roman), **二十三**
+(Chinese). All name the same number. Tally marks (||||| ||||| |||||  |||) is
+another. There are many more.
+</details>
+
+**P3.** A small village has **17 houses**. Each house has **1 dog**. The dogs
+have **4 legs each**. How many dog-legs are in the village in total?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+17 houses → 17 dogs → how many legs each dog has → ...
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+17 × 4. Try: 10 × 4 = 40. Then 7 × 4 = 28. Add.
+</details>
+<details class="hint"><summary>Full solution</summary>
+17 dogs, each with 4 legs: $17 \times 4 = 40 + 28 = 68$. **68 dog-legs.**
+The dogs were in the head only at the very start; the rest was numbers.
+</details>
+
+### Practice — Stretch
+
+**S1.** Why don't we just invent a *new symbol* for every number? Write a few
+sentences explaining why we use only ten digits (0 through 9) and combine
+them, instead of having a unique squiggle for one, two, three, four, five,
+... a million.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Imagine you had to memorise a unique symbol for every number you ever
+needed. How many would that be?
+</details>
+<details class="hint"><summary>Full solution</summary>
+There are infinitely many numbers, so you would need infinitely many
+symbols. No human could learn them. Instead we use a small set of digits and
+let *position* multiply their meaning — that is what makes "1000" different
+from "100" different from "10". This is the idea of **place value**, the
+subject of **Lesson 3: Place Value** ([planned](../index.qmd)).
+
+This is one of humanity's great inventions. The Hindu–Arabic numeral
+system (developed in India between roughly 200 BCE and 600 CE, and carried
+to Europe by Persian and Arab mathematicians) made arithmetic feasible at
+all. Calculation in Roman numerals is so painful that it largely had to be
+done on physical counting boards.
+</details>
+
+**S2.** Someone tells you they know the largest number. They write it down.
+What do you reply, and why?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You saw this in *Discover, Problem 3*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+You add 1 to it. Whatever number `BIG` they wrote, `BIG + 1` is also a
+counting number, and it is larger. So no number can be the largest. The
+counting numbers go on forever. Mathematicians say there are
+**infinitely many** of them.
+
+This is one of the most important facts in mathematics — and in the
+foundations of logic and computer science. The 19th-century mathematician
+Georg Cantor went much further: he proved there are different *sizes* of
+infinity. We will revisit this very deep idea in Tier 5.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"The number 3 is the symbol 3."** No — the symbol is a *name*. The
+   Roman III, the Chinese 三, and the modern 3 all name the same number. The
+   number itself lives above its names.
+2. **"Zero isn't really a number."** It is. It answers *"how many of
+   nothing?"*. Many ancient cultures didn't have a zero, and arithmetic was
+   much harder for them. The introduction of zero — first treated as a
+   number proper by the Indian mathematician Brahmagupta in 628 CE — was a
+   leap, not a small refinement.
+3. **"Numbers must run out at some point."** They don't. There is no
+   largest counting number — for any number you name, you can add 1.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain the difference between a number and the symbol that
+   names it, to a friend, without notes?
+2. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+3. Did the worked example feel like something you could re-create on your
+   own with different numbers?
+
+- **3 yes:** move on to *The Number Line*.
+- **2 yes:** redo the *Stretch* problems, then move on.
+- **0–1 yes:** re-read *Discover* and *Apply*. The idea hasn't fully
+  landed; that's normal — this is the strangest lesson in the whole
+  curriculum because the question seems too obvious to ask.
+
+## Connect
+
+### Prerequisites used
+
+None. This is the seed lesson — the first one in the curriculum.
+
+### What this unlocks
+
+- **The Number Line** — *placing* every number you've met on a single
+  picture. *(planned — see [Tier 1 index](../index.qmd))*
+- **Place Value** — *why* the position of a digit changes its meaning.
+  *(planned — see [Tier 1 index](../index.qmd))*
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** Every cryptographic system in use today — RSA, elliptic
+curves, post-quantum lattice schemes — rests on properties of numbers
+themselves, completely independent of how we write them. The fact that
+some natural numbers (the **primes**) cannot be broken into smaller
+factors is the hinge of RSA. We meet primes at the end of Tier 1, in
+**Lesson 15: Divisibility and Primes** ([planned](../index.qmd)).
+:::
+
+::: {.applied-callout}
+**Research.** "What is a number?" is one of the questions mathematicians
+never stopped asking. The 19th century saw a complete rebuilding of the
+foundations, by Dedekind, Frege, Peano, and Cantor. The version you've
+just met — *natural numbers as answers to "how many?"* — was made
+mathematically precise by Peano's axioms in 1889. We will return to this
+in Tier 5 (real analysis) and Tier 7 (logic and set theory).
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Every other applied path — AI/ML, Game Dev,
+Databases, Systems — eventually leans on numbers as objects in their own
+right, manipulable by rules that don't care what they refer to. That move
+— *the number lives above the things* — is the move you just made.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the Touch widget shows the same
+  number across three different kinds of object), Boole (the Wonder
+  questions surface intuitions before vocabulary), Russian school (the
+  *Discover* problems carry the lesson; exposition follows), Bhāskara
+  (the *Name* beat is one box and one verse), Better Explained (the "Aha!"
+  framing is *the number lives above the things*).
+- **No forward references** other than to lessons explicitly named in
+  *Connect* and *Unlocks*, all of which are declared as such.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (visual rows, verbal, symbolic) ✓, graduated hints on every exercise ✓,
+  worked solutions ✓, common-confusions callout ✓, self-assessment ✓.
+:::

@@ -1,0 +1,68 @@
+project:
+  type: website
+  output-dir: _site
+  resources:
+    - "widgets/**/*"
+
+website:
+  title: "Applied Maths — Grade 5 to Masters"
+  description: "An interactive, prerequisite-linked, self-study mathematics curriculum from Grade 5 to Masters, applied to AI/ML, Game Dev, Databases, Systems, Encryption, and Research."
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - text: Tiers
+        menu:
+          - href: lessons/tier-1-foundations/index.qmd
+            text: "Tier 1 — Foundations (Grade 5–7)"
+          - href: lessons/tier-2-prealgebra/index.qmd
+            text: "Tier 2 — Pre-Algebra (Grade 8–9)"
+          - href: lessons/tier-3-algebra2-geometry-trig/index.qmd
+            text: "Tier 3 — Algebra II / Geometry / Trig"
+          - href: lessons/tier-4-precalc-calculus/index.qmd
+            text: "Tier 4 — Pre-Calc & Calculus"
+          - href: lessons/tier-5-undergrad-core/index.qmd
+            text: "Tier 5 — Undergrad Core"
+          - href: lessons/tier-6-undergrad-advanced/index.qmd
+            text: "Tier 6 — Undergrad Advanced"
+          - href: lessons/tier-7-masters-tracks/index.qmd
+            text: "Tier 7 — Masters Tracks"
+      - text: "I want to learn..."
+        menu:
+          - href: applied-bridges/ai-ml.qmd
+            text: AI / ML
+          - href: applied-bridges/game-dev.qmd
+            text: Game Development
+          - href: applied-bridges/databases.qmd
+            text: Databases
+          - href: applied-bridges/systems.qmd
+            text: Systems
+          - href: applied-bridges/encryption.qmd
+            text: Encryption
+          - href: applied-bridges/research.qmd
+            text: Research
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - index.qmd
+      - section: "Tier 1 — Foundations"
+        contents:
+          - lessons/tier-1-foundations/index.qmd
+          - lessons/tier-1-foundations/01-what-is-a-number/index.qmd
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles/custom.scss
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    html-math-method: katex
+    callout-appearance: simple
+    fig-align: center
+    smooth-scroll: true
+
+execute:
+  freeze: auto
