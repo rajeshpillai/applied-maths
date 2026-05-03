@@ -1,0 +1,360 @@
+---
+title: "10 · Gradient Methods and SGD Variants"
+subtitle: "GD, SGD, Momentum, Adam — the optimisers that train every neural network"
+lesson-id: "t6.gradient-methods"
+tier: 6
+prerequisites: ["t6.convex-optimization"]
+unlocks: []
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [09 · Convex Optimisation](../09-convex-optimization/index.qmd)?
+2. Comfortable with the gradient $\nabla f$ as direction of steepest
+   ascent?
+3. Recall T5 L09 stretch on stochastic gradient descent.
+:::
+
+## Touch
+
+**Gradient descent:** to minimise $f$, iterate $w \leftarrow w - \eta
+\nabla f(w)$. Variations:
+
+```{ojs}
+viewof gmSel = Inputs.select(["GD: standard gradient descent", "SGD: stochastic gradient descent", "momentum: SGD with velocity", "Adam: adaptive momentum"], {value: "Adam: adaptive momentum", label: "Optimiser:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(gmSel) {
+    case "GD: standard gradient descent": info = "w ← w − η ∇L(w). Uses ALL training data per step. Slow for large datasets but stable."; break;
+    case "SGD: stochastic gradient descent": info = "Uses one sample (or mini-batch). Each step is an unbiased estimate of true gradient. Noisy but fast; the noise can help escape saddles."; break;
+    case "momentum: SGD with velocity": info = "v ← βv − η∇L; w ← w + v. Maintains a 'velocity' that smooths over noise. β ≈ 0.9 typical. Helps in 'long valleys' (ill-conditioned regions)."; break;
+    case "Adam: adaptive momentum": info = "Maintains per-parameter learning rates via exponential moving averages of gradient and squared-gradient. Most popular optimiser for deep learning."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why use *stochastic* gradients (one sample) instead of full-batch?
+2. Why does *momentum* help convergence?
+3. Why is the learning rate $\eta$ such a critical hyperparameter?
+
+## Discover
+
+### Problem 1
+
+**Gradient descent** on $f(w) = (1/2) w^2$. Update: $w \leftarrow w -
+\eta \cdot w$. Starting at $w_0 = 1$, $\eta = 0.1$, run 5 steps.
+
+<details class="hint"><summary>Full solution</summary>
+$w_{n+1} = (1 - \eta) w_n = 0.9 w_n$.
+
+$w_1 = 0.9, w_2 = 0.81, w_3 = 0.729, w_4 = 0.6561, w_5 = 0.59$.
+
+**Geometric convergence to 0** (the minimum). Rate $1 - \eta = 0.9$.
+</details>
+
+### Problem 2
+
+For $f(w) = (1/2) w^2$, what's the optimal step size $\eta$? What
+happens if $\eta > 2$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$w_{n+1} = (1 - \eta) w_n$. Converges iff $|1 - \eta| < 1$, i.e.,
+$0 < \eta < 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Optimal:** $\eta = 1$ (single-step convergence: $w_1 = 0$).
+**$\eta > 2$:** divergence ($|1 - \eta| > 1$, $w_n$ explodes).
+
+For general convex quadratic with Hessian $H$, optimal $\eta = 2/(\lambda_{\min}(H) + \lambda_{\max}(H))$.
+
+**Step size matters enormously.** Too small: slow. Too large:
+divergence.
+</details>
+
+### Problem 3
+
+**Stochastic gradient descent (SGD).** For $L(w) = \dfrac{1}{N} \sum
+\ell_i(w)$, SGD picks one (or a mini-batch of) $\ell_i$ per step:
+$w \leftarrow w - \eta \nabla \ell_i(w)$.
+
+Why does this work?
+
+<details class="hint"><summary>Full solution</summary>
+**$E[\nabla \ell_i] = \nabla L$** — the stochastic gradient is an
+*unbiased estimator* of the true gradient.
+
+Each step is noisy but on average correct. Over many steps, the
+trajectory follows the true gradient (with some noise).
+
+Benefits:
+
+- **Cheap:** one example per step instead of all $N$.
+- **Noise can help** escape saddle points and shallow local minima.
+
+Modern training: SGD with mini-batches of 32-1024 samples per step.
+</details>
+
+### Problem 4
+
+**Momentum.** Update: $v \leftarrow \beta v - \eta \nabla L; \; w
+\leftarrow w + v$. With $\beta \approx 0.9$, accumulates past
+gradients (exponentially decaying weight).
+
+Why does this help in *ill-conditioned* problems (Hessian eigenvalues
+of very different magnitudes)?
+
+<details class="hint"><summary>Full solution</summary>
+**In ill-conditioned valleys (long, narrow), plain GD oscillates
+across the narrow direction while progressing slowly along the long
+direction.** Momentum *smooths* the oscillations and accelerates the
+slow direction.
+
+Equivalent to a heavy ball rolling downhill: built-up momentum
+carries it through ridges and along long valleys.
+
+**Nesterov's accelerated gradient** (1983) achieves the optimal
+$O(1/T^2)$ convergence rate for convex problems — much better than
+GD's $O(1/T)$.
+</details>
+
+### Problem 5
+
+**Adam.** Maintains running averages of:
+
+- $m = \beta_1 m + (1-\beta_1) g$ (mean of gradient, "first moment").
+- $v = \beta_2 v + (1-\beta_2) g^2$ (mean of squared gradient,
+  "second moment").
+
+Update: $w \leftarrow w - \eta \cdot m / (\sqrt{v} + \epsilon)$.
+
+Why divide by $\sqrt{v}$?
+
+<details class="hint"><summary>Full solution</summary>
+**Adapts per-parameter learning rates.** Parameters with consistently
+large gradients get a *smaller* effective rate (divided by $\sqrt{v}$);
+those with tiny gradients get a *larger* one. Self-tuning.
+
+Adam combines momentum (via $m$) with adaptive scaling (via $v$).
+Default in nearly every modern deep learning framework. Hyperparameter
+defaults ($\beta_1 = 0.9, \beta_2 = 0.999$) work well across tasks.
+
+Variants: AdamW (decoupled weight decay), LAMB (large-batch
+training), Lion (sign-based, more memory-efficient).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Gradient descent (GD):** $w \leftarrow w - \eta \nabla L(w)$.
+
+**Stochastic gradient descent (SGD):** uses single example or
+mini-batch per step. Unbiased estimator of true gradient.
+
+**Momentum:** $v \leftarrow \beta v - \eta \nabla L; w \leftarrow w +
+v$. Smooths and accelerates.
+
+**Nesterov accelerated gradient (NAG):** "look ahead" before
+gradient — $O(1/T^2)$ for convex.
+
+**Adam:** adaptive learning rate per parameter via running averages
+of $g$ and $g^2$. Default for deep learning.
+
+**Convergence rates** for convex $L$:
+
+| Method | Rate (convex) | Rate (strongly convex) |
+|---|---|---|
+| GD | $O(1/T)$ | $O((1 - \kappa^{-1})^T)$ exponential |
+| Nesterov | $O(1/T^2)$ | $O((1 - \kappa^{-1/2})^T)$ |
+| SGD | $O(1/\sqrt{T})$ | $O(1/T)$ |
+
+(Where $\kappa$ = condition number.)
+
+**Practical tips:**
+
+- Choose $\eta$ via grid search or schedule (cosine decay).
+- Use Adam unless you have reason otherwise.
+- Mini-batch size: 32-512 typical.
+- Mix gradient clipping for stability.
+
+:::
+
+> *GD: full-batch, deterministic; SGD: stochastic, scalable;*
+> *Momentum: smooths and accelerates;*
+> *Adam: per-parameter adaptive learning rate — default for deep learning.*
+
+## Apply
+
+### Worked example
+
+> Manually run 3 steps of Adam on $f(w) = w^2$ from $w_0 = 4$, with
+> $\eta = 0.5, \beta_1 = 0.9, \beta_2 = 0.999, \epsilon = 10^{-8}$.
+
+$\nabla = 2w$. Step 1: $g = 8$. $m = 0.8, v = 0.064$.
+$\hat{m} = m/(1-0.9^1) = 8$ (bias correction). $\hat{v} = v/(1-0.999) =
+64$.
+$w_1 = 4 - 0.5 \cdot 8/\sqrt{64} = 4 - 0.5 = 3.5$.
+
+(Adam with bias correction gives a step similar in magnitude to GD on
+the first step.)
+
+Subsequent steps progress similarly. The full algorithm is more
+nuanced; libraries handle it.
+
+### Practice — Warm
+
+**W1.** GD update for $f(w) = w^2$ at $w = 3, \eta = 0.1$?
+
+<details class="hint"><summary>Full solution</summary>
+$w_{\text{new}} = 3 - 0.1 \cdot 6 = 2.4$.
+</details>
+
+**W2.** What does $\eta$ stand for in optimisation?
+
+<details class="hint"><summary>Full solution</summary>
+Learning rate / step size.
+</details>
+
+**W3.** What does $\beta = 0.9$ mean in momentum?
+
+<details class="hint"><summary>Full solution</summary>
+The velocity retains 90% of its previous value each step.
+</details>
+
+### Practice — Working
+
+**P1.** GD on $f(w_1, w_2) = w_1^2 + 100 w_2^2$ from $(1, 1)$ with
+$\eta = 0.01$. Compute one step.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\nabla = (2 w_1, 200 w_2) = (2, 200)$. Step: $(1 - 0.02, 1 - 2) = (0.98,
+-1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$(0.98, -1)$.** The $w_2$ direction overshoots dramatically due to
+ill-conditioning ($\kappa = 100$). $\eta = 0.01$ is too large for $w_2$.
+
+This is why **adaptive methods** (Adam) help: they would scale down
+the $w_2$ step.
+</details>
+
+**P2.** Why might SGD with batch size 1 be unstable?
+
+<details class="hint"><summary>Full solution</summary>
+**Single-sample gradients are very noisy.** A pathological example
+can knock the weights far from optimum. Mini-batches (e.g., 32-256)
+average noise out, retaining stochastic benefits while reducing
+variance.
+</details>
+
+**P3.** Run 2 steps of momentum on $f(w) = w^2$ from $w_0 = 4, \eta =
+0.1, \beta = 0.9$.
+
+<details class="hint"><summary>Full solution</summary>
+Step 1: $v_0 = 0$. $g = 8$. $v_1 = 0.9 \cdot 0 - 0.1 \cdot 8 = -0.8$.
+$w_1 = 4 - 0.8 = 3.2$.
+
+Step 2: $g = 6.4$. $v_2 = 0.9 \cdot -0.8 - 0.1 \cdot 6.4 = -1.36$.
+$w_2 = 3.2 - 1.36 = 1.84$.
+
+**Faster than plain GD** (which would give $w_2 = 4 \cdot 0.8^2 =
+2.56$). Momentum builds.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why is Adam so popular but theoretically *not always*
+convergent?** Adam has been shown (Reddi et al. 2018) to fail to
+converge on some convex problems. Why is it still used?
+
+<details class="hint"><summary>Full solution</summary>
+**Adam works *empirically* on most deep learning problems**, even if
+not provably convergent on all convex ones. The non-convergence
+issue requires unusual gradient distributions; for typical neural
+network losses, Adam converges fine.
+
+Variants like **AMSGrad** (uses the max of past $v$) restore
+theoretical convergence. **AdamW** (decoupled weight decay) is the
+practical default for transformer training.
+
+Theoretical study of optimisers continues; in practice, what works
+for your model is the right answer.
+</details>
+
+**S2.** **Learning rate schedules.** Modern training rarely uses a
+constant $\eta$. Cosine decay, warmup, cyclic — why?
+
+<details class="hint"><summary>Full solution</summary>
+**Different stages of training need different rates:**
+
+- *Warmup:* small $\eta$ at start to avoid early instability.
+- *Plateau then decay:* high $\eta$ for fast progress, then low for
+  fine-tuning.
+- *Cosine decay:* smooth schedule from peak to near-zero, often
+  with restarts.
+- *Cyclic:* periodic up/down — escapes shallow minima.
+
+In ML, schedule design is a substantial fraction of the
+hyperparameter tuning effort. Modern recipes include warmup +
+cosine for transformers, often with a "1cycle" policy.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Gradient descent always converges."** Only with appropriate
+   step size. Too large → divergence. Too small → too slow.
+2. **"SGD = randomness."** SGD is *deterministic given the data
+   sample* — randomness comes from sampling.
+3. **"Adam fixes everything."** Adam is a great default but can be
+   suboptimal for some tasks (large-batch training favours LAMB,
+   image generation sometimes prefers SGD).
+:::
+
+### Self-Assessment
+
+1. Could you write the GD update rule?
+2. Without scrolling back, what does momentum do?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: smooths past gradients into a velocity-like quantity.)
+
+- **3 yes:** ready for **[11 · Information Theory](../11-information-theory/index.qmd)**.
+- **2 yes:** redo **S2** (LR schedules).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[09 · Convex Optimisation](../09-convex-optimization/index.qmd)**
+
+### What this unlocks
+
+- **Tier 7 — Optimisation Theory** — saddle-point methods, second-
+  order methods, distributed optimisation.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Every neural network training run uses
+some flavour of these optimisers. Adam is the default for most
+modern deep learning.
+:::
+
+::: {.applied-callout}
+**Reinforcement learning.** Policy gradient methods. Actor-critic
+algorithms. Trust region methods.
+:::
