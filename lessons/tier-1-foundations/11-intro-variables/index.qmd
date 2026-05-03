@@ -1,0 +1,427 @@
+---
+title: "Variables — Names for Unknown Numbers"
+subtitle: "When the number isn't yet known, give it a name and reason about it"
+lesson-id: "t1.intro-variables"
+tier: 1
+prerequisites: ["t1.add-subtract", "t1.multiply-as-area"]
+unlocks: []
+applied-domains: ["ai-ml", "research", "encryption"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Lesson 4 — Add & Subtract](../04-add-subtract/index.qmd)
+   and [Lesson 5 — Multiplication as Area](../05-multiply-as-area/index.qmd)?
+2. In Lesson 4 (P2), you found the missing number in $\ ? + 36 = 100$.
+   Did that feel like a *new kind of computation* — solving for the
+   unknown — rather than just doing arithmetic?
+3. Have you used a spreadsheet, where one cell's value depends on
+   others? That dependence is exactly the variable idea.
+:::
+
+## Touch
+
+A simple number-machine. The machine takes an input $x$, multiplies it
+by 2, then adds 5. Drag $x$. Watch the output.
+
+```{ojs}
+viewof xVal = Inputs.range([-10, 10], {value: 3, step: 1, label: "x:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 200, pad = 40;
+  const out = 2 * xVal + 5;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px;");
+
+  // Input box
+  svg.append("rect").attr("x", pad).attr("y", H/2 - 30).attr("width", 100).attr("height", 60)
+    .attr("fill", "#90caf9").attr("stroke", "#2c5f7c").attr("stroke-width", 2).attr("rx", 6);
+  svg.append("text").attr("x", pad + 50).attr("y", H/2 + 8)
+    .attr("text-anchor", "middle").attr("font-size", "30").attr("font-weight", "bold")
+    .text(`${xVal}`);
+  svg.append("text").attr("x", pad + 50).attr("y", H/2 - 40)
+    .attr("text-anchor", "middle").attr("font-size", "14").attr("fill", "#666").text("input x");
+
+  // Arrow + machine
+  svg.append("line").attr("x1", pad + 105).attr("x2", pad + 175)
+    .attr("y1", H/2).attr("y2", H/2)
+    .attr("stroke", "#1f2933").attr("stroke-width", 2);
+  svg.append("path").attr("d", `M ${pad+170},${H/2} l -8,-5 l 0,10 z`).attr("fill", "#1f2933");
+
+  // Machine box
+  svg.append("rect").attr("x", pad + 180).attr("y", H/2 - 50).attr("width", 240).attr("height", 100)
+    .attr("fill", "#fffde7").attr("stroke", "#f9a825").attr("stroke-width", 2).attr("rx", 6);
+  svg.append("text").attr("x", pad + 300).attr("y", H/2 + 6)
+    .attr("text-anchor", "middle").attr("font-size", "22").attr("font-family", "monospace")
+    .text("y = 2x + 5");
+  svg.append("text").attr("x", pad + 300).attr("y", H/2 - 60)
+    .attr("text-anchor", "middle").attr("font-size", "14").attr("fill", "#666").text("the machine");
+
+  // Arrow out
+  svg.append("line").attr("x1", pad + 425).attr("x2", pad + 495)
+    .attr("y1", H/2).attr("y2", H/2)
+    .attr("stroke", "#1f2933").attr("stroke-width", 2);
+  svg.append("path").attr("d", `M ${pad+490},${H/2} l -8,-5 l 0,10 z`).attr("fill", "#1f2933");
+
+  // Output box
+  svg.append("rect").attr("x", pad + 500).attr("y", H/2 - 30).attr("width", 100).attr("height", 60)
+    .attr("fill", "#a5d6a7").attr("stroke", "#2e7d32").attr("stroke-width", 2).attr("rx", 6);
+  svg.append("text").attr("x", pad + 550).attr("y", H/2 + 8)
+    .attr("text-anchor", "middle").attr("font-size", "30").attr("font-weight", "bold")
+    .text(`${out}`);
+  svg.append("text").attr("x", pad + 550).attr("y", H/2 - 40)
+    .attr("text-anchor", "middle").attr("font-size", "14").attr("fill", "#666").text("output y");
+
+  return svg.node();
+}
+```
+
+The letter **$x$** is a *variable* — a placeholder for any number you
+care to feed in. The expression $2x + 5$ describes a *recipe*. The
+output $y$ depends on $x$ via that recipe.
+
+## Wonder
+
+1. If $x = 0$ what is $y$? If $x = -3$? If $x = 100$?
+2. The recipe $2x + 5$ is one expression. Could you describe the *same*
+   recipe with different letters? Would it still be the same?
+3. If you knew the *output* $y = 17$, could you work backwards to the
+   *input* $x$?
+
+## Discover
+
+### Problem 1
+
+Compute $y = 2x + 5$ for $x = 0, 1, 2, 3, -2$.
+
+<details class="hint"><summary>Full solution</summary>
+$y(0) = 5$, $\ y(1) = 7$, $\ y(2) = 9$, $\ y(3) = 11$, $\ y(-2) = 1$.
+
+Notice the pattern: as $x$ goes up by 1, $y$ goes up by 2. The "$2$" in
+$2x + 5$ controls the *rate* of change; the "$5$" sets the value when
+$x = 0$.
+
+You have just met your first **linear function**. Tier 2 will explore
+these in depth — they are the spine of much of applied mathematics.
+</details>
+
+### Problem 2
+
+A taxi charges Rs. **30** as a base fare, plus Rs. **15 per kilometre**.
+Write an expression for the total cost $C$ if you travel $d$ kilometres.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Base fare is fixed. Per-km charge depends on distance.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$C = 30 + 15 \times d, \quad \text{or simply} \quad C = 30 + 15d.$$
+
+(Recall from [Lesson 5 Stretch S2](../05-multiply-as-area/index.qmd) that
+we drop the × sign in algebraic expressions because × looks like the
+letter $x$.)
+
+You have written your first **algebraic formula** — an expression
+involving a *variable* (here, $d$) that captures a real-world rule.
+For $d = 8$ km: $C = 30 + 15 \times 8 = 30 + 120 = 150$ rupees.
+</details>
+
+### Problem 3
+
+Solve for the unknown:
+$$x + 7 = 12.$$
+
+What is $x$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What plus 7 gives 12? Use the inverse operation
+([Lesson 4 P2](../04-add-subtract/index.qmd)).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$x = 5$.** Method: **subtract 7 from both sides** of the equation.
+$$x + 7 - 7 = 12 - 7 \quad \Longrightarrow \quad x = 5.$$
+
+The "do the same thing to both sides" idea is the *fundamental move* of
+algebra. The equation is a balance scale; whatever you do to the left
+you must do to the right, or the balance breaks.
+</details>
+
+### Problem 4
+
+Solve for $x$:
+$$3x = 21.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Inverse of multiplication is division. Divide both sides by 3.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = 21 \div 3 = 7$. Check: $3 \times 7 = 21$ ✓.
+
+To "isolate" a variable, undo the operations one at a time, using
+inverses, while keeping both sides equal.
+</details>
+
+### Problem 5
+
+Verify the **distributive law** by substituting numbers. The law says:
+for any $a, b, c$,
+$$a \times (b + c) = a \times b + a \times c.$$
+
+Try $a = 3$, $b = 4$, $c = 5$. Compute both sides.
+
+<details class="hint"><summary>Full solution</summary>
+Left: $3 \times (4 + 5) = 3 \times 9 = 27$.
+Right: $3 \times 4 + 3 \times 5 = 12 + 15 = 27$. ✓ Both equal **27**.
+
+Try with any other numbers — they will always agree. That is the meaning
+of "law": a statement true for *all* values of the variables.
+
+Picture (recall [Lesson 5 Discover P4](../05-multiply-as-area/index.qmd)):
+a $3 \times 9$ rectangle is the same as a $3 \times 4$ rectangle and a
+$3 \times 5$ rectangle placed side by side. The distributive law is the
+rectangle-splitting picture put into symbols.
+
+This is the power of variables: one symbolic statement captures
+infinitely many numerical facts.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **variable** is a letter (usually $x, y, n, t, \ldots$) that stands
+in for a number whose value is either unknown, or allowed to vary across
+some range.
+
+An **algebraic expression** is a recipe built from numbers, variables,
+and operations: $2x + 5$, $3x - 7$, $x^2$, $\frac{a + b}{2}$.
+
+An **equation** is a statement that two expressions are equal: $x + 7 =
+12$. To **solve** an equation is to find the value(s) of the variable
+that make it true.
+
+The **fundamental move:** whatever you do to one side of an equation,
+do to the other. (Add the same number, subtract the same number,
+multiply by the same non-zero number, etc.) This preserves equality.
+
+:::
+
+> *A letter for a number we do not know;*
+> *A recipe written once, used many times;*
+> *Both sides equal — keep the balance, and the balance reveals the unknown.*
+
+## Apply
+
+### Worked example
+
+> Solve for $x$:
+> $$2x + 5 = 17.$$
+
+A competent solver works *one inverse at a time*:
+
+1. **Subtract 5 from both sides** to peel off the "+5":
+   $$2x + 5 - 5 = 17 - 5 \quad \Longrightarrow \quad 2x = 12.$$
+2. **Divide both sides by 2** to peel off the "× 2":
+   $$\frac{2x}{2} = \frac{12}{2} \quad \Longrightarrow \quad x = 6.$$
+3. **Check:** $2 \times 6 + 5 = 12 + 5 = 17$ ✓.
+
+**Answer: $x = 6$.** Always check by substituting your answer back into
+the *original* equation. It catches arithmetic slips immediately.
+
+### Practice — Warm
+
+**W1.** Evaluate $3x - 4$ for $x = 0, 2, 5, -1$.
+
+<details class="hint"><summary>Full solution</summary>
+$-4$, $\ 2$, $\ 11$, $\ -7$.
+</details>
+
+**W2.** Solve: $\ x + 9 = 15$. Then: $\ y - 4 = 10$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 6$ (subtract 9 from both sides). $y = 14$ (add 4 to both sides).
+</details>
+
+**W3.** Solve: $\ 4x = 32$. Then: $\ \dfrac{y}{5} = 6$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 8$ (divide both sides by 4). $y = 30$ (multiply both sides by 5).
+</details>
+
+### Practice — Working
+
+**P1.** Solve: $\ 3x + 7 = 25$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract 7 first; then divide by 3.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x = 18$, then $x = 6$. Check: $3 \times 6 + 7 = 25$ ✓.
+</details>
+
+**P2.** A rectangular garden has length $L$ metres and width 6 metres.
+Its area is $42$ square metres. Find $L$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Area = length × width. Set up an equation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$6L = 42$, so $L = 7$ metres. The variable lets us write *one* equation
+that captures *all possible* problems of this shape — change the numbers
+and the same algebra still works.
+</details>
+
+**P3.** A taxi from *Discover P2* charges $C = 30 + 15d$. The fare for a
+ride was Rs. 195. How far did the trip go?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $C = 195$ and solve for $d$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$30 + 15d = 195$. Subtract 30: $15d = 165$. Divide by 15: $d = 11$ km.
+
+This is the power of equations: one formula solves both *forward* (given
+distance, find cost) and *backward* (given cost, find distance) problems.
+</details>
+
+### Practice — Stretch
+
+**S1.** **The distributive law** (Discover P5) lets us *expand* products
+of expressions. Compute $(x + 3)(x + 5)$ in expanded form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Picture: a rectangle with one side $(x + 3)$ and the other $(x + 5)$.
+Split into 4 sub-rectangles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The rectangle splits into four pieces: $x \cdot x$, $x \cdot 5$, $3 \cdot
+x$, $3 \cdot 5$. Areas: $x^2$, $5x$, $3x$, $15$.
+
+$$(x + 3)(x + 5) = x^2 + 5x + 3x + 15 = x^2 + 8x + 15.$$
+
+You just multiplied your first **polynomial**. Algebra II in Tier 3
+will revisit this thoroughly. The rectangle picture from
+[Lesson 5](../05-multiply-as-area/index.qmd) is once again the engine
+behind everything.
+</details>
+
+**S2.** A neural network's prediction for one input is computed as
+$$\hat{y} = w_1 x_1 + w_2 x_2 + b,$$
+where $x_1, x_2$ are the input values, $w_1, w_2$ are the *weights*, and
+$b$ is the *bias*. Why are the variables grouped this way? What real
+problem does the algebra solve?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare the structure to the taxi formula $C = 30 + 15d$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The neural network formula is *exactly* the taxi formula — generalised.
+$b$ plays the role of the base fare; each weight $w_i$ plays the role of
+"rate per unit of $x_i$". The whole machinery of deep learning is built
+on stacking many of these linear formulas, with non-linear "squashing"
+functions in between.
+
+When the network *trains*, it *solves equations* — but in reverse: given
+many input/output examples, it adjusts the $w$'s and $b$'s to make
+$\hat{y}$ match the true $y$ as closely as possible. The "fundamental
+move" of algebra (do the same thing to both sides) becomes the
+"fundamental move" of training (adjust the weights using the gradient).
+
+You have just met the deepest connection between algebra and AI: a
+neural network is a (very) large algebraic expression, and learning is
+solving for its variables.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$x$ is a fixed number."** Sometimes (when solving an equation, the
+   solution $x$ is fixed). But variables are also used to mean *any*
+   number (when stating laws like the distributive law). Context picks.
+2. **"You can do anything to one side of an equation."** No — *only* if
+   you do it to the other side too. Otherwise, the balance breaks and
+   the equation no longer holds.
+3. **"Algebra is just arithmetic with letters."** Almost true — but the
+   letters let you express *general* facts and *infinitely many*
+   computations at once. That generalisation is what makes algebra
+   powerful.
+:::
+
+### Self-Assessment
+
+1. Could you explain the "fundamental move" (do the same thing to both
+   sides) and why it's allowed?
+2. Without scrolling back, can you solve $4x + 3 = 19$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+- **3 yes:** ready for **[Lesson 12 — Shapes and Angles](../12-shapes-angles/index.qmd)**.
+- **2 yes:** redo **S1** — the rectangle picture for $(x+3)(x+5)$ is
+  fundamental.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 4 — Addition & Subtraction](../04-add-subtract/index.qmd)** —
+  the inverse-operation idea (subtract to undo addition) is the engine.
+- **[Lesson 5 — Multiplication as Area](../05-multiply-as-area/index.qmd)** —
+  the rectangle picture justifies the distributive law and polynomial
+  multiplication.
+
+### What this unlocks
+
+- **Tier 2 — Linear Equations and Systems** — many variables, many
+  equations, all solved by the same fundamental move.
+- **Tier 2 — Functions as Machines** — the input-output picture from
+  *Touch* generalised.
+- **Tier 5 — Linear Algebra** — all of ML is built on this.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** A neural network is, mathematically, a giant
+algebraic expression in (sometimes billions of) variables. Training is
+the process of finding the values of those variables that minimise a
+loss function. *Stretch S2* makes the connection explicit.
+:::
+
+::: {.applied-callout}
+**Encryption.** Modern cryptography is full of equations of the form
+"given $g^x \bmod p$, find $x$" (the discrete logarithm problem) — its
+*hardness* is what protects your messages. Variables and equations are
+the language in which these problems are stated.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Variables and the equational style are the
+*language* of mathematics. From abstract algebra to differential
+equations to category theory, every advanced subject extends what you
+have just begun.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Spreadsheets, programming (every variable in code),
+recipe scaling, financial planning, scientific modelling, engineering
+design — the moment you label something with a name and reason about it
+abstractly, you are doing algebra.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the input-output machine widget
+  makes a function visible as a literal device), Boole (the *can you
+  work backwards* question opens equation-solving), Russian school
+  (P5 derives the distributive law from the rectangle picture, not as
+  an axiom), Bhāskara (single-box Name + verse — al-Khwārizmī's *Book
+  of Restoration and Balancing*, c. 820 CE, gave us the word "algebra"
+  and codified the *do the same thing to both sides* method).
+- **Self-study guarantees** all present.
+:::
