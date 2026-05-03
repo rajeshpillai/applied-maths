@@ -1,0 +1,341 @@
+---
+title: "07 · Exponents and Powers"
+subtitle: "Repeated multiplication, encoded — and the rules that govern it"
+lesson-id: "t2.exponents-powers"
+tier: 2
+prerequisites: ["t1.multiply-as-area"]
+unlocks: ["t2.scientific-notation", "t2.square-roots-irrationals", "t2.polynomials"]
+applied-domains: ["systems", "encryption", "ai-ml"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T1 L05 — Multiplication as Area](../../tier-1-foundations/05-multiply-as-area/index.qmd)?
+2. Can you compute $3 \times 3 \times 3 = 27$? $5 \times 5 = 25$?
+3. Comfortable with the notation $5^2 = 25$ ("five squared") from
+   [T1 L13](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)?
+:::
+
+## Touch
+
+Pick a base $a$ and an exponent $n$. The widget computes $a^n$ — and
+shows the chain of multiplications.
+
+```{ojs}
+viewof base = Inputs.range([1, 10], {value: 2, step: 1, label: "Base a:"})
+viewof expo = Inputs.range([0, 10], {value: 5, step: 1, label: "Exponent n:"})
+```
+
+```{ojs}
+{
+  const val = Math.pow(base, expo);
+  const chain = expo === 0 ? "1 (anything to the 0 is 1)" : Array(expo).fill(`${base}`).join(" × ") + ` = ${val.toLocaleString()}`;
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-size: 2rem; font-family: monospace; font-weight:bold;">${base}<sup style="font-size:1.1rem;">${expo}</sup> = ${val.toLocaleString()}</div>
+    <div style="font-family: monospace; color:#666; margin-top:0.4rem; font-size: 1rem;">${chain}</div>
+  </div>`;
+}
+```
+
+The number $a^n$ is "$a$ multiplied by itself $n$ times". $a$ is the
+**base**, $n$ is the **exponent** or **power**. Try $2^{10} = 1024$ —
+familiar to programmers as "1 K".
+
+## Wonder
+
+1. What is $2^0$? $5^0$? Should it be 0, or 1, or something else?
+2. What is $3^1$? $7^1$?
+3. What about $2^{-1}$? Does that make any sense?
+
+## Discover
+
+### Problem 1
+
+Compute (without a calculator): $2^3, 3^2, 5^3, 10^4$.
+
+<details class="hint"><summary>Full solution</summary>
+$2^3 = 8$, $3^2 = 9$, $5^3 = 125$, $10^4 = 10{,}000$.
+
+Notice $2^3 \neq 3^2$ — the base and exponent are *not*
+interchangeable. Order matters.
+</details>
+
+### Problem 2
+
+Compute $2^3 \times 2^4$ in two ways:
+
+(a) Compute each, then multiply.
+(b) Just count the 2's.
+
+<details class="hint"><summary>Full solution</summary>
+(a) $2^3 = 8$, $2^4 = 16$. Product: $128$.
+(b) $2^3 \times 2^4 = (2 \cdot 2 \cdot 2) \times (2 \cdot 2 \cdot 2 \cdot
+2) = 2^7 = 128$. ✓
+
+**General rule:** $a^m \times a^n = a^{m+n}$. Multiplying same-base
+powers means *adding* exponents. Why? Because you're just stacking the
+two chains of multiplication into one longer chain.
+</details>
+
+### Problem 3
+
+Compute $\dfrac{2^7}{2^4}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2^7}{2^4} = \dfrac{2 \cdot 2 \cdot 2 \cdot 2 \cdot 2 \cdot 2 \cdot 2}{2 \cdot 2 \cdot 2 \cdot 2}$.
+Cancel four 2's from top and bottom: $= 2^3 = 8$.
+
+**General rule:** $\dfrac{a^m}{a^n} = a^{m - n}$. Dividing same-base
+powers means *subtracting* exponents.
+</details>
+
+### Problem 4
+
+What should $a^0$ be? Use the division rule from P3: $\dfrac{a^n}{a^n}$
+should be both $a^{n-n} = a^0$ AND should be 1 (anything divided by
+itself is 1).
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{a^n}{a^n} = a^0$, but also $\dfrac{a^n}{a^n} = 1$. So
+**$a^0 = 1$** for any $a \neq 0$.
+
+This is *forced* by the rules. $a^0 = 1$ isn't an arbitrary convention
+— it's the only choice that keeps the division rule consistent.
+</details>
+
+### Problem 5
+
+What should $a^{-1}$ be? Use the rule $a^m \times a^n = a^{m+n}$ with
+$m = 1, n = -1$: this gives $a^1 \times a^{-1} = a^0 = 1$. So
+$a^{-1}$ is the number that, multiplied by $a$, gives 1.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a \times \text{(what)} = 1$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$a^{-1} = \dfrac{1}{a}$** — the *reciprocal* of $a$.
+
+So $2^{-1} = 0.5$, $3^{-1} = 1/3$, $10^{-3} = 1/1000 = 0.001$.
+
+Negative exponents extend powers to *fractions*. Combined with $a^0 =
+1$, you now have a meaning for $a^n$ for *any* integer $n$ — positive,
+zero, or negative.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For a base $a$ and a positive integer $n$, the **power**
+$$a^n = \underbrace{a \times a \times \cdots \times a}_{n \text{ times}}.$$
+
+Extended:
+
+- $a^0 = 1$ (for $a \neq 0$).
+- $a^{-n} = \dfrac{1}{a^n}$.
+
+**Laws of exponents:**
+
+| Law | Statement |
+|---|---|
+| Product | $a^m \cdot a^n = a^{m+n}$ |
+| Quotient | $\dfrac{a^m}{a^n} = a^{m-n}$ |
+| Power of a power | $(a^m)^n = a^{m \cdot n}$ |
+| Power of a product | $(ab)^n = a^n \cdot b^n$ |
+| Power of a quotient | $\left(\dfrac{a}{b}\right)^n = \dfrac{a^n}{b^n}$ |
+
+Each law is provable by counting copies of $a$ in the multiplication.
+
+:::
+
+> *Multiply same-base powers — add the exponents;*
+> *Divide same-base powers — subtract the exponents;*
+> *Anything to the zero is one; negative exponents flip to reciprocals.*
+
+## Apply
+
+### Worked example
+
+> Simplify $\dfrac{2^5 \cdot 2^3}{2^6}$.
+
+A competent solver applies the laws step by step:
+
+1. Numerator: $2^5 \cdot 2^3 = 2^{5+3} = 2^8$.
+2. Quotient: $\dfrac{2^8}{2^6} = 2^{8-6} = 2^2 = 4$.
+
+**Answer: 4.** Check: numerator = $32 \cdot 8 = 256$; denominator =
+$64$; quotient = $4$ ✓.
+
+### Practice — Warm
+
+**W1.** Compute: $4^2, 10^3, 2^6$.
+
+<details class="hint"><summary>Full solution</summary>
+$16, 1000, 64$.
+</details>
+
+**W2.** Simplify: $a^3 \cdot a^4$, $\dfrac{x^7}{x^2}$, $(b^2)^5$.
+
+<details class="hint"><summary>Full solution</summary>
+$a^7$, $x^5$, $b^{10}$.
+</details>
+
+**W3.** Compute: $5^0$, $3^{-1}$, $2^{-3}$.
+
+<details class="hint"><summary>Full solution</summary>
+$1$, $1/3$, $1/8$.
+</details>
+
+### Practice — Working
+
+**P1.** Simplify: $\dfrac{x^5 \cdot x^3}{x^4}$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^{5+3-4} = x^4$.
+</details>
+
+**P2.** Simplify: $(2x^3)^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply $(ab)^n = a^n b^n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2^2 \cdot (x^3)^2 = 4 x^6$.
+</details>
+
+**P3.** A bacterial colony **doubles every hour**. Starting with 100
+bacteria, how many after 8 hours?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each hour multiplies by 2. After $n$ hours, there are $100 \times 2^n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$100 \times 2^8 = 100 \times 256 = 25{,}600$ bacteria.
+
+**Exponential growth** — each step multiplies, not adds — produces
+huge numbers fast. Compound interest, viral spread (epidemiology and
+internet "going viral"), Moore's Law for computing power: all are
+exponential.
+</details>
+
+### Practice — Stretch
+
+**S1.** A standard chess board has 64 squares. A legend says a king
+offered a wise man any reward; the wise man asked for **1 grain of
+rice on the first square, 2 on the second, 4 on the third, doubling
+each time**. The king laughed and agreed. How much rice on the 64th
+square alone? How does that compare to the world rice harvest of
+~500 million tonnes per year?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+On square $n$, there are $2^{n-1}$ grains. Square 64: $2^{63}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2^{63} \approx 9.2 \times 10^{18}$ grains. At about 25 grains per
+gram, that's $\approx 3.7 \times 10^{17}$ g $= 3.7 \times 10^{14}$ kg
+$= 370$ trillion kg = **370 billion tonnes** — about *700 years* of
+the world's entire rice production, *for one square*.
+
+The total over all 64 squares is $2^{64} - 1$, roughly twice this
+number. The king lost.
+
+This is the central lesson about exponential growth: it always wins
+against intuition. Whoever underestimates it gets blindsided. Modelling
+pandemics, computing the energy impact of a small percentage change
+in efficiency, predicting AI capabilities — all require taking
+exponentials seriously.
+</details>
+
+**S2.** In computer storage: **1 KB = 1024 bytes**, not 1000 bytes
+(though hard-drive marketers use both definitions). Why **1024**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$1024 = 2^?$
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1024 = 2^{10}$. Computer memory is *binary*, organised in powers of 2.
+The "round number" of 1024 is exactly $2^{10}$, the closest power of 2
+to 1000. Larger units: 1 MB = $2^{20}$, 1 GB = $2^{30}$.
+
+There is now a separate notation: **KiB, MiB, GiB** (kibibyte,
+mebibyte, gibibyte) for the powers-of-2 versions, and **KB, MB, GB**
+for the powers-of-10 versions. The discrepancy is why "your 1 TB hard
+drive" shows as ~931 GiB in the operating system.
+
+Powers of 2 are the native counting system of binary computers, just
+as powers of 10 are the native system of decimal humans.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$a^n$ means $a \times n$."** No — it means $a$ multiplied by
+   itself $n$ times. $2^3 = 8$, not $6$.
+2. **"$0^0 = 0$ or = 1?"** Convention varies. In most contexts,
+   $0^0 = 1$ (consistent with $a^0 = 1$ for $a \neq 0$ and useful in
+   combinatorics and series). Some textbooks call it undefined. Tier
+   1 doesn't need this; Tier 4+ analyses it carefully.
+3. **"$(a + b)^2 = a^2 + b^2$."** **False.** Common error. The correct
+   expansion is $(a + b)^2 = a^2 + 2ab + b^2$ (Lesson 11). Confusing
+   "exponent of a sum" with "sum of exponents" trips up countless
+   students.
+:::
+
+### Self-Assessment
+
+1. Could you derive $a^0 = 1$ from the quotient rule, in your own
+   words?
+2. Without scrolling back, can you simplify $\dfrac{x^4 \cdot x^{-1}}{x^2}$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $x^{4-1-2} = x^1 = x$.)
+
+- **3 yes:** ready for **[08 · Scientific Notation](../08-scientific-notation/index.qmd)**.
+- **2 yes:** redo **S1** (chessboard rice). Internalise exponential
+  growth.
+- **0–1 yes:** re-read *Discover P4 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L05 — Multiplication as Area](../../tier-1-foundations/05-multiply-as-area/index.qmd)** —
+  exponents are repeated multiplication.
+
+### What this unlocks
+
+- **[08 · Scientific Notation](../08-scientific-notation/index.qmd)** —
+  expressing very large/small numbers as $a \times 10^n$.
+- **[09 · Square Roots and Irrationals](../09-square-roots-irrationals/index.qmd)** —
+  the inverse: which number, raised to the power 2, gives this?
+- **[11 · Polynomials](../11-polynomials/index.qmd)** — expressions
+  with variable powers.
+
+### Where this matters
+
+::: {.applied-callout}
+**Systems.** Powers of 2 are the natural language of binary computers
+(Stretch S2). RAM, addresses, file sizes, network packet limits — all
+in powers of 2.
+:::
+
+::: {.applied-callout}
+**Encryption.** RSA computes $a^e \bmod n$ for very large $a, e, n$.
+The size of the exponent is what makes the security tunable.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Network parameters scale with powers of 2;
+training compute requirements grow with model size as a power law.
+GPT-style models double in parameter count every ~12 months — pure
+exponential growth.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Compound interest, population growth, radioactive
+decay (negative exponential), Richter scale (logarithmic, the inverse
+of exponential), pH scale, decibels — all use exponents.
+:::
