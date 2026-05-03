@@ -1,0 +1,369 @@
+---
+title: "06 · Reinforcement Learning Theory"
+subtitle: "Markov decision processes, Bellman equations, and the regret of exploration."
+lesson-id: "t7.rl-theory"
+tier: 7
+prerequisites: ["t5.continuous-distributions", "t6.gradient-methods"]
+unlocks: []
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L12 — Continuous Distributions](../../tier-5-undergrad-core/12-continuous-distributions/index.qmd) and [T6 L11 — Gradient Methods](../../tier-6-undergrad-advanced/11-gradient-methods/index.qmd)?
+2. Recall: expectation, conditional probability, contraction mappings.
+3. Comfortable with discounted infinite sums?
+:::
+
+## Touch
+
+An agent in a grid world. Each step: pick an action, get a reward,
+move to a new state. Goal: maximise total reward over time.
+
+```{ojs}
+viewof gamma = Inputs.range([0.5, 0.99], {value: 0.9, step: 0.01, label: "Discount γ:"})
+```
+
+```{ojs}
+viewof horizon = Inputs.range([1, 50], {value: 20, step: 1, label: "Horizon H:"})
+```
+
+```{ojs}
+{
+  let series = [];
+  let cumulative = 0;
+  for (let t = 0; t < horizon; t++) {
+    const reward = 1;
+    const discounted = Math.pow(gamma, t) * reward;
+    cumulative += discounted;
+    series.push({t, cumulative});
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return Plot.plot({
+    width: 540, height: 260,
+    x: {label: "Time step t"},
+    y: {label: "Discounted cumulative reward", domain: [0, 1/(1-gamma)]},
+    marks: [Plot.line(series, {x: "t", y: "cumulative", stroke: "steelblue", strokeWidth: 2})]
+  });
+}
+```
+
+The geometric series $\sum_t \gamma^t = 1/(1-\gamma)$ caps the
+total — but the *path* matters.
+
+## Wonder
+
+1. **Markov property:** future depends on current state alone — past
+   summarised in present.
+2. **Bellman equation:** value of a state = immediate reward +
+   (discounted) value of where you end up.
+3. **Exploration vs exploitation:** to learn, you must sometimes act
+   sub-optimally.
+
+## Discover
+
+### Problem 1
+
+A **Markov Decision Process** $(S, A, P, R, \gamma)$:
+
+- States $S$, actions $A$.
+- Transition $P(s' | s, a)$ — probability of next state.
+- Reward $R(s, a)$.
+- Discount $\gamma \in [0, 1)$.
+
+Define **value of policy** $\pi: S \to A$:
+$$
+V^\pi(s) = \mathbb{E}_\pi\left[\sum_{t=0}^\infty \gamma^t R(s_t, a_t) \,\bigg|\, s_0 = s\right].
+$$
+
+Why is the discount $\gamma < 1$ essential?
+
+<details class="hint"><summary>Full solution</summary>
+**Without discount, the sum can diverge.** With $\gamma < 1$, even
+unbounded reward streams converge.
+
+Also: $\gamma$ models *uncertainty about the future* and human-
+preference for sooner rewards.
+
+Bound: $|V^\pi(s)| \leq R_{\max} / (1 - \gamma)$.
+</details>
+
+### Problem 2
+
+**Bellman expectation equation.** Show:
+$$
+V^\pi(s) = \mathbb{E}_{a \sim \pi(\cdot|s)}\Big[R(s, a) + \gamma \mathbb{E}_{s' \sim P(\cdot|s, a)}[V^\pi(s')]\Big].
+$$
+
+<details class="hint"><summary>Full solution</summary>
+Definition of $V^\pi$ as expected sum:
+$$
+V^\pi(s) = \mathbb{E}\Big[R(s_0, a_0) + \gamma \sum_{t=1}^\infty \gamma^{t-1} R(s_t, a_t) \,\Big|\, s_0 = s\Big].
+$$
+
+The tail starts in $s_1 \sim P(\cdot | s, a_0)$ — by Markov, its
+expectation is $V^\pi(s_1)$. Take expectations.
+
+This recursion **defines** $V^\pi$ as the unique fixed point of the
+Bellman operator.
+</details>
+
+### Problem 3
+
+**Optimal value.** $V^*(s) = \max_\pi V^\pi(s)$. Then:
+$$
+V^*(s) = \max_a \Big[R(s, a) + \gamma \mathbb{E}_{s'}[V^*(s')]\Big].
+$$
+
+This is the **Bellman optimality equation**. How do you solve it?
+
+<details class="hint"><summary>Full solution</summary>
+**Value iteration.** Define $T^* V (s) = \max_a [R(s, a) + \gamma
+\mathbb{E}[V(s')]]$.
+
+Then $T^*$ is a $\gamma$-contraction in $\sup$-norm. By Banach fixed-
+point theorem, iterating $V_{k+1} = T^* V_k$ converges geometrically
+to $V^*$.
+
+After $V^*$ known: optimal policy is greedy: $\pi^*(s) = \arg\max_a
+[R + \gamma \mathbb{E}V^*]$.
+
+This is **dynamic programming** when you know $P, R$.
+</details>
+
+### Problem 4
+
+**Q-learning** (model-free). Define $Q^*(s, a) = R(s, a) + \gamma
+\mathbb{E}_{s'} \max_{a'} Q^*(s', a')$.
+
+Update rule (sample-based):
+$$
+Q(s, a) \leftarrow Q(s, a) + \alpha\big[r + \gamma \max_{a'} Q(s', a') - Q(s, a)\big].
+$$
+
+When does this converge?
+
+<details class="hint"><summary>Full solution</summary>
+**Convergence (Watkins, 1989):** if every state-action pair is visited
+infinitely often, learning rates $\alpha_t$ satisfy
+$\sum \alpha_t = \infty, \sum \alpha_t^2 < \infty$, then $Q \to Q^*$
+almost surely.
+
+In practice: $\epsilon$-greedy exploration ensures all pairs are
+visited; learning rate is decayed.
+
+Modern: **Deep Q-Networks** (DQN) replace tabular $Q$ with a NN —
+empirically powerful but theoretical convergence weaker.
+</details>
+
+### Problem 5
+
+**Exploration-exploitation: multi-armed bandit.** $K$ arms; each pull
+gives reward $\sim \nu_i$ with mean $\mu_i$. Goal: minimise regret
+$\mathcal{R}_T = T\mu^* - \mathbb{E}\sum_t r_t$.
+
+UCB algorithm: at time $t$, pull arm $\arg\max_i [\hat\mu_i +
+\sqrt{2\log t / n_i}]$.
+
+What's the regret bound?
+
+<details class="hint"><summary>Full solution</summary>
+**$\mathcal{R}_T = O(\sqrt{KT \log T})$** (problem-independent).
+
+Or **$O(K \log T)$** (problem-dependent — depends on suboptimality
+gaps).
+
+Lower bound: $\Omega(\sqrt{KT})$ — UCB is optimal up to logs.
+
+The "optimism in face of uncertainty" principle: be optimistic about
+unexplored options.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**MDP** $(S, A, P, R, \gamma)$. **Policy** $\pi$, **value** $V^\pi$,
+**Q-value** $Q^\pi(s, a)$.
+
+**Bellman optimality:**
+$$
+V^*(s) = \max_a [R + \gamma \mathbb{E} V^*]; \qquad Q^*(s, a) = R + \gamma \mathbb{E} \max_{a'} Q^*(s', a').
+$$
+
+**Value iteration / Q-learning:** fixed-point iteration on Bellman
+operator. Contraction with rate $\gamma$.
+
+**Policy gradient:** $\nabla_\theta J(\theta) = \mathbb{E}_{\tau \sim
+\pi_\theta}[\sum_t \nabla_\theta \log \pi_\theta(a_t | s_t) Q^{\pi_\theta}(s_t, a_t)]$.
+
+**REINFORCE / Actor-Critic:** policy-gradient methods.
+
+**Exploration:** $\epsilon$-greedy, UCB, Thompson sampling.
+
+**Regret bounds (bandit):** $O(\sqrt{KT})$ minimax.
+
+**PAC-RL:** how many samples to find an $\epsilon$-optimal policy w.p.
+$\geq 1 - \delta$.
+
+:::
+
+> *Bellman: now-reward + discounted future-reward;*
+> *Optimal policy from optimal Q;*
+> *Explore enough to learn, exploit enough to win.*
+
+## Apply
+
+### Worked example
+
+> **Tabular Q-learning on FrozenLake** (4×4 grid, slippery moves):
+
+Initialise $Q(s, a) = 0$. Iterate: act $\epsilon$-greedy, observe $(s,
+a, r, s')$, update $Q$. Decay $\epsilon$ from 1 to 0.01.
+
+After 50,000 episodes: optimal Q-values converge. Greedy policy on
+$Q$ achieves average return $\approx 0.74$ (random gets $\approx 0$).
+
+(Note: small state space + finite actions = tabular Q-learning is
+guaranteed to converge.)
+
+### Practice — Warm
+
+**W1.** Why is the Bellman operator a contraction?
+
+<details class="hint"><summary>Full solution</summary>
+For $V_1, V_2$: $\|T V_1 - T V_2\|_\infty \leq \gamma \|V_1 -
+V_2\|_\infty$. Discount factor causes the contraction.
+</details>
+
+**W2.** What's the difference between $V^\pi$ and $V^*$?
+
+<details class="hint"><summary>Full solution</summary>
+$V^\pi$ is the value of a *given* policy $\pi$. $V^* = \max_\pi V^\pi$
+is the optimal value over all policies.
+</details>
+
+**W3.** What's "off-policy" learning?
+
+<details class="hint"><summary>Full solution</summary>
+Learning about target policy $\pi$ from data generated by behaviour
+policy $\mu \neq \pi$. Q-learning is off-policy: it learns about
+greedy from $\epsilon$-greedy data.
+</details>
+
+### Practice — Working
+
+**P1.** **Policy iteration** alternates: policy evaluation (compute
+$V^\pi$) and policy improvement ($\pi'(s) = \arg\max_a Q^\pi(s, a)$).
+Why does this converge?
+
+<details class="hint"><summary>Full solution</summary>
+Each improvement strictly increases $V$ (or terminates at optimal).
+Finite policies → must terminate at $\pi^*$.
+
+Converges in $\leq O(|S||A|)$ iterations for finite MDPs.
+</details>
+
+**P2.** Why is **deep RL** hard to make stable?
+
+<details class="hint"><summary>Full solution</summary>
+- **Bootstrapping:** target depends on current $Q$ → moving target.
+- **Off-policy + function approximation:** the "deadly triad"
+  (Sutton-Barto) — can diverge.
+- Mitigations: target networks, replay buffers, double Q-learning,
+  TRPO/PPO for policy gradients.
+</details>
+
+**P3.** What's the role of **GAE (Generalised Advantage Estimation)**?
+
+<details class="hint"><summary>Full solution</summary>
+Estimates advantage $A^\pi(s, a) = Q^\pi(s, a) - V^\pi(s)$ with
+adjustable bias-variance trade-off via parameter $\lambda$.
+
+GAE is in PPO and most modern actor-critic methods.
+</details>
+
+### Practice — Stretch
+
+**S1.** **AlphaGo / AlphaZero.** Combines deep policy + value
+networks with MCTS (Monte Carlo Tree Search).
+
+<details class="hint"><summary>Full solution</summary>
+Self-play generates training data; MCTS guides search; NN evaluates
+positions and proposes moves.
+
+Mathematical core: PUCT (upper confidence trees) + Bellman backup +
+neural function approximator.
+
+Same machinery beats world champions in Go, chess, shogi, and (with
+twists) protein folding (AlphaFold).
+</details>
+
+**S2.** **RLHF — reinforcement learning from human feedback.**
+
+<details class="hint"><summary>Full solution</summary>
+Foundation for instruction-tuned LLMs (ChatGPT, Claude, Gemini).
+
+1. Collect human preferences over LLM outputs.
+2. Train **reward model** $r_\phi$ predicting human preference.
+3. Use PPO to fine-tune LLM to maximise $\mathbb{E}[r_\phi]$ + KL
+   penalty (so it doesn't drift too far from base).
+
+Bellman + policy gradient + Bradley-Terry preference model + LLM.
+Modern AI's training stack rests on RL theory.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$V^\pi$ is unique."** Yes for finite MDPs (fixed point of
+   contraction); but only after fixing $\pi$.
+2. **"Policy gradient is on-policy only."** Vanilla yes; off-policy
+   variants exist via importance sampling.
+3. **"Reward is the goal."** Specifying reward correctly (reward
+   hacking, mesa-optimizers) is hard. Reward design ≠ goal alignment.
+:::
+
+### Self-Assessment
+
+1. State the Bellman optimality equation.
+2. Why does Q-learning converge?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: $V^*(s) = \max_a [R(s, a) + \gamma \mathbb{E} V^*(s')]$.)
+
+- **3 yes:** ready for **[07 · Differential Geometry](../07-differential-geometry/index.qmd)**.
+- **2 yes:** redo **P2** (deep RL stability).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L12 — Continuous Distributions](../../tier-5-undergrad-core/12-continuous-distributions/index.qmd)**
+- **[T6 L11 — Gradient Methods](../../tier-6-undergrad-advanced/11-gradient-methods/index.qmd)**
+
+### What this unlocks
+
+- Optimal control, stochastic games, multi-agent RL.
+- Connections to optimisation, dynamic programming.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Foundation for game-playing AI (AlphaGo),
+robotics, RLHF for LLMs, autonomous driving.
+:::
+
+::: {.applied-callout}
+**Operations research.** Inventory, scheduling, supply-chain — all MDP
+formulations.
+:::
+
+::: {.applied-callout}
+**Economics.** Sequential decision-making, market design, mechanism
+design.
+:::
