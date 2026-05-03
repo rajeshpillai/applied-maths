@@ -1,0 +1,362 @@
+---
+title: "12 · Algebraic Number Theory"
+subtitle: "Number theory, but with a wider lens — rings of integers, ideals, and class groups."
+lesson-id: "t7.algebraic-number-theory"
+tier: 7
+prerequisites: ["t6.rings-fields", "t7.galois-theory"]
+unlocks: []
+applied-domains: ["encryption", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T6 L03 — Rings and Fields](../../tier-6-undergrad-advanced/03-rings-fields/index.qmd) and [T7 L03 — Galois Theory](../03-galois-theory/index.qmd)?
+2. Recall: prime factorisation in $\mathbb{Z}$, ideals in commutative rings.
+3. Comfortable with $\mathbb{Z}/n\mathbb{Z}$ and $\mathbb{Q}(\sqrt{d})$?
+:::
+
+## Touch
+
+In $\mathbb{Z}$: every integer factors uniquely into primes. Beautiful.
+
+In $\mathbb{Z}[\sqrt{-5}]$:
+$$
+6 = 2 \cdot 3 = (1 + \sqrt{-5})(1 - \sqrt{-5}).
+$$
+Both factorisations are *into irreducibles* — but **not unique!**
+
+```{ojs}
+viewof ringSel = Inputs.select(["Z (unique factorization)", "Z[i] = Gaussian integers (UFD)", "Z[√-5] (non-UFD!)", "Z[√-2] (UFD)"], {value: "Z[√-5] (non-UFD!)", label: "Ring of integers:"})
+```
+
+```{ojs}
+{
+  let info, ufd;
+  switch(ringSel) {
+    case "Z (unique factorization)": info = "Every n > 1 factors uniquely (up to order and signs) into primes."; ufd = "✓ UFD"; break;
+    case "Z[i] = Gaussian integers (UFD)": info = "Z[i] = {a+bi : a,b ∈ Z}. Norm = a²+b². 5 = (2+i)(2-i)."; ufd = "✓ UFD"; break;
+    case "Z[√-5] (non-UFD!)": info = "6 = 2·3 = (1+√-5)(1-√-5). Two distinct factorizations!"; ufd = "✗ Not UFD"; break;
+    case "Z[√-2] (UFD)": info = "Z[√-2] is a Euclidean domain → PID → UFD. Unique factorization holds."; ufd = "✓ UFD"; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.1rem; color:#1a237e;">${ufd}</div>
+    <div style="font-family:monospace; font-size:0.95rem; color:#444;">${info}</div>
+  </div>`;
+}
+```
+
+The fix: factorise **ideals**, not elements. *Ideals factor uniquely
+into prime ideals.* The class group measures the failure of element-
+level factorisation.
+
+## Wonder
+
+1. **Number field** $K$: a finite extension of $\mathbb{Q}$. Its **ring
+   of integers** $\mathcal{O}_K$ generalises $\mathbb{Z}$.
+2. **Dedekind's theorem:** $\mathcal{O}_K$ is a Dedekind domain — ideals
+   factor uniquely.
+3. **Class number** $h_K$ = (# ideal classes) — measures non-UFD-ness.
+4. **Pell's equation, Fermat, modular forms** — all live here.
+
+## Discover
+
+### Problem 1
+
+A **number field** $K = \mathbb{Q}(\alpha)$ where $\alpha$ is algebraic
+over $\mathbb{Q}$. Its **ring of integers** $\mathcal{O}_K$: elements
+$\beta \in K$ that are roots of monic polynomials in $\mathbb{Z}[x]$.
+
+For $K = \mathbb{Q}(\sqrt{-1}) = \mathbb{Q}(i)$, what's $\mathcal{O}_K$?
+
+<details class="hint"><summary>Full solution</summary>
+$\mathcal{O}_K = \mathbb{Z}[i] = \{a + bi : a, b \in \mathbb{Z}\}$ —
+the **Gaussian integers**.
+
+For $K = \mathbb{Q}(\sqrt{-3})$: $\mathcal{O}_K = \mathbb{Z}\left[\frac{-1 + \sqrt{-3}}{2}\right]$ — Eisenstein integers,
+*not* $\mathbb{Z}[\sqrt{-3}]$.
+
+In general: depends on the discriminant of $K$.
+</details>
+
+### Problem 2
+
+The Gaussian integers $\mathbb{Z}[i]$ are a **Euclidean domain** (norm
+$N(a + bi) = a^2 + b^2$). So they're a PID and a UFD.
+
+How does an ordinary prime $p \in \mathbb{Z}$ factor in $\mathbb{Z}[i]$?
+
+<details class="hint"><summary>Full solution</summary>
+- $p = 2$: $(2) = (1 + i)^2 \cdot (\text{unit})$ — **ramifies**.
+- $p \equiv 1 \pmod 4$: $p = a^2 + b^2 = (a + bi)(a - bi)$ — **splits**.
+  E.g., $5 = (2 + i)(2 - i)$.
+- $p \equiv 3 \pmod 4$: $p$ remains prime in $\mathbb{Z}[i]$ — **inert**.
+
+This is **quadratic reciprocity** in disguise — the splitting depends
+on $p \pmod 4$.
+</details>
+
+### Problem 3
+
+In $\mathbb{Z}[\sqrt{-5}]$: $6 = 2 \cdot 3 = (1 + \sqrt{-5})(1 - \sqrt{-5})$.
+
+Show 2, 3, $1 + \sqrt{-5}$, $1 - \sqrt{-5}$ are all irreducible —
+hence two distinct factorisations.
+
+<details class="hint"><summary>Full solution</summary>
+Norm $N(a + b\sqrt{-5}) = a^2 + 5b^2$. $N(2) = 4$, $N(3) = 9$,
+$N(1 + \sqrt{-5}) = 6$.
+
+If $2 = \alpha\beta$ with $\alpha, \beta$ non-units: $N(\alpha)N(\beta)
+= 4$ → $N(\alpha) = 2$. But $a^2 + 5b^2 = 2$ has no solutions in $\mathbb{Z}$.
+So 2 is irreducible. Similarly 3, $1 \pm \sqrt{-5}$.
+
+Yet $\mathbb{Z}[\sqrt{-5}]$ is *not* a UFD.
+</details>
+
+### Problem 4
+
+**Dedekind's fix.** Pass from elements to **ideals**:
+$$
+(6) = (2)(3) = (1 + \sqrt{-5})(1 - \sqrt{-5}).
+$$
+Define $P_1 = (2, 1 + \sqrt{-5})$, $P_2 = (2, 1 - \sqrt{-5})$, $P_3 =
+(3, 1 + \sqrt{-5})$, $P_4 = (3, 1 - \sqrt{-5})$.
+
+Then $P_1 P_2 = (2)$, $P_3 P_4 = (3)$, $P_1 P_3 = (1 + \sqrt{-5})$,
+$P_2 P_4 = (1 - \sqrt{-5})$.
+
+So $(6) = P_1 P_2 P_3 P_4$ — *unique* prime-ideal factorisation.
+
+<details class="hint"><summary>Full solution</summary>
+**Dedekind's theorem.** In the ring of integers $\mathcal{O}_K$ of any
+number field, every non-zero ideal factors uniquely as a product of
+prime ideals.
+
+Even when *element* factorisation fails (non-UFD), *ideal*
+factorisation always works.
+
+**Class group** $\text{Cl}(K) = \text{(fractional ideals)} /
+\text{(principal ideals)}$. **Class number** $h_K = |\text{Cl}(K)|$.
+
+$h_K = 1$ ⇔ $\mathcal{O}_K$ is a PID ⇔ UFD.
+
+For $\mathbb{Z}[\sqrt{-5}]$: $h = 2$.
+</details>
+
+### Problem 5
+
+**Fermat's Last Theorem at $n = 3$.** $x^3 + y^3 = z^3$ has no
+non-trivial integer solutions.
+
+How does $\mathbb{Z}[\zeta_3]$ (Eisenstein integers, $\zeta_3 = e^{2\pi i/3}$) help?
+
+<details class="hint"><summary>Full solution</summary>
+Factorise $x^3 + y^3 = (x + y)(x + \zeta y)(x + \zeta^2 y)$ in
+$\mathbb{Z}[\zeta_3]$.
+
+Eisenstein integers form a UFD ($h = 1$). Use unique factorisation +
+descent → contradiction. Euler's proof (1770) made rigorous via this
+ring.
+
+**Fermat for $n = p$ regular prime:** Kummer (1847) used $\mathbb{Z}[\zeta_p]$.
+Failed for *irregular* primes (like $p = 37$). The class group
+obstructed Fermat.
+
+Wiles (1995) settled FLT via modular forms (Tier 7 L15).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Number field** $K$: finite extension of $\mathbb{Q}$, $[K : \mathbb{Q}] = n$.
+
+**Ring of integers** $\mathcal{O}_K$: integral elements of $K$.
+$\mathbb{Z}$-module of rank $n$.
+
+**Dedekind's theorem:** $\mathcal{O}_K$ is a **Dedekind domain** —
+every non-zero ideal factors uniquely into primes.
+
+**Splitting types** (prime $p \subset \mathbb{Z}$ extended to $\mathcal{O}_K$):
+
+- **Ramified:** $p \mathcal{O}_K = \mathfrak{p}^e \cdots$, $e > 1$.
+- **Split:** $p \mathcal{O}_K = \mathfrak{p}_1 \mathfrak{p}_2 \cdots$, distinct primes.
+- **Inert:** $p \mathcal{O}_K$ is prime.
+
+**Class group** $\text{Cl}(K) = \text{Frac}(K) / \text{Princ}(K)$. **Class number** $h_K$.
+
+- $h_K = 1$ ⇔ unique factorisation in $\mathcal{O}_K$.
+
+**Discriminant** $d_K$: invariant; primes ramifying are exactly those
+dividing $d_K$.
+
+**Minkowski bound:** $h_K$ is finite. Computable via Minkowski's
+geometry of numbers.
+
+**Dirichlet unit theorem:** $\mathcal{O}_K^\times \cong \mu_K \times \mathbb{Z}^{r_1 + r_2 - 1}$ where $r_1, r_2$ are real / complex embeddings.
+
+**Galois action:** for $K/\mathbb{Q}$ Galois, $\mathrm{Gal}(K/\mathbb{Q})$
+acts on prime ideals; transitive on primes above $p$.
+
+:::
+
+> *Number field K, integers $\mathcal{O}_K$, ideals factor uniquely;*
+> *Class group measures non-UFD-ness;*
+> *Galois group acts on primes; together with class group, the action.*
+
+## Apply
+
+### Worked example
+
+> **Pell's equation** $x^2 - 2 y^2 = 1$.
+
+Solutions are units in $\mathbb{Z}[\sqrt{2}]$ of norm $+1$.
+
+Fundamental unit: $1 + \sqrt{2}$, norm $-1$. So $(1 + \sqrt{2})^2 = 3 +
+2\sqrt{2}$ has norm $+1$ → solution $(3, 2)$.
+
+All solutions: $\pm (1 + \sqrt{2})^{2n}$ for $n \in \mathbb{Z}$.
+
+This is **Dirichlet's unit theorem** in action: $\mathbb{Z}[\sqrt{2}]^\times
+\cong \{\pm 1\} \times \mathbb{Z}$.
+
+### Practice — Warm
+
+**W1.** What's $\mathcal{O}_{\mathbb{Q}(\sqrt{2})}$?
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{Z}[\sqrt{2}]$.
+</details>
+
+**W2.** $h_{\mathbb{Q}(i)} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+1. Gaussian integers are a PID.
+</details>
+
+**W3.** What's the discriminant of $\mathbb{Q}(\sqrt{5})$?
+
+<details class="hint"><summary>Full solution</summary>
+5 (since $5 \equiv 1 \pmod 4$). Hence only 5 ramifies.
+</details>
+
+### Practice — Working
+
+**P1.** What's $\mathcal{O}_{\mathbb{Q}(\sqrt{-3})}$ and why is it bigger than $\mathbb{Z}[\sqrt{-3}]$?
+
+<details class="hint"><summary>Full solution</summary>
+$\mathcal{O}_{\mathbb{Q}(\sqrt{-3})} = \mathbb{Z}[\omega]$ where $\omega
+= \frac{-1 + \sqrt{-3}}{2} = \zeta_3$ — Eisenstein integers.
+
+$\omega^2 + \omega + 1 = 0$ (monic, integer coefficients), so $\omega
+\in \mathcal{O}_K$. But $\omega \notin \mathbb{Z}[\sqrt{-3}]$.
+
+Rule of thumb: $\mathcal{O}_{\mathbb{Q}(\sqrt{d})} = \mathbb{Z}[\sqrt{d}]$ when $d \equiv 2, 3 \pmod 4$, but $= \mathbb{Z}\left[\frac{1+\sqrt{d}}{2}\right]$ when $d \equiv 1 \pmod 4$.
+</details>
+
+**P2.** What is **Minkowski's bound** and what does it do?
+
+<details class="hint"><summary>Full solution</summary>
+$M_K = \frac{n!}{n^n}\left(\frac{4}{\pi}\right)^{r_2} \sqrt{|d_K|}$.
+
+Every ideal class contains an ideal of norm ≤ $M_K$. So computing
+$h_K$ reduces to checking ideals of small norm.
+
+For $\mathbb{Q}(\sqrt{-5})$: $M = \sqrt{20}/\pi \approx 1.42$. Norms 1
+or 2: $(1) = $ trivial; $P_1 = (2, 1 + \sqrt{-5})$ — two classes. So
+$h = 2$.
+</details>
+
+**P3.** **Why are ideal class groups *finite*?**
+
+<details class="hint"><summary>Full solution</summary>
+Minkowski's bound makes it so. Only finitely many ideals have norm
+below $M_K$, so finitely many classes.
+
+This is the deep finiteness theorem. (Without it, no class number, no
+quantitative ANT.)
+</details>
+
+### Practice — Stretch
+
+**S1.** **Class field theory** in one paragraph.
+
+<details class="hint"><summary>Full solution</summary>
+For a number field $K$, **abelian extensions of $K$** correspond to
+**generalised ideal class groups** (idele class group / norm subgroups).
+
+Hilbert class field: maximal unramified abelian extension; its Galois
+group ≅ Cl(K).
+
+Artin reciprocity: a vast generalisation of quadratic reciprocity.
+
+Class field theory was developed 1900–1950 (Hilbert, Takagi, Artin,
+Chevalley, Tate). It's the abelian half of Langlands (T7 L15).
+</details>
+
+**S2.** **Why does ANT matter for cryptography?**
+
+<details class="hint"><summary>Full solution</summary>
+- **RSA:** factorisation in $\mathbb{Z}$ — easy ANT.
+- **NFS (number field sieve):** the fastest classical factoring
+  algorithm uses *number fields* with small class number.
+- **ECC** (T7 L13): elliptic curves over $\mathbb{F}_q$ — points form
+  a group (analogous to ideal class groups).
+- **Lattice crypto** (T7 L14): rings of integers $\mathcal{O}_K$ are
+  natural lattices; Ring-LWE.
+- **Pairing-based crypto:** uses elliptic curves and class fields.
+
+ANT is the algebraic backbone of modern crypto.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\mathcal{O}_K = \mathbb{Z}[\alpha]$ always."** No — depends on
+   discriminant. E.g., $\mathcal{O}_{\mathbb{Q}(\sqrt{-3})} \neq \mathbb{Z}[\sqrt{-3}]$.
+2. **"Element factorisation always unique in $\mathcal{O}_K$."** Only
+   when $h_K = 1$. Otherwise must use ideals.
+3. **"All number fields are Galois over $\mathbb{Q}$."** No — only those
+   whose minimal polynomial has all roots in $K$. $\mathbb{Q}(\sqrt[3]{2})$
+   isn't (lacks $\zeta_3 \sqrt[3]{2}$).
+:::
+
+### Self-Assessment
+
+1. State Dedekind's theorem (ideal factorisation).
+2. What's the class number and what does $h_K = 1$ mean?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: in $\mathcal{O}_K$, every non-zero ideal factors uniquely
+into prime ideals.)
+
+- **3 yes:** ready for **[13 · Elliptic Curves and ECC](../13-elliptic-curves/index.qmd)**.
+- **2 yes:** redo **P3** (finiteness of class group).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T6 L03 — Rings and Fields](../../tier-6-undergrad-advanced/03-rings-fields/index.qmd)**
+- **[T7 L03 — Galois Theory](../03-galois-theory/index.qmd)**
+
+### What this unlocks
+
+- Class field theory, $L$-functions, modular forms.
+- Algebraic geometry over arithmetic schemes.
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** Foundation of modern number theory and
+arithmetic geometry.
+:::
+
+::: {.applied-callout}
+**Encryption.** Number-field sieve factoring; ring-based lattice
+crypto; elliptic curves.
+:::
