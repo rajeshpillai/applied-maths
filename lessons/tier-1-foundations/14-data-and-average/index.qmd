@@ -1,0 +1,442 @@
+---
+title: "Data and the Average"
+subtitle: "Many numbers, one summary"
+lesson-id: "t1.data-and-average"
+tier: 1
+prerequisites: ["t1.divide-fair-share"]
+unlocks: []
+applied-domains: ["ai-ml", "databases", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Lesson 6 — Division as Fair Share](../06-divide-fair-share/index.qmd)?
+2. Can you compute $84 \div 7 = 12$?
+3. Have you ever heard a sports commentator say "his batting average is
+   45" or seen "average rainfall: 800 mm"? That number is the topic of
+   this lesson.
+:::
+
+## Touch
+
+Adjust the dataset (5 numbers). Watch the **mean** (average), **median**
+(middle), and **range** (spread) update.
+
+```{ojs}
+viewof a = Inputs.range([0, 100], {value: 20, step: 1, label: "Value 1:"})
+viewof b = Inputs.range([0, 100], {value: 30, step: 1, label: "Value 2:"})
+viewof c = Inputs.range([0, 100], {value: 40, step: 1, label: "Value 3:"})
+viewof d = Inputs.range([0, 100], {value: 50, step: 1, label: "Value 4:"})
+viewof e = Inputs.range([0, 100], {value: 60, step: 1, label: "Value 5:"})
+```
+
+```{ojs}
+{
+  const data = [a, b, c, d, e];
+  const sorted = [...data].sort((p, q) => p - q);
+  const sum = data.reduce((s, v) => s + v, 0);
+  const mean = sum / data.length;
+  const median = sorted[2];
+  const range = sorted[4] - sorted[0];
+
+  const W = 720, H = 220, pad = 40;
+  const xMin = 0, xMax = 100;
+  const x = v => pad + (v / xMax) * (W - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px;");
+
+  // axis
+  svg.append("line").attr("x1", pad).attr("x2", W - pad)
+    .attr("y1", H - 50).attr("y2", H - 50)
+    .attr("stroke", "#1f2933").attr("stroke-width", 2);
+  for (let v = 0; v <= 100; v += 10) {
+    svg.append("line").attr("x1", x(v)).attr("x2", x(v))
+      .attr("y1", H - 56).attr("y2", H - 44).attr("stroke", "#1f2933");
+    svg.append("text").attr("x", x(v)).attr("y", H - 30)
+      .attr("text-anchor", "middle").attr("font-size", "11").text(v);
+  }
+  // data points
+  data.forEach((v, i) => {
+    svg.append("circle").attr("cx", x(v)).attr("cy", H - 80)
+      .attr("r", 7).attr("fill", "#90caf9").attr("stroke", "#2c5f7c");
+    svg.append("text").attr("x", x(v)).attr("y", H - 90)
+      .attr("text-anchor", "middle").attr("font-size", "10").attr("fill", "#666")
+      .text(v);
+  });
+  // mean marker (vertical line)
+  svg.append("line").attr("x1", x(mean)).attr("x2", x(mean))
+    .attr("y1", H - 110).attr("y2", H - 50)
+    .attr("stroke", "#c2185b").attr("stroke-width", 2);
+  svg.append("text").attr("x", x(mean)).attr("y", H - 115)
+    .attr("text-anchor", "middle").attr("font-size", "12").attr("fill", "#c2185b").attr("font-weight", "bold")
+    .text(`mean = ${mean.toFixed(1)}`);
+  // median marker (vertical line)
+  svg.append("line").attr("x1", x(median)).attr("x2", x(median))
+    .attr("y1", H - 110).attr("y2", H - 50)
+    .attr("stroke", "#2e7d32").attr("stroke-width", 2).attr("stroke-dasharray", "4 3");
+  svg.append("text").attr("x", x(median)).attr("y", H - 130)
+    .attr("text-anchor", "middle").attr("font-size", "12").attr("fill", "#2e7d32").attr("font-weight", "bold")
+    .text(`median = ${median}`);
+  // range
+  svg.append("text").attr("x", pad).attr("y", 28)
+    .attr("font-size", "13").attr("fill", "#666")
+    .text(`Range (max − min): ${sorted[4]} − ${sorted[0]} = ${range}`);
+  return svg.node();
+}
+```
+
+The **mean** (average) and the **median** (middle value) usually agree —
+but not always. Try setting one value to 100 and the others to 5.
+Notice how the *mean* shifts much more than the *median*.
+
+## Wonder
+
+1. Set all five values to the same number — say 40. What is the mean?
+   The median?
+2. Set four values to 10 and one to 100. What is the mean? The median?
+   Which is more "honest" about the typical value?
+3. If you knew only the mean of a dataset, could you reconstruct the
+   original numbers?
+
+## Discover
+
+### Problem 1
+
+Three friends took a test. Their scores were **80, 75, 85** out of 100.
+Find the **mean** (average) score.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mean = sum of values ÷ count.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum: $80 + 75 + 85 = 240$. Count: 3. Mean: $240 \div 3 = 80$. **80.**
+
+The mean is "if everyone had the same score, what would it be so that
+the total stays the same?" — it spreads the total evenly.
+</details>
+
+### Problem 2
+
+Ten children's heights (in cm): **120, 125, 130, 132, 132, 135, 138,
+140, 142, 150**. Find the **median** (middle value).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For an *even* number of values, the median is the average of the two
+middle ones.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Already sorted. Ten values → middle two are the 5th and 6th: **132** and
+**135**. Median: $(132 + 135) \div 2 = 133.5$ cm.
+
+For an *odd* count, the median is just the single middle value (no
+averaging needed). The median is robust against extreme values — it
+doesn't get pulled by outliers the way the mean does.
+</details>
+
+### Problem 3
+
+Five workers earn (in thousand rupees per month): **30, 32, 35, 38, 175**
+(the last is the boss). Compute the **mean** and the **median**. Which
+is a more honest summary of "what a typical worker earns"?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mean: sum ÷ count. Median: middle of the sorted list.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum: $30 + 32 + 35 + 38 + 175 = 310$. Mean: $310 \div 5 = 62$.
+Median (middle of sorted [30,32,35,38,175]): **35**.
+
+The mean is **62 thousand**, but four of the five workers earn well
+below that. The single outlier (the boss at 175) drags the mean up. The
+median (**35 thousand**) reflects the typical worker more honestly.
+
+This is one of the most important practical points about averages:
+**when data is skewed (one extreme value), the median tells the truth
+better than the mean**. News stories about "average income" almost always
+mean the *median* income for this exact reason.
+</details>
+
+### Problem 4
+
+The mean of five numbers is **20**. What is their sum?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mean = sum ÷ count, so sum = mean × count.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum $= 20 \times 5 = 100$. Multiplication and division are inverses
+(Lesson 6); algebra (Lesson 11) gives the same answer in symbols:
+$\bar{x} = S/n$ implies $S = \bar{x} \cdot n$.
+
+Knowing the mean and the count is *equivalent* to knowing the sum, but
+*not* equivalent to knowing the individual values. The mean is a
+*compression* of the data — it loses information.
+</details>
+
+### Problem 5
+
+A class of 5 students has test scores **40, 60, 70, 80, 90**. What is
+the **range**? What does it tell you that the mean and median don't?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Range = largest − smallest.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Range $= 90 - 40 = 50$.
+
+The range tells you about the **spread** of the data — how far apart
+the values are. Two classes can have the *same mean* (both 68) but very
+different *ranges*: one might be tightly clustered (60, 65, 68, 71, 76)
+and one widely spread (40, 50, 68, 86, 96). The mean alone can't
+distinguish them.
+
+We need at least *two* numbers to summarise a dataset honestly: a
+**centre** (mean or median) and a **spread** (range, or more refined
+measures we'll meet in Tier 5: variance and standard deviation).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+Given a list of numbers $x_1, x_2, \ldots, x_n$ (**the data**):
+
+- **Sum:** $S = x_1 + x_2 + \cdots + x_n$.
+- **Count:** $n$.
+- **Mean (average):** $\bar{x} = \dfrac{S}{n}$. The "balance point" of
+  the data.
+- **Median:** the middle value when the data is sorted (for even $n$,
+  the average of the two middle values). The "halfway" value.
+- **Range:** largest minus smallest. A measure of *spread*.
+- **Mode:** the most frequently occurring value. Useful for
+  *categorical* data.
+
+A single summary number throws away information. Honest data reporting
+usually requires *both* a centre and a spread.
+
+:::
+
+> *Sum the values, divide by count — that is the mean;*
+> *Sort the values, take the middle — that is the median;*
+> *Largest minus smallest — that is the spread;*
+> *No single number can tell the whole story.*
+
+## Apply
+
+### Worked example
+
+> A cricket player's last 6 innings scored: **42, 0, 78, 113, 5, 22**.
+> Compute the mean, median, range. Which best describes "his form"?
+
+A competent solver works in steps:
+
+1. **Sum:** $42 + 0 + 78 + 113 + 5 + 22 = 260$.
+2. **Mean:** $260 \div 6 \approx 43.3$.
+3. **Sorted:** 0, 5, 22, 42, 78, 113. Middle two: 22 and 42. **Median:**
+   $(22 + 42)/2 = 32$.
+4. **Range:** $113 - 0 = 113$.
+
+**The range tells the real story.** The player is wildly inconsistent —
+one century, two single-digit failures, a duck. Saying "his average is
+43" is technically true but misleading. *Both* the median (32) and the
+huge range (113) reveal the inconsistency. A coach would care about all
+three numbers.
+
+### Practice — Warm
+
+**W1.** Find the mean of: 5, 8, 10, 7, 10.
+
+<details class="hint"><summary>Full solution</summary>
+Sum 40, count 5, mean **8**.
+</details>
+
+**W2.** Find the median of: 12, 7, 15, 9, 20.
+
+<details class="hint"><summary>Full solution</summary>
+Sorted: 7, 9, 12, 15, 20. Middle: **12**.
+</details>
+
+**W3.** Find the range of: 3, 11, 7, 22, 8, 15.
+
+<details class="hint"><summary>Full solution</summary>
+Max 22, min 3, range **19**.
+</details>
+
+### Practice — Working
+
+**P1.** Six students' marks: **65, 72, 80, 80, 91, 88**. Compute mean,
+median, mode.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mode is the most frequent. Median (even count) is average of middle two.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum: $65 + 72 + 80 + 80 + 91 + 88 = 476$. Mean: $476 \div 6 \approx 79.3$.
+Sorted: 65, 72, 80, 80, 88, 91. Middle two: 80 and 80. Median: **80**.
+Mode: **80** (appears twice).
+
+All three centre measures are close ($\approx 80$) — a good sign the
+data is well-clustered.
+</details>
+
+**P2.** A test had a mean score of **62**. There were 25 students. The
+sum of all scores is...?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum = mean × count.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$62 \times 25 = 1{,}550$. **The sum is 1550 marks.**
+</details>
+
+**P3.** A box of 10 chocolates has masses (grams): **18, 20, 21, 19, 20,
+22, 21, 19, 20, 20**. Compute the mean. Then say which chocolate is
+*above* and which is *below* the mean.
+
+<details class="hint"><summary>Full solution</summary>
+Sum: 200. Mean: **20 g**. Above: the two 21 g and the 22 g. Below: the
+18 g and the two 19 g. The four 20 g are exactly *at* the mean.
+
+A useful test: the **deviations** from the mean (each value minus the
+mean) sum to *zero* — by construction. Try it: $(-2) + 0 + 1 + (-1) + 0
++ 2 + 1 + (-1) + 0 + 0 = 0$ ✓. This will be central in Tier 5 when we
+define **variance**.
+</details>
+
+### Practice — Stretch
+
+**S1.** A neural network is trained on **batches of data**. For each
+batch, it computes the **average loss** and updates its weights based
+on the *gradient* of that average. Why average instead of summing?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Imagine batch size 100 vs batch size 10. If we used the sum, would the
+loss values be comparable?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Averaging makes losses comparable across batch sizes.** A sum of 100
+losses is naturally 10× larger than a sum of 10 losses, even if the
+*per-example* loss is identical. By averaging, the loss number depends
+only on the *typical* per-example error, not on how many examples
+happened to be in the batch.
+
+This matters because the learning rate (Lesson 9) is calibrated for the
+*per-example* gradient. Using a sum would force the learning rate to be
+adjusted whenever batch size changes — a fragile setup. Averaging
+decouples the two.
+
+Almost every loss function in modern ML is an average for this reason.
+The humble Tier 1 idea of "mean" is doing real work in cutting-edge
+research.
+</details>
+
+**S2.** The **median income** in a country is reported as Rs. 25,000 per
+month, but the **mean income** is Rs. 80,000 per month. What does this
+tell you about the income distribution? Which number would a politician
+use, and why?
+
+<details class="hint"><summary>Full solution</summary>
+The mean is much higher than the median, which means a **small number
+of very high earners are pulling the mean up** while half the
+population earns ≤ 25,000. The income distribution is *right-skewed*
+— a long tail of high earners.
+
+A politician arguing the country is doing well might quote the **mean**
+(Rs. 80,000 — sounds prosperous). A politician arguing the country needs
+intervention might quote the **median** (Rs. 25,000 — reveals the
+typical struggle). Both numbers are *true*; both are honest answers to
+slightly different questions.
+
+This is why statistically literate citizens demand to know *which*
+average is being quoted. "The average X" is meaningless without the
+qualifier.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Average always means the mean."** No. "Average" can mean mean,
+   median, or mode in ordinary speech. In serious data work, *say which*.
+2. **"The mean is the typical value."** Often, but not always. When
+   data is skewed (S2), the median is more typical. The mean is the
+   *balance point*, not necessarily the typical case.
+3. **"You can summarise data with one number."** No — you need at least
+   a centre *and* a spread. A mean of 50 with range 1 vs. range 99 are
+   wildly different datasets.
+:::
+
+### Self-Assessment
+
+1. Could you explain to a friend why the median is more honest than the
+   mean for income data?
+2. Without scrolling back, can you compute the mean and median of: 4, 7,
+   9, 12, 18?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: mean = 50/5 = 10; median = 9.)
+
+- **3 yes:** ready for **[Lesson 15 — Divisibility and Primes](../15-divisibility-and-primes/index.qmd)**.
+- **2 yes:** redo **S2** — the income/distribution intuition is crucial
+  data literacy.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 6 — Division as Fair Share](../06-divide-fair-share/index.qmd)** —
+  the mean is total ÷ count, exactly the fair-share calculation.
+
+### What this unlocks
+
+- **Tier 3 — Probability and basic statistics** — frequency tables,
+  histograms, expected value.
+- **Tier 5 — Probability theory and statistics** — variance, standard
+  deviation, sampling, hypothesis testing, regression.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Almost every loss function is an average
+(Stretch S1). Many activation functions and metrics involve means
+(softmax probabilities, BLEU scores, F1 scores). Data normalisation
+subtracts the mean of each feature. Statistical thinking is half of
+ML practice.
+:::
+
+::: {.applied-callout}
+**Databases.** SQL's `AVG()`, `MEDIAN()` (in some dialects),
+percentile functions, `COUNT()`, `SUM()` are the daily tools of
+analytical query writing. Every dashboard, every business report, runs
+on aggregations.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** The journey from "mean of a finite list" to
+"expected value of a random variable" to "integral with respect to a
+probability measure" is one of the great unifications in mathematics —
+the subject of measure theory in Tier 7.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Sports statistics, nutrition (per 100 g),
+economic indicators (CPI, GDP per capita), grades and rankings,
+weather (average temperature), polling. Almost every numerical claim
+in public discourse is a kind of average.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the data-points + mean-line
+  widget makes "balance point" visual), Boole (the *which is more
+  honest?* question is the heart of statistical literacy), Russian
+  school (the salary problem in P3 surfaces skew without naming it),
+  Bhāskara (single-box Name + verse).
+- **Self-study guarantees** all present.
+:::
