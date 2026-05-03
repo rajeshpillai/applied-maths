@@ -1,0 +1,329 @@
+---
+title: "08 · Continuous Distributions and the Normal"
+subtitle: "From PMFs to PDFs — and the bell curve at the centre of statistics"
+lesson-id: "t5.continuous-distributions"
+tier: 5
+prerequisites: ["t3.discrete-distributions", "t4.definite-integral"]
+unlocks: ["t5.variance-clt"]
+applied-domains: ["ai-ml", "research", "databases"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T3 L15 — Discrete Distributions](../../tier-3-algebra2-geometry-trig/15-discrete-distributions/index.qmd)
+   and [T4 L08 — Definite Integral](../../tier-4-precalc-calculus/08-definite-integral/index.qmd)?
+2. Comfortable with PMFs $P(X = k)$ and expected values?
+3. Recall $\int e^{-x^2} dx$ is the Gaussian (T5 L06 S1)?
+:::
+
+## Touch
+
+A **continuous random variable** has a **probability density function
+(PDF)** $f(x)$. Probabilities are **areas** under the PDF.
+
+```{ojs}
+viewof distSel = Inputs.select(["uniform on [0, 1]", "exponential, λ=1", "standard normal N(0, 1)"], {value: "standard normal N(0, 1)", label: "Distribution:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(distSel) {
+    case "uniform on [0, 1]": info = "f(x) = 1 for x ∈ [0, 1], else 0. ∫₀¹ 1 dx = 1 ✓. P(0.2 < X < 0.5) = 0.3."; break;
+    case "exponential, λ=1": info = "f(x) = e^(−x) for x ≥ 0. ∫₀^∞ e^(−x) dx = 1 ✓. P(X > 1) = e^(−1) ≈ 0.37."; break;
+    case "standard normal N(0, 1)": info = "f(x) = (1/√(2π)) · e^(−x²/2). Bell curve. ∫₋∞^∞ f dx = 1 (T5 L06 Gaussian)."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+For continuous variables, $P(X = a) = 0$ — only intervals have
+positive probability: $P(a \le X \le b) = \int_a^b f(x) \, dx$.
+
+## Wonder
+
+1. Why is $P(X = a) = 0$ for any single point in continuous case?
+2. Total area under a PDF must equal 1. Why?
+3. Why does the **normal distribution** appear so often in nature?
+
+## Discover
+
+### Problem 1
+
+A **uniform** distribution on $[a, b]$ has density $f(x) = 1/(b - a)$
+for $x \in [a, b]$, else 0. Verify $\int f = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_a^b 1/(b-a) \, dx = (b - a) / (b - a) = 1$ ✓.
+
+Uniform models "pick a random number in $[a, b]$ with equal
+probability for any subinterval of equal length."
+</details>
+
+### Problem 2
+
+The **expected value** of a continuous random variable is
+$E[X] = \int x f(x) \, dx$.
+
+Compute $E[X]$ for $X \sim \text{Uniform}[0, 1]$.
+
+<details class="hint"><summary>Full solution</summary>
+$E[X] = \int_0^1 x \cdot 1 \, dx = 1/2$.
+
+Symmetry: the average of a uniform random variable is the midpoint.
+</details>
+
+### Problem 3
+
+The **standard normal** $N(0, 1)$ has PDF
+$$\phi(x) = \dfrac{1}{\sqrt{2\pi}} e^{-x^2/2}.$$
+Show that $\int \phi = 1$ using the Gaussian integral $\int e^{-u^2}
+du = \sqrt{\pi}$ (T5 L06 S1).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $u = x/\sqrt{2}$, $du = dx/\sqrt{2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int \phi(x) \, dx = \dfrac{1}{\sqrt{2\pi}} \int e^{-x^2/2} \, dx
+= \dfrac{1}{\sqrt{2\pi}} \cdot \sqrt{2} \int e^{-u^2} \, du
+= \dfrac{1}{\sqrt{2\pi}} \cdot \sqrt{2} \cdot \sqrt{\pi} = 1$ ✓.
+
+The $\sqrt{2\pi}$ in the formula is exactly what makes the area
+equal to 1.
+</details>
+
+### Problem 4
+
+The **general normal** $N(\mu, \sigma^2)$ has PDF
+$$f(x) = \dfrac{1}{\sigma \sqrt{2\pi}} e^{-(x - \mu)^2 / (2 \sigma^2)}.$$
+
+What is $E[X]$? (Hint: by symmetry around $\mu$.)
+
+<details class="hint"><summary>Full solution</summary>
+$E[X] = \mu$. The PDF is symmetric around $\mu$, so the *centre*
+(mean) is $\mu$.
+
+Standard deviation = $\sigma$ (Lesson 09).
+</details>
+
+### Problem 5
+
+The **exponential distribution** with rate $\lambda > 0$: $f(x) =
+\lambda e^{-\lambda x}$ for $x \ge 0$. Verify $\int f = 1$ and
+compute $E[X]$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^\infty \lambda e^{-\lambda x} \, dx = [-e^{-\lambda x}]_0^\infty
+= 1$ ✓.
+
+$E[X] = \int_0^\infty x \cdot \lambda e^{-\lambda x} \, dx = 1/\lambda$
+(by integration by parts).
+
+The exponential models *waiting times*: time until the next email,
+the next radioactive decay, the next earthquake. $E[X] = 1/\lambda$
+is the average wait.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **continuous random variable** $X$ has a **PDF** $f(x)$ such that
+$$P(a \le X \le b) = \int_a^b f(x) \, dx.$$
+
+**Properties:**
+
+- $f(x) \ge 0$ for all $x$.
+- $\int_{-\infty}^\infty f(x) \, dx = 1$.
+- $P(X = a) = 0$ for any single point.
+
+**Cumulative distribution function (CDF):** $F(x) = P(X \le x) = \int_{-\infty}^x f \, dt$.
+
+**Expected value:** $E[X] = \int x f(x) \, dx$.
+
+**Common continuous distributions:**
+
+| Distribution | PDF | Mean |
+|---|---|---|
+| Uniform on $[a, b]$ | $1/(b-a)$ | $(a + b)/2$ |
+| Exponential rate $\lambda$ | $\lambda e^{-\lambda x}, x \ge 0$ | $1/\lambda$ |
+| Normal $N(\mu, \sigma^2)$ | $\frac{1}{\sigma \sqrt{2\pi}} e^{-(x-\mu)^2/(2\sigma^2)}$ | $\mu$ |
+
+The **normal distribution** is uniquely characterised by being the
+limit of sums of many independent random variables (Central Limit
+Theorem, Lesson 09).
+
+:::
+
+> *Continuous random variables: probabilities are integrals of PDFs;*
+> *Total area = 1; single points have zero probability;*
+> *Normal $N(\mu, \sigma^2)$ is the central distribution of statistics.*
+
+## Apply
+
+### Worked example
+
+> $X \sim \text{Uniform}[0, 4]$. Compute $P(1 \le X \le 3)$ and
+> $E[X]$.
+
+PDF: $f(x) = 1/4$ on $[0, 4]$.
+
+$P(1 \le X \le 3) = \int_1^3 1/4 \, dx = 2/4 = 1/2$.
+
+$E[X] = (0 + 4)/2 = 2$.
+
+### Practice — Warm
+
+**W1.** $f(x) = 2x$ on $[0, 1]$. Is this a PDF?
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^1 2x \, dx = 1$ ✓ and $f \ge 0$ ✓. **Yes.**
+</details>
+
+**W2.** $E[X]$ for the PDF in W1?
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^1 x \cdot 2x \, dx = \int 2x^2 \, dx = 2/3$.
+</details>
+
+**W3.** $X \sim N(5, 4)$ — what is $\mu, \sigma$?
+
+<details class="hint"><summary>Full solution</summary>
+$\mu = 5, \sigma = 2$ (since $\sigma^2 = 4$).
+</details>
+
+### Practice — Working
+
+**P1.** $X \sim \text{Exp}(2)$. $P(X > 1)$?
+
+<details class="hint"><summary>Full solution</summary>
+$P(X > 1) = \int_1^\infty 2 e^{-2x} dx = e^{-2} \approx 0.135$.
+</details>
+
+**P2.** Find $c$ so $f(x) = c x^2$ is a PDF on $[0, 1]$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^1 c x^2 dx = c/3 = 1 \Rightarrow c = 3$.
+</details>
+
+**P3.** $X \sim N(0, 1)$. Approximate $P(-1 \le X \le 1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Standard normal table or 68-95-99.7 rule: about 68% within 1 SD.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$\approx 0.6827$** (the famous "68% within 1 SD" rule).
+
+The empirical rule: $\approx 68\%$ within $1\sigma$, $\approx 95\%$
+within $2\sigma$, $\approx 99.7\%$ within $3\sigma$ — used widely in
+quality control and statistical reasoning.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why does the normal appear in so many contexts?** Hint: the
+**Central Limit Theorem** (Lesson 09) says the sum (or average) of
+many independent random variables, regardless of their original
+distribution, tends to a normal distribution.
+
+What does this say about real-world phenomena like heights, test
+scores, measurement errors?
+
+<details class="hint"><summary>Full solution</summary>
+**These quantities are *sums* of many small independent influences.**
+Heights = many genetic + environmental contributions. Test scores =
+sum of correctness on many small questions. Measurement errors =
+accumulation of many tiny noise sources.
+
+CLT says: regardless of the distribution of each contribution,
+their *sum* is approximately normal.
+
+This is the **single most important fact in statistics**, and the
+reason the normal distribution dominates statistical practice.
+Without CLT, we'd need a different distribution for every situation.
+</details>
+
+**S2.** **In ML: weight initialisation.** Neural network weights are
+typically initialised from a normal distribution (or its variant). Why
+not uniform?
+
+<details class="hint"><summary>Full solution</summary>
+**Two reasons.** (1) Activations through deep networks involve sums
+of many weighted inputs — by CLT, these sums are approximately
+normal regardless of the input distribution. Initialising weights to
+match this *intermediate* statistics (e.g., **Xavier/Glorot
+init**) keeps the activation magnitudes stable through the depth.
+
+(2) Symmetry breaking: random non-zero values prevent every neuron
+in a layer from learning the same thing.
+
+Specific schemes: Xavier (variance $2/(n_{in} + n_{out})$), He
+(variance $2/n_{in}$ for ReLU). All variants of normal initialisation
+designed to keep gradients from vanishing or exploding through depth.
+
+The continuous normal distribution is the foundational building block
+of *every* well-trained neural network.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$P(X = 5)$ is small but non-zero."** For continuous $X$, it's
+   *exactly zero*. Only intervals have positive probability.
+2. **"PDF values are probabilities."** No — they're *densities*.
+   $f(x) = 100$ doesn't mean "100% chance"; it means high density at
+   $x$. Probabilities are areas, not heights.
+3. **"Normal = N(0, 1) only."** $N(\mu, \sigma^2)$ has parameters.
+   $N(0, 1)$ is the *standard* normal; others scale and shift.
+:::
+
+### Self-Assessment
+
+1. Could you state the property $\int f = 1$ for any PDF?
+2. Without scrolling back, what's the mean of $\text{Exp}(\lambda)$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $1/\lambda$.)
+
+- **3 yes:** ready for **[09 · Variance & CLT](../09-variance-clt/index.qmd)**.
+- **2 yes:** redo **S2** (weight initialisation).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T3 L15 — Discrete Distributions](../../tier-3-algebra2-geometry-trig/15-discrete-distributions/index.qmd)** —
+  PMF generalises to PDF.
+- **[T4 L08 — Definite Integral](../../tier-4-precalc-calculus/08-definite-integral/index.qmd)** —
+  computes probabilities and expected values.
+
+### What this unlocks
+
+- **[09 · Variance & CLT](../09-variance-clt/index.qmd)** — the
+  spread, and the universality of the normal.
+- **[10 · Statistical Inference](../10-statistical-inference/index.qmd)**
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Weight initialisation (S2). Gaussian
+processes (Bayesian models). Variational autoencoders (Gaussian
+latent space). Diffusion models (Gaussian noise → image).
+:::
+
+::: {.applied-callout}
+**Statistics & data science.** The normal is the workhorse of
+modeling, hypothesis testing, confidence intervals.
+:::
+
+::: {.applied-callout}
+**Physics.** Gaussians describe quantum wavefunctions of bound
+particles, equilibrium thermal distributions, measurement
+uncertainties.
+:::
