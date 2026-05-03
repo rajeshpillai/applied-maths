@@ -1,0 +1,332 @@
+---
+title: "05 · Partial Derivatives and the Gradient"
+subtitle: "Calculus in many variables — the direction of steepest ascent"
+lesson-id: "t5.partial-derivatives"
+tier: 5
+prerequisites: ["t4.differentiation-rules", "t4.vectors-2d-3d"]
+unlocks: ["t5.multiple-integrals", "t5.vector-fields"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T4 L04 — Differentiation Rules](../../tier-4-precalc-calculus/04-differentiation-rules/index.qmd)
+   and [T4 L13 — Vectors](../../tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd)?
+2. Comfortable computing $f'(x)$ for any 1D function?
+3. Recall what a vector and a 3D surface look like?
+:::
+
+## Touch
+
+For $f(x, y)$, the **partial derivative** $\partial f / \partial x$
+treats $y$ as constant, differentiates with respect to $x$.
+
+```{ojs}
+viewof partSel = Inputs.select(["f(x,y) = x² + y²", "f(x,y) = xy", "f(x,y) = x²y + sin y"], {value: "f(x,y) = x² + y²", label: "f:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(partSel) {
+    case "f(x,y) = x² + y²": info = "∂f/∂x = 2x  (treat y as constant). ∂f/∂y = 2y. Gradient ∇f = (2x, 2y) — points away from origin."; break;
+    case "f(x,y) = xy": info = "∂f/∂x = y. ∂f/∂y = x. Gradient ∇f = (y, x)."; break;
+    case "f(x,y) = x²y + sin y": info = "∂f/∂x = 2xy. ∂f/∂y = x² + cos y. Gradient ∇f = (2xy, x² + cos y)."; break;
+  }
+  return html`<div style="margin: 1rem 0; text-align:center;">
+    <div style="font-family:monospace; font-size:1rem; color:#c2185b;">${info}</div>
+  </div>`;
+}
+```
+
+The **gradient** $\nabla f = (\partial f/\partial x, \partial f/\partial y, \ldots)$ — the
+vector of all partial derivatives — points in the direction of
+*steepest ascent*.
+
+## Wonder
+
+1. For $f(x, y) = x^2 + y^2$ at the origin: which way is steepest
+   ascent? (At the origin, both partials are 0.)
+2. For functions of *many* variables (think ML weights), the
+   gradient is high-dimensional. What does "steepest ascent" mean?
+3. Setting all partials to zero finds critical points. Why?
+
+## Discover
+
+### Problem 1
+
+Compute partial derivatives of $f(x, y) = x^2 + 3xy + y^3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\partial f / \partial x$: treat $y$ as constant. $\partial f / \partial y$: treat $x$
+as constant.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\partial f / \partial x = 2x + 3y$ ($y^3$ is constant in $x$).
+$\partial f / \partial y = 3x + 3 y^2$.
+
+Each partial uses ordinary 1D differentiation rules with the *other*
+variables held fixed.
+</details>
+
+### Problem 2
+
+The **gradient** is the vector of all partials:
+$$\nabla f = \begin{pmatrix} \partial f / \partial x \\ \partial f / \partial y \end{pmatrix}.$$
+
+Compute $\nabla f$ for $f(x, y) = x^2 + y^2$ at $(3, 4)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla f = (2x, 2y) = (6, 8)$ at $(3, 4)$.
+
+The gradient points *outward* from the origin — that's where $f$
+increases fastest. **Magnitude** of gradient = **rate of steepest
+ascent**.
+</details>
+
+### Problem 3
+
+The **directional derivative** of $f$ at $p$ in the direction of
+unit vector $u$ is
+$$D_u f(p) = \nabla f(p) \cdot u.$$
+Maximised when $u$ points in the direction of $\nabla f$.
+
+For $f(x, y) = xy$ at $(2, 3)$, find the rate of change in the
+direction of $u = (1, 0)$ (i.e., $+x$ direction).
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla f = (y, x) = (3, 2)$ at $(2, 3)$. $D_u f = (3, 2) \cdot (1, 0)
+= 3$.
+
+Equivalently: $\partial f / \partial x = 3$. Directional derivative in the
+$x$-direction = $\partial f / \partial x$.
+
+**Insight:** $\nabla f$ is the *generalised slope* — it tells you
+the rate of change in *every* direction via dot product.
+</details>
+
+### Problem 4
+
+A function $f(x, y)$ has **critical points** where $\nabla f = 0$.
+Find them for $f(x, y) = x^2 - 2x + y^2 - 4y + 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\partial f / \partial x = 2x - 2 = 0 \Rightarrow x = 1$. $\partial f / \partial y = 2y - 4 =
+0 \Rightarrow y = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Critical point $(1, 2)$. Value $f(1, 2) = 1 - 2 + 4 - 8 + 5 = 0$. (A
+minimum — $f$ is a sum of squared distances.)
+
+To classify: 2nd-derivative test (see Stretch S1).
+</details>
+
+### Problem 5
+
+The **chain rule** in multiple variables: if $z = f(x, y)$ and $x =
+x(t), y = y(t)$, then
+$$\dfrac{dz}{dt} = \dfrac{\partial f}{\partial x} \dfrac{dx}{dt} + \dfrac{\partial f}{\partial y} \dfrac{dy}{dt} = \nabla f \cdot \mathbf{v}.$$
+
+Apply: $f(x, y) = x^2 + y^2$, $x(t) = \cos t, y(t) = \sin t$. Compute
+$dz/dt$ along the unit circle.
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla f = (2x, 2y) = (2 \cos t, 2 \sin t)$. $\mathbf{v} = (-\sin t,
+\cos t)$.
+
+$dz/dt = -2 \cos t \sin t + 2 \sin t \cos t = 0$.
+
+**$z = 0$ along the curve** — moving along the unit circle keeps $f =
+1$ constant (the unit circle is a level curve). The gradient is
+*perpendicular* to level curves.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Partial derivative** of $f(x, y, \ldots)$ with respect to $x_i$:
+treat all other variables as constant; differentiate with respect to
+$x_i$. Notation: $\partial f / \partial x_i$ or $f_{x_i}$.
+
+**Gradient** (in $n$ variables): $\nabla f = (\partial f / \partial x_1, \ldots,
+\partial f / \partial x_n)$.
+
+**Directional derivative** in direction $u$ (unit vector): $D_u f =
+\nabla f \cdot u$.
+
+**Properties:**
+
+- Gradient points in direction of *steepest ascent*.
+- Magnitude $|\nabla f|$ = rate of steepest ascent.
+- Gradient is *perpendicular* to level sets ($f = \text{const}$).
+- $\nabla f = 0$ at critical points (extrema or saddle points).
+
+**Multivariable chain rule** (parametric path): $\dfrac{d}{dt} f(\mathbf{r}(t))
+= \nabla f \cdot \mathbf{r}'(t)$.
+
+**Hessian matrix** $H_{ij} = \partial^2 f / \partial x_i \partial x_j$ — second
+derivatives. Used in 2nd-derivative test for extrema.
+
+:::
+
+> *Partial derivatives differentiate with one variable, others fixed;*
+> *Gradient = vector of all partials = direction of steepest ascent;*
+> *Setting gradient to zero finds critical points.*
+
+## Apply
+
+### Worked example
+
+> Find the gradient of $f(x, y, z) = x^2 y + e^z$ at $(1, 2, 0)$.
+
+$\partial f / \partial x = 2xy = 4$. $\partial f / \partial y = x^2 = 1$. $\partial f / \partial z = e^z =
+1$.
+
+$\nabla f = (4, 1, 1)$ at $(1, 2, 0)$. Direction of steepest ascent;
+magnitude $\sqrt{16 + 1 + 1} = \sqrt{18}$.
+
+### Practice — Warm
+
+**W1.** $\partial / \partial x [x^2 + y^2] = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$2x$.
+</details>
+
+**W2.** $\nabla (xy)$?
+
+<details class="hint"><summary>Full solution</summary>
+$(y, x)$.
+</details>
+
+**W3.** $\partial / \partial y [\sin x + \cos y] = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$-\sin y$.
+</details>
+
+### Practice — Working
+
+**P1.** Critical points of $f(x, y) = x^2 + xy + y^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$\partial f / \partial x = 2x + y = 0$. $\partial f / \partial y = x + 2y = 0$.
+Solve: $x = y = 0$. Single critical point at origin (a minimum).
+</details>
+
+**P2.** $\nabla (x^2 + 2xy + y^3)$ at $(1, 1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$(2x + 2y, 2x + 3y^2) = (4, 5)$.
+</details>
+
+**P3.** Directional derivative of $f(x, y) = x^2 + y^2$ at $(1, 1)$
+in direction $u = (1/\sqrt{2}, 1/\sqrt{2})$.
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla f = (2, 2)$. $D_u f = (2, 2) \cdot (1/\sqrt{2}, 1/\sqrt{2}) =
+2/\sqrt{2} + 2/\sqrt{2} = 2 \sqrt{2}$.
+
+This is the maximum directional derivative (since $u$ points along
+$\nabla f$): max rate $|\nabla f| = 2 \sqrt{2}$ ✓.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Second derivative test** in 2D. At a critical point, let
+$D = f_{xx} f_{yy} - f_{xy}^2$ (the *Hessian determinant*). Then:
+
+- $D > 0$ and $f_{xx} > 0$: local minimum.
+- $D > 0$ and $f_{xx} < 0$: local maximum.
+- $D < 0$: saddle point (looks like a saddle).
+- $D = 0$: inconclusive.
+
+Classify the critical point of $f(x, y) = x^2 - y^2$ at $(0, 0)$.
+
+<details class="hint"><summary>Full solution</summary>
+$f_{xx} = 2, f_{yy} = -2, f_{xy} = 0$. $D = -4 < 0$. **Saddle.**
+
+Picture: along $x$-axis, $f$ increases (concave up); along $y$-axis,
+$f$ decreases (concave down). The origin is a "pass" — minimum in one
+direction, maximum in another.
+
+Saddle points are critical to ML training: most "stuck" points in
+high-dim loss landscapes are saddles, not minima. Modern optimisers
+have to escape them.
+</details>
+
+**S2.** **Gradient descent.** ML training updates weights via $w
+\leftarrow w - \eta \nabla L(w)$ — move *opposite* the gradient
+(toward steepest *descent*). Why does this find minima?
+
+<details class="hint"><summary>Full solution</summary>
+**Each step decreases $L$ (locally).** The gradient points uphill; its
+negative points downhill. With small enough step size $\eta$, $L$
+strictly decreases each iteration. Convergence to a critical point
+(local min, saddle, or boundary) is guaranteed under mild
+conditions.
+
+This is the **single most important algorithm in modern ML**.
+Trillions of gradient steps train every modern neural network. The
+gradient you just learned is the central computational object of the
+AI era.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\partial / \partial x$ and $d/dx$ are the same."** Subtle but distinct.
+   $d/dx$ is total derivative (single variable); $\partial / \partial x$ is
+   partial (other variables held fixed).
+2. **"Gradient is a number."** Gradient is a *vector* (one entry per
+   input variable).
+3. **"Critical point = extremum."** Critical points include extrema,
+   saddles, and inflection points.
+:::
+
+### Self-Assessment
+
+1. Could you compute $\nabla f$ for $f(x, y) = x^2 - y^2$?
+2. Without scrolling back, what's the geometric meaning of $\nabla f$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $(2x, -2y)$; direction of steepest ascent.)
+
+- **3 yes:** ready for **[06 · Multiple Integrals](../06-multiple-integrals/index.qmd)**.
+- **2 yes:** redo **S2** (gradient descent).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T4 L04 — Differentiation Rules](../../tier-4-precalc-calculus/04-differentiation-rules/index.qmd)**
+- **[T4 L13 — Vectors](../../tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd)**
+
+### What this unlocks
+
+- **[06 · Multiple Integrals](../06-multiple-integrals/index.qmd)**
+- **[07 · Vector Fields](../07-vector-fields/index.qmd)**
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Gradient descent (S2) — *the* central
+algorithm. Backpropagation computes gradients efficiently through
+many layers.
+:::
+
+::: {.applied-callout}
+**Physics & engineering.** Gradient of potential energy = force
+(reversed sign). Gradient of pressure drives flow in fluids.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Multivariable calculus is the entry to
+analysis on manifolds, differential geometry, calculus of
+variations.
+:::
