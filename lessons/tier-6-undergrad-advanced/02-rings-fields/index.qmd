@@ -1,0 +1,329 @@
+---
+title: "02 · Rings and Fields"
+subtitle: "Two operations, more structure — and the algebraic landscape"
+lesson-id: "t6.rings-fields"
+tier: 6
+prerequisites: ["t6.groups", "t2.polynomials"]
+unlocks: []
+applied-domains: ["research", "encryption"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [01 · Groups](../01-groups/index.qmd) and
+   [T2 L11 — Polynomials](../../tier-2-prealgebra/11-polynomials/index.qmd)?
+2. Comfortable with the four group axioms?
+3. Recall polynomial multiplication.
+:::
+
+## Touch
+
+A **ring** has two operations: addition (forms an abelian group) and
+multiplication (associative, distributive). A **field** is a ring
+where every non-zero element has a multiplicative inverse.
+
+```{ojs}
+viewof rfSel = Inputs.select(["ℤ: ring (no division)", "ℚ, ℝ, ℂ: fields", "ℤ/n: ring (field iff n prime)", "Polynomials ℝ[x]: ring (no division by polynomials)", "Matrices M_n(ℝ): non-commutative ring"], {value: "ℤ/n: ring (field iff n prime)", label: "Structure:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(rfSel) {
+    case "ℤ: ring (no division)": info = "Integers. Add, subtract, multiply. But 1/2 ∉ ℤ — so NOT a field. Commutative ring with identity (CRI)."; break;
+    case "ℚ, ℝ, ℂ: fields": info = "Rationals, reals, complex numbers — fields. Every non-zero has a multiplicative inverse. Commutative."; break;
+    case "ℤ/n: ring (field iff n prime)": info = "ℤ/5: every non-zero {1,2,3,4} has an inverse mod 5 (FIELD). ℤ/4: 2 has no inverse (just a ring, not a field)."; break;
+    case "Polynomials ℝ[x]: ring (no division by polynomials)": info = "Add and multiply polynomials. NOT a field — 1/x is not a polynomial. Commutative ring with identity. Polynomial rings are central in algebraic geometry."; break;
+    case "Matrices M_n(ℝ): non-commutative ring": info = "Matrices add and multiply but multiplication is non-commutative. Only invertible matrices have inverses (so M_n is NOT a field even excluding 0). Important non-commutative example."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why does $\mathbb{Z}/n$ form a *field* iff $n$ is prime?
+2. Polynomials form a ring but not a field. What makes the difference?
+3. Galois showed that solvability of polynomial equations is governed
+   by the structure of certain groups attached to fields. Why?
+
+## Discover
+
+### Problem 1
+
+A **ring** $(R, +, \cdot)$ satisfies:
+
+- $(R, +)$ is an abelian group.
+- $(R, \cdot)$ is associative.
+- Distributivity: $a \cdot (b + c) = a \cdot b + a \cdot c$ (and right
+  version).
+
+Verify $\mathbb{Z}$ is a ring.
+
+<details class="hint"><summary>Full solution</summary>
+$(\mathbb{Z}, +)$ is abelian group ✓. $(\mathbb{Z}, \cdot)$ associative
+✓. Distributive ✓. Has identity $1$ for $\cdot$. Commutative.
+
+$\mathbb{Z}$ is a *commutative ring with identity*. A foundational
+example.
+</details>
+
+### Problem 2
+
+A **field** $F$ is a commutative ring with identity where every
+non-zero element has a multiplicative inverse.
+
+Show $\mathbb{Q}, \mathbb{R}, \mathbb{C}$ are fields. Show
+$\mathbb{Z}$ is *not*.
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{Q}$: every non-zero $a/b$ has inverse $b/a$. ✓
+$\mathbb{R}$: every non-zero has $1/x \in \mathbb{R}$. ✓
+$\mathbb{C}$: every non-zero $a + bi$ has $1/(a+bi) = (a - bi)/(a^2 +
+b^2) \in \mathbb{C}$. ✓
+
+$\mathbb{Z}$: $2$ has no integer inverse. **Not a field.**
+</details>
+
+### Problem 3
+
+Show $\mathbb{Z}/p$ is a field iff $p$ is prime.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For prime $p$ and $a \neq 0 \pmod p$: $\gcd(a, p) = 1$, so $a$ has
+inverse mod $p$ (Bézout / extended Euclidean).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$p$ prime ⇒ field:** if $a \neq 0$, $\gcd(a, p) = 1$, so $a x \equiv
+1 \pmod p$ has a solution.
+
+**$n$ composite ⇒ not field:** if $n = ab$ with $a, b > 1$, then $a$
+has no inverse (else multiplying $ab \equiv 0$ gives $b \equiv 0$,
+contradicting $b > 0$).
+
+So $\mathbb{Z}/2, \mathbb{Z}/3, \mathbb{Z}/5, \mathbb{Z}/7, \ldots$
+are fields. $\mathbb{Z}/4, \mathbb{Z}/6, \mathbb{Z}/8, \ldots$ are
+just rings.
+
+These are the **finite fields** $\mathbb{F}_p$, central to coding
+theory and cryptography.
+</details>
+
+### Problem 4
+
+Polynomial ring $\mathbb{R}[x]$: polynomials with real coefficients,
+add and multiply normally. Is it a field?
+
+<details class="hint"><summary>Full solution</summary>
+**No.** $1/x$ is not a polynomial; $x$ has no polynomial inverse.
+
+But $\mathbb{R}[x]$ is a **principal ideal domain (PID)** —
+generalised version of "every subgroup of $\mathbb{Z}$ is cyclic." It
+has unique factorisation (T2 L12 S2).
+</details>
+
+### Problem 5
+
+Construct $\mathbb{F}_4$, the field with 4 elements. (Hint: not
+$\mathbb{Z}/4$ — that's not a field. Try $\mathbb{F}_2[x]/(x^2 + x +
+1)$, polynomials mod $x^2 + x + 1$.)
+
+<details class="hint"><summary>Full solution</summary>
+Elements: $\{0, 1, x, x + 1\}$ (polynomials of degree < 2 with
+coefficients in $\mathbb{F}_2 = \{0, 1\}$).
+
+Multiplication: $x \cdot x = x^2 \equiv -x - 1 \equiv x + 1 \pmod
+2$. $x \cdot (x + 1) = x^2 + x \equiv x + 1 + x = 1$ (in
+$\mathbb{F}_2$).
+
+Every non-zero element has an inverse: $1^{-1} = 1, x^{-1} = x + 1,
+(x+1)^{-1} = x$.
+
+This is **$\mathbb{F}_4$** — the unique field with 4 elements. In
+general, $\mathbb{F}_{p^n}$ exists for any prime $p$ and $n \ge 1$ —
+*Galois fields*. Used heavily in coding theory and cryptography.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **ring** $(R, +, \cdot)$: abelian group under $+$; associative
+under $\cdot$; distributive.
+
+A **commutative ring** has $a \cdot b = b \cdot a$.
+
+A **ring with identity** has a multiplicative identity $1$.
+
+A **field** $F$: commutative ring with identity, every non-zero has
+multiplicative inverse.
+
+**Examples:**
+
+| Structure | Type |
+|---|---|
+| $\mathbb{Z}$ | Commutative ring (not field) |
+| $\mathbb{Q}, \mathbb{R}, \mathbb{C}$ | Fields |
+| $\mathbb{Z}/n$ | Ring; field iff $n$ prime ($\mathbb{F}_p$) |
+| $\mathbb{F}_{p^n}$ | Finite field of order $p^n$ |
+| $\mathbb{R}[x]$ | Commutative polynomial ring |
+| $M_n(\mathbb{R})$ | Non-commutative ring |
+
+**Field extensions:** $\mathbb{R} \subset \mathbb{C}$ (degree 2),
+$\mathbb{Q} \subset \mathbb{Q}(\sqrt{2})$ (degree 2). Each adds a
+new element.
+
+**Galois theory:** field extensions $\leftrightarrow$ groups of
+automorphisms. Solvability by radicals = solvability of the Galois
+group.
+
+:::
+
+> *Ring = two operations, with distributivity;*
+> *Field = ring with multiplicative inverses;*
+> *Z/n is a field iff n is prime; F_{p^n} are the finite fields.*
+
+## Apply
+
+### Worked example
+
+> Find the inverse of $3$ in $\mathbb{F}_7 = \mathbb{Z}/7$.
+
+$3 \cdot 5 = 15 \equiv 1 \pmod 7$. **$3^{-1} = 5$.**
+
+### Practice — Warm
+
+**W1.** Is $\mathbb{R}$ a field?
+
+<details class="hint"><summary>Full solution</summary>
+**Yes.**
+</details>
+
+**W2.** Is $\mathbb{Z}/8$ a field?
+
+<details class="hint"><summary>Full solution</summary>
+**No** — 8 is composite.
+</details>
+
+**W3.** Inverse of 4 in $\mathbb{F}_{11}$?
+
+<details class="hint"><summary>Full solution</summary>
+$4 \cdot 3 = 12 \equiv 1 \pmod{11}$. So $4^{-1} = 3$.
+</details>
+
+### Practice — Working
+
+**P1.** Show $\mathbb{Z}/6$ is not a field.
+
+<details class="hint"><summary>Full solution</summary>
+$2$ has no inverse mod 6: $2 \cdot k \in \{0, 2, 4\}$ — never 1.
+</details>
+
+**P2.** What's the inverse of $2$ in $\mathbb{F}_5$?
+
+<details class="hint"><summary>Full solution</summary>
+$2 \cdot 3 = 6 \equiv 1 \pmod 5$. So $2^{-1} = 3$.
+</details>
+
+**P3.** Order of $\mathbb{F}_{2^3} = \mathbb{F}_8$?
+
+<details class="hint"><summary>Full solution</summary>
+$2^3 = 8$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **AES uses arithmetic in $\mathbb{F}_{2^8} = \mathbb{F}_{256}$**.
+Each byte is an element of this field. Why?
+
+<details class="hint"><summary>Full solution</summary>
+**Bytes are 8-bit values; $\mathbb{F}_{256}$ has $2^8 = 256$
+elements.** Field structure provides:
+
+- Addition (bitwise XOR — fast).
+- Multiplication (using the field's multiplicative structure).
+- Inverses (efficiently computable, central to AES's S-box).
+
+AES's "S-box" is essentially $a \mapsto a^{-1}$ in $\mathbb{F}_{256}$
+followed by an affine map. The non-linearity of inversion makes the
+cipher resistant to linear and differential cryptanalysis.
+
+Modern symmetric encryption builds on finite-field arithmetic.
+Without rings and fields, no AES, no TLS, no secure messaging.
+</details>
+
+**S2.** **The Galois group** of a polynomial captures its symmetry
+structure. The polynomial $x^5 - 1 = 0$ has Galois group $\mathbb{Z}/5$
+over $\mathbb{Q}$. The polynomial $x^5 - 6x + 3$ has Galois group
+$S_5$, which is *not solvable* — meaning the polynomial cannot be
+solved by radicals.
+
+What does this say about the existence of a "quintic formula"?
+
+<details class="hint"><summary>Full solution</summary>
+**No general formula exists for solving quintic polynomials.** Galois
+proved (1832) that radical-solvability of $\sum a_k x^k = 0$
+corresponds exactly to solvability of its Galois group. $S_5$ is the
+smallest non-solvable group; hence general degree-5 polynomials are
+non-radical-solvable.
+
+This was a 200-year-old open problem. Galois died at 20 in a duel,
+but his theory transformed mathematics. **Field extensions and groups
+are the language in which this is naturally stated.**
+
+Tier 7 (Algebra track) develops Galois theory.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Every ring is a field."** No — most aren't. $\mathbb{Z}$ and
+   polynomial rings are major non-field examples.
+2. **"$\mathbb{Z}/n$ is always a field."** Only when $n$ is prime.
+3. **"Fields are always infinite."** Finite fields $\mathbb{F}_{p^n}$
+   exist for every prime $p$ and integer $n \ge 1$.
+:::
+
+### Self-Assessment
+
+1. Could you state the difference between a ring and a field?
+2. Without scrolling back, is $\mathbb{Z}/13$ a field?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: yes, 13 is prime.)
+
+- **3 yes:** ready for **[03 · Group Actions](../03-group-actions/index.qmd)**.
+- **2 yes:** redo **S1** (AES).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[01 · Groups](../01-groups/index.qmd)**
+- **[T2 L11 — Polynomials](../../tier-2-prealgebra/11-polynomials/index.qmd)**
+
+### What this unlocks
+
+- **Tier 7 — Galois Theory** — solvability of polynomial equations.
+- **Tier 7 — Algebraic Number Theory** — rings of algebraic
+  integers.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** AES (S1), elliptic curve cryptography
+($\mathbb{F}_p$-based), error-correcting codes (Reed-Solomon over
+$\mathbb{F}_q$).
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Commutative algebra, algebraic geometry
+(varieties = solutions of polynomial systems), number theory all
+build on rings and fields.
+:::
