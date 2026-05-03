@@ -1,0 +1,359 @@
+---
+title: "12 · Differential Equations — Introduction"
+subtitle: "Equations involving derivatives — and how to solve $y' = ky$"
+lesson-id: "t4.differential-equations"
+tier: 4
+prerequisites: ["t4.derivative", "t4.integration-techniques"]
+unlocks: []
+applied-domains: ["research", "ai-ml", "game-dev"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [10 · Integration Techniques](../10-integration-techniques/index.qmd)?
+2. Comfortable with $\dfrac{d}{dx}(e^{kx}) = k e^{kx}$ from
+   [05 · Derivatives of trig/exp/log](../05-derivatives-trig-exp-log/index.qmd)?
+3. Comfortable with the antiderivative table?
+:::
+
+## Touch
+
+Pick a differential equation. The widget shows the solution.
+
+```{ojs}
+viewof deqSel = Inputs.select(["y' = 2y, y(0) = 3", "y' = −y, y(0) = 5", "y' = x, y(0) = 0", "y'' = −y, y(0) = 1, y'(0) = 0"], {value: "y' = 2y, y(0) = 3", label: "DE:"})
+```
+
+```{ojs}
+{
+  let solStr;
+  switch(deqSel) {
+    case "y' = 2y, y(0) = 3": solStr = "y = 3 e^(2x) — exponential growth"; break;
+    case "y' = −y, y(0) = 5": solStr = "y = 5 e^(−x) — exponential decay"; break;
+    case "y' = x, y(0) = 0": solStr = "y = x²/2 — direct integration"; break;
+    case "y'' = −y, y(0) = 1, y'(0) = 0": solStr = "y = cos(x) — simple harmonic motion"; break;
+  }
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.4rem;">
+      Solution: <strong style="color:#c2185b;">${solStr}</strong>
+    </div>
+  </div>`;
+}
+```
+
+A **differential equation (DE)** involves a function and its
+derivatives. The *solutions* are *functions*, not numbers.
+
+## Wonder
+
+1. $y' = 2y$ says "growth rate equals twice the value." What
+   function has this property?
+2. $y' = -y$ — what function decays at a rate equal to itself?
+3. The DE $y'' = -y$ — second derivative is the negative of the
+   function. What familiar function?
+
+## Discover
+
+### Problem 1
+
+Show that $y = 3 e^{2x}$ satisfies $y' = 2y$ with $y(0) = 3$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' = 3 \cdot 2 e^{2x} = 6 e^{2x}$. And $2 y = 6 e^{2x}$. ✓
+$y(0) = 3 e^0 = 3$. ✓
+
+Bingo. **Verifying** a DE solution is just substitution.
+</details>
+
+### Problem 2
+
+Solve $y' = ky$ in general (find all $y$ satisfying this).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+**Separation of variables:** $\dfrac{dy}{y} = k \, dx$. Integrate
+both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int \dfrac{dy}{y} = \int k \, dx \Rightarrow \ln |y| = kx + C
+\Rightarrow |y| = e^{kx + C} = e^C \cdot e^{kx} \Rightarrow y = A
+e^{kx}$ (where $A = \pm e^C$).
+
+The general solution is **$y = A e^{kx}$** for arbitrary constant
+$A$. With initial condition $y(0) = y_0$: $A = y_0$, so $y = y_0
+e^{kx}$.
+
+This is the **exponential growth/decay** model — the most
+fundamental ODE in science.
+</details>
+
+### Problem 3
+
+A radioactive substance decays at rate proportional to its mass:
+$\dfrac{dm}{dt} = -k m$. Half-life is 8 years. Find $k$ and write
+$m(t)$ if initial mass is 100 g.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+General solution: $m(t) = 100 e^{-kt}$. Half-life: $m(8) = 50$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$50 = 100 e^{-8k} \Rightarrow e^{-8k} = 1/2 \Rightarrow k = \ln 2 / 8
+\approx 0.0866$.
+
+So $m(t) = 100 e^{-0.0866 t}$ g.
+
+Carbon-14 dating, drug elimination, capacitor discharge — all use
+this exact form.
+</details>
+
+### Problem 4
+
+**Newton's law of cooling:** the rate of cooling is proportional to
+the temperature difference from the environment. $T'(t) = -k(T - T_a)$
+where $T_a$ is the ambient temperature.
+
+Show $T(t) = T_a + (T_0 - T_a) e^{-kt}$ solves it (with $T(0) = T_0$).
+
+<details class="hint"><summary>Full solution</summary>
+$T'(t) = (T_0 - T_a)(-k) e^{-kt} = -k (T_0 - T_a) e^{-kt} = -k(T -
+T_a)$ ✓.
+$T(0) = T_a + (T_0 - T_a) = T_0$ ✓.
+
+The solution: temperature exponentially approaches $T_a$ from $T_0$.
+We saw this in T3 L06 S1 (the soup cooling).
+</details>
+
+### Problem 5
+
+Show $y = \cos x$ satisfies $y'' = -y$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' = -\sin x, y'' = -\cos x = -y$ ✓.
+
+Similarly $\sin x$ satisfies $y'' = -y$. The general solution: $y = A
+\cos x + B \sin x$. This is the **simple harmonic oscillator** —
+foundational in physics (springs, pendulums, AC circuits, light
+waves).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **differential equation (DE)** is an equation involving a function
+$y$ and its derivatives.
+
+**Order:** the highest derivative present. $y' = 2y$ is *first-order*;
+$y'' = -y$ is *second-order*.
+
+**Solution:** a function $y(x)$ satisfying the equation.
+
+**Initial conditions** specify the value (and possibly derivatives)
+at one point — pinning down a single solution from the family.
+
+**Separation of variables** for $\dfrac{dy}{dx} = f(x) g(y)$:
+$$\int \dfrac{dy}{g(y)} = \int f(x) \, dx + C.$$
+
+**Standard solutions:**
+
+- $y' = ky$ → $y = A e^{kx}$ (exponential growth/decay).
+- $y' = f(x)$ → $y = \int f \, dx + C$ (direct integration).
+- $y'' + \omega^2 y = 0$ → $y = A \cos(\omega x) + B \sin(\omega x)$
+  (simple harmonic motion).
+- $y'' = g$ (constant) → $y = (g/2) x^2 + B x + C$ (uniform
+  acceleration; falling object).
+
+:::
+
+> *Differential equations relate $y$ and its derivatives;*
+> *Solutions are functions, not numbers;*
+> *Initial conditions select one from the family.*
+
+## Apply
+
+### Worked example
+
+> Solve $y' = 3x^2$ with $y(0) = 5$.
+
+Direct integration: $y = \int 3x^2 \, dx + C = x^3 + C$.
+
+Use initial condition: $y(0) = C = 5$.
+
+$y(x) = x^3 + 5$.
+
+### Practice — Warm
+
+**W1.** Solve $y' = 3y$, $y(0) = 7$.
+
+<details class="hint"><summary>Full solution</summary>
+$y = 7 e^{3x}$.
+</details>
+
+**W2.** Solve $y' = 4x$, $y(0) = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$y = 2 x^2 + 1$.
+</details>
+
+**W3.** Verify $y = e^{-3x}$ satisfies $y'' - 9y = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$y'' = 9 e^{-3x} = 9y$ ✓.
+</details>
+
+### Practice — Working
+
+**P1.** A bacteria culture doubles every 3 hours. Initial population
+1000. $P(t)$? When does it reach 1 million?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P' = kP$. Half-life-style: $P(3) = 2 P(0) \Rightarrow k = \ln 2 /
+3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(t) = 1000 e^{(\ln 2 / 3) t} = 1000 \cdot 2^{t/3}$.
+$1000 \cdot 2^{t/3} = 10^6 \Rightarrow 2^{t/3} = 1000 \Rightarrow t/3
+= \log_2 1000 \approx 9.97 \Rightarrow t \approx 29.9$ hours.
+
+Reaches a million in about **30 hours**.
+</details>
+
+**P2.** A 90°C cup of coffee in a 20°C room cools to 60°C in 5
+minutes. When will it reach 30°C?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Newton's cooling. $T(t) = 20 + 70 e^{-kt}$. Use $T(5) = 60$ to find
+$k$, then solve for $T = 30$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$60 = 20 + 70 e^{-5k} \Rightarrow e^{-5k} = 4/7 \Rightarrow k = -\ln(4/7)/5
+\approx 0.112$.
+$30 = 20 + 70 e^{-0.112 t} \Rightarrow 10 = 70 e^{-0.112 t} \Rightarrow
+e^{-0.112 t} = 1/7 \Rightarrow t = \ln 7 / 0.112 \approx 17.4$ min.
+
+Reaches 30°C in about **17.4 minutes**.
+</details>
+
+**P3.** A spring-mass system has $m \ddot{x} + k x = 0$ (Hooke's law,
+no friction). For $m = 1, k = 4$, $x(0) = 2, \dot{x}(0) = 0$: find
+$x(t)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\omega^2 = k/m = 4 \Rightarrow \omega = 2$. General: $x = A \cos(2t)
++ B \sin(2t)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x(0) = A = 2$. $\dot{x}(0) = 2B = 0 \Rightarrow B = 0$.
+**$x(t) = 2 \cos(2t)$.**
+
+Mass oscillates with amplitude 2 and frequency $2/(2\pi) = 1/\pi$ Hz.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Logistic growth.** Real populations don't grow exponentially
+forever — resources are limited. The **logistic equation** is $y' = k
+y (1 - y/M)$ where $M$ is the carrying capacity. Show that for small
+$y$ (population much less than $M$), this reduces to exponential
+growth.
+
+<details class="hint"><summary>Full solution</summary>
+For $y \ll M$: $1 - y/M \approx 1$, so $y' \approx k y$ → exponential.
+
+But as $y \to M$: $1 - y/M \to 0$, so growth slows and saturates at
+$M$. The full solution (separable, but tricky algebra) is the
+**logistic curve** — an S-shape.
+
+Logistic models: tumour growth, viral spread (the famous COVID
+modeling), neural network learning curves, market saturation. The
+logistic *function* (sigmoid in ML) is the same shape.
+</details>
+
+**S2.** **Why differential equations are central to ML.** The training
+dynamics of gradient descent in continuous time give the **gradient
+flow** ODE: $\dot{w}(t) = -\nabla L(w(t))$. Why is this useful?
+
+<details class="hint"><summary>Full solution</summary>
+**Continuous-time analysis is often more tractable than discrete
+recursion.** Researchers prove convergence theorems for gradient
+descent by studying the gradient-flow ODE — using calculus tools.
+Then results transfer back to actual training (with discretisation
+error).
+
+Modern theory of deep learning is largely a study of various ODEs
+that approximate or describe training: gradient flow, neural ODEs
+(Chen et al. 2018 — neural networks *as* differential equations),
+score-based diffusion models (which generate images by reversing an
+SDE).
+
+Differential equations have become a primary mathematical tool for
+understanding modern AI systems.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Solving a DE means finding a number."** No — finding a
+   *function* (or family of functions). Initial conditions then pin
+   down one specific solution.
+2. **"$y' = ky$ has many solutions."** Without initial conditions,
+   yes (the family $A e^{kx}$). With $y(0) = y_0$, just one.
+3. **"DEs are exotic."** Most physical and biological models are
+   DEs: Newton's mechanics, Maxwell's electromagnetism, Schrödinger's
+   quantum mechanics, every population model.
+:::
+
+### Self-Assessment
+
+1. Could you solve $y' = -2y, y(0) = 4$?
+2. Without scrolling back, what's the general solution of $y'' = -9y$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $y = 4 e^{-2x}$; $y = A \cos(3x) + B \sin(3x)$.)
+
+- **3 yes:** ready for **[13 · Vectors](../13-vectors-2d-3d/index.qmd)**.
+- **2 yes:** redo **S2** (gradient flow in ML).
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[03 · Derivative](../03-derivative/index.qmd)** — DEs *are*
+  derivative equations.
+- **[10 · Integration Techniques](../10-integration-techniques/index.qmd)** —
+  separation of variables uses integration.
+
+### What this unlocks
+
+- **Tier 5 — Multivariable calculus** — partial differential
+  equations (Maxwell's, Schrödinger's, heat, wave).
+- **Tier 7 — Dynamical systems** — qualitative analysis when no
+  closed-form solution exists.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Gradient flow analysis (S2), neural ODEs,
+score-based diffusion models — DEs are now a primary mathematical
+tool for understanding deep learning.
+:::
+
+::: {.applied-callout}
+**Physics & engineering.** Newton's mechanics, electrical circuits,
+heat transfer, fluid dynamics, quantum mechanics — all governed by
+differential equations.
+:::
+
+::: {.applied-callout}
+**Biology & medicine.** Population dynamics (S1), disease spread
+(SIR models), pharmacokinetics, neural firing — modelled by ODEs.
+:::
+
+::: {.applied-callout}
+**Game development.** Physics engines integrate Newton's $\ddot{x} =
+F/m$ numerically. Verlet integration, Runge-Kutta methods —
+discretised solutions to ODEs.
+:::
