@@ -1,0 +1,348 @@
+---
+title: "04 · Statistical Learning Theory — PAC, VC Dimension"
+subtitle: "When can a learning algorithm be trusted? PAC and VC give the answer."
+lesson-id: "t7.statistical-learning-theory"
+tier: 7
+prerequisites: ["t5.statistical-inference", "t6.convex-optimization"]
+unlocks: []
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L13 — Statistical Inference](../../tier-5-undergrad-core/13-statistical-inference/index.qmd) and [T6 L08 — Convex Optimization](../../tier-6-undergrad-advanced/08-convex-optimization/index.qmd)?
+2. Recall: i.i.d. sampling, Hoeffding's inequality (or any concentration bound).
+3. Comfortable with hypothesis classes (set of functions a model can express)?
+:::
+
+## Touch
+
+You train a classifier on $n$ samples. It gets 95% accuracy on
+training data. **Will it work on new data?**
+
+```{ojs}
+viewof n = Inputs.range([10, 1000], {value: 100, step: 10, label: "Training set size n:"})
+```
+
+```{ojs}
+viewof vc = Inputs.range([1, 50], {value: 5, step: 1, label: "VC dimension d:"})
+```
+
+```{ojs}
+{
+  const eps = Math.sqrt((vc * Math.log(2 * n / vc) + Math.log(4 / 0.05)) / (2 * n));
+  const epsBound = Math.min(1, eps);
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#01579b;">
+      With probability ≥ 95%, generalization gap ≤ <b>${epsBound.toFixed(3)}</b>
+    </div>
+    <div style="font-family:monospace; font-size:0.85rem; color:#555;">
+      i.e. test error ≤ training error + ${epsBound.toFixed(3)}
+    </div>
+  </div>`;
+}
+```
+
+The bound shrinks as $1/\sqrt{n}$, grows with model complexity $d$.
+**Big model + small data = no guarantee.**
+
+## Wonder
+
+1. What's the right notion of "learnable"? Not "always perfect" —
+   even a perfect Bayes classifier has irreducible error.
+2. **PAC (Probably Approximately Correct):** with high probability,
+   error is small.
+3. **VC dimension** measures "capacity" of a hypothesis class — the
+   largest set of points it can shatter.
+
+## Discover
+
+### Problem 1
+
+A binary classifier $h: \mathcal{X} \to \{0, 1\}$. **Risk** $R(h) =
+P_{(X, Y) \sim D}[h(X) \neq Y]$. **Empirical risk** $\hat R_S(h) = \frac{1}{n}\sum_i 1[h(X_i) \neq Y_i]$.
+
+Why does $\hat R_S(h) \to R(h)$ as $n \to \infty$, for *fixed* $h$?
+
+<details class="hint"><summary>Full solution</summary>
+**Hoeffding's inequality.** For $h$ fixed and $n$ i.i.d. samples,
+$$
+P[|\hat R_S(h) - R(h)| \geq \epsilon] \leq 2 e^{-2 n \epsilon^2}.
+$$
+So $\hat R_S(h) \to R(h)$ in probability.
+
+But this is for *one* $h$. For ML we *select* $h$ based on data —
+much harder.
+</details>
+
+### Problem 2
+
+**Uniform convergence.** Want $\sup_{h \in \mathcal{H}} |\hat R_S(h) -
+R(h)| \leq \epsilon$ — not just for one $h$ but *all* $h$.
+
+For finite $\mathcal{H}$ with $|\mathcal{H}| = M$, how large does $n$
+need to be?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Union bound over the $M$ hypotheses.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By union bound + Hoeffding:
+$$
+P\left[\sup_h |\hat R - R| \geq \epsilon\right] \leq 2 M e^{-2 n \epsilon^2}.
+$$
+Set $\leq \delta$: $n \geq \frac{1}{2\epsilon^2}\log\frac{2M}{\delta}$.
+
+So **$\log M$** measures complexity for finite classes.
+</details>
+
+### Problem 3
+
+**VC dimension.** A set $\{x_1, \ldots, x_d\}$ is **shattered** by
+$\mathcal{H}$ if every binary labelling of it is realised by some $h
+\in \mathcal{H}$.
+
+VC$(\mathcal{H})$ = largest $d$ that can be shattered.
+
+What's the VC dim of: (a) thresholds on $\mathbb{R}$? (b) intervals?
+(c) half-spaces in $\mathbb{R}^d$?
+
+<details class="hint"><summary>Full solution</summary>
+(a) **VC = 1.** Two points: can't realise the labels (1, 0) (i.e.,
+left point positive but right not).
+
+(b) **VC = 2.** Any 2 points can be shattered by an interval. 3
+points: can't realise label "(1, 0, 1)" with one interval.
+
+(c) **VC = $d + 1$** for half-spaces in $\mathbb{R}^d$. (Affine
+hyperplane has $d + 1$ degrees of freedom.)
+</details>
+
+### Problem 4
+
+**The fundamental theorem of statistical learning.**
+
+For a hypothesis class $\mathcal{H}$ with VC dim $d$, and $n$ i.i.d.
+samples, **with probability $\geq 1 - \delta$**:
+$$
+\sup_{h \in \mathcal{H}} |\hat R_S(h) - R(h)| \leq O\left(\sqrt{\frac{d \log(n/d) + \log(1/\delta)}{n}}\right).
+$$
+
+Why does this matter for deep learning?
+
+<details class="hint"><summary>Full solution</summary>
+**Generalisation depends on capacity, not just parameter count.**
+
+Classical: VC dim of a feedforward NN with $W$ weights is $O(W \log
+W)$, suggesting need $n \gg W$. Yet modern NNs with $W \gg n$
+generalise — the "deep learning paradox."
+
+Resolution: **implicit regularisation** by SGD effectively reduces the
+hypothesis class. Modern theory uses Rademacher complexity, margin
+bounds, NTK-based bounds — generalisations of VC.
+</details>
+
+### Problem 5
+
+**Bias-variance and uniform convergence.** For ERM (empirical risk
+minimization) — pick $\hat h = \arg\min_h \hat R_S(h)$. Decomposition:
+$$
+R(\hat h) = \underbrace{\inf_{h^* \in \mathcal{H}} R(h^*)}_{\text{approximation error}} + \underbrace{R(\hat h) - \inf R(h^*)}_{\text{estimation error}}.
+$$
+
+What's the trade-off?
+
+<details class="hint"><summary>Full solution</summary>
+**Larger $\mathcal{H}$:** smaller approximation error (richer
+hypotheses available) but larger estimation error (more to estimate
+from finite data).
+
+**Smaller $\mathcal{H}$:** opposite.
+
+Choosing $\mathcal{H}$ = **model selection** — heart of practical ML.
+Cross-validation, regularisation, early stopping all act on this trade-
+off.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**PAC learning.** $\mathcal{H}$ is **PAC learnable** if there exists an
+algorithm $A$ and polynomial $\text{poly}(1/\epsilon, 1/\delta)$ such
+that for any distribution $D$ and target $h^* \in \mathcal{H}$, with
+probability $\geq 1 - \delta$, $R(A(S)) \leq \epsilon$ given
+$|S| \geq \text{poly}$.
+
+**VC dimension** $d = \text{VC}(\mathcal{H})$: largest $d$ such that
+some $d$ points are shattered.
+
+**Sauer-Shelah lemma:** if VC dim is $d$, the number of distinct
+labellings on $n$ points is $\leq O(n^d)$.
+
+**Fundamental theorem:** $\mathcal{H}$ is PAC learnable iff $\text{VC}(\mathcal{H}) < \infty$.
+
+**Generalisation bound:**
+$$
+R(\hat h) \leq \hat R_S(\hat h) + O\left(\sqrt{\frac{d + \log(1/\delta)}{n}}\right).
+$$
+
+**Rademacher complexity** $\mathcal{R}_n(\mathcal{H})$: a
+distribution-dependent refinement; tighter modern bounds.
+
+:::
+
+> *Train error close to true error if $n \gg$ capacity;*
+> *Capacity = VC dim or Rademacher complexity;*
+> *Bigger class = more flexibility, more risk.*
+
+## Apply
+
+### Worked example
+
+> **Linear classifiers in $\mathbb{R}^d$:** how much data to ensure
+> ≤ 5% generalisation gap with 95% confidence?
+
+VC dim = $d + 1$.
+
+Bound: $\epsilon \approx \sqrt{(d \log n + \log(1/\delta))/n}$. Set
+$\delta = 0.05$, solve for $n$:
+
+For $d = 100$: need $n \approx 10^4$ samples for $\epsilon = 0.05$.
+
+For $d = 10^6$ (a small NN): would need $n$ astronomical — but in
+practice, NNs do better. Hence active research on improved bounds.
+
+### Practice — Warm
+
+**W1.** What's the VC dim of axis-aligned rectangles in $\mathbb{R}^2$?
+
+<details class="hint"><summary>Full solution</summary>
+**4** — can shatter 4 points in general position; 5 cannot be shattered.
+</details>
+
+**W2.** Can VC dim be infinite?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — e.g., all subsets of $\mathbb{R}$ has VC dim $\infty$. Such
+classes aren't PAC learnable.
+</details>
+
+**W3.** What does $\mathcal{R}_n(\mathcal{H}) \to 0$ mean?
+
+<details class="hint"><summary>Full solution</summary>
+The class can't perfectly fit random labels — generalisation possible.
+</details>
+
+### Practice — Working
+
+**P1.** Compute VC dim of the class of all polynomials of degree
+$\leq k$ on $\mathbb{R}$ (used as classifiers via sign).
+
+<details class="hint"><summary>Full solution</summary>
+**$k + 1$** — by FTA, a degree-$k$ polynomial has $\leq k$ zeros, so
+sign changes at most $k$ times. Can shatter $k + 1$ points by sign-
+flipping.
+</details>
+
+**P2.** Why does a neural network with bounded weights have *finite*
+Rademacher complexity?
+
+<details class="hint"><summary>Full solution</summary>
+The norm bound limits how wildly the function can fit random labels.
+Specifically: weights bounded by $B$ ⇒ Rademacher complexity bounded
+by $O(B \cdot \prod \text{layer-norms} / \sqrt{n})$.
+
+This is the basis of modern margin-based bounds.
+</details>
+
+**P3.** Why is "deep learning generalises despite huge capacity" a
+paradox under VC theory?
+
+<details class="hint"><summary>Full solution</summary>
+VC bound: gap $\geq \sqrt{d \log n / n}$ where $d \approx$ # weights.
+For modern NNs $d \gg n$, so VC bound is *vacuous* (≥ 1).
+
+Yet empirically NNs generalise. Active research: implicit bias of SGD,
+flat minima, neural tangent kernel — refinements of "effective" VC
+dim.
+</details>
+
+### Practice — Stretch
+
+**S1.** **No-free-lunch theorem.** Without prior knowledge, **no**
+learning algorithm beats random guessing on average over all
+distributions.
+
+<details class="hint"><summary>Full solution</summary>
+Formally: for any algorithm $A$, there exist distributions where $A$
+performs at chance. Bias (= choice of $\mathcal{H}$) is necessary.
+
+Implication: every successful ML system encodes inductive bias —
+convolutions, attention, smoothness priors. There is no "universal"
+learner.
+</details>
+
+**S2.** **Online learning and regret.**
+
+<details class="hint"><summary>Full solution</summary>
+Online learner sees $(x_t, y_t)$ sequentially; predicts then learns.
+**Regret** = total loss minus best fixed hypothesis in hindsight.
+
+For finite $\mathcal{H}$: Hedge / Exponential Weights achieves
+$O(\sqrt{T \log |\mathcal{H}|})$ regret. For convex losses on convex
+sets: gradient descent gets $O(\sqrt{T})$.
+
+Connects to game theory (no-regret dynamics → Nash) and bandits
+(exploration vs exploitation).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"VC dim = number of parameters."** Not in general. ReLU NNs:
+   $O(W \log W)$. Some classes have VC ≪ params.
+2. **"Low training error ⇒ low generalisation error."** Only with
+   enough data relative to capacity. Overfitting is the gap.
+3. **"PAC bounds are tight in practice."** Worst-case; often loose by
+   orders of magnitude. Rademacher and PAC-Bayes bounds are tighter.
+:::
+
+### Self-Assessment
+
+1. Define VC dimension and PAC learnability.
+2. State the fundamental theorem of statistical learning.
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: $\mathcal{H}$ is PAC learnable iff VC$(\mathcal{H}) < \infty$.)
+
+- **3 yes:** ready for **[05 · Manifold Methods](../05-manifold-methods/index.qmd)**.
+- **2 yes:** redo **P3** (deep-learning paradox).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L13 — Statistical Inference](../../tier-5-undergrad-core/13-statistical-inference/index.qmd)**
+- **[T6 L08 — Convex Optimization](../../tier-6-undergrad-advanced/08-convex-optimization/index.qmd)**
+
+### What this unlocks
+
+- PAC-Bayes and information-theoretic bounds.
+- Margin bounds, NTK, double-descent theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Foundational theory. Every modern ML system
+implicitly bets on bias-variance trade-offs.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Connection to combinatorics (Sauer-Shelah),
+empirical processes, convex optimisation.
+:::
