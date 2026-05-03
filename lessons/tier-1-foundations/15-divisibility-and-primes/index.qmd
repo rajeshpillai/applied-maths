@@ -1,0 +1,519 @@
+---
+title: "Divisibility and Primes — the Encryption Seed"
+subtitle: "Numbers that can't be broken — and why the internet depends on them"
+lesson-id: "t1.divisibility-primes"
+tier: 1
+prerequisites: ["t1.divide-fair-share"]
+unlocks: []
+applied-domains: ["encryption", "research"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Lesson 6 — Division as Fair Share](../06-divide-fair-share/index.qmd)?
+2. Can you compute $35 \div 5 = 7$ and recognise that $35 \div 4$ has a
+   remainder?
+3. (Optional, but rewarding) Have you done
+   [Lesson 11 — Variables](../11-intro-variables/index.qmd)? You'll
+   appreciate the *general* statements more if so.
+:::
+
+## Touch
+
+Pick a number $n$. The widget shows all its **divisors** (numbers that
+divide $n$ exactly with no remainder) and tells you whether $n$ is
+**prime**.
+
+```{ojs}
+viewof nVal = Inputs.range([2, 60], {value: 12, step: 1, label: "n:"})
+```
+
+```{ojs}
+{
+  const divisors = [];
+  for (let i = 1; i <= nVal; i++) if (nVal % i === 0) divisors.push(i);
+  const isPrime = divisors.length === 2;
+  const W = 720, H = 220, pad = 30;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px;");
+
+  // Display number
+  svg.append("text").attr("x", W/2).attr("y", 50)
+    .attr("text-anchor", "middle").attr("font-size", "48").attr("font-weight", "bold")
+    .attr("fill", isPrime ? "#c2185b" : "#1f2933")
+    .text(nVal);
+  svg.append("text").attr("x", W/2).attr("y", 78)
+    .attr("text-anchor", "middle").attr("font-size", "16")
+    .attr("fill", isPrime ? "#c2185b" : "#666")
+    .text(isPrime ? "PRIME" : `composite (${divisors.length} divisors)`);
+
+  // Divisors row
+  svg.append("text").attr("x", W/2).attr("y", 115)
+    .attr("text-anchor", "middle").attr("font-size", "13").attr("fill", "#2c5f7c")
+    .text("Divisors:");
+  const dW = Math.min(60, (W - 2 * pad) / divisors.length);
+  divisors.forEach((d, i) => {
+    const x = (W - dW * divisors.length) / 2 + i * dW + dW / 2;
+    svg.append("rect").attr("x", x - dW/2 + 4).attr("y", 130).attr("width", dW - 8).attr("height", 35)
+      .attr("fill", "#90caf9").attr("stroke", "#2c5f7c").attr("rx", 4);
+    svg.append("text").attr("x", x).attr("y", 153)
+      .attr("text-anchor", "middle").attr("font-size", "16").attr("font-weight", "bold").attr("fill", "#1f2933")
+      .text(d);
+  });
+
+  // Show factorization if composite
+  if (!isPrime) {
+    // smallest non-trivial factor
+    let f = 2; while (nVal % f !== 0) f++;
+    svg.append("text").attr("x", W/2).attr("y", 195)
+      .attr("text-anchor", "middle").attr("font-size", "15").attr("fill", "#1f2933").attr("font-family", "monospace")
+      .text(`${nVal} = ${f} × ${nVal / f}`);
+  }
+  return svg.node();
+}
+```
+
+A **prime** is a number with exactly **two** divisors: 1 and itself. (We
+exclude 1, which has only one divisor.) A non-prime ≥ 2 is called
+**composite**.
+
+## Wonder
+
+1. Is **1** a prime? Try the widget. What does it say? (1 has only one
+   divisor — itself.)
+2. Set $n$ to: 2, 3, 5, 7, 11, 13. Notice anything? Now try 4, 6, 8, 9,
+   10, 12.
+3. Could there be infinitely many primes? Or do they eventually run out?
+
+## Discover
+
+### Problem 1
+
+List all the primes less than 20.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the widget. Step through 2, 3, 4, ... and write down the ones the
+widget marks "PRIME".
+</details>
+<details class="hint"><summary>Full solution</summary>
+**2, 3, 5, 7, 11, 13, 17, 19.** Eight primes below 20.
+
+Note: **2 is the only even prime** — every other even number is divisible
+by 2. After 2, primes appear less and less often, and they never settle
+into a simple pattern. The "irregularity" of the primes is one of the
+deepest mysteries in mathematics.
+</details>
+
+### Problem 2
+
+Factor **60** into primes — write 60 as a product of prime numbers.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Start by dividing by the smallest primes. $60 \div 2 = 30$. $30 \div 2
+= 15$. $15 \div 3 = 5$. 5 is prime — stop.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$60 = 2 \times 2 \times 3 \times 5 = 2^2 \times 3 \times 5$.
+
+Try a different starting point: $60 = 4 \times 15 = (2 \times 2) \times
+(3 \times 5) = 2 \times 2 \times 3 \times 5$. **The same primes** —
+just in a different order.
+
+> **The Fundamental Theorem of Arithmetic.** Every whole number greater
+> than 1 can be written as a product of primes in exactly one way (up to
+> the order). Primes are the **building blocks** of all whole numbers.
+
+This is one of mathematics' great theorems — and it is the reason primes
+matter at all.
+</details>
+
+### Problem 3
+
+Are there infinitely many primes, or do they run out at some big number?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose, for contradiction, that there were only finitely many primes —
+say $p_1, p_2, \ldots, p_k$. What is special about the number
+$N = p_1 \times p_2 \times \cdots \times p_k + 1$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**There are infinitely many primes.** Here is **Euclid's proof** (c. 300
+BCE) — one of the most beautiful proofs in mathematics, accessible to a
+careful Tier 1 reader.
+
+Suppose for contradiction that there were only finitely many primes,
+$p_1, p_2, \ldots, p_k$. Consider the number
+$$N = p_1 \times p_2 \times \cdots \times p_k + 1.$$
+
+When we divide $N$ by any of the $p_i$, we get **remainder 1** (because
+$N$ is exactly $1$ more than a multiple of $p_i$). So *no* $p_i$ divides
+$N$ exactly. By the Fundamental Theorem (Problem 2), $N$ must factor
+into *some* primes — but those primes can't be in our list. So there
+must be primes outside the list, contradicting our assumption.
+
+**Conclusion:** the list of primes can never be complete. There are
+infinitely many primes.
+
+This proof, more than 2300 years old, still works. It is a milestone
+moment for many learners — the first time they see a *proof of
+infinity*. Take a minute. Re-read it.
+</details>
+
+### Problem 4
+
+Two friends each pick a prime number. Anu picks **17**. Bina picks
+**23**. They tell each other the **product**: $17 \times 23 = 391$.
+
+Now imagine you only know the product (391). Can you recover Anu's and
+Bina's numbers?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You'd need to **factor** 391. Try dividing by small primes: $391 \div 2$?
+By 3? By 5? ...
+</details>
+<details class="hint"><summary>Full solution</summary>
+$391 \div 17 = 23$ ✓. So $391 = 17 \times 23$.
+
+For these small primes, factoring takes seconds. **But what if Anu and
+Bina had each picked a 300-digit prime?** Their product would be a
+600-digit number. *No known algorithm* can factor a random 600-digit
+number in any reasonable amount of time — even with all the world's
+computers running for the lifetime of the universe.
+
+Multiplying two large primes is **easy**. Factoring the product back is
+**hard**. This asymmetry is the mathematical heart of **RSA**, the
+encryption used by HTTPS, banking, messaging apps — almost every secure
+system on the internet.
+
+When you visit a secure website, your browser and the server are
+silently performing this trick at scale. Your security depends on the
+mathematical fact you just discovered.
+</details>
+
+### Problem 5
+
+Find the **greatest common divisor** (GCD) of **24 and 36** — the
+largest number that divides *both*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+List the divisors of each. Find the largest in both lists.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Divisors of 24: 1, 2, 3, 4, 6, 8, 12, 24.
+Divisors of 36: 1, 2, 3, 4, 6, 9, 12, 18, 36.
+Common divisors: 1, 2, 3, 4, 6, 12. Largest: **12**.
+
+So **GCD(24, 36) = 12**. Equivalently, factor each into primes:
+$24 = 2^3 \times 3$, $36 = 2^2 \times 3^2$. Take the *minimum* power of
+each shared prime: $2^{\min(3,2)} \times 3^{\min(1,2)} = 2^2 \times 3 = 12$.
+
+GCD is used everywhere: simplifying fractions ($\tfrac{24}{36} =
+\tfrac{2}{3}$ via dividing both by 12), scheduling repeating events,
+and — in cryptography — the **extended Euclidean algorithm**, which
+underpins how RSA generates its keys.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A whole number $a$ is **divisible** by another whole number $b$ if
+$a \div b$ has remainder 0 — equivalently, if $a = b \times k$ for some
+whole number $k$. We say "$b$ **divides** $a$" and write $b \mid a$.
+
+A **prime** is a whole number $\ge 2$ with exactly **two divisors**: 1
+and itself. The first few primes: $2, 3, 5, 7, 11, 13, 17, 19, 23, \ldots$
+
+A **composite** number is a whole number $\ge 2$ that is *not* prime —
+equivalently, has at least three divisors.
+
+The **Fundamental Theorem of Arithmetic:** every integer $\ge 2$ has a
+unique prime factorisation (up to order).
+
+The **GCD** (greatest common divisor) of two numbers is the largest
+number that divides both.
+
+**There are infinitely many primes** (Euclid, c. 300 BCE).
+
+:::
+
+> *Two divisors only — that is a prime;*
+> *Every number is a unique product of primes;*
+> *Multiplying primes is easy; factoring back is hard;*
+> *And on that hardness, the secrets of the modern world rest.*
+
+## Apply
+
+### Worked example
+
+> Find the prime factorisation of **84** and the GCD of **84 and 60**.
+
+A competent solver factors each, then takes the minimum power of each
+shared prime:
+
+1. **Factor 84:** $84 \div 2 = 42$. $42 \div 2 = 21$. $21 \div 3 = 7$.
+   $7$ is prime. So $84 = 2^2 \times 3 \times 7$.
+2. **Factor 60:** $60 = 2^2 \times 3 \times 5$ (from *Discover P2*,
+   essentially).
+3. **Shared primes:** 2 and 3. Minimum powers: $2^{\min(2,2)} = 2^2$,
+   $3^{\min(1,1)} = 3$.
+4. **GCD:** $2^2 \times 3 = 12$.
+
+**Answer: $84 = 2^2 \times 3 \times 7$, GCD(84, 60) = 12.**
+
+### Practice — Warm
+
+**W1.** Is each of these prime or composite? **15, 17, 21, 23, 29, 33.**
+
+<details class="hint"><summary>Full solution</summary>
+Composite: 15 (=3×5), 21 (=3×7), 33 (=3×11). Prime: 17, 23, 29.
+</details>
+
+**W2.** Factor into primes: **18, 50, 100.**
+
+<details class="hint"><summary>Full solution</summary>
+$18 = 2 \times 3^2$. $50 = 2 \times 5^2$. $100 = 2^2 \times 5^2$.
+</details>
+
+**W3.** Find GCD: (a) 12 and 18 (b) 20 and 35.
+
+<details class="hint"><summary>Full solution</summary>
+(a) $12 = 2^2 \times 3$, $18 = 2 \times 3^2$. GCD $= 2 \times 3 = 6$.
+(b) $20 = 2^2 \times 5$, $35 = 5 \times 7$. GCD $= 5$.
+</details>
+
+### Practice — Working
+
+**P1.** Use the prime factorisation method to *simplify* $\dfrac{42}{56}$
+to lowest terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find GCD(42, 56), then divide top and bottom by it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$42 = 2 \times 3 \times 7$. $56 = 2^3 \times 7$. GCD $= 2 \times 7 = 14$.
+$\dfrac{42}{56} = \dfrac{42 \div 14}{56 \div 14} = \dfrac{3}{4}$.
+
+Simplifying fractions (Lesson 7) and finding GCDs are the same task.
+</details>
+
+**P2.** A box of **48** chocolates can be evenly distributed in how many
+*different* ways (number of friends per box, each getting a whole
+number)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each "way" corresponds to a *divisor* of 48.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Divisors of 48: 1, 2, 3, 4, 6, 8, 12, 16, 24, 48 — that's **10
+divisors**. (Each divisor is a valid "number of friends".)
+
+Quick way: $48 = 2^4 \times 3$. The number of divisors is
+$(4+1)(1+1) = 10$. (The general formula: if $n = p_1^{a_1} \cdots
+p_k^{a_k}$, then $n$ has $(a_1+1) \cdots (a_k+1)$ divisors.)
+</details>
+
+**P3.** Use the **divisibility shortcuts** from
+[Lesson 6 P3](../06-divide-fair-share/index.qmd) — last digit for 2 and
+5; sum of digits for 3 and 9 — to test whether **3,825** is divisible
+by 2, 3, 5, 9.
+
+<details class="hint"><summary>Full solution</summary>
+- By **2**: last digit is 5 (odd) → not divisible.
+- By **5**: last digit is 5 → divisible. ($3825 \div 5 = 765$.)
+- By **3**: $3+8+2+5 = 18$, divisible by 3 → yes. ($3825 \div 3 = 1275$.)
+- By **9**: same digit-sum 18, divisible by 9 → yes. ($3825 \div 9 =
+  425$.)
+
+These shortcuts are old (the digit-sum rule for 3 is sometimes called
+the "rule of nines" and dates to ancient India). They turn many
+divisibility questions into one quick calculation.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Bob picks two primes**: $p = 7$, $q = 11$. He computes
+$N = p \times q = 77$ and broadcasts $N$ publicly. Alice wants to send
+him a private message; she uses $N$ to encrypt it. Anyone listening
+sees only the encrypted text and the value 77.
+
+For an attacker to decrypt the message, they need $p$ and $q$
+individually. Can you recover them from $N = 77$?
+
+<details class="hint"><summary>Full solution</summary>
+$77 = 7 \times 11$. Factoring 77 takes seconds, so the attacker wins —
+this is a *toy* example.
+
+In real RSA, $p$ and $q$ are typically **300-digit primes**, so $N$ is
+a 600-digit number. No known classical algorithm can factor such an $N$
+in less than billions of years. RSA's security is precisely the
+**hardness of factoring**.
+
+A note on the future: a sufficiently large **quantum computer** could
+factor $N$ quickly using **Shor's algorithm** (1994). This is why
+"post-quantum cryptography" — using problems other than factoring —
+is an active research area. The lessons in Tier 7 (Encryption track)
+will cover this in detail.
+
+The factoring problem you just considered for $N = 77$ is, mathematically,
+the same problem the world's most secure systems rest on. Tier 1, the
+seed of modern cryptography.
+</details>
+
+**S2.** What's the largest prime you can find with no calculator? Try
+just *one* number: is **97** prime? (Hint: you only need to check
+divisibility by primes $p \le \sqrt{97} \approx 9.8$.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You only need to test primes ≤ $\sqrt{97}$ — that's just 2, 3, 5, 7.
+(Why? If $97 = a \times b$ with $a, b > 1$, the smaller of $a, b$ is at
+most $\sqrt{97}$.)
+</details>
+<details class="hint"><summary>Full solution</summary>
+Check by 2: no (97 is odd). By 3: digit sum $9 + 7 = 16$, not divisible
+by 3. By 5: doesn't end in 0 or 5. By 7: $7 \times 13 = 91$, $7 \times
+14 = 98$ — no. So **97 is prime.**
+
+The "$p \le \sqrt{n}$" trick is a *huge* speedup. Without it, you'd test
+all the way up to 97. With it, you only test up to 9. This idea —
+**bounded search using square roots** — is everywhere in computer
+algorithms.
+
+The largest *known* prime as of writing has more than 24 million digits
+(it is a *Mersenne prime*, $2^{82{,}589{,}933} - 1$, found in 2018).
+The hunt for primes is a major collaborative computing project (GIMPS).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"1 is a prime."** No — by convention, primes are *at least 2* and
+   have *exactly two* divisors. 1 has only one. This convention is
+   chosen so the Fundamental Theorem (unique factorisation) works
+   cleanly.
+2. **"Prime numbers are rare."** They become *less dense* as numbers
+   grow, but there are *infinitely* many (Euclid, *Discover P3*). About
+   $\tfrac{n}{\ln n}$ primes lie below $n$ — a beautiful estimate from
+   the Prime Number Theorem (Tier 5+).
+3. **"You can find prime factors quickly."** For small numbers, yes.
+   For 600-digit numbers, no — and the security of the internet depends
+   on this fact.
+:::
+
+### Self-Assessment
+
+1. Could you state Euclid's proof that there are infinitely many primes,
+   in your own words?
+2. Without scrolling back, can you factor 84 into primes?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $84 = 2^2 \times 3 \times 7$.)
+
+- **3 yes:** **You have completed Tier 1 — Foundations!** The next step
+  is the [Tier 1 index](../index.qmd) for a recap, or pick a goal from
+  one of the [applied bridges](../../../applied-bridges/encryption.qmd).
+- **2 yes:** redo **S1** — the encryption-asymmetry idea is *the* prize
+  of this lesson. Then proceed.
+- **0–1 yes:** re-read *Discover P2 and P3*. The Fundamental Theorem
+  and Euclid's proof are the heart of the lesson.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 6 — Division as Fair Share](../06-divide-fair-share/index.qmd)** —
+  divisibility *is* the question of zero remainder.
+
+### What this unlocks
+
+This is the **last lesson of Tier 1**. Going forward:
+
+- **Tier 5 — Number Theory** — modular arithmetic, Fermat's little
+  theorem, the Euclidean algorithm in full generality, the Prime
+  Number Theorem.
+- **Tier 7 — Encryption track** — RSA, Diffie–Hellman, elliptic curves,
+  lattice-based post-quantum cryptography. All built on the foundation
+  laid here.
+- **Tier 7 — Research / number theory** — analytic number theory, the
+  Riemann hypothesis (the most famous unsolved problem in mathematics
+  is about the distribution of primes).
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** Every secure connection on the internet (HTTPS, SSH,
+TLS, signed software, blockchain transactions, encrypted messaging) is
+built on the hardness of factoring large products of primes (RSA), or
+on closely related problems (discrete log, elliptic curves). The
+problem you just considered for $N = 77$ is the *same* problem the
+world's secrets rest on.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Number theory is one of the oldest and
+deepest branches of mathematics. The distribution of primes touches
+analysis (Riemann zeta function), algebra (algebraic number theory),
+and even physics (random matrix theory). The most famous unsolved
+problem in mathematics — the *Riemann hypothesis*, with a $1 million
+prize — is about primes.
+:::
+
+::: {.applied-callout}
+**Computer science.** Hash functions, error-correcting codes, random
+number generators, distributed systems consensus protocols (e.g.
+Schoenmakers's threshold signatures), and many more all use number
+theory. Knuth devotes most of *The Art of Computer Programming* Volume
+2 to this.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** ISBN check digits, credit card validation (Luhn
+algorithm), CRC error detection in network protocols, even some
+musical scales — divisibility ideas appear in surprisingly many
+practical engineering systems.
+:::
+
+---
+
+## You have finished Tier 1
+
+This lesson closes Tier 1 — the **Foundations** of the curriculum.
+Across 15 lessons you have re-met:
+
+1. What a number is.
+2. Where numbers live (the line).
+3. How we name them (place value).
+4. The four operations, re-grounded as walks and rectangles.
+5. Fractions, decimals, ratios, and negative numbers — the
+   *extensions* that make arithmetic complete.
+6. Variables and equations — the *language* of mathematics.
+7. Geometry — shapes, angles, and measurements.
+8. Statistics — averages, the language of data.
+9. Number theory — the seed of modern encryption.
+
+You are now ready for **Tier 2 — Pre-Algebra & Algebra I (Grade 8–9)**,
+or for any of the applied tracks. The dependency graph is in
+[`_curriculum.yml`](/_curriculum.yml); the visual map is on
+the [home page](/index.qmd).
+
+Congratulations.
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the divisor-display widget
+  makes prime/composite visible at a glance), Boole (the *what makes
+  primes special?* question precedes the definition), Russian school
+  (Euclid's proof in *Discover P3* is presented as a *real* proof, not
+  hand-waved), Bhāskara (single-box Name + verse — and India is the
+  origin of much of early number theory, from Brahmagupta to Aryabhata
+  to the Kerala school), Better Explained (the "Aha!" framing is
+  *multiply-easy / factor-hard, and that's why the internet is
+  secure*).
+- **Self-study guarantees** all present.
+:::
