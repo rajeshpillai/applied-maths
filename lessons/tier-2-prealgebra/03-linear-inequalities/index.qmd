@@ -1,0 +1,363 @@
+---
+title: "03 · Linear Inequalities"
+subtitle: "Equations had one answer; inequalities have a region"
+lesson-id: "t2.linear-inequalities"
+tier: 2
+prerequisites: ["t2.linear-equations-one-var", "t1.negative-numbers"]
+unlocks: []
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [02 · Linear Equations](../02-linear-equations-one-var/index.qmd)?
+2. Comfortable with the symbols **<, >, ≤, ≥**? (less, greater, less-or-equal, greater-or-equal)
+3. Comfortable that on the [number line](../../tier-1-foundations/02-number-line/index.qmd),
+   "−7 < −2" because −7 is *further left*?
+:::
+
+## Touch
+
+Move the slider to find $x$ values that make the inequality true. The
+shaded region is the **solution set**.
+
+```{ojs}
+viewof xTest = Inputs.range([-10, 10], {value: 5, step: 0.5, label: "Test x:"})
+viewof relSel = Inputs.select(["x > 3", "x ≤ −2", "2x + 1 < 7", "−x + 4 ≥ 1"], {value: "2x + 1 < 7", label: "Inequality:"})
+```
+
+```{ojs}
+{
+  let lhsVal, op, rhsVal, soln;
+  switch(relSel) {
+    case "x > 3":      lhsVal = xTest;       op = ">"; rhsVal = 3;  soln = (a) => a > 3; break;
+    case "x ≤ −2":     lhsVal = xTest;       op = "≤"; rhsVal = -2; soln = (a) => a <= -2; break;
+    case "2x + 1 < 7": lhsVal = 2*xTest + 1; op = "<"; rhsVal = 7;  soln = (a) => 2*a + 1 < 7; break;
+    case "−x + 4 ≥ 1": lhsVal = -xTest + 4;  op = "≥"; rhsVal = 1;  soln = (a) => -a + 4 >= 1; break;
+  }
+  const works = soln(xTest);
+  const W = 720, H = 130, pad = 30;
+  const xMin = -10, xMax = 10;
+  const x = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px;");
+  // Shaded region
+  let shadeStart, shadeEnd, openLeft = false, openRight = false;
+  if (relSel === "x > 3") { shadeStart = 3; shadeEnd = xMax; openLeft = true; }
+  if (relSel === "x ≤ −2") { shadeStart = xMin; shadeEnd = -2; openRight = false; }
+  if (relSel === "2x + 1 < 7") { shadeStart = xMin; shadeEnd = 3; openRight = true; } // x < 3
+  if (relSel === "−x + 4 ≥ 1") { shadeStart = xMin; shadeEnd = 3; openRight = false; } // x ≤ 3
+  svg.append("rect")
+    .attr("x", x(shadeStart)).attr("y", H/2 - 8).attr("width", x(shadeEnd) - x(shadeStart)).attr("height", 16)
+    .attr("fill", "#a5d6a7").attr("opacity", 0.7);
+  // axis
+  svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", H/2).attr("y2", H/2)
+    .attr("stroke", "#1f2933").attr("stroke-width", 2);
+  for (let v = xMin; v <= xMax; v++) {
+    svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", H/2 - 5).attr("y2", H/2 + 5)
+      .attr("stroke", "#1f2933");
+    if (v % 2 === 0) svg.append("text").attr("x", x(v)).attr("y", H/2 + 22)
+      .attr("text-anchor", "middle").attr("font-size", "12").text(v);
+  }
+  // marker
+  svg.append("circle").attr("cx", x(xTest)).attr("cy", H/2 - 18).attr("r", 7)
+    .attr("fill", works ? "#2e7d32" : "#c62828").attr("stroke", "#fff").attr("stroke-width", 2);
+  svg.append("text").attr("x", x(xTest)).attr("y", H/2 - 30)
+    .attr("text-anchor", "middle").attr("font-size", "12").attr("font-weight", "bold")
+    .attr("fill", works ? "#2e7d32" : "#c62828")
+    .text(works ? "TRUE" : "false");
+  return svg.node();
+}
+```
+
+```{ojs}
+{
+  return html`<div style="text-align:center; font-family:monospace; margin-top:0.5rem;">
+    The solution set is the green region. Move the slider — green = your x is in the set.
+  </div>`;
+}
+```
+
+An equation usually picks out *one* number. An inequality picks out a
+**range** — every number in some part of the line.
+
+## Wonder
+
+1. The inequality $x > 3$ has solutions 4, 5, 6, ... but also 3.5,
+   3.0001, $\pi$. Is **3** itself a solution?
+2. $x \ge 3$ and $x > 3$ — what's the difference?
+3. **Multiplying both sides of $-2x > 6$ by $-1$:** does $x < ?$ or
+   $x > ?$ result? (This is the rule that catches everyone first time.)
+
+## Discover
+
+### Problem 1
+
+Solve $x + 5 > 9$.
+
+<details class="hint"><summary>Full solution</summary>
+$x > 4$. Same fundamental move as equations: subtract 5 from both
+sides. The inequality sign stays the same direction when you add or
+subtract.
+</details>
+
+### Problem 2
+
+Solve $3x \le 12$.
+
+<details class="hint"><summary>Full solution</summary>
+$x \le 4$. Divide both sides by 3 (a *positive* number); inequality
+direction is unchanged.
+</details>
+
+### Problem 3
+
+Solve $-2x > 6$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try a value: does $x = -4$ satisfy $-2x > 6$? $-2 \cdot -4 = 8 > 6$ ✓.
+Does $x = 0$ satisfy it? $0 > 6$ is false. So the solution must be
+*more negative*, not more positive.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$x < -3$.** When you divide (or multiply) both sides by a *negative*
+number, **flip the inequality**.
+
+$-2x > 6$, divide by $-2$ (negative!): $x < -3$.
+
+**Why?** Multiplying by $-1$ reflects everything across zero. If
+$5 > 3$, then $-5 < -3$ — they swap order. The inequality sign records
+"left vs right on the number line", and reflecting flips left and
+right.
+
+**This is the only rule of inequalities that differs from equations.**
+Burn it in: *negative multiply or divide → flip the sign*.
+</details>
+
+### Problem 4
+
+Solve $4x - 7 \ge 2x + 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same as solving an equation, but watch the sign-flip rule. (Here you
+won't need it — the coefficient of $x$ stays positive.)
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4x - 2x \ge 5 + 7 \Rightarrow 2x \ge 12 \Rightarrow x \ge 6$.
+
+The solution set: $\{ x : x \ge 6 \}$, the half-line from 6 onward,
+including 6 itself.
+</details>
+
+### Problem 5
+
+A delivery van weighs **800 kg empty** and can carry packages totalling
+at most **1500 kg total weight** (van + cargo). What is the maximum
+package weight $w$ it can carry? Write as an inequality and solve.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"At most 1500" means $\le 1500$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$800 + w \le 1500 \Rightarrow w \le 700$ kg.
+
+Real-world constraints — capacity limits, budget caps, time deadlines
+— almost always become inequalities, not equations. Inequalities are
+the maths of *constraint*.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **linear inequality** in one variable looks like
+$$ax + b \ < \ c, \quad ax + b \le c, \quad ax + b > c, \quad ax + b \ge c.$$
+
+The **solution set** is *every* value of $x$ that makes it true — a
+**half-line** on the number line.
+
+**Solving rules:**
+
+- Add or subtract the same number on both sides — *direction unchanged*.
+- Multiply or divide both sides by a **positive** number — *direction
+  unchanged*.
+- Multiply or divide both sides by a **negative** number — **flip the
+  inequality**.
+
+The strict inequalities `<, >` *exclude* the boundary point (open
+circle on the number line). The non-strict `≤, ≥` *include* it
+(filled circle).
+
+:::
+
+> *Same rules as equations, with one twist:*
+> *Multiply or divide by a negative — flip the sign.*
+> *Strict inequalities exclude the boundary; non-strict include it.*
+
+## Apply
+
+### Worked example
+
+> Solve $-3(x + 1) > 6$.
+
+A competent solver:
+
+1. Distribute: $-3x - 3 > 6$.
+2. Add 3: $-3x > 9$.
+3. Divide by $-3$ — **flip!** — : $x < -3$.
+
+**Answer: $x < -3$**, the half-line strictly less than $-3$.
+
+Check with one value: $x = -5 < -3$ ✓. $-3(-5 + 1) = -3 \cdot -4 = 12 >
+6$ ✓.
+
+### Practice — Warm
+
+**W1.** Solve: $x - 4 < 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$x < 6$.
+</details>
+
+**W2.** Solve: $5x \ge 35$.
+
+<details class="hint"><summary>Full solution</summary>
+$x \ge 7$.
+</details>
+
+**W3.** Solve: $-x \le 3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both sides by $-1$ — flip!
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x \ge -3$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $2x + 7 < 19$.
+
+<details class="hint"><summary>Full solution</summary>
+$2x < 12 \Rightarrow x < 6$.
+</details>
+
+**P2.** Solve $-4x + 1 \ge 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract 1; then divide by $-4$ (flip!).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-4x \ge 8 \Rightarrow x \le -2$.
+</details>
+
+**P3.** A taxi charges Rs. 30 base + Rs. 15/km. You have **Rs. 200**.
+What is the maximum distance you can travel?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$30 + 15d \le 200$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$30 + 15d \le 200 \Rightarrow 15d \le 170 \Rightarrow d \le \tfrac{170}{15}
+\approx 11.33$ km.
+
+Round *down* (you can't pay for fractional km in this scenario): max
+**11 km**, leaving Rs. 5 unused.
+
+The "round down" choice came from real-world context, not algebra. The
+algebra gave the bound; you picked the integer.
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve the *compound* inequality $-3 < 2x + 1 \le 7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve "$-3 < 2x + 1$" and "$2x + 1 \le 7$" — both must hold.
+Equivalently, do operations on *all three* parts simultaneously.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Subtract 1 from all three parts: $-4 < 2x \le 6$. Divide by 2: $-2 < x
+\le 3$.
+
+The solution is the *interval* $(-2, 3]$ — strictly greater than $-2$,
+up to and including $3$. Compound inequalities express **bounded
+ranges** — the natural way to write "between $a$ and $b$".
+</details>
+
+**S2.** A neural network's *prediction loss* must be a non-negative
+number — and ideally as small as possible. We want $L(w) < 0.01$ where
+$L$ depends on the model's weights $w$. We don't know $L$ explicitly,
+but we know $L(w) \ge 0$ for all $w$. What does the inequality $0 \le
+L(w) < 0.01$ describe in plain words?
+
+<details class="hint"><summary>Full solution</summary>
+"The loss is non-negative AND less than 0.01" — i.e., the loss is in
+the interval $[0, 0.01)$. This is the *acceptance condition* for a
+trained model: training succeeds when the loss lies in this region.
+
+Inequalities (and their generalisation, **constraints**) are the
+language of optimisation problems — and ML training is the largest
+optimisation problem the world has ever computed.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Inequalities have one answer."** No — they have a *region*.
+   Multiple values (often infinitely many) satisfy them.
+2. **"The inequality always points the same way after manipulation."**
+   No — multiplying or dividing by a *negative* number flips it.
+3. **"Strict and non-strict are the same."** $x > 3$ excludes $x = 3$;
+   $x \ge 3$ includes it. The boundary matters in constraints —
+   especially in optimisation.
+:::
+
+### Self-Assessment
+
+1. Could you explain *why* multiplying both sides by a negative flips
+   the inequality, using the number-line picture?
+2. Without scrolling back, can you solve $-2x + 5 < 11$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $-2x < 6 \Rightarrow x > -3$.)
+
+- **3 yes:** ready for **[04 · The Coordinate Plane](../04-coordinate-plane/index.qmd)**.
+- **2 yes:** redo **S1** (compound inequalities).
+- **0–1 yes:** re-read *Discover P3* — the sign-flip rule is *the*
+  inequality-specific gotcha.
+
+## Connect
+
+### Prerequisites used
+
+- **[02 · Linear Equations](../02-linear-equations-one-var/index.qmd)** —
+  same fundamental move; same strategy.
+- **[T1 L10 — Negative Numbers](../../tier-1-foundations/10-negative-numbers/index.qmd)** —
+  the sign-flip rule comes from how negation reflects across zero.
+
+### What this unlocks
+
+- **Tier 3 — Quadratic Inequalities** — same idea, parabolic regions.
+- **Tier 6 — Linear Programming & Optimisation** — entire systems of
+  inequalities defining feasible regions.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Constraint satisfaction is the heart of
+optimisation. Linear *programming* (an entire branch of operations
+research) handles thousands of inequalities at once. Modern ML uses
+constraint-based formulations everywhere.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Budgets ("don't spend more than X"), capacity
+limits, deadlines, regulatory thresholds, fitness goals ("at least X
+steps per day") — the moment a problem says "at most" or "at least", an
+inequality is hiding in the wording.
+:::
