@@ -1,0 +1,350 @@
+---
+title: "09 · The Fundamental Theorem of Calculus"
+subtitle: "Differentiation and integration are inverse operations"
+lesson-id: "t4.ftc"
+tier: 4
+prerequisites: ["t4.derivative", "t4.definite-integral"]
+unlocks: ["t4.integration-techniques", "t4.integration-applications"]
+applied-domains: ["research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [03 · Derivative](../03-derivative/index.qmd) and
+   [08 · Definite Integral](../08-definite-integral/index.qmd)?
+2. Comfortable with $f'(x) = 2x$ for $f(x) = x^2$?
+3. Comfortable with $\int_0^2 x \, dx = 2$ as a triangle area?
+:::
+
+## Touch
+
+The widget shows the area function $A(x) = \int_0^x f(t) \, dt$ and
+the original function $f(x)$. **Notice: $A'(x) = f(x)$** — the
+derivative of the area is the original function.
+
+```{ojs}
+viewof ftcFn = Inputs.select(["f(t) = t", "f(t) = t²", "f(t) = sin(t)"], {value: "f(t) = t²", label: "f(t):"})
+viewof ftcX = Inputs.range([0.1, 3], {value: 1.5, step: 0.1, label: "Upper limit x:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 280, pad = 30;
+  const xMin = 0, xMax = 3.2, yMin = -0.5, yMax = ftcFn.includes("sin") ? 1.5 : 9;
+  const f = ftcFn === "f(t) = t" ? t => t : ftcFn === "f(t) = t²" ? t => t*t : Math.sin;
+  const A = ftcFn === "f(t) = t" ? x => x*x/2 : ftcFn === "f(t) = t²" ? x => x*x*x/3 : x => 1 - Math.cos(x);
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - ((v - yMin) / (yMax - yMin)) * (H - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("style","width:100%; max-width:760px; background:#fafafa;");
+  svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(0)).attr("y2", py(0)).attr("stroke","#1f2933");
+  svg.append("line").attr("x1", px(0)).attr("x2", px(0)).attr("y1", pad).attr("y2", H - pad).attr("stroke","#1f2933");
+  // Shaded area from 0 to ftcX
+  let pathD = `M ${px(0)},${py(0)}`;
+  for (let x = 0; x <= ftcX; x += 0.02) pathD += ` L ${px(x)},${py(f(x))}`;
+  pathD += ` L ${px(ftcX)},${py(0)} Z`;
+  svg.append("path").attr("d", pathD).attr("fill","#90caf9").attr("opacity",0.5);
+  // f(x) curve
+  let p = "";
+  for (let x = xMin; x <= xMax; x += 0.02) {
+    const y = f(x);
+    if (y < yMin - 1 || y > yMax + 1) continue;
+    p += (p ? " L " : "M ") + `${px(x)},${py(y)}`;
+  }
+  svg.append("path").attr("d", p).attr("fill","none").attr("stroke","#c2185b").attr("stroke-width",2);
+  svg.append("text").attr("x", 12).attr("y", 18).attr("font-size","13").attr("fill","#1565c0").attr("font-weight","bold").attr("font-family","monospace").text(`A(${ftcX.toFixed(1)}) = ∫₀^${ftcX.toFixed(1)} f(t) dt = ${A(ftcX).toFixed(4)}`);
+  svg.append("text").attr("x", 12).attr("y", 36).attr("font-size","13").attr("fill","#c2185b").attr("font-weight","bold").attr("font-family","monospace").text(`A'(${ftcX.toFixed(1)}) = f(${ftcX.toFixed(1)}) = ${f(ftcX).toFixed(4)}`);
+  return svg.node();
+}
+```
+
+The area $A(x) = \int_0^x f(t) \, dt$ is itself a function of $x$.
+The Fundamental Theorem says: differentiating $A$ gives back $f$ —
+they're inverse operations.
+
+## Wonder
+
+1. Set $f(t) = t^2, x = 2$. $A(2) = \int_0^2 t^2 \, dt = 8/3$. Why?
+2. The derivative of $A(x) = x^3/3$ is $x^2 = f(x)$. Coincidence?
+3. To find $\int_a^b f \, dx$: find any *antiderivative* $F$ (a
+   function with $F' = f$), then compute $F(b) - F(a)$. Why does this
+   work?
+
+## Discover
+
+### Problem 1
+
+Find a function $F$ such that $F'(x) = x^2$. (An **antiderivative**
+of $x^2$.)
+
+<details class="hint"><summary>Full solution</summary>
+$F(x) = x^3/3$ (since $(x^3/3)' = x^2$).
+
+Or $F(x) = x^3/3 + 5$, or any $x^3/3 + C$ for constant $C$. **Anti-
+derivatives are determined up to a constant** — the constant
+disappears under differentiation.
+</details>
+
+### Problem 2
+
+**FTC Part 1.** If $A(x) = \int_a^x f(t) \, dt$, then $A'(x) = f(x)$.
+That is, **the area function's derivative recovers the original
+function.**
+
+Verify for $f(t) = t^2, a = 0$: compute $A(x)$, then $A'(x)$.
+
+<details class="hint"><summary>Full solution</summary>
+$A(x) = \int_0^x t^2 \, dt = x^3/3$ (from FTC Part 2 below — or the
+geometry of approximating Riemann sums).
+
+$A'(x) = x^2 = f(x)$ ✓.
+
+Theoretically: $A(x + h) - A(x) \approx f(x) \cdot h$ (the strip is
+nearly a rectangle of width $h$ and height $f(x)$). So
+$\dfrac{A(x + h) - A(x)}{h} \to f(x)$ as $h \to 0$.
+</details>
+
+### Problem 3
+
+**FTC Part 2.** $\int_a^b f(x) \, dx = F(b) - F(a)$ where $F$ is any
+antiderivative of $f$.
+
+Compute $\int_0^2 x^2 \, dx$ using $F(x) = x^3/3$.
+
+<details class="hint"><summary>Full solution</summary>
+$F(2) - F(0) = 8/3 - 0 = 8/3$.
+
+So $\int_0^2 x^2 \, dx = 8/3 \approx 2.667$. (Matches the numerical
+estimate from Lesson 08 — but now *exact*, in seconds, no Riemann
+sums needed.)
+
+**Notation:** $\int_a^b f(x) \, dx = [F(x)]_a^b = F(b) - F(a)$.
+</details>
+
+### Problem 4
+
+Compute $\int_1^3 (x^2 + 2x) \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Antiderivative: $F(x) = x^3/3 + x^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$F(3) = 9 + 9 = 18$. $F(1) = 1/3 + 1 = 4/3$. Difference: $18 - 4/3 =
+50/3 \approx 16.67$.
+
+Linearity of antiderivatives: $\int (f + g) = \int f + \int g$, just
+like derivatives.
+</details>
+
+### Problem 5
+
+Compute $\int_0^\pi \sin x \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Antiderivative of $\sin x$ is $-\cos x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$[-\cos x]_0^\pi = -\cos \pi + \cos 0 = 1 + 1 = 2$.
+
+So the area under one arch of $\sin x$ from $0$ to $\pi$ is exactly
+**2**.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Antiderivative.** $F$ is an antiderivative of $f$ if $F'(x) = f(x)$.
+The most general antiderivative is $F(x) + C$ (the **+ C**).
+
+The **indefinite integral** $\int f(x) \, dx = F(x) + C$ denotes the
+family of antiderivatives.
+
+**Fundamental Theorem of Calculus, Part 1:**
+If $A(x) = \int_a^x f(t) \, dt$, then $A'(x) = f(x)$.
+
+**Fundamental Theorem of Calculus, Part 2:**
+If $F$ is *any* antiderivative of $f$ on $[a, b]$, then
+$$\int_a^b f(x) \, dx = F(b) - F(a).$$
+
+**Standard antiderivatives:**
+
+| $f(x)$ | $F(x) = \int f(x) \, dx$ |
+|---|---|
+| $x^n$ ($n \neq -1$) | $\dfrac{x^{n+1}}{n + 1} + C$ |
+| $1/x$ | $\ln|x| + C$ |
+| $e^x$ | $e^x + C$ |
+| $\sin x$ | $-\cos x + C$ |
+| $\cos x$ | $\sin x + C$ |
+| $\sec^2 x$ | $\tan x + C$ |
+
+:::
+
+> *Differentiation and integration are inverses (FTC Part 1);*
+> *To compute $\int_a^b f$: find an antiderivative $F$, take $F(b) - F(a)$;*
+> *Don't forget the **+ C** for indefinite integrals.*
+
+## Apply
+
+### Worked example
+
+> Compute $\int_0^4 (3 x^2 - 2x + 5) \, dx$.
+
+A competent solver finds an antiderivative term by term:
+
+$F(x) = x^3 - x^2 + 5x$.
+
+$F(4) = 64 - 16 + 20 = 68$. $F(0) = 0$.
+
+$\int_0^4 (3x^2 - 2x + 5) \, dx = 68 - 0 = 68$.
+
+### Practice — Warm
+
+**W1.** $\int x^4 \, dx = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$x^5/5 + C$.
+</details>
+
+**W2.** $\int_0^1 x^3 \, dx = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$[x^4/4]_0^1 = 1/4$.
+</details>
+
+**W3.** $\int_0^{\pi/2} \cos x \, dx = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$[\sin x]_0^{\pi/2} = 1 - 0 = 1$.
+</details>
+
+### Practice — Working
+
+**P1.** $\int_1^2 \dfrac{1}{x} \, dx = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$[\ln |x|]_1^2 = \ln 2 - \ln 1 = \ln 2 \approx 0.693$.
+</details>
+
+**P2.** $\int_0^1 e^x \, dx = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$[e^x]_0^1 = e - 1 \approx 1.718$.
+</details>
+
+**P3.** Total displacement of an object with velocity $v(t) = 4t$ from
+$t = 0$ to $t = 3$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^3 4t \, dt = [2 t^2]_0^3 = 18$ m.
+
+Position at time $t$: integral of velocity. $s(t) - s(0) = \int_0^t v
+\, du$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Compute $\int_0^1 (x^2 + 1)^{1/2} \, dx$ — wait, this *can't*
+easily be done by elementary antiderivatives. (Indeed: many integrals
+are *non-elementary* — like $\int e^{-x^2} dx$, the Gaussian.) What
+do we do?
+
+<details class="hint"><summary>Full solution</summary>
+**Numerical methods:** approximate using Riemann sums, or better,
+trapezoidal/Simpson's rules. For analytical work: leave the integral
+as it is, name it (e.g., $\Phi(x)$ for the Gaussian), prove
+properties from the definition.
+
+Many of mathematics' most important "non-elementary" functions are
+defined as integrals: $\Phi(x) = \int_0^x e^{-t^2} \, dt$ (error
+function); $\text{Li}(x) = \int_2^x \dfrac{dt}{\ln t}$ (logarithmic
+integral); the Gamma function $\Gamma(z) = \int_0^\infty t^{z-1} e^{-t}
+\, dt$.
+
+The FTC closes the loop for *elementary* antiderivatives but *opens*
+a vast world of non-elementary special functions.
+</details>
+
+**S2.** **Calculus and ML training.** A key ML quantity is the
+*expected loss*: $\mathbb{E}[L(\theta; X)] = \int L(\theta; x) p(x)
+\, dx$. Why is this an integral, and how is it computed?
+
+<details class="hint"><summary>Full solution</summary>
+**Expected value over a continuous distribution is an integral**
+(Tier 5 makes the discrete-to-continuous transition explicit). Almost
+no real ML loss has a closed-form integral over the data
+distribution.
+
+So we approximate via **stochastic gradient descent (SGD)**: estimate
+the integral by a single (or small batch) of samples,
+$\mathbb{E}[L] \approx L(\theta; x_i)$ for $x_i \sim p$. The
+*stochastic* in SGD is precisely this Monte Carlo approximation.
+
+The Fundamental Theorem of Calculus is one of the deep reasons ML
+"works": training drives an empirical loss down, and the empirical
+loss is an unbiased estimate of the true integral. Convergence
+guarantees rest on this connection.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Forgot the + C."** Standard sin in indefinite integrals.
+   Doesn't matter for *definite* integrals (constants cancel) but
+   matters for indefinite integrals and differential equations.
+2. **"$\int x^{-1} \, dx = x^0/0$."** Impossible — division by zero.
+   The exception to the power rule: $\int x^{-1} \, dx = \ln|x| + C$.
+3. **"FTC means I can integrate anything."** No — only when an
+   antiderivative is known. Many integrals are non-elementary
+   (Stretch S1).
+:::
+
+### Self-Assessment
+
+1. Could you state both parts of the FTC in your own words?
+2. Without scrolling back, can you compute $\int_0^2 x^3 \, dx$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $[x^4/4]_0^2 = 4$.)
+
+- **3 yes:** ready for **[10 · Integration Techniques](../10-integration-techniques/index.qmd)**.
+- **2 yes:** redo **S2** (expected loss as an integral).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[03 · Derivative](../03-derivative/index.qmd)** — antiderivatives
+  reverse derivatives.
+- **[08 · Definite Integral](../08-definite-integral/index.qmd)** —
+  the FTC computes these efficiently.
+
+### What this unlocks
+
+- **[10 · Integration Techniques](../10-integration-techniques/index.qmd)** —
+  for harder antiderivatives.
+- **[11 · Integration Applications](../11-integration-applications/index.qmd)** —
+  area, volume, work, etc.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Expected losses (S2), KL divergences,
+expectations under distributions — all integrals approximated by SGD.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** The FTC is one of the great unifications
+in mathematics, connecting differential and integral calculus into
+one subject. Generalisations (Stokes' theorem, Tier 5+) extend it to
+higher dimensions.
+:::
+
+::: {.applied-callout}
+**Physics.** Position from velocity (P3) and many similar
+"accumulation" results — integrating rate over time gives total
+quantity.
+:::
