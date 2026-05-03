@@ -1,0 +1,440 @@
+---
+title: "Area, Perimeter, Volume"
+subtitle: "Measuring shapes — distance around, surface inside, space within"
+lesson-id: "t1.area-perimeter-volume"
+tier: 1
+prerequisites: ["t1.shapes-angles", "t1.multiply-as-area"]
+unlocks: []
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Lesson 5 — Multiplication as Area](../05-multiply-as-area/index.qmd)
+   and [Lesson 12 — Shapes and Angles](../12-shapes-angles/index.qmd)?
+2. Can you compute $7 \times 8 = 56$ in your head?
+3. Have you ever measured a room with a tape measure, or estimated how
+   much paint you'd need for a wall?
+:::
+
+## Touch
+
+Drag width and height. Three numbers update together: the **distance
+around** the rectangle, the **surface inside**, and the **box** you'd
+get if you extruded it to depth 1.
+
+```{ojs}
+viewof rW = Inputs.range([1, 10], {value: 5, step: 1, label: "Width:"})
+```
+
+```{ojs}
+viewof rH = Inputs.range([1, 8], {value: 3, step: 1, label: "Height:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 280, pad = 30;
+  const cellSize = 30, gap = 1;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px;");
+
+  // Draw rectangle as cells
+  const ox = 60, oy = 30;
+  for (let r = 0; r < rH; r++) {
+    for (let c = 0; c < rW; c++) {
+      svg.append("rect")
+        .attr("x", ox + c * (cellSize + gap)).attr("y", oy + r * (cellSize + gap))
+        .attr("width", cellSize).attr("height", cellSize)
+        .attr("fill", "#90caf9").attr("stroke", "#2c5f7c");
+    }
+  }
+  // Highlight perimeter cells with thicker outline
+  const rectX = ox, rectY = oy;
+  const rectW = rW * (cellSize + gap) - gap, rectH = rH * (cellSize + gap) - gap;
+  svg.append("rect")
+    .attr("x", rectX - 2).attr("y", rectY - 2)
+    .attr("width", rectW + 4).attr("height", rectH + 4)
+    .attr("fill", "none").attr("stroke", "#c2185b").attr("stroke-width", 3);
+
+  // Right side text
+  const tx = ox + rectW + 50;
+  const perim = 2 * (rW + rH);
+  const area = rW * rH;
+  const vol = rW * rH * 1;
+  svg.append("text").attr("x", tx).attr("y", 50).attr("font-size", "16").attr("fill", "#c2185b").attr("font-weight", "bold")
+    .text(`Perimeter (around)`);
+  svg.append("text").attr("x", tx).attr("y", 72).attr("font-size", "20").attr("font-family", "monospace")
+    .text(`2 × (${rW} + ${rH}) = ${perim}`);
+
+  svg.append("text").attr("x", tx).attr("y", 110).attr("font-size", "16").attr("fill", "#2c5f7c").attr("font-weight", "bold")
+    .text(`Area (inside)`);
+  svg.append("text").attr("x", tx).attr("y", 132).attr("font-size", "20").attr("font-family", "monospace")
+    .text(`${rW} × ${rH} = ${area} sq.units`);
+
+  svg.append("text").attr("x", tx).attr("y", 170).attr("font-size", "16").attr("fill", "#2e7d32").attr("font-weight", "bold")
+    .text(`Volume (extruded depth 1)`);
+  svg.append("text").attr("x", tx).attr("y", 192).attr("font-size", "20").attr("font-family", "monospace")
+    .text(`${rW} × ${rH} × 1 = ${vol} cu.units`);
+
+  return svg.node();
+}
+```
+
+Three measurements, three units. **Perimeter** is a distance (1D —
+metres). **Area** is a surface (2D — square metres). **Volume** is a
+space (3D — cubic metres). Don't confuse them.
+
+## Wonder
+
+1. If you double the width of a rectangle, what happens to its
+   perimeter? To its area?
+2. Can two rectangles have the *same area* but *different perimeters*?
+3. Why do we call square metres "square" — what is being squared?
+
+## Discover
+
+### Problem 1
+
+A rectangle has width 8 m and height 5 m. Find its perimeter and its
+area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Perimeter = sum of all four sides = $8 + 5 + 8 + 5$ or $2(8 + 5)$.
+Area = width × height (Lesson 5).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Perimeter $= 2 \times (8 + 5) = 26$ metres.
+Area $= 8 \times 5 = 40$ square metres.
+
+Notice the **units**: perimeter is a length (metres). Area is a square
+length (square metres). Same shape, two different *kinds* of measurement.
+</details>
+
+### Problem 2
+
+A square has side **6 cm**. What is its perimeter? Its area?
+
+Generalise: for a square of side $s$, what is the perimeter and the area
+in terms of $s$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A square is a special rectangle with width = height = $s$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $s = 6$: perimeter $= 4 \times 6 = 24$ cm; area $= 6 \times 6 = 36$
+cm².
+
+In general:
+$$P = 4s, \quad A = s^2.$$
+
+The notation $s^2$ ("$s$ squared") *is* "side × side". This is where the
+phrase "**six squared**" comes from — the area of a 6-by-6 square. The
+fundamental shape is hiding in the language.
+</details>
+
+### Problem 3
+
+Sketch a rectangle with **area 12** square units. Now sketch *another*
+rectangle with the same area. Are they the same shape?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+12 = 1×12 = 2×6 = 3×4. Each pairing gives a different rectangle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Three valid options: **1×12**, **2×6**, **3×4** (and their rotations:
+12×1, etc., which are the same rectangles turned).
+
+Their perimeters: $2(1+12)=26$, $2(2+6)=16$, $2(3+4)=14$. The 3×4 has
+the *smallest* perimeter for area 12 — closest to a square. Among
+all rectangles with a given area, **the square has the smallest
+perimeter**. This is a classic *isoperimetric* problem in mathematics.
+
+For a fixed perimeter (e.g., a rope of fixed length), the *largest area*
+you can enclose with a rectangle is also a square. (And among *all*
+shapes — not just rectangles — the largest area for a given perimeter
+is a circle. This is one of mathematics' great theorems.)
+</details>
+
+### Problem 4
+
+A box (rectangular cuboid) has dimensions **4 m × 3 m × 2 m**. What is
+its volume?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume = length × width × height. Unit: cubic metres.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = 4 \times 3 \times 2 = 24$ m³.
+
+Picture: stack 24 unit cubes in a 4 × 3 × 2 arrangement. The product
+counts them.
+
+Generalisation: for any rectangular cuboid, $V = \ell \times w \times h$.
+For a *cube* with side $s$: $V = s^3$ ("$s$ cubed") — the same naming
+trick as "squared" but in 3D.
+</details>
+
+### Problem 5
+
+The area of a circle is given by the formula
+$$A = \pi r^2,$$
+where $r$ is the **radius** (distance from the centre to the edge) and
+$\pi \approx 3.14159$.
+
+A circular pizza has radius **15 cm**. What is its area?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $r = 15$. Use $\pi \approx 3.14$ for an estimate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = 3.14 \times 15^2 = 3.14 \times 225 \approx 706.5$ cm².
+
+The number $\pi$ is the ratio of any circle's circumference to its
+diameter — a fundamental constant of geometry. It is *irrational*,
+meaning it can't be written as a fraction (Lesson 7), and its decimal
+expansion (Lesson 8) goes on forever without repeating:
+$\pi = 3.14159265\ldots$
+
+We will derive these formulas properly in Tier 3 (using calculus in Tier
+4, even more so). For now, accept them as given — the pizza area
+calculation works the same.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Perimeter** is the total *distance around* the boundary of a 2D shape,
+measured in linear units (m, cm, km).
+
+**Area** is the *surface inside* a 2D shape, measured in square units
+(m², cm²).
+
+**Volume** is the *space inside* a 3D shape, measured in cubic units
+(m³, cm³).
+
+Key formulas (Tier 1 set):
+
+| Shape | Perimeter | Area | (Volume, if 3D) |
+|---|---|---|---|
+| Rectangle (w × h) | $2(w + h)$ | $w \times h$ | — |
+| Square (side $s$) | $4s$ | $s^2$ | — |
+| Circle (radius $r$) | $2\pi r$ (circumference) | $\pi r^2$ | — |
+| Triangle (base $b$, height $h$) | sum of 3 sides | $\tfrac{1}{2}\,b\,h$ | — |
+| Cuboid ($\ell \times w \times h$) | — | (surface area, later) | $\ell \times w \times h$ |
+| Cube (side $s$) | — | — | $s^3$ |
+
+:::
+
+> *Around the edge — perimeter, in length;*
+> *Inside the edge — area, in length squared;*
+> *Inside the box — volume, in length cubed.*
+
+## Apply
+
+### Worked example
+
+> A rectangular swimming pool is **25 m long, 10 m wide, and 2 m deep**.
+> A tile costs Rs. 50 per square metre to cover the floor. What is the
+> total tile cost? How much water (in cubic metres) does the pool hold?
+
+A competent solver attacks each measurement separately:
+
+1. **Floor area:** $25 \times 10 = 250$ m².
+2. **Tile cost:** $250 \times 50 = 12{,}500$ rupees.
+3. **Volume of water:** $25 \times 10 \times 2 = 500$ m³.
+
+**Tile cost: Rs. 12,500. Water: 500 m³.** Notice each calculation uses a
+different multiplication: 2D for floor, 3D for water.
+
+### Practice — Warm
+
+**W1.** A rectangle is 7 m by 4 m. Perimeter? Area?
+
+<details class="hint"><summary>Full solution</summary>
+$P = 2(7+4) = 22$ m. $A = 7 \times 4 = 28$ m².
+</details>
+
+**W2.** A square has side 9 cm. Perimeter? Area?
+
+<details class="hint"><summary>Full solution</summary>
+$P = 36$ cm. $A = 81$ cm².
+</details>
+
+**W3.** A box is 5 × 4 × 3 m. Volume?
+
+<details class="hint"><summary>Full solution</summary>
+$V = 60$ m³.
+</details>
+
+### Practice — Working
+
+**P1.** A rectangular field is 80 m by 50 m. Find the cost of fencing
+it at Rs. 25 per metre.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Fencing follows the perimeter, not the area.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P = 2(80+50) = 260$ m. Cost $= 260 \times 25 = 6{,}500$ rupees.
+</details>
+
+**P2.** A circular garden has radius 7 m. Find the area covered. (Use
+$\pi = \tfrac{22}{7}$ for an exact-looking answer.)
+
+<details class="hint"><summary>Full solution</summary>
+$A = \tfrac{22}{7} \times 7^2 = \tfrac{22}{7} \times 49 = 22 \times 7 =
+154$ m². The choice of $\tfrac{22}{7}$ as the approximation makes
+arithmetic clean when the radius is a multiple of 7.
+</details>
+
+**P3.** A triangular sail has base 4 m and height 3 m. What is its area?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangle area = $\tfrac{1}{2} \times \text{base} \times \text{height}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = \tfrac{1}{2} \times 4 \times 3 = 6$ m².
+
+The factor of $\tfrac{1}{2}$ has a beautiful explanation: any triangle is
+exactly *half* of the rectangle that would enclose it (with the same
+base and height). So a triangle's area is half of base × height. We will
+prove this carefully in Tier 3.
+</details>
+
+### Practice — Stretch
+
+**S1.** Two cubes: one with side 2 m, the other with side 4 m. The
+second cube has a side **twice** that of the first. By how much does
+the *volume* multiply?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute both volumes.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First cube: $V = 2^3 = 8$ m³. Second cube: $V = 4^3 = 64$ m³. The volume
+multiplies by **8** — that is, $2^3$.
+
+**General rule:** if you scale every dimension of a shape by a factor
+$k$, then perimeter scales by $k$, area by $k^2$, and volume by $k^3$.
+
+This is why a baby elephant is short and stout, while an adult elephant
+needs proportionally thicker legs: doubling the elephant's height makes
+it 8× heavier (volume), but only 4× stronger (cross-sectional area of
+muscle and bone, which scales like area). At some scale, the legs can no
+longer hold up the body — the **square-cube law** sets a ceiling on how
+big land animals can grow. Galileo first wrote about this in 1638.
+</details>
+
+**S2.** A 3D model in a video game is a *mesh* of many tiny triangles. A
+single character might have **20,000 triangles**. The graphics card
+computes the area of each (for lighting and rendering). What does this
+say about the importance of the triangle area formula in real-time
+graphics?
+
+<details class="hint"><summary>Full solution</summary>
+Every frame of a game (60 frames per second on most modern hardware) has
+to compute area-related quantities for *millions* of triangles. The
+simple $\tfrac{1}{2} b h$ formula is run as a vector cross-product on a
+GPU, but the underlying idea is exactly what you used in *Practice P3*.
+
+The area, perimeter, and volume formulas you've just met are the
+*foundational primitives* of computer graphics. Tier 4 (vectors) and
+Tier 6 (computational geometry) build the full toolkit; Tier 1 sets the
+language.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Area and perimeter are the same kind of measurement."** No —
+   perimeter is a length (1D, m), area is a square length (2D, m²).
+   They have different *units* and different *behaviours under scaling*
+   (Stretch S1).
+2. **"Volume = side × side."** That's the area of a square's face. Volume
+   needs *three* multiplications, one per dimension.
+3. **"Doubling the dimensions doubles the area."** No — it *quadruples*
+   the area, and *octuples* the volume. The square-cube law (Stretch S1)
+   surprises everyone the first time.
+:::
+
+### Self-Assessment
+
+1. Could you explain to a friend why a 3×4 rectangle and a 2×6 rectangle
+   have the *same area* but *different perimeters*?
+2. Without scrolling back, can you compute the volume of a 5 × 6 × 2
+   box?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer to #2: $V = 60$ cubic units.)
+
+- **3 yes:** ready for **[Lesson 14 — Data and the Average](../14-data-and-average/index.qmd)**.
+- **2 yes:** redo **S1** (the square-cube law) — that result is genuinely
+  surprising and worth feeling.
+- **0–1 yes:** re-read *Discover P3* and the worked example.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 12 — Shapes and Angles](../12-shapes-angles/index.qmd)** —
+  we needed names for shapes (rectangle, square, triangle, circle)
+  before measuring them.
+- **[Lesson 5 — Multiplication as Area](../05-multiply-as-area/index.qmd)** —
+  the rectangle picture is the basis for both area and (extended) volume.
+
+### What this unlocks
+
+- **Tier 2 — Pythagoras' theorem** — a beautiful relationship between
+  the *areas* of squares built on the sides of a right-angled triangle.
+- **Tier 3 — Trigonometry & coordinate geometry** — once positions are
+  numbers, areas become integrals.
+- **Tier 4 — Calculus** — area under any curve, not just polygons.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & graphics.** *Stretch S2* makes the case: every
+rendered triangle area is computed from this formula. Volumes appear in
+collision detection ("does this cube intersect that one?"), particle
+systems, and physics. The Tier 1 measurements are the alphabet.
+:::
+
+::: {.applied-callout}
+**Engineering & architecture.** Floor space, paint coverage, water
+tank capacity, beam strength (cross-section), heat loss (surface area).
+Every building decision is some combination of perimeter, area, and
+volume measurements.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** The *isoperimetric problem* (Discover P3) —
+"what shape encloses the most area for a given perimeter?" — is the
+ancestor of the **calculus of variations**, a major branch of analysis.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Carpet purchasing, garden planning, packaging
+design, fuel-tank capacity, room ventilation, agriculture (area
+yields), real estate (price per square metre).
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the cell-grid widget makes area
+  literally countable), Boole (the *can two rectangles have the same
+  area but different perimeters?* question is a classic Boolean
+  question), Russian school (Discover P3 derives the isoperimetric
+  intuition from concrete cases), Bhāskara (single-box Name + verse;
+  Bhāskara's *Līlāvatī* contains many area problems set in vivid
+  scenes — moats, ponds, gardens), 3Blue1Brown (the square-cube law
+  in S1 is exactly the kind of dimension-shifting moment 3B1B excels
+  at).
+- **Self-study guarantees** all present.
+:::
