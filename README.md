@@ -25,13 +25,11 @@ world*, reached incrementally.
 
 ## Status
 
-This is a **work in progress**. The scaffold and the first exemplar lesson —
-[*What is a Number?*](lessons/tier-1-foundations/01-what-is-a-number/index.qmd)
-— are in place. Tier 1 (Grade 5–7) is being built first, deeply, before
-breadth.
+**Tier 1 — Foundations (Grade 5–7) is complete: all 15 lessons built.**
+Begin at [01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-number/index.qmd).
 
-See [`_curriculum.yml`](_curriculum.yml) for the planned scope and
-[`CLAUDE.md`](CLAUDE.md) for the authoring contract.
+Tiers 2–7 are outlined in [`_curriculum.yml`](_curriculum.yml) and will be
+built next. See [`CLAUDE.md`](CLAUDE.md) for the authoring contract.
 
 ## Building locally
 
