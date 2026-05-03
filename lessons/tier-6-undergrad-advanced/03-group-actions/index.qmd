@@ -1,0 +1,339 @@
+---
+title: "03 · Group Actions and Symmetry"
+subtitle: "How groups act on sets — and Burnside's counting theorem"
+lesson-id: "t6.group-actions"
+tier: 6
+prerequisites: ["t6.groups"]
+unlocks: []
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [01 · Groups](../01-groups/index.qmd)?
+2. Comfortable with $S_n, D_n$ from L01?
+3. Familiar with Lagrange's theorem?
+:::
+
+## Touch
+
+A **group action** of $G$ on a set $X$: each $g \in G$ corresponds
+to a permutation of $X$ (subject to two axioms).
+
+```{ojs}
+viewof gaSel = Inputs.select(["S_3 acting on {1, 2, 3}", "D_4 acting on the 4 corners of a square", "GL(2, ℝ) acting on ℝ² (rotations, scaling)"], {value: "S_3 acting on {1, 2, 3}", label: "Action:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(gaSel) {
+    case "S_3 acting on {1, 2, 3}": info = "Each permutation moves the three elements. Single orbit of size 3 (transitive)."; break;
+    case "D_4 acting on the 4 corners of a square": info = "8 group elements act on 4 corners. Single orbit (any corner reaches any other). Stabiliser of a corner: 2 elements (identity + diagonal reflection through it)."; break;
+    case "GL(2, ℝ) acting on ℝ² (rotations, scaling)": info = "Orbits: {0} (single point) and ℝ² ∖ {0} (rest). The non-zero vectors are all in one orbit (any can be transformed to any other)."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why does $|G| = |\text{orbit}| \cdot |\text{stabiliser}|$
+   (orbit-stabiliser theorem)?
+2. The dihedral group $D_n$ has $2n$ elements but a square has only 8
+   "different-looking" colourings under rotation. Why?
+3. Burnside's lemma counts orbits via "average fixed-point count" —
+   why?
+:::
+
+## Discover
+
+### Problem 1
+
+A **group action** of $G$ on $X$ is a function $G \times X \to X$
+written $(g, x) \mapsto g \cdot x$ satisfying:
+
+- $e \cdot x = x$.
+- $(gh) \cdot x = g \cdot (h \cdot x)$.
+
+For $S_3$ on $\{1, 2, 3\}$: $\sigma \cdot i = \sigma(i)$. Verify.
+
+<details class="hint"><summary>Full solution</summary>
+$e \cdot i = i$ ✓.
+$(\sigma \tau) \cdot i = (\sigma \tau)(i) = \sigma(\tau(i)) = \sigma
+\cdot (\tau \cdot i)$ ✓.
+
+The most natural action of $S_n$ is on $\{1, \ldots, n\}$.
+</details>
+
+### Problem 2
+
+The **orbit** of $x$ under $G$: $\text{Orb}(x) = \{g \cdot x : g \in G\}$.
+
+The **stabiliser** of $x$: $\text{Stab}(x) = \{g \in G : g \cdot x = x\}$.
+
+Compute orbit and stabiliser of $1$ under $S_3$.
+
+<details class="hint"><summary>Full solution</summary>
+$\text{Orb}(1) = \{1, 2, 3\}$ — size 3.
+$\text{Stab}(1) = $ permutations fixing 1 = $\{e, (2\ 3)\}$ — size 2.
+
+Note: $|S_3| = 6 = 3 \cdot 2 = |\text{Orb}| \cdot |\text{Stab}|$.
+</details>
+
+### Problem 3
+
+**Orbit-Stabiliser Theorem.** For any $x \in X$:
+$$|G| = |\text{Orb}(x)| \cdot |\text{Stab}(x)|.$$
+
+This generalises Lagrange's theorem.
+
+Apply: $D_4$ acting on the 4 corners of a square. $|D_4| = 8$. Orbit
+of any corner = all 4 corners. So stabiliser size = ?
+
+<details class="hint"><summary>Full solution</summary>
+$|\text{Stab}| = 8 / 4 = 2$.
+
+Indeed: identity + the reflection through the diagonal containing
+that corner = 2 elements.
+</details>
+
+### Problem 4
+
+**Burnside's lemma.** Number of orbits $= \dfrac{1}{|G|} \sum_{g \in
+G} |\text{Fix}(g)|$, where $\text{Fix}(g) = \{x : g \cdot x = x\}$.
+
+Apply: count distinct ways to colour the 4 corners of a square with 2
+colours, where rotations of the square are identified.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Group: rotations of the square = cyclic $C_4$ ($\{e, r, r^2, r^3\}$).
+
+Fixed colourings:
+- $e$: all $2^4 = 16$ fixed.
+- $r$ (90°): need all corners same colour: 2.
+- $r^2$ (180°): opposite corners equal: 4.
+- $r^3$ (270°): same as $r$: 2.
+
+Total: $(16 + 2 + 4 + 2)/4 = 24/4 = 6$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**6 distinct colourings.**
+
+Burnside elegantly handles symmetry-aware counting. The
+*Pólya enumeration theorem* (Tier 7) generalises with several
+colours and richer symmetry groups — used in chemistry (counting
+isomers) and combinatorics.
+</details>
+
+### Problem 5
+
+**Conjugation action.** $G$ acts on itself by conjugation: $g \cdot x
+= g x g^{-1}$.
+
+Orbits = **conjugacy classes**. In $S_3$, find them.
+
+<details class="hint"><summary>Full solution</summary>
+$\{e\}$, $\{(1\ 2), (1\ 3), (2\ 3)\}$ (transpositions), $\{(1\ 2\
+3), (1\ 3\ 2)\}$ (3-cycles). **Three classes**, sizes 1, 3, 2 (sum 6
+✓).
+
+Conjugacy classes are essential for **representation theory** and
+**character tables** (Tier 7).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **group action** of $G$ on $X$: $G \times X \to X, (g, x) \mapsto g
+\cdot x$ with:
+
+- $e \cdot x = x$.
+- $(gh) \cdot x = g \cdot (h \cdot x)$.
+
+**Orbit** of $x$: $\text{Orb}(x) = \{g \cdot x\}$. **Stabiliser**:
+$\text{Stab}(x) = \{g : g \cdot x = x\}$.
+
+**Orbit-Stabiliser Theorem:** $|G| = |\text{Orb}(x)| \cdot
+|\text{Stab}(x)|$.
+
+**Burnside's lemma:** number of orbits $= \dfrac{1}{|G|} \sum_{g \in G}
+|\text{Fix}(g)|$.
+
+**Conjugation action:** $g \cdot x = g x g^{-1}$. Orbits =
+**conjugacy classes**.
+
+**Common actions:**
+
+- $S_n$ on $\{1, \ldots, n\}$.
+- $D_n$ on vertices of regular $n$-gon.
+- $G$ on itself by conjugation.
+- $G$ on itself by left multiplication (**Cayley action** —
+  embeds $G$ in $S_{|G|}$).
+
+:::
+
+> *Group action: each element of $G$ permutes elements of $X$;*
+> *Orbit-Stabiliser: $|G| = |\text{Orb}| \cdot |\text{Stab}|$;*
+> *Burnside counts orbits by averaging fixed points.*
+
+## Apply
+
+### Worked example
+
+> Count distinct necklaces with 6 beads, each red or blue (rotations
+> identified).
+
+Group: $C_6$ rotations. Apply Burnside.
+
+| $g$ | Fixed colourings |
+|---|---|
+| $e$ (rotation 0) | $2^6 = 64$ |
+| $r$ (60°) | all beads equal: 2 |
+| $r^2$ (120°) | beads in 2 orbits of 3: $2^2 = 4$ |
+| $r^3$ (180°) | beads in 3 orbits of 2: $2^3 = 8$ |
+| $r^4$ (240°) | as $r^2$: 4 |
+| $r^5$ (300°) | as $r$: 2 |
+
+Sum = 84. Orbits = 84/6 = **14 distinct necklaces**.
+
+### Practice — Warm
+
+**W1.** $|S_4| = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$24$.
+</details>
+
+**W2.** Stab of element 1 under $S_4$ acting on $\{1,2,3,4\}$?
+
+<details class="hint"><summary>Full solution</summary>
+Permutations fixing 1: $S_3$ on $\{2, 3, 4\}$. Size 6.
+</details>
+
+**W3.** $|G| = 12, |\text{Orb}| = 4$. $|\text{Stab}|$?
+
+<details class="hint"><summary>Full solution</summary>
+$3$.
+</details>
+
+### Practice — Working
+
+**P1.** Orbits of $\mathbb{Z}/6$ acting on itself by addition.
+
+<details class="hint"><summary>Full solution</summary>
+Single orbit (the whole group).
+</details>
+
+**P2.** Conjugacy classes of $D_4$ (8 elements).
+
+<details class="hint"><summary>Full solution</summary>
+$\{e\}, \{r^2\}, \{r, r^3\}, \{$two diagonal reflections$\}, \{$two
+edge reflections$\}$. **Five classes.**
+</details>
+
+**P3.** Square 4-corners, 3 colours, rotations only. Distinct?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$C_4$. Fixed: $e: 81, r: 3, r^2: 9, r^3: 3$. Sum 96 / 4 = 24.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**24.**
+</details>
+
+### Practice — Stretch
+
+**S1.** **Rubik's cube symmetry.** Why is the Rubik's cube group so
+hard to describe? (Hint: it's a complicated subgroup of $S_{48}$,
+permutations of the 48 *non-centre* facelets.)
+
+<details class="hint"><summary>Full solution</summary>
+**The Rubik's cube group has order $4.3 \times 10^{19}$.** The 48
+facelets are permuted by each move; the group is generated by 6 face
+rotations.
+
+Group structure determines:
+
+- *God's number* (the maximum twists needed to solve any
+  configuration: 20).
+- Solvers (Kociemba's algorithm uses subgroup decomposition).
+- Solvability conditions (must preserve certain parities).
+
+Group theory turns "twisting a cube" into combinatorial mathematics.
+</details>
+
+**S2.** **Why does symmetry matter for game graphics?** Symmetric
+objects (cubes, spheres) need fewer parameters; symmetric
+animations (mirroring) save artist time.
+
+<details class="hint"><summary>Full solution</summary>
+**Symmetry exploitation = data savings.** A symmetric character mesh
+can be modeled on one half and mirrored. Procedural texture
+generation uses group symmetries (wallpaper groups: 17 types of 2D
+periodic patterns).
+
+Character animations often have left/right symmetric pairs (walk
+cycles) — capture once, reflect for the other side.
+
+Group theory underlies *every* procedural / pattern generation
+pipeline in modern game development.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"All actions are transitive."** Often there are multiple orbits.
+2. **"Stabiliser is trivial."** Only for **free actions**. Most actions
+   have nontrivial stabilisers.
+3. **"Burnside is for big problems."** It's elegant for *exactly* this
+   class — counting orbits under group actions.
+:::
+
+### Self-Assessment
+
+1. Could you state the orbit-stabiliser theorem?
+2. Without scrolling back, what's $|D_4|$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: 8.)
+
+- **3 yes:** ready for **[04 · Complex Numbers](../04-complex-numbers/index.qmd)**.
+- **2 yes:** redo **S1** (Rubik's cube).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[01 · Groups](../01-groups/index.qmd)**
+
+### What this unlocks
+
+- **Tier 7 — Representation Theory** — homomorphisms $G \to GL(V)$.
+- **Tier 7 — Algebraic Topology** — fundamental groups acting on
+  covering spaces.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Symmetry exploitation in modeling, animation,
+texture generation (S2).
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Group actions are the *natural* setting
+for many theorems. Pólya enumeration, character tables, classifying
+spaces.
+:::
+
+::: {.applied-callout}
+**Chemistry & physics.** Molecular symmetry groups classify
+molecules and predict spectra. Crystallographic groups (230 in 3D)
+classify crystal structures.
+:::
