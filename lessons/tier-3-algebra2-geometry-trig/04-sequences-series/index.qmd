@@ -1,0 +1,371 @@
+---
+title: "04 · Sequences and Series"
+subtitle: "Sums of patterns — including infinite sums that converge"
+lesson-id: "t3.sequences-series"
+tier: 3
+prerequisites: ["t2.sequences-intro"]
+unlocks: []
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T2 L15 — Sequences (Intro)](../../tier-2-prealgebra/15-sequences-intro/index.qmd)?
+2. Comfortable with the formulas $a_n = a_1 + (n-1)d$ (arithmetic) and
+   $a_n = a_1 \cdot r^{n-1}$ (geometric)?
+3. Aware that $0.\overline{9} = 1$ (T1 L08 Stretch S2)? That's an
+   infinite series in disguise.
+:::
+
+## Touch
+
+Pick a series. The widget computes the *partial sums* — and you can
+watch a geometric series converge as more terms are added.
+
+```{ojs}
+viewof seriesType = Inputs.select(["arithmetic (1+2+3+...)", "geometric: r=1/2 (1+1/2+1/4+...)", "geometric: r=2 (1+2+4+...)", "harmonic (1 + 1/2 + 1/3 + ...)"], {value: "geometric: r=1/2 (1+1/2+1/4+...)", label: "Series:"})
+viewof numTerms = Inputs.range([1, 30], {value: 10, step: 1, label: "Number of terms n:"})
+```
+
+```{ojs}
+{
+  let terms = [], sum = 0;
+  for (let i = 1; i <= numTerms; i++) {
+    let t;
+    switch(seriesType) {
+      case "arithmetic (1+2+3+...)": t = i; break;
+      case "geometric: r=1/2 (1+1/2+1/4+...)": t = Math.pow(0.5, i - 1); break;
+      case "geometric: r=2 (1+2+4+...)": t = Math.pow(2, i - 1); break;
+      case "harmonic (1 + 1/2 + 1/3 + ...)": t = 1 / i; break;
+    }
+    terms.push(t);
+    sum += t;
+  }
+  let limit = "—";
+  if (seriesType.includes("r=1/2")) limit = "→ 2 as n → ∞ (converges)";
+  else if (seriesType.includes("r=2")) limit = "→ ∞ (diverges)";
+  else if (seriesType.includes("arithmetic")) limit = "→ ∞ (diverges)";
+  else if (seriesType.includes("harmonic")) limit = "→ ∞ (diverges, slowly!)";
+
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; text-align:center; font-size:1.2rem;">
+      Sum of first ${numTerms} terms = <strong>${sum.toFixed(6)}</strong>
+    </div>
+    <div style="font-family:monospace; text-align:center; margin-top:0.4rem; color:#666;">
+      As n → ∞: ${limit}
+    </div>
+  </div>`;
+}
+```
+
+A **series** is the *sum* of a sequence's terms. The **partial sum**
+$S_n$ adds the first $n$ terms. As $n \to \infty$, $S_n$ either
+**converges** to a finite limit or **diverges**.
+
+## Wonder
+
+1. Set "geometric, r = 1/2." The partial sum approaches 2. Why?
+2. Set "geometric, r = 2." The sums explode. Difference?
+3. Set "harmonic." The terms shrink to 0 but the sum still diverges?
+:::
+
+## Discover
+
+### Problem 1
+
+Compute the sum $1 + 2 + 3 + \cdots + 100$ using the arithmetic
+series formula
+$$S_n = \dfrac{n}{2}(a_1 + a_n).$$
+
+<details class="hint"><summary>Full solution</summary>
+$S_{100} = \dfrac{100}{2}(1 + 100) = 50 \cdot 101 = 5050$. (T2 L15
+worked example with Gauss's pairing trick.)
+</details>
+
+### Problem 2
+
+Compute the sum of the first 10 terms of $1 + 2 + 4 + 8 + \ldots$
+(geometric, $r = 2$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Geometric series formula: $S_n = a_1 \cdot \dfrac{r^n - 1}{r - 1}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S_{10} = 1 \cdot \dfrac{2^{10} - 1}{2 - 1} = 1023$.
+
+Or just sum: $1 + 2 + 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512 = 1023 =
+2^{10} - 1$. The formula short-cuts the addition.
+</details>
+
+### Problem 3
+
+What is $1 + \dfrac{1}{2} + \dfrac{1}{4} + \dfrac{1}{8} + \cdots$
+forever?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Geometric with $a_1 = 1, r = 1/2$. As $n \to \infty$, $r^n \to 0$.
+Apply formula and take limit.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S_n = \dfrac{1 - (1/2)^n}{1 - 1/2} = 2 (1 - (1/2)^n) \to 2$ as
+$n \to \infty$.
+
+So the **infinite sum is 2**. Picture: start at 0, walk halfway to 1
+(reach 1/2), then halfway to 2 (reach 1), then halfway to 2 again
+(reach 3/2), then to 7/4, ... approaching but never exceeding 2.
+
+**Infinite geometric series formula:** for $|r| < 1$,
+$$S_\infty = \dfrac{a_1}{1 - r}.$$
+
+For $|r| \ge 1$: the series **diverges** (sum grows without bound or
+oscillates).
+</details>
+
+### Problem 4
+
+Verify $0.\overline{3} = 1/3$ using infinite-geometric-series
+machinery.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$0.\overline{3} = 0.3 + 0.03 + 0.003 + \cdots$, geometric with
+$a_1 = 0.3, r = 0.1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S_\infty = \dfrac{0.3}{1 - 0.1} = \dfrac{0.3}{0.9} = \dfrac{1}{3}$ ✓.
+
+Every repeating decimal is an infinite geometric series. The "trick"
+in T1 L08 (10$x = 9.\overline{9} \Rightarrow x = 1$) is exactly the
+formula in disguise.
+</details>
+
+### Problem 5
+
+The **harmonic series** is $1 + \dfrac{1}{2} + \dfrac{1}{3} + \dfrac{1}{4}
++ \cdots$. The terms approach 0 — but does the sum converge?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Group: $1 + \dfrac{1}{2} + (\dfrac{1}{3} + \dfrac{1}{4}) + (\dfrac{1}{5} +
+\cdots + \dfrac{1}{8}) + \cdots$. Each group is at least $1/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**The harmonic series diverges.** Group:
+- 1 ≥ 1/2
+- 1/2 = 1/2
+- 1/3 + 1/4 > 1/4 + 1/4 = 1/2
+- 1/5 + 1/6 + 1/7 + 1/8 > 4 × (1/8) = 1/2
+- and so on (each group of $2^k$ terms sums to more than 1/2).
+
+So $S_n \ge n/2$ in some sense — the sum grows without bound, just
+*slowly*. (To exceed 100 you need about $10^{43}$ terms.)
+
+**Lesson:** terms going to 0 is *not enough* for convergence. You
+need them to go to 0 *fast enough*. Calculus (Tier 4+) makes this
+precise.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **series** is the sum of a sequence: $S_n = a_1 + a_2 + \cdots + a_n$
+(the **$n$-th partial sum**).
+
+**Sigma notation:** $\sum_{i=1}^{n} a_i$ means "add $a_i$ from $i = 1$
+to $i = n$."
+
+**Arithmetic series sum:** $S_n = \dfrac{n}{2}(a_1 + a_n) =
+\dfrac{n}{2}(2a_1 + (n-1)d)$.
+
+**Geometric series sum** ($r \neq 1$): $S_n = a_1 \cdot \dfrac{r^n - 1}{r - 1}$.
+
+**Infinite geometric series** (only for $|r| < 1$):
+$$S_\infty = \dfrac{a_1}{1 - r}.$$
+
+A series **converges** if $S_n$ approaches a finite limit as
+$n \to \infty$; otherwise it **diverges**.
+
+:::
+
+> *Sigma sums up the indexed terms;*
+> *Arithmetic and geometric series have closed-form sums;*
+> *Infinite geometric converges iff |r| < 1; harmonic diverges (slowly).*
+
+## Apply
+
+### Worked example
+
+> Sum: $4 + 12 + 36 + 108 + \cdots$ (first 6 terms).
+
+A competent solver identifies it as geometric: $a_1 = 4, r = 3$.
+
+$S_6 = 4 \cdot \dfrac{3^6 - 1}{3 - 1} = 4 \cdot \dfrac{728}{2} = 4 \cdot
+364 = 1456$.
+
+Check by listing: $4, 12, 36, 108, 324, 972$. Sum: $4 + 12 + 36 + 108
++ 324 + 972 = 1456$ ✓.
+
+### Practice — Warm
+
+**W1.** $\sum_{i=1}^{50} i = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{50 \cdot 51}{2} = 1275$.
+</details>
+
+**W2.** Sum of first 5 terms of $3, 6, 12, 24, \ldots$
+
+<details class="hint"><summary>Full solution</summary>
+$3, 6, 12, 24, 48$. Sum $= 93$. Or formula: $3 \cdot (2^5 - 1)/1 =
+93$.
+</details>
+
+**W3.** $1 + 1/3 + 1/9 + 1/27 + \cdots$ (infinite). Sum?
+
+<details class="hint"><summary>Full solution</summary>
+Geometric, $a_1 = 1, r = 1/3$. $S_\infty = 1/(1 - 1/3) = 3/2$.
+</details>
+
+### Practice — Working
+
+**P1.** $\sum_{i=1}^{20} (3i + 1)$. Hint: split into $\sum 3i$ and
+$\sum 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 \sum i + 20 \cdot 1 = 3 \cdot 210 + 20 = 650$.
+</details>
+
+**P2.** Convert $0.\overline{45}$ to a fraction using geometric series.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$0.45 + 0.0045 + 0.000045 + \cdots$ geometric with $a_1 = 0.45, r =
+0.01$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{0.45}{1 - 0.01} = \dfrac{0.45}{0.99} = \dfrac{45}{99} = \dfrac{5}{11}$.
+</details>
+
+**P3.** A bouncing ball. Each bounce reaches 60% of the previous
+height. Dropped from 10 m. **Total vertical distance** travelled
+before coming to rest?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First fall: 10. Then up + down twice for each bounce: $2 \times 6, 2
+\times 3.6, \ldots$, geometric.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First fall: 10. Each bounce contributes up + down: $2 \times h_n$.
+Heights: $6, 3.6, 2.16, \ldots$ geometric with $r = 0.6$, $a_1 = 6$.
+Bounces' total: $2 \times \dfrac{6}{1 - 0.6} = 30$.
+
+**Total: $10 + 30 = 40$ m.** A finite total despite infinitely many
+bounces — Zeno would approve.
+</details>
+
+### Practice — Stretch
+
+**S1.** A geometric series with first term 1 and ratio $1 - p$ (where
+$0 < p < 1$): show its sum equals $1/p$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|1 - p| < 1$, so apply the formula.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S_\infty = \dfrac{1}{1 - (1 - p)} = \dfrac{1}{p}$.
+
+This appears in **probability** (expected number of trials before a
+success): if each trial succeeds with probability $p$, the expected
+number of trials is $1/p$. The geometric series gives this
+*directly*. (We meet this in [13 · Basic Probability](../13-basic-probability/index.qmd).)
+</details>
+
+**S2.** **Compound interest, infinite version.** A perpetuity pays
+$P$ rupees per year forever. With annual interest rate $r$ (e.g., 0.05
+for 5%), what is the present value?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+PV = $\dfrac{P}{1+r} + \dfrac{P}{(1+r)^2} + \cdots$ (each year's
+payment discounted by compound interest), an infinite geometric
+series with first term $P/(1+r)$ and ratio $1/(1+r)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{PV} = \dfrac{P/(1+r)}{1 - 1/(1+r)} = \dfrac{P/(1+r)}{r/(1+r)} =
+\dfrac{P}{r}$.
+
+So a perpetuity of Rs. 100/year at 5% interest has PV = $100/0.05 =
+2000$ rupees today. **Pay Rs. 2000 now, receive Rs. 100 forever.**
+
+This formula is foundational in finance: bond pricing, dividend
+discount models, and the entire theory of *present value*. The
+infinite geometric series gives a tidy closed form for an apparently
+divergent infinite stream.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Infinite sums must be infinite."** Not so — geometric series
+   with $|r| < 1$ converge. Calculus theory (Tier 4+) explains
+   convergence rigorously.
+2. **"Terms going to 0 means the series converges."** No — the
+   harmonic series (Discover P5) is the famous counterexample.
+3. **"Sigma is a fancy way of writing addition."** It *is* addition,
+   but with two superpowers: compactness ($\sum_{i=1}^{1000} i$ vs
+   writing 1000 terms) and the ability to refer to the index $i$ in
+   the summand (e.g., $\sum i^2$).
+:::
+
+### Self-Assessment
+
+1. Could you derive $S_\infty = a_1/(1-r)$ for a geometric series with
+   $|r| < 1$, by taking $n \to \infty$ in the partial sum formula?
+2. Without scrolling back, find $\sum_{i=1}^{10} 2^i$.
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $2 \cdot \dfrac{2^{10} - 1}{1} = 2046$.)
+
+- **3 yes:** ready for **[05 · Logarithms](../05-logarithms/index.qmd)**.
+- **2 yes:** redo **S2** (perpetuity) — finance applies this formula
+  daily.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T2 L15 — Sequences (Intro)](../../tier-2-prealgebra/15-sequences-intro/index.qmd)**
+
+### What this unlocks
+
+- **Tier 4 — Calculus** — series convergence is the foundation of
+  Taylor series; calculus is built on infinite sums.
+- **Tier 5 — Real Analysis** — careful theory of convergence, tests
+  for series, conditional/absolute convergence.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Loss functions are summed (or averaged)
+over many examples. Optimisation procedures track partial sums of
+gradients. Recurrence relations underlie RNNs and time-series models.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Infinite series are central to analysis.
+Power series ($\sum a_n x^n$) define analytic functions; Fourier
+series decompose periodic phenomena; Dirichlet series underpin number
+theory.
+:::
+
+::: {.applied-callout}
+**Finance.** Present-value formulas for perpetuities, annuities,
+bonds, and mortgages all use geometric-series sums.
+:::
+
+::: {.applied-callout}
+**Physics.** Many physical processes (radioactive decay totals,
+rebounding-ball total distance, refractive light losses) involve
+geometric-series sums.
+:::
