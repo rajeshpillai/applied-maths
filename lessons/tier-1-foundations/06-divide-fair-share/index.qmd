@@ -1,0 +1,436 @@
+---
+title: "Division as Fair Share"
+subtitle: "Splitting into equal piles — and what happens when it doesn't fit"
+lesson-id: "t1.divide-fair-share"
+tier: 1
+prerequisites: ["t1.multiply-as-area"]
+unlocks: ["t1.fractions-as-parts", "t1.data-and-average", "t1.divisibility-primes"]
+applied-domains: ["databases", "ai-ml", "encryption"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute $4 \times 6 = 24$ in your head?
+2. Have you done [Lesson 5 — Multiplication as Area](../05-multiply-as-area/index.qmd)?
+3. Have you ever split a pizza, a packet of biscuits, or pocket money
+   between friends? That mental act *is* division — even if you have
+   never written it as a sum.
+:::
+
+## Touch
+
+Set the **total** number of objects, and the **number of friends** sharing
+them. Watch how many each friend gets — and watch the leftovers (if any)
+sit aside.
+
+```{ojs}
+viewof total = Inputs.range([1, 30], {value: 12, step: 1, label: "Total objects:"})
+```
+
+```{ojs}
+viewof friends = Inputs.range([1, 8], {value: 3, step: 1, label: "Number of friends:"})
+```
+
+```{ojs}
+{
+  const each = Math.floor(total / friends);
+  const leftover = total - each * friends;
+  const cellSize = 22, gap = 4, pad = 14;
+  const W = 720, friendW = (W - pad * 2) / friends;
+  const itemsPerRow = Math.max(3, Math.floor((friendW - 16) / (cellSize + gap)));
+  const rows = Math.ceil(each / itemsPerRow) || 1;
+  const H = pad * 2 + 28 + rows * (cellSize + gap) + 50;
+
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px;");
+
+  for (let f = 0; f < friends; f++) {
+    const x0 = pad + f * friendW;
+    svg.append("rect").attr("x", x0).attr("y", 6).attr("width", friendW - 6)
+      .attr("height", H - 56).attr("fill", "none").attr("stroke", "#bbb").attr("stroke-dasharray", "3 3");
+    svg.append("text").attr("x", x0 + (friendW - 6) / 2).attr("y", 22)
+      .attr("text-anchor", "middle").attr("font-size", "13").attr("fill", "#666")
+      .text(`Friend ${f + 1}`);
+    for (let i = 0; i < each; i++) {
+      const r = Math.floor(i / itemsPerRow);
+      const c = i % itemsPerRow;
+      svg.append("circle")
+        .attr("cx", x0 + 12 + c * (cellSize + gap) + cellSize / 2)
+        .attr("cy", 32 + r * (cellSize + gap) + cellSize / 2)
+        .attr("r", cellSize / 2 - 1).attr("fill", "#a5d6a7").attr("stroke", "#2e7d32");
+    }
+  }
+  // Leftovers
+  svg.append("text").attr("x", pad).attr("y", H - 24)
+    .attr("font-size", "13").attr("fill", "#c2185b")
+    .text(`Each friend gets: ${each}    ·    Leftovers: ${leftover}`);
+  if (leftover > 0) {
+    for (let i = 0; i < leftover; i++) {
+      svg.append("circle")
+        .attr("cx", pad + 230 + i * (cellSize + gap) + cellSize / 2)
+        .attr("cy", H - 28).attr("r", cellSize / 2 - 1)
+        .attr("fill", "#f8bbd0").attr("stroke", "#c2185b");
+    }
+  }
+  return svg.node();
+}
+```
+
+```{ojs}
+{
+  const each = Math.floor(total / friends);
+  const leftover = total - each * friends;
+  const exp = leftover === 0
+    ? `${total} ÷ ${friends} = ${each} (exact)`
+    : `${total} ÷ ${friends} = ${each} remainder ${leftover}`;
+  return html`<div style="text-align:center; font-family:monospace; font-size:1.2rem; margin-top:0.5rem; font-weight:bold;">${exp}</div>`;
+}
+```
+
+When the total splits *exactly*, division leaves no leftover. When it
+doesn't, you get a **quotient** (each friend's share) and a **remainder**
+(what's left over).
+
+## Wonder
+
+1. Set total = 12, friends = 4. Now flip: total = 12, friends = 3. What
+   changes?
+2. Try total = 7, friends = 2. The two friends can't get the same whole
+   number of biscuits. What are your three options for what to do with
+   the leftover one?
+3. What does division by **1** look like? What about division by the
+   total itself (e.g. 12 ÷ 12)?
+
+## Discover
+
+### Problem 1
+
+Twelve children are split into 3 equal teams. How many on each team?
+Twelve children are split into 4 equal teams. How many on each team?
+
+<details class="hint"><summary>Full solution</summary>
+**4 children per team** (3 teams) and **3 children per team** (4 teams).
+You computed $12 \div 3 = 4$ and $12 \div 4 = 3$. Notice the symmetry —
+this is the same fact, told two ways:
+$$3 \times 4 = 12 \iff 12 \div 3 = 4 \iff 12 \div 4 = 3.$$
+Division is **the inverse of multiplication**.
+</details>
+
+### Problem 2
+
+A bag has **23 marbles** to share among **5 friends** equally. How many
+does each get? How many are left over?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What is the largest multiple of 5 that is ≤ 23?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5 \times 4 = 20$ ≤ 23, but $5 \times 5 = 25$ > 23. So **each friend gets
+4** and **3 marbles are left over**:
+$$23 = 5 \times 4 + 3.$$
+Every division-with-remainder fits this template: $$\text{total} =
+\text{divisor} \times \text{quotient} + \text{remainder}.$$
+</details>
+
+### Problem 3
+
+A rectangle has area **24** and one side of length **6**. What is the
+other side?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is a multiplication you already know — but in reverse.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$24 \div 6 = 4$. The other side is **4**.
+
+Picture: a rectangle of area 24 with one side fixed at 6. The other side
+*must* be 4, because $4 \times 6 = 24$. Division by 6 is "given the area
+and one side, find the other side". This is the geometric meaning of
+division.
+</details>
+
+### Problem 4
+
+What is **$0 \div 5$**? What is **$5 \div 0$**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For the first: 0 things shared between 5 friends. Each friend gets... ?
+
+For the second: try the inverse. "$5 \div 0 = q$" would mean "$q \times
+0 = 5$". Is there such a $q$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$0 \div 5 = 0$.** Zero things shared evenly: each friend gets nothing.
+
+**$5 \div 0$ is *undefined*.** No number $q$ exists such that
+$q \times 0 = 5$, because $q \times 0$ is always 0 (Lesson 5). So
+"divide by zero" is not a sensible question — it has no answer in the
+ordinary number system. Computers and calculators usually return an error
+or "infinity" symbol when you try.
+</details>
+
+### Problem 5
+
+You have **17 sweets** to share among **5 children**. After you give each
+child their fair whole share, **how many sweets are left over**? What
+options do you have for the leftovers?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$5 \times 3 = 15$, so each child gets at least 3. How many remain?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each child gets **3 sweets**, with **2 left over**.
+
+Three options for the leftovers:
+
+(a) **Set them aside** (the leftover stays as a remainder).
+(b) **Cut them up** into smaller equal pieces and share — each child
+    gets $\frac{2}{5}$ of an extra sweet. This forces us to invent a
+    new kind of number — **fractions** — which is the next lesson.
+(c) **Don't share them** (one child gets a bonus, or you keep them).
+
+Mathematics took option (b) seriously, and that gave us the fractions of
+[Lesson 7](../07-fractions-as-parts/index.qmd).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Division** is the inverse of multiplication.
+
+For two whole numbers $a$ (the **dividend**) and $b$ (the **divisor**,
+$b \ne 0$), the equation
+$$a \div b = q \ \text{remainder} \ r$$
+means: $a = b \times q + r$, where $q$ is the **quotient** (the share)
+and $r$ is the **remainder** ($0 \le r < b$).
+
+When $r = 0$, we say "$b$ **divides** $a$ exactly" and write $a \div b = q$.
+
+**Division by zero is undefined.**
+
+:::
+
+> *Take the total, share it equally — that share is the quotient.*
+> *Whatever cannot be shared is the remainder.*
+> *Total equals divisor times quotient, plus remainder —*
+> *And no number can be divided by nothing.*
+
+## Apply
+
+### Worked example
+
+> Compute $84 \div 7$.
+
+A competent solver thinks "what number, multiplied by 7, gives 84?":
+
+1. Try multiples: $7 \times 10 = 70$, $7 \times 12 = 84$. ✓
+2. So $84 \div 7 = 12$, remainder 0.
+
+Or, by long division: $7$ goes into $8$ *once* (with 1 left); pull down
+the 4 to make 14; $7$ goes into $14$ *twice* (with 0 left). Quotient: 12.
+
+**Answer: 84 ÷ 7 = 12.**
+
+### Practice — Warm
+
+**W1.** Compute (each is exact):
+$$36 \div 6, \quad 56 \div 8, \quad 100 \div 4.$$
+
+<details class="hint"><summary>Full solution</summary>
+$36 \div 6 = 6$, $\ 56 \div 8 = 7$, $\ 100 \div 4 = 25$.
+</details>
+
+**W2.** Compute, finding the quotient and remainder:
+$$25 \div 4, \quad 38 \div 7.$$
+
+<details class="hint"><summary>Full solution</summary>
+$25 = 4 \times 6 + 1$, so $25 \div 4 = 6$ remainder $1$.
+$38 = 7 \times 5 + 3$, so $38 \div 7 = 5$ remainder $3$.
+</details>
+
+**W3.** What is $0 \div 100$? What is $100 \div 0$?
+
+<details class="hint"><summary>Full solution</summary>
+$0$ and **undefined**. (See *Discover P4*.)
+</details>
+
+### Practice — Working
+
+**P1.** A library has **156 books** to fit on shelves of **12 books each**.
+How many shelves are needed?
+
+<details class="hint"><summary>Full solution</summary>
+$156 \div 12 = 13$ exactly. **13 shelves.** Notice this is a "given the
+area and one side, find the other side" problem — 12 wide rectangle,
+total of 156 squares.
+</details>
+
+**P2.** A baker has **47 cupcakes**. He sells them in **boxes of 6**. How
+many full boxes does he sell, and how many cupcakes are left to sell
+loose?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Largest multiple of 6 that is ≤ 47?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$47 = 6 \times 7 + 5$, so **7 full boxes** with **5 left over**.
+
+Real-world division almost always has remainders. The "extras" need to be
+handled — sold separately, discounted, donated, or thrown out. Whether
+to round the quotient *up* or *down* depends on the context. (For
+"shelves needed", you round *up* to make sure all books fit; for "boxes
+that fit", you round *down*.)
+</details>
+
+**P3.** Without computing, decide whether **$385$ is divisible by $5$
+exactly**. Then decide for **$385 \div 4$**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A number ending in 0 or 5 is always divisible by 5. (Why? Hint: place
+value.)
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$385$ ends in 5, so it is divisible by 5 exactly.** $385 \div 5 = 77$.
+
+**$385 \div 4$** — last two digits are 85; $4 \times 21 = 84$, so $85 = 4
+\times 21 + 1$, and the rest of the digits ($3{,}800$) are divisible by 4
+since $3800 = 4 \times 950$. Total: $385 = 4 \times 96 + 1$, so quotient
+**96**, remainder **1**.
+
+These shortcuts (last-digit tests for divisibility by 2, 5, 10) and
+related ones (sum-of-digits for 3 and 9) are powerful. We will explore
+them properly in
+[Lesson 15: Divisibility and Primes](../15-divisibility-and-primes/index.qmd).
+</details>
+
+### Practice — Stretch
+
+**S1.** A clock face has **12 hours**. If it is currently **9 o'clock**,
+what hour will it be in **100 hours**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+After 12 hours the clock returns to 9. So you really care about $100
+\div 12$ — the *remainder* is what matters.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$100 \div 12 = 8$ remainder $4$. So 100 hours is "8 full clock cycles
+plus 4 hours". Starting at 9, advance 4 hours: **1 o'clock**.
+
+This is **modular arithmetic** — division remainders considered as
+their own kind of arithmetic. It governs clocks, days of the week, and
+— most importantly — every modern cryptographic system. RSA, the
+algorithm protecting most secure web traffic, is built almost entirely
+on remainders modulo a very large number. We met this idea informally
+here; we meet it formally in
+[Lesson 15](../15-divisibility-and-primes/index.qmd).
+</details>
+
+**S2.** A hash table — a fundamental data structure in databases and
+programming — places an item with key $k$ into bucket number $k \bmod n$
+(the remainder when $k$ is divided by $n$, where $n$ is the table size).
+
+If $n = 7$ buckets, into which bucket does key $k = 23$ go?
+
+<details class="hint"><summary>Full solution</summary>
+$23 \div 7 = 3$ remainder $2$. So key $23$ goes into **bucket 2**.
+
+Hash tables are how databases (and most programming languages' built-in
+maps and dictionaries) achieve fast lookup. The division-with-remainder
+operation you just performed runs *trillions of times per second* across
+the world's computers. The reason: it spreads keys roughly evenly across
+buckets, and computing a remainder is cheap.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Dividing always makes a number smaller."** True only when dividing
+   by a number greater than 1. Once we meet fractions and decimals,
+   dividing by $\tfrac{1}{2}$ *doubles* the number. (Why? Sneak preview:
+   "how many halves fit in 5?" The answer is 10.)
+2. **"Remainders are mistakes."** No — they are honest reports that the
+   total didn't divide evenly. The remainder *is* part of the answer.
+3. **"You can divide by anything."** No — division by zero is undefined.
+   Calculators that return "infinity" or an error are reporting that the
+   question itself is malformed.
+:::
+
+### Self-Assessment
+
+1. Could you explain why **$5 \div 0$ is undefined**, using the inverse
+   relationship to multiplication?
+2. Without computing, can you say whether $385$ is divisible by $5$? By
+   $7$? (Trick question for the second — you have to actually compute.)
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+- **3 yes:** ready for **[Lesson 7 — Fractions as Parts](../07-fractions-as-parts/index.qmd)**.
+- **2 yes:** redo **S1** (the clock-modular problem) — that proves you
+  see how remainders open up a whole new arithmetic.
+- **0–1 yes:** re-read *Discover P5* and the worked example.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 5 — Multiplication as Area](../05-multiply-as-area/index.qmd)** —
+  division is multiplication run backwards: "given the area and one side,
+  find the other".
+
+### What this unlocks
+
+- **[Fractions as Parts](../07-fractions-as-parts/index.qmd)** — when a
+  total doesn't divide exactly, fractions extend the number system to
+  cover the leftover.
+- **[Data and the Average](../14-data-and-average/index.qmd)** — the
+  average is the total divided by the count.
+- **[Divisibility and Primes](../15-divisibility-and-primes/index.qmd)** —
+  the encryption seed: the structure of *which* numbers divide *which*
+  is the entry point to number theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** Almost all of modern cryptography is built on
+**modular arithmetic** — the arithmetic of remainders, which is what
+*Discover P5* and *Stretch S1* introduced. RSA's security depends on the
+hardness of "given $a \times b \bmod n$, recover $a$ and $b$" when $n$ is
+a product of two large primes.
+:::
+
+::: {.applied-callout}
+**Databases.** Hash tables (*Stretch S2*) — the core data structure
+behind nearly every key-value store, every dictionary, every cache —
+use the remainder operation to map keys to buckets. The choice of $n$
+(table size) and the speed of remainder computation are first-order
+performance concerns.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** "Average loss across a batch" is a division;
+"learning rate" is a division-like scaling; data normalisation divides
+each feature by its range. ML pipelines are dense with division and the
+reciprocal idea.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Splitting a bill at a restaurant, dividing
+inheritance, computing miles per litre, finding a unit price — division
+is how we turn *totals* into *per-thing rates*.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the friend-share widget makes
+  fair share visible), Boole (the *what to do with leftovers?* question
+  in Wonder leads naturally into fractions), Russian school (the
+  remainder structure $a = bq + r$ is *discovered* in Problem 2, not
+  declared), Bhāskara (single-box Name + verse).
+- **Self-study guarantees** all present.
+:::
