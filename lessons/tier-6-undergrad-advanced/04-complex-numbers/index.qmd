@@ -1,0 +1,322 @@
+---
+title: "04 · Complex Numbers and Operations"
+subtitle: "$i^2 = -1$ — and the most beautiful identity in mathematics"
+lesson-id: "t6.complex-numbers"
+tier: 6
+prerequisites: ["t2.quadratic-equations-intro", "t3.unit-circle"]
+unlocks: ["t6.complex-functions"]
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T2 L14 — Quadratic Equations](../../tier-2-prealgebra/14-quadratic-equations-intro/index.qmd)
+   and [T3 L08 — Unit Circle](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd)?
+2. Recall that $x^2 + 1 = 0$ has no real solution?
+3. Comfortable with $\sin, \cos$ and the unit circle?
+:::
+
+## Touch
+
+A **complex number** $z = a + bi$ where $i^2 = -1$. Equivalently, a
+point $(a, b)$ in the complex plane.
+
+```{ojs}
+viewof cmpSel = Inputs.select(["i² = −1: defining identity", "polar form: re^(iθ)", "Euler: e^(iπ) + 1 = 0", "complex multiplication = rotation + scaling"], {value: "i² = −1: defining identity", label: "Topic:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(cmpSel) {
+    case "i² = −1: defining identity": info = "i = √−1. Define i² = −1, then arithmetic extends naturally. (a+bi) + (c+di) = (a+c) + (b+d)i. (a+bi)(c+di) = (ac−bd) + (ad+bc)i."; break;
+    case "polar form: re^(iθ)": info = "Any z = re^(iθ) where r = |z| (modulus) and θ = arg(z). Multiplication: z·w = (rs) e^(i(θ+φ)) — magnitudes multiply, arguments ADD."; break;
+    case "Euler: e^(iπ) + 1 = 0": info = "Euler's identity: e^(iπ) = cos π + i sin π = −1 + 0i = −1. Hence e^(iπ) + 1 = 0. Connects e, i, π, 1, 0 — the five most important constants."; break;
+    case "complex multiplication = rotation + scaling": info = "Multiplying by e^(iθ) rotates by θ. Multiplying by r scales by r. Together: re^(iθ) is a rotation+scaling operator."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. $\sqrt{-1}$ has no real solution. So why "invent" a number $i$
+   for it?
+2. Multiplying complex numbers rotates them. Why?
+3. Euler's identity $e^{i\pi} + 1 = 0$ — why is this profound?
+
+## Discover
+
+### Problem 1
+
+A **complex number** $z = a + bi$, $a, b \in \mathbb{R}$. The
+**conjugate** is $\bar{z} = a - bi$. **Modulus:** $|z| = \sqrt{a^2 +
+b^2}$.
+
+Compute $|3 + 4i|, \overline{2 - 5i}, (1 + i)(1 - i)$.
+
+<details class="hint"><summary>Full solution</summary>
+$|3 + 4i| = \sqrt{9 + 16} = 5$.
+$\overline{2 - 5i} = 2 + 5i$.
+$(1 + i)(1 - i) = 1 - i^2 = 1 + 1 = 2$.
+
+Note: $z \bar{z} = |z|^2$ for any $z$.
+</details>
+
+### Problem 2
+
+**Division:** to compute $1/(a + bi)$, multiply by conjugate:
+$\dfrac{1}{a + bi} \cdot \dfrac{a - bi}{a - bi} = \dfrac{a - bi}{a^2 +
+b^2}$.
+
+Compute $1/(3 + 4i)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{3 - 4i}{25} = 0.12 - 0.16 i$.
+</details>
+
+### Problem 3
+
+**Polar form.** Every $z \neq 0$ writes as $z = r (\cos \theta + i
+\sin \theta) = r e^{i \theta}$ where $r = |z|, \theta = \arg(z)$.
+
+Convert $1 + i$ to polar form.
+
+<details class="hint"><summary>Full solution</summary>
+$|1 + i| = \sqrt{2}$. $\arg(1 + i) = \pi/4$ (first quadrant, equal
+real/imag).
+
+$1 + i = \sqrt{2} \, e^{i \pi/4}$.
+</details>
+
+### Problem 4
+
+**Euler's formula:** $e^{i \theta} = \cos \theta + i \sin \theta$.
+
+Special case: $\theta = \pi$:
+$$e^{i \pi} = \cos \pi + i \sin \pi = -1 + 0 = -1.$$
+Rearranging: $e^{i \pi} + 1 = 0$ — **Euler's identity**.
+
+Why is this so famous?
+
+<details class="hint"><summary>Full solution</summary>
+**It connects the five most important constants:** $e$ (calculus
+base), $i$ (imaginary unit), $\pi$ (geometry), $1$ (multiplicative
+identity), $0$ (additive identity), via the most basic operations
+($+, \cdot, =$, exponentiation).
+
+Often called "the most beautiful equation in mathematics." A
+unification of analysis (e), algebra ($i$), and geometry ($\pi$).
+
+The general $e^{i\theta} = \cos \theta + i \sin \theta$ is even more
+useful: it converts trig identities into exponential identities,
+making derivations much shorter.
+</details>
+
+### Problem 5
+
+**Multiplication as rotation.** $z \cdot w = (r e^{i \theta}) (s e^{i
+\phi}) = (rs) e^{i (\theta + \phi)}$.
+
+Use this to compute $(1 + i)(1 - i)$ in polar.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$1 + i = \sqrt{2} e^{i\pi/4}, 1 - i = \sqrt{2} e^{-i\pi/4}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1 + i)(1 - i) = (\sqrt{2})^2 e^{i (\pi/4 - \pi/4)} = 2 \cdot 1 = 2$
+✓ (matches direct).
+
+**Multiplying complex numbers = rotating + scaling.** This makes
+complex numbers ideal for representing 2D rotations.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Complex number** $z = a + bi$ with $a, b \in \mathbb{R}$ and $i^2 =
+-1$.
+
+**Operations:**
+
+- $(a + bi) + (c + di) = (a + c) + (b + d) i$.
+- $(a + bi)(c + di) = (ac - bd) + (ad + bc) i$.
+- Conjugate $\bar{z} = a - bi$. $z \bar{z} = a^2 + b^2 = |z|^2$.
+- $1/z = \bar{z} / |z|^2$.
+
+**Polar form:** $z = r e^{i \theta}$ with $r = |z|, \theta = \arg(z)$.
+
+**Multiplication in polar:** magnitudes multiply, arguments add.
+$|zw| = |z| |w|, \arg(zw) = \arg(z) + \arg(w)$.
+
+**Euler's formula:** $e^{i \theta} = \cos \theta + i \sin \theta$.
+
+**Euler's identity:** $e^{i \pi} + 1 = 0$.
+
+**De Moivre's theorem:** $(\cos \theta + i \sin \theta)^n = \cos n
+\theta + i \sin n \theta$.
+
+The complex numbers $\mathbb{C}$ form a *field* (Lesson 02), are
+*algebraically closed* (every polynomial of degree $n$ has $n$
+complex roots — fundamental theorem of algebra).
+
+:::
+
+> *i² = −1 — the defining axiom;*
+> *Polar form: r e^(iθ) reveals multiplication as rotation+scaling;*
+> *Euler's identity: e^(iπ) + 1 = 0 unites e, i, π, 1, 0.*
+
+## Apply
+
+### Worked example
+
+> Compute $(1 + i)^8$.
+
+In polar: $1 + i = \sqrt{2} e^{i \pi/4}$. So $(1 + i)^8 =
+(\sqrt{2})^8 e^{i \cdot 8 \pi/4} = 16 e^{i 2\pi} = 16 \cdot 1 = 16$.
+
+(Direct expansion would be much more tedious.)
+
+### Practice — Warm
+
+**W1.** $(2 + 3i) + (1 - i) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$3 + 2i$.
+</details>
+
+**W2.** $|5 + 12i| = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$13$.
+</details>
+
+**W3.** $i^4 = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$1$ (since $i^2 = -1$, so $i^4 = (-1)^2 = 1$).
+</details>
+
+### Practice — Working
+
+**P1.** Solve $z^2 = -9$.
+
+<details class="hint"><summary>Full solution</summary>
+$z = \pm 3i$.
+</details>
+
+**P2.** Convert $-1 + i \sqrt{3}$ to polar.
+
+<details class="hint"><summary>Full solution</summary>
+$|z| = 2$. $\arg = 2\pi/3$ (second quadrant). So $z = 2 e^{i 2\pi/3}$.
+</details>
+
+**P3.** $(2 e^{i \pi/3})(3 e^{i \pi/6}) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$6 e^{i \pi/2} = 6 i$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Solve $z^3 = 1$.** Find all 3 cube roots of unity.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Polar: $1 = e^{i 0} = e^{i 2\pi} = e^{i 4\pi} = \ldots$. Take cube
+roots: $z = e^{i 0/3}, e^{i 2\pi/3}, e^{i 4\pi/3}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$z = 1, e^{i 2\pi/3}, e^{i 4\pi/3}$. Equivalently:
+$z = 1, -1/2 + i \sqrt{3}/2, -1/2 - i \sqrt{3}/2$.
+
+In general, $z^n = 1$ has $n$ solutions: the **$n$-th roots of unity**
+$e^{i 2\pi k/n}$, equally spaced on the unit circle.
+
+These are the eigenvalues of the cyclic permutation matrix and play
+key roles in Fourier analysis (Lessons 12, 13) and the Discrete
+Fourier Transform.
+</details>
+
+**S2.** **Quaternions** generalise complex numbers to 4D: $q = a + bi
++ cj + dk$ with $i^2 = j^2 = k^2 = ijk = -1$. Used for **3D rotations**
+in graphics and robotics. Why are quaternions preferred over
+rotation matrices?
+
+<details class="hint"><summary>Full solution</summary>
+**Quaternions:**
+
+- 4 numbers vs 9 for a 3×3 rotation matrix (compact).
+- No "gimbal lock" (a degeneracy in Euler-angle representations).
+- Smooth interpolation (SLERP — *spherical linear interpolation*)
+  between orientations.
+- Natural composition by multiplication.
+
+Used in: every modern game engine (Unity, Unreal), spacecraft attitude
+control, robotic arm orientation, motion capture, virtual reality.
+
+The complex numbers' rotation-via-multiplication property generalises
+to quaternions. **Tier 7 (Game Dev track)** develops this.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$i$ is imaginary, so it's not real."** Yes — but it's a valid
+   number. "Imaginary" is a historical term; complex numbers are as
+   "real" as the reals.
+2. **"Conjugate just changes sign."** It changes sign of the
+   *imaginary* part only. Useful for division and computing modulus.
+3. **"Polar form is just notation."** It encodes deep geometric
+   meaning: multiplication by $e^{i\theta}$ *is* rotation by $\theta$.
+:::
+
+### Self-Assessment
+
+1. Could you state Euler's identity?
+2. Without scrolling back, what's $(1 + i)(1 - i)$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $e^{i\pi} + 1 = 0$; $2$.)
+
+- **3 yes:** ready for **[05 · Complex Functions](../05-complex-functions/index.qmd)**.
+- **2 yes:** redo **S2** (quaternions).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T2 L14 — Quadratic Equations](../../tier-2-prealgebra/14-quadratic-equations-intro/index.qmd)**
+- **[T3 L08 — Unit Circle](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd)**
+
+### What this unlocks
+
+- **[05 · Complex Functions and Cauchy](../05-complex-functions/index.qmd)** —
+  calculus on $\mathbb{C}$.
+- **[12 · Fourier Series](../12-fourier-series/index.qmd)** — uses
+  $e^{i\theta}$.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Quaternions for 3D rotation (S2). 2D rotation
+via complex multiplication.
+:::
+
+::: {.applied-callout}
+**Engineering & physics.** AC circuit analysis (impedance is
+complex). Quantum mechanics (states are complex vectors). Signal
+processing (Fourier transforms operate over $\mathbb{C}$).
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Complex analysis (Lesson 05) reveals
+deep symmetries; the Riemann hypothesis is a statement about
+complex zeros of the zeta function.
+:::
