@@ -1,0 +1,384 @@
+---
+title: "06 · Exponential and Logarithmic Functions"
+subtitle: "Functions of growth and inverse — and the equations they solve"
+lesson-id: "t3.exp-log-functions"
+tier: 3
+prerequisites: ["t3.logarithms", "t2.functions-as-machines"]
+unlocks: []
+applied-domains: ["ai-ml", "research", "systems"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [05 · Logarithms](../05-logarithms/index.qmd) and
+   [T2 L01 — Functions as Machines](../../tier-2-prealgebra/01-functions-as-machines/index.qmd)?
+2. Comfortable with $f(x) = 2x + 5$ and evaluating $f(3) = 11$?
+3. Comfortable with the log rules (product, quotient, power)?
+:::
+
+## Touch
+
+Pick a base $b$ and graph both $f(x) = b^x$ (exponential) and its
+inverse $g(x) = \log_b(x)$ (log). Notice they are reflections of each
+other across the line $y = x$.
+
+```{ojs}
+viewof eBase = Inputs.range([1.5, 5], {value: 2, step: 0.5, label: "Base b:"})
+```
+
+```{ojs}
+{
+  const W = 480, H = 480, pad = 30;
+  const xMin = -4, xMax = 8, yMin = -4, yMax = 8;
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - ((v - yMin) / (yMax - yMin)) * (H - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:520px; display:block; margin: 0 auto; background:#fafafa;");
+
+  // Grid + axes
+  for (let v = xMin; v <= xMax; v++) {
+    svg.append("line").attr("x1", px(v)).attr("x2", px(v)).attr("y1", pad).attr("y2", H - pad)
+      .attr("stroke", v === 0 ? "#1f2933" : "#eee").attr("stroke-width", v === 0 ? 1.5 : 0.5);
+    svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(v)).attr("y2", py(v))
+      .attr("stroke", v === 0 ? "#1f2933" : "#eee").attr("stroke-width", v === 0 ? 1.5 : 0.5);
+  }
+  // Line y = x
+  svg.append("line").attr("x1", px(xMin)).attr("y1", py(xMin)).attr("x2", px(xMax)).attr("y2", py(xMax))
+    .attr("stroke", "#9e9e9e").attr("stroke-dasharray", "4 4");
+  svg.append("text").attr("x", px(7)).attr("y", py(7) - 5).attr("font-size", "11").attr("fill", "#666").text("y = x");
+
+  // Exponential
+  let pE = "";
+  for (let x = xMin; x <= xMax; x += 0.05) {
+    const y = Math.pow(eBase, x);
+    if (y < yMin - 1 || y > yMax + 1) continue;
+    pE += (pE ? " L " : "M ") + `${px(x)},${py(y)}`;
+  }
+  svg.append("path").attr("d", pE).attr("fill", "none").attr("stroke", "#c2185b").attr("stroke-width", 2.5);
+  svg.append("text").attr("x", px(2)).attr("y", py(Math.pow(eBase, 2)) - 6).attr("fill", "#c2185b").attr("font-weight", "bold").attr("font-size", "13").text(`y = ${eBase}ˣ`);
+
+  // Logarithm (only for x > 0)
+  let pL = "";
+  for (let x = 0.05; x <= xMax; x += 0.05) {
+    const y = Math.log(x) / Math.log(eBase);
+    if (y < yMin - 1) continue;
+    pL += (pL ? " L " : "M ") + `${px(x)},${py(y)}`;
+  }
+  svg.append("path").attr("d", pL).attr("fill", "none").attr("stroke", "#2c5f7c").attr("stroke-width", 2.5);
+  svg.append("text").attr("x", px(6)).attr("y", py(Math.log(6) / Math.log(eBase)) + 14).attr("fill", "#2c5f7c").attr("font-weight", "bold").attr("font-size", "13").text(`y = log${eBase}(x)`);
+  return svg.node();
+}
+```
+
+The pink curve $b^x$ shoots up; the blue curve $\log_b(x)$ rises
+slowly. They are mirror images across $y = x$ — that's what *inverse
+functions* look like geometrically.
+
+## Wonder
+
+1. The exponential curve never touches the $x$-axis but gets close.
+   Why?
+2. The log curve never touches the $y$-axis but gets close (going to
+   $-\infty$). Why?
+3. They cross at the line $y = x$ at exactly one point (for $b > 1$).
+   What's special about that point?
+
+## Discover
+
+### Problem 1
+
+Evaluate $f(x) = 3 \cdot 2^x$ at $x = 0, 1, 2, 3$.
+
+<details class="hint"><summary>Full solution</summary>
+$f(0) = 3 \cdot 1 = 3$. $f(1) = 6$. $f(2) = 12$. $f(3) = 24$.
+
+The values *double* each unit step in $x$. Exponential functions
+multiply by $b$ for each unit increase.
+</details>
+
+### Problem 2
+
+The function $f(x) = 2^x$ has *domain* all real $x$ and *range* all
+positive $y$. Its inverse $f^{-1}(x) = \log_2(x)$ has the swapped
+domain and range. What are they?
+
+<details class="hint"><summary>Full solution</summary>
+**$f^{-1}$:** domain $\{x : x > 0\}$, range all real $y$.
+
+When you invert a function, *domain and range swap*. The exponential
+$2^x$ never produces 0 or negative numbers, so the log of those is
+undefined.
+</details>
+
+### Problem 3
+
+Solve $5^x = 80$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $\log_{10}$ of both sides; use power rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x \log_{10}(5) = \log_{10}(80)$.
+$x = \log_{10}(80) / \log_{10}(5) \approx 1.903 / 0.699 \approx 2.722$.
+
+Check: $5^{2.722} \approx 5^{2} \cdot 5^{0.722} \approx 25 \cdot 3.2
+\approx 80$ ✓.
+</details>
+
+### Problem 4
+
+Solve $\log_3(x + 2) = 4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\log_3(x + 2) = 4 \iff x + 2 = 3^4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + 2 = 81 \Rightarrow x = 79$. Check: $\log_3(81) = 4$ ✓.
+
+Logarithmic equations: rewrite as exponential, then solve normally.
+</details>
+
+### Problem 5
+
+A bacteria culture doubles every hour. Starting with 100 bacteria,
+after how many hours will there be 1,000,000?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$N(t) = 100 \cdot 2^t$. Set $N = 10^6$ and solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$100 \cdot 2^t = 10^6 \Rightarrow 2^t = 10^4 \Rightarrow t = \log_2(10^4) =
+4 \log_2(10) \approx 4 \cdot 3.32 = 13.29$ hours.
+
+About **13.3 hours** to reach a million. Logarithms answer "how long
+until X reaches Y?" for any exponential process.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **exponential function** with base $b > 0, b \neq 1$:
+$$f(x) = b^x.$$
+- Domain: all real $x$. Range: $y > 0$.
+- Increasing if $b > 1$, decreasing if $0 < b < 1$.
+- Always passes through $(0, 1)$.
+
+Its **inverse** is the logarithm:
+$$f^{-1}(x) = \log_b(x).$$
+- Domain: $x > 0$. Range: all real $y$.
+- Always passes through $(1, 0)$.
+- Mirror image of $b^x$ across $y = x$.
+
+The **natural exponential** $e^x$ (with $e \approx 2.71828$) is the
+preferred base in calculus, statistics, and science. Its inverse is
+$\ln(x) = \log_e(x)$.
+
+**Equation strategies:**
+
+- *Exponential equation* ($b^{f(x)} = c$): take $\log_b$ of both sides.
+- *Log equation* ($\log_b(f(x)) = c$): rewrite as $f(x) = b^c$.
+
+:::
+
+> *Exponential and log are inverse functions — reflections across $y = x$;*
+> *Solve exponentials by taking logs; solve logs by exponentiating;*
+> *The natural base $e$ is calculus's favourite.*
+
+## Apply
+
+### Worked example
+
+> The population of a town grows by 4% per year. If today's
+> population is 50,000, **how many years** until it doubles?
+
+A competent solver:
+
+1. **Model:** $P(t) = 50000 \cdot (1.04)^t$.
+2. **Equation:** $50000 \cdot 1.04^t = 100000 \Rightarrow 1.04^t = 2$.
+3. **Take log:** $t \log(1.04) = \log(2)$.
+4. **Solve:** $t = \log(2) / \log(1.04) \approx 0.301 / 0.0170 \approx
+   17.7$ years.
+
+**Answer: ~17.7 years.** This is one form of the famous **Rule of 72**
+(doubling time ≈ 72/percentage rate, here 72/4 = 18 — close).
+
+### Practice — Warm
+
+**W1.** Evaluate $f(x) = 4 \cdot 3^x$ at $x = 0, 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$f(0) = 4$. $f(2) = 36$.
+</details>
+
+**W2.** Solve $2^x = 32$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 5$ (since $2^5 = 32$).
+</details>
+
+**W3.** Solve $\log_4(x) = 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 4^2 = 16$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $3^{x+1} = 27$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$27 = 3^3$. Equate exponents.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3^{x+1} = 3^3 \Rightarrow x + 1 = 3 \Rightarrow x = 2$.
+</details>
+
+**P2.** Solve $\log_2(x) + \log_2(x - 2) = 3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combine using product rule: $\log_2(x(x-2)) = 3$. Then exponentiate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x(x - 2) = 8 \Rightarrow x^2 - 2x - 8 = 0 \Rightarrow (x - 4)(x + 2) =
+0$. So $x = 4$ or $x = -2$.
+
+But check: $\log_2(-2)$ is undefined, so reject $x = -2$. **$x = 4$**.
+
+Always check log-equation solutions against the *original equation's
+domain*. Spurious solutions can appear after combining logs.
+</details>
+
+**P3.** A radioactive substance decays with **half-life 6 years**: every
+6 years half remains. Starting with 100 g, write $M(t)$. After 20
+years, how much remains?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$M(t) = 100 \cdot (1/2)^{t/6}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$M(20) = 100 \cdot (1/2)^{20/6} = 100 \cdot 0.5^{3.333} \approx 100
+\cdot 0.0992 \approx 9.92$ g.
+
+Half-lives are exponential decay, the negative-exponent cousin of
+exponential growth. Carbon-14 dating, drug elimination from the body,
+and many physical processes follow this pattern.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Newton's law of cooling** — a hot object cools toward room
+temperature exponentially. A pot of soup at 90°C cools by half toward
+room temperature (20°C) every 10 minutes. So:
+
+$$T(t) - 20 = (90 - 20) \cdot (1/2)^{t/10}.$$
+
+When does the soup reach 30°C?
+
+<details class="hint"><summary>Full solution</summary>
+$T(t) - 20 = 10 \Rightarrow 70 \cdot (1/2)^{t/10} = 10 \Rightarrow
+(1/2)^{t/10} = 1/7$.
+
+Take log: $(t/10) \log(1/2) = \log(1/7) \Rightarrow t = 10 \cdot
+\log(1/7) / \log(1/2) = 10 \cdot \log_2(7) \approx 10 \cdot 2.807
+\approx 28.07$ minutes.
+
+About **28 minutes**. Newton's law (1701) is one of the oldest
+applications of exponential decay; modern thermal engineering uses it
+constantly.
+</details>
+
+**S2.** **The "softmax" function in ML** turns raw scores $z_1, z_2,
+\ldots, z_n$ into probabilities:
+$$p_i = \dfrac{e^{z_i}}{\sum_j e^{z_j}}.$$
+Why use $e^{z}$ rather than just $z$ itself?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What does $e^z$ guarantee about its output? What about negative
+scores?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Three reasons.**
+
+1. $e^z > 0$ always — so we get valid probabilities, even from
+   negative scores.
+2. $e^z$ amplifies *differences*: a small advantage in scores
+   ($z_1 = 1, z_2 = 0$) becomes a clear preference ($p_1 \approx
+   0.73$).
+3. The natural base $e$ has a clean derivative ($\frac{d}{dz} e^z = e^z$),
+   making backpropagation efficient (Tier 4+).
+
+Softmax is the bridge from neural-network *scores* to *probabilities*
+— and the universal output layer of every classification model. The
+exponential function you just met is doing this work *trillions of
+times per second* across the world's deployed AI systems.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$2^x = -8$ has a solution."** No — $2^x > 0$ always. Some
+   exponential equations simply have no real solution.
+2. **"$\log(0) = 0$."** $\log(0)$ is *undefined* (or $-\infty$ as a
+   limit). $\log(1) = 0$.
+3. **"The natural log is just one of many."** True technically, but
+   $\ln$ has a special role: $\frac{d}{dx} \ln(x) = 1/x$, the simplest
+   derivative. That's why $e$ is *the* base of choice in advanced
+   maths.
+:::
+
+### Self-Assessment
+
+1. Could you sketch $y = 2^x$ and $y = \log_2(x)$ on the same axes
+   from memory, identifying their reflective symmetry?
+2. Without scrolling back, can you solve $3^x = 27$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $x = 3$.)
+
+- **3 yes:** ready for **[07 · Trig Ratios](../07-trig-ratios/index.qmd)**.
+- **2 yes:** redo **S2** (softmax) — central to modern ML.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[05 · Logarithms](../05-logarithms/index.qmd)**
+- **[T2 L01 — Functions as Machines](../../tier-2-prealgebra/01-functions-as-machines/index.qmd)**
+
+### What this unlocks
+
+- **Tier 4 — Calculus** — $e^x$ is its own derivative; $\ln$ is the
+  primitive of $1/x$. These two facts are calculus's gravity.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Softmax (S2), sigmoid (a logistic
+function), exponential learning-rate decay, log-likelihood
+optimisation — exponentials and logs are everywhere.
+:::
+
+::: {.applied-callout}
+**Systems.** Big-O complexity analysis often involves $\log n$
+(binary search, balanced trees) and $2^n$ (NP-hard problems).
+Algorithm choice is often "polynomial vs exponential."
+:::
+
+::: {.applied-callout}
+**Mathematical research.** $e^{i\theta} = \cos\theta + i\sin\theta$
+(Euler's formula, Tier 6) unifies exponentials, trigonometry, and
+complex numbers. One of the most beautiful identities in mathematics.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Population growth, compound interest, drug
+half-lives, radioactive dating, sound (decibels), earthquakes
+(Richter), pH, Newton's cooling — exponentials and logs model the
+*rate-of-change-proportional-to-current-amount* situations that
+dominate physical, biological, and economic systems.
+:::
