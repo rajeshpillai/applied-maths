@@ -1,0 +1,404 @@
+---
+title: "14 · Quadratic Equations (Intro)"
+subtitle: "When the unknown is squared — and how factoring solves it"
+lesson-id: "t2.quadratic-equations-intro"
+tier: 2
+prerequisites: ["t2.factoring-polynomials", "t2.linear-equations-one-var"]
+unlocks: []
+applied-domains: ["game-dev", "research", "ai-ml"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [02 · Linear Equations](../02-linear-equations-one-var/index.qmd)
+   and [12 · Factoring Polynomials](../12-factoring-polynomials/index.qmd)?
+2. Can you factor $x^2 + 5x + 6$ into $(x+2)(x+3)$?
+3. Comfortable with the idea that an equation can have *two* solutions
+   (e.g., $x^2 = 25$ has $x = \pm 5$, from Lesson 9 P2)?
+:::
+
+## Touch
+
+Adjust $b$ and $c$ in the quadratic $x^2 + bx + c = 0$. The widget
+factors it (when possible) and reveals the **two roots** — the values
+where the parabola crosses the x-axis.
+
+```{ojs}
+viewof bP = Inputs.range([-10, 10], {value: -5, step: 1, label: "b:"})
+viewof cP = Inputs.range([-15, 15], {value: 6, step: 1, label: "c:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 380, pad = 40;
+  const xMin = -10, xMax = 10, yMin = -15, yMax = 25;
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - ((v - yMin) / (yMax - yMin)) * (H - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa;");
+
+  // axes
+  svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(0)).attr("y2", py(0))
+    .attr("stroke", "#1f2933");
+  svg.append("line").attr("x1", px(0)).attr("x2", px(0)).attr("y1", pad).attr("y2", H - pad)
+    .attr("stroke", "#1f2933");
+
+  // Parabola
+  let pathD = "";
+  for (let x = xMin; x <= xMax; x += 0.1) {
+    const y = x*x + bP*x + cP;
+    if (y < yMin || y > yMax) continue;
+    pathD += (pathD ? " L " : "M ") + `${px(x)},${py(y)}`;
+  }
+  svg.append("path").attr("d", pathD).attr("fill", "none").attr("stroke", "#c2185b").attr("stroke-width", 2.5);
+
+  // Discriminant + roots
+  const disc = bP*bP - 4*cP;
+  let label;
+  if (disc > 0) {
+    const r1 = (-bP - Math.sqrt(disc)) / 2;
+    const r2 = (-bP + Math.sqrt(disc)) / 2;
+    svg.append("circle").attr("cx", px(r1)).attr("cy", py(0)).attr("r", 6).attr("fill", "#1565c0");
+    svg.append("circle").attr("cx", px(r2)).attr("cy", py(0)).attr("r", 6).attr("fill", "#1565c0");
+    label = `Two roots: x = ${r1.toFixed(2)} and x = ${r2.toFixed(2)}`;
+  } else if (disc === 0) {
+    const r = -bP / 2;
+    svg.append("circle").attr("cx", px(r)).attr("cy", py(0)).attr("r", 8).attr("fill", "#f9a825");
+    label = `One repeated root: x = ${r}`;
+  } else {
+    label = `No real roots (discriminant = ${disc} < 0)`;
+  }
+  svg.append("text").attr("x", W/2).attr("y", 25).attr("text-anchor", "middle")
+    .attr("font-size", "16").attr("font-family", "monospace")
+    .text(`x² ${bP >= 0 ? '+' : '−'} ${Math.abs(bP)}x ${cP >= 0 ? '+' : '−'} ${Math.abs(cP)} = 0`);
+  svg.append("text").attr("x", W/2).attr("y", H - 8).attr("text-anchor", "middle")
+    .attr("font-size", "13").attr("fill", "#1565c0").attr("font-weight", "bold")
+    .text(label);
+  return svg.node();
+}
+```
+
+A **quadratic equation** $ax^2 + bx + c = 0$ has two, one, or zero real
+solutions, geometrically determined by where (or whether) the parabola
+crosses the x-axis.
+
+## Wonder
+
+1. For $x^2 - 5x + 6 = 0$: the parabola crosses at $x = 2$ and $x = 3$.
+   These are the *roots*. Why those numbers?
+2. What if $c = 0$? Like $x^2 - 5x = 0$. What are the roots?
+3. What if the parabola never touches the x-axis? Does the equation
+   have any solutions?
+:::
+
+## Discover
+
+### Problem 1
+
+Solve $x^2 - 5x + 6 = 0$ by **factoring**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor (Lesson 12). Then if a product is zero, one of the factors must
+be zero.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 5x + 6 = (x - 2)(x - 3) = 0$.
+
+**Zero-product property:** if $A \cdot B = 0$, then $A = 0$ or $B = 0$
+(or both). So $x - 2 = 0$ ⇒ $x = 2$, or $x - 3 = 0$ ⇒ $x = 3$.
+
+**Solutions: $x = 2$ or $x = 3$.** A quadratic *typically* has two
+solutions.
+</details>
+
+### Problem 2
+
+Solve $x^2 - 5x = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor out $x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x(x - 5) = 0$, so $x = 0$ or $x - 5 = 0$ ⇒ $x = 5$.
+
+**Solutions: $x = 0$ or $x = 5$.** When $c = 0$, $x = 0$ is *always* a
+root (and the other is $-b$).
+</details>
+
+### Problem 3
+
+Solve $x^2 - 9 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Difference of squares: $x^2 - 9 = (x - 3)(x + 3)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 3)(x + 3) = 0 \Rightarrow x = 3$ or $x = -3$.
+
+Equivalently, $x^2 = 9 \Rightarrow x = \pm 3$ (Lesson 9 P2).
+</details>
+
+### Problem 4
+
+Solve $x^2 - 6x + 9 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Recognise the perfect square: $x^2 - 6x + 9 = (x - 3)^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 3)^2 = 0 \Rightarrow x - 3 = 0 \Rightarrow x = 3$.
+
+**One repeated root.** A perfect-square quadratic has its parabola
+*tangent* to the x-axis at the single root. The two solutions
+"coincide" — algebraically you can think of it as $x = 3$ "twice".
+</details>
+
+### Problem 5
+
+Try to solve $x^2 + 1 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 = -1$. Is there a real number whose square is $-1$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**No real solutions.** $x^2 \ge 0$ for all real $x$, so $x^2 + 1 \ge 1
+> 0$. The parabola never touches the x-axis.
+
+Over the complex numbers (Tier 6), the solutions are $x = \pm i$ where
+$i^2 = -1$. But over the *reals*, this equation has no solution.
+
+**The trichotomy:** every quadratic has 2, 1, or 0 *real* roots. The
+discriminant $b^2 - 4ac$ tells which:
+- $> 0$: two distinct real roots
+- $= 0$: one repeated root (perfect square)
+- $< 0$: no real roots
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **quadratic equation** in $x$ has the form
+$$a x^2 + b x + c = 0 \qquad (a \neq 0).$$
+
+**To solve by factoring:** factor the polynomial, then use the
+**zero-product property**: if $(x - r)(x - s) = 0$, then $x = r$ or
+$x = s$.
+
+**Three possibilities for real roots:**
+
+| Discriminant $b^2 - 4ac$ | Number of real roots |
+|:-:|---|
+| $> 0$ | 2 distinct |
+| $= 0$ | 1 repeated |
+| $< 0$ | 0 (the parabola misses the x-axis) |
+
+**The full quadratic formula** (for cases that don't factor nicely
+over the integers) is
+$$x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}.$$
+We will use this from Tier 3 onward; for Tier 2 we focus on factoring.
+
+:::
+
+> *Factor and use the zero-product property — the easy path;*
+> *Two roots, one root, or none — count by the discriminant;*
+> *The quadratic formula handles the rest.*
+
+## Apply
+
+### Worked example
+
+> Solve $x^2 + 7x + 12 = 0$.
+
+A competent solver factors first.
+
+1. Find $r, s$: $r + s = 7, rs = 12$ → $r = 3, s = 4$.
+2. So $(x + 3)(x + 4) = 0$.
+3. Zero-product: $x + 3 = 0 \Rightarrow x = -3$, or $x + 4 = 0
+   \Rightarrow x = -4$.
+4. **Check:** $(-3)^2 + 7(-3) + 12 = 9 - 21 + 12 = 0$ ✓.
+
+**Solutions: $x = -3$ or $x = -4$.** Notice: roots are *opposites* of
+the factor constants. $(x + 3)$ has root $-3$.
+
+### Practice — Warm
+
+**W1.** Solve $x^2 - 4 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x-2)(x+2) = 0 \Rightarrow x = \pm 2$.
+</details>
+
+**W2.** Solve $x^2 + 6x = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$x(x+6) = 0 \Rightarrow x = 0$ or $x = -6$.
+</details>
+
+**W3.** Solve $x^2 - 5x + 6 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x-2)(x-3) = 0 \Rightarrow x = 2$ or $x = 3$. (Confirms Discover P1.)
+</details>
+
+### Practice — Working
+
+**P1.** Solve $x^2 + 2x - 8 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x + 4)(x - 2) = 0 \Rightarrow x = -4$ or $x = 2$.
+</details>
+
+**P2.** Solve $x^2 - 10x + 25 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Perfect square.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 5)^2 = 0 \Rightarrow x = 5$ (repeated root).
+</details>
+
+**P3.** A rectangular garden's length is **3 m more than its width**.
+Its **area is 40 m²**. Find the dimensions.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let width = $w$. Length = $w + 3$. Area: $w(w + 3) = 40$, i.e., $w^2
++ 3w - 40 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$w^2 + 3w - 40 = 0 \Rightarrow (w + 8)(w - 5) = 0 \Rightarrow w = -8$
+or $w = 5$.
+
+Width must be positive, so **width = 5 m**, length = 8 m. Check: $5
+\times 8 = 40$ ✓.
+
+The negative root $w = -8$ is *algebraically* valid but *physically*
+meaningless (no negative widths). Real-world problems often produce
+extra algebraic solutions that must be discarded based on context.
+</details>
+
+### Practice — Stretch
+
+**S1.** A ball is thrown straight up with an initial speed of 20 m/s
+from a height of 1.8 m. Its height after $t$ seconds is
+$$h(t) = 1.8 + 20t - 5t^2 \quad (\text{metres})$$
+(approximating gravity). When does the ball hit the ground?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Hit the ground means $h(t) = 0$. Solve $1.8 + 20t - 5t^2 = 0$ — or
+equivalently $5t^2 - 20t - 1.8 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5t^2 - 20t - 1.8 = 0$. This doesn't factor cleanly over the
+integers, but the **quadratic formula** gives:
+$$t = \dfrac{20 \pm \sqrt{400 + 36}}{10} = \dfrac{20 \pm \sqrt{436}}{10}
+\approx \dfrac{20 \pm 20.88}{10}.$$
+
+Two roots: $t \approx 4.09$ s (positive — when the ball returns to
+ground) and $t \approx -0.09$ s (negative — physically meaningless,
+"when the ball was thrown if reversed in time"). Drop the negative.
+
+**Ball lands at about 4.09 seconds.** Quadratics describe trajectories
+of projectiles under uniform gravity — the foundational physics of
+falling and throwing.
+</details>
+
+**S2.** In machine learning, the **mean squared error** loss is
+$L(w) = \sum_i (y_i - wx_i)^2$ — a *quadratic in the weight $w$*.
+Training finds the $w$ that *minimises* $L$. Why does a quadratic loss
+make optimisation easier than other choices?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A quadratic in $w$ is a parabola — it has a unique minimum or maximum.
+And the slope (derivative) is *linear* in $w$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Two reasons.** First, a parabola has a *unique* minimum point — no
+local minima to get stuck in (unlike higher-degree or non-convex
+losses).
+
+Second, the *gradient* (the rate of change with respect to $w$) is
+itself a *linear* function of $w$. So setting gradient = 0 gives a
+*linear* equation that we can solve directly — no iteration needed.
+
+This is why **linear regression** has a famous closed-form solution
+("least squares" — Tier 5). Modern ML uses non-quadratic losses for
+many problems, but quadratic loss is the *first* choice and often the
+right one.
+
+The quadratic equation you just learned is the algebra behind the
+single most-used ML algorithm of the last century.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Always exactly two solutions."** No — perfect squares give 1
+   (repeated); some quadratics have 0 real solutions. The discriminant
+   tells you which.
+2. **"Solve $x^2 = 25$ as $x = 5$."** Forgets the negative root. Always
+   $\pm$ when taking square roots in equations.
+3. **"Discard solutions that don't *seem* right."** Discard solutions
+   that violate *physical or contextual constraints* (negative widths,
+   negative time before throwing) — but never discard a mathematically
+   valid root without justification.
+:::
+
+### Self-Assessment
+
+1. Could you explain the **zero-product property** to a friend, in
+   your own words?
+2. Without scrolling back, can you solve $x^2 - 7x + 10 = 0$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $(x - 2)(x - 5) = 0 \Rightarrow x = 2$ or $x = 5$.)
+
+- **3 yes:** ready for **[15 · Sequences (Intro)](../15-sequences-intro/index.qmd)**.
+- **2 yes:** redo **S1** (projectile) — quadratic-trajectory physics
+  is one of the great applications.
+- **0–1 yes:** re-read *Discover P1 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[12 · Factoring Polynomials](../12-factoring-polynomials/index.qmd)**
+- **[02 · Linear Equations](../02-linear-equations-one-var/index.qmd)** —
+  zero-product property reduces to two linear equations.
+
+### What this unlocks
+
+- **Tier 3 — The Quadratic Formula** — the general solution method,
+  including completing the square.
+- **Tier 3 — Conics** — parabolas, circles, ellipses, hyperbolas as
+  graphs of quadratics in 2 variables.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & physics.** Projectile motion (S1), collision
+detection (when does this trajectory intersect this surface?),
+ballistic calculations — all involve solving quadratics in real time.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Mean-squared-error loss (S2) is the
+oldest and still most common choice. Many regularisation terms
+($\ell_2$, ridge regression) are also quadratic.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Quadratic forms — generalisations of
+$ax^2 + bx + c$ — are central in number theory, physics
+(energy = $\tfrac{1}{2} m v^2$), and pure algebra.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Maximum profit problems (parabolic revenue
+curves), trajectory optimisation, structural engineering (parabolic
+arches and cables), antenna design (parabolic dishes — focusing
+property of parabolas).
+:::
