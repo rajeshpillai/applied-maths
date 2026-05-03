@@ -10,7 +10,7 @@ subtitle: "The mathematics that lets a machine learn from examples"
 - Implement neural networks from scratch and explain *why* each design choice
   matters.
 - Reason about why a model is failing in terms of its loss landscape, its
-  inductive bias, or its data.
+  inductive bias, or its data manifold.
 
 ## The path
 
@@ -27,18 +27,53 @@ flowchart LR
     E --> F[Tier 6<br/>Optimisation, info theory]
     F --> G[Tier 7 — AI/ML track:<br/>Statistical learning theory<br/>Manifold methods<br/>RL theory]
 
-    classDef built fill:#c8e6c9,stroke:#2e7d32
-    class A built
+    classDef built fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+    class A,B,C,D,E,F,G built
 ```
+
+## The curated reading list
+
+### Tier 1 — the seeds
+
+- [09 · Ratio and Proportion](../lessons/tier-1-foundations/09-ratio-proportion/index.qmd) — every weight is, conceptually, a ratio.
+- [11 · Variables](../lessons/tier-1-foundations/11-intro-variables/index.qmd) — symbolic substitution, the move ML lives by.
+- [14 · Data and Average](../lessons/tier-1-foundations/14-data-and-average/index.qmd) — the first statistic.
+
+### Tier 2–3 — algebraic and probabilistic literacy
+
+- [T2 L01 · Functions as Machines](../lessons/tier-2-prealgebra/01-functions-as-machines/index.qmd) — the model abstraction.
+- [T2 L05 · Linear Functions and Graphs](../lessons/tier-2-prealgebra/05-linear-functions-graphs/index.qmd) — the simplest learner.
+- [T3 L13 · Basic Probability](../lessons/tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd) and [T3 L14 · Conditional Probability](../lessons/tier-3-algebra2-geometry-trig/14-conditional-probability/index.qmd) — Bayes is born here.
+
+### Tier 4 — calculus
+
+- [T4 L03 · The Derivative](../lessons/tier-4-precalc-calculus/03-derivative/index.qmd) — gradient descent's atom.
+- [T4 L13–14 · Vectors in 2D/3D and Dot/Cross](../lessons/tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd) — the geometry of features.
+
+### Tier 5 — undergraduate core
+
+- [T5 L01 · Matrices](../lessons/tier-5-undergrad-core/01-matrices/index.qmd) → [T5 L04 · Eigenvalues](../lessons/tier-5-undergrad-core/04-eigenvalues/index.qmd) — PCA, attention's QKᵀ, every NN layer.
+- [T5 L05 · Partial Derivatives](../lessons/tier-5-undergrad-core/05-partial-derivatives/index.qmd) → [T5 L07 · Vector Fields](../lessons/tier-5-undergrad-core/07-vector-fields/index.qmd) — gradients and backprop.
+- [T5 L08 · Continuous Distributions](../lessons/tier-5-undergrad-core/08-continuous-distributions/index.qmd) → [T5 L10 · Statistical Inference](../lessons/tier-5-undergrad-core/10-statistical-inference/index.qmd) — likelihoods, MLE, MAP.
+
+### Tier 6 — undergraduate advanced
+
+- [T6 L09 · Convex Optimisation](../lessons/tier-6-undergrad-advanced/09-convex-optimization/index.qmd) → [T6 L10 · Gradient Methods](../lessons/tier-6-undergrad-advanced/10-gradient-methods/index.qmd) — SGD, Adam, momentum.
+- [T6 L11 · Information Theory](../lessons/tier-6-undergrad-advanced/11-information-theory/index.qmd) — cross-entropy, KL, every loss function.
+- [T6 L15 · Spectral Theorem](../lessons/tier-6-undergrad-advanced/15-spectral-theorem/index.qmd) — SVD, low-rank decomposition, LoRA.
+
+### Tier 7 — Masters AI/ML capstone
+
+- [T7 L04 · Statistical Learning Theory](../lessons/tier-7-masters-tracks/04-statistical-learning-theory/index.qmd) — PAC, VC, the "deep-learning paradox."
+- [T7 L05 · Manifold Methods](../lessons/tier-7-masters-tracks/05-manifold-methods/index.qmd) — embeddings, t-SNE, score-based diffusion.
+- [T7 L06 · RL Theory](../lessons/tier-7-masters-tracks/06-rl-theory/index.qmd) — Bellman, Q-learning, policy gradient, RLHF.
 
 ## Where to start right now
 
-The ML path begins, quietly, with **Ratio & Proportion** in Tier 1 (every
-neural network weight is, conceptually, a ratio between an input and an
-output) and **Data & Average** (the very first statistic). Walk Tier 1 in
-order; don't skip ahead.
+If you have *no* preparation: start at [01 · What is a Number?](../lessons/tier-1-foundations/01-what-is-a-number/index.qmd) and walk Tier 1 in order.
 
-## What's built / what's planned
+If you've done high-school calculus and basic linear algebra: jump to
+[T5 L01 · Matrices](../lessons/tier-5-undergrad-core/01-matrices/index.qmd).
 
-- ✅ Tier 1: *What is a Number?* (exemplar lesson)
-- 📋 The full Tier 1 chain feeding into ML is planned but not yet authored.
+If you have an engineering degree: skim Tier 5–6 for gaps, then go to
+[T7 L04](../lessons/tier-7-masters-tracks/04-statistical-learning-theory/index.qmd).

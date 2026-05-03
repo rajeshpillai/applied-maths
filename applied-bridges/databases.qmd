@@ -10,7 +10,7 @@ subtitle: "The mathematics that lets a query return the right rows in the right 
 - Reason about cost models: how a query optimiser decides between a hash join
   and a merge join.
 - Understand the set-theoretic foundations of SQL — including the surprising
-  parts (NULLs, three-valued logic).
+  parts (nulls, three-valued logic, bag semantics).
 
 ## The path
 
@@ -23,18 +23,49 @@ flowchart LR
     B --> C[Tier 3<br/>Combinatorics, basic probability]
     C --> D[Tier 5<br/>Discrete math: sets, logic, relations<br/>Probability & statistics]
     D --> E[Tier 6<br/>Graph theory, optimisation]
-    E --> F[Tier 7 — Databases track:<br/>Relational algebra<br/>Query optimisation<br/>Set-theoretic foundations]
+    E --> F[Tier 7 — Databases track:<br/>Relational algebra<br/>Query optimisation]
 
-    classDef built fill:#c8e6c9,stroke:#2e7d32
-    class A built
+    classDef built fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+    class A,B,C,D,E,F built
 ```
+
+## The curated reading list
+
+### Tier 1 — set-and-aggregate seeds
+
+- [07 · Fractions as Parts](../lessons/tier-1-foundations/07-fractions-as-parts/index.qmd) — a row as a fraction of a table.
+- [14 · Data and Average](../lessons/tier-1-foundations/14-data-and-average/index.qmd) — the simplest aggregate.
+
+### Tier 2 — abstraction and functions
+
+- [T2 L01 · Functions as Machines](../lessons/tier-2-prealgebra/01-functions-as-machines/index.qmd) — the model for `SELECT expr`.
+- [T2 L06 · Systems of Linear Equations](../lessons/tier-2-prealgebra/06-systems-linear-equations/index.qmd) — multiple constraints simultaneously satisfied.
+
+### Tier 3 — counting and probability
+
+- [T3 L11 · Combinatorics and Counting](../lessons/tier-3-algebra2-geometry-trig/11-combinatorics-counting/index.qmd) — cardinality estimation foundations.
+- [T3 L13 · Basic Probability](../lessons/tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd) — selectivity and histograms.
+
+### Tier 5 — discrete math + statistics
+
+- [T5 L11 · Sets, Logic, Proofs](../lessons/tier-5-undergrad-core/11-sets-logic-proofs/index.qmd) — relational algebra is set algebra.
+- [T5 L08 · Continuous Distributions](../lessons/tier-5-undergrad-core/08-continuous-distributions/index.qmd) → [T5 L09 · Variance and the CLT](../lessons/tier-5-undergrad-core/09-variance-clt/index.qmd) — cost-based optimisers' statistics.
+
+### Tier 6 — graphs and optimisation
+
+- [T6 L14 · Spectral Graph Theory](../lessons/tier-6-undergrad-advanced/14-spectral-graph-theory/index.qmd) — graph databases, Neo4j queries.
+- [T6 L09 · Convex Optimisation](../lessons/tier-6-undergrad-advanced/09-convex-optimization/index.qmd) — query optimiser as an optimisation problem.
+
+### Tier 7 — Masters Databases capstone
+
+- [T7 L09 · Relational Algebra and Query Optimisation](../lessons/tier-7-masters-tracks/09-relational-algebra/index.qmd) — the five primitive operators, predicate pushdown, join reordering, Codd's theorem, vector databases.
 
 ## Where to start right now
 
-The database path begins with **Fractions as Parts** (a row is a fraction of a
-table) and **Data & Average** (the simplest aggregate query) in Tier 1.
+If you've used SQL but never thought about it as algebra: jump to
+[T5 L11 · Sets, Logic, Proofs](../lessons/tier-5-undergrad-core/11-sets-logic-proofs/index.qmd) and then
+[T7 L09](../lessons/tier-7-masters-tracks/09-relational-algebra/index.qmd).
 
-## What's built / what's planned
-
-- ✅ Tier 1: *What is a Number?* (exemplar lesson)
-- 📋 Everything beyond — planned, not yet authored.
+If you write query planners or optimisers professionally: read
+[T7 L09](../lessons/tier-7-masters-tracks/09-relational-algebra/index.qmd)
+and follow up with the cited Selinger and Datalog references.

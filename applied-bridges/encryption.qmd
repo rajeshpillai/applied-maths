@@ -7,15 +7,16 @@ subtitle: "The mathematics that lets you keep secrets in a hostile world"
 
 - Understand why every modern cryptographic system rests on the difficulty of
   certain number-theoretic problems.
-- Implement RSA from scratch and explain why it is secure.
-- Read modern crypto papers on elliptic curves and lattice-based schemes
-  without the maths blocking you.
+- Implement RSA and ECC from scratch and explain why each is secure (and what
+  breaks them).
+- Read modern crypto papers on elliptic curves, pairings, and lattice-based
+  post-quantum schemes without the maths blocking you.
 
 ## The path
 
-Encryption is, surprisingly, the most number-theoretic of the applied
-domains. The path runs through arithmetic, then abstract algebra, then
-algebraic number theory.
+Encryption is the most number-theoretic of the applied domains. The path runs
+through arithmetic, abstract algebra, algebraic number theory, and finally
+to elliptic curves and lattices.
 
 ```{mermaid}
 flowchart LR
@@ -25,20 +26,47 @@ flowchart LR
     D --> E[Tier 6<br/>Abstract algebra: groups, rings, fields]
     E --> F[Tier 7 — Encryption track:<br/>Algebraic number theory<br/>Elliptic curves<br/>Lattice-based crypto]
 
-    classDef built fill:#c8e6c9,stroke:#2e7d32
-    class A built
+    classDef built fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+    class A,B,C,D,E,F built
 ```
+
+## The curated reading list
+
+### Tier 1 — the seed of crypto
+
+- [T1 L15 · Divisibility and Primes](../lessons/tier-1-foundations/15-divisibility-and-primes/index.qmd) — primes are the atoms; their products are RSA's keys.
+
+### Tier 2–3 — modular arithmetic and structure
+
+- [T2 L07 · Exponents and Powers](../lessons/tier-2-prealgebra/07-exponents-powers/index.qmd) → [T3 L05 · Logarithms](../lessons/tier-3-algebra2-geometry-trig/05-logarithms/index.qmd) — discrete log is the same shape, harder.
+- [T3 L11 · Combinatorics](../lessons/tier-3-algebra2-geometry-trig/11-combinatorics-counting/index.qmd) — birthday paradox, collision attacks.
+
+### Tier 5 — discrete math and number theory
+
+- [T5 L11 · Sets, Logic, Proofs](../lessons/tier-5-undergrad-core/11-sets-logic-proofs/index.qmd) — the language of cryptographic security definitions.
+- [T5 L13 · Modular Arithmetic and RSA](../lessons/tier-5-undergrad-core/13-modular-arithmetic-rsa/index.qmd) — Fermat, Euler, and the RSA decryption identity.
+
+### Tier 6 — abstract algebra
+
+- [T6 L01 · Groups](../lessons/tier-6-undergrad-advanced/01-groups/index.qmd) → [T6 L02 · Rings and Fields](../lessons/tier-6-undergrad-advanced/02-rings-fields/index.qmd) → [T6 L03 · Group Actions](../lessons/tier-6-undergrad-advanced/03-group-actions/index.qmd) — the structures that crypto builds on.
+- [T6 L04 · Complex Numbers](../lessons/tier-6-undergrad-advanced/04-complex-numbers/index.qmd) — needed for roots of unity, NTT, FFT.
+
+### Tier 7 — Masters Encryption capstone
+
+- [T7 L03 · Galois Theory](../lessons/tier-7-masters-tracks/03-galois-theory/index.qmd) — finite-field structure behind AES and ECC.
+- [T7 L12 · Algebraic Number Theory](../lessons/tier-7-masters-tracks/12-algebraic-number-theory/index.qmd) — rings of integers, ideal class groups, the algebraic backbone.
+- [T7 L13 · Elliptic Curves and ECC](../lessons/tier-7-masters-tracks/13-elliptic-curves/index.qmd) — Bitcoin, TLS, signal — the modern internet's signature scheme.
+- [T7 L14 · Lattice-Based Post-Quantum Cryptography](../lessons/tier-7-masters-tracks/14-lattice-crypto/index.qmd) — LWE, Kyber, Dilithium — humanity's plan B for quantum.
 
 ## Where to start right now
 
-Even at the very first lesson — [*What is a
-Number?*](../lessons/tier-1-foundations/01-what-is-a-number/index.qmd) — the
-*Connect* beat already names how the existence of prime numbers becomes the
-hinge of modern cryptography. Read it through and follow forward to
-**Divisibility and Primes**.
+If you've never seen `mod`: walk Tier 1 from
+[01](../lessons/tier-1-foundations/01-what-is-a-number/index.qmd) — the
+*Connect* beat already names how primes become the hinge of crypto.
 
-## What's built / what's planned
+If you've used RSA in a library and want to know *why* it works: go to
+[T5 L13 · Modular Arithmetic and RSA](../lessons/tier-5-undergrad-core/13-modular-arithmetic-rsa/index.qmd).
 
-- ✅ Tier 1: *What is a Number?* (exemplar lesson with encryption *Connect*)
-- 📋 Tier 1: Divisibility & Primes (the next required step)
-- 📋 Everything beyond Tier 1 is planned but not yet authored.
+If you're a security engineer planning the post-quantum migration: read
+[T7 L13](../lessons/tier-7-masters-tracks/13-elliptic-curves/index.qmd) and
+[T7 L14](../lessons/tier-7-masters-tracks/14-lattice-crypto/index.qmd) back-to-back.
