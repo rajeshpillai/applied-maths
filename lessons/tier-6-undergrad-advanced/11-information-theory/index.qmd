@@ -1,0 +1,339 @@
+---
+title: "11 · Information Theory — Entropy and Channel Capacity"
+subtitle: "Quantifying information — and the maximum rate of any communication channel"
+lesson-id: "t6.information-theory"
+tier: 6
+prerequisites: ["t3.basic-probability", "t3.logarithms"]
+unlocks: []
+applied-domains: ["ai-ml", "encryption", "systems", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T3 L13 — Basic Probability](../../tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd)
+   and [T3 L05 — Logarithms](../../tier-3-algebra2-geometry-trig/05-logarithms/index.qmd)?
+2. Comfortable with $\log_2$ as bits?
+3. Recall expected value $E[X] = \sum p_i x_i$?
+:::
+
+## Touch
+
+The **entropy** of a discrete distribution measures its
+*unpredictability* in **bits**:
+$$H(X) = -\sum_i p_i \log_2 p_i.$$
+
+```{ojs}
+viewof entSel = Inputs.select(["fair coin: H = 1 bit", "fair die (6 outcomes): H = log₂ 6 ≈ 2.585", "biased coin (p=0.9, 0.1): H ≈ 0.469", "deterministic (p=1, 0, ...): H = 0"], {value: "fair coin: H = 1 bit", label: "Distribution:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(entSel) {
+    case "fair coin: H = 1 bit": info = "−(0.5·log 0.5 + 0.5·log 0.5) = 1 bit. Single yes/no question resolves the outcome."; break;
+    case "fair die (6 outcomes): H = log₂ 6 ≈ 2.585": info = "Uniform over 6: H = log₂ 6 ≈ 2.585 bits. Need ~3 bits to encode."; break;
+    case "biased coin (p=0.9, 0.1): H ≈ 0.469": info = "Most outcomes are 'heads' — predictable. Less than 0.5 bit per toss; can compress."; break;
+    case "deterministic (p=1, 0, ...): H = 0": info = "Outcome certain. Zero information per observation."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why is entropy maximised by the *uniform* distribution?
+2. What does it mean to "communicate $H$ bits per symbol on average"?
+3. **Shannon's source coding theorem:** entropy $H$ is the minimum
+   bits per symbol any lossless code can achieve.
+:::
+
+## Discover
+
+### Problem 1
+
+For a fair coin: $H = -(\tfrac{1}{2} \log_2 \tfrac{1}{2} +
+\tfrac{1}{2} \log_2 \tfrac{1}{2}) = -(\tfrac{1}{2} \cdot (-1) +
+\tfrac{1}{2} \cdot (-1)) = 1$ bit.
+
+Compute $H$ for a fair 4-sided die.
+
+<details class="hint"><summary>Full solution</summary>
+$H = -4 \cdot \tfrac{1}{4} \log_2 \tfrac{1}{4} = \log_2 4 = 2$ bits.
+
+For uniform on $n$ outcomes: $H = \log_2 n$.
+</details>
+
+### Problem 2
+
+Compute $H$ for a biased coin with $p = 0.9$ (heads) and $0.1$
+(tails).
+
+<details class="hint"><summary>Full solution</summary>
+$H = -(0.9 \log_2 0.9 + 0.1 \log_2 0.1) = -(0.9 \cdot -0.152 + 0.1
+\cdot -3.322) = 0.137 + 0.332 = 0.469$ bits.
+
+Less than 1 bit per toss — because outcomes are predictable. **You
+can compress** a sequence of biased coin flips below 1 bit per toss.
+
+(The fair coin maximises entropy at 1; bias reduces it.)
+</details>
+
+### Problem 3
+
+**Why log_2?** $H$ is interpreted as *bits* — average yes/no questions
+needed to identify the outcome. With $n$ outcomes, $\lceil \log_2 n
+\rceil$ questions suffice (binary search).
+
+What if we use $\log_e = \ln$ instead? What unit?
+
+<details class="hint"><summary>Full solution</summary>
+**Nats** (natural units of information). $1$ nat $= \log_2 e \approx
+1.44$ bits.
+
+For machine learning loss functions, $\ln$ is more convenient
+(differentiation gives clean formulas).
+</details>
+
+### Problem 4
+
+**Mutual information** $I(X; Y) = H(X) + H(Y) - H(X, Y)$ measures
+how much knowing $Y$ reduces uncertainty about $X$. Equivalently,
+$I(X; Y) = H(X) - H(X | Y)$ where $H(X | Y)$ is conditional entropy.
+
+If $X$ and $Y$ are independent, what is $I$?
+
+<details class="hint"><summary>Full solution</summary>
+**$I(X; Y) = 0$.** Independence means $H(X | Y) = H(X)$ — knowing $Y$
+gives no information about $X$.
+
+Mutual information is **always non-negative** and equals $0$ iff
+independent. Used in:
+
+- *Feature selection* (which features inform the label most?).
+- *Network analysis* (information flow).
+- *Statistical physics* (entropy + mutual information of subsystems).
+</details>
+
+### Problem 5
+
+**Shannon's channel coding theorem.** A noisy channel with
+**capacity** $C$ bits/symbol can transmit at any rate $R < C$ with
+arbitrarily low error (for sufficiently long codes). At $R > C$:
+errors unavoidable.
+
+For a **binary symmetric channel** (flips bit with probability $p$):
+capacity $C = 1 - H(p)$.
+
+Compute $C$ for $p = 0.1$.
+
+<details class="hint"><summary>Full solution</summary>
+$H(0.1) = -(0.1 \log 0.1 + 0.9 \log 0.9) \approx 0.469$. $C = 1 -
+0.469 = 0.531$ bits per channel use.
+
+So a 10%-noisy channel can transmit ~0.53 useful bits per channel
+use. Modern error-correcting codes (LDPC, polar codes) approach this
+limit — fundamental to wireless communications, deep-space
+transmission (Voyager, Mars rovers).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Entropy** of discrete random variable $X$ with PMF $p$:
+$$H(X) = -\sum_i p_i \log_2 p_i.$$
+
+Units: **bits** (using $\log_2$), **nats** (using $\ln$).
+
+**Properties:**
+
+- $H(X) \ge 0$. $H = 0$ iff deterministic.
+- $H \le \log_2 n$ where $n$ is the number of outcomes; equal iff
+  uniform.
+- $H(X, Y) \le H(X) + H(Y)$, equal iff independent.
+
+**Conditional entropy:** $H(X | Y) = E_Y[H(X | Y = y)]$.
+
+**Mutual information:** $I(X; Y) = H(X) - H(X | Y) = H(X) + H(Y) -
+H(X, Y) \ge 0$.
+
+**Cross entropy** (between distributions $p, q$):
+$H(p, q) = -\sum p_i \log q_i$.
+
+**KL divergence:** $D_{KL}(p \| q) = \sum p_i \log(p_i / q_i) =
+H(p, q) - H(p) \ge 0$.
+
+**Shannon's source coding theorem:** $H$ = minimum average bits per
+symbol for lossless coding.
+
+**Shannon's channel coding theorem:** capacity $C$ = max rate for
+arbitrarily-low-error transmission.
+
+:::
+
+> *Entropy: average bits to identify an outcome;*
+> *Uniform = max entropy; deterministic = zero entropy;*
+> *Mutual information: knowledge of Y about X;*
+> *Cross entropy = ML loss; channel capacity = comms limit.*
+
+## Apply
+
+### Worked example
+
+> An English letter (uniform over 26): $H = \log_2 26 \approx 4.7$
+> bits. Real English (after accounting for letter frequencies and
+> sequential dependencies): $\approx 1$ bit per character.
+
+This is why English text **compresses to about 25% of its raw size**
+(gzip, etc.) — Shannon's bound. Letter sequences carry less than
+$\log_2 26$ bits per character due to redundancy.
+
+### Practice — Warm
+
+**W1.** $H$ of a uniform 8-outcome distribution?
+
+<details class="hint"><summary>Full solution</summary>
+$\log_2 8 = 3$ bits.
+</details>
+
+**W2.** $H$ of a deterministic outcome?
+
+<details class="hint"><summary>Full solution</summary>
+$0$ bits.
+</details>
+
+**W3.** $H$ for $p = (0.5, 0.25, 0.25)$?
+
+<details class="hint"><summary>Full solution</summary>
+$0.5 \cdot 1 + 0.25 \cdot 2 + 0.25 \cdot 2 = 1.5$ bits.
+</details>
+
+### Practice — Working
+
+**P1.** $H$ for $p = (0.5, 0.5)$ vs $(0.99, 0.01)$. Which is higher?
+
+<details class="hint"><summary>Full solution</summary>
+First: 1 bit. Second: $\approx 0.081$ bits. **Fair coin is higher**
+(maximum entropy on 2 outcomes).
+</details>
+
+**P2.** Mutual information of two independent fair coins?
+
+<details class="hint"><summary>Full solution</summary>
+$I = 0$ (independent).
+</details>
+
+**P3.** Capacity of a binary symmetric channel with $p = 0.5$ (random
+flipping)?
+
+<details class="hint"><summary>Full solution</summary>
+$H(0.5) = 1$. $C = 1 - 1 = 0$ bits/use. **No information transmits**
+through a maximally noisy channel.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Cross entropy in ML.** A classifier outputs probabilities
+$\hat p$; truth is $p$. Cross entropy loss:
+$L = -\sum p_i \log \hat p_i$.
+
+If true label is $i$ (so $p_i = 1$, others 0): $L = -\log \hat p_i$.
+Why is this the right loss?
+
+<details class="hint"><summary>Full solution</summary>
+**Penalty for being wrong with confidence.** $L \to \infty$ as $\hat
+p_i \to 0$ (predicting the right class with zero probability is
+catastrophic). $L = 0$ when $\hat p_i = 1$ (perfect).
+
+**KL divergence connection:** minimising cross entropy = minimising
+$D_{KL}(p \| \hat p)$ + constant. So you're minimising the
+"distance" from your prediction to truth.
+
+Cross entropy is the *standard* classification loss in deep
+learning. Information theory directly motivates it.
+</details>
+
+**S2.** **Compression and AI.** Modern language models like GPT can
+be viewed as **probabilistic models of text**. The model assigns
+probability to each next token. Lower cross-entropy on test text
+means better compression.
+
+What's the connection between language modeling and *intelligence*?
+
+<details class="hint"><summary>Full solution</summary>
+**Compression = understanding.** Hutter's prize for lossless text
+compression of Wikipedia argues that compressing it well requires
+*understanding* it (knowing what's redundant requires knowing what
+the text means).
+
+LLMs that predict next tokens with low entropy *implicitly* model
+syntax, grammar, common knowledge, reasoning. Their training
+objective (cross-entropy) directly optimises for compression of
+human text.
+
+Some researchers argue this is why LLMs work: the path to general
+intelligence might be the path to optimal text compression. Others
+disagree. The debate is active and consequential for AI safety.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Higher entropy = more order."** Reverse — higher entropy = more
+   *disorder* / *unpredictability*.
+2. **"Bits are exact information per observation."** Bits are
+   *expected* (average); a single observation might be more or less
+   informative than $H$.
+3. **"Channel capacity is theoretical."** Modern codes (LDPC, polar)
+   approach Shannon's bound within fractions of a percent. Far from
+   purely theoretical.
+:::
+
+### Self-Assessment
+
+1. Could you compute $H$ for $(0.5, 0.25, 0.125, 0.125)$?
+2. Without scrolling back, what's mutual information of independent
+   variables?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $0.5 + 0.5 + 0.375 + 0.375 = 1.75$ bits; $0$.)
+
+- **3 yes:** ready for **[12 · Fourier Series](../12-fourier-series/index.qmd)**.
+- **2 yes:** redo **S1** (cross entropy).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T3 L13 — Basic Probability](../../tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd)**
+- **[T3 L05 — Logarithms](../../tier-3-algebra2-geometry-trig/05-logarithms/index.qmd)**
+
+### What this unlocks
+
+- **Tier 7 — Coding Theory & Information Theory** — error-correcting
+  codes; capacity-achieving schemes.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Cross-entropy loss (S1). LLM perplexity
+= 2^entropy. Information bottleneck theory of deep learning.
+:::
+
+::: {.applied-callout}
+**Encryption.** Perfect secrecy (Shannon, 1949): one-time pad has
+$I(M; C) = 0$ — the ciphertext reveals zero information about the
+message. Defining what *secure* means.
+:::
+
+::: {.applied-callout}
+**Systems & networks.** Data compression (gzip, JPEG, MP3, video
+codecs). Wireless capacity (5G, Wi-Fi). Storage and transmission
+limits.
+:::
