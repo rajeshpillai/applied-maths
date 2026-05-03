@@ -1,0 +1,333 @@
+---
+title: "11 · Sets, Logic, and Proof Techniques"
+subtitle: "The language of mathematical rigour"
+lesson-id: "t5.sets-logic-proofs"
+tier: 5
+prerequisites: ["t1.what-is-a-number", "t3.combinatorics-counting"]
+unlocks: ["t5.graphs-algorithms"]
+applied-domains: ["research", "encryption", "databases"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Comfortable with the concept of "the set of natural numbers"?
+2. Comfortable with truth-table thinking ("if P then Q")?
+3. Have you ever written or read a proof?
+:::
+
+## Touch
+
+Pick a logical statement; the widget shows its truth table.
+
+```{ojs}
+viewof logSel = Inputs.select(["P AND Q", "P OR Q", "P → Q (P implies Q)", "NOT P"], {value: "P → Q (P implies Q)", label: "Statement:"})
+```
+
+```{ojs}
+{
+  let table;
+  switch(logSel) {
+    case "P AND Q": table = "T T → T\nT F → F\nF T → F\nF F → F"; break;
+    case "P OR Q": table = "T T → T\nT F → T\nF T → T\nF F → F"; break;
+    case "P → Q (P implies Q)": table = "T T → T\nT F → F   (only false case: true premise → false conclusion)\nF T → T   (vacuously true)\nF F → T"; break;
+    case "NOT P": table = "T → F\nF → T"; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <pre style="font-family:monospace; background:#fafafa; padding:1rem; border:1px solid #ddd; border-radius:6px;">${table}</pre>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. "If P then Q" is *true* when P is false. Why?
+2. Sets and logic are duals: union ↔ OR, intersection ↔ AND. Why?
+3. What does it mean to "prove" a mathematical statement?
+
+## Discover
+
+### Problem 1
+
+A **set** is a collection of distinct objects. Notation: $A = \{1, 2,
+3\}$. **Membership:** $2 \in A$. **Subset:** $\{1, 2\} \subset A$.
+
+**Operations:**
+
+- Union: $A \cup B = \{x : x \in A \text{ or } x \in B\}$.
+- Intersection: $A \cap B = \{x : x \in A \text{ and } x \in B\}$.
+- Difference: $A \setminus B = \{x : x \in A, x \notin B\}$.
+- Complement: $A^c = \{x \in U : x \notin A\}$ (relative to a universe).
+
+For $A = \{1, 2, 3\}$, $B = \{2, 3, 4\}$: compute $A \cup B$, $A \cap
+B$, $A \setminus B$.
+
+<details class="hint"><summary>Full solution</summary>
+$A \cup B = \{1, 2, 3, 4\}$. $A \cap B = \{2, 3\}$. $A \setminus B =
+\{1\}$.
+</details>
+
+### Problem 2
+
+**Logical connectives:** $\land$ (AND), $\lor$ (OR), $\neg$ (NOT),
+$\rightarrow$ (implies), $\leftrightarrow$ (iff).
+
+**Quantifiers:** $\forall$ (for all), $\exists$ (there exists).
+
+Translate: "every even number is divisible by 2."
+
+<details class="hint"><summary>Full solution</summary>
+$\forall n \in \mathbb{Z}: (n \text{ even}) \rightarrow (2 \mid n)$.
+
+Or: "for all integers $n$, if $n$ is even then $n$ is divisible by 2."
+
+(This statement is *true* by definition.)
+</details>
+
+### Problem 3
+
+**Direct proof.** Prove: if $n$ is even, then $n^2$ is even.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$n$ even means $n = 2k$ for some integer $k$. Square it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Proof.** Let $n = 2k$. Then $n^2 = 4 k^2 = 2 (2 k^2)$ — divisible
+by 2. $\square$.
+
+Direct proof: assume the hypothesis, deduce the conclusion via valid
+algebraic steps.
+</details>
+
+### Problem 4
+
+**Proof by contradiction.** Prove: $\sqrt{2}$ is irrational. (Same as
+T2 L09 P5.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Assume $\sqrt{2} = p/q$ in lowest terms. Square: $p^2 = 2 q^2$. Then
+$p$ is even, so $p = 2k$. So $4 k^2 = 2 q^2 \Rightarrow q^2 = 2 k^2$
+— $q$ is even. Contradiction with "lowest terms."
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose for contradiction $\sqrt{2} = p/q$ in lowest terms.
+Squaring: $p^2 = 2 q^2$. So $p$ even, $p = 2k$. Then $4 k^2 = 2 q^2
+\Rightarrow q^2 = 2 k^2 \Rightarrow q$ even. Both even —
+contradicting "lowest terms." $\square$.
+
+**Strategy:** assume the negation; derive a contradiction; conclude
+the original.
+</details>
+
+### Problem 5
+
+**Proof by induction.** Prove: $1 + 2 + \cdots + n = n(n+1)/2$ for
+all $n \ge 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Base: $n = 1$ gives $1 = 1 \cdot 2 / 2 = 1$ ✓.
+Inductive step: assume true for $n$, prove for $n + 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Base** ($n = 1$): $1 = 1 \cdot 2/2$ ✓.
+
+**Inductive step.** Assume $1 + 2 + \cdots + n = n(n+1)/2$ for some
+$n$. Then
+$$1 + \cdots + n + (n+1) = n(n+1)/2 + (n+1) = (n+1)[n/2 + 1] = (n+1)(n+2)/2.$$
+This is the formula for $n + 1$. By induction, the statement holds for
+all $n \ge 1$. $\square$.
+
+**Induction structure:** prove base case; show "$n \Rightarrow n+1$";
+conclude all $n \ge n_0$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Set notation:** $\{x : P(x)\}$ ("the set of $x$ such that $P(x)$").
+$\in, \subset, \subseteq, \cup, \cap, \setminus, \emptyset$.
+
+**Logical connectives:** $\land, \lor, \neg, \rightarrow, \leftrightarrow$.
+
+**Quantifiers:** $\forall x \in S$ (for all), $\exists x \in S$ (there
+exists).
+
+**Negation rules:** $\neg \forall x P(x) \equiv \exists x \neg P(x)$
+("not all" = "exists not").
+
+**Proof techniques:**
+
+- **Direct:** assume hypothesis, deduce conclusion.
+- **Contradiction:** assume negation, derive impossibility.
+- **Contrapositive:** prove $\neg Q \Rightarrow \neg P$ instead of
+  $P \Rightarrow Q$ (logically equivalent).
+- **Induction:** base case + inductive step prove for all $n \ge n_0$.
+- **Counterexample:** to disprove $\forall x P(x)$, find one $x$
+  with $\neg P$.
+
+**De Morgan's laws:** $\neg (P \land Q) = \neg P \lor \neg Q$,
+$\neg (P \lor Q) = \neg P \land \neg Q$. Set form: $(A \cap B)^c =
+A^c \cup B^c$.
+
+:::
+
+> *Sets, logic, quantifiers — the language of rigorous maths;*
+> *Direct, contradiction, contrapositive, induction, counterexample —*
+> *the five basic proof methods.*
+
+## Apply
+
+### Worked example
+
+> Prove: if $n^2$ is even, then $n$ is even (the **converse** of
+> Discover P3).
+
+**Contrapositive:** show "if $n$ is *odd*, then $n^2$ is *odd*."
+
+If $n = 2k + 1$, then $n^2 = 4k^2 + 4k + 1 = 2(2k^2 + 2k) + 1$ —
+odd. ✓
+
+So the contrapositive holds, hence the original. $\square$.
+
+### Practice — Warm
+
+**W1.** $\{1, 2\} \cap \{2, 3\} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\{2\}$.
+</details>
+
+**W2.** Translate "$\exists x: x > 5$".
+
+<details class="hint"><summary>Full solution</summary>
+"There exists $x$ such that $x > 5$."
+</details>
+
+**W3.** Negate: "all dogs bark."
+
+<details class="hint"><summary>Full solution</summary>
+"There exists a dog that does not bark."
+</details>
+
+### Practice — Working
+
+**P1.** Prove: the sum of two even numbers is even.
+
+<details class="hint"><summary>Full solution</summary>
+$2a + 2b = 2(a + b)$. ✓ Direct proof.
+</details>
+
+**P2.** Prove by induction: $1 + 3 + 5 + \cdots + (2n - 1) = n^2$ for
+all $n \ge 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Base: $n = 1$, sum is $1 = 1^2$ ✓. Step: assume sum to $2n - 1$ is
+$n^2$. Add $(2n + 1)$: $n^2 + 2n + 1 = (n + 1)^2$ ✓.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Done above.
+</details>
+
+**P3.** Disprove (counterexample): "every integer is positive."
+
+<details class="hint"><summary>Full solution</summary>
+$0$ (or $-1$) is an integer that is not positive. $\square$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Prove: there are infinitely many primes (Euclid). Same as
+T1 L15 Discover P3.
+
+<details class="hint"><summary>Full solution</summary>
+Suppose finitely many: $p_1, \ldots, p_k$. Consider $N = p_1 \cdots
+p_k + 1$. Each $p_i$ leaves remainder 1 dividing $N$, so doesn't
+divide $N$. So $N$ has a prime factor not in the list: contradiction.
+
+This is the *paradigm* contradiction proof. (Tier 1 met it; here it
+gets formalised.)
+</details>
+
+### Practice — Stretch
+
+**S2.** **Why proofs in CS / encryption?** Cryptographic security
+proofs reduce *breaking the scheme* to *solving a hard problem* (e.g.,
+factoring). What does this prove, and what doesn't it prove?
+
+<details class="hint"><summary>Full solution</summary>
+**Proves:** *if* the underlying problem is hard, the scheme is
+secure. The proof technique: assume an adversary breaks the scheme,
+construct an algorithm that solves the hard problem.
+
+**Doesn't prove:** the underlying problem actually *is* hard. (We
+just believe so based on decades of attempts.)
+
+This *conditional* security is the best we have. Quantum computers
+may break some schemes (factoring), motivating *post-quantum*
+cryptography (Tier 7).
+
+Modern crypto is *built on proofs* — security claims without
+proofs are no longer respected. This is one of the biggest
+applications of proof-based mathematics in the modern world.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Vacuously true is suspicious."** "If $0 = 1$ then I'm a
+   millionaire" is *true* in classical logic. Vacuous truth is by
+   convention; mostly harmless.
+2. **"Proof and example are the same."** An example *illustrates*; a
+   proof *demonstrates for all cases*. Single examples can disprove
+   universal statements but don't prove them.
+3. **"Induction proves only natural-number statements."** Variants
+   (strong induction, structural induction, transfinite induction)
+   extend to graphs, trees, ordinals, etc.
+:::
+
+### Self-Assessment
+
+1. Could you write a proof by induction for $\sum k = n(n+1)/2$?
+2. Without scrolling back, what's the contrapositive of $P \to Q$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $\neg Q \to \neg P$.)
+
+- **3 yes:** ready for **[12 · Graphs](../12-graphs-algorithms/index.qmd)**.
+- **2 yes:** redo **S1** (Euclid).
+- **0–1 yes:** re-read *Discover P4 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L01 — What is a Number?](../../tier-1-foundations/01-what-is-a-number/index.qmd)**
+- **[T3 L11 — Combinatorics](../../tier-3-algebra2-geometry-trig/11-combinatorics-counting/index.qmd)** —
+  uses set notation.
+
+### What this unlocks
+
+- **[12 · Graphs](../12-graphs-algorithms/index.qmd)** — proofs about
+  graph structures.
+- **All future rigorous mathematics** (Tier 6+).
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** Security proofs (S2) are a major application of
+discrete maths and logic.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Proofs *are* mathematics. Every theorem
+is proved by these methods.
+:::
+
+::: {.applied-callout}
+**Databases & programming.** Set theory underlies relational algebra
+(SQL); logic underlies query languages (SQL WHERE clauses are
+predicate logic).
+:::
