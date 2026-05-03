@@ -1,0 +1,355 @@
+---
+title: "05 · Logarithms"
+subtitle: "The exponent you'd need — undoing exponentiation"
+lesson-id: "t3.logarithms"
+tier: 3
+prerequisites: ["t2.exponents-powers"]
+unlocks: ["t3.exp-log-functions"]
+applied-domains: ["systems", "ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T2 L07 — Exponents and Powers](../../tier-2-prealgebra/07-exponents-powers/index.qmd)?
+2. Can you compute $2^{10} = 1024$, $10^3 = 1000$?
+3. Comfortable that exponentiation and root-taking are inverses
+   ([T2 L09](../../tier-2-prealgebra/09-square-roots-irrationals/index.qmd))?
+:::
+
+## Touch
+
+Pick a base $b$ and a number $x$. The widget computes $\log_b x$ —
+the **exponent** you'd need to raise $b$ to to get $x$.
+
+```{ojs}
+viewof base = Inputs.select(["10", "2", "e (≈ 2.718)"], {value: "10", label: "Base b:"})
+viewof xNum = Inputs.range([0.1, 1000], {value: 100, step: 0.1, label: "x:"})
+```
+
+```{ojs}
+{
+  let b, bDisp;
+  if (base === "10") { b = 10; bDisp = "10"; }
+  else if (base === "2") { b = 2; bDisp = "2"; }
+  else { b = Math.E; bDisp = "e"; }
+  const lg = Math.log(xNum) / Math.log(b);
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.4rem;">
+      log<sub>${bDisp}</sub>(${xNum.toFixed(1)}) = <strong style="color:#c2185b;">${lg.toFixed(4)}</strong>
+    </div>
+    <div style="font-family:monospace; margin-top:0.4rem; color:#666;">
+      meaning: ${bDisp}<sup>${lg.toFixed(4)}</sup> = ${xNum.toFixed(2)}
+    </div>
+  </div>`;
+}
+```
+
+$\log_b(x) = y$ **means** $b^y = x$. Logarithms are the **inverses** of
+exponentials. The most common bases: 10 (common log), 2 (binary log),
+$e$ (natural log).
+
+## Wonder
+
+1. $\log_{10}(100) = ?$. $\log_{10}(1000) = ?$. $\log_{10}(10000) = ?$.
+2. $\log_2(8) = ?$. $\log_2(1024) = ?$.
+3. Why is $\log_b(1) = 0$ for *any* base $b$?
+
+## Discover
+
+### Problem 1
+
+Compute mentally:
+(a) $\log_{10}(100)$
+(b) $\log_{10}(0.01)$
+(c) $\log_2(32)$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\log_b(x) = y$ iff $b^y = x$. So find the exponent.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) $10^2 = 100 \Rightarrow \log_{10}(100) = 2$.
+(b) $10^{-2} = 0.01 \Rightarrow \log_{10}(0.01) = -2$.
+(c) $2^5 = 32 \Rightarrow \log_2(32) = 5$.
+</details>
+
+### Problem 2
+
+Why is $\log_b(1) = 0$ for any base $b$?
+
+<details class="hint"><summary>Full solution</summary>
+$b^0 = 1$ for any $b \neq 0$ (T2 L07). So $\log_b(1) = 0$.
+
+Logs of 1 are always zero — the log "axis" hits zero at $x = 1$.
+</details>
+
+### Problem 3
+
+Verify the **product rule**: $\log_b(xy) = \log_b(x) + \log_b(y)$.
+
+(Hint: let $\log_b(x) = m$, $\log_b(y) = n$. Then $b^m = x$ and $b^n =
+y$, so $xy = b^m \cdot b^n = b^{m+n}$. Take log.)
+
+<details class="hint"><summary>Full solution</summary>
+$xy = b^{m+n}$, so $\log_b(xy) = m + n = \log_b(x) + \log_b(y)$. ✓
+
+The exponent rule "multiply same-base powers, add exponents" becomes
+the log rule "log of product = sum of logs". This is the *foundational
+log identity*.
+
+Similarly:
+- **Quotient rule:** $\log_b(x/y) = \log_b(x) - \log_b(y)$.
+- **Power rule:** $\log_b(x^k) = k \log_b(x)$.
+
+These three rules let us *transform multiplication into addition*,
+which is why logarithms revolutionised computation in the 17th
+century.
+</details>
+
+### Problem 4
+
+Use log rules to simplify $\log_{10}(8 \times 125)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$8 \times 125 = 1000$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\log_{10}(8 \times 125) = \log_{10}(1000) = 3$.
+
+Or via product rule: $\log_{10}(8) + \log_{10}(125)$. (Both
+intermediate logs are messy; computing the product first was easier.)
+
+Sometimes the rules let you simplify; sometimes computing first
+is faster. Choose the easier path.
+</details>
+
+### Problem 5
+
+The **change-of-base** formula:
+$$\log_b(x) = \dfrac{\log_c(x)}{\log_c(b)}$$
+for any other base $c$. Use this to compute $\log_2(50)$ given
+$\log_{10}(2) \approx 0.301$ and $\log_{10}(50) \approx 1.699$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\log_2(50) = \log_{10}(50) / \log_{10}(2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\log_2(50) \approx 1.699 / 0.301 \approx 5.644$.
+
+Check: $2^{5.644} = 2^5 \cdot 2^{0.644} \approx 32 \cdot 1.563 \approx
+50$ ✓.
+
+Most calculators only have $\log_{10}$ and $\ln$ keys. Change of base
+lets you compute logs in *any* base from these.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **logarithm** of $x$ in base $b$ is the exponent $y$ such that
+$b^y = x$:
+$$\log_b(x) = y \quad \iff \quad b^y = x.$$
+
+**Common bases:**
+
+- **$\log_{10}$** (common log): used in scales like decibels and pH.
+- **$\log_2$** (binary log, often "lg" or "$\log$"): used in
+  computer science (information theory).
+- **$\ln$** = $\log_e$ (natural log, base $e \approx 2.71828$): used
+  throughout calculus and mathematical analysis.
+
+**Key identities (provable from exponent laws):**
+
+| Property | Statement |
+|---|---|
+| Log of 1 | $\log_b(1) = 0$ |
+| Log of base | $\log_b(b) = 1$ |
+| Product | $\log_b(xy) = \log_b(x) + \log_b(y)$ |
+| Quotient | $\log_b(x/y) = \log_b(x) - \log_b(y)$ |
+| Power | $\log_b(x^k) = k \log_b(x)$ |
+| Change of base | $\log_b(x) = \dfrac{\log_c(x)}{\log_c(b)}$ |
+
+**Domain:** $\log_b(x)$ is defined only for $x > 0$. (No log of zero or
+negative numbers in the reals.)
+
+:::
+
+> *Log is the exponent: $\log_b(x) = $ "the power $b$ needs to reach $x$";*
+> *Multiplication becomes addition (product rule);*
+> *Powers come down in front (power rule).*
+
+## Apply
+
+### Worked example
+
+> Solve $2^x = 50$.
+
+A competent solver takes the log of both sides:
+
+1. $\log_{10}(2^x) = \log_{10}(50)$.
+2. By power rule: $x \log_{10}(2) = \log_{10}(50)$.
+3. $x = \dfrac{\log_{10}(50)}{\log_{10}(2)} \approx \dfrac{1.699}{0.301}
+   \approx 5.644$.
+
+**Answer: $x \approx 5.644$.** Logs solve exponential equations the
+way square roots solve quadratic equations. They are *the inverse*.
+
+### Practice — Warm
+
+**W1.** $\log_{10}(10000)$?
+
+<details class="hint"><summary>Full solution</summary>
+4.
+</details>
+
+**W2.** $\log_2(64)$?
+
+<details class="hint"><summary>Full solution</summary>
+$2^6 = 64$, so 6.
+</details>
+
+**W3.** $\log_{10}(1000) + \log_{10}(10)$?
+
+<details class="hint"><summary>Full solution</summary>
+$3 + 1 = 4$. Or by product rule: $\log_{10}(10000) = 4$.
+</details>
+
+### Practice — Working
+
+**P1.** Simplify: $\log_3(81)$, $\log_5(125)$, $\log_2(1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$3^4 = 81$ → 4. $5^3 = 125$ → 3. $2^0 = 1$ → 0.
+</details>
+
+**P2.** Solve $5^x = 100$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $\log_{10}$ of both sides; use power rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = \log_5(100) = \log_{10}(100)/\log_{10}(5) = 2 / 0.699 \approx
+2.861$.
+</details>
+
+**P3.** Express $\log(x^2 y / z)$ as a sum/difference of logs.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply quotient, then product, then power rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$= \log(x^2 y) - \log(z) = \log(x^2) + \log(y) - \log(z) = 2\log(x) +
+\log(y) - \log(z)$.
+
+This kind of "expand the log" manipulation is essential in calculus
+(simplifying derivatives) and statistics (likelihood maximisation).
+</details>
+
+### Practice — Stretch
+
+**S1.** Compute $\log_2(N)$ for $N = 1, 2, 4, 8, 16, ..., 1024$. The
+result is $0, 1, 2, 3, 4, ..., 10$. Why is $\log_2(N)$ called the
+"number of bits to represent $N$"?
+
+<details class="hint"><summary>Full solution</summary>
+$2^k$ is the largest number representable with $k$ bits + 1 (since
+the values 0 to $2^k - 1$ fit). So to count up to $N$, you need
+about $\log_2(N)$ bits.
+
+Examples: 256 colours need $\log_2(256) = 8$ bits = 1 byte. 4 billion
+distinct values need $\log_2(4 \times 10^9) \approx 32$ bits = 4 bytes.
+The $\log_2$ is *the* measure of *information content* — Shannon
+formalised this in 1948 as the **entropy** of a distribution.
+</details>
+
+**S2.** **Log loss** in machine learning: for a binary classifier
+predicting probability $p$ for the true class, the loss is $-\log(p)$.
+What's special about this loss?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Consider $-\log(0.99)$ vs $-\log(0.5)$ vs $-\log(0.01)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Approximate values: $-\log(0.99) \approx 0.01$, $-\log(0.5) \approx
+0.693$, $-\log(0.01) \approx 4.6$.
+
+**Properties:** correct & confident → tiny loss. Hesitant (50-50) →
+moderate loss. **Confidently wrong → huge loss** (asymptote at $-\log
+0 = \infty$).
+
+This *severe penalty for confident mistakes* is what makes log loss
+the standard for probability prediction. It pushes a model to
+produce calibrated probabilities, not just correct labels.
+
+(Cross-entropy loss in neural networks is exactly this idea
+generalised to many classes.)
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\log(x + y) = \log(x) + \log(y)$."** **False** — that would be
+   miraculous. The correct rule is $\log(xy) = \log(x) + \log(y)$
+   (multiplication, not addition).
+2. **"You can take log of any number."** Not in the reals — $\log(x)$
+   needs $x > 0$. (Tier 6 introduces complex logs.)
+3. **"$\log$ without a base means $\log_{10}$."** Convention varies:
+   in pure maths, $\log$ usually means $\ln = \log_e$; in engineering
+   often $\log_{10}$; in CS often $\log_2$. *Check the context.*
+:::
+
+### Self-Assessment
+
+1. Could you derive the product rule for logs from the exponent law
+   $b^m \cdot b^n = b^{m+n}$?
+2. Without scrolling back, solve $3^x = 81$.
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $x = 4$.)
+
+- **3 yes:** ready for **[06 · Exp & Log Functions](../06-exp-log-functions/index.qmd)**.
+- **2 yes:** redo **S2** (log loss) — it's the central ML loss.
+- **0–1 yes:** re-read *Discover P3* (product rule).
+
+## Connect
+
+### Prerequisites used
+
+- **[T2 L07 — Exponents and Powers](../../tier-2-prealgebra/07-exponents-powers/index.qmd)**
+
+### What this unlocks
+
+- **[06 · Exponential and Logarithmic Functions](../06-exp-log-functions/index.qmd)** —
+  the function viewpoint and equation solving.
+- **Tier 4 — Calculus** — derivative of $\ln(x)$ is $1/x$, one of
+  calculus's most beautiful identities.
+
+### Where this matters
+
+::: {.applied-callout}
+**Systems & CS.** Log scale is everywhere: pH, decibels, Richter
+scale, bits per byte, complexity classes ($O(\log n)$ search trees).
+**Information theory** rests on $\log_2$.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Cross-entropy / log-loss (S2), log-
+likelihood maximisation, learning-rate logarithms. The natural log
+$\ln$ is calculus's preferred base, hence ML's preferred base.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Logarithms unify exponential growth across
+domains. The Prime Number Theorem says primes thin out at the rate
+$1/\ln(n)$ — a deep result of analytic number theory.
+:::
+
+::: {.applied-callout}
+**Historical impact.** Napier's invention of logarithms (1614)
+revolutionised astronomy, navigation, engineering — turning hours-
+long multiplication problems into simple addition. Used until the
+1970s by every working scientist (slide rules, log tables).
+:::
