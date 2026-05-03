@@ -1,0 +1,344 @@
+---
+title: "04 · Differentiation Rules"
+subtitle: "Power, sum, product, quotient, chain — the rules that retire the limit"
+lesson-id: "t4.differentiation-rules"
+tier: 4
+prerequisites: ["t4.derivative"]
+unlocks: ["t4.derivatives-trig-exp-log", "t4.optimization", "t4.related-rates"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [03 · Derivative](../03-derivative/index.qmd)?
+2. Comfortable with $f'(x) = 2x$ for $f(x) = x^2$?
+3. Comfortable with polynomial expansion (T2 L11)?
+:::
+
+## Touch
+
+Pick a function. The widget computes its derivative using the rules.
+
+```{ojs}
+viewof rule = Inputs.select(["x³", "5x⁴ + 2x", "x² · sin(x)", "(x²+1)/(x+2)", "(2x+1)⁵"], {value: "5x⁴ + 2x", label: "f(x):"})
+```
+
+```{ojs}
+{
+  let derStr;
+  switch(rule) {
+    case "x³": derStr = "3x²"; break;
+    case "5x⁴ + 2x": derStr = "20x³ + 2"; break;
+    case "x² · sin(x)": derStr = "2x · sin(x) + x² · cos(x)  (product rule)"; break;
+    case "(x²+1)/(x+2)": derStr = "((2x)(x+2) − (x²+1))/(x+2)²  (quotient rule)"; break;
+    case "(2x+1)⁵": derStr = "5(2x+1)⁴ · 2 = 10(2x+1)⁴  (chain rule)"; break;
+  }
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.4rem;">
+      d/dx [${rule}] = <strong style="color:#c2185b;">${derStr}</strong>
+    </div>
+  </div>`;
+}
+```
+
+A handful of rules let you differentiate any combination of basic
+functions — without going back to the limit definition each time.
+
+## Wonder
+
+1. $\dfrac{d}{dx}(5x^4 + 2x)$ — derivative of a sum?
+2. $\dfrac{d}{dx}(x^2 \cdot \sin x)$ — derivative of a product?
+3. $\dfrac{d}{dx}((2x + 1)^5)$ — derivative of a function-inside-a-
+   function?
+
+## Discover
+
+### Problem 1
+
+**Power rule.** Conjecture: $\dfrac{d}{dx}(x^n) = n x^{n-1}$.
+
+Verify for $n = 1, 2, 3, 4$:
+
+(a) $\dfrac{d}{dx}(x) = 1 = 1 \cdot x^0$
+(b) $\dfrac{d}{dx}(x^2) = 2x = 2 x^1$
+(c) $\dfrac{d}{dx}(x^3) = 3x^2$
+(d) $\dfrac{d}{dx}(x^4) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{d}{dx}(x^4) = 4 x^3$.
+
+The power rule extends to all real $n$ (positive, negative,
+fractional). E.g.: $\dfrac{d}{dx}(\sqrt{x}) = \dfrac{d}{dx}(x^{1/2}) =
+\dfrac{1}{2} x^{-1/2} = \dfrac{1}{2 \sqrt{x}}$.
+
+And: $\dfrac{d}{dx}(1/x) = \dfrac{d}{dx}(x^{-1}) = -1 \cdot x^{-2} =
+-1/x^2$ (matches L03 worked example).
+</details>
+
+### Problem 2
+
+**Sum rule.** $\dfrac{d}{dx}[f + g] = f' + g'$.
+
+Compute $\dfrac{d}{dx}(5x^4 + 2x - 7)$.
+
+<details class="hint"><summary>Full solution</summary>
+$20 x^3 + 2 - 0 = 20 x^3 + 2$.
+
+(Constants vanish under differentiation. Coefficients pull through:
+$(5 x^4)' = 5 \cdot 4 x^3 = 20 x^3$.)
+</details>
+
+### Problem 3
+
+**Product rule.** $\dfrac{d}{dx}[f \cdot g] = f' \cdot g + f \cdot
+g'$.
+
+Verify: $\dfrac{d}{dx}(x^2 \cdot x^3) = 2x \cdot x^3 + x^2 \cdot 3x^2 =
+2x^4 + 3x^4 = 5 x^4$. Compare with the direct: $\dfrac{d}{dx}(x^5) = 5
+x^4$ ✓.
+
+Now apply: $\dfrac{d}{dx}(x \cdot \sin x)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use product rule with $f = x, g = \sin x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 \cdot \sin x + x \cdot \cos x = \sin x + x \cos x$.
+
+(Using $(\sin x)' = \cos x$, derived in Lesson 5.)
+</details>
+
+### Problem 4
+
+**Quotient rule.** $\dfrac{d}{dx}\left[\dfrac{f}{g}\right] =
+\dfrac{f' g - f g'}{g^2}$.
+
+Compute $\dfrac{d}{dx}\left(\dfrac{x^2 + 1}{x + 2}\right)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f = x^2 + 1, g = x + 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{(2x)(x+2) - (x^2+1)(1)}{(x+2)^2} = \dfrac{2x^2 + 4x - x^2 - 1}{(x+2)^2}
+= \dfrac{x^2 + 4x - 1}{(x+2)^2}$.
+
+Memorise the form: "low d-high minus high d-low, all over low
+squared."
+</details>
+
+### Problem 5
+
+**Chain rule.** $\dfrac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)$.
+
+Compute $\dfrac{d}{dx}((2x + 1)^5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Outer function: $f(u) = u^5$ (so $f'(u) = 5 u^4$).
+Inner: $g(x) = 2x + 1$ (so $g'(x) = 2$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5(2x + 1)^4 \cdot 2 = 10 (2x + 1)^4$.
+
+The chain rule is the most-used differentiation rule in machine
+learning — backpropagation is essentially repeated chain-rule
+application through layers.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**The five differentiation rules:**
+
+| Rule | Formula |
+|---|---|
+| Constant | $\dfrac{d}{dx}(c) = 0$ |
+| Power | $\dfrac{d}{dx}(x^n) = n x^{n-1}$ |
+| Constant multiple | $\dfrac{d}{dx}(c f) = c f'$ |
+| Sum | $\dfrac{d}{dx}(f + g) = f' + g'$ |
+| Product | $\dfrac{d}{dx}(f g) = f' g + f g'$ |
+| Quotient | $\dfrac{d}{dx}(f/g) = (f' g - f g')/g^2$ |
+| Chain | $\dfrac{d}{dx}(f(g(x))) = f'(g(x)) \cdot g'(x)$ |
+
+These compose: any function built from polynomials, exponentials,
+logarithms, and trig functions can be differentiated in finitely
+many rule applications.
+
+The chain rule, in **Leibniz notation**: $\dfrac{dy}{dx} =
+\dfrac{dy}{du} \cdot \dfrac{du}{dx}$ — units cancel like fractions
+(though they aren't technically fractions).
+
+:::
+
+> *Power rule: $x^n$ becomes $n x^{n-1}$;*
+> *Sum: differentiate term by term; constant pulls out;*
+> *Product, quotient, chain — the algebra of derivatives.*
+
+## Apply
+
+### Worked example
+
+> Differentiate $f(x) = (3x^2 - 1)^4 \cdot \sqrt{x}$.
+
+A competent solver applies product, then chain, then power rule.
+
+1. **Product:** $f'(x) = [(3x^2 - 1)^4]' \cdot \sqrt{x} + (3x^2 - 1)^4
+   \cdot [\sqrt{x}]'$.
+2. **Chain on first piece:** $[(3x^2 - 1)^4]' = 4(3x^2 - 1)^3 \cdot
+   6x = 24 x (3x^2 - 1)^3$.
+3. **Power on second:** $[\sqrt{x}]' = (1/2) x^{-1/2} = 1/(2\sqrt{x})$.
+4. **Combine:** $f'(x) = 24 x (3x^2 - 1)^3 \sqrt{x} + (3x^2 - 1)^4
+   \cdot \dfrac{1}{2\sqrt{x}}$.
+
+Optionally factor: $\dfrac{(3x^2 - 1)^3}{2\sqrt{x}} \cdot [48 x^2 +
+(3x^2 - 1)] = \ldots$ (more cosmetic; both forms are correct).
+
+### Practice — Warm
+
+**W1.** $f(x) = x^7$. $f'(x)$?
+
+<details class="hint"><summary>Full solution</summary>
+$7 x^6$.
+</details>
+
+**W2.** $f(x) = 4 x^3 - 2 x + 5$. $f'(x)$?
+
+<details class="hint"><summary>Full solution</summary>
+$12 x^2 - 2$.
+</details>
+
+**W3.** $f(x) = (x + 1)^2$. $f'(x)$?
+
+<details class="hint"><summary>Full solution</summary>
+Either expand: $f = x^2 + 2x + 1, f' = 2x + 2$. Or chain: $2(x + 1)
+\cdot 1 = 2x + 2$. Same answer.
+</details>
+
+### Practice — Working
+
+**P1.** $f(x) = x^3 \sqrt{x}$. $f'(x)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combine first: $x^3 \cdot x^{1/2} = x^{7/2}$. Then power rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f' = (7/2) x^{5/2} = (7/2) x^2 \sqrt{x}$.
+</details>
+
+**P2.** $f(x) = (x^2 + 3)/(x - 1)$. $f'(x)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Quotient rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f' = \dfrac{(2x)(x - 1) - (x^2 + 3)(1)}{(x - 1)^2} = \dfrac{x^2 - 2x - 3}{(x - 1)^2}$.
+</details>
+
+**P3.** $f(x) = (3x + 5)^7$. $f'(x)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Chain: outer $u^7$, inner $3x + 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7 (3x + 5)^6 \cdot 3 = 21 (3x + 5)^6$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Differentiate $f(x) = ((x^2 + 1)^3 + 2)^4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Chain *twice* (outer-most to inner-most).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 4 ((x^2 + 1)^3 + 2)^3 \cdot 3 (x^2 + 1)^2 \cdot 2x = 24 x
+(x^2 + 1)^2 ((x^2 + 1)^3 + 2)^3$.
+
+Each level of nesting introduces another chain factor. Backprop in
+deep neural networks does this through many (often hundreds) of
+layers — it's just nested chain rule.
+</details>
+
+**S2.** **Why is the chain rule so important in ML?** A neural network
+output is $\hat{y} = f_L(f_{L-1}(\ldots f_1(x) \ldots))$ — a
+composition of $L$ layers. To compute $\partial L / \partial w_i$ for
+weight $w_i$ in some intermediate layer, the chain rule is unavoidable.
+
+What does this mean for hardware design?
+
+<details class="hint"><summary>Full solution</summary>
+**Hardware optimised for chain-rule computation.** Modern GPUs
+(NVIDIA's Tensor Cores, Google's TPUs) are designed specifically for
+the matrix-multiplication patterns that arise from chain-rule
+differentiation through many layers. **Backpropagation = forward pass
++ chain-rule pass backwards**, both needing efficient matrix ops.
+
+A single GPU can compute *trillions of chain-rule applications per
+second*. Modern AI's energy and cost are dominated by chain-rule
+arithmetic. The simple rule you just learned is the hottest line of
+code on Earth.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$(fg)' = f' g'$."** **False.** That's the *reaction* of beginners
+   to the sum rule's tidiness. Product rule is $(fg)' = f' g + f g'$
+   — *two* terms.
+2. **"Chain rule needs you to expand."** No — the whole point is to
+   avoid expansion. $((x+1)^{100})'$ is $100 (x+1)^{99}$, not
+   millions of polynomial terms.
+3. **"Constants don't matter."** They matter for the function value,
+   but their *derivative* is zero. $(f + 5)' = f'$.
+:::
+
+### Self-Assessment
+
+1. Could you state and apply the chain rule on $\sin(x^2)$?
+2. Without scrolling back, can you differentiate $f(x) = 6x^5 - 4x +
+   3$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $30 x^4 - 4$.)
+
+- **3 yes:** ready for **[05 · Derivatives of Trig/Exp/Log](../05-derivatives-trig-exp-log/index.qmd)**.
+- **2 yes:** redo **S1** (nested chain rule) — this is what backprop
+  computes.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[03 · Derivative](../03-derivative/index.qmd)** — the limit
+  definition motivates the rules.
+
+### What this unlocks
+
+- **[05 · Derivatives of Trig/Exp/Log](../05-derivatives-trig-exp-log/index.qmd)**
+- **[06 · Optimisation](../06-optimization/index.qmd)** — find
+  critical points by setting derivative to zero.
+- **[07 · Related Rates](../07-related-rates/index.qmd)** — chain
+  rule applied to rates.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Chain rule is the algorithmic core of
+backpropagation (S2). Modern GPUs are basically chain-rule engines.
+:::
+
+::: {.applied-callout}
+**Physics & engineering.** Forces (derivatives of energy), velocities
+(derivatives of position), all real-world rates of change use these
+rules.
+:::
+
+::: {.applied-callout}
+**Computer algebra systems.** SymPy, Mathematica, Maple implement
+exactly these rules to differentiate symbolically. The implementation
+is a few hundred lines.
+:::
