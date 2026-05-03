@@ -1,0 +1,366 @@
+---
+title: "10 · Statistical Inference"
+subtitle: "Confidence intervals, hypothesis tests, and p-values"
+lesson-id: "t5.statistical-inference"
+tier: 5
+prerequisites: ["t5.variance-clt"]
+unlocks: []
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [09 · Variance & CLT](../09-variance-clt/index.qmd)?
+2. Comfortable with $\sigma/\sqrt{n}$ as the SE of the mean?
+3. Recall the empirical rule (68/95/99.7%)?
+:::
+
+## Touch
+
+A **95% confidence interval** for the population mean: $\bar X \pm
+1.96 \, \sigma/\sqrt{n}$.
+
+```{ojs}
+viewof ciSel = Inputs.select(["sample mean 100, σ=15, n=25", "sample mean 100, σ=15, n=100", "sample mean 100, σ=15, n=900"], {value: "sample mean 100, σ=15, n=100", label: "Sample:"})
+```
+
+```{ojs}
+{
+  const m = 100, s = 15;
+  let n;
+  if (ciSel.includes("n=25")) n = 25;
+  else if (ciSel.includes("n=100")) n = 100;
+  else n = 900;
+  const se = s / Math.sqrt(n);
+  const moe = 1.96 * se;
+  return html`<div style="margin: 1rem 0; text-align:center;">
+    <div style="font-family:monospace; font-size:1.05rem;">
+      SE = ${s}/√${n} = ${se.toFixed(3)}
+      <br>95% CI: 100 ± 1.96·SE = <strong style="color:#c2185b;">[${(m - moe).toFixed(2)}, ${(m + moe).toFixed(2)}]</strong>
+    </div>
+  </div>`;
+}
+```
+
+Larger $n$ → narrower CI. Quadrupling $n$ halves the width.
+
+## Wonder
+
+1. What does "95% confidence" actually mean?
+2. To halve a CI's width, how many times more data do you need?
+3. What does it mean to "reject" a null hypothesis?
+
+## Discover
+
+### Problem 1
+
+A **95% confidence interval** for the mean (assuming known $\sigma$):
+$$\bar X \pm 1.96 \cdot \dfrac{\sigma}{\sqrt{n}}.$$
+
+The "1.96" comes from $z$-score for 95% area in the standard normal.
+
+If $\sigma = 10, n = 25, \bar X = 50$: CI?
+
+<details class="hint"><summary>Full solution</summary>
+$\text{SE} = 10/5 = 2$. Margin of error = $1.96 \cdot 2 = 3.92$.
+**CI: $[46.08, 53.92]$.**
+</details>
+
+### Problem 2
+
+What does "95% confidence" mean? **Common misconception:** "there's
+a 95% probability the true mean is in the interval." That's wrong
+(in the *frequentist* framework).
+
+The correct interpretation:
+
+<details class="hint"><summary>Full solution</summary>
+**If we repeated the procedure many times (sample, compute CI), 95%
+of the resulting intervals would contain the true mean.**
+
+The true mean is fixed (unknown to us); the *interval* is random
+(depends on the sample). 95% of those random intervals catch the
+true value.
+
+(In Bayesian inference, "95% probability" *can* be a valid statement
+about a *credible interval*. Frequentist CIs differ subtly.)
+</details>
+
+### Problem 3
+
+To shrink the CI by half: $1.96 \cdot \sigma/\sqrt{n_{\text{new}}}$
+should be half of $1.96 \cdot \sigma/\sqrt{n}$, so $\sqrt{n_{\text{new}}}
+= 2 \sqrt{n} \Rightarrow n_{\text{new}} = 4 n$.
+
+**Quadrupling sample size halves the CI width.**
+
+If you want a 99% CI instead of 95%, the multiplier increases from
+1.96 to 2.58. The CI is wider; more confidence requires a wider
+interval.
+
+<details class="hint"><summary>Full solution</summary>
+Confidence level vs interval width is a fundamental tradeoff: more
+confidence requires wider intervals, more precision requires more
+data.
+
+This single observation governs the cost of statistical knowledge:
+"How much data to make claims with confidence?"
+</details>
+
+### Problem 4
+
+A **hypothesis test** asks: is the data *consistent* with the null
+hypothesis $H_0$ (e.g., "the coin is fair")?
+
+Procedure:
+
+1. Compute a **test statistic** under $H_0$.
+2. Compute the **p-value**: probability of seeing data as extreme as
+   yours, *if $H_0$ is true*.
+3. If $p$-value < 0.05 (conventional threshold), **reject $H_0$**.
+
+Toss a coin 100 times, get 65 heads. Test $H_0$: coin is fair ($p =
+0.5$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Under $H_0$: $X \sim \text{Bin}(100, 0.5) \approx N(50, 25)$. SE = 5.
+$z = (65 - 50)/5 = 3$. $P(|Z| > 3) \approx 0.0027$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$z = 3$, $p$-value $\approx 0.003$. Less than 0.05 — **reject $H_0$:
+the coin is biased.**
+
+(More carefully: 0.003 is the *one-sided* probability of $Z > 3$.
+Two-sided is twice that, still $< 0.01$.)
+</details>
+
+### Problem 5
+
+**A/B testing.** Two website variants: A converts 10% of 1000
+visitors; B converts 12% of 1000. Is B significantly better?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+SE of difference: $\sqrt{p_A(1-p_A)/n_A + p_B(1-p_B)/n_B} \approx
+\sqrt{0.0001 \cdot 9 + 0.000106 \cdot 8.8} \approx \sqrt{0.000189}
+\approx 0.0137$. $z = (0.12 - 0.10)/0.0137 \approx 1.46$. $p$-value
+two-sided $\approx 0.144$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$p$-value $\approx 0.144$ > 0.05.** **Cannot reject $H_0$** that the
+two are equal. Need more data to distinguish.
+
+A/B testing in industry routinely uses this framework. Classical
+tests assume independence and binomial outcomes; Bayesian and
+sequential variants exist.
+
+Common pitfall: *p*-hacking — running many tests, reporting only
+significant ones. Inflates false-positive rate. Pre-registration of
+hypotheses combats this.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **point estimate** $\hat \theta$ for parameter $\theta$ is a single
+best guess (e.g., sample mean for population mean).
+
+A **$(1 - \alpha) \cdot 100\%$ confidence interval** for $\theta$ is a
+random interval $[\hat \theta - m, \hat \theta + m]$ such that, in
+repeated sampling, $\theta$ falls in the interval with probability
+$1 - \alpha$.
+
+For the **mean** with known $\sigma$: $\bar X \pm z_{\alpha/2} \cdot
+\sigma / \sqrt{n}$ where $z_{\alpha/2}$ is the standard normal
+quantile.
+
+| Confidence | $z_{\alpha/2}$ |
+|---|---|
+| 90% | 1.645 |
+| 95% | 1.96 |
+| 99% | 2.576 |
+
+**Hypothesis test:**
+
+1. Set up $H_0$ (null) and $H_1$ (alternative).
+2. Compute test statistic under $H_0$.
+3. Compute **$p$-value** = $P(\text{data this extreme or more} | H_0)$.
+4. Reject $H_0$ if $p < \alpha$ (significance level, often 0.05).
+
+**Two errors:**
+
+- **Type I:** reject true $H_0$ (false positive). Probability $\alpha$.
+- **Type II:** accept false $H_0$ (false negative). Probability $\beta$.
+
+**Power** = $1 - \beta$ = probability of correctly rejecting false
+$H_0$.
+
+:::
+
+> *CI: range that catches the true parameter with stated probability;*
+> *Hypothesis test: reject H₀ if p < α (typically 0.05);*
+> *Two errors: false positive (α), false negative (β).*
+
+## Apply
+
+### Worked example
+
+> Sample of 100 students has mean test score 75, SD 12. 95% CI for
+> the population mean?
+
+SE $= 12/\sqrt{100} = 1.2$. Margin = $1.96 \cdot 1.2 = 2.35$.
+**CI: $[72.65, 77.35]$.**
+
+(Strictly: when $\sigma$ is unknown and estimated from the sample, the
+*$t$-distribution* replaces the normal — for $n = 100$, the difference
+is negligible.)
+
+### Practice — Warm
+
+**W1.** $z$-score for 95% CI?
+
+<details class="hint"><summary>Full solution</summary>
+$1.96$.
+</details>
+
+**W2.** SE of the sample mean if $\sigma = 20, n = 400$?
+
+<details class="hint"><summary>Full solution</summary>
+$1$.
+</details>
+
+**W3.** To halve a CI width, multiply $n$ by?
+
+<details class="hint"><summary>Full solution</summary>
+$4$.
+</details>
+
+### Practice — Working
+
+**P1.** $\sigma = 8, n = 64, \bar X = 50$. 95% CI?
+
+<details class="hint"><summary>Full solution</summary>
+SE $= 1$. Margin $= 1.96$. CI $[48.04, 51.96]$.
+</details>
+
+**P2.** Test $H_0: \mu = 100$ vs $H_1: \mu \neq 100$. Sample: $n =
+100, \bar X = 102, \sigma = 10$. $z$? $p$-value? Reject at $\alpha =
+0.05$?
+
+<details class="hint"><summary>Full solution</summary>
+$z = (102 - 100)/(10/10) = 2$. Two-sided $p \approx 0.046$. **Reject.**
+</details>
+
+**P3.** Sample size needed for 95% CI of width 2 when $\sigma = 10$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Width = $2 \cdot 1.96 \cdot 10/\sqrt{n} \le 2$. Solve for $n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$n \ge (1.96 \cdot 10)^2 = 384.16$. **At least 385.**
+</details>
+
+### Practice — Stretch
+
+**S1.** **The replication crisis.** Many published scientific results
+fail to replicate. Reasons include $p$-hacking, low power, publication
+bias. Why do small samples and $p < 0.05$ produce so many false
+positives?
+
+<details class="hint"><summary>Full solution</summary>
+**With many studies, false positives accumulate.** If 1000 papers
+test true $H_0$s with $\alpha = 0.05$, about 50 will reject (false
+positives). Combined with publication bias (significant results get
+published), much of the "literature" can be wrong.
+
+**Low power** compounds this: small samples often miss true effects
+and erratically report extreme estimates when they do detect.
+
+Modern practice: pre-register hypotheses, use larger samples,
+report effect sizes (not just p-values), require replication.
+*Bayesian* approaches reframe inference (in terms of posterior
+beliefs, not p-values).
+</details>
+
+**S2.** **Statistical significance vs practical significance.** A
+study finds a new drug increases recovery time by 0.2 days, $p =
+0.001$. Is this important?
+
+<details class="hint"><summary>Full solution</summary>
+**Not necessarily.** $p$-value tests *whether* an effect exists, not
+its *size* or *practical importance*. With huge samples, even tiny
+effects become statistically significant.
+
+Always report:
+
+- **Effect size** (e.g., "0.2 days improvement").
+- **Confidence interval** (e.g., "0.18–0.22 days, 95% CI").
+- **Practical context** (clinically meaningful threshold?).
+
+A good rule: $p$-value answers "is there evidence of *any* effect?";
+*magnitude* and *uncertainty* answer "does it matter?".
+
+The $p$-value-only culture has been a major problem in clinical
+research, social science, and now ML benchmarking.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"95% CI = 95% probability the parameter is in the interval."**
+   Frequentist CIs aren't probability statements about parameters
+   (which are fixed). The 95% refers to repeated procedures.
+2. **"$p < 0.05$ proves the effect is real."** No — it shows the data
+   is unlikely under $H_0$. Could be: real effect; type I error;
+   wrong test; biased sample.
+3. **"$n = 30$ is enough."** Sample sizes should match the problem.
+   For tiny effects or skewed distributions, much larger samples are
+   needed.
+:::
+
+### Self-Assessment
+
+1. Could you state the meaning of a 95% confidence interval correctly?
+2. Without scrolling back, what's the $z$-multiplier for 99% CI?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $\approx 2.58$.)
+
+- **3 yes:** ready for **[11 · Sets, Logic, Proof](../11-sets-logic-proofs/index.qmd)**.
+- **2 yes:** redo **S2** (statistical vs practical significance).
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[09 · Variance & CLT](../09-variance-clt/index.qmd)** — CLT
+  enables CI / test computations.
+
+### What this unlocks
+
+- **Tier 7 — Bayesian Inference** — the alternative inferential
+  paradigm.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** A/B testing for ML systems (online
+learning, recommendation). Significance testing of model accuracy
+differences. Bandits and sequential testing.
+:::
+
+::: {.applied-callout}
+**Science & medicine.** Clinical trials, replication, scientific
+methodology — all built on this framework. Replication crisis (S1)
+shows the consequences of misuse.
+:::
+
+::: {.applied-callout}
+**Business analytics.** Marketing experiments, pricing changes,
+customer-segmentation tests — daily decisions hinge on statistical
+inference.
+:::
