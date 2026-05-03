@@ -44,15 +44,28 @@ $nav-link-padding-y: 0.35rem;
     justify-content: space-between;
     gap: 0.5rem;
     margin-top: 0;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
     padding-right: 0.25rem;
+
+    > .sidebar-title,
+    > .sidebar-item-container {
+      flex: 1 1 auto;
+      margin: 0;
+    }
+
+    // When promoted from the first sidebar-item, make it look like a header.
+    &.from-home-link > .sidebar-item-container {
+      .sidebar-link, .sidebar-item-text {
+        font-size: 1.05rem;
+        font-weight: 600;
+        padding: 0.15rem 0;
+      }
+    }
   }
 
   .sidebar-title {
     font-size: 1.05rem;
     font-weight: 600;
-    margin: 0;
-    flex: 1 1 auto;
   }
 
   .sidebar-expand-toggle {

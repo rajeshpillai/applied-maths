@@ -1,0 +1,67 @@
+<script>
+// Inject an expand/collapse-all toggle into the Quarto sidebar header.
+(() => {
+  function init() {
+    const sidebar = document.querySelector('#quarto-sidebar, .sidebar');
+    if (!sidebar) return;
+
+    // Quarto can either render a true `.sidebar-title` element or, when the
+    // sidebar config has no `title:`, surface the home link as the first
+    // sidebar item. Handle both: target whichever is present.
+    let anchor = sidebar.querySelector('.sidebar-title');
+    let isTitle = !!anchor;
+    if (!anchor) {
+      const firstItem = sidebar.querySelector('.sidebar-menu-container .sidebar-item:not(.sidebar-item-section)');
+      anchor = firstItem ? firstItem.querySelector('.sidebar-item-container') : null;
+    }
+    if (!anchor || anchor.dataset.expandToggleWrapped) return;
+    anchor.dataset.expandToggleWrapped = '1';
+
+    // Wrap the anchor and the new toggle button into a flex row.
+    const row = document.createElement('div');
+    row.className = 'sidebar-header-row';
+    if (!isTitle) row.classList.add('from-home-link');
+    anchor.parentNode.insertBefore(row, anchor);
+    row.appendChild(anchor);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sidebar-expand-toggle';
+    btn.title = 'Expand / collapse all sections';
+    btn.setAttribute('aria-label', 'Expand / collapse all sections');
+    btn.innerHTML =
+      '<i class="bi bi-chevron-double-down expand-icon" aria-hidden="true"></i>' +
+      '<i class="bi bi-chevron-double-up collapse-icon" aria-hidden="true"></i>';
+    row.appendChild(btn);
+
+    let allExpanded = false;
+
+    function setAll(expand) {
+      sidebar.querySelectorAll('.sidebar-section, .sidebar-item-section, .collapse').forEach((s) => {
+        s.classList.toggle('show', expand);
+      });
+      sidebar.querySelectorAll('details').forEach((d) => { d.open = expand; });
+      sidebar.querySelectorAll('[aria-expanded]').forEach((t) => {
+        // Skip the navbar toggler — we only care about the in-sidebar collapses.
+        if (t.closest('.sidebar')) {
+          t.setAttribute('aria-expanded', expand ? 'true' : 'false');
+        }
+      });
+    }
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      allExpanded = !allExpanded;
+      setAll(allExpanded);
+      btn.classList.toggle('is-expanded', allExpanded);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
