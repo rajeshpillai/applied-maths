@@ -1,0 +1,383 @@
+---
+title: "07 · Trigonometry — The Ratios"
+subtitle: "Three ratios in a right triangle — sin, cos, tan"
+lesson-id: "t3.trig-ratios"
+tier: 3
+prerequisites: ["t2.pythagorean-theorem", "t1.ratio-proportion", "t2.similarity-scale"]
+unlocks: ["t3.unit-circle"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T2 L10 — Pythagoras](../../tier-2-prealgebra/10-pythagorean-theorem/index.qmd)
+   and [T2 L13 — Similarity](../../tier-2-prealgebra/13-similarity-scale/index.qmd)?
+2. Comfortable with [T1 L09 — Ratio](../../tier-1-foundations/09-ratio-proportion/index.qmd)?
+3. Can you identify the **hypotenuse** (longest side, opposite right
+   angle) of a right triangle?
+:::
+
+## Touch
+
+Adjust angle $\theta$ in a right triangle. Watch sine, cosine, tangent
+update.
+
+```{ojs}
+viewof thetaDeg = Inputs.range([0, 90], {value: 30, step: 5, label: "Angle θ (degrees):"})
+```
+
+```{ojs}
+{
+  const W = 480, H = 360, scale = 200, ox = 60, oy = 280;
+  const t = thetaDeg * Math.PI / 180;
+  const adj = Math.cos(t) * scale;
+  const opp = Math.sin(t) * scale;
+  // hypotenuse goes from (ox, oy) toward (ox + adj, oy - opp)
+  const A = {x: ox, y: oy};                  // vertex of angle
+  const B = {x: ox + adj, y: oy};            // right angle (along x)
+  const C = {x: ox + adj, y: oy - opp};      // top of triangle
+
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:520px; display:block; margin: 0 auto; background:#fafafa;");
+  // Triangle
+  svg.append("polygon").attr("points", `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`)
+    .attr("fill", "#bbdefb").attr("opacity", 0.4).attr("stroke", "#1f2933").attr("stroke-width", 2);
+  // Right-angle marker
+  svg.append("rect").attr("x", B.x - 10).attr("y", B.y - 10).attr("width", 10).attr("height", 10).attr("fill", "none").attr("stroke", "#1f2933");
+  // Angle arc
+  const arcR = 30;
+  const arcEndX = ox + arcR * Math.cos(-t), arcEndY = oy + arcR * Math.sin(-t);
+  svg.append("path").attr("d", `M ${ox + arcR},${oy} A ${arcR},${arcR} 0 0 0 ${arcEndX},${arcEndY}`)
+    .attr("fill", "none").attr("stroke", "#c2185b").attr("stroke-width", 2);
+  svg.append("text").attr("x", ox + 50).attr("y", oy - 8).attr("font-size", "14").attr("fill", "#c2185b").attr("font-weight", "bold").text(`θ = ${thetaDeg}°`);
+
+  // Side labels
+  svg.append("text").attr("x", (A.x + B.x)/2).attr("y", oy + 18).attr("text-anchor", "middle").attr("font-size", "12").attr("fill", "#2e7d32").text(`adjacent ≈ ${adj.toFixed(1)}`);
+  svg.append("text").attr("x", B.x + 8).attr("y", (B.y + C.y)/2).attr("font-size", "12").attr("fill", "#1565c0").text(`opposite ≈ ${opp.toFixed(1)}`);
+  // Hypotenuse label
+  const midX = (A.x + C.x)/2, midY = (A.y + C.y)/2;
+  svg.append("text").attr("x", midX - 70).attr("y", midY).attr("font-size", "12").attr("fill", "#c62828").text(`hypotenuse = ${scale}`);
+
+  // Ratios
+  svg.append("text").attr("x", 290).attr("y", 50).attr("font-size", "14").attr("font-weight", "bold").text("Ratios:");
+  svg.append("text").attr("x", 290).attr("y", 75).attr("font-size", "13").attr("font-family", "monospace").attr("fill", "#1565c0").text(`sin θ = opp / hyp = ${(opp/scale).toFixed(3)}`);
+  svg.append("text").attr("x", 290).attr("y", 95).attr("font-size", "13").attr("font-family", "monospace").attr("fill", "#2e7d32").text(`cos θ = adj / hyp = ${(adj/scale).toFixed(3)}`);
+  svg.append("text").attr("x", 290).attr("y", 115).attr("font-size", "13").attr("font-family", "monospace").attr("fill", "#c2185b").text(`tan θ = opp / adj = ${(opp/adj).toFixed(3)}`);
+  return svg.node();
+}
+```
+
+In a right triangle, three ratios depend only on the angle (by
+similarity, [T2 L13](../../tier-2-prealgebra/13-similarity-scale/index.qmd)
+— scale the triangle and ratios stay the same):
+
+- **sine** = opposite / hypotenuse
+- **cosine** = adjacent / hypotenuse
+- **tangent** = opposite / adjacent = sin/cos
+
+## Wonder
+
+1. Set $\theta = 0°$. What are sin, cos, tan? Set $\theta = 90°$. What
+   happens to tan?
+2. As $\theta$ grows from 0° to 90°, sine grows from 0 to 1 and cosine
+   shrinks from 1 to 0. Why those bounds?
+3. Two different right triangles with the same $\theta$ have different
+   side *lengths* but identical sin/cos/tan. Why?
+
+## Discover
+
+### Problem 1
+
+Compute sin, cos, tan of **30°** using a 30-60-90 triangle (hypotenuse
+2, sides 1 and $\sqrt{3}$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Opposite to 30°: short leg (length 1). Adjacent: long leg ($\sqrt{3}$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin 30° = 1/2$, $\cos 30° = \sqrt{3}/2 \approx 0.866$, $\tan 30° =
+1/\sqrt{3} \approx 0.577$.
+
+These are **exact** values — memorise them. The 30-60-90 triangle is
+*the* canonical example, half of an equilateral triangle.
+</details>
+
+### Problem 2
+
+Compute sin, cos, tan of **45°** using a 45-45-90 triangle (legs 1,
+hypotenuse $\sqrt{2}$).
+
+<details class="hint"><summary>Full solution</summary>
+$\sin 45° = \cos 45° = 1/\sqrt{2} = \sqrt{2}/2 \approx 0.707$. $\tan
+45° = 1$.
+
+Sin and cos are equal at 45° — by symmetry of the isoceles right
+triangle.
+</details>
+
+### Problem 3
+
+A ladder leans against a wall at angle 60° to the ground. The base is
+3 m from the wall. How long is the ladder?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Adjacent (along ground) = 3 m. Hypotenuse = ladder. Use cos.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos 60° = 3/L \Rightarrow L = 3 / 0.5 = 6$ m.
+
+Trig solves "given an angle and one side, find another side" — a
+universal triangle problem.
+</details>
+
+### Problem 4
+
+A tree casts a 12-m shadow. The angle of elevation of the sun is 35°.
+How tall is the tree?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Opposite (height) = $h$, adjacent (shadow) = 12. Use tan.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tan 35° = h/12 \Rightarrow h = 12 \tan 35° \approx 12 \cdot 0.700
+\approx 8.4$ m.
+
+The "shadow" problem (T2 L13 P3) generalised: instead of comparing
+two known shadows, use a known angle.
+</details>
+
+### Problem 5
+
+Use the **Pythagorean identity** $\sin^2 \theta + \cos^2 \theta = 1$
+(a renaming of Pythagoras applied to opp/hyp and adj/hyp). Verify for
+$\theta = 30°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(1/2)^2 + (\sqrt{3}/2)^2 = ?$
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1/4 + 3/4 = 1$ ✓.
+
+Why? In a right triangle, $\text{opp}^2 + \text{adj}^2 = \text{hyp}^2$
+(Pythagoras). Divide both sides by $\text{hyp}^2$: $\sin^2 \theta +
+\cos^2 \theta = 1$.
+
+This is the **most-used trig identity** of all time. We meet a flock
+of related identities in [Lesson 09](../09-trig-identities/index.qmd).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For a right triangle with angle $\theta$ (one of the non-right
+angles):
+
+$$\sin \theta = \dfrac{\text{opposite}}{\text{hypotenuse}}, \quad
+  \cos \theta = \dfrac{\text{adjacent}}{\text{hypotenuse}}, \quad
+  \tan \theta = \dfrac{\text{opposite}}{\text{adjacent}}.$$
+
+Mnemonic: **SOH-CAH-TOA** (Sine = Opp/Hyp, Cosine = Adj/Hyp, Tangent
+= Opp/Adj).
+
+**Useful exact values:**
+
+| $\theta$ | sin | cos | tan |
+|:-:|:-:|:-:|:-:|
+| 0° | 0 | 1 | 0 |
+| 30° | 1/2 | $\sqrt{3}/2$ | $1/\sqrt{3}$ |
+| 45° | $\sqrt{2}/2$ | $\sqrt{2}/2$ | 1 |
+| 60° | $\sqrt{3}/2$ | 1/2 | $\sqrt{3}$ |
+| 90° | 1 | 0 | undefined |
+
+**The Pythagorean identity:** $\sin^2 \theta + \cos^2 \theta = 1$.
+
+**Reciprocal ratios:** $\csc \theta = 1/\sin \theta$, $\sec \theta =
+1/\cos \theta$, $\cot \theta = 1/\tan \theta$.
+
+:::
+
+> *SOH-CAH-TOA — opp over hyp, adj over hyp, opp over adj;*
+> *Three ratios that depend only on the angle, not the size;*
+> *Sin² + cos² = 1, the Pythagorean identity in trig form.*
+
+## Apply
+
+### Worked example
+
+> A right triangle has hypotenuse 10 cm and one angle 25°. Find the
+> opposite and adjacent sides.
+
+A competent solver:
+
+1. **Opposite:** $\sin 25° = \text{opp}/10 \Rightarrow \text{opp} = 10
+   \sin 25° \approx 10 \cdot 0.4226 \approx 4.23$ cm.
+2. **Adjacent:** $\cos 25° = \text{adj}/10 \Rightarrow \text{adj} \approx
+   10 \cdot 0.9063 \approx 9.06$ cm.
+3. **Check Pythagoras:** $4.23^2 + 9.06^2 \approx 17.9 + 82.1 \approx
+   100 = 10^2$ ✓.
+
+### Practice — Warm
+
+**W1.** $\sin 30°$? $\cos 60°$? $\tan 45°$?
+
+<details class="hint"><summary>Full solution</summary>
+$1/2$, $1/2$, $1$.
+</details>
+
+**W2.** A right triangle has angle 40° and adjacent side 8 cm. Find
+the opposite.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan 40° = \text{opp}/8 \Rightarrow \text{opp} \approx 8 \cdot 0.839
+\approx 6.71$ cm.
+</details>
+
+**W3.** Verify $\sin^2 60° + \cos^2 60° = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$(\sqrt{3}/2)^2 + (1/2)^2 = 3/4 + 1/4 = 1$ ✓.
+</details>
+
+### Practice — Working
+
+**P1.** A 5-m ladder leans against a wall, top at 4 m up. What angle
+does it make with the ground?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin \theta = 4/5 \Rightarrow \theta = \arcsin(0.8)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\theta = \arcsin(0.8) \approx 53.13°$.
+
+(arcsin / sin⁻¹ is the inverse: "what angle has sine 0.8?")
+</details>
+
+**P2.** A plane climbs at angle 12° to the horizontal. After flying 5
+km along its path, how much altitude has it gained?
+
+<details class="hint"><summary>Full solution</summary>
+$\sin 12° = h/5 \Rightarrow h = 5 \sin 12° \approx 5 \cdot 0.208
+\approx 1.04$ km. The plane is now ~1.04 km higher.
+</details>
+
+**P3.** Find $\sin \theta$ if $\cos \theta = 0.6$ and $\theta$ is in
+$(0, 90°)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $\sin^2 + \cos^2 = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin^2 \theta = 1 - 0.36 = 0.64 \Rightarrow \sin \theta = 0.8$
+(positive in this quadrant).
+
+This is a 3-4-5 triangle in disguise! cos = 3/5 = 0.6, sin = 4/5 = 0.8.
+</details>
+
+### Practice — Stretch
+
+**S1.** **3D direction in a game.** A character looks at angle 60°
+above horizontal toward the north. What are the components of their
+view-direction *unit vector* (sin, cos with appropriate axis
+mappings)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+With north as +y, up as +z: forward component = cos 60° = 0.5;
+upward component = sin 60° = 0.866. East/west: 0.
+</details>
+<details class="hint"><summary>Full solution</summary>
+View vector: $(0, \cos 60°, \sin 60°) = (0, 0.5, 0.866)$.
+
+Game engines compute look-direction vectors from camera angles by
+exactly these trig formulas, millions of times per second. Direction
+encoding via sin/cos is *the* universal solution for "rotate this
+object in 3D".
+</details>
+
+**S2.** **The fundamental theorem of trigonometry** (informal):
+*every wave can be built from sines and cosines.* Sound, light, AC
+electricity, brain activity, ocean tides — all decomposed into sums of
+sin/cos. This decomposition is called **Fourier analysis** (Tier 6).
+Why might sin/cos be the "right" basis?
+
+<details class="hint"><summary>Full solution</summary>
+**Sin/cos are the natural building blocks of periodic motion.** A point
+moving uniformly around a circle traces sin (vertical position) and
+cos (horizontal position) over time — the simplest oscillation in
+existence.
+
+When you decompose a complex sound into "pure tones," each tone is a
+sine wave. The cochlea in your ear physically performs Fourier
+decomposition (different hair cells respond to different
+frequencies). MP3, JPEG, MRI imaging, radio, and Wi-Fi all rely on
+Fourier methods. The sin/cos you just learned are the fundamental
+language of every wave on Earth.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Sin/cos must be in degrees."** They can be in *radians* too
+   (Lesson 08). Calculators have a mode switch.
+2. **"Tan can be any value."** True — tan ranges over all real numbers
+   (unlike sin and cos which are bounded between $-1$ and $1$). At
+   $90°, 270°, \ldots$, tan is undefined (division by zero).
+3. **"Trig only works in right triangles."** Right-triangle definitions
+   only work for $0 < \theta < 90°$. The unit circle (Lesson 08)
+   extends them to *all angles*.
+:::
+
+### Self-Assessment
+
+1. Could you derive the Pythagorean identity from Pythagoras' theorem?
+2. Without scrolling back, what is $\sin 30° \cdot \cos 60°$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $(1/2)(1/2) = 1/4$.)
+
+- **3 yes:** ready for **[08 · The Unit Circle](../08-unit-circle/index.qmd)**.
+- **2 yes:** redo **S2** — the Fourier connection is one of maths'
+  most powerful unifications.
+- **0–1 yes:** re-read *Discover P1, P2, P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T2 L10 — Pythagoras](../../tier-2-prealgebra/10-pythagorean-theorem/index.qmd)**
+- **[T1 L09 — Ratio](../../tier-1-foundations/09-ratio-proportion/index.qmd)** —
+  trig values *are* ratios.
+- **[T2 L13 — Similarity](../../tier-2-prealgebra/13-similarity-scale/index.qmd)** —
+  scale-invariance of the ratios.
+
+### What this unlocks
+
+- **[08 · Unit Circle](../08-unit-circle/index.qmd)** — extends trig
+  beyond right triangles to all angles.
+- **Tier 4 — Calculus & Tier 6 — Fourier Analysis** — sin/cos as
+  the *building blocks of periodic phenomena*.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Camera rotations, character orientation, view
+vectors (S1), arc projectiles, oscillating springs in physics — all
+sin/cos. Quaternions (Tier 7) build on this for full 3D rotations.
+:::
+
+::: {.applied-callout}
+**Engineering & physics.** AC electricity is a sine wave (50 or 60
+Hz). Sound is a superposition of sines. Light is sinusoidal in
+amplitude. Bridges and buildings are designed against sinusoidal
+wind/seismic loads.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Trigonometric functions are the simplest
+nontrivial *periodic* functions. Their connection to complex
+exponentials ($e^{i\theta} = \cos \theta + i \sin \theta$, Tier 6)
+unifies analysis with algebra in a deep way.
+:::
