@@ -1,0 +1,441 @@
+---
+title: "Decimals — Fractions in a New Costume"
+subtitle: "Place value, extended rightward across the dot"
+lesson-id: "t1.decimals"
+tier: 1
+prerequisites: ["t1.fractions-as-parts", "t1.place-value"]
+unlocks: []
+applied-domains: ["systems", "ai-ml", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Lesson 3 — Place Value](../03-place-value/index.qmd)
+   and [Lesson 7 — Fractions](../07-fractions-as-parts/index.qmd)?
+2. Can you say what each digit of **357** is worth?
+3. Have you ever read a price like "Rs. 24.50" or a measurement like
+   "1.6 metres"?
+:::
+
+## Touch
+
+Set whole, tenths, and hundredths. Watch the bar fill, and read the
+decimal at the bottom.
+
+```{ojs}
+viewof whole = Inputs.range([0, 9], {value: 1, step: 1, label: "Ones:"})
+```
+
+```{ojs}
+viewof tenths = Inputs.range([0, 9], {value: 4, step: 1, label: "Tenths:"})
+```
+
+```{ojs}
+viewof hundredths = Inputs.range([0, 9], {value: 7, step: 1, label: "Hundredths:"})
+```
+
+```{ojs}
+{
+  const value = whole + tenths/10 + hundredths/100;
+  const W = 720, H = 130, pad = 20;
+  const cellW = (W - 2 * pad) / 100;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px;");
+
+  // 100 cells representing 0.00 to 1.00 in 0.01 increments — but show scale
+  // Actually display: a number line from 0 to (whole+1) with the marker
+  const xMin = 0, xMax = Math.max(whole + 1, 2);
+  const x = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+
+  // axis
+  svg.append("line").attr("x1", pad).attr("x2", W - pad)
+    .attr("y1", H/2).attr("y2", H/2)
+    .attr("stroke", "#1f2933").attr("stroke-width", 2);
+
+  // major ticks at each whole
+  for (let v = 0; v <= xMax; v++) {
+    svg.append("line").attr("x1", x(v)).attr("x2", x(v))
+      .attr("y1", H/2 - 8).attr("y2", H/2 + 8)
+      .attr("stroke", "#1f2933").attr("stroke-width", 1.5);
+    svg.append("text").attr("x", x(v)).attr("y", H/2 + 24)
+      .attr("text-anchor", "middle").attr("font-size", "13").text(v);
+  }
+  // minor ticks at each tenth
+  for (let v = 0; v <= xMax; v += 0.1) {
+    if (Math.abs(v - Math.round(v)) < 1e-9) continue;
+    svg.append("line").attr("x1", x(v)).attr("x2", x(v))
+      .attr("y1", H/2 - 4).attr("y2", H/2 + 4)
+      .attr("stroke", "#888").attr("stroke-width", 0.7);
+  }
+  // marker
+  svg.append("circle").attr("cx", x(value)).attr("cy", H/2).attr("r", 8)
+    .attr("fill", "#c2185b").attr("stroke", "#fff").attr("stroke-width", 2);
+  svg.append("text").attr("x", x(value)).attr("y", H/2 - 14)
+    .attr("text-anchor", "middle").attr("font-size", "13").attr("fill", "#c2185b").attr("font-weight", "bold")
+    .text(value.toFixed(2));
+  return svg.node();
+}
+```
+
+```{ojs}
+{
+  const value = whole + tenths/10 + hundredths/100;
+  return html`<div style="text-align:center; font-family:monospace; font-size:1.4rem; margin-top:0.5rem;">
+    ${whole} + ${tenths}/10 + ${hundredths}/100
+    &nbsp;=&nbsp;<span style="font-weight:bold;">${value.toFixed(2)}</span>
+  </div>`;
+}
+```
+
+The dot is just a marker. To its left: place values are 1, 10, 100 (the
+ones, tens, hundreds you already know). To its right: each step shrinks
+the value by ten — tenths, hundredths, thousandths, ...
+
+## Wonder
+
+1. What does the digit "7" in **0.7** mean? What does "7" mean in **0.07**?
+2. Why does **2.50** mean the same as **2.5**? What if you wrote
+   **2.5000**?
+3. The fraction $\tfrac{1}{4}$ is also **0.25**. The fraction $\tfrac{1}{3}$
+   is...?
+
+## Discover
+
+### Problem 1
+
+Read aloud: **3.7**, **0.42**, **2.05**.
+
+What is each digit worth?
+
+<details class="hint"><summary>Full solution</summary>
+- **3.7** = "three and seven tenths" = $3 + \tfrac{7}{10}$.
+- **0.42** = "zero and forty-two hundredths" = $\tfrac{4}{10} + \tfrac{2}{100}$.
+- **2.05** = "two and five hundredths" = $2 + \tfrac{0}{10} + \tfrac{5}{100}$.
+
+The 0 in the tenths column of "2.05" is doing the same placeholder duty
+as the 0 in 305 (Lesson 3). Without it, you'd read "2.5", which is *ten
+times bigger*.
+</details>
+
+### Problem 2
+
+Convert these fractions to decimals: $\dfrac{1}{2}$, $\dfrac{3}{4}$,
+$\dfrac{1}{5}$, $\dfrac{1}{8}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A fraction with denominator 10, 100, 1000, ... is read directly as a
+decimal. Rewrite each fraction with such a denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $\tfrac{1}{2} = \tfrac{5}{10} = 0.5$
+- $\tfrac{3}{4} = \tfrac{75}{100} = 0.75$
+- $\tfrac{1}{5} = \tfrac{2}{10} = 0.2$
+- $\tfrac{1}{8} = \tfrac{125}{1000} = 0.125$
+
+Every fraction whose denominator is a product of 2s and 5s converts to a
+*finite* decimal.
+</details>
+
+### Problem 3
+
+Try $\dfrac{1}{3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Long-divide $1.000\ldots$ by $3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 \div 3 = 0.3333\ldots$ — the 3s never stop.
+
+We write this as $0.\overline{3}$ — the bar over the 3 means "repeats
+forever". Some fractions (those whose denominator has prime factors other
+than 2 or 5) give *repeating* decimals. The decimal expansion is *infinite
+but periodic*. It's still a perfectly good number — just one that needs
+infinitely many digits to write in decimal form.
+
+Both $0.\overline{3}$ and $\tfrac{1}{3}$ are exactly the same number, in
+two different costumes.
+</details>
+
+### Problem 4
+
+Compute **2.4 + 1.7** by treating the decimal point as the alignment guide.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add column by column from the right, just like whole-number addition.
+Carry across the dot if needed.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$\begin{array}{r} 2.4 \\ +\,1.7 \\ \hline 4.1 \end{array}$$
+Tenths: $4 + 7 = 11$ → write 1, carry 1.
+Ones: $2 + 1 + 1 = 4$.
+
+**Answer: 4.1.** Decimal arithmetic is just place-value arithmetic with
+columns extending to the right of the dot.
+</details>
+
+### Problem 5
+
+What is **0.1 × 0.1**? (Picture two strips, each one-tenth of a unit
+square.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The rectangle picture from [Lesson 5](../05-multiply-as-area/index.qmd)
+still applies. Width 0.1, height 0.1. What fraction of a unit square is
+that?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0.1 \times 0.1 = 0.01$ — one *hundredth*. Picture: a tiny square,
+one-tenth wide and one-tenth tall, fits exactly 100 times into a 1×1
+square (10 across, 10 down). Each tiny square is $\tfrac{1}{100}$ of the
+whole.
+
+So multiplying two decimals less than 1 gives a *smaller* result. This
+contradicts the whole-number intuition "multiplication makes things
+bigger" — and is the source of much confusion. The rectangle picture
+explains it cleanly.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **decimal** is a number written in **base-10 place value**, with
+columns continuing to the right of a *decimal point* — but each step
+right divides the value by 10 (instead of multiplying by 10 as we go
+left).
+
+The columns are:
+$$\ldots \mid \text{hundreds} \mid \text{tens} \mid \text{ones} \mathbf{\ .\ } \text{tenths} \mid \text{hundredths} \mid \text{thousandths} \mid \ldots$$
+
+A decimal is the same as a fraction:
+$$0.d_1 d_2 d_3 = \frac{d_1}{10} + \frac{d_2}{100} + \frac{d_3}{1000}.$$
+
+A fraction whose reduced denominator only has prime factors **2** and
+**5** terminates as a decimal; otherwise the decimal **repeats**
+forever.
+
+:::
+
+> *To the right of the dot, divide instead of multiply;*
+> *Each new column, ten times smaller than the last.*
+> *Every fraction has a decimal —*
+> *Some end; some sing forever.*
+
+## Apply
+
+### Worked example
+
+> Compute $2.45 + 1.6$.
+
+A competent solver **aligns the decimal points**, padding with a zero
+where needed:
+$$\begin{array}{r} 2.45 \\ +\,1.60 \\ \hline 4.05 \end{array}$$
+Hundredths: $5 + 0 = 5$. Tenths: $4 + 6 = 10$ — write 0, carry 1. Ones:
+$2 + 1 + 1 = 4$. **Answer: 4.05.**
+
+Padding 1.6 to "1.60" makes the place-value alignment explicit. The
+trailing zero adds nothing, but it makes the column structure visible.
+
+### Practice — Warm
+
+**W1.** Convert: $\tfrac{2}{5}$, $\tfrac{7}{10}$, $\tfrac{9}{100}$ to
+decimals.
+
+<details class="hint"><summary>Full solution</summary>
+$0.4$, $0.7$, $0.09$.
+</details>
+
+**W2.** Convert: $0.6$, $0.25$, $0.125$ to fractions in their simplest
+form.
+
+<details class="hint"><summary>Full solution</summary>
+$0.6 = \tfrac{6}{10} = \tfrac{3}{5}$. $\ 0.25 = \tfrac{25}{100} =
+\tfrac{1}{4}$. $\ 0.125 = \tfrac{125}{1000} = \tfrac{1}{8}$.
+</details>
+
+**W3.** Compute $3.2 - 1.7$.
+
+<details class="hint"><summary>Full solution</summary>
+Tenths: $2 - 7$ underflows; borrow 1 from the ones column. Tenths: $12 -
+7 = 5$. Ones: $(3-1) - 1 = 1$. **Answer: 1.5.**
+</details>
+
+### Practice — Working
+
+**P1.** Compute $0.4 \times 0.5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$0.4 \times 0.5 = \tfrac{4}{10} \times \tfrac{5}{10}$. Multiply across.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{4 \times 5}{10 \times 10} = \tfrac{20}{100} = 0.2$.
+
+A useful **shortcut:** count the digits *after the decimal point* in each
+factor (here, 1 and 1 — total 2). The product has the same total of
+decimal digits. $4 \times 5 = 20$; place the decimal so the result has 2
+decimal digits: 0.20 = 0.2. ✓
+</details>
+
+**P2.** Order from smallest to largest: $0.5, \ 0.05, \ 0.55, \ 0.005$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The widest fraction is the smallest. Pad with zeros to make all the same
+length: $0.500, 0.050, 0.550, 0.005$. Now compare like whole numbers.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0.005 < 0.05 < 0.5 < 0.55$.
+
+A surprisingly common error: assuming "more digits = bigger". With the
+same digits but different decimal-point positions, place value rules.
+</details>
+
+**P3.** A petrol pump charges Rs. 102.40 per litre. You pump 12.5 litres.
+What's the bill?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$102.40 \times 12.5$. Use round-number splitting: $102.40 \times 10 =
+1024$; $102.40 \times 2 = 204.80$; $102.40 \times 0.5 = 51.20$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$102.40 \times 12.5 = 1024 + 204.80 + 51.20 = 1280$. **Rs. 1,280.**
+Decimals turn "12 and a half litres at 102 rupees and 40 paise" into a
+single tidy multiplication.
+</details>
+
+### Practice — Stretch
+
+**S1.** A computer stores numbers using a fixed number of bits — say, 32
+bits. The decimal $0.1$ cannot be represented *exactly* in binary. Why
+might that be? (Hint: the binary place values to the right of the dot
+are $\tfrac{1}{2}, \tfrac{1}{4}, \tfrac{1}{8}, \tfrac{1}{16}, \ldots$ —
+all powers of 2.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Recall *Discover P3*: a fraction terminates in base 10 iff its
+denominator's prime factors are 2 and 5. What is the analogous condition
+for base 2?
+</details>
+<details class="hint"><summary>Full solution</summary>
+In base 2, only fractions whose denominators are powers of 2 terminate.
+$0.1 = \tfrac{1}{10} = \tfrac{1}{2 \times 5}$ — the prime factor **5**
+makes it *non-terminating in binary*. So $0.1$ in binary is a *repeating
+binary fraction*, like $\tfrac{1}{3}$ in our decimal system.
+
+Computers store this as a *truncated approximation*. That tiny rounding
+error is the source of famous bugs like
+$$0.1 + 0.2 \neq 0.3$$
+in nearly every programming language. The error is small (about
+$10^{-17}$), but it accumulates in long calculations and matters for
+financial software, scientific simulation, and ML training.
+
+This is one reason **decimals (base 10) and binary (base 2) coexist**
+in computing — currency code uses *fixed-point decimal* arithmetic to
+avoid the rounding issue.
+</details>
+
+**S2.** What number does $0.\overline{9}$ (zero point nine recurring,
+forever) equal?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try this: let $x = 0.\overline{9}$. Compute $10x$. Then compute $10x - x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $x = 0.9999\ldots$. Then $10x = 9.9999\ldots$. Subtract:
+$$10x - x = 9.9999\ldots - 0.9999\ldots = 9 \quad \Rightarrow \quad 9x = 9 \quad \Rightarrow \quad x = 1.$$
+
+**$0.\overline{9} = 1$ exactly.** Same number, two costumes.
+
+This is a famously *uncomfortable* result for many learners — but the
+algebra is irrefutable. Acceptance of $0.\overline{9} = 1$ is acceptance
+that the rationals (Lesson 7) extend continuously into the **real
+numbers** — a story we tell properly in Tier 5.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"More decimal digits means a bigger number."** $0.5 > 0.45$, even
+   though 0.5 has fewer digits. Compare column by column from the *left*,
+   not by length.
+2. **"Multiplying decimals always makes them smaller."** Only when both
+   are less than 1. $1.5 \times 1.5 = 2.25$, which is bigger than either
+   factor.
+3. **"$0.\overline{9}$ is just *almost* 1."** No — it equals 1 exactly,
+   as *Stretch S2* proved.
+:::
+
+### Self-Assessment
+
+1. Could you explain why $0.05 < 0.5 < 0.55$ to a friend, using "column"
+   and "place value"?
+2. Without scrolling back, can you compute $1.4 + 0.85$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+- **3 yes:** ready for **[Lesson 9 — Ratio and Proportion](../09-ratio-proportion/index.qmd)**.
+- **2 yes:** redo **S1** (binary 0.1) — that's the deepest connection
+  to systems work.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 7 — Fractions](../07-fractions-as-parts/index.qmd)** —
+  decimals are a special form of fraction (denominators are powers of
+  10).
+- **[Lesson 3 — Place Value](../03-place-value/index.qmd)** — the dot
+  just extends the columns rightward.
+
+### What this unlocks
+
+- **Ratio and Proportion** — percentages are decimals in a different
+  costume (per hundred).
+- **Tier 2 — Scientific Notation** — when the same number is huge or
+  tiny, decimal place value combined with powers of 10 gives a compact
+  form.
+
+### Where this matters
+
+::: {.applied-callout}
+**Systems.** *Stretch S1* is the most important takeaway: every
+floating-point number on every computer is a binary approximation. The
+rounding error inherent in this is the source of countless real-world
+bugs — and is why financial systems use *decimal* arithmetic libraries
+even when their programming language defaults to binary.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Almost every weight, activation, gradient,
+and learning rate in a neural network is a floating-point decimal. The
+*precision* of those decimals (32-bit, 16-bit, 8-bit) is now a
+first-class design parameter for training large models.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** $0.\overline{9} = 1$ is the doorway to
+**limits** and the structure of the real numbers — central topics of
+Tier 5 real analysis.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Money, measurement, time (clocks have moved from
+"hours and minutes" toward decimal hours), GPS coordinates, scientific
+data — decimals are the world's lingua franca for non-whole quantities.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the number-line widget makes
+  decimals literally movable), Boole (the trailing-zero question
+  surfaces equivalence intuitively), Russian school (the long-division
+  result for $1/3$ surprises and gets named, not skipped over),
+  Bhāskara (Name + verse), 3Blue1Brown (the $0.\overline{9}=1$ proof
+  is a classic visual-algebraic moment).
+- **Self-study guarantees** all present.
+:::
