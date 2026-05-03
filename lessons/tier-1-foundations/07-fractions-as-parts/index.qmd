@@ -1,0 +1,417 @@
+---
+title: "Fractions as Parts of a Whole"
+subtitle: "When the leftover gets cut up — a new kind of number"
+lesson-id: "t1.fractions-as-parts"
+tier: 1
+prerequisites: ["t1.divide-fair-share"]
+unlocks: ["t1.decimals", "t1.ratio-proportion"]
+applied-domains: ["databases", "ai-ml", "research"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Lesson 6 — Division as Fair Share](../06-divide-fair-share/index.qmd)?
+2. Can you compute $12 \div 4 = 3$ and $13 \div 4 = 3$ remainder 1?
+3. Have you ever cut a cake, a pizza, or a chapati into equal pieces?
+:::
+
+## Touch
+
+Drag to choose **how many equal pieces** to cut a circle into, and **how
+many** of those pieces to take.
+
+```{ojs}
+viewof denom = Inputs.range([1, 12], {value: 4, step: 1, label: "Cut into:"})
+```
+
+```{ojs}
+viewof numer = Inputs.range([0, 12], {value: 1, step: 1, label: "Take:"})
+```
+
+```{ojs}
+{
+  const W = 360, H = 360, cx = W/2, cy = H/2, r = 130;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:360px; display:block; margin: 0 auto;");
+  const taken = Math.min(numer, denom);
+  for (let i = 0; i < denom; i++) {
+    const a0 = -Math.PI/2 + 2 * Math.PI * i / denom;
+    const a1 = -Math.PI/2 + 2 * Math.PI * (i + 1) / denom;
+    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
+    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    const large = (a1 - a0) > Math.PI ? 1 : 0;
+    const path = `M ${cx},${cy} L ${x0},${y0} A ${r},${r} 0 ${large} 1 ${x1},${y1} Z`;
+    svg.append("path")
+      .attr("d", path)
+      .attr("fill", i < taken ? "#90caf9" : "#f5f5f5")
+      .attr("stroke", "#1f2933").attr("stroke-width", 1.5);
+  }
+  // Extra slice notation if numer > denom (improper)
+  return svg.node();
+}
+```
+
+```{ojs}
+{
+  const taken = Math.min(numer, denom);
+  return html`<div style="text-align:center; font-size:1.5rem; margin-top:0.5rem;">
+    <span style="font-family:monospace;">${taken} / ${denom}</span>
+    &nbsp;=&nbsp; "${taken} of ${denom} equal pieces"
+  </div>`;
+}
+```
+
+The number on top — how many pieces you took — is the **numerator**.
+The number on the bottom — how many pieces the whole was cut into — is
+the **denominator**.
+
+## Wonder
+
+1. Set the cut to 4, take 4. What did you take? Set the cut to 4, take
+   8. What does that even mean?
+2. Set the cut to 8, take 2. Then set the cut to 4, take 1. The shaded
+   region looks the same. Is there a relationship between $\tfrac{2}{8}$
+   and $\tfrac{1}{4}$?
+3. The number $\tfrac{1}{2}$ — where does it sit on the
+   [number line](../02-number-line/index.qmd)?
+
+## Discover
+
+### Problem 1
+
+You have **2 pizzas**. You want to share them between **3 friends**.
+What does each friend get?
+
+You can't give each friend a whole pizza (only 2 pizzas, 3 friends). You
+can't give them whole halves either (you'd have 4 halves but 3 friends).
+What's the right way to cut?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cut each pizza into 3 equal pieces. Now you have 6 pieces total. Share
+them.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Cut each pizza into 3 equal slices: that's 6 slices. Each friend gets 2
+slices. Each slice is **one third** of a pizza, so each friend gets **two
+thirds**, written
+$$\frac{2}{3}.$$
+
+This is the answer to "$2 \div 3$" — a number that *did not exist* in
+our system before fractions. Division now always has an answer; we just
+needed to invent the number to hold it.
+</details>
+
+### Problem 2
+
+Take a pie chart cut into **8** equal pieces and shade **2** of them.
+Now take a pie chart cut into **4** equal pieces and shade **1**. Is the
+shaded area the same?
+
+<details class="hint"><summary>Full solution</summary>
+**Yes — exactly the same.** Two-eighths and one-quarter cover the same
+fraction of the whole. They are different *names* for the same number:
+$$\frac{2}{8} = \frac{1}{4}.$$
+
+Multiplying or dividing both numerator and denominator by the same
+non-zero number gives an *equivalent fraction*. This is the same
+"different names for the same number" idea we met for whole numbers in
+[Lesson 1](../01-what-is-a-number/index.qmd).
+</details>
+
+### Problem 3
+
+What is **$\tfrac{1}{2} + \tfrac{1}{4}$** as a single fraction?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Imagine cutting a circle into 4 equal pieces. Half of it is **2** of
+those pieces. A quarter is **1**. So you have...
+</details>
+<details class="hint"><summary>Full solution</summary>
+Rewrite $\tfrac{1}{2}$ as $\tfrac{2}{4}$ (using the equivalence from
+*P2*). Now we are adding fractions with the *same denominator*:
+$$\frac{2}{4} + \frac{1}{4} = \frac{3}{4}.$$
+
+**Rule discovered:** to add fractions, first make the denominators the
+same; then add only the numerators.
+</details>
+
+### Problem 4
+
+What is **$\tfrac{3}{4}$ of $20$** sweets?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Of" usually means *multiplication*. $\tfrac{3}{4}$ of 20 means: split 20
+into 4 equal parts, take 3 of them.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Split 20 into 4 equal parts: $20 \div 4 = 5$ sweets in each part. Take 3
+parts: $3 \times 5 = 15$ sweets. So $\tfrac{3}{4}$ of $20 = 15$.
+
+This is also $\tfrac{3}{4} \times 20 = \tfrac{3 \times 20}{4} =
+\tfrac{60}{4} = 15$. **A fraction times a whole number** = (numerator ×
+whole) ÷ denominator.
+
+This is also where Multiplication-as-Area gets *generalised*: 0.75 of
+a strip — three-quarters of it — is $\tfrac{3}{4} \times \text{length}$.
+The rectangle picture survives even when the numbers are no longer whole.
+</details>
+
+### Problem 5
+
+Set the widget to "cut into 3, take 5". What does the picture look like?
+What does the *fraction* $\tfrac{5}{3}$ mean?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You've taken more pieces than fit in one whole circle. So the picture
+maxes out at "all shaded" — but the fraction $\tfrac{5}{3}$ still has a
+meaning.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{5}{3}$ means **5 thirds**, which is more than one whole (since
+$\tfrac{3}{3}$ is already one whole). Specifically, 5 thirds = 3 thirds
++ 2 thirds = $1 + \tfrac{2}{3} = 1\tfrac{2}{3}$.
+
+A fraction with numerator ≥ denominator is called **improper** and
+represents a number ≥ 1. We can write it either as $\tfrac{5}{3}$ or as
+the **mixed number** $1\tfrac{2}{3}$ — they are the same number.
+
+The widget had to cap at "fully shaded" because one circle holds at most
+3 thirds. To show $\tfrac{5}{3}$ honestly, we'd need a second circle.
+The fraction itself is undisturbed; the picture has its own limits.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **fraction** is written $\dfrac{p}{q}$ where $p$ is the **numerator**
+("how many parts") and $q$ is the **denominator** ("the size of each
+part: 1 of $q$ equal pieces of a whole"), with $q \neq 0$.
+
+The fraction $\dfrac{p}{q}$ *is* the answer to $p \div q$.
+
+Two fractions are **equivalent** if multiplying (or dividing) numerator
+and denominator by the same non-zero number gives one from the other:
+$$\frac{p}{q} = \frac{p \times k}{q \times k} \quad \text{for any } k \neq 0.$$
+
+To **add or subtract** fractions, first rewrite them with a common
+denominator, then add or subtract the numerators.
+
+To **multiply** $\dfrac{a}{b} \times \dfrac{c}{d}$, multiply numerators
+and denominators: $\dfrac{a \times c}{b \times d}$.
+
+:::
+
+> *Numerator on top — how many parts you have;*
+> *Denominator below — the size of each piece.*
+> *Common denominators must come first to add;*
+> *Multiply across to multiply.*
+
+## Apply
+
+### Worked example
+
+> Compute $\dfrac{2}{3} + \dfrac{1}{6}$.
+
+A competent solver finds a **common denominator** first.
+
+1. The denominators are 3 and 6. The smallest common multiple is 6.
+2. Rewrite $\tfrac{2}{3}$ with denominator 6: multiply top and bottom by
+   2 to get $\tfrac{4}{6}$.
+3. Now both fractions share the denominator 6:
+   $$\frac{4}{6} + \frac{1}{6} = \frac{5}{6}.$$
+
+**Answer:** $\dfrac{5}{6}$. Check by picture: cut a circle into 6
+pieces, shade 4 (which is two-thirds) and then 1 more — five out of six.
+
+### Practice — Warm
+
+**W1.** Write three fractions equivalent to $\dfrac{1}{2}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{2}{4}$, $\tfrac{3}{6}$, $\tfrac{50}{100}$ — multiply top and
+bottom by any non-zero number.
+</details>
+
+**W2.** Compute $\dfrac{3}{8} + \dfrac{2}{8}$ and $\dfrac{7}{10} -
+\dfrac{3}{10}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{5}{8}$ and $\tfrac{4}{10} = \tfrac{2}{5}$. With common
+denominators, add or subtract only the numerators.
+</details>
+
+**W3.** Find $\dfrac{2}{5}$ of 35.
+
+<details class="hint"><summary>Full solution</summary>
+$35 \div 5 = 7$, then $2 \times 7 = 14$.
+</details>
+
+### Practice — Working
+
+**P1.** Compute $\dfrac{1}{3} + \dfrac{1}{4}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Common denominator: smallest multiple of 3 and 4 is 12.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{3} = \tfrac{4}{12}$. $\tfrac{1}{4} = \tfrac{3}{12}$. Sum:
+$\tfrac{7}{12}$.
+</details>
+
+**P2.** Compute $\dfrac{2}{3} \times \dfrac{4}{5}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For multiplication: multiply across. No common denominator needed.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{2 \times 4}{3 \times 5} = \tfrac{8}{15}$.
+
+Picture (the rectangle returns): take a 1-by-1 square. Shade
+horizontally to $\tfrac{2}{3}$ of its height, vertically to $\tfrac{4}{5}$
+of its width. The doubly-shaded inner rectangle is $\tfrac{2}{3} \times
+\tfrac{4}{5} = \tfrac{8}{15}$ of the whole.
+</details>
+
+**P3.** Convert the improper fraction $\dfrac{17}{5}$ to a mixed number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is just division-with-remainder from
+[Lesson 6](../06-divide-fair-share/index.qmd).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$17 \div 5 = 3$ remainder $2$. So $\dfrac{17}{5} = 3\tfrac{2}{5}$. The
+quotient is the whole part; the remainder over the divisor is the
+fractional part.
+</details>
+
+### Practice — Stretch
+
+**S1.** What is $\dfrac{1}{2} \div \dfrac{1}{4}$? (How many quarters fit
+in one half?)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Picture a half-circle. How many quarter-circles do you need to cover the
+half-circle?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$\tfrac{1}{2} \div \tfrac{1}{4} = 2$** — two quarters fit in a half.
+
+The general rule: dividing by a fraction is the same as multiplying by
+its **reciprocal** (flip top and bottom):
+$$\frac{a}{b} \div \frac{c}{d} = \frac{a}{b} \times \frac{d}{c}.$$
+
+Here: $\tfrac{1}{2} \times \tfrac{4}{1} = \tfrac{4}{2} = 2$. ✓
+
+This is one reason fraction division feels strange: dividing by a
+*fraction less than 1* makes the result *bigger* than the original —
+contradicting the intuition from whole-number division.
+</details>
+
+**S2.** A database stores user ages and computes "the average age". The
+ages of three users are **22, 31, and 25**. What is the average? Is the
+answer always a whole number?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Average = total ÷ count. The count is 3.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Total: $22 + 31 + 25 = 78$. Count: 3. Average: $78 \div 3 = 26$.
+**26**.
+
+But not always whole: if the ages had been 22, 31, 26, the total would
+be 79, and $79 \div 3 = 26\tfrac{1}{3}$. Statistical computations almost
+always produce non-whole numbers — the average is a *summary* of the
+data, not necessarily a value that any individual user takes. We will
+unpack the average properly in
+[Lesson 14: Data and the Average](../14-data-and-average/index.qmd).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"To add fractions, add numerators and add denominators."** This is
+   wrong: $\tfrac{1}{2} + \tfrac{1}{2}$ would give $\tfrac{2}{4} =
+   \tfrac{1}{2}$ — but the answer is *one whole*, not a half. Common
+   denominators first; then add only the *top*.
+2. **"A bigger denominator means a bigger fraction."** No — bigger
+   denominator means *more pieces in the whole*, hence each piece is
+   *smaller*. $\tfrac{1}{8}$ is smaller than $\tfrac{1}{2}$.
+3. **"Dividing by a fraction always gives a smaller number."** As *S1*
+   showed, the opposite happens when the divisor is less than 1.
+:::
+
+### Self-Assessment
+
+1. Could you draw a picture showing why $\tfrac{2}{8}$ and $\tfrac{1}{4}$
+   are the same number?
+2. Without scrolling back, can you compute $\tfrac{1}{3} + \tfrac{1}{4}$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+- **3 yes:** ready for **[Lesson 8 — Decimals](../08-decimals/index.qmd)**.
+- **2 yes:** redo **S1** — fraction division is the most-mis-taught topic
+  in primary maths.
+- **0–1 yes:** re-read *Discover P2 and P3*.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 6 — Division as Fair Share](../06-divide-fair-share/index.qmd)** —
+  fractions are *exactly* the answer to division when the total doesn't
+  split evenly. We invented them to fill the gap left by remainders.
+
+### What this unlocks
+
+- **[Decimals](../08-decimals/index.qmd)** — decimals are fractions
+  whose denominators are powers of 10, written in place-value form.
+- **[Ratio and Proportion](../09-ratio-proportion/index.qmd)** —
+  $\tfrac{p}{q}$ also expresses "the ratio $p$ to $q$".
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** Fractions extend the natural numbers (Lesson
+1) into the **rational numbers** $\mathbb{Q}$ — the second great number
+system after $\mathbb{N}$. Tier 5 will revisit this construction
+formally and meet the *irrationals* (numbers like $\sqrt{2}$ or $\pi$
+that can't be written as fractions).
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Probabilities are fractions: "70% chance" is
+$\tfrac{7}{10}$. Loss functions are averages (fractions). Gradients are
+ratios of small changes. Most of ML's numerical machinery lives in the
+fraction world (and its decimal cousin).
+:::
+
+::: {.applied-callout}
+**Databases.** Aggregate queries (averages, percentages, ratios) all
+produce fractional answers. SQL's `AVG()` is a fraction. Data
+normalisation often divides each value by the maximum, producing values
+in $[0, 1]$ — pure fractions.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Recipe scaling, currency conversion, slope of a
+ramp, batting averages, taxi fares (per kilometre), interest rates —
+fractions are how the world parameterises *rate* and *proportion*.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the pie-chart widget — a
+  centuries-old fraction manipulative made interactive), Boole (the
+  Wonder questions surface equivalence and improper fractions before
+  naming), Russian school (P2 forces equivalence, P5 forces improper
+  fractions), Bhāskara (single-box Name + verse). Bhāskara's *Līlāvatī*
+  itself contains some of the most beautifully phrased fraction
+  problems in mathematical history.
+- **Self-study guarantees** all present.
+:::
