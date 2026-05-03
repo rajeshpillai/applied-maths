@@ -1,0 +1,364 @@
+---
+title: "07 · Related Rates and Linear Approximation"
+subtitle: "Two interlocking applications of the chain rule"
+lesson-id: "t4.related-rates"
+tier: 4
+prerequisites: ["t4.differentiation-rules"]
+unlocks: []
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [04 · Differentiation Rules](../04-differentiation-rules/index.qmd)?
+2. Comfortable with the chain rule
+   $\dfrac{d}{dx}[f(g(x))] = f'(g(x)) g'(x)$?
+3. Comfortable with implicit-equation reasoning?
+:::
+
+## Touch
+
+Two related quantities (e.g., the radius and the area of a growing
+circle). When one changes, the other does too — at a *related rate*.
+
+```{ojs}
+viewof rNow = Inputs.range([1, 10], {value: 5, step: 0.5, label: "Radius (cm):"})
+viewof drDt = Inputs.range([0.1, 3], {value: 1, step: 0.1, label: "dr/dt (cm/s):"})
+```
+
+```{ojs}
+{
+  // Area = πr², so dA/dt = 2πr · dr/dt
+  const dAdt = 2 * Math.PI * rNow * drDt;
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.2rem;">
+      A(t) = π · r(t)² &nbsp; → &nbsp;
+      <strong style="color:#c2185b;">dA/dt = 2π·r·(dr/dt) = ${dAdt.toFixed(2)} cm²/s</strong>
+    </div>
+    <div style="margin-top:0.5rem; color:#666;">
+      With radius ${rNow} cm growing at ${drDt} cm/s, area grows at ${dAdt.toFixed(2)} cm²/s.
+    </div>
+  </div>`;
+}
+```
+
+When two quantities are related by an equation, their **rates of
+change** are related too. Differentiate the equation; the rates fall
+out.
+
+## Wonder
+
+1. As a balloon inflates, the radius grows at 1 cm/s. Is the area
+   growing at the same constant rate?
+2. The chain rule connects $dA/dt$ to $dr/dt$ via $dA/dr$. How?
+3. Linear approximation: near $x = 9$, $\sqrt{x} \approx 3 + (x - 9)/6$.
+   Why?
+
+## Discover
+
+### Problem 1
+
+A spherical balloon's radius grows at 0.5 cm/s. How fast is the
+**volume** growing when $r = 10$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$V = \tfrac{4}{3} \pi r^3$. Differentiate both sides with respect to
+$t$ (treating $r$ as $r(t)$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{dV}{dt} = 4 \pi r^2 \cdot \dfrac{dr}{dt}$.
+
+At $r = 10$ and $dr/dt = 0.5$: $\dfrac{dV}{dt} = 4 \pi \cdot 100 \cdot
+0.5 = 200 \pi \approx 628.3$ cm³/s.
+
+The chain rule turns "rate of $V$ with respect to $r$" times "rate
+of $r$ with respect to $t$" into "rate of $V$ with respect to $t$."
+</details>
+
+### Problem 2
+
+A 5-m ladder leans against a wall. The base slides away at 0.3 m/s.
+When the base is 3 m from the wall, **how fast is the top sliding
+down?**
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $x$ = distance from wall, $y$ = height up wall. Pythagoras: $x^2
++ y^2 = 25$. Differentiate w.r.t. $t$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2x \dfrac{dx}{dt} + 2y \dfrac{dy}{dt} = 0 \Rightarrow \dfrac{dy}{dt}
+= -\dfrac{x}{y} \dfrac{dx}{dt}$.
+
+At $x = 3$: $y = \sqrt{25 - 9} = 4$. So $\dfrac{dy}{dt} = -\dfrac{3}{4}
+\cdot 0.3 = -0.225$ m/s.
+
+**Top slides down at 0.225 m/s.** Negative because $y$ decreases.
+
+(Notice the ladder's *base speed* is constant, but the *top speed*
+changes with position — and accelerates as the base nears the wall.)
+</details>
+
+### Problem 3
+
+**Linear approximation.** Near $x = a$, $f(x) \approx f(a) + f'(a)(x -
+a)$ — the **tangent line** at $a$.
+
+Use this to approximate $\sqrt{4.1}$ near $a = 4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(x) = \sqrt{x}, f'(x) = 1/(2\sqrt{x})$. At $a = 4$: $f(4) = 2,
+f'(4) = 1/4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{4.1} \approx 2 + (1/4)(4.1 - 4) = 2 + 0.025 = 2.025$.
+
+(True value: $2.02485\ldots$. Approximation error $\approx 0.0001$.)
+
+Linear approximation = "use the tangent line as a stand-in for $f$
+near $a$." Excellent for small departures from a known value.
+</details>
+
+### Problem 4
+
+**Differentials.** $df = f'(x) dx$ — a "small change in $f$" given a
+"small change in $x$."
+
+If $f(x) = x^2$ and $x$ changes from $5$ to $5.01$, estimate $df$.
+
+<details class="hint"><summary>Full solution</summary>
+$df = 2x \cdot dx = 2 \cdot 5 \cdot 0.01 = 0.1$.
+
+So $f(5.01) \approx f(5) + 0.1 = 25.1$. (True: $25.1001$.)
+
+Differentials are linear approximations dressed in *infinitesimal*
+notation — the language Leibniz preferred. They make sense
+rigorously as limits.
+</details>
+
+### Problem 5
+
+A cone-shaped tank has water depth $h$ and radius (at water level) $r
+= h/3$ (so $r/h = 1/3$). Water flows in at 2 m³/min. **How fast is the
+water level rising** when $h = 6$ m?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$V = \tfrac{1}{3} \pi r^2 h = \tfrac{1}{3} \pi (h/3)^2 h = \pi h^3/27$.
+Differentiate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{dV}{dt} = \dfrac{\pi h^2}{9} \dfrac{dh}{dt}$.
+
+At $h = 6$: $\dfrac{dV}{dt} = \dfrac{\pi \cdot 36}{9} \dfrac{dh}{dt}
+= 4\pi \dfrac{dh}{dt}$.
+
+Set equal to 2: $4 \pi \dfrac{dh}{dt} = 2 \Rightarrow \dfrac{dh}{dt} =
+\dfrac{1}{2 \pi} \approx 0.159$ m/min.
+
+**Water rises at $\approx 0.16$ m/min when 6 m deep.** As the cone
+gets wider higher up, the level rises *more slowly* for the same
+inflow rate.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Related rates strategy:**
+
+1. Sketch the situation; label variables.
+2. Identify the constraint equation linking the variables.
+3. Differentiate both sides w.r.t. *time* (chain rule everywhere).
+4. Substitute known values and rates.
+5. Solve for the unknown rate.
+
+**Linear approximation** of $f$ near $a$:
+$$L(x) = f(a) + f'(a)(x - a) \approx f(x) \quad \text{(for $x$ near $a$)}.$$
+
+**Differential** notation: $df = f'(x) dx$. Used heavily in physics and
+engineering — the idea is "infinitesimal change."
+
+Linear approximation = first-order Taylor approximation. **Higher-
+order Taylor series** (Tier 4 / Tier 5+) extend this to better
+approximations.
+
+:::
+
+> *Related rates: differentiate the constraint equation w.r.t. time;*
+> *Linear approximation: tangent line as a stand-in near a known point;*
+> *Differentials: $df = f'(x) dx$ — infinitesimal language.*
+
+## Apply
+
+### Worked example
+
+> A 6-foot person walks at 4 ft/s away from a 20-foot lamppost. **How
+> fast is the tip of their shadow moving?**
+
+Variables: $x$ = person's distance from post, $s$ = shadow length.
+Similar triangles: $20/6 = (x + s)/s \Rightarrow 20 s = 6(x + s)
+\Rightarrow 14 s = 6 x \Rightarrow s = 3x/7$.
+
+Tip of shadow's distance from post: $x + s = x + 3x/7 = 10x/7$.
+
+$\dfrac{d(x + s)}{dt} = \dfrac{10}{7} \dfrac{dx}{dt} = \dfrac{10}{7}
+\cdot 4 = \dfrac{40}{7} \approx 5.71$ ft/s.
+
+**Tip moves at about 5.71 ft/s.** Notably *faster* than the person.
+
+### Practice — Warm
+
+**W1.** A cube's side grows at 1 cm/s. Rate of volume growth when side
+is 5 cm?
+
+<details class="hint"><summary>Full solution</summary>
+$V = s^3, dV/dt = 3 s^2 \cdot ds/dt = 75$ cm³/s.
+</details>
+
+**W2.** Linearly approximate $\sqrt{16.2}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{16.2} \approx 4 + 0.2/(2 \cdot 4) = 4.025$. (True: $4.0249\ldots$.)
+</details>
+
+**W3.** $f(x) = x^3$. $df$ when $x = 2, dx = 0.1$?
+
+<details class="hint"><summary>Full solution</summary>
+$df = 3 x^2 dx = 12 \cdot 0.1 = 1.2$.
+</details>
+
+### Practice — Working
+
+**P1.** A circle's radius grows at 2 mm/s. Rate of area growth when
+$r = 10$ mm?
+
+<details class="hint"><summary>Full solution</summary>
+$dA/dt = 2 \pi r \cdot dr/dt = 40 \pi \approx 125.66$ mm²/s.
+</details>
+
+**P2.** Linearly approximate $\sin(0.1)$ near $a = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(0) = 0, f'(0) = \cos 0 = 1$. So $\sin x \approx x$ near 0.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin(0.1) \approx 0.1$. (True: $0.0998\ldots$.) The "small angle
+approximation" $\sin x \approx x$ is widely used in physics.
+</details>
+
+**P3.** A 13-foot ladder leans against a wall, base 5 ft out (top is
+$\sqrt{169 - 25} = 12$ ft up). The base slides at 2 ft/s away. Top's
+speed?
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 + y^2 = 169 \Rightarrow 2x \cdot dx/dt + 2y \cdot dy/dt = 0
+\Rightarrow dy/dt = -(x/y) \cdot dx/dt = -(5/12)(2) = -5/6$ ft/s
+($\approx -0.83$).
+
+The top slides down at $\approx 0.83$ ft/s.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Newton's method as a linearisation argument.** To find a
+root of $f$, replace $f$ near current guess $x_n$ by its linear
+approximation $L(x) = f(x_n) + f'(x_n)(x - x_n)$. Find where $L(x) =
+0$. Show this gives Newton's update $x_{n+1} = x_n - f(x_n)/f'(x_n)$.
+
+<details class="hint"><summary>Full solution</summary>
+$L(x) = 0 \Rightarrow f(x_n) + f'(x_n)(x - x_n) = 0 \Rightarrow x =
+x_n - f(x_n)/f'(x_n)$.
+
+So **Newton's method** finds where the *tangent line* hits zero — and
+uses that as the next guess. Iterating shrinks the error quadratically
+(when convergent).
+
+This insight — *use the linear approximation in place of the
+function* — pervades numerical analysis. Many algorithms are
+"locally linearise, solve, iterate."
+</details>
+
+**S2.** **Derivative-as-sensitivity.** A neural network output $\hat y$
+depends on weight $w$ via $\hat y = f(w)$. The derivative $\partial
+\hat y / \partial w$ tells you the **sensitivity** of the output to a
+small weight change. Why is this critical for ML interpretation?
+
+<details class="hint"><summary>Full solution</summary>
+**Sensitivity → importance.** Weights with large $|\partial \hat y /
+\partial w|$ are influential — small wiggles change the output
+significantly. Weights with small sensitivity are safe to *prune*
+(remove) without much accuracy loss. Modern ML uses derivative
+analysis for:
+
+- **Network pruning** (removing low-sensitivity weights to compress
+  models).
+- **Adversarial examples** (small input changes that maximally fool
+  the network — found by following the gradient).
+- **Saliency maps** (which input pixels most affect the output —
+  visualised by gradient magnitudes).
+
+Linear approximation, applied at scale, is the foundation of
+*interpretable AI*.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Just plug in the values to differentiate."** No — *first*
+   differentiate the equation, *then* substitute the values. Plugging
+   too early loses the variable's time-dependence.
+2. **"Linear approximation is exact."** It's an approximation —
+   exact only at the point of tangency. Error grows with distance.
+3. **"$dx$ is a small number."** It's a formal *symbol* in differential
+   notation; rigorously, it represents an infinitesimal limit. Don't
+   try to assign it a numeric value alone.
+:::
+
+### Self-Assessment
+
+1. Could you set up a related-rates problem from a word description?
+2. Without scrolling back, can you linearly approximate $\sqrt{25.5}$
+   near $a = 25$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $5 + 0.5/(2 \cdot 5) = 5.05$.)
+
+- **3 yes:** ready for **[08 · Definite Integral](../08-definite-integral/index.qmd)**.
+- **2 yes:** redo **S1** (Newton as linearisation).
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[04 · Differentiation Rules](../04-differentiation-rules/index.qmd)** —
+  chain rule is the engine.
+
+### What this unlocks
+
+- **Tier 5 — Multivariable Calculus** — partial derivatives extend
+  related rates to many variables; gradients generalise linear
+  approximation.
+- **Tier 6 — Numerical Methods** — root finding, optimisation,
+  iterative methods built on linear approximation.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Sensitivity analysis (S2) drives model
+interpretability, pruning, adversarial robustness.
+:::
+
+::: {.applied-callout}
+**Engineering & physics.** Related rates are the standard tool for
+modelling coupled time-varying systems: tank flow, projectile motion,
+electrical circuits, chemical reactions.
+:::
+
+::: {.applied-callout}
+**Numerical computing.** Newton's method (S1) is the workhorse
+root-finder in scientific computing — solvers for nonlinear
+equations everywhere from physics simulations to finance.
+:::
