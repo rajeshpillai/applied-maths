@@ -1,0 +1,346 @@
+---
+title: "12 · Fourier Series"
+subtitle: "Every periodic function is a sum of sines and cosines"
+lesson-id: "t6.fourier-series"
+tier: 6
+prerequisites: ["t5.sequences-series-convergence", "t3.unit-circle"]
+unlocks: ["t6.fourier-transform"]
+applied-domains: ["research", "ai-ml", "systems"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L14 — Convergence](../../tier-5-undergrad-core/14-sequences-series-convergence/index.qmd)
+   and [T3 L08 — Unit Circle](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd)?
+2. Comfortable with $\sin, \cos$ and Euler's $e^{i\theta}$?
+3. Recall that periodic functions repeat: $f(x + T) = f(x)$.
+:::
+
+## Touch
+
+A **Fourier series** decomposes a periodic function $f$ of period
+$2\pi$ into a sum of sines and cosines:
+$$f(x) = \dfrac{a_0}{2} + \sum_{n=1}^\infty (a_n \cos nx + b_n \sin nx).$$
+
+```{ojs}
+viewof fsSel = Inputs.select(["square wave: only odd sines (1, 3, 5, ...)", "sawtooth wave: alternating sines", "triangle wave: odd cosines decaying as 1/n²", "f(x) = x on [−π, π]: pure sines"], {value: "square wave: only odd sines (1, 3, 5, ...)", label: "Wave:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(fsSel) {
+    case "square wave: only odd sines (1, 3, 5, ...)": info = "f(x) = (4/π) Σ sin((2k+1)x)/(2k+1) for k = 0, 1, 2, ... Coefficients decay as 1/n. Slow convergence; Gibbs phenomenon at jumps."; break;
+    case "sawtooth wave: alternating sines": info = "f(x) = 2 Σ (−1)^(n+1) sin(nx)/n for n = 1, 2, ... 1/n decay. Discontinuous at endpoints."; break;
+    case "triangle wave: odd cosines decaying as 1/n²": info = "Decays as 1/n²: faster convergence than discontinuous waves. Continuous but not smooth."; break;
+    case "f(x) = x on [−π, π]: pure sines": info = "Antisymmetric: only sines. b_n = 2(−1)^(n+1)/n. Approximates the line via sinusoids."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why can *any* periodic function be written as sines and cosines?
+2. The coefficients $a_n, b_n$ — how do you compute them?
+3. How fast does the series converge? (Smoother $f$ → faster
+   convergence.)
+:::
+
+## Discover
+
+### Problem 1
+
+The **Fourier coefficients** for $f$ on $[-\pi, \pi]$:
+$$a_n = \dfrac{1}{\pi} \int_{-\pi}^\pi f(x) \cos(nx) \, dx, \quad b_n = \dfrac{1}{\pi} \int_{-\pi}^\pi f(x) \sin(nx) \, dx.$$
+
+Compute $a_0$ for $f(x) = x$ on $[-\pi, \pi]$.
+
+<details class="hint"><summary>Full solution</summary>
+$a_0 = \dfrac{1}{\pi} \int_{-\pi}^\pi x \, dx = 0$ (odd function over
+symmetric interval).
+
+So $f$ has no constant term. Symmetry helps: odd functions have only
+sines, even functions only cosines.
+</details>
+
+### Problem 2
+
+For $f(x) = x$ on $[-\pi, \pi]$, compute $b_n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$b_n = \dfrac{1}{\pi} \int_{-\pi}^\pi x \sin(nx) \, dx$. Integrate by
+parts.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int x \sin(nx) dx = -x \cos(nx)/n + \sin(nx)/n^2$. Evaluate
+$[-\pi, \pi]$:
+$= -\pi \cos(n\pi)/n + \sin(n\pi)/n^2 - (\pi \cos(-n\pi)/n - \sin(-n\pi)/n^2)$
+$= -2\pi (-1)^n / n + 0 = 2\pi (-1)^{n+1} / n$.
+
+Divide by $\pi$: $b_n = 2(-1)^{n+1}/n$.
+
+So $f(x) = x = \sum 2(-1)^{n+1} \sin(nx)/n = 2 \sin x - \sin 2x +
+(2/3) \sin 3x - \ldots$
+
+The line $y = x$ is a sum of sines!
+</details>
+
+### Problem 3
+
+The **complex form** is much cleaner. Define $c_n = \dfrac{1}{2\pi}
+\int_{-\pi}^\pi f(x) e^{-inx} \, dx$. Then
+$$f(x) = \sum_{n = -\infty}^\infty c_n e^{inx}.$$
+
+This is just the same series with $\cos, \sin \to e^{\pm i n x}$ via
+Euler's formula.
+
+Compute $c_n$ for $f(x) = e^{ix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$c_n = \dfrac{1}{2\pi} \int_{-\pi}^\pi e^{ix} e^{-inx} dx = \dfrac{1}{2\pi}
+\int e^{i(1-n)x} dx$. For $n = 1$: integrand is 1, integral is
+$2\pi$, $c_1 = 1$. For $n \neq 1$: integrand is $e^{i(1-n)x}$,
+integral is 0.
+
+So $c_n = \delta_{n, 1}$ — only $c_1 = 1$. Hence $f = c_1 e^{ix} =
+e^{ix}$ ✓.
+
+The complex Fourier series exhibits **orthogonality**: $\{e^{inx}\}$
+are an orthonormal basis for periodic $L^2$ functions.
+</details>
+
+### Problem 4
+
+**Parseval's theorem** (energy conservation):
+$$\dfrac{1}{2\pi} \int_{-\pi}^\pi |f(x)|^2 \, dx = \sum_n |c_n|^2.$$
+
+Verify for $f(x) = \cos x$ (so $c_1 = c_{-1} = 1/2$, others 0).
+
+<details class="hint"><summary>Full solution</summary>
+LHS: $\dfrac{1}{2\pi} \int \cos^2 x \, dx = 1/2$.
+
+RHS: $|1/2|^2 + |1/2|^2 = 1/2$ ✓.
+
+**Energy in the function = sum of squared coefficients.** A
+generalisation of Pythagoras to function spaces.
+</details>
+
+### Problem 5
+
+**Convergence rates.** For $f$ smooth, $|c_n|$ decays *faster* than
+any polynomial in $1/n$. For $f$ with jumps: $|c_n| \sim 1/n$.
+
+What does this say about *Fourier compression*?
+
+<details class="hint"><summary>Full solution</summary>
+**Smooth signals compress well** (truncate after few terms; small
+error). Discontinuous signals don't (need many terms).
+
+**JPEG image compression** uses the Discrete Cosine Transform (a
+Fourier cousin) on 8×8 blocks: smooth blocks → few coefficients
+(small file). The mathematics of L12 → multi-billion-dollar
+compression industry.
+
+**MP3 audio:** Fourier-style decomposition into frequency components.
+Drop inaudible coefficients → small file.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **periodic function** $f$ of period $2\pi$ has a **Fourier series**
+$$f(x) = \dfrac{a_0}{2} + \sum_{n=1}^\infty (a_n \cos nx + b_n \sin nx)$$
+with coefficients
+$$a_n = \dfrac{1}{\pi} \int_{-\pi}^\pi f(x) \cos(nx) \, dx, \quad
+b_n = \dfrac{1}{\pi} \int_{-\pi}^\pi f(x) \sin(nx) \, dx.$$
+
+**Complex form:**
+$$f(x) = \sum_{n = -\infty}^\infty c_n e^{inx}, \quad c_n =
+\dfrac{1}{2\pi} \int_{-\pi}^\pi f(x) e^{-inx} \, dx.$$
+
+**Convergence:** for piecewise smooth $f$, the series converges
+pointwise to $f$ (and to the average at jumps).
+
+**Parseval:** $\dfrac{1}{2\pi} \int |f|^2 \, dx = \sum |c_n|^2$ —
+energy conservation.
+
+**Symmetry:**
+
+- Even $f$: only cosines.
+- Odd $f$: only sines.
+
+**Gibbs phenomenon:** truncated Fourier series at jumps overshoots by
+~9% — never goes away with more terms.
+
+**Discrete Fourier Transform (DFT):** discretised version, computed
+efficiently by FFT in $O(n \log n)$.
+
+:::
+
+> *Periodic = sum of sines and cosines (Fourier);*
+> *Coefficients via integration; energy conservation (Parseval);*
+> *Smoother signals compress better.*
+
+## Apply
+
+### Worked example
+
+> Show the Fourier series of $f(x) = |x|$ on $[-\pi, \pi]$ has only
+> cosine terms (and a constant).
+
+$|x|$ is *even* (symmetric around 0). Hence $b_n = 0$ for all $n$
+(integrand $|x| \sin nx$ is odd).
+
+So $f(x) = a_0/2 + \sum a_n \cos(nx)$. Compute coefficients via
+integration by parts.
+
+### Practice — Warm
+
+**W1.** Period of $\sin(2x)$?
+
+<details class="hint"><summary>Full solution</summary>
+$\pi$.
+</details>
+
+**W2.** Even or odd: $f(x) = x^2$?
+
+<details class="hint"><summary>Full solution</summary>
+Even.
+</details>
+
+**W3.** Fourier series of $f(x) = 5$ (constant) on $[-\pi, \pi]$?
+
+<details class="hint"><summary>Full solution</summary>
+$f(x) = 5$. $a_0 = 10$, $a_n = b_n = 0$ for $n \ge 1$. So series is
+just the constant 5. ✓
+</details>
+
+### Practice — Working
+
+**P1.** $f(x) = \sin x + 3 \sin 2x + 2 \cos 5x$. Identify $a_5, b_1,
+b_2$.
+
+<details class="hint"><summary>Full solution</summary>
+$a_5 = 2, b_1 = 1, b_2 = 3$. Others zero.
+</details>
+
+**P2.** Fourier series of $f(x) = \sin^2 x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin^2 x = (1 - \cos 2x)/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f = 1/2 - (1/2) \cos 2x$. So $a_0 = 1, a_2 = -1/2$, others zero.
+**Already a finite Fourier series.**
+</details>
+
+**P3.** Why does an even function have no sine coefficients?
+
+<details class="hint"><summary>Full solution</summary>
+$f$ even, $\sin$ odd → $f \sin$ odd → integral over symmetric
+interval is 0.
+</details>
+
+### Practice — Stretch
+
+**S1.** **The Discrete Fourier Transform (DFT).** Given $N$ samples
+$x_0, \ldots, x_{N-1}$:
+$$X_k = \sum_{n=0}^{N-1} x_n e^{-2\pi i kn/N}.$$
+
+The **Fast Fourier Transform (FFT)** computes this in $O(N \log N)$
+instead of $O(N^2)$. Why is this revolutionary?
+
+<details class="hint"><summary>Full solution</summary>
+**FFT (Cooley-Tukey, 1965)** is one of the most important algorithms
+in computing. For $N = 10^6$: $N^2 = 10^{12}$ ops vs $N \log N
+\approx 2 \cdot 10^7$ ops — **50000× faster**.
+
+Applications enabled: digital audio processing (DSP), image
+compression (JPEG), seismic analysis, MRI reconstruction, OFDM
+(modern wireless: 4G, 5G, Wi-Fi).
+
+A sub-percent of CS researchers can claim an algorithm with this
+much real-world impact. FFT belongs to that elite list.
+</details>
+
+**S2.** **Why are convolutional neural networks called "convolutional"?**
+The convolution operation is closely tied to Fourier transforms.
+
+<details class="hint"><summary>Full solution</summary>
+**Convolution theorem:** convolution in the time/space domain equals
+multiplication in the frequency domain (and vice versa).
+
+CNNs apply *learned* convolution filters across an image. Each
+filter detects a feature (edge, blob, etc.). The Fourier perspective:
+filters are *learned spectral selectors*.
+
+Modern computer vision works because:
+1. Convolution exploits translational symmetry (Tier 6 L03 group
+   actions).
+2. Fourier theory gives compact representations (CNNs avoid
+   transmitting all pixels).
+
+Group convolutions (Tier 7) generalise to other symmetry groups
+(rotation, scaling).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Fourier needs sinusoidal data."** No — *any* periodic function
+   decomposes into sinusoids.
+2. **"Convergence is automatic."** Subtle issues — Gibbs phenomenon,
+   conditional vs uniform convergence. Tier 7 functional analysis
+   resolves carefully.
+3. **"DFT and FFT are the same."** DFT is the *transformation*; FFT
+   is the *fast algorithm* to compute it.
+:::
+
+### Self-Assessment
+
+1. Could you explain why even functions have only cosine
+   coefficients?
+2. Without scrolling back, what does Parseval's theorem state?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $\frac{1}{2\pi} \int |f|^2 = \sum |c_n|^2$.)
+
+- **3 yes:** ready for **[13 · Fourier Transform](../13-fourier-transform/index.qmd)**.
+- **2 yes:** redo **S1** (FFT).
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L14 — Convergence](../../tier-5-undergrad-core/14-sequences-series-convergence/index.qmd)**
+- **[T3 L08 — Unit Circle](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd)**
+
+### What this unlocks
+
+- **[13 · Fourier Transform](../13-fourier-transform/index.qmd)**
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** CNNs (S2). Spectral analysis of neural
+networks. Transformers' positional encodings use Fourier features.
+:::
+
+::: {.applied-callout}
+**Engineering.** DSP, audio (MP3), image (JPEG), video (MPEG).
+Wireless (OFDM). Radar, MRI.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Fourier analysis is *the* tool for
+periodic and quasi-periodic phenomena. Generalises to harmonic
+analysis on groups.
+:::
