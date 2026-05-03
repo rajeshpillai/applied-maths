@@ -1,0 +1,367 @@
+---
+title: "07 · Differential Geometry — Manifolds, Curvature, Geodesics"
+subtitle: "The local geometry of curved spaces — and why it underpins relativity, robotics, and graphics."
+lesson-id: "t7.differential-geometry"
+tier: 7
+prerequisites: ["t5.partial-derivatives", "t6.complex-functions"]
+unlocks: []
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L11 — Partial Derivatives](../../tier-5-undergrad-core/11-partial-derivatives/index.qmd)?
+2. Comfortable with parametric curves $\mathbf{r}(t)$ and surfaces $\mathbf{r}(u, v)$?
+3. Recall: dot product, cross product, Jacobian.
+:::
+
+## Touch
+
+A sphere is curved; a flat sheet is not. **How would you measure
+curvature without leaving the surface?** (i.e., as an ant on the
+surface.)
+
+```{ojs}
+viewof curveSurface = Inputs.select(["Plane (κ = 0)", "Sphere of radius R", "Saddle (κ < 0)", "Cylinder"], {value: "Sphere of radius R", label: "Surface:"})
+```
+
+```{ojs}
+{
+  let info, curvature;
+  switch(curveSurface) {
+    case "Plane (κ = 0)": info = "Zero Gaussian curvature. Triangle angles sum to 180°."; curvature = "K = 0"; break;
+    case "Sphere of radius R": info = "Constant positive curvature 1/R². Triangle angles sum to > 180°."; curvature = "K = 1/R²"; break;
+    case "Saddle (κ < 0)": info = "Negative curvature. Triangle angles sum to < 180°."; curvature = "K < 0"; break;
+    case "Cylinder": info = "Zero curvature (intrinsically flat) — you can unroll it!"; curvature = "K = 0"; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.1rem; color:#1a237e;">${curvature}</div>
+    <div style="font-family:monospace; font-size:0.95rem; color:#444;">${info}</div>
+  </div>`;
+}
+```
+
+A 2D being on a cylinder cannot tell they're curved. On a sphere they
+can — by walking a closed triangle and measuring its angle sum.
+
+## Wonder
+
+1. A **smooth manifold** is a space that locally looks like $\mathbb{R}^n$
+   but globally has shape.
+2. **Tangent space** at a point: the linear approximation. Vectors
+   "live" here.
+3. **Riemannian metric:** how to measure distances and angles
+   *intrinsically*.
+4. **Curvature** quantifies how much it deviates from flat.
+
+## Discover
+
+### Problem 1
+
+A **smooth manifold** $M$ of dimension $n$: a topological space with
+charts $\phi_\alpha : U_\alpha \to \mathbb{R}^n$ that overlap smoothly.
+
+For the sphere $S^2$, two charts suffice: stereographic projection
+from the north pole and from the south pole. Show their overlap is
+smooth.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Stereographic from north: $(x, y, z) \mapsto (X, Y) = (x, y) / (1 - z)$.
+Stereographic from south: $(x, y, z) \mapsto (X', Y') = (x, y) / (1 + z)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The overlap is $S^2 \setminus \{N, S\}$. Composition:
+$$
+(X', Y') \mapsto (x, y, z) \mapsto (X, Y) = \frac{(X', Y')}{X'^2 + Y'^2}.
+$$
+The "inversion" map — smooth on the punctured plane (no pole at 0
+since $X'^2 + Y'^2 > 0$).
+
+So $S^2$ is a smooth 2-manifold.
+</details>
+
+### Problem 2
+
+The **tangent space** $T_p M$ at $p \in M$ is the set of velocities of
+curves through $p$. It's a vector space of dimension $n$.
+
+For the sphere $S^2$: what's $T_p S^2$ for $p = (1, 0, 0)$?
+
+<details class="hint"><summary>Full solution</summary>
+$T_{(1,0,0)} S^2 = \{v \in \mathbb{R}^3 : v \cdot (1, 0, 0) = 0\} =
+\{(0, v_2, v_3)\}$ — the $yz$-plane.
+
+In general, $T_p S^2$ = plane perpendicular to $p$ — what you'd
+intuitively call "tangent."
+</details>
+
+### Problem 3
+
+A **Riemannian metric** $g$ assigns to each tangent space an inner
+product. On $\mathbb{R}^n$: usually the standard dot product.
+
+For the sphere $S^2$ with parameters $(\theta, \varphi)$ (latitude,
+longitude), the induced metric is
+$$
+g = d\theta^2 + \sin^2\theta \, d\varphi^2.
+$$
+What's the length of a curve $\theta = \pi/2$ (equator), from $\varphi
+= 0$ to $\varphi = 2\pi$?
+
+<details class="hint"><summary>Full solution</summary>
+Length $= \int_0^{2\pi} \sqrt{g(\dot c, \dot c)} \, d\varphi = \int_0^{2\pi} \sin(\pi/2)\, d\varphi = 2\pi$.
+
+For unit-radius sphere: equator length is $2\pi$ — matches Euclidean
+intuition. For a parallel at $\theta = \pi/4$: length $= 2\pi
+\sin(\pi/4) = \pi\sqrt{2}$.
+</details>
+
+### Problem 4
+
+A **geodesic** is the curve that locally minimises length — straightest
+possible path on a manifold.
+
+What are the geodesics on a sphere? On a flat plane?
+
+<details class="hint"><summary>Full solution</summary>
+**Sphere:** great circles. Equator, meridians.
+
+**Plane:** straight lines.
+
+Geodesics solve the **geodesic equation:**
+$$
+\ddot{x}^k + \Gamma^k_{ij} \dot{x}^i \dot{x}^j = 0,
+$$
+where $\Gamma$ are Christoffel symbols (encode the metric's
+derivatives). Forms an ODE — local existence + uniqueness.
+</details>
+
+### Problem 5
+
+**Gaussian curvature** $K$ of a surface is **intrinsic** —
+computable from the metric alone (Theorema Egregium, Gauss).
+
+For a sphere of radius $R$: $K = 1/R^2$. For a plane: $K = 0$. For a
+saddle: $K < 0$.
+
+Why is "intrinsic" a deep fact?
+
+<details class="hint"><summary>Full solution</summary>
+**Theorema Egregium** (Gauss, 1827): An ant on the surface, never
+leaving it, can compute $K$ from how distances and angles behave
+locally — *without* embedding into 3D space.
+
+Hence: a flat sheet of paper rolled into a cylinder has $K = 0$
+(rolling doesn't stretch). But you can never wrap a sphere onto a
+plane *without* distortion (their $K$ differ).
+
+This is why **all flat maps of the Earth distort.** The deep cause of
+mapmaker's frustration.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Smooth manifold $M^n$:** topological space with smooth charts to
+$\mathbb{R}^n$ with smooth transition maps.
+
+**Tangent space $T_p M$:** $n$-dim vector space of velocities at $p$.
+
+**Tangent bundle $TM$:** disjoint union $\bigsqcup_p T_p M$.
+
+**Riemannian metric $g$:** smoothly varying inner product on $T_p M$.
+
+**Length of curve:** $L(\gamma) = \int \sqrt{g(\dot\gamma, \dot\gamma)} \, dt$.
+
+**Geodesic:** locally length-minimising; solves $\ddot x^k + \Gamma^k_{ij}
+\dot x^i \dot x^j = 0$.
+
+**Christoffel symbols** $\Gamma^k_{ij}$: derivatives of $g$.
+
+**Levi-Civita connection** $\nabla$: unique torsion-free metric-
+compatible covariant derivative.
+
+**Riemann curvature tensor** $R^l_{ijk}$: full curvature info.
+
+**Gaussian curvature** (2D): $K = R_{1212}/\det g$. **Intrinsic** by
+Theorema Egregium.
+
+**Sectional / Ricci / scalar curvature:** higher-dim refinements.
+
+**Gauss-Bonnet theorem:** $\int_M K \, dA = 2\pi \chi(M)$ — links
+geometry (curvature) to topology (Euler characteristic).
+
+:::
+
+> *Manifold = locally flat globally curved;*
+> *Metric measures lengths intrinsically;*
+> *Geodesics are straight lines for the curved;*
+> *Curvature: K from g alone (Gauss).*
+
+## Apply
+
+### Worked example
+
+> **Spherical pendulum.** A pendulum swinging on a sphere $S^2$.
+> Lagrangian:
+> $$L = \tfrac{1}{2} g_{ij} \dot q^i \dot q^j - V(q).$$
+
+Equations of motion = geodesics in (configuration manifold, metric =
+kinetic energy).
+
+For $V = 0$: motion is along great circles. For $V = -gz$: pendulum
+oscillation perturbs the geodesic.
+
+This is **Lagrangian mechanics** in geometric form — a workhorse of
+robotics, classical mechanics, and physics.
+
+### Practice — Warm
+
+**W1.** Is the torus $T^2$ a smooth manifold?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — 2-dim, locally flat. Globally has genus 1.
+</details>
+
+**W2.** What's $\dim TM$ for $M = S^2$?
+
+<details class="hint"><summary>Full solution</summary>
+4 — 2D base + 2D fiber. ($TM$ is a 4-manifold for $\dim M = 2$.)
+</details>
+
+**W3.** $\chi(S^2) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+2. So $\int_{S^2} K \, dA = 4\pi$, by Gauss-Bonnet.
+</details>
+
+### Practice — Working
+
+**P1.** Why does the **Earth flat-map distortion** matter for navigation?
+
+<details class="hint"><summary>Full solution</summary>
+Mercator projection preserves angles (conformal) but distorts areas;
+Gall-Peters preserves areas but distorts angles. There is no flat map
+preserving both — Theorema Egregium guarantees it.
+
+Pilots and ship navigators use great circles (geodesics on sphere) for
+shortest paths. Mercator straight lines are not geodesics.
+</details>
+
+**P2.** What's a **Lie group** and why does it matter for robotics?
+
+<details class="hint"><summary>Full solution</summary>
+A **Lie group** is a smooth manifold with a smooth group operation.
+Examples: $SO(3)$ (rotations in 3D), $SE(3)$ (rigid motions).
+
+In robotics: a robot's pose lives in $SE(3)$. Trajectory planning
+involves geodesics on this manifold (with appropriate metric).
+
+Lie algebras (tangent space at identity) give angular velocity and
+twists.
+</details>
+
+**P3.** Compute the geodesics of the **Poincaré half-plane** $\{(x, y) :
+y > 0\}$ with metric $g = (dx^2 + dy^2)/y^2$.
+
+<details class="hint"><summary>Full solution</summary>
+Geodesics: vertical lines and semicircles centred on the $x$-axis.
+
+This is the model of **hyperbolic geometry** ($K = -1$). Used in:
+hyperbolic embeddings (Tier 7 L05), automorphic forms (Tier 7 L15),
+relativity, and number theory.
+</details>
+
+### Practice — Stretch
+
+**S1.** **General relativity in two sentences.**
+
+<details class="hint"><summary>Full solution</summary>
+**Spacetime is a 4-dimensional Lorentzian manifold.** Matter curves
+spacetime via Einstein's equation $R_{\mu\nu} - \frac{1}{2} g_{\mu\nu}
+R + \Lambda g_{\mu\nu} = \frac{8\pi G}{c^4} T_{\mu\nu}$, and free-falling
+objects follow geodesics.
+
+Special relativity = flat metric (Minkowski). General relativity =
+curved.
+
+Tested by GPS daily: clocks at altitude run faster (gravitational time
+dilation), corrected via the Schwarzschild metric.
+</details>
+
+**S2.** **3D graphics: smooth interpolation on $SO(3)$.**
+
+<details class="hint"><summary>Full solution</summary>
+For a rotating object: interpolate between two orientations $R_0, R_1
+\in SO(3)$.
+
+Naive Euclidean interpolation of matrix entries gives non-rotations.
+Correct: **slerp** (spherical linear interpolation) on the
+quaternions, which traces a geodesic in $SO(3)$.
+
+Quaternions (T7 L08) are the working representation; geodesics on
+$S^3$ (which double-covers $SO(3)$) are the math.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A cylinder is curved."** Extrinsically yes (in 3D); but
+   *intrinsically* $K = 0$ — unrollable.
+2. **"Curvature is global."** Gaussian and sectional curvatures are
+   *pointwise* — they vary across the manifold.
+3. **"Geodesics are unique shortest paths."** Locally yes; globally no
+   — antipodal points on a sphere have infinitely many shortest
+   geodesics (great circles).
+:::
+
+### Self-Assessment
+
+1. Define manifold and tangent space.
+2. State Theorema Egregium.
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: $K$ is intrinsic — depends only on the metric, not the
+embedding.)
+
+- **3 yes:** ready for **[08 · Quaternions](../08-quaternions/index.qmd)**.
+- **2 yes:** redo **P3** (hyperbolic plane).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L11 — Partial Derivatives](../../tier-5-undergrad-core/11-partial-derivatives/index.qmd)**
+- **[T6 L09 — Complex Functions](../../tier-6-undergrad-advanced/09-complex-functions/index.qmd)**
+
+### What this unlocks
+
+- General relativity, gauge theory, geometric mechanics.
+- Lie groups, fibre bundles.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Smooth animations on $SO(3)$, character rigging,
+deformation.
+:::
+
+::: {.applied-callout}
+**Physics & relativity.** Spacetime is a Lorentzian 4-manifold;
+gravity = curvature.
+:::
+
+::: {.applied-callout}
+**Robotics.** Configuration spaces are Lie groups; trajectory planning
+uses geodesics.
+:::
+
+::: {.applied-callout}
+**Machine learning.** Manifold methods (T7 L05); information geometry;
+optimisation on Riemannian manifolds.
+:::
