@@ -1,0 +1,407 @@
+---
+title: "15 · Discrete Probability Distributions"
+subtitle: "Probability as a function of value — and the expected value of a roll"
+lesson-id: "t3.discrete-distributions"
+tier: 3
+prerequisites: ["t3.basic-probability", "t1.data-and-average"]
+unlocks: []
+applied-domains: ["ai-ml", "research", "systems"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [13 · Basic Probability](../13-basic-probability/index.qmd)
+   and [T1 L14 — Data and the Average](../../tier-1-foundations/14-data-and-average/index.qmd)?
+2. Comfortable with the average / mean of a list of numbers?
+3. Comfortable with summation notation $\sum$?
+:::
+
+## Touch
+
+Pick a distribution. The widget plots its **PMF** (probability mass
+function) and computes its **expected value** $E[X]$.
+
+```{ojs}
+viewof distSel = Inputs.select(["uniform on 1..6 (one die)", "binomial: 10 coin flips, p=0.5", "binomial: 10 trials, p=0.3", "geometric: p=0.4 (trials until first success)"], {value: "uniform on 1..6 (one die)", label: "Distribution:"})
+```
+
+```{ojs}
+{
+  let xs = [], ps = [];
+  if (distSel.startsWith("uniform")) {
+    xs = [1, 2, 3, 4, 5, 6];
+    ps = [1/6, 1/6, 1/6, 1/6, 1/6, 1/6];
+  } else if (distSel.includes("p=0.5")) {
+    const n = 10, p = 0.5;
+    const fact = m => m <= 1 ? 1 : m * fact(m - 1);
+    const ch = (a, b) => fact(a) / (fact(b) * fact(a - b));
+    for (let k = 0; k <= n; k++) { xs.push(k); ps.push(ch(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k)); }
+  } else if (distSel.includes("p=0.3")) {
+    const n = 10, p = 0.3;
+    const fact = m => m <= 1 ? 1 : m * fact(m - 1);
+    const ch = (a, b) => fact(a) / (fact(b) * fact(a - b));
+    for (let k = 0; k <= n; k++) { xs.push(k); ps.push(ch(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k)); }
+  } else if (distSel.includes("geometric")) {
+    const p = 0.4;
+    for (let k = 1; k <= 12; k++) { xs.push(k); ps.push(Math.pow(1 - p, k - 1) * p); }
+  }
+  const E = xs.reduce((s, x, i) => s + x * ps[i], 0);
+
+  const W = 720, H = 280, pad = 30;
+  const xMin = Math.min(...xs) - 0.5, xMax = Math.max(...xs) + 0.5;
+  const yMax = Math.max(...ps) * 1.15;
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - (v / yMax) * (H - 2 * pad - 30);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa;");
+  // axis
+  svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(0)).attr("y2", py(0)).attr("stroke", "#1f2933");
+  // bars
+  const barW = (W - 2 * pad) / xs.length * 0.8;
+  for (let i = 0; i < xs.length; i++) {
+    svg.append("rect").attr("x", px(xs[i]) - barW/2).attr("y", py(ps[i])).attr("width", barW).attr("height", py(0) - py(ps[i])).attr("fill", "#90caf9").attr("stroke", "#2c5f7c");
+    svg.append("text").attr("x", px(xs[i])).attr("y", py(0) + 14).attr("text-anchor", "middle").attr("font-size", "10").text(xs[i]);
+    svg.append("text").attr("x", px(xs[i])).attr("y", py(ps[i]) - 4).attr("text-anchor", "middle").attr("font-size", "9").attr("fill", "#666").text(ps[i].toFixed(3));
+  }
+  // expected value line
+  svg.append("line").attr("x1", px(E)).attr("x2", px(E)).attr("y1", pad).attr("y2", py(0)).attr("stroke", "#c2185b").attr("stroke-width", 2).attr("stroke-dasharray", "4 3");
+  svg.append("text").attr("x", px(E) + 8).attr("y", pad + 12).attr("font-size", "13").attr("fill", "#c2185b").attr("font-weight", "bold").text(`E[X] = ${E.toFixed(2)}`);
+  return svg.node();
+}
+```
+
+A **discrete distribution** assigns each value a probability. The
+**expected value** $E[X] = \sum x \cdot P(X = x)$ is the long-run
+average of repeated draws.
+
+## Wonder
+
+1. Uniform die: $E[X] = (1+2+3+4+5+6)/6 = 3.5$. Why isn't it 3 or 4?
+2. Binomial with $p = 0.5$ and $n = 10$: shaped like a bell, peaked at
+   5. Why?
+3. Geometric distribution: long tail to the right. Why?
+
+## Discover
+
+### Problem 1
+
+Roll one fair die. The PMF is $P(X = k) = 1/6$ for $k = 1, \ldots, 6$.
+Compute $E[X]$.
+
+<details class="hint"><summary>Full solution</summary>
+$E[X] = \sum_{k=1}^{6} k \cdot 1/6 = (1+2+3+4+5+6)/6 = 21/6 = 3.5$.
+
+The "expected" value 3.5 isn't a possible roll — it's the *long-run
+average* of many rolls. Average ≠ typical instance.
+</details>
+
+### Problem 2
+
+Toss a fair coin twice. $X$ = number of heads. PMF?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Outcomes: TT (X=0), TH (X=1), HT (X=1), HH (X=2). Each with prob 1/4.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(X = 0) = 1/4, P(X = 1) = 2/4 = 1/2, P(X = 2) = 1/4$.
+
+$E[X] = 0 \cdot 1/4 + 1 \cdot 1/2 + 2 \cdot 1/4 = 1$.
+
+Expected number of heads in 2 tosses: 1. Reasonable: half of 2.
+
+This is a **binomial** with $n = 2, p = 1/2$. General formula:
+$E[X] = np$.
+</details>
+
+### Problem 3
+
+The **binomial distribution** $\text{Bin}(n, p)$: $X$ counts successes
+in $n$ independent trials, each with probability $p$. Then
+$$P(X = k) = \binom{n}{k} p^k (1 - p)^{n - k}.$$
+
+Why does $\binom{n}{k}$ appear?
+
+<details class="hint"><summary>Full solution</summary>
+Each *specific sequence* with $k$ successes and $n - k$ failures has
+probability $p^k (1-p)^{n-k}$. The number of such sequences is
+$\binom{n}{k}$ (which $k$ positions are successes — combinatorics from
+Lesson 11).
+
+$E[X] = np$, $\text{Var}(X) = np(1-p)$ (Tier 5 covers variance).
+
+Examples: number of heads in 10 coin tosses, number of correct
+multiple-choice guesses, number of defective items in a sample.
+</details>
+
+### Problem 4
+
+The **geometric distribution**: $X$ is the trial number at which the
+*first* success occurs (with success probability $p$ per trial).
+$$P(X = k) = (1 - p)^{k - 1} \cdot p \quad \text{for } k = 1, 2, 3, \ldots$$
+
+What is $E[X]$? (Hint: use [04 · Series](../04-sequences-series/index.qmd) Stretch S1: $\sum (1-p)^{k-1} p = 1/p$.)
+
+<details class="hint"><summary>Full solution</summary>
+$E[X] = 1/p$. (This requires summing $\sum k (1-p)^{k-1} p$, which
+evaluates to $1/p$ — a more advanced sum.)
+
+If success probability is 1/6 (rolling a 6), expected number of rolls
+until first 6 is **6**. Intuitively reasonable.
+</details>
+
+### Problem 5
+
+You roll a die. If it lands 6, you win Rs. 100; otherwise you pay
+Rs. 10. Should you play?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $E[\text{winnings}]$. Positive → play (in the long run).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$E = 100 \cdot 1/6 + (-10) \cdot 5/6 = 100/6 - 50/6 = 50/6 \approx
+8.33$ rupees per roll.
+
+**Yes — over many rolls, expected gain is +Rs. 8.33 per roll.**
+
+Casinos run on the *opposite* logic: their games have *negative*
+expected value for the player and positive for the house. Knowing E[X]
+is the difference between gambling and (mis-named) "investing in
+lottery tickets."
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **discrete random variable** $X$ takes one of finitely many (or
+countably many) values. Its **probability mass function (PMF)**
+$P(X = x)$ assigns each value a probability, summing to 1.
+
+**Expected value (mean):**
+$$E[X] = \sum_{x} x \cdot P(X = x).$$
+
+**Important distributions:**
+
+- **Uniform** on $\{a, a+1, \ldots, b\}$: $P = 1/(b - a + 1)$.
+  $E[X] = (a + b)/2$.
+- **Binomial** $\text{Bin}(n, p)$: $P(X = k) = \binom{n}{k} p^k
+  (1-p)^{n-k}$. $E[X] = np$.
+- **Geometric** with parameter $p$: $P(X = k) = (1-p)^{k-1} p$.
+  $E[X] = 1/p$.
+
+**Linearity of expectation:** $E[aX + bY] = a E[X] + b E[Y]$ for any
+random variables $X, Y$ (even if not independent).
+
+:::
+
+> *PMF assigns probability to each value (summing to 1);*
+> *Expected value is the weighted average — long-run mean;*
+> *Binomial counts successes in n trials; geometric counts trials to first success.*
+
+## Apply
+
+### Worked example
+
+> A multiple-choice test has 20 questions, 4 options each, only one
+> correct. You guess randomly. **Expected number** of correct answers?
+
+A competent solver: $X = $ number correct $\sim$ Bin(20, 0.25).
+
+$E[X] = np = 20 \cdot 0.25 = 5$.
+
+**Expect 5 correct on average.** Variability around 5 is captured by
+*variance* (Tier 5).
+
+### Practice — Warm
+
+**W1.** Roll a die. $E[X]$?
+
+<details class="hint"><summary>Full solution</summary>
+3.5.
+</details>
+
+**W2.** Toss 100 fair coins. Expected number of heads?
+
+<details class="hint"><summary>Full solution</summary>
+$np = 100 \cdot 0.5 = 50$.
+</details>
+
+**W3.** A geometric distribution with $p = 0.1$. Expected trials to
+first success?
+
+<details class="hint"><summary>Full solution</summary>
+$1/p = 10$.
+</details>
+
+### Practice — Working
+
+**P1.** A bag has 70% red and 30% blue marbles. Draw one and assign $X
+= 1$ (red) or 0 (blue). $E[X]$?
+
+<details class="hint"><summary>Full solution</summary>
+$E[X] = 1 \cdot 0.7 + 0 \cdot 0.3 = 0.7$. ($X$ is a **Bernoulli** with
+$p = 0.7$.)
+</details>
+
+**P2.** A "fair" lottery: pay Rs. 10 to enter. P(win Rs. 1000) = 0.001;
+P(win nothing) = 0.999. Expected gain per ticket?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$E = -10 \cdot 1 + 1000 \cdot 0.001 = -10 + 1 = -9$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$E[\text{gain}] = -9$ rupees per ticket. **Expected loss per ticket is
+Rs. 9.**
+
+(The more accurate framing: with 1000 tickets sold for Rs. 10000 and
+one Rs. 1000 prize, the lottery operator nets Rs. 9000 — a 90%
+margin. This is the universal logic of state lotteries and casinos.)
+</details>
+
+**P3.** A 10-question true/false test, guessing each independently
+with $p = 0.5$. P(get *exactly 7 correct*)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\text{Bin}(10, 0.5)$. $P(X = 7) = \binom{10}{7} (0.5)^{10}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{10}{7} = 120$. $P = 120 / 1024 \approx 0.117$.
+
+About 12% chance — modest but not tiny. Random guessing strategies in
+real exams have measurable success rates.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Expected value of an indicator variable.** Define $I_A = 1$
+if event $A$ happens, 0 otherwise. Then $E[I_A] = P(A)$. Use this to
+re-derive the binomial expectation $E[X] = np$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Write $X = I_1 + I_2 + \cdots + I_n$ where $I_k = 1$ if trial $k$
+succeeds. Linearity of expectation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$E[X] = E\left[\sum_k I_k\right] = \sum_k E[I_k] = \sum_k p = np$.
+
+**Linearity of expectation works even though the trials need not be
+independent.** This is one of the most elegant proofs in probability.
+
+The indicator-variable technique is widely used: e.g., expected number
+of fixed points in a random permutation, expected number of "isolated
+vertices" in a random graph — all by writing the count as a sum of
+indicators and summing their probabilities.
+</details>
+
+**S2.** **Why the binomial appears in ML.** A neural network's
+*accuracy* over $N$ test examples is a binomial-distributed count of
+correct predictions, with success probability $p$ = true accuracy.
+Why is this important for confidence intervals?
+
+<details class="hint"><summary>Full solution</summary>
+With binomial variability, observed accuracy $\hat{p} = X/N$ has
+standard deviation $\sqrt{p(1-p)/N}$ (Tier 5: divide $\text{Var}(X) =
+np(1-p)$ by $N^2$ to get $\text{Var}(\hat{p})$).
+
+For $p \approx 0.5, N = 100$: SD $\approx 0.05$. So an accuracy
+"81%" with $N = 100$ has roughly ±5% uncertainty. Reporting "85.3%
+accuracy" without specifying $N$ is meaningless — the third digit may
+be noise.
+
+**Modern ML benchmark practice** routinely fails to report binomial
+confidence intervals, which has led to false claims of model
+"breakthroughs" that were within the noise of random sampling. The
+binomial distribution you just learned is the right antidote.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$E[X]$ is a likely value of $X$."** Not necessarily — it's the
+   long-run average, which may not even be a possible value (e.g.,
+   3.5 for a die roll).
+2. **"PMFs need to sum to 100% as percentages."** They sum to 1 as
+   probabilities; %s are equivalent (100%) but the sum-to-1 form is
+   cleaner.
+3. **"Linearity of expectation needs independence."** No — that's
+   one of the most beautiful facts in probability. *Variance* needs
+   independence; expectation does not.
+:::
+
+### Self-Assessment
+
+1. Could you compute $E[X]$ for a die roll using the PMF formula?
+2. Without scrolling back, what is the expected number of heads in 20
+   fair coin tosses?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $20 \cdot 0.5 = 10$.)
+
+- **3 yes:** **You have completed Tier 3!** Tier 4 (Pre-Calc &
+  Calculus) is the next stage — or pick an
+  [applied bridge](../../../applied-bridges/encryption.qmd).
+- **2 yes:** redo **S2** — binomial confidence is essential ML
+  literacy.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[13 · Basic Probability](../13-basic-probability/index.qmd)**
+- **[T1 L14 — Data and the Average](../../tier-1-foundations/14-data-and-average/index.qmd)** —
+  $E[X]$ generalises the average.
+
+### What this unlocks
+
+- **Tier 4 — Calculus** — continuous random variables, integrals
+  replacing sums.
+- **Tier 5 — Probability theory & statistics** — variance, central
+  limit theorem, sampling distributions, hypothesis testing.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Binomial confidence (S2) is foundational
+benchmarking. Bernoulli outputs in classification, geometric
+distributions in trial-based reinforcement learning, expected reward
+in policy gradients.
+:::
+
+::: {.applied-callout}
+**Systems & networks.** Network packet delivery (binomial), retry
+counts (geometric), failure-time analysis (geometric/exponential).
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Probability distributions are the
+foundational objects of modern probability theory and statistics
+(Tier 5+). Generalisations to continuous distributions, then to
+measure-theoretic probability, are entire subjects.
+:::
+
+---
+
+## You have finished Tier 3
+
+This lesson closes Tier 3 — Algebra II / Geometry / Trigonometry.
+Across 15 lessons you have:
+
+1. **Mastered quadratics** (formula + parabola graphing) and met the
+   four **conic sections**.
+2. Worked with **sequences and series**, including the convergent
+   geometric series and the divergent harmonic.
+3. Met **logarithms** and **exponential/log functions** as inverses.
+4. Built up **trigonometry** from right-triangle ratios through the
+   unit circle to identities and equations.
+5. Learned to **count** with combinatorics, the **binomial theorem**,
+   and applied them to **probability** — basic, conditional, and
+   distribution-based.
+
+You are now ready for **Tier 4 — Pre-Calculus & Calculus** (planned),
+or for any [applied bridge](../../../applied-bridges/encryption.qmd).
+
+Congratulations.

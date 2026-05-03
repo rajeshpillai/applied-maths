@@ -25,11 +25,10 @@ world*, reached incrementally.
 
 ## Status
 
-**Tier 1 — Foundations (Grade 5–7) and Tier 2 — Pre-Algebra & Algebra I
-(Grade 8–9) are complete: 30 lessons built.** Begin at
-[01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-number/index.qmd).
+**Tiers 1, 2, and 3 are complete: 45 lessons built (Grades 5 to 11).**
+Begin at [01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-number/index.qmd).
 
-Tiers 3–7 are outlined in [`_curriculum.yml`](_curriculum.yml) and will be
+Tiers 4–7 are outlined in [`_curriculum.yml`](_curriculum.yml) and will be
 built next. See [`CLAUDE.md`](CLAUDE.md) for the authoring contract.
 
 ## Building locally
