@@ -1,0 +1,335 @@
+---
+title: "07 · Vector Fields, Divergence, Curl"
+subtitle: "Functions that assign a vector to every point — and what they do"
+lesson-id: "t5.vector-fields"
+tier: 5
+prerequisites: ["t5.partial-derivatives", "t4.dot-cross-product"]
+unlocks: []
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [05 · Partial Derivatives](../05-partial-derivatives/index.qmd)
+   and [T4 L14 — Dot/Cross](../../tier-4-precalc-calculus/14-dot-cross-product/index.qmd)?
+2. Comfortable with $\nabla f$ and partials?
+3. Recall what a vector looks like in 3D?
+:::
+
+## Touch
+
+A **vector field** $\mathbf{F}(x, y) = (P(x, y), Q(x, y))$ assigns a
+vector to every point. Examples: wind speed, magnetic field, water
+flow.
+
+```{ojs}
+viewof vfSel = Inputs.select(["F = (1, 0): uniform horizontal flow", "F = (-y, x): rotation around origin", "F = (x, y): outward expansion (radial)"], {value: "F = (-y, x): rotation around origin", label: "Vector field:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(vfSel) {
+    case "F = (1, 0): uniform horizontal flow": info = "All vectors point right with same magnitude. div F = ∂P/∂x + ∂Q/∂y = 0. curl F = ∂Q/∂x − ∂P/∂y = 0. Constant flow, no rotation, no source/sink."; break;
+    case "F = (-y, x): rotation around origin": info = "Vectors curl counter-clockwise around origin. div F = 0 (incompressible). curl F = 1 + 1 = 2 (rotates everywhere)."; break;
+    case "F = (x, y): outward expansion (radial)": info = "Vectors point outward from origin. div F = 1 + 1 = 2 (sources everywhere). curl F = 0 − 0 = 0 (no rotation)."; break;
+  }
+  return html`<div style="margin: 1rem 0; text-align:center;">
+    <div style="font-family:monospace; font-size:1rem; color:#c2185b;">${info}</div>
+  </div>`;
+}
+```
+
+**Divergence** measures *expansion / contraction* (sources vs sinks).
+**Curl** measures *rotation*.
+
+## Wonder
+
+1. A pinwheel placed in $(-y, x)$: would it spin? Why?
+2. A sponge in field $(x, y)$: would water flow into it or away?
+3. The gradient $\nabla f$ is a vector field — but a *very* special
+   one. What's special?
+
+## Discover
+
+### Problem 1
+
+A **2D vector field** is $\mathbf{F}(x, y) = (P(x, y), Q(x, y))$.
+
+For $\mathbf{F} = (-y, x)$: compute $\mathbf{F}$ at $(1, 0), (0, 1),
+(-1, 0), (0, -1)$.
+
+<details class="hint"><summary>Full solution</summary>
+At $(1, 0)$: $\mathbf{F} = (0, 1)$. At $(0, 1)$: $(-1, 0)$. At $(-1,
+0)$: $(0, -1)$. At $(0, -1)$: $(1, 0)$.
+
+The vectors are tangent to circles, pointing **counter-clockwise** —
+this is a *rotational* field.
+</details>
+
+### Problem 2
+
+The **divergence** of $\mathbf{F} = (P, Q)$ is
+$$\text{div } \mathbf{F} = \nabla \cdot \mathbf{F} = \dfrac{\partial P}{\partial x} + \dfrac{\partial Q}{\partial y}.$$
+
+Compute div for $\mathbf{F} = (x, y)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\text{div } \mathbf{F} = 1 + 1 = 2$.
+
+Positive divergence means *source* — vectors emanate outward, like a
+fountain.
+</details>
+
+### Problem 3
+
+The **curl** of $\mathbf{F} = (P, Q)$ in 2D is
+$$\text{curl } \mathbf{F} = \dfrac{\partial Q}{\partial x} - \dfrac{\partial P}{\partial y}.$$
+
+Compute for $\mathbf{F} = (-y, x)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\text{curl } \mathbf{F} = 1 - (-1) = 2$.
+
+Positive curl = counter-clockwise rotation. A "paddle wheel" placed
+here would spin counter-clockwise.
+
+In 3D, curl is a vector $(\nabla \times \mathbf{F})$ pointing along
+the *axis* of rotation by the right-hand rule.
+</details>
+
+### Problem 4
+
+Show that for any function $f$, **curl of grad is zero**: $\nabla
+\times \nabla f = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\nabla f = (f_x, f_y)$. Curl: $\partial / \partial x (f_y) - \partial / \partial y (f_x) =
+f_{xy} - f_{yx}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f_{xy} = f_{yx}$ (mixed partials commute, by Clairaut's theorem for
+nice $f$). So curl of grad = 0.
+
+A vector field that is the *gradient* of some scalar function is
+called **conservative** — and it has zero curl. (Conservative fields
+arise from potentials in physics: gravity, electrostatics.)
+</details>
+
+### Problem 5
+
+Show that **div of curl is zero**: $\nabla \cdot (\nabla \times
+\mathbf{F}) = 0$ in 3D.
+
+<details class="hint"><summary>Full solution</summary>
+Compute (the components of $\nabla \times F$ involve mixed second
+partials; their sum, after the divergence pattern, cancels by
+$f_{xy} = f_{yx}$).
+
+This is a deep identity from vector calculus — the second of the two
+"$\nabla$ of $\nabla$ is zero" facts. Together with the curl-of-grad
+identity, these are *the* algebraic structure of vector calculus
+(forming the *de Rham cohomology* of $\mathbb{R}^3$, Tier 7
+differential geometry).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **vector field** in 2D: $\mathbf{F}(x, y) = (P(x, y), Q(x, y))$. In
+3D: $\mathbf{F} = (P, Q, R)$.
+
+**Divergence:** $\nabla \cdot \mathbf{F} = P_x + Q_y + R_z$ (a
+*scalar*). Measures expansion / contraction.
+
+**Curl:** in 2D: $\nabla \times \mathbf{F} = Q_x - P_y$ (a scalar). In
+3D: $\nabla \times \mathbf{F} = (R_y - Q_z, P_z - R_x, Q_x - P_y)$ (a
+*vector*).
+
+**Identities:**
+
+- $\nabla \times (\nabla f) = 0$ (curl of grad).
+- $\nabla \cdot (\nabla \times \mathbf{F}) = 0$ (div of curl).
+
+**Conservative field:** $\mathbf{F} = \nabla f$ for some $f$. Has
+zero curl. Path integrals are path-independent.
+
+**Stokes' theorem (preview):** $\iint_S (\nabla \times \mathbf{F})
+\cdot d\mathbf{S} = \oint_{\partial S} \mathbf{F} \cdot d\mathbf{r}$.
+
+**Divergence theorem (preview):** $\iiint_V \nabla \cdot \mathbf{F}
+\, dV = \iint_{\partial V} \mathbf{F} \cdot d\mathbf{S}$.
+
+These reduce volume/surface to boundary integrals.
+
+:::
+
+> *Vector field = vector at every point;*
+> *Div = expansion (source/sink), Curl = rotation;*
+> *Curl of grad = 0; div of curl = 0 (the two great identities).*
+
+## Apply
+
+### Worked example
+
+> Compute div and curl of $\mathbf{F}(x, y) = (x^2 y, y^2 - x)$.
+
+$P = x^2 y, Q = y^2 - x$.
+$P_x = 2xy, Q_y = 2y$. $\text{div} = 2xy + 2y$.
+$Q_x = -1, P_y = x^2$. $\text{curl} = -1 - x^2$.
+
+### Practice — Warm
+
+**W1.** Div of $\mathbf{F} = (x, y)$?
+
+<details class="hint"><summary>Full solution</summary>
+$2$.
+</details>
+
+**W2.** Curl of $\mathbf{F} = (x, y)$?
+
+<details class="hint"><summary>Full solution</summary>
+$0$.
+</details>
+
+**W3.** Curl of $\mathbf{F} = (-y, x)$?
+
+<details class="hint"><summary>Full solution</summary>
+$2$.
+</details>
+
+### Practice — Working
+
+**P1.** Div and curl of $\mathbf{F} = (\sin y, \cos x)$.
+
+<details class="hint"><summary>Full solution</summary>
+$P_x = 0, Q_y = 0 \Rightarrow \text{div} = 0$.
+$Q_x = -\sin x, P_y = \cos y \Rightarrow \text{curl} = -\sin x - \cos y$.
+</details>
+
+**P2.** Is $\mathbf{F} = (2xy, x^2 + 1)$ conservative? (Check curl.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Curl: $Q_x - P_y = 2x - 2x = 0$. Zero curl — looks conservative.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes, conservative.** Find $f$ with $\nabla f = \mathbf{F}$:
+$f_x = 2xy \Rightarrow f = x^2 y + g(y)$.
+$f_y = x^2 + g'(y) = x^2 + 1 \Rightarrow g'(y) = 1 \Rightarrow g(y) = y + C$.
+**$f(x, y) = x^2 y + y + C$.**
+
+(Path integrals of conservative fields equal $f$(end) $-$ $f$(start).)
+</details>
+
+**P3.** Show $\nabla f$ for $f = x^2 + y^2$ has zero curl.
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla f = (2x, 2y)$. Curl: $0 - 0 = 0$ ✓.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Maxwell's equations** in vacuum (in modern form):
+$$\nabla \cdot \mathbf{E} = 0, \quad \nabla \times \mathbf{E} = -\partial_t \mathbf{B},$$
+$$\nabla \cdot \mathbf{B} = 0, \quad \nabla \times \mathbf{B} = \mu_0 \epsilon_0 \partial_t \mathbf{E}.$$
+
+What does the *whole* of electromagnetism look like in this language?
+
+<details class="hint"><summary>Full solution</summary>
+**Four equations involving div and curl.** They encode:
+- No magnetic monopoles ($\nabla \cdot \mathbf{B} = 0$).
+- Charge as source of E ($\nabla \cdot \mathbf{E} = \rho/\epsilon_0$,
+  with charges).
+- Faraday's law ($\nabla \times \mathbf{E} = -\partial_t \mathbf{B}$).
+- Ampère-Maxwell law (the last).
+
+From these, **electromagnetic waves** (light!) emerge as solutions
+where $\mathbf{E}$ and $\mathbf{B}$ wave with each other at speed $c
+= 1/\sqrt{\mu_0 \epsilon_0}$.
+
+The whole of classical EM, plus the prediction that *light is an EM
+wave*, is in those four lines of vector calculus. Maxwell's
+synthesis in 1865 is one of the great achievements of physics.
+</details>
+
+**S2.** **Smoke / fluid dynamics in games.** Game engines often
+simulate fluid using **Navier-Stokes equations**, which heavily use
+div and curl. Why? What does $\nabla \cdot \mathbf{v} = 0$ mean for
+incompressible fluid?
+
+<details class="hint"><summary>Full solution</summary>
+**$\nabla \cdot \mathbf{v} = 0$ means "no compression": fluid that
+flows in must flow out at the same rate.** Water is approximately
+incompressible.
+
+Curl in fluids = vorticity (local rotation, e.g., eddies, smoke
+swirls). Modern realtime fluid simulations (smoke, water in games)
+solve simplified Navier-Stokes with operations on div and curl
+fields.
+
+The "Smoke Plume" effect in CGI movies and games uses the
+*vorticity confinement* method — explicitly enhancing curl values to
+make smoke look turbulent and interesting. Vector calculus is the
+language of *every* physical simulation.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Div is a vector."** Div is a *scalar* (a number for each point).
+   Curl in 2D is also scalar; curl in 3D is a vector.
+2. **"Conservative = static."** Conservative just means "from a
+   potential". Time-varying conservative fields are common (e.g.,
+   gravity from a moving mass).
+3. **"Stokes and divergence theorems are exotic."** They generalise
+   the FTC ("integral of derivative = boundary value") to 2D / 3D —
+   foundational, not exotic.
+:::
+
+### Self-Assessment
+
+1. Could you compute div and curl of $\mathbf{F} = (xy, x + y)$?
+2. Without scrolling back, what is curl of grad?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: div $= y + 1$, curl $= 1 - x$; zero.)
+
+- **3 yes:** ready for **[08 · Continuous Distributions](../08-continuous-distributions/index.qmd)**.
+- **2 yes:** redo **S1** (Maxwell).
+- **0–1 yes:** re-read *Discover P2 and P3*.
+
+## Connect
+
+### Prerequisites used
+
+- **[05 · Partial Derivatives](../05-partial-derivatives/index.qmd)**
+- **[T4 L14 — Dot/Cross Product](../../tier-4-precalc-calculus/14-dot-cross-product/index.qmd)** —
+  div uses dot, curl uses cross.
+
+### What this unlocks
+
+- **Tier 7 — Differential Geometry / Topology** — generalises div /
+  curl to manifolds and forms.
+
+### Where this matters
+
+::: {.applied-callout}
+**Physics.** Maxwell's equations (S1), Navier-Stokes (S2),
+Einstein's general relativity — all built on vector / tensor
+calculus.
+:::
+
+::: {.applied-callout}
+**Game development.** Fluid and smoke simulation. Realtime
+fluid-engine algorithms (Stable Fluids, FLIP/PIC) all manipulate
+div and curl.
+:::
+
+::: {.applied-callout}
+**Engineering.** Computational fluid dynamics (aircraft, weather),
+electromagnetic simulation (antenna design, MRI).
+:::
