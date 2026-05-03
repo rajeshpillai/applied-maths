@@ -1,0 +1,354 @@
+---
+title: "09 · Trigonometric Identities"
+subtitle: "Equalities that hold for every angle — algebra's gift to trig"
+lesson-id: "t3.trig-identities"
+tier: 3
+prerequisites: ["t3.unit-circle"]
+unlocks: ["t3.solving-trig-equations"]
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [08 · Unit Circle](../08-unit-circle/index.qmd)?
+2. Comfortable with $\sin^2 \theta + \cos^2 \theta = 1$?
+3. Recall $\tan \theta = \sin \theta / \cos \theta$.
+:::
+
+## Touch
+
+Pick an angle. The widget verifies several identities by computing
+both sides numerically.
+
+```{ojs}
+viewof idAngDeg = Inputs.range([0, 360], {value: 50, step: 5, label: "θ (degrees):"})
+```
+
+```{ojs}
+{
+  const t = idAngDeg * Math.PI / 180;
+  const s = Math.sin(t), c = Math.cos(t), tn = Math.tan(t);
+  const checks = [
+    ["sin²θ + cos²θ", s*s + c*c, 1],
+    ["1 + tan²θ", 1 + tn*tn, 1/(c*c)],
+    ["sin(2θ)", Math.sin(2*t), 2*s*c],
+    ["cos(2θ)", Math.cos(2*t), c*c - s*s],
+  ];
+  return html`<div style="margin: 1rem 0;">
+    <table style="margin: 0 auto; border-collapse:collapse; font-family:monospace;">
+      <tr><th style="padding: 6px 14px;">LHS</th><th style="padding: 6px 14px;">value</th><th style="padding: 6px 14px;">RHS</th></tr>
+      ${checks.map(([nm, l, r]) => `<tr style="border-top:1px solid #ccc;"><td style="padding: 4px 14px;">${nm}</td><td style="padding: 4px 14px;">${l.toFixed(4)} ≈ ${r.toFixed(4)}</td><td style="padding: 4px 14px; color:#666;">${
+        nm === 'sin²θ + cos²θ' ? '1'
+        : nm === '1 + tan²θ' ? 'sec²θ'
+        : nm === 'sin(2θ)' ? '2 sin θ cos θ'
+        : 'cos²θ − sin²θ'
+      }</td></tr>`).join('')}
+    </table>
+  </div>`;
+}
+```
+
+Identities are equalities **true for every $\theta$**. Move the slider
+— LHS and RHS always agree. Identities are the algebraic side of
+trigonometry.
+
+## Wonder
+
+1. The Pythagorean identity $\sin^2 + \cos^2 = 1$ holds for every
+   angle. Where does that come from geometrically?
+2. There's a "double-angle" formula $\sin(2\theta) = 2 \sin \theta
+   \cos \theta$. How does it relate $\sin 30°$ and $\sin 60°$?
+3. Can you derive $\sin(\alpha + \beta)$ from $\sin \alpha$, $\cos
+   \alpha$, $\sin \beta$, $\cos \beta$?
+
+## Discover
+
+### Problem 1
+
+Verify $\sin 60° = 2 \sin 30° \cos 30°$ (the double-angle formula
+applied to $\theta = 30°$).
+
+<details class="hint"><summary>Full solution</summary>
+$2 \sin 30° \cos 30° = 2 \cdot \tfrac{1}{2} \cdot \tfrac{\sqrt{3}}{2} =
+\tfrac{\sqrt{3}}{2} = \sin 60°$ ✓.
+
+The double-angle formula $\sin(2\theta) = 2 \sin\theta \cos\theta$ is
+one of the most-used identities. We will derive it from the angle-
+addition formula.
+</details>
+
+### Problem 2
+
+Divide $\sin^2 \theta + \cos^2 \theta = 1$ by $\cos^2 \theta$. What
+identity do you get?
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\sin^2 \theta}{\cos^2 \theta} + 1 = \dfrac{1}{\cos^2 \theta}
+\Rightarrow \tan^2 \theta + 1 = \sec^2 \theta$.
+
+Similarly dividing by $\sin^2$: $1 + \cot^2 \theta = \csc^2 \theta$.
+
+These are the **three Pythagorean identities** — all three follow
+from the basic one by dividing.
+</details>
+
+### Problem 3
+
+The **angle-addition formula** for sine:
+$$\sin(\alpha + \beta) = \sin \alpha \cos \beta + \cos \alpha \sin \beta.$$
+
+Use it to compute $\sin 75°$ as $\sin(45° + 30°)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin 45° \cos 30° + \cos 45° \sin 30°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$= \tfrac{\sqrt{2}}{2} \cdot \tfrac{\sqrt{3}}{2} + \tfrac{\sqrt{2}}{2} \cdot \tfrac{1}{2} = \tfrac{\sqrt{6} + \sqrt{2}}{4}$.
+
+Decimal: $\approx 0.966$ — matches $\sin 75°$. The angle-addition
+formulas let you compute trig of *any* angle if you know the
+component pieces.
+</details>
+
+### Problem 4
+
+Derive the **double-angle for sine** from the angle-addition formula
+by setting $\alpha = \beta = \theta$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sin(\theta + \theta) = \sin\theta \cos\theta + \cos\theta \sin\theta
+= 2 \sin \theta \cos \theta$ ✓.
+
+Similarly, the double-angle for cosine: $\cos(2\theta) = \cos^2\theta -
+\sin^2\theta$, derivable from the cosine-addition formula
+$\cos(\alpha + \beta) = \cos\alpha\cos\beta - \sin\alpha\sin\beta$.
+
+Three equivalent forms of $\cos 2\theta$: $\cos^2 - \sin^2 = 2\cos^2 -
+1 = 1 - 2\sin^2$ (using sin² + cos² = 1).
+</details>
+
+### Problem 5
+
+Simplify $\dfrac{\sin \theta}{1 + \cos \theta} + \dfrac{1 + \cos \theta}{\sin \theta}$ to a single fraction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Common denominator $\sin\theta (1 + \cos\theta)$. Combine, expand,
+use $\sin^2 + \cos^2 = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$= \dfrac{\sin^2 \theta + (1 + \cos\theta)^2}{\sin\theta (1 + \cos\theta)}
+= \dfrac{\sin^2 \theta + 1 + 2\cos\theta + \cos^2\theta}{\sin\theta (1 + \cos\theta)}$.
+
+Use $\sin^2 + \cos^2 = 1$: numerator becomes $1 + 1 + 2\cos\theta = 2(1 + \cos\theta)$.
+
+$= \dfrac{2(1 + \cos\theta)}{\sin\theta (1 + \cos\theta)} = \dfrac{2}{\sin\theta} = 2 \csc\theta$.
+
+A messy expression collapses to $2 \csc \theta$ via two identities.
+This is the *flavour* of trig manipulation — pattern-matching to
+known identities.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Pythagorean identities:**
+$$\sin^2 \theta + \cos^2 \theta = 1, \quad 1 + \tan^2 \theta = \sec^2 \theta, \quad 1 + \cot^2 \theta = \csc^2 \theta.$$
+
+**Quotient identities:** $\tan \theta = \dfrac{\sin\theta}{\cos\theta}$,
+$\cot \theta = \dfrac{\cos\theta}{\sin\theta}$.
+
+**Reciprocal identities:** $\sec \theta = \dfrac{1}{\cos\theta}$,
+$\csc \theta = \dfrac{1}{\sin\theta}$, $\cot \theta = \dfrac{1}{\tan\theta}$.
+
+**Angle-addition formulas:**
+
+- $\sin(\alpha + \beta) = \sin\alpha \cos\beta + \cos\alpha \sin\beta$.
+- $\cos(\alpha + \beta) = \cos\alpha \cos\beta - \sin\alpha \sin\beta$.
+- $\tan(\alpha + \beta) = \dfrac{\tan\alpha + \tan\beta}{1 - \tan\alpha \tan\beta}$.
+
+**Double-angle formulas** (special case $\alpha = \beta$):
+
+- $\sin 2\theta = 2 \sin\theta \cos\theta$.
+- $\cos 2\theta = \cos^2 \theta - \sin^2 \theta = 2 \cos^2 \theta - 1 = 1 - 2 \sin^2 \theta$.
+
+**Co-function identities:** $\sin(\pi/2 - \theta) = \cos\theta$.
+
+:::
+
+> *Pythagorean identity is unit-circle-on-paper;*
+> *Angle-addition formulas build any angle from pieces;*
+> *Double-angle formulas are addition formulas with α = β.*
+
+## Apply
+
+### Worked example
+
+> Simplify $\sin\theta \cos\theta \cdot \sec\theta$.
+
+A competent solver:
+
+1. $\sec\theta = 1/\cos\theta$.
+2. Substitute: $\sin\theta \cos\theta \cdot \dfrac{1}{\cos\theta} =
+   \sin\theta$.
+
+**Answer: $\sin \theta$.** Trig manipulation often "cancels" cleanly
+once the reciprocals and quotients are in their fundamental forms.
+
+### Practice — Warm
+
+**W1.** Verify $\sin^2 45° + \cos^2 45° = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$(\sqrt{2}/2)^2 + (\sqrt{2}/2)^2 = 1/2 + 1/2 = 1$ ✓.
+</details>
+
+**W2.** Simplify $\sin\theta / \cos\theta$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan\theta$.
+</details>
+
+**W3.** $\sin 2\theta$ when $\sin\theta = 0.6, \cos\theta = 0.8$.
+
+<details class="hint"><summary>Full solution</summary>
+$2 \cdot 0.6 \cdot 0.8 = 0.96$.
+</details>
+
+### Practice — Working
+
+**P1.** Use $\cos(\alpha + \beta) = \cos\alpha\cos\beta - \sin\alpha\sin\beta$
+to compute $\cos 75° = \cos(45° + 30°)$.
+
+<details class="hint"><summary>Full solution</summary>
+$= \tfrac{\sqrt{2}}{2} \cdot \tfrac{\sqrt{3}}{2} - \tfrac{\sqrt{2}}{2} \cdot \tfrac{1}{2} = \tfrac{\sqrt{6} - \sqrt{2}}{4} \approx 0.259$.
+</details>
+
+**P2.** Show $\dfrac{1 - \cos 2\theta}{\sin 2\theta} = \tan\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $\cos 2\theta = 1 - 2\sin^2\theta$ in the numerator;
+$\sin 2\theta = 2\sin\theta\cos\theta$ in the denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numerator: $1 - (1 - 2\sin^2\theta) = 2\sin^2\theta$.
+Denominator: $2\sin\theta\cos\theta$.
+Quotient: $\dfrac{2\sin^2\theta}{2\sin\theta\cos\theta} = \dfrac{\sin\theta}{\cos\theta} = \tan\theta$ ✓.
+</details>
+
+**P3.** If $\sin\theta = 3/5$ and $\theta$ is in QI, find $\cos\theta,
+\sin 2\theta, \cos 2\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos\theta = \sqrt{1 - 9/25} = 4/5$. Then double-angle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos\theta = 4/5$. $\sin 2\theta = 2 \cdot 3/5 \cdot 4/5 = 24/25$.
+$\cos 2\theta = (4/5)^2 - (3/5)^2 = 16/25 - 9/25 = 7/25$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Derive the angle-subtraction formula $\sin(\alpha - \beta)$
+from the angle-addition formula and the symmetry properties
+$\sin(-\beta) = -\sin\beta$, $\cos(-\beta) = \cos\beta$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sin(\alpha - \beta) = \sin(\alpha + (-\beta)) = \sin\alpha
+\cos(-\beta) + \cos\alpha \sin(-\beta) = \sin\alpha \cos\beta -
+\cos\alpha \sin\beta$.
+
+Symmetry properties (Lesson 8) plus addition formula → subtraction
+formula. Identities chain together.
+</details>
+
+**S2.** **Why are angle-addition formulas important for graphics?**
+Rotating a 2D vector by angle $\theta$: a point $(x, y)$ ends up at
+$(x', y')$ where
+$$x' = x \cos\theta - y \sin\theta, \quad y' = x \sin\theta + y \cos\theta.$$
+This is essentially the angle-addition formula in disguise. How?
+
+<details class="hint"><summary>Full solution</summary>
+Write $(x, y) = (r \cos\phi, r \sin\phi)$ in polar form. After
+rotating by $\theta$, the new angle is $\phi + \theta$:
+$x' = r \cos(\phi + \theta)$, $y' = r \sin(\phi + \theta)$.
+
+Apply addition formulas:
+- $x' = r(\cos\phi \cos\theta - \sin\phi \sin\theta) = x \cos\theta -
+  y \sin\theta$ ✓.
+- $y' = r(\sin\phi \cos\theta + \cos\phi \sin\theta) = y \cos\theta +
+  x \sin\theta$ ✓.
+
+The rotation matrix in linear algebra (Tier 5) encodes exactly the
+angle-addition formula. Every game-engine sprite rotation, every
+3D model spin, every camera turn computes this formula billions of
+times per second.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sin(\alpha + \beta) = \sin\alpha + \sin\beta$."** **False.**
+   The angle-addition formula has the $\cos$ cross-terms. Sine is
+   *not* a linear function.
+2. **"Identities tell us $\sin\theta = \cos\theta$ at some special
+   angle."** Yes — at $\theta = 45°$. But identities are statements
+   true *for all* angles, not just special ones.
+3. **"You should memorise all 30 trig identities."** Memorise the
+   essentials (Pythagorean, sum/difference, double-angle); derive
+   the rest. Memorisation is brittle; derivation is robust.
+:::
+
+### Self-Assessment
+
+1. Could you derive $1 + \tan^2\theta = \sec^2\theta$ from the basic
+   Pythagorean identity?
+2. Without scrolling back, can you compute $\sin 75°$ from the
+   angle-addition formula?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $(\sqrt{6} + \sqrt{2})/4$.)
+
+- **3 yes:** ready for **[10 · Solving Trig Equations](../10-solving-trig-equations/index.qmd)**.
+- **2 yes:** redo **S2** (rotation formula) — it's the most reused
+  identity application in computer graphics.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[08 · Unit Circle](../08-unit-circle/index.qmd)** — definitions
+  and symmetries.
+
+### What this unlocks
+
+- **[10 · Solving Trig Equations](../10-solving-trig-equations/index.qmd)** —
+  identities are tools to simplify equations.
+- **Tier 4 — Calculus** — derivatives of trig functions; integrating
+  using identity tricks.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & graphics.** Rotation matrices (S2) are pure
+trig identities. Quaternion multiplication (Tier 7) generalises
+rotations to 3D using a related set of identities.
+:::
+
+::: {.applied-callout}
+**Engineering — signal processing.** Sound/light/electrical signals
+are decomposed via Fourier methods, which use identities at every
+step. Phase shifts, modulations (AM, FM radio), filtering — all
+identity manipulations.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Trig identities are special cases of
+*group representation theory* — rotations form a group, and
+representations of that group encode identities. Profound
+generalisations live in Tier 7.
+:::
