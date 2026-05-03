@@ -1,0 +1,382 @@
+---
+title: "04 · The Coordinate Plane"
+subtitle: "Two number lines crossed at right angles — every point gets an address"
+lesson-id: "t2.coordinate-plane"
+tier: 2
+prerequisites: ["t1.number-line", "t1.negative-numbers"]
+unlocks: ["t2.linear-functions-graphs"]
+applied-domains: ["game-dev", "ai-ml"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T1 L02 — The Number Line](../../tier-1-foundations/02-number-line/index.qmd)
+   and [T1 L10 — Negative Numbers](../../tier-1-foundations/10-negative-numbers/index.qmd)?
+2. Can you place 3, −2, 0 on a single number line?
+3. Have you ever played a battleship-style game ("B7", "F3"), or used
+   a city map's grid reference?
+:::
+
+## Touch
+
+Pick a point's coordinates $(x, y)$. Watch the marker move on the
+plane.
+
+```{ojs}
+viewof xCoord = Inputs.range([-10, 10], {value: 4, step: 1, label: "x:"})
+viewof yCoord = Inputs.range([-10, 10], {value: 3, step: 1, label: "y:"})
+```
+
+```{ojs}
+{
+  const W = 480, H = 480, pad = 30;
+  const xMin = -10, xMax = 10, yMin = -10, yMax = 10;
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - ((v - yMin) / (yMax - yMin)) * (H - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:520px; display:block; margin: 0 auto; background:#fafafa;");
+
+  // Grid
+  for (let v = xMin; v <= xMax; v++) {
+    svg.append("line").attr("x1", px(v)).attr("x2", px(v)).attr("y1", pad).attr("y2", H - pad)
+      .attr("stroke", v === 0 ? "#1f2933" : "#ddd").attr("stroke-width", v === 0 ? 1.5 : 0.5);
+    svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(v)).attr("y2", py(v))
+      .attr("stroke", v === 0 ? "#1f2933" : "#ddd").attr("stroke-width", v === 0 ? 1.5 : 0.5);
+  }
+  // Axis labels
+  svg.append("text").attr("x", W - pad + 10).attr("y", py(0) + 5).attr("font-size", "13").attr("font-style", "italic").text("x");
+  svg.append("text").attr("x", px(0) - 5).attr("y", pad - 8).attr("font-size", "13").attr("font-style", "italic").attr("text-anchor", "end").text("y");
+  // ticks
+  for (let v = xMin; v <= xMax; v += 2) {
+    if (v === 0) continue;
+    svg.append("text").attr("x", px(v)).attr("y", py(0) + 14).attr("text-anchor", "middle").attr("font-size", "10").attr("fill", "#666").text(v);
+    svg.append("text").attr("x", px(0) - 5).attr("y", py(v) + 4).attr("text-anchor", "end").attr("font-size", "10").attr("fill", "#666").text(v);
+  }
+  // dashed lines from axes
+  svg.append("line").attr("x1", px(xCoord)).attr("x2", px(xCoord)).attr("y1", py(0)).attr("y2", py(yCoord))
+    .attr("stroke", "#c2185b").attr("stroke-dasharray", "3 3").attr("stroke-width", 1);
+  svg.append("line").attr("x1", px(0)).attr("x2", px(xCoord)).attr("y1", py(yCoord)).attr("y2", py(yCoord))
+    .attr("stroke", "#c2185b").attr("stroke-dasharray", "3 3").attr("stroke-width", 1);
+  // point
+  svg.append("circle").attr("cx", px(xCoord)).attr("cy", py(yCoord)).attr("r", 7)
+    .attr("fill", "#2c5f7c").attr("stroke", "#fff").attr("stroke-width", 2);
+  svg.append("text").attr("x", px(xCoord) + 10).attr("y", py(yCoord) - 8)
+    .attr("font-size", "14").attr("font-weight", "bold").attr("fill", "#2c5f7c")
+    .text(`(${xCoord}, ${yCoord})`);
+  // origin label
+  svg.append("text").attr("x", px(0) - 5).attr("y", py(0) + 14).attr("text-anchor", "end").attr("font-size", "10").attr("fill", "#666").text("O");
+  return svg.node();
+}
+```
+
+A pair $(x, y)$ is the point's **coordinates** — its address. The first
+number is the horizontal position (the *abscissa*); the second is the
+vertical position (the *ordinate*). The crossing point is the **origin**.
+
+## Wonder
+
+1. What's at $(0, 0)$?
+2. The point $(3, 4)$ and the point $(4, 3)$ — same point, or different?
+3. The plane is split by the two axes into four regions called
+   **quadrants**. What signs do $x$ and $y$ take in each?
+
+## Discover
+
+### Problem 1
+
+Plot (in your head, or sketch) the points $(2, 5), (-3, 4), (-1, -2),
+(4, -3)$. Which **quadrant** is each in?
+
+<details class="hint"><summary>Full solution</summary>
+- $(2, 5)$: x positive, y positive — **Quadrant I** (top right).
+- $(-3, 4)$: x negative, y positive — **Quadrant II** (top left).
+- $(-1, -2)$: both negative — **Quadrant III** (bottom left).
+- $(4, -3)$: x positive, y negative — **Quadrant IV** (bottom right).
+
+The four quadrants are numbered counter-clockwise starting from the
+top right.
+</details>
+
+### Problem 2
+
+What does the set of all points $(x, 0)$ look like? What about $(0, y)$?
+
+<details class="hint"><summary>Full solution</summary>
+**$(x, 0)$:** every point with $y$-coordinate 0 — that's the **$x$-axis**
+(the horizontal line). **$(0, y)$:** the **$y$-axis** (vertical line).
+
+Points *on* an axis have one coordinate equal to zero.
+</details>
+
+### Problem 3
+
+Find the **distance** between the points $A = (2, 0)$ and $B = (5, 0)$.
+
+<details class="hint"><summary>Full solution</summary>
+Both lie on the $x$-axis. Distance $= 5 - 2 = 3$.
+
+For two points on the *same horizontal line*, distance is just the
+difference in $x$-coordinates. Same idea on a vertical line.
+
+For points *not* on the same line, we need the **Pythagorean theorem**
+— [Lesson 10](../10-pythagorean-theorem/index.qmd).
+</details>
+
+### Problem 4
+
+Three friends meet at a park entrance and walk to: Anya goes to
+$(3, 4)$, Bina goes to $(-2, 5)$, Cara goes to $(0, -3)$. Sketch their
+positions.
+
+Whose position is **furthest from the entrance** (the origin)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For a point $(x, y)$, distance from origin is the *length of the line
+from $(0, 0)$ to $(x, y)$*. The Pythagorean theorem (Lesson 10) says
+this is $\sqrt{x^2 + y^2}$, but you can compare without the square root:
+just compare $x^2 + y^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- Anya: $x^2 + y^2 = 9 + 16 = 25$.
+- Bina: $4 + 25 = 29$.
+- Cara: $0 + 9 = 9$.
+
+Largest is Bina at 29 → distance $\sqrt{29} \approx 5.39$. **Bina is
+furthest** from the origin.
+
+The square-of-distance comparison avoids square roots; this trick is
+heavily used in computer graphics for performance.
+</details>
+
+### Problem 5
+
+A point starts at $(2, 3)$. It moves **3 right** and **2 down**. Where
+does it end up?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Right adds to $x$; down subtracts from $y$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(2 + 3, 3 - 2) = (5, 1)$.
+
+A *movement* in the plane is an addition to coordinates: this idea
+becomes **vectors** in Tier 4.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **coordinate plane** (or **Cartesian plane**, after Descartes) is
+two number lines — the **x-axis** (horizontal) and **y-axis**
+(vertical) — crossed at right angles at a point called the **origin**.
+
+A **point** in the plane is an **ordered pair** $(x, y)$ — first the
+x-coordinate, then the y-coordinate. Order matters: $(3, 4) \neq (4, 3)$.
+
+The two axes divide the plane into four **quadrants**:
+
+- **I** (top right): $x > 0, y > 0$
+- **II** (top left): $x < 0, y > 0$
+- **III** (bottom left): $x < 0, y < 0$
+- **IV** (bottom right): $x > 0, y < 0$
+
+Distance between two points on the same horizontal line: difference in
+$x$-coordinates. On the same vertical line: difference in
+$y$-coordinates. (For general distance, use Pythagoras —
+[Lesson 10](../10-pythagorean-theorem/index.qmd).)
+
+:::
+
+> *Two number lines, crossed at zero — the plane;*
+> *Each point gets an ordered pair $(x, y)$;*
+> *Order matters — $(3, 4)$ is not $(4, 3)$.*
+
+## Apply
+
+### Worked example
+
+> A robot at $(1, 2)$ is told: "go 4 east, then 3 north." What are its
+> new coordinates? Then: "from there, go 5 west, 6 south." Now where?
+
+A competent solver tracks coordinates step by step:
+
+1. Start: $(1, 2)$.
+2. After "4 east, 3 north": $(1 + 4, 2 + 3) = (5, 5)$.
+3. After "5 west, 6 south": $(5 - 5, 5 - 6) = (0, -1)$.
+
+**Final position: $(0, -1)$.** On the $y$-axis, just below the origin.
+
+This kind of coordinate tracking is *exactly* how a game character or
+a robot moves through its world.
+
+### Practice — Warm
+
+**W1.** Which quadrant contains $(7, -4)$? $(-2, -8)$? $(0, 5)$?
+
+<details class="hint"><summary>Full solution</summary>
+IV; III; on the y-axis (between II and I, not in any quadrant).
+</details>
+
+**W2.** Plot mentally: $(0, 0), (1, 1), (2, 4), (3, 9)$. Pattern?
+
+<details class="hint"><summary>Full solution</summary>
+$y = x^2$. Each point lies on the curve we'll meet in Lesson 14
+(quadratic graph).
+</details>
+
+**W3.** Two points: $A = (1, 5), B = (1, -3)$. Distance?
+
+<details class="hint"><summary>Full solution</summary>
+Same $x$-coordinate → on a vertical line. Distance = $|5 - (-3)| = 8$.
+</details>
+
+### Practice — Working
+
+**P1.** Sketch the four points $(0, 0), (4, 0), (4, 3), (0, 3)$. What
+shape do they form?
+
+<details class="hint"><summary>Full solution</summary>
+A **rectangle** — width 4, height 3, area 12. The coordinate plane
+makes geometric reasoning algebraic: areas, lengths, slopes all become
+calculations.
+</details>
+
+**P2.** A point's coordinates are $(2k, k - 1)$ where $k$ is unknown.
+For which value of $k$ does the point lie on the $x$-axis?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+On the $x$-axis means $y = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$y = k - 1 = 0 \Rightarrow k = 1$. Then the point is $(2, 0)$.
+
+You combined coordinate geometry with equation-solving (Lesson 2). The
+two skills meet again everywhere from now on.
+</details>
+
+**P3.** Three points are the corners of a triangle: $A = (0, 0), B =
+(4, 0), C = (4, 3)$. Compute the lengths of the sides $AB$, $BC$, $CA$
+that lie along axes.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$AB$ and $BC$ lie on lines parallel to axes. $CA$ does not — note
+that you can find it but you'll need a new tool (Pythagoras).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AB$: from $(0,0)$ to $(4,0)$, on the $x$-axis. Length $= 4$.
+$BC$: from $(4,0)$ to $(4,3)$, vertical. Length $= 3$.
+$CA$: from $(4,3)$ back to $(0,0)$, *diagonal*. Length needs Pythagoras
+— but with sides 3 and 4 it's the famous $5$. (We will derive that
+properly in [Lesson 10](../10-pythagorean-theorem/index.qmd).)
+</details>
+
+### Practice — Stretch
+
+**S1.** A computer screen places its origin at the **top-left** corner,
+with $x$ growing rightward and $y$ growing **downward**. (Yes — the
+$y$-axis is *flipped* compared to maths convention.) What's the screen
+coordinate of a pixel that is "50 from the left, 80 from the top" of a
+1920×1080 screen?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Just $(50, 80)$ — but the convention difference matters for game and
+graphics programming.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$(50, 80)$** in *screen coordinates*. To convert to standard maths
+coordinates with the origin at the bottom-left, you'd flip $y$:
+$(50, 1080 - 80) = (50, 1000)$.
+
+The flipped $y$-axis is a famous source of confusion when learning
+graphics programming. It is a historical accident — early screens drew
+top-to-bottom, like text — and is now standardised across operating
+systems and graphics libraries.
+</details>
+
+**S2.** A point in 3D space needs *three* coordinates: $(x, y, z)$.
+Game engines, physics simulations, and CAD software all live in 3D.
+What changes when you move from 2D to 3D? What stays the same?
+
+<details class="hint"><summary>Full solution</summary>
+**Stays the same:** axes meet at right angles; ordered tuples name
+points; movements are coordinate-by-coordinate.
+**Changes:** there are now *eight* "octants" (instead of 4 quadrants);
+distance formula needs a third term ($\sqrt{x^2 + y^2 + z^2}$);
+rotations become much more interesting (introducing **quaternions** in
+Tier 7 — game-dev track); the third axis $(z)$ has no canonical
+direction (computer graphics often uses *right-handed* coordinates, but
+some packages use *left-handed*).
+
+The 2D plane you have just met is the foundation. 3D is the same idea
+plus one more dimension. The leap from 1D (number line) to 2D (plane)
+is the conceptually big step — going to 3D is just *one more*.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$x$ comes after $y$ alphabetically, so $(y, x)$."** No: ordered
+   pairs are always $(x, y)$ — horizontal first, vertical second. This
+   convention is universal in mathematics.
+2. **"The plane has 4 quadrants, including the axes."** Points *on* an
+   axis are on the boundary, not in any quadrant.
+3. **"Computer screens use the same coordinates as maths."** They flip
+   the $y$-axis (Stretch S1). One of those facts that bites every
+   programmer at least once.
+:::
+
+### Self-Assessment
+
+1. Could you sketch the point $(-3, 5)$ on a coordinate plane and say
+   which quadrant it's in?
+2. Without scrolling back, what are the coordinates of the point that's
+   3 right and 4 down from $(2, 5)$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $(5, 1)$.)
+
+- **3 yes:** ready for **[05 · Linear Functions and Their Graphs](../05-linear-functions-graphs/index.qmd)**.
+- **2 yes:** redo **P3** — the diagonal-distance hint sets up
+  Pythagoras nicely.
+- **0–1 yes:** re-read *Discover P4* and the worked example.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L02 — Number Line](../../tier-1-foundations/02-number-line/index.qmd)** —
+  the plane is two number lines.
+- **[T1 L10 — Negative Numbers](../../tier-1-foundations/10-negative-numbers/index.qmd)** —
+  needed for the four quadrants.
+
+### What this unlocks
+
+- **[05 · Linear Functions and Their Graphs](../05-linear-functions-graphs/index.qmd)** —
+  visualising functions as pictures.
+- **Tier 4 — Vectors in 2D and 3D** — coordinates extended to model
+  *direction and magnitude*.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & graphics.** Every pixel, every sprite, every
+mesh vertex is a coordinate tuple. Game-state is largely just lots of
+points and the rules for moving them.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** A *feature vector* in ML is a point in
+high-dimensional space. Embeddings, decision boundaries, latent
+spaces — all are points in coordinate spaces (just with hundreds or
+thousands of axes instead of two).
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Descartes' invention of coordinate
+geometry (1637) unified the previously separate worlds of algebra and
+geometry. Calculus and modern analysis were built on this unification.
+:::
