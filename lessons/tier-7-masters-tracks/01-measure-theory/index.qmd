@@ -1,0 +1,365 @@
+---
+title: "01 · Measure Theory and Lebesgue Integration"
+subtitle: "When the Riemann integral isn't enough — the foundation of modern analysis"
+lesson-id: "t7.measure-theory"
+tier: 7
+prerequisites: ["t5.real-analysis-foundation", "t5.continuous-distributions"]
+unlocks: []
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L15 — Real Analysis Foundation](../../tier-5-undergrad-core/15-real-analysis-foundation/index.qmd)
+   and [T5 L08 — Continuous Distributions](../../tier-5-undergrad-core/08-continuous-distributions/index.qmd)?
+2. Comfortable with $\epsilon$-$\delta$ proofs?
+3. Recall Riemann integration limits (Lesson T4 L08).
+:::
+
+## Touch
+
+A **measure** $\mu$ on a set $X$ assigns each "measurable" subset a
+non-negative size: $\mu(A) \in [0, \infty]$. The **Lebesgue measure**
+on $\mathbb{R}$ assigns intervals their length.
+
+```{ojs}
+viewof mtSel = Inputs.select(["Lebesgue measure: μ([a,b]) = b−a", "counting measure: μ(A) = |A|", "Dirac delta: μ({0}) = 1, else 0", "probability measure: μ(X) = 1"], {value: "Lebesgue measure: μ([a,b]) = b−a", label: "Measure:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(mtSel) {
+    case "Lebesgue measure: μ([a,b]) = b−a": info = "Standard length on R. Defined via outer measure on intervals, extended via σ-additivity. Foundation of calculus."; break;
+    case "counting measure: μ(A) = |A|": info = "On a discrete set: number of elements. Series Σ a_n become Lebesgue integrals over the counting measure."; break;
+    case "Dirac delta: μ({0}) = 1, else 0": info = "Concentrated at one point. Integral ∫ f dδ_0 = f(0). Tests for evaluation."; break;
+    case "probability measure: μ(X) = 1": info = "Total mass 1. Used in measure-theoretic probability (Kolmogorov): events as measurable sets, probabilities as measure values."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why isn't the Riemann integral "good enough"?
+2. The set of rationals in $[0, 1]$ has Lebesgue measure 0 — yet is
+   dense. Why?
+3. **Lebesgue's monotone / dominated convergence theorems** make
+   limits and integrals interchangeable.
+:::
+
+## Discover
+
+### Problem 1
+
+A **σ-algebra** $\mathcal{F}$ on $X$ is a collection of subsets
+closed under countable unions, intersections, and complements,
+containing $\emptyset$ and $X$.
+
+A **measurable space** is $(X, \mathcal{F})$.
+
+A **measure** $\mu: \mathcal{F} \to [0, \infty]$ satisfies: $\mu(\emptyset)
+= 0$ and **σ-additivity**: $\mu(\bigcup_n A_n) = \sum_n \mu(A_n)$ for
+disjoint $A_n$.
+
+Why σ-additivity (not just finite additivity)?
+
+<details class="hint"><summary>Full solution</summary>
+**To handle limits properly.** Many natural sets (e.g., the
+rationals, decreasing intersections of intervals) only become well-
+defined under countable operations.
+
+Example: $\mathbb{Q} \cap [0, 1] = \bigcup_n \{q_n\}$ (countable
+union). $\mu(\mathbb{Q}) = \sum \mu(\{q_n\}) = 0$ (each point has
+Lebesgue measure 0). Without σ-additivity, this wouldn't follow.
+</details>
+
+### Problem 2
+
+The **Lebesgue measure** $\lambda$ on $\mathbb{R}$ is the unique
+translation-invariant measure with $\lambda([a, b]) = b - a$ on
+intervals.
+
+Compute $\lambda(\mathbb{Q})$ and $\lambda([0, 1] \setminus \mathbb{Q})$.
+
+<details class="hint"><summary>Full solution</summary>
+$\lambda(\mathbb{Q}) = 0$ (countable union of singletons, each
+length 0).
+
+$\lambda([0, 1] \setminus \mathbb{Q}) = \lambda([0, 1]) -
+\lambda(\mathbb{Q} \cap [0, 1]) = 1 - 0 = 1$.
+
+**The irrationals in [0, 1] have full measure.** "Almost every"
+real is irrational.
+
+This couldn't be expressed in Riemann's framework.
+</details>
+
+### Problem 3
+
+The **Lebesgue integral** of a non-negative simple function $\varphi
+= \sum c_i \mathbf{1}_{A_i}$:
+$$\int \varphi \, d\mu = \sum c_i \mu(A_i).$$
+
+For general $f \ge 0$: $\int f \, d\mu = \sup\{\int \varphi : \varphi
+\le f, \varphi \text{ simple}\}$.
+
+Compute $\int_{[0, 1]} \mathbf{1}_{\mathbb{Q}}(x) \, d\lambda$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int \mathbf{1}_\mathbb{Q} d\lambda = \lambda(\mathbb{Q} \cap [0, 1])
+= 0$.
+
+**The Riemann integral of $\mathbf{1}_\mathbb{Q}$ does not exist**
+(upper Riemann sums = 1, lower = 0). But the Lebesgue integral does
+— and equals 0.
+
+Lebesgue handles many more functions than Riemann.
+</details>
+
+### Problem 4
+
+**Dominated convergence theorem (DCT).** If $f_n \to f$ pointwise and
+$|f_n| \le g$ for some integrable $g$, then $\int f_n \to \int f$.
+
+Why is this useful?
+
+<details class="hint"><summary>Full solution</summary>
+**Lets you swap limit and integral.** Riemann doesn't always allow
+this. DCT is *the* workhorse of advanced analysis.
+
+Sister theorems: **Monotone convergence (MCT)** for increasing
+sequences; **Fatou's lemma** for general non-negative.
+
+These three theorems — MCT, DCT, Fatou — are what make Lebesgue
+integration so much more flexible than Riemann.
+</details>
+
+### Problem 5
+
+**Probability via measure theory** (Kolmogorov, 1933). Replace
+"sample space" with measurable space $(\Omega, \mathcal{F})$.
+Probability $P$ is a measure with $P(\Omega) = 1$.
+
+Random variables are *measurable functions* $X: \Omega \to \mathbb{R}$.
+Expected value: $E[X] = \int_\Omega X \, dP$.
+
+Why is this rigour necessary?
+
+<details class="hint"><summary>Full solution</summary>
+**To handle continuous random variables, infinite sequences, and
+stochastic processes consistently.** Pre-Kolmogorov probability had
+inconsistent foundations (Bertrand's paradox, etc.).
+
+After Kolmogorov: probability is just measure theory with the
+constraint $P(\Omega) = 1$. All tools of measure theory apply
+seamlessly.
+
+Stochastic calculus (Tier 7+++ for finance), conditional expectation,
+martingales — all rest on this foundation.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**σ-algebra** $\mathcal{F}$ on $X$: closed under countable unions,
+complements, contains $\emptyset, X$.
+
+**Measure** $\mu: \mathcal{F} \to [0, \infty]$: $\mu(\emptyset) = 0$,
+σ-additive on disjoint countable unions.
+
+**Lebesgue measure** $\lambda$ on $\mathbb{R}$: translation-invariant,
+$\lambda([a, b]) = b - a$.
+
+**Measurable function** $f: X \to \mathbb{R}$: preimages of Borel
+sets are in $\mathcal{F}$.
+
+**Lebesgue integral** for non-negative measurable $f$:
+$$\int f \, d\mu = \sup\{\int \varphi \, d\mu : \varphi \le f, \varphi \text{ simple}\}.$$
+
+For general $f$: $\int f = \int f^+ - \int f^-$.
+
+**Convergence theorems** (when can we swap $\lim$ and $\int$?):
+
+- **Monotone convergence:** $0 \le f_n \uparrow f \Rightarrow \int f_n
+  \to \int f$.
+- **Dominated convergence:** $f_n \to f$ pointwise, $|f_n| \le g \in L^1
+  \Rightarrow \int f_n \to \int f$.
+- **Fatou's lemma:** $\int \liminf f_n \le \liminf \int f_n$ for $f_n
+  \ge 0$.
+
+**$L^p$ spaces:** measurable $f$ with $\int |f|^p < \infty$.
+Banach spaces. $L^2$ is a Hilbert space.
+
+**Probability axioms (Kolmogorov):** $(\Omega, \mathcal{F}, P)$ with
+$P(\Omega) = 1$. Random variables = measurable functions.
+
+:::
+
+> *Measure: assigns sizes to sets in a σ-additive way;*
+> *Lebesgue integral handles many more functions than Riemann;*
+> *DCT, MCT, Fatou: limit-integral swaps;*
+> *Kolmogorov: probability = measure theory with P(Ω) = 1.*
+
+## Apply
+
+### Worked example
+
+> Compute $\int_0^\infty x e^{-x} dx$ using Lebesgue (or Riemann —
+> both agree here).
+
+Integration by parts: $\int x e^{-x} dx = -x e^{-x} - e^{-x} + C$.
+Evaluated $0$ to $\infty$: $0 - (0 - 1) = 1$.
+
+(For "nice" functions, Riemann and Lebesgue agree. Lebesgue's
+advantage is for pathological cases and for the convergence theorems.)
+
+### Practice — Warm
+
+**W1.** Lebesgue measure of $\{1, 2, 3\}$?
+
+<details class="hint"><summary>Full solution</summary>
+$0$ (finite, hence countable, set).
+</details>
+
+**W2.** Is the Riemann integral of $\mathbf{1}_\mathbb{Q}$ defined?
+
+<details class="hint"><summary>Full solution</summary>
+**No.** Lebesgue integral is.
+</details>
+
+**W3.** Probability that $X \in \mathbb{Q}$ for $X \sim N(0, 1)$?
+
+<details class="hint"><summary>Full solution</summary>
+$0$ (since $\lambda(\mathbb{Q}) = 0$ and the normal is absolutely
+continuous w.r.t. Lebesgue).
+</details>
+
+### Practice — Working
+
+**P1.** Show $\int_0^1 \mathbf{1}_{\mathbb{Q}}(x) dx = 0$
+(Lebesgue).
+
+<details class="hint"><summary>Full solution</summary>
+By Discover P3.
+</details>
+
+**P2.** Apply DCT to compute $\lim_{n \to \infty} \int_0^1 (1 -
+x/n)^n dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(1 - x/n)^n \to e^{-x}$ pointwise. Bounded by 1 on $[0, 1]$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int_0^1 e^{-x} dx = 1 - e^{-1} \approx 0.632$.
+
+DCT lets us swap: $\lim_n \int = \int \lim_n$.
+</details>
+
+**P3.** What's an $L^2$ function?
+
+<details class="hint"><summary>Full solution</summary>
+Measurable $f$ with $\int |f|^2 < \infty$. Forms a Hilbert space —
+foundation of Fourier analysis, quantum mechanics.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why is the Lebesgue integral the "right" generalisation?**
+What does it gain over Riemann?
+
+<details class="hint"><summary>Full solution</summary>
+**Properties Riemann lacks:**
+
+1. *Limit-integral swaps* (DCT, MCT, Fatou). Riemann needs uniform
+   convergence, often too strong.
+2. *Completeness:* $L^p$ spaces are Banach. Riemann-integrable
+   functions form *incomplete* spaces under $L^p$ norms.
+3. *Wide function class:* characteristic functions of arbitrary
+   measurable sets, almost-everywhere defined functions.
+4. *Probability foundation:* Kolmogorov axiomatisation only works
+   with measures.
+
+Modern probability, functional analysis, harmonic analysis — all
+require Lebesgue.
+</details>
+
+**S2.** **Connection to ML.** Many ML quantities are integrals over
+high-dimensional spaces. Why is measure theory the right framework?
+
+<details class="hint"><summary>Full solution</summary>
+**Universal language for "probabilities" and "expectations".**
+Whether your random variable is discrete, continuous, mixed, or
+defined on weird spaces (functions, neural network parameter
+spaces) — measure theory handles all of them uniformly.
+
+**Modern ML uses:**
+- Probability measures on weight spaces (Bayesian deep learning).
+- Wasserstein distance (Tier 7+) for comparing distributions
+  (GANs, optimal transport).
+- Pushforward measures (how distributions transform under maps).
+
+Without measure theory, deep theoretical work in ML wouldn't be
+possible.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Lebesgue replaces Riemann."** No — Lebesgue *generalises*. For
+   nice functions (continuous, piecewise smooth), they agree.
+2. **"Almost every" is colloquial.** It means "except on a set of
+   measure zero" — a precise mathematical concept.
+3. **"All sets are measurable."** Not in $\mathbb{R}$ under
+   Lebesgue + axiom of choice (Vitali set). Tier 7+++ explores
+   non-measurable sets.
+:::
+
+### Self-Assessment
+
+1. Could you state σ-additivity?
+2. Without scrolling back, what does DCT say?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: limit and integral can be swapped under domination.)
+
+- **3 yes:** ready for **[02 · Topology](../02-topology/index.qmd)**.
+- **2 yes:** redo **S1** (Lebesgue's advantages).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L15 — Real Analysis Foundation](../../tier-5-undergrad-core/15-real-analysis-foundation/index.qmd)**
+- **[T5 L08 — Continuous Distributions](../../tier-5-undergrad-core/08-continuous-distributions/index.qmd)**
+
+### What this unlocks
+
+- Functional analysis on $L^p$ spaces.
+- Stochastic processes, martingales.
+- Geometric measure theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** *The* language of modern analysis,
+probability, and ergodic theory.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Generative models (S2), Bayesian
+inference, optimal transport (Wasserstein GANs), measure-valued
+neural networks.
+:::
+
+::: {.applied-callout}
+**Quantitative finance.** Stochastic calculus, martingale theory,
+risk-neutral pricing — all built on measure-theoretic probability.
+:::
