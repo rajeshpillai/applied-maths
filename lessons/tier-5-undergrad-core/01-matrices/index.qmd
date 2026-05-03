@@ -1,0 +1,352 @@
+---
+title: "01 · Matrices and Matrix Operations"
+subtitle: "Rectangular arrays of numbers — and how they multiply"
+lesson-id: "t5.matrices"
+tier: 5
+prerequisites: ["t2.systems-linear-equations", "t4.vectors-2d-3d"]
+unlocks: ["t5.linear-systems-gaussian", "t5.vector-spaces"]
+applied-domains: ["ai-ml", "game-dev", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T2 L06 — Systems of Linear Equations](../../tier-2-prealgebra/06-systems-linear-equations/index.qmd)
+   and [T4 L13 — Vectors](../../tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd)?
+2. Comfortable with adding and scaling vectors?
+3. Have you noticed that systems of linear equations have a tabular
+   structure of coefficients?
+:::
+
+## Touch
+
+Pick two matrices. The widget computes their product.
+
+```{ojs}
+viewof matSel = Inputs.select(["I·v (identity × vector)", "[1 2; 3 4] × [5; 6]", "[1 0; 0 -1] × [3; 4] (reflect)", "[0 -1; 1 0] × [3; 4] (rotate 90°)"], {value: "I·v (identity × vector)", label: "Computation:"})
+```
+
+```{ojs}
+{
+  let str;
+  switch(matSel) {
+    case "I·v (identity × vector)": str = "[[1,0],[0,1]] × [v₁,v₂] = [v₁,v₂] (no change)"; break;
+    case "[1 2; 3 4] × [5; 6]": str = "[[1,2],[3,4]] × [5,6] = [1·5+2·6, 3·5+4·6] = [17, 39]"; break;
+    case "[1 0; 0 -1] × [3; 4] (reflect)": str = "[[1,0],[0,−1]] × [3,4] = [3, −4]  (flips y)"; break;
+    case "[0 -1; 1 0] × [3; 4] (rotate 90°)": str = "[[0,−1],[1,0]] × [3,4] = [−4, 3]  (rotates 90° CCW)"; break;
+  }
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.2rem; color:#c2185b; font-weight:bold;">${str}</div>
+  </div>`;
+}
+```
+
+A **matrix** is a rectangular array of numbers. Matrix-vector
+multiplication transforms a vector: rotating, scaling, reflecting.
+
+## Wonder
+
+1. The 2×2 identity matrix $I$ leaves any vector unchanged. Why is
+   that the "identity"?
+2. Multiplying $\begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix}$ by
+   $(3, 4)^T$ gives $(-4, 3)^T$. That's a 90° rotation. Why?
+3. A "transformation" of the plane is *the* role of a matrix. How?
+
+## Discover
+
+### Problem 1
+
+A **matrix** is written $A = \begin{pmatrix} a_{11} & a_{12} \\
+a_{21} & a_{22} \end{pmatrix}$ with rows and columns. **Sum:** add
+componentwise. Compute $\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} +
+\begin{pmatrix} 5 & 6 \\ 7 & 8 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 6 & 8 \\ 10 & 12 \end{pmatrix}$.
+
+Just like vectors, matrices add componentwise. Both must be the same
+size.
+</details>
+
+### Problem 2
+
+**Matrix-vector multiplication.** $A v$ takes a column vector $v$ and
+produces a new column vector. Each entry of $Av$ is the **dot product**
+of a row of $A$ with $v$.
+
+Compute $\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} \begin{pmatrix}
+5 \\ 6 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+Top entry: $(1, 2) \cdot (5, 6) = 5 + 12 = 17$.
+Bottom entry: $(3, 4) \cdot (5, 6) = 15 + 24 = 39$.
+$\begin{pmatrix} 17 \\ 39 \end{pmatrix}$.
+
+A 2×2 matrix maps 2D vectors to 2D vectors. A 3×2 matrix maps 2D to
+3D. In general, an $m \times n$ matrix maps $\mathbb{R}^n \to
+\mathbb{R}^m$.
+</details>
+
+### Problem 3
+
+**Matrix-matrix multiplication.** $AB$ has entries given by row of $A$
+dotted with column of $B$.
+
+Compute $\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} \begin{pmatrix}
+0 & 1 \\ 1 & 0 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The $(i, j)$ entry of $AB$ is row $i$ of $A$ dotted with column $j$
+of $B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1, 1)$ entry: $(1, 2) \cdot (0, 1) = 2$.
+$(1, 2)$ entry: $(1, 2) \cdot (1, 0) = 1$.
+$(2, 1)$: $(3, 4) \cdot (0, 1) = 4$. $(2, 2)$: $(3, 4) \cdot (1, 0) =
+3$.
+
+$AB = \begin{pmatrix} 2 & 1 \\ 4 & 3 \end{pmatrix}$.
+
+For $AB$ to be defined: number of columns of $A$ = number of rows of
+$B$.
+</details>
+
+### Problem 4
+
+Show that matrix multiplication is **not commutative**: compute
+$\begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} 1 & 0 \\
+0 & 0 \end{pmatrix}$ and the other order.
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} 1 & 0 \\
+0 & 0 \end{pmatrix} = \begin{pmatrix} 0 & 0 \\ 0 & 0 \end{pmatrix}$.
+
+$\begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix} \begin{pmatrix} 0 & 1 \\
+0 & 0 \end{pmatrix} = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}$.
+
+**Different results.** $AB \neq BA$ in general — this is the most
+*surprising* feature of matrix algebra and the source of much of its
+richness (e.g., in quantum mechanics).
+</details>
+
+### Problem 5
+
+The **identity matrix** $I_n$ is the $n \times n$ matrix with 1s on
+the diagonal, 0s elsewhere. Show $I_2 v = v$ for any 2-vector.
+
+<details class="hint"><summary>Full solution</summary>
+$I_2 \begin{pmatrix} v_1 \\ v_2 \end{pmatrix} = \begin{pmatrix} 1 \cdot
+v_1 + 0 \cdot v_2 \\ 0 \cdot v_1 + 1 \cdot v_2 \end{pmatrix} =
+\begin{pmatrix} v_1 \\ v_2 \end{pmatrix}$.
+
+So $I v = v$ for any vector. **$I$ is the identity for matrix
+multiplication**: $A I = A = I A$ for any (compatible-size) $A$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **matrix** is a rectangular array $A = (a_{ij})$ with $m$ rows and
+$n$ columns ($m \times n$).
+
+**Matrix sum:** $(A + B)_{ij} = a_{ij} + b_{ij}$ (same-size matrices).
+
+**Scalar multiplication:** $(c A)_{ij} = c a_{ij}$.
+
+**Matrix-vector product:** for $A$ ($m \times n$) and $v$ ($n$-vector),
+$(Av)_i = \sum_j a_{ij} v_j$. Result: $m$-vector.
+
+**Matrix-matrix product:** for $A$ ($m \times n$) and $B$ ($n \times
+p$), $(AB)_{ij} = \sum_k a_{ik} b_{kj}$. Result: $m \times p$.
+
+**Properties:**
+
+- Associative: $(AB)C = A(BC)$.
+- Distributive: $A(B + C) = AB + AC$.
+- **Not commutative:** $AB \neq BA$ in general.
+
+**Identity matrix** $I_n$: 1s on diagonal, 0s elsewhere. $AI = IA =
+A$.
+
+**Transpose** $A^T$: swap rows and columns. $(AB)^T = B^T A^T$ (the
+order flips).
+
+:::
+
+> *Matrix = rectangular array; multiplication is "row dot column";*
+> *Composition of transformations = matrix product;*
+> *Order matters — $AB \neq BA$ in general.*
+
+## Apply
+
+### Worked example
+
+> Compute $A B$ where $A = \begin{pmatrix} 1 & 2 \\ -1 & 3 \end{pmatrix}$
+> and $B = \begin{pmatrix} 4 & 0 \\ 1 & 5 \end{pmatrix}$.
+
+$(AB)_{11} = 1 \cdot 4 + 2 \cdot 1 = 6$.
+$(AB)_{12} = 1 \cdot 0 + 2 \cdot 5 = 10$.
+$(AB)_{21} = -1 \cdot 4 + 3 \cdot 1 = -1$.
+$(AB)_{22} = -1 \cdot 0 + 3 \cdot 5 = 15$.
+
+$AB = \begin{pmatrix} 6 & 10 \\ -1 & 15 \end{pmatrix}$.
+
+### Practice — Warm
+
+**W1.** $\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} + \begin{pmatrix}
+2 & 3 \\ 4 & 5 \end{pmatrix} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 3 & 3 \\ 4 & 6 \end{pmatrix}$.
+</details>
+
+**W2.** $3 \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 3 & 6 \\ 9 & 12 \end{pmatrix}$.
+</details>
+
+**W3.** $\begin{pmatrix} 2 & 1 \\ 0 & 3 \end{pmatrix} \begin{pmatrix} 1 \\
+2 \end{pmatrix} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 4 \\ 6 \end{pmatrix}$.
+</details>
+
+### Practice — Working
+
+**P1.** Compute $\begin{pmatrix} 1 & -1 \\ 2 & 3 \end{pmatrix} \begin{pmatrix}
+2 & 1 \\ 1 & 0 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 1 & 1 \\ 7 & 2 \end{pmatrix}$.
+</details>
+
+**P2.** A rotation by 90° counter-clockwise has matrix $R = \begin{pmatrix}
+0 & -1 \\ 1 & 0 \end{pmatrix}$. Apply it to $(1, 0)^T$ and $(0, 1)^T$.
+
+<details class="hint"><summary>Full solution</summary>
+$R (1, 0)^T = (0, 1)^T$. $R (0, 1)^T = (-1, 0)^T$.
+
+**Standard basis vectors are sent to the columns of the rotation
+matrix.** Crucial insight: a matrix's columns are *the images of the
+basis vectors*. Once you know where the basis goes, you know the
+whole transformation.
+</details>
+
+**P3.** Compute $R^2$ for $R = \begin{pmatrix} 0 & -1 \\ 1 & 0
+\end{pmatrix}$. What does it represent geometrically?
+
+<details class="hint"><summary>Full solution</summary>
+$R^2 = \begin{pmatrix} -1 & 0 \\ 0 & -1 \end{pmatrix} = -I$.
+
+Two 90° rotations = 180° rotation = negation. The matrix $-I$ sends
+every vector to its opposite. **Composing transformations =
+multiplying matrices.**
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why are 2D rotations and reflections matrices?** Show that
+the rotation matrix by angle $\theta$ is $R(\theta) = \begin{pmatrix}
+\cos \theta & -\sin \theta \\ \sin \theta & \cos \theta
+\end{pmatrix}$. Verify that $R(\theta) R(\phi) = R(\theta + \phi)$
+(angles compose by addition).
+
+<details class="hint"><summary>Full solution</summary>
+$R(\theta) R(\phi) = \begin{pmatrix} \cos \theta \cos \phi - \sin \theta \sin \phi & -(\cos \theta \sin \phi + \sin \theta \cos \phi) \\ \sin \theta \cos \phi + \cos \theta \sin \phi & \cos \theta \cos \phi - \sin \theta \sin \phi \end{pmatrix}$.
+
+Apply angle-addition identities (T3 L09):
+$\cos(\theta + \phi), -\sin(\theta + \phi), \sin(\theta + \phi),
+\cos(\theta + \phi)$ — exactly $R(\theta + \phi)$ ✓.
+
+**Matrix multiplication of rotations = adding angles.** This is the
+group structure of 2D rotations: $SO(2)$, isomorphic to the unit
+circle in the complex plane.
+</details>
+
+**S2.** **Matrix multiplication is the workhorse of deep learning.** A
+neural network layer computes $y = Wx + b$ where $W$ is a weight
+matrix. For a layer with 1024 input neurons and 1024 output neurons,
+how many multiplications does one forward pass cost?
+
+<details class="hint"><summary>Full solution</summary>
+$W$ is $1024 \times 1024$. $Wx$ has 1024 entries, each requires 1024
+multiplications. **Total: $\sim 10^6$ multiplications per layer**.
+
+A modern Transformer with hundreds of such layers, processing a
+sequence of thousands of tokens, runs *trillions* of matrix-product
+operations per forward pass. Training does another similar pass
+backwards (chain rule).
+
+This is why GPUs and TPUs exist: they are matrix-multiplication
+engines, optimised for *exactly* the operation you just learned.
+Efficient matrix multiplication algorithms (Strassen, Coppersmith-
+Winograd) shave constant factors but the core idea is the same.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Matrix multiplication is just elementwise."** No — that's
+   *Hadamard product* (rare in practice). The standard product is
+   *row-by-column dot products*.
+2. **"$AB$ requires $A$ and $B$ to be the same size."** No — they
+   need *compatible* sizes: cols($A$) = rows($B$). Result has
+   rows($A$) and cols($B$).
+3. **"$AB = BA$."** Almost never. Be careful with order — many
+   algebraic identities you know from numbers don't hold for
+   matrices.
+:::
+
+### Self-Assessment
+
+1. Could you multiply $\begin{pmatrix} 2 & 0 \\ 0 & 3 \end{pmatrix}$
+   by $(4, 5)^T$?
+2. Without scrolling back, what does the matrix $\begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix}$
+   do to a 2D vector?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $(8, 15)^T$; rotates by 90° CCW.)
+
+- **3 yes:** ready for **[02 · Linear Systems & Gaussian](../02-linear-systems-gaussian/index.qmd)**.
+- **2 yes:** redo **S1** (rotation composition).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T2 L06 — Systems of Linear Equations](../../tier-2-prealgebra/06-systems-linear-equations/index.qmd)** —
+  matrices encode systems compactly.
+- **[T4 L13 — Vectors](../../tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd)** —
+  matrix-vector products generalise vector ops.
+
+### What this unlocks
+
+- **[02 · Linear Systems & Gaussian Elimination](../02-linear-systems-gaussian/index.qmd)**
+- **[03 · Vector Spaces](../03-vector-spaces/index.qmd)**
+- **[04 · Eigenvalues](../04-eigenvalues/index.qmd)**
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** S2 — matrix multiplication is the central
+operation. Modern AI training is *measured* in TFLOPs (trillions of
+floating-point matrix operations per second).
+:::
+
+::: {.applied-callout}
+**Game development & graphics.** Every 3D transformation (translate,
+rotate, scale, project) is a matrix. Composing matrices = composing
+transforms.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Matrices are the bridge from algebra to
+geometry to analysis. Linear algebra is *the* most reused tier of
+mathematics across the sciences.
+:::
