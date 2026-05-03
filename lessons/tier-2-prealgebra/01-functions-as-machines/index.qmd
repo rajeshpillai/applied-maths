@@ -1,0 +1,397 @@
+---
+title: "01 · Functions as Machines"
+subtitle: "Input goes in, output comes out — and the rule between them is the function"
+lesson-id: "t2.functions-as-machines"
+tier: 2
+prerequisites: ["t1.intro-variables"]
+unlocks: ["t2.linear-functions-graphs"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Tier 1, Lesson 11 — Variables](../../tier-1-foundations/11-intro-variables/index.qmd)?
+2. Can you compute $2x + 5$ for $x = 3$ and get 11?
+3. Have you used a vending machine — put in money, pressed a button,
+   got a fixed item? That is the function idea, exactly.
+:::
+
+## Touch
+
+Pick a *machine* (a rule). Pick an *input*. See the output.
+
+```{ojs}
+viewof rule = Inputs.select(["double it (×2)", "add 7 (+7)", "square it (x²)", "halve it (÷2)"], {value: "double it (×2)", label: "Machine:"})
+viewof inp = Inputs.range([-10, 10], {value: 3, step: 1, label: "Input:"})
+```
+
+```{ojs}
+{
+  let out, ruleSym;
+  switch(rule) {
+    case "double it (×2)":  out = 2*inp;     ruleSym = "f(x) = 2x"; break;
+    case "add 7 (+7)":      out = inp + 7;   ruleSym = "f(x) = x + 7"; break;
+    case "square it (x²)":  out = inp*inp;   ruleSym = "f(x) = x²"; break;
+    case "halve it (÷2)":   out = inp/2;     ruleSym = "f(x) = x ÷ 2"; break;
+  }
+  const W = 720, H = 180, pad = 40;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px;");
+  // Input
+  svg.append("rect").attr("x", pad).attr("y", H/2 - 30).attr("width", 100).attr("height", 60)
+    .attr("fill", "#90caf9").attr("stroke", "#2c5f7c").attr("stroke-width", 2).attr("rx", 6);
+  svg.append("text").attr("x", pad + 50).attr("y", H/2 + 8)
+    .attr("text-anchor", "middle").attr("font-size", "26").attr("font-weight", "bold").text(`${inp}`);
+  svg.append("text").attr("x", pad + 50).attr("y", H/2 - 40)
+    .attr("text-anchor", "middle").attr("font-size", "13").attr("fill", "#666").text("input x");
+  // Arrow + machine
+  svg.append("line").attr("x1", pad + 105).attr("x2", pad + 175)
+    .attr("y1", H/2).attr("y2", H/2).attr("stroke", "#1f2933").attr("stroke-width", 2);
+  svg.append("path").attr("d", `M ${pad+170},${H/2} l -8,-5 l 0,10 z`).attr("fill", "#1f2933");
+  svg.append("rect").attr("x", pad + 180).attr("y", H/2 - 50).attr("width", 280).attr("height", 100)
+    .attr("fill", "#fffde7").attr("stroke", "#f9a825").attr("stroke-width", 2).attr("rx", 6);
+  svg.append("text").attr("x", pad + 320).attr("y", H/2 + 6)
+    .attr("text-anchor", "middle").attr("font-size", "20").attr("font-family", "monospace").text(ruleSym);
+  svg.append("text").attr("x", pad + 320).attr("y", H/2 - 60)
+    .attr("text-anchor", "middle").attr("font-size", "13").attr("fill", "#666").text("the machine f");
+  // Out arrow
+  svg.append("line").attr("x1", pad + 465).attr("x2", pad + 535)
+    .attr("y1", H/2).attr("y2", H/2).attr("stroke", "#1f2933").attr("stroke-width", 2);
+  svg.append("path").attr("d", `M ${pad+530},${H/2} l -8,-5 l 0,10 z`).attr("fill", "#1f2933");
+  svg.append("rect").attr("x", pad + 540).attr("y", H/2 - 30).attr("width", 100).attr("height", 60)
+    .attr("fill", "#a5d6a7").attr("stroke", "#2e7d32").attr("stroke-width", 2).attr("rx", 6);
+  svg.append("text").attr("x", pad + 590).attr("y", H/2 + 8)
+    .attr("text-anchor", "middle").attr("font-size", "26").attr("font-weight", "bold")
+    .text(`${out % 1 === 0 ? out : out.toFixed(1)}`);
+  svg.append("text").attr("x", pad + 590).attr("y", H/2 - 40)
+    .attr("text-anchor", "middle").attr("font-size", "13").attr("fill", "#666").text("output f(x)");
+  return svg.node();
+}
+```
+
+The machine is a **rule** that converts each input into exactly one
+output. We give it a name (here, $f$). The notation $f(3)$ means "feed
+3 into $f$ and read the output."
+
+## Wonder
+
+1. Pick the "double it" machine. What output does the input 0 give?
+   Input −5? Input 100?
+2. Could one input give *two* different outputs? Why or why not?
+3. Could two different inputs give the *same* output? (Try the
+   "square it" machine with inputs 3 and −3.)
+
+## Discover
+
+### Problem 1
+
+For $f(x) = 3x - 1$, compute $f(2)$, $f(0)$, $f(-4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute the value of $x$ into the rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f(2) = 3 \cdot 2 - 1 = 5$.
+$f(0) = 3 \cdot 0 - 1 = -1$.
+$f(-4) = 3 \cdot (-4) - 1 = -13$.
+
+Each input gives exactly one output. That is the *defining* property
+of a function.
+</details>
+
+### Problem 2
+
+The "square it" machine $g(x) = x^2$ produces $g(3) = 9$ and $g(-3) = 9$
+— two different inputs gave the same output. Is that allowed?
+
+<details class="hint"><summary>Full solution</summary>
+**Yes.** A function is allowed to send different inputs to the *same*
+output. What it *can't* do is send a single input to two different
+outputs. (Functions are *one-to-one* about which output each input
+gets, not about whether outputs can be reused.)
+
+The "square" machine even has a special property — it loses
+information. If you only know the output 9, you can't tell whether the
+input was 3 or −3. We will return to this when we meet **inverse
+functions** in Tier 3.
+</details>
+
+### Problem 3
+
+A taxi charges Rs. 30 base + Rs. 15 per km. Write a function $C(d)$
+that gives cost as a function of distance $d$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is the formula from Tier 1, Lesson 11 — now with function
+notation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$C(d) = 30 + 15d.$$
+
+$C$ is the *function name*, $d$ is the *input variable*, and $30 + 15d$
+is the *rule*. To find the cost for 8 km: $C(8) = 30 + 15 \cdot 8 =
+150$. The notation makes "input goes in, output comes out" explicit.
+</details>
+
+### Problem 4
+
+For the function $f(x) = x^2$, what is the largest possible input? The
+smallest? What are the possible *outputs*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Inputs: any real number. Outputs: think about what $x^2$ can produce.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Inputs:** any real number — there's no input that breaks $x^2$.
+**Outputs:** $x^2 \ge 0$ always, so outputs are *non-negative* (zero
+or positive). The output **2** would require $x = \sqrt{2}$ (a real
+number), but the output **−2** would require $x^2 = -2$, which has no
+real solution.
+
+The set of allowed inputs is called the **domain**. The set of possible
+outputs is called the **range**. For $f(x) = x^2$: domain = all real
+numbers, range = $[0, \infty)$.
+</details>
+
+### Problem 5
+
+A function $h$ is given as a *table*:
+
+| $x$ | $h(x)$ |
+|:-:|:-:|
+| 0 | 5 |
+| 1 | 7 |
+| 2 | 9 |
+| 3 | 11 |
+
+Can you guess the rule? What is $h(10)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+As $x$ goes up by 1, $h(x)$ goes up by 2. And when $x = 0$, $h(x) = 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$h(x) = 2x + 5$. Check: $h(0) = 5$ ✓, $h(1) = 7$ ✓, etc.
+$h(10) = 2 \cdot 10 + 5 = 25$.
+
+Functions can be specified in many ways: as a **rule** (formula),
+as a **table** of input-output pairs, or — as we will see in Lesson 5
+— as a **graph**. All three are different costumes for the same idea.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **function** $f$ is a rule that assigns to each input value exactly
+**one** output value. We write
+$$f(x) = \ldots$$
+where $x$ is the input (often called the **argument**) and $f(x)$ is
+the output. The expression on the right is the **rule**.
+
+The set of allowed inputs is the **domain**. The set of possible
+outputs is the **range**.
+
+To **evaluate** a function at a specific input is to substitute the
+input into the rule and compute the output. $f(3)$ means "evaluate $f$
+at 3."
+
+A function can be specified as:
+
+- a **formula** (rule): $f(x) = 2x + 5$,
+- a **table** of input/output pairs,
+- a **graph** (picture, in Lesson 5),
+- a **description** in words ("doubles the input, then adds 5").
+
+:::
+
+> *One input, one output — that is a function;*
+> *Substitute the input into the rule;*
+> *Domain says what inputs are allowed; range says what outputs appear.*
+
+## Apply
+
+### Worked example
+
+> Let $f(x) = x^2 - 2x + 1$. Compute $f(0), f(1), f(3), f(-2)$.
+
+A competent solver substitutes carefully:
+
+- $f(0) = 0^2 - 2 \cdot 0 + 1 = 1$.
+- $f(1) = 1 - 2 + 1 = 0$.
+- $f(3) = 9 - 6 + 1 = 4$.
+- $f(-2) = 4 - (-4) + 1 = 4 + 4 + 1 = 9$.
+
+Pay attention to **signs** when substituting negatives — wrap the
+input in brackets so the squaring sign and the multiplication sign
+don't get confused.
+
+### Practice — Warm
+
+**W1.** $f(x) = 4x - 3$. Compute $f(0), f(2), f(-1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$-3, 5, -7$.
+</details>
+
+**W2.** $g(t) = t^2 + 1$. Compute $g(0), g(3), g(-3)$.
+
+<details class="hint"><summary>Full solution</summary>
+$1, 10, 10$. (Both $\pm 3$ give the same output — see Discover P2.)
+</details>
+
+**W3.** A function takes the input *Tuesday* and outputs *2*. The
+function takes *Wednesday* and outputs *3*. What is the function?
+
+<details class="hint"><summary>Full solution</summary>
+"Day of the week → day-number, Sunday = 1." Functions don't have to
+take numbers as inputs! Anything that maps each input to exactly one
+output is a function.
+</details>
+
+### Practice — Working
+
+**P1.** A function $f$ has $f(2) = 7$ and $f(5) = 19$. Could the rule
+be $f(x) = 4x - 1$? Verify.
+
+<details class="hint"><summary>Full solution</summary>
+$f(2) = 4 \cdot 2 - 1 = 7$ ✓. $f(5) = 4 \cdot 5 - 1 = 19$ ✓.
+**Yes** — the rule is consistent with both data points.
+
+(That doesn't *prove* the rule is $4x - 1$ — many other rules pass
+through the same two points. But it is consistent. To pin down a
+*linear* rule, two points are enough — that's the topic of Lesson 5.)
+</details>
+
+**P2.** A water tank starts with **500 litres** and is being drained at
+**12 litres per minute**. Write a function $V(t)$ that gives the volume
+remaining after $t$ minutes. After how many minutes is the tank empty?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume at time 0 = 500. Volume decreases by 12 per minute.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V(t) = 500 - 12t$. Tank is empty when $V(t) = 0$:
+$500 - 12t = 0 \Rightarrow t = \dfrac{500}{12} \approx 41.7$ minutes.
+
+The function captures *both* the initial state (500 at $t = 0$) and
+the rate of change (−12 per minute) in one tidy expression.
+</details>
+
+**P3.** $f(x) = \dfrac{1}{x}$. What is $f(2)$? What is $f(0)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(2) = 1/2$. For $f(0)$ — division by zero!
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f(2) = 0.5$. $f(0)$ is **undefined** — division by zero is not
+allowed (Tier 1, Lesson 6).
+
+So the **domain** of $f(x) = 1/x$ is "all real numbers *except* 0".
+Real-world functions often have such restrictions. Knowing the domain
+matters as much as knowing the rule.
+</details>
+
+### Practice — Stretch
+
+**S1.** A neural network in machine learning, at its simplest, is a
+function: $\hat{y} = f(x_1, x_2, \ldots, x_n)$ — many inputs, one
+output. The inputs are *features* (e.g. pixel values of an image), and
+the output is a *prediction* (e.g. "this is a cat" with confidence
+0.87). Why is the function abstraction perfect for ML?
+
+<details class="hint"><summary>Full solution</summary>
+**Because ML asks "given inputs, what is the most likely output?"** —
+the exact question a function answers. Training a neural network is
+the process of *finding* a function $f$ such that $f(x) \approx y$ for
+all known input–output pairs $(x, y)$ in the training data.
+
+The whole field of supervised learning is "learn a function from
+examples". Tier 1 Lesson 11 introduced the algebraic side; Tier 2
+Lesson 1 introduces the function side; Tier 5+ will build the deep
+learning machinery on this foundation.
+</details>
+
+**S2.** A function $f$ has the property that $f(f(x)) = x$ for *every*
+input $x$. (Applying $f$ twice gives back what you started with.) Find
+two different rules for $f$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Multiply by −1": $f(x) = -x$. Check: $f(f(x)) = -(-x) = x$ ✓.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two examples:
+
+- $f(x) = -x$. Then $f(f(x)) = -(-x) = x$. ✓
+- $f(x) = \dfrac{1}{x}$ (for $x \neq 0$). Then $f(f(x)) =
+  \dfrac{1}{1/x} = x$. ✓
+
+A function that is its own inverse is called an **involution**.
+Reflections, rotations by 180°, and "negating" are all involutions —
+they undo themselves. Involutions are everywhere in geometry and
+abstract algebra.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$f(x)$ means $f$ times $x$."** No — it means "the function $f$
+   evaluated at $x$." The brackets here are *not* multiplication; they
+   are *application*. If you want multiplication, write $f \cdot x$.
+2. **"A function must have a formula."** No — it just needs to assign
+   exactly one output to each input. A table, a graph, or a verbal
+   rule all qualify.
+3. **"Two different inputs can't give the same output."** They can —
+   the squaring function maps both 3 and −3 to 9. The rule is *one
+   output per input*, not *one input per output*.
+:::
+
+### Self-Assessment
+
+1. Could you explain the difference between $f(x)$ and $f \cdot x$?
+2. Without scrolling back, can you compute $f(4)$ for $f(x) = x^2 - 3x
+   + 2$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $f(4) = 16 - 12 + 2 = 6$.)
+
+- **3 yes:** ready for **[02 · Linear Equations](../02-linear-equations-one-var/index.qmd)**.
+- **2 yes:** redo **S2** — involutions are a beautiful idea worth
+  feeling.
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L11 — Variables](../../tier-1-foundations/11-intro-variables/index.qmd)** —
+  function notation $f(x)$ formalises the input–output picture from
+  Tier 1.
+
+### What this unlocks
+
+- **[T2 L05 — Linear Functions and Their Graphs](../05-linear-functions-graphs/index.qmd)** —
+  visualising functions as pictures on the coordinate plane.
+- **Tier 4 — Calculus** — functions are the *objects* calculus studies.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Every model is a function. Training is
+finding the function that fits the data.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Functions are the central objects of
+analysis, topology, abstract algebra (homomorphisms are functions
+between algebraic structures), and category theory (where everything
+is essentially a function).
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Pricing rules, tax brackets, scoring rubrics,
+spreadsheet formulas, computer programs (every routine is a function
+in this sense). The function abstraction is the language of *rules*.
+:::
