@@ -1,0 +1,392 @@
+---
+title: "13 · Elliptic Curves and ECC"
+subtitle: "Curves with a group law — and the cryptography that secures the modern internet."
+lesson-id: "t7.elliptic-curves"
+tier: 7
+prerequisites: ["t6.rings-fields", "t6.complex-numbers"]
+unlocks: []
+applied-domains: ["encryption", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T6 L03 — Rings and Fields](../../tier-6-undergrad-advanced/03-rings-fields/index.qmd)?
+2. Recall: groups, finite fields $\mathbb{F}_p$, modular arithmetic.
+3. Have you encountered Diffie-Hellman or RSA?
+:::
+
+## Touch
+
+Plot the curve $y^2 = x^3 - x$. Draw a chord between two points;
+the chord hits the curve at a third point. Reflect across the
+$x$-axis: that's their *sum*.
+
+```{ojs}
+viewof curveA = Inputs.range([-3, 3], {value: -1, step: 0.1, label: "a:"})
+```
+
+```{ojs}
+viewof curveB = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "b:"})
+```
+
+```{ojs}
+{
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  const points = [];
+  for (let x = -3; x <= 3; x += 0.02) {
+    const y2 = x*x*x + curveA*x + curveB;
+    if (y2 >= 0) {
+      const y = Math.sqrt(y2);
+      points.push({x, y, branch: "+"});
+      points.push({x, y: -y, branch: "-"});
+    }
+  }
+  const disc = -16 * (4 * Math.pow(curveA, 3) + 27 * Math.pow(curveB, 2));
+  return html`<div>
+    ${Plot.plot({
+      width: 540, height: 360, x: {domain: [-3, 3]}, y: {domain: [-3, 3]},
+      marks: [Plot.dot(points, {x: "x", y: "y", r: 1.5, fill: "branch"})]
+    })}
+    <div style="font-family:monospace; font-size:0.9rem; color:#1a237e; margin-top:6px;">
+      Discriminant Δ = -16(4a³ + 27b²) = ${disc.toFixed(2)} ${disc !== 0 ? "✓ smooth (elliptic curve)" : "✗ singular (not an elliptic curve)"}
+    </div>
+  </div>`;
+}
+```
+
+The chord-and-tangent construction makes points form a **group**.
+
+## Wonder
+
+1. Over $\mathbb{Q}$ or $\mathbb{R}$: continuous group of points.
+2. Over $\mathbb{F}_p$ (finite field): finite group; size $\approx p$.
+3. **Discrete log on this group is hard** — basis of ECC.
+
+## Discover
+
+### Problem 1
+
+An **elliptic curve** over a field $K$: $E: y^2 = x^3 + ax + b$ with
+discriminant $\Delta = -16(4 a^3 + 27 b^2) \neq 0$ (smooth).
+
+Add a **point at infinity** $\mathcal{O}$. Define addition $P + Q$:
+
+- Draw the chord from $P$ to $Q$ (or tangent if $P = Q$).
+- It meets $E$ in a third point $R$.
+- $P + Q := -R$ (reflection over $x$-axis).
+
+Show $\mathcal{O}$ is the identity.
+
+<details class="hint"><summary>Full solution</summary>
+The vertical line through $P$ "meets infinity" at $\mathcal{O}$, then
+the third meeting point of the line $P\mathcal{O}$ extended is the
+reflection of $P$. So $P + \mathcal{O} = P$.
+
+This is **the chord-tangent group law.**
+</details>
+
+### Problem 2
+
+For $E: y^2 = x^3 + 7$ over $\mathbb{F}_{11}$, compute all points.
+
+<details class="hint"><summary>Full solution</summary>
+For each $x \in \{0, 1, \ldots, 10\}$, compute $x^3 + 7 \mod 11$.
+Determine if it's a quadratic residue (a square mod 11):
+
+| $x$ | $x^3 + 7$ | square? | $y$ |
+|---|---|---|---|
+| 0 | 7 | no | — |
+| 1 | 8 | no | — |
+| 2 | 4 | yes | 2, 9 |
+| 3 | 1 | yes | 1, 10 |
+| 4 | 5 | yes | 4, 7 |
+| ... | | | |
+
+Plus point at infinity $\mathcal{O}$. Group order ≈ 12 (small example).
+
+For real ECC: $p \approx 2^{256}$.
+</details>
+
+### Problem 3
+
+**Hasse's theorem.** For $E$ over $\mathbb{F}_q$:
+$$
+|\#E(\mathbb{F}_q) - (q + 1)| \leq 2\sqrt{q}.
+$$
+So $|E(\mathbb{F}_q)| \approx q$.
+
+Why does this matter for cryptography?
+
+<details class="hint"><summary>Full solution</summary>
+Crypto wants a group with $\sim q$ elements. Hasse guarantees the size
+is in a narrow window around $q + 1$.
+
+For $p \approx 2^{256}$: $|E(\mathbb{F}_p)| \approx 2^{256}$ — large
+enough that brute-force discrete log is infeasible.
+
+Pick a curve where the order is *prime* (so subgroups are trivial) →
+secure.
+</details>
+
+### Problem 4
+
+**Discrete log on $E(\mathbb{F}_p)$.** Given $P, Q \in E$ with $Q = nP$,
+find $n$.
+
+Best known classical: Pollard's rho — $O(\sqrt{p})$.
+
+For $p \approx 2^{256}$: $2^{128}$ operations — infeasible.
+
+Why is this *better* than $\mathbb{Z}_p^*$ discrete log?
+
+<details class="hint"><summary>Full solution</summary>
+For $\mathbb{Z}_p^*$: index calculus gives sub-exponential algorithms
+(NFS-like).
+
+For elliptic curves: **no known sub-exponential algorithm**. ECDLP
+appears genuinely $O(\sqrt{p})$.
+
+Hence: 256-bit ECC ≈ 3072-bit RSA in security. **Smaller keys, less
+bandwidth, less power.** Used in TLS 1.3, signal protocol, mobile
+crypto.
+</details>
+
+### Problem 5
+
+**Elliptic Curve Diffie-Hellman (ECDH).** Public: curve $E$, point $G$
+of large prime order.
+
+- Alice: secret $a$, public $A = aG$.
+- Bob: secret $b$, public $B = bG$.
+- Shared key: $aB = abG = bA$.
+
+Why is the eavesdropper stuck?
+
+<details class="hint"><summary>Full solution</summary>
+Eavesdropper sees $G, A = aG, B = bG$. To compute $abG$, needs to find
+$a$ (or $b$) — that's discrete log.
+
+If ECDLP is hard ($O(\sqrt{p})$), eavesdropper is stuck.
+
+This is **CDH (computational Diffie-Hellman) on elliptic curves**.
+
+ECDSA, ECDH, ed25519: all variants. **Ubiquitous** in TLS, SSH, crypto
+wallets.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Elliptic curve** $E: y^2 = x^3 + ax + b$, $\Delta \neq 0$.
+
+**Group law:** chord-and-tangent. Identity $\mathcal{O}$ at infinity.
+
+**Hasse's theorem:** $|\#E(\mathbb{F}_q) - (q+1)| \leq 2\sqrt{q}$.
+
+**$E(\mathbb{Q})$ — Mordell's theorem:** finitely generated abelian group.
+$E(\mathbb{Q}) \cong T \oplus \mathbb{Z}^r$ where $T$ is torsion and $r$
+is **rank**.
+
+**BSD conjecture** (Birch-Swinnerton-Dyer, $\$1$M Clay prize): rank
+of $E$ over $\mathbb{Q}$ equals order of vanishing of $L$-function
+$L(E, s)$ at $s = 1$.
+
+**ECDLP:** given $P, Q$ with $Q = nP$, find $n$. Believed $O(\sqrt{p})$.
+
+**ECC schemes:**
+
+- **ECDH:** key exchange.
+- **ECDSA:** signatures.
+- **EdDSA / ed25519:** modern signatures (Curve25519).
+- **secp256k1:** Bitcoin and Ethereum.
+
+**Pairing-based crypto:** Weil / Tate pairings on elliptic curves
+enable identity-based encryption, BLS signatures.
+
+**Modularity theorem:** every elliptic curve over $\mathbb{Q}$ is
+modular (Wiles, Breuil-Conrad-Diamond-Taylor) — bridge to FLT and
+Langlands (T7 L15).
+
+:::
+
+> *Elliptic curve = smooth y² = x³ + ax + b;*
+> *Chord-and-tangent makes points a group;*
+> *ECDLP is hard ⇒ ECC keys are small.*
+
+## Apply
+
+### Worked example
+
+> **Bitcoin's secp256k1 signing.**
+
+Curve: $y^2 = x^3 + 7$ over $\mathbb{F}_p$ for $p = 2^{256} - 2^{32} - 977$.
+
+Generator $G$, order $n \approx 2^{256}$.
+
+Private key: $d \in \{1, \ldots, n-1\}$.
+Public key: $Q = dG$.
+
+To sign message $m$: pick random $k$, compute $kG = (x_1, y_1)$, $r =
+x_1 \mod n$, $s = k^{-1}(H(m) + dr) \mod n$. Signature: $(r, s)$.
+
+Verification: compute $u_1 = H(m) s^{-1}, u_2 = r s^{-1}$, $u_1 G + u_2
+Q = (x_1', \cdot)$, check $x_1' = r$.
+
+This is **ECDSA**, used by every Bitcoin transaction.
+
+### Practice — Warm
+
+**W1.** Why does $\Delta = 0$ disqualify a curve?
+
+<details class="hint"><summary>Full solution</summary>
+The curve has a singular point — chord-tangent breaks down.
+</details>
+
+**W2.** Is the chord-tangent law commutative?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — the chord through $P, Q$ doesn't depend on order.
+</details>
+
+**W3.** Why does ECDH need the *base point* $G$ to have *prime* order?
+
+<details class="hint"><summary>Full solution</summary>
+Composite order → small subgroups → Pohlig-Hellman attack reduces ECDLP
+to smaller groups via CRT.
+
+Prime order: no proper subgroups, no shortcut.
+</details>
+
+### Practice — Working
+
+**P1.** What's the **Lenstra factorization** algorithm?
+
+<details class="hint"><summary>Full solution</summary>
+Use elliptic curves over $\mathbb{Z}/N$ to factor $N$.
+
+Pick random curve mod $N$. Try to compute $kP$ for large $k$. If group
+arithmetic fails (some inversion impossible mod $N$), gcd of the
+denominator with $N$ gives a factor.
+
+Sub-exponential. Used in factoring with small factors. (For balanced
+RSA: NFS is faster.)
+</details>
+
+**P2.** Why are **pairings** revolutionary?
+
+<details class="hint"><summary>Full solution</summary>
+A pairing $e: E \times E \to \mathbb{F}_q^*$ that is bilinear: $e(aP,
+bQ) = e(P, Q)^{ab}$.
+
+Enables: identity-based encryption (Boneh-Franklin 2001), short
+signatures (BLS), zk-SNARKs.
+
+Pairing-friendly curves are specially constructed.
+</details>
+
+**P3.** Why is **Curve25519** preferred for modern systems?
+
+<details class="hint"><summary>Full solution</summary>
+- Constant-time arithmetic by design (no timing side-channels).
+- 128-bit security at 256-bit keys.
+- No magic constants (unlike NIST P-256).
+- Fast scalar multiplication.
+
+Used in: TLS 1.3, Signal, WireGuard, OpenSSH, Tor.
+
+Designer: Daniel J. Bernstein. Adopted broadly because of clear
+security properties + simple implementation.
+</details>
+
+### Practice — Stretch
+
+**S1.** **The Modularity theorem and FLT.**
+
+<details class="hint"><summary>Full solution</summary>
+Every elliptic curve $E$ over $\mathbb{Q}$ corresponds to a **modular
+form** $f_E$.
+
+Frey-Ribet (1980s): if FLT had a counterexample $a^p + b^p = c^p$, the
+curve $y^2 = x(x - a^p)(x + b^p)$ would be **non-modular**.
+
+So Modularity → FLT.
+
+Wiles (+Taylor, 1995): proved Modularity for the relevant class. FLT
+falls.
+
+This is the most famous theorem of the 20th century in pure math.
+</details>
+
+**S2.** **BSD conjecture — Clay $1M problem.**
+
+<details class="hint"><summary>Full solution</summary>
+For $E$ over $\mathbb{Q}$, define $L$-function $L(E, s)$ from local
+factors. Conjecture:
+
+$$
+\text{rank}(E(\mathbb{Q})) = \text{ord}_{s=1} L(E, s).
+$$
+
+I.e., # independent rational points = order of vanishing of $L$ at
+$s = 1$.
+
+Proved: rank-0, rank-1 cases (Kolyvagin, Gross-Zagier). Rank ≥ 2: open.
+
+This is *the* example of the deep arithmetic-analytic connection that
+Langlands generalises (T7 L15).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Elliptic = ellipse-shaped."** No — name from elliptic
+   integrals. Visually: a curve with a hole or a ring.
+2. **"All elliptic curves over $\mathbb{F}_p$ are secure."** Some have
+   small group order, some have efficient pairing reductions —
+   choose carefully (NIST or Curve25519, not random).
+3. **"ECC is post-quantum."** **No** — Shor's algorithm breaks ECDLP
+   too. ECC is broken by quantum computers (T7 L14: lattice crypto for
+   PQ).
+:::
+
+### Self-Assessment
+
+1. State the chord-tangent group law informally.
+2. Why is ECDLP harder than $\mathbb{Z}_p^*$ DLP?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: chord meets curve in third point; sum is its reflection.)
+
+- **3 yes:** ready for **[14 · Lattice Crypto](../14-lattice-crypto/index.qmd)**.
+- **2 yes:** redo **P3** (Curve25519).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T6 L03 — Rings and Fields](../../tier-6-undergrad-advanced/03-rings-fields/index.qmd)**
+
+### What this unlocks
+
+- Modular forms, Galois representations, Wiles's proof of FLT.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** TLS 1.3, Bitcoin, Ethereum, Signal — all use ECC.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Bridge between number theory and algebraic
+geometry; centerpiece of Langlands program.
+:::
+
+::: {.applied-callout}
+**Theoretical computer science.** zk-SNARKs and zero-knowledge proofs
+(uses pairings).
+:::
