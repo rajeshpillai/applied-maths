@@ -1,0 +1,372 @@
+---
+title: "11 · Polynomials — Adding and Multiplying"
+subtitle: "Sums of powers of a variable — and the rectangle picture, generalised"
+lesson-id: "t2.polynomials"
+tier: 2
+prerequisites: ["t1.intro-variables", "t1.multiply-as-area", "t2.exponents-powers"]
+unlocks: ["t2.factoring-polynomials", "t2.quadratic-equations-intro"]
+applied-domains: ["research", "encryption"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T1 L11 — Variables](../../tier-1-foundations/11-intro-variables/index.qmd)
+   and [07 · Exponents](../07-exponents-powers/index.qmd)?
+2. Can you compute $5x^2$ for $x = 3$ and get 45?
+3. Can you multiply two single-digit numbers in your head?
+:::
+
+## Touch
+
+Pick two binomials. The widget multiplies them and shows the *rectangle*
+picture (Tier 1 L05 generalised).
+
+```{ojs}
+viewof aT = Inputs.range([-5, 5], {value: 1, step: 1, label: "a (in (ax + b)):"})
+viewof bT = Inputs.range([-5, 5], {value: 3, step: 1, label: "b:"})
+viewof cT = Inputs.range([-5, 5], {value: 1, step: 1, label: "c (in (cx + d)):"})
+viewof dT = Inputs.range([-5, 5], {value: 5, step: 1, label: "d:"})
+```
+
+```{ojs}
+{
+  // (ax + b)(cx + d) = ac x^2 + (ad + bc) x + bd
+  const x2 = aT * cT, x1 = aT * dT + bT * cT, x0 = bT * dT;
+  const fmt = (n, sym) => {
+    if (n === 0) return "";
+    const sign = n > 0 ? "+ " : "− ";
+    const mag = Math.abs(n);
+    const coeff = mag === 1 && sym ? "" : mag;
+    return ` ${sign}${coeff}${sym}`;
+  };
+  const result = (x2 === 0 ? "" : `${x2}x²`) + fmt(x1, "x") + fmt(x0, "");
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.4rem;">
+      (${aT}x ${bT >= 0 ? '+' : '−'} ${Math.abs(bT)})(${cT}x ${dT >= 0 ? '+' : '−'} ${Math.abs(dT)})
+      &nbsp;=&nbsp;
+      <span style="color:#c2185b; font-weight:bold;">${result.trim().replace(/^\+ /, '')}</span>
+    </div>
+    <div style="font-size:0.95rem; color:#666; margin-top:0.5rem; font-family:monospace;">
+      x² coeff: ${aT}·${cT} = ${x2} &nbsp; · &nbsp; x coeff: ${aT}·${dT} + ${bT}·${cT} = ${x1} &nbsp; · &nbsp; constant: ${bT}·${dT} = ${x0}
+    </div>
+  </div>`;
+}
+```
+
+A **polynomial** is a sum of *terms*, each of which is a number times
+a power of $x$. Multiplying two polynomials is exactly the *area of a
+rectangle* with side-lengths given by each polynomial — split into
+sub-rectangles. The Tier 1 picture survives.
+
+## Wonder
+
+1. What kind of expression is $3x^2 + 5x - 7$? How many terms?
+2. Is $3x + 2 + 5x$ the same as $8x + 2$? Why?
+3. What does $(x + 1)(x + 1)$ give?
+
+## Discover
+
+### Problem 1
+
+Add: $(2x^2 + 3x - 5) + (x^2 - 2x + 8)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combine **like terms**: $x^2$ with $x^2$, $x$ with $x$, constants
+with constants.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2$: $2 + 1 = 3$. $x$: $3 - 2 = 1$. Constant: $-5 + 8 = 3$.
+**$3x^2 + x + 3$.**
+
+Adding polynomials is just adding the *coefficients* of matching
+powers — like sorting items by category before counting.
+</details>
+
+### Problem 2
+
+Multiply: $3x \cdot (2x + 5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distribute the $3x$ across both terms inside the bracket.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x \cdot 2x + 3x \cdot 5 = 6x^2 + 15x$.
+
+Recall the exponent rule: $x \cdot x = x^2$. Multiplying a number by
+the same variable adds 1 to the variable's exponent.
+</details>
+
+### Problem 3
+
+Multiply: $(x + 2)(x + 3)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Picture a rectangle with sides $(x + 2)$ and $(x + 3)$. Split into 4
+sub-rectangles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The four sub-rectangles have areas $x^2, 3x, 2x, 6$. Sum: $x^2 + 5x +
+6$.
+
+Equivalently, distribute: $(x + 2)(x + 3) = x(x + 3) + 2(x + 3) = x^2
++ 3x + 2x + 6 = x^2 + 5x + 6$.
+
+The widget shows the same result: $x^2$ coefficient = 1, $x$
+coefficient = $1 \cdot 3 + 2 \cdot 1 = 5$, constant = $2 \cdot 3 = 6$.
+
+This pattern generalises into the *FOIL* mnemonic (First, Outer,
+Inner, Last) — but the rectangle picture is more honest and
+generalises beyond binomials.
+</details>
+
+### Problem 4
+
+Multiply: $(x + 5)(x - 5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the rectangle picture or distribute carefully.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 5x + 5x - 25 = x^2 - 25$. The middle terms **cancel**.
+
+This is the **difference of squares** identity:
+$$(x + a)(x - a) = x^2 - a^2.$$
+A pattern worth memorising — it appears constantly when factoring
+(Lesson 12) and in higher algebra.
+</details>
+
+### Problem 5
+
+Multiply: $(x + 3)^2$ — that is, $(x + 3)(x + 3)$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 3x + 3x + 9 = x^2 + 6x + 9$.
+
+This is the **square of a binomial** identity:
+$$(x + a)^2 = x^2 + 2ax + a^2.$$
+
+**Common error alert:** $(x + a)^2 \neq x^2 + a^2$. The $2ax$ in the
+middle is *essential*. We met this gotcha briefly in Tier 2 L07; it
+returns to bite anyone who forgets it.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **polynomial in one variable** is a sum of **terms**, each of the
+form $c \cdot x^k$ where $c$ is a constant and $k$ is a non-negative
+integer.
+
+The **degree** of a polynomial is the *highest* exponent of $x$
+present.
+
+| Degree | Name |
+|:-:|---|
+| 0 | constant ($5$) |
+| 1 | linear ($3x + 2$) |
+| 2 | quadratic ($x^2 - 4x + 7$) |
+| 3 | cubic ($x^3 + 2x - 1$) |
+| 4 | quartic |
+| 5 | quintic |
+
+**Adding polynomials:** combine like terms (same power of $x$).
+
+**Multiplying polynomials:** distribute every term in the first across
+every term in the second; then collect like terms.
+
+**Two key identities:**
+
+- **Difference of squares:** $(x + a)(x - a) = x^2 - a^2$.
+- **Square of a binomial:** $(x + a)^2 = x^2 + 2ax + a^2$.
+
+:::
+
+> *Same powers add as like terms; different powers stand alone;*
+> *To multiply: every term in one across every term in the other.*
+> *Difference of squares cancels the middle; square of a binomial doubles it.*
+
+## Apply
+
+### Worked example
+
+> Multiply $(2x - 3)(x + 4)$.
+
+A competent solver distributes systematically:
+
+1. $2x \cdot x = 2x^2$.
+2. $2x \cdot 4 = 8x$.
+3. $-3 \cdot x = -3x$.
+4. $-3 \cdot 4 = -12$.
+5. Combine: $2x^2 + (8 - 3)x - 12 = 2x^2 + 5x - 12$.
+
+**Answer: $2x^2 + 5x - 12$.** Check on the widget: $a = 2, b = -3, c =
+1, d = 4$ → $2x^2 + 5x - 12$ ✓.
+
+### Practice — Warm
+
+**W1.** Add $(3x + 5) + (4x - 2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$7x + 3$.
+</details>
+
+**W2.** Multiply $4x \cdot (x + 7)$.
+
+<details class="hint"><summary>Full solution</summary>
+$4x^2 + 28x$.
+</details>
+
+**W3.** Multiply $(x + 4)(x - 4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Difference of squares.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 16$.
+</details>
+
+### Practice — Working
+
+**P1.** Multiply $(x + 2)^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 4x + 4$.
+</details>
+
+**P2.** Multiply $(2x + 1)(3x - 5)$.
+
+<details class="hint"><summary>Full solution</summary>
+$6x^2 - 10x + 3x - 5 = 6x^2 - 7x - 5$.
+</details>
+
+**P3.** Subtract $(3x^2 + 4x - 1) - (x^2 - 2x + 5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distribute the negative sign across the second polynomial.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(3x^2 - x^2) + (4x - (-2x)) + (-1 - 5) = 2x^2 + 6x - 6$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Multiply $(x + 1)(x^2 - x + 1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distribute carefully — three terms in the second polynomial.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x \cdot (x^2 - x + 1) + 1 \cdot (x^2 - x + 1) = x^3 - x^2 + x + x^2 -
+x + 1 = x^3 + 1$.
+
+This is another famous identity: **sum of cubes** — $x^3 + 1 = (x +
+1)(x^2 - x + 1)$. (And generally $x^3 + a^3 = (x + a)(x^2 - ax + a^2)$.)
+
+Polynomials have many such identities — they are the alphabet of
+algebraic manipulation. Memorising the most common ones (difference of
+squares, square of a binomial, sum/difference of cubes) saves time.
+</details>
+
+**S2.** **Polynomials are everywhere in encryption.** RSA encryption
+treats messages as numbers and *polynomials over modular arithmetic*
+appear in advanced schemes. **Lattice-based post-quantum
+cryptography** literally lives in *polynomial rings*: $\mathbb{Z}[x] /
+(x^n + 1)$ — polynomials modulo another polynomial. Why might
+polynomials be useful for cryptography?
+
+<details class="hint"><summary>Full solution</summary>
+**Polynomials provide structured complexity.** They are large enough
+(many coefficients) to carry significant information; they have rich
+algebraic structure (addition, multiplication, identities); and
+operations on them are well-studied and efficient.
+
+Polynomial rings allow constructions like **error-correcting codes**
+(Reed-Solomon — used in CDs, DVDs, satellite communication) and
+**lattice cryptography** (NTRU, Kyber — currently being standardised
+as post-quantum cryptography by NIST).
+
+The humble polynomial of Tier 2 is the entry point to topics that
+secure modern digital infrastructure. Tier 6 (abstract algebra) builds
+the theory; Tier 7 (encryption track) applies it.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$(x + a)^2 = x^2 + a^2$."** **False.** The correct expansion is
+   $x^2 + 2ax + a^2$. The cross-term is essential.
+2. **"Like terms are terms with the same number coefficient."** No —
+   like terms have the *same variable raised to the same power*. $3x$
+   and $7x$ are like terms; $3x$ and $7x^2$ are not.
+3. **"Multiplying always increases the degree."** Yes — multiplying a
+   degree-$m$ polynomial by a degree-$n$ polynomial gives degree
+   $m + n$. *Adding* two polynomials of the same degree, however, can
+   sometimes *reduce* the degree (e.g., $x^2 + (-x^2 + 3) = 3$, a
+   constant).
+:::
+
+### Self-Assessment
+
+1. Could you derive the difference-of-squares identity $(x + a)(x - a)
+   = x^2 - a^2$ in your own words?
+2. Without scrolling back, can you multiply $(x + 3)(x - 7)$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $x^2 - 4x - 21$.)
+
+- **3 yes:** ready for **[12 · Factoring Polynomials](../12-factoring-polynomials/index.qmd)**.
+- **2 yes:** redo **S1** (sum of cubes) — it appears in many later
+  contexts.
+- **0–1 yes:** re-read *Discover P3, P4, P5* — the three identities
+  are the bedrock.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L11 — Variables](../../tier-1-foundations/11-intro-variables/index.qmd)**
+- **[T1 L05 — Multiplication as Area](../../tier-1-foundations/05-multiply-as-area/index.qmd)**
+- **[07 · Exponents and Powers](../07-exponents-powers/index.qmd)**
+
+### What this unlocks
+
+- **[12 · Factoring Polynomials](../12-factoring-polynomials/index.qmd)** —
+  the *inverse* of multiplication.
+- **[14 · Quadratic Equations](../14-quadratic-equations-intro/index.qmd)** —
+  solving $x^2 + bx + c = 0$.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** Polynomial rings underpin lattice-based post-quantum
+cryptography (NIST has standardised CRYSTALS-Kyber, an NTRU-style
+scheme). Polynomial codes (Reed-Solomon) protect every CD, DVD,
+QR code, and deep-space satellite signal.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Polynomial rings are *the* central object
+of commutative algebra and algebraic geometry — entire branches of
+modern mathematics. The Hilbert Nullstellensatz, the Gröbner basis
+algorithm, the Riemann hypothesis (in its function-field analogue) —
+all live in polynomial-ring language.
+:::
+
+::: {.applied-callout}
+**Engineering & physics.** Polynomial *fitting* is the simplest curve-
+fit method (extending the linear regression of Lesson 5). Splines —
+piecewise polynomials — model smooth curves in CAD, fonts, and
+animation.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Polynomial models appear in finance (yield
+curves), economics (marginal cost = derivative of a polynomial),
+statistics (regression with quadratic and higher terms), and
+computer graphics (Bezier and B-spline curves are polynomial in
+nature).
+:::
