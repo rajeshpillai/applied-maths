@@ -1,0 +1,372 @@
+---
+title: "05 · Linear Functions and Their Graphs"
+subtitle: "When the rule is y = mx + b, the picture is a straight line"
+lesson-id: "t2.linear-functions-graphs"
+tier: 2
+prerequisites: ["t2.functions-as-machines", "t2.coordinate-plane"]
+unlocks: ["t2.systems-linear-equations"]
+applied-domains: ["ai-ml", "game-dev", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [01 · Functions as Machines](../01-functions-as-machines/index.qmd)
+   and [04 · The Coordinate Plane](../04-coordinate-plane/index.qmd)?
+2. Can you evaluate $y = 2x + 5$ for $x = 0, 1, 2$?
+3. Can you plot a point like $(3, 4)$ on graph paper?
+:::
+
+## Touch
+
+Drag $m$ (slope) and $b$ (y-intercept). Watch the line $y = mx + b$
+change.
+
+```{ojs}
+viewof slope = Inputs.range([-3, 3], {value: 1, step: 0.5, label: "m (slope):"})
+viewof intercept = Inputs.range([-6, 6], {value: 1, step: 1, label: "b (intercept):"})
+```
+
+```{ojs}
+{
+  const W = 480, H = 480, pad = 30;
+  const xMin = -10, xMax = 10, yMin = -10, yMax = 10;
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - ((v - yMin) / (yMax - yMin)) * (H - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:520px; display:block; margin: 0 auto; background:#fafafa;");
+
+  // Grid
+  for (let v = xMin; v <= xMax; v++) {
+    svg.append("line").attr("x1", px(v)).attr("x2", px(v)).attr("y1", pad).attr("y2", H - pad)
+      .attr("stroke", v === 0 ? "#1f2933" : "#eee").attr("stroke-width", v === 0 ? 1.5 : 0.5);
+    svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(v)).attr("y2", py(v))
+      .attr("stroke", v === 0 ? "#1f2933" : "#eee").attr("stroke-width", v === 0 ? 1.5 : 0.5);
+  }
+
+  // The line: y = mx + b
+  const x1 = xMin, y1 = slope * xMin + intercept;
+  const x2 = xMax, y2 = slope * xMax + intercept;
+  svg.append("line").attr("x1", px(x1)).attr("x2", px(x2)).attr("y1", py(y1)).attr("y2", py(y2))
+    .attr("stroke", "#c2185b").attr("stroke-width", 2.5);
+
+  // y-intercept point
+  svg.append("circle").attr("cx", px(0)).attr("cy", py(intercept)).attr("r", 6)
+    .attr("fill", "#c2185b").attr("stroke", "#fff").attr("stroke-width", 2);
+  svg.append("text").attr("x", px(0) + 10).attr("y", py(intercept) - 8)
+    .attr("font-size", "12").attr("fill", "#c2185b").attr("font-weight", "bold")
+    .text(`(0, ${intercept})`);
+
+  // Equation label
+  const eqStr = `y = ${slope === 1 ? "" : (slope === -1 ? "−" : slope)}x ${intercept >= 0 ? "+" : "−"} ${Math.abs(intercept)}`;
+  svg.append("rect").attr("x", pad + 5).attr("y", 5).attr("width", 200).attr("height", 30).attr("fill", "white").attr("stroke", "#c2185b").attr("rx", 4);
+  svg.append("text").attr("x", pad + 105).attr("y", 26).attr("text-anchor", "middle")
+    .attr("font-size", "16").attr("font-family", "monospace").attr("font-weight", "bold").attr("fill", "#c2185b")
+    .text(eqStr);
+
+  return svg.node();
+}
+```
+
+The number $m$ is the **slope** (how steep). The number $b$ is the
+**y-intercept** (where the line crosses the y-axis). Together, $(m, b)$
+specifies any straight line in the plane.
+
+## Wonder
+
+1. Set $m = 0$. What kind of line do you get? Why?
+2. Set $m = 1, b = 0$. What is the line? What is its equation?
+3. Set $m = 2$. Now compare the line to $m = -2$. What changes?
+
+## Discover
+
+### Problem 1
+
+For the function $y = 2x + 1$, fill in the table:
+
+| $x$ | $y$ |
+|:-:|:-:|
+| -2 | ? |
+| -1 | ? |
+| 0  | ? |
+| 1  | ? |
+| 2  | ? |
+
+Plot the points. What do you notice?
+
+<details class="hint"><summary>Full solution</summary>
+$y = -3, -1, 1, 3, 5$.
+
+The five points all lie on a single straight line. Every linear function
+$y = mx + b$ has a graph that is a straight line — that is *why* it's
+called "linear".
+</details>
+
+### Problem 2
+
+For $y = 2x + 1$, what is the value of $y$ when $x = 0$? When $x = 1$?
+By how much does $y$ increase when $x$ increases by 1?
+
+<details class="hint"><summary>Full solution</summary>
+$y(0) = 1$, $y(1) = 3$. Increase: $3 - 1 = 2$.
+
+The increase per unit $x$ is **the slope**. For $y = 2x + 1$, the slope
+is $2$ — and indeed $y$ jumps by 2 every time $x$ jumps by 1. This is
+the geometric meaning of the coefficient of $x$.
+</details>
+
+### Problem 3
+
+Two points are given: $(1, 3)$ and $(4, 9)$. Compute the **slope** of
+the line connecting them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Slope = "rise over run" = $\dfrac{\Delta y}{\Delta x} =
+\dfrac{y_2 - y_1}{x_2 - x_1}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$m = \dfrac{9 - 3}{4 - 1} = \dfrac{6}{3} = 2$.
+
+The slope formula is just *change in y* divided by *change in x* —
+"rise over run". Two points are enough to specify a line; the slope
+between them is fixed by simple arithmetic.
+</details>
+
+### Problem 4
+
+A line has slope $m = 3$ and passes through the point $(0, -2)$. Write
+its equation.
+
+<details class="hint"><summary>Full solution</summary>
+The point $(0, -2)$ is the y-intercept (it has $x = 0$), so $b = -2$.
+Equation: $y = 3x - 2$.
+
+When you know the slope *and* a point on the y-axis, you have $m$ and
+$b$ directly.
+</details>
+
+### Problem 5
+
+Two lines: $y = 2x + 3$ and $y = 2x - 1$. What is true of these lines?
+
+What about $y = 2x + 3$ and $y = -\tfrac{1}{2}x + 3$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try plotting (in your head). What's the same? What's different?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$y = 2x + 3$ and $y = 2x - 1$:** same slope (2), different intercepts
+— **parallel lines**. They never meet, like railway tracks.
+
+**$y = 2x + 3$ and $y = -\tfrac{1}{2}x + 3$:** slopes are 2 and
+$-\tfrac{1}{2}$. Their *product* is $-1$. Such lines meet at right
+angles — **perpendicular lines**. (Both pass through $(0, 3)$ here, so
+they cross at right angles there.)
+
+**Rule:** parallel = same slope; perpendicular = slopes multiply to
+$-1$. The geometry of crossings is encoded entirely in slope arithmetic.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **linear function** has the form
+$$y = mx + b$$
+where $m$ is the **slope** and $b$ is the **y-intercept**. Its graph is
+a **straight line**.
+
+- **Slope $m$:** how steep the line is — the change in $y$ per unit
+  change in $x$. Computed from any two points: $m =
+  \dfrac{y_2 - y_1}{x_2 - x_1}$.
+- **y-intercept $b$:** the value of $y$ when $x = 0$ — where the line
+  crosses the y-axis.
+
+**Special cases:**
+
+- $m = 0$: horizontal line $y = b$.
+- $m$ undefined (vertical line $x = a$): not a function (one $x$ has
+  many $y$).
+
+**Two lines:**
+
+- **Parallel** $\iff$ same slope.
+- **Perpendicular** $\iff$ slopes multiply to $-1$.
+
+:::
+
+> *Slope is the climb per step rightward;*
+> *Intercept is where the line crosses the y-axis;*
+> *Two points determine a line — the slope between them is its tilt.*
+
+## Apply
+
+### Worked example
+
+> Find the equation of the line passing through $(2, 1)$ and $(5, 7)$.
+
+A competent solver finds the slope first, then uses one point to find
+the intercept.
+
+1. **Slope:** $m = \dfrac{7 - 1}{5 - 2} = \dfrac{6}{3} = 2$.
+2. **Use point-slope form** $y - y_1 = m(x - x_1)$ with $(2, 1)$:
+   $y - 1 = 2(x - 2) = 2x - 4$. So $y = 2x - 3$.
+3. **Check:** $y(5) = 10 - 3 = 7$ ✓.
+
+**Equation: $y = 2x - 3$.**
+
+### Practice — Warm
+
+**W1.** Slope of the line through $(0, 0)$ and $(3, 6)$?
+
+<details class="hint"><summary>Full solution</summary>
+$m = 6/3 = 2$.
+</details>
+
+**W2.** y-intercept of $y = -3x + 7$?
+
+<details class="hint"><summary>Full solution</summary>
+$b = 7$.
+</details>
+
+**W3.** Plot 3 points on the line $y = -x + 4$.
+
+<details class="hint"><summary>Full solution</summary>
+$(0, 4), (1, 3), (4, 0)$ — three points, all collinear (on a line).
+</details>
+
+### Practice — Working
+
+**P1.** Find the equation of the line through $(0, -2)$ with slope $3$.
+
+<details class="hint"><summary>Full solution</summary>
+$b = -2$, $m = 3$. Equation: $y = 3x - 2$.
+</details>
+
+**P2.** A taxi cost function: $C(d) = 30 + 15d$. What is the y-intercept,
+and what does it mean? What is the slope, and what does it mean?
+
+<details class="hint"><summary>Full solution</summary>
+**y-intercept = 30** = the cost when $d = 0$ km — the *base fare*.
+**Slope = 15** = cost increase per additional km — the *rate*.
+
+Real-world linear functions almost always have meaningful intercept
+and slope. Identifying them is half the modelling skill.
+</details>
+
+**P3.** Find the equation of the line through $(1, 5)$ and $(4, 11)$.
+
+<details class="hint"><summary>Full solution</summary>
+$m = (11-5)/(4-1) = 2$. Using point $(1, 5)$: $y - 5 = 2(x - 1) \Rightarrow
+y = 2x + 3$.
+</details>
+
+### Practice — Stretch
+
+**S1.** A linear function $f(x) = mx + b$ is fitted to the data:
+
+| $x$ | 1 | 2 | 3 | 4 | 5 |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $y$ | 5 | 7 | 9 | 11 | 13 |
+
+Find $m$ and $b$ by eye.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each step in $x$ adds the same amount to $y$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$y$ goes up by 2 for each step in $x$, so $m = 2$. Extrapolate to $x =
+0$: $y(0) = 5 - 2 = 3$, so $b = 3$.
+
+**$f(x) = 2x + 3$.**
+
+This is the simplest case of **linear regression** — fitting a line to
+data — which underpins much of statistics and the simplest neural
+network.
+</details>
+
+**S2.** A neural network with one input has the form $\hat{y} = wx + b$
+— a linear function! What does training mean for it?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare with what you did in *S1*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Training a one-input neural network is **finding the slope $w$ and
+intercept $b$ that best fit the training data**. Exactly the same task
+as in *S1*, just done by an iterative algorithm (gradient descent)
+instead of by eye.
+
+The "$w$" is called a *weight* in ML; the "$b$" is the *bias*. But
+they're just the slope and intercept of a line. The Tier 2 picture is
+literally the inside of every neural unit (before the *activation
+function* gets involved in Tier 5+).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Linear means a line."** Yes for *one* input. With two inputs,
+   "linear" means a *plane* in 3D ($z = ax + by + c$). With many
+   inputs, a *hyperplane*.
+2. **"$b$ is always positive."** $b$ can be any real number. Negative
+   $b$ means the line crosses below the origin.
+3. **"The slope of a vertical line is infinite."** Strictly: a vertical
+   line is *not a function* in $y = f(x)$ form (since one $x$ has many
+   $y$). Slope is undefined for vertical lines.
+:::
+
+### Self-Assessment
+
+1. Could you sketch $y = -2x + 3$ on graph paper, identifying its
+   slope and y-intercept?
+2. Without scrolling back, can you find the equation of the line
+   through $(0, 4)$ with slope $-1$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $y = -x + 4$.)
+
+- **3 yes:** ready for **[06 · Systems of Linear Equations](../06-systems-linear-equations/index.qmd)**.
+- **2 yes:** redo **S2** — the neural-network connection is the
+  punchline.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[01 · Functions as Machines](../01-functions-as-machines/index.qmd)**
+- **[04 · The Coordinate Plane](../04-coordinate-plane/index.qmd)**
+
+### What this unlocks
+
+- **[06 · Systems of Linear Equations](../06-systems-linear-equations/index.qmd)** —
+  two lines, when do they meet, where, how often.
+- **Tier 4 — Calculus** — the slope of a curve at a point is its
+  *derivative*; calculus generalises slope to non-linear functions.
+- **Tier 5 — Linear Algebra** — the high-dimensional analogue:
+  hyperplanes, matrices, eigenvectors.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Every neuron in a neural network is a
+linear function (followed by a non-linearity). Training is finding the
+right slopes and intercepts. The simplest ML model — *linear
+regression* — is exactly what *Stretch S1* did.
+:::
+
+::: {.applied-callout}
+**Game development & graphics.** Every transformation (translation,
+scaling) is built from linear functions. Every line, every edge of a
+mesh, every interpolation between two states uses the slope-intercept
+idea.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** *Linearity* is one of the most studied
+concepts in mathematics. Linear algebra (Tier 5) is the most reused
+toolkit in applied maths.
+:::
