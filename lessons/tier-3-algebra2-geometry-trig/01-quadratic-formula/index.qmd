@@ -1,0 +1,355 @@
+---
+title: "01 · Completing the Square & Quadratic Formula"
+subtitle: "Solving every quadratic, even the ones that don't factor"
+lesson-id: "t3.quadratic-formula"
+tier: 3
+prerequisites: ["t2.quadratic-equations-intro", "t2.square-roots-irrationals"]
+unlocks: ["t3.parabola-graphing"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T2 L14 — Quadratic Equations](../../tier-2-prealgebra/14-quadratic-equations-intro/index.qmd)?
+2. Comfortable with $\sqrt{2}$ as an exact (irrational) answer
+   ([T2 L09](../../tier-2-prealgebra/09-square-roots-irrationals/index.qmd))?
+3. Recall the perfect-square identity $(x + a)^2 = x^2 + 2ax + a^2$
+   from [T2 L11](../../tier-2-prealgebra/11-polynomials/index.qmd)?
+:::
+
+## Touch
+
+Adjust $a, b, c$ in $ax^2 + bx + c = 0$. The widget shows the
+**discriminant** and the (real or complex) roots.
+
+```{ojs}
+viewof aQ = Inputs.range([-3, 3], {value: 1, step: 1, label: "a:"})
+viewof bQ = Inputs.range([-10, 10], {value: 5, step: 1, label: "b:"})
+viewof cQ = Inputs.range([-15, 15], {value: 6, step: 1, label: "c:"})
+```
+
+```{ojs}
+{
+  if (aQ === 0) return html`<div style="text-align:center;color:#c62828;">a cannot be 0 (then it's not quadratic)</div>`;
+  const disc = bQ * bQ - 4 * aQ * cQ;
+  let rootsLabel;
+  if (disc > 0) {
+    const r1 = (-bQ - Math.sqrt(disc)) / (2 * aQ);
+    const r2 = (-bQ + Math.sqrt(disc)) / (2 * aQ);
+    rootsLabel = `Two real roots: x = ${r1.toFixed(3)}, x = ${r2.toFixed(3)}`;
+  } else if (disc === 0) {
+    rootsLabel = `One repeated root: x = ${(-bQ / (2 * aQ)).toFixed(3)}`;
+  } else {
+    const re = (-bQ / (2 * aQ)).toFixed(3);
+    const im = (Math.sqrt(-disc) / (2 * aQ)).toFixed(3);
+    rootsLabel = `No real roots (complex: ${re} ± ${im}i)`;
+  }
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.4rem;">
+      ${aQ}x² ${bQ >= 0 ? '+' : '−'} ${Math.abs(bQ)}x ${cQ >= 0 ? '+' : '−'} ${Math.abs(cQ)} = 0
+    </div>
+    <div style="font-family:monospace; margin-top:0.5rem; color:#2c5f7c;">
+      Discriminant Δ = b² − 4ac = ${bQ}² − 4·${aQ}·${cQ} = <strong>${disc}</strong>
+    </div>
+    <div style="font-family:monospace; margin-top:0.4rem; color:${disc < 0 ? '#c62828' : '#2e7d32'}; font-weight:bold;">
+      ${rootsLabel}
+    </div>
+  </div>`;
+}
+```
+
+The **discriminant** $\Delta = b^2 - 4ac$ tells the story: positive →
+two real roots; zero → one repeated; negative → no real roots
+(complex pair, Tier 6).
+
+## Wonder
+
+1. Set $a = 1, b = -4, c = 1$. Try to factor mentally — do you find
+   integer factors? The roots aren't whole.
+2. The discriminant decides everything. Why?
+3. The formula has a "$\pm$" — why two roots from one calculation?
+
+## Discover
+
+### Problem 1
+
+Solve $x^2 + 6x + 5 = 0$ by factoring (one last time, for warm-up).
+
+<details class="hint"><summary>Full solution</summary>
+$(x+1)(x+5) = 0 \Rightarrow x = -1$ or $x = -5$. (T2 L14 method.)
+Today's lesson handles cases where this factoring fails.
+</details>
+
+### Problem 2
+
+Try to factor $x^2 + 6x + 4 = 0$. (Spoiler: no integer factors.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find integers $r, s$ with $r + s = 6, rs = 4$. Try (1,4), (2,2)...
+none work.
+</details>
+<details class="hint"><summary>Full solution</summary>
+No integer pair with sum 6 and product 4 exists. The roots are
+*irrational* — we need a method that doesn't require integer factors.
+
+That method is **completing the square**: rewrite $x^2 + 6x$ as
+$(x + 3)^2 - 9$. Then $x^2 + 6x + 4 = (x+3)^2 - 9 + 4 = (x+3)^2 - 5
+= 0$. Now $(x+3)^2 = 5$, so $x + 3 = \pm\sqrt{5}$, giving $x = -3 \pm
+\sqrt{5}$.
+
+The trick: take half of the $x$-coefficient (here $6/2 = 3$), square
+it (9), add and subtract it. The first three terms become a perfect
+square; the rest is a constant.
+</details>
+
+### Problem 3
+
+Apply completing the square to the **general** quadratic
+$ax^2 + bx + c = 0$ (with $a \neq 0$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide through by $a$ first: $x^2 + (b/a)x + c/a = 0$. Then complete
+the square as in Problem 2 — half the $x$-coefficient is $b/(2a)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + \dfrac{b}{a} x + \dfrac{c}{a} = 0$. Add and subtract
+$\left(\dfrac{b}{2a}\right)^2$:
+$$\left(x + \dfrac{b}{2a}\right)^2 - \dfrac{b^2}{4a^2} + \dfrac{c}{a} = 0.$$
+
+So $\left(x + \dfrac{b}{2a}\right)^2 = \dfrac{b^2}{4a^2} - \dfrac{c}{a} =
+\dfrac{b^2 - 4ac}{4a^2}$.
+
+Take the square root: $x + \dfrac{b}{2a} = \pm \dfrac{\sqrt{b^2 - 4ac}}{2a}$.
+
+Solve for $x$: $$x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}.$$
+
+This is the **quadratic formula** — derived once, applies forever.
+The $b^2 - 4ac$ inside the square root is the **discriminant**.
+</details>
+
+### Problem 4
+
+Use the quadratic formula to solve $2x^2 - 4x - 3 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a = 2, b = -4, c = -3$. Substitute carefully.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Discriminant: $(-4)^2 - 4 \cdot 2 \cdot (-3) = 16 + 24 = 40$.
+$x = \dfrac{4 \pm \sqrt{40}}{4} = \dfrac{4 \pm 2\sqrt{10}}{4} =
+1 \pm \dfrac{\sqrt{10}}{2}$.
+
+Two irrational roots. The formula handled them effortlessly — no
+guessing required.
+</details>
+
+### Problem 5
+
+Without solving, count the real roots of:
+(a) $x^2 + 1 = 0$
+(b) $x^2 + 4x + 4 = 0$
+(c) $x^2 + 5x + 1 = 0$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the discriminant.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) $\Delta = 0 - 4 = -4 < 0$: **no real roots** (T2 L14 P5
+foreshadowed this).
+(b) $\Delta = 16 - 16 = 0$: **one repeated root**.
+(c) $\Delta = 25 - 4 = 21 > 0$: **two real roots** (irrational).
+
+The discriminant is a *one-glance* answer to the count question.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For any quadratic equation $ax^2 + bx + c = 0$ with $a \neq 0$:
+
+**Completing the square** rewrites it as $(x + h)^2 = k$, then takes
+the square root.
+
+**The quadratic formula** packages the result:
+$$x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}.$$
+
+The **discriminant** is $\Delta = b^2 - 4ac$:
+
+- $\Delta > 0$: two distinct real roots.
+- $\Delta = 0$: one repeated real root.
+- $\Delta < 0$: no real roots (two complex conjugate roots, Tier 6).
+
+The number $-b/(2a)$ — the *axis of symmetry* of the parabola — sits
+midway between the two roots. (We meet this geometrically in
+[Lesson 02](../02-parabola-graphing/index.qmd).)
+
+:::
+
+> *Half the middle, square it, add-subtract — that completes the square;*
+> *Or just plug into $x = (-b \pm \sqrt{b^2-4ac})/(2a)$;*
+> *Discriminant decides count: positive two, zero one, negative none.*
+
+## Apply
+
+### Worked example
+
+> Solve $3x^2 - 5x - 2 = 0$ using the quadratic formula.
+
+A competent solver substitutes carefully:
+
+1. $a = 3, b = -5, c = -2$.
+2. Discriminant: $25 - 4 \cdot 3 \cdot (-2) = 25 + 24 = 49$.
+3. $\sqrt{49} = 7$. So $x = \dfrac{5 \pm 7}{6}$.
+4. $x = \dfrac{12}{6} = 2$ or $x = \dfrac{-2}{6} = -\dfrac{1}{3}$.
+
+**Check:** $3(2)^2 - 5(2) - 2 = 12 - 10 - 2 = 0$ ✓.
+
+**Answer: $x = 2$ or $x = -1/3$.** (Notice the discriminant was a
+perfect square — the formula gave rational roots, equivalent to a
+factorable polynomial.)
+
+### Practice — Warm
+
+**W1.** Solve $x^2 + 6x + 4 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$\Delta = 36 - 16 = 20$. $x = \dfrac{-6 \pm 2\sqrt{5}}{2} = -3 \pm
+\sqrt{5}$.
+</details>
+
+**W2.** Solve $x^2 - 4x + 4 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$\Delta = 0$. Repeated root: $x = 2$.
+</details>
+
+**W3.** Discriminant of $2x^2 + 3x - 5$?
+
+<details class="hint"><summary>Full solution</summary>
+$9 - 4 \cdot 2 \cdot (-5) = 49$. (Two real roots.)
+</details>
+
+### Practice — Working
+
+**P1.** Solve $x^2 - 6x + 7 = 0$ by completing the square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Half of $-6$ is $-3$; squared is 9. So $(x-3)^2 - 9 + 7 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x-3)^2 = 2 \Rightarrow x - 3 = \pm\sqrt{2} \Rightarrow x = 3 \pm
+\sqrt{2}$.
+</details>
+
+**P2.** A rectangular pen has length 2 m more than its width. Its area
+is 35 m². Find the dimensions.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$w(w+2) = 35 \Rightarrow w^2 + 2w - 35 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\Delta = 4 + 140 = 144$. $w = \dfrac{-2 \pm 12}{2}$. Positive root:
+$w = 5$. Length: 7. **5 m × 7 m.**
+</details>
+
+**P3.** Solve $2x^2 + 7x + 3 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$\Delta = 49 - 24 = 25$. $x = \dfrac{-7 \pm 5}{4}$. Two roots:
+$x = -1/2$ or $x = -3$.
+
+(This factors as $(2x + 1)(x + 3)$ — the formula confirms.)
+</details>
+
+### Practice — Stretch
+
+**S1.** A ball thrown upward with initial speed 25 m/s from height 1 m
+follows $h(t) = 1 + 25t - 5t^2$. When does it hit the ground?
+
+<details class="hint"><summary>Full solution</summary>
+$5t^2 - 25t - 1 = 0$. $\Delta = 625 + 20 = 645$. $t = \dfrac{25 \pm
+\sqrt{645}}{10} \approx \dfrac{25 \pm 25.4}{10}$. Positive root:
+$t \approx 5.04$ s.
+</details>
+
+**S2.** **The roots of a quadratic** sum to $-b/a$ and multiply to
+$c/a$ (Vieta's formulas). Verify for $x^2 - 5x + 6 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+Roots: 2, 3. Sum: 5 = $-(-5)/1$ ✓. Product: 6 = $6/1$ ✓.
+
+This relationship — sum and product of roots ↔ coefficients — is
+central to **symmetric polynomial** theory and Galois theory (Tier
+6+). It also lets you reverse-engineer a quadratic with given roots.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Always $-b$, not $b$, in the formula."** Yes — the formula
+   uses $-b$. A common slip is forgetting the negative when $b$ is
+   already negative ($b = -5 \Rightarrow -b = 5$, not $-5$).
+2. **"The formula only works if the quadratic doesn't factor."** It
+   works *always*. For nicely-factorable quadratics, both formula and
+   factoring give the same answer.
+3. **"$\sqrt{b^2 - 4ac}$ is always a positive number."** As a
+   *symbol*, yes — but it can equal 0 (repeated root) or be undefined
+   in the reals (negative discriminant).
+:::
+
+### Self-Assessment
+
+1. Could you derive the quadratic formula by completing the square on
+   $ax^2 + bx + c = 0$?
+2. Without scrolling back, can you solve $x^2 - 4x - 1 = 0$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $x = 2 \pm \sqrt{5}$.)
+
+- **3 yes:** ready for **[02 · Parabolas](../02-parabola-graphing/index.qmd)**.
+- **2 yes:** redo **P1** with completing-the-square; the technique
+  matters for Lesson 2.
+- **0–1 yes:** re-read *Discover P3* (the derivation).
+
+## Connect
+
+### Prerequisites used
+
+- **[T2 L14 — Quadratic Equations (Intro)](../../tier-2-prealgebra/14-quadratic-equations-intro/index.qmd)**
+- **[T2 L09 — Square Roots](../../tier-2-prealgebra/09-square-roots-irrationals/index.qmd)**
+- **[T2 L11 — Polynomials](../../tier-2-prealgebra/11-polynomials/index.qmd)** (perfect-square identity)
+
+### What this unlocks
+
+- **[02 · Parabolas](../02-parabola-graphing/index.qmd)** — the
+  vertex form $a(x - h)^2 + k$ is *completing the square* applied to
+  graphing.
+- **[03 · Conic Sections](../03-conic-sections/index.qmd)** — same
+  technique to identify conics from their general equation.
+- **Tier 6 — Complex numbers** — what $\sqrt{-1}$ means.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Closed-form solutions to least-squares
+regression involve solving a linear system whose normal equations are
+quadratic in the residuals. Quadratic optimisation is the first
+step into convex optimisation theory (Tier 6).
+:::
+
+::: {.applied-callout}
+**Game development & physics.** Trajectory and collision-time
+calculations use the quadratic formula constantly: "when does this
+moving object hit that surface?"
+:::
+
+::: {.applied-callout}
+**Mathematical research.** The quadratic formula is the simplest
+case of a *root-finding formula*. Cubic and quartic equations also
+have formulas (cardano, Ferrari). Quintics and higher generally do
+not have a formula in radicals — Galois theory (Tier 6+) explains why.
+:::
