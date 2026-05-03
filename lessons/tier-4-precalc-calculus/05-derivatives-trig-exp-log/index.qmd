@@ -1,0 +1,350 @@
+---
+title: "05 · Derivatives of Trig, Exp, and Log Functions"
+subtitle: "The transcendental derivatives — and why $e^x$ is its own derivative"
+lesson-id: "t4.derivatives-trig-exp-log"
+tier: 4
+prerequisites: ["t4.differentiation-rules", "t3.unit-circle", "t3.exp-log-functions"]
+unlocks: []
+applied-domains: ["ai-ml", "research", "game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [04 · Differentiation Rules](../04-differentiation-rules/index.qmd)?
+2. Comfortable with $\lim_{x \to 0} \sin x / x = 1$ from
+   [01 · Limits](../01-limits/index.qmd)?
+3. Comfortable with the natural exponential $e^x$ and its inverse
+   $\ln x$?
+:::
+
+## Touch
+
+Pick a function. The widget shows the function and its derivative on
+the same plot.
+
+```{ojs}
+viewof fnSel5 = Inputs.select(["sin x", "cos x", "tan x", "e^x", "ln x"], {value: "sin x", label: "f(x):"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 320, pad = 30;
+  const xMin = fnSel5 === "ln x" ? 0.05 : -2 * Math.PI;
+  const xMax = fnSel5 === "ln x" ? 6 : 2 * Math.PI;
+  const yMin = fnSel5 === "e^x" ? -1 : -3;
+  const yMax = fnSel5 === "e^x" ? 8 : 3;
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - ((v - yMin) / (yMax - yMin)) * (H - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("style","width:100%; max-width:760px; background:#fafafa;");
+  svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(0)).attr("y2", py(0)).attr("stroke","#1f2933");
+  if (xMin <= 0 && xMax >= 0) svg.append("line").attr("x1", px(0)).attr("x2", px(0)).attr("y1", pad).attr("y2", H - pad).attr("stroke","#1f2933");
+  let f, df, derLabel;
+  if (fnSel5 === "sin x") { f = Math.sin; df = Math.cos; derLabel = "f'(x) = cos x"; }
+  else if (fnSel5 === "cos x") { f = Math.cos; df = x => -Math.sin(x); derLabel = "f'(x) = −sin x"; }
+  else if (fnSel5 === "tan x") { f = Math.tan; df = x => 1/(Math.cos(x)*Math.cos(x)); derLabel = "f'(x) = sec² x"; }
+  else if (fnSel5 === "e^x") { f = Math.exp; df = Math.exp; derLabel = "f'(x) = e^x  (its own derivative!)"; }
+  else { f = Math.log; df = x => 1/x; derLabel = "f'(x) = 1/x"; }
+  const drawCurve = (fn, color) => {
+    let p = "";
+    for (let x = xMin; x <= xMax; x += 0.02) {
+      const y = fn(x);
+      if (!isFinite(y) || y < yMin - 1 || y > yMax + 1) { if (p) svg.append("path").attr("d", p).attr("fill","none").attr("stroke",color).attr("stroke-width",2); p = ""; continue; }
+      p += (p ? " L " : "M ") + `${px(x)},${py(y)}`;
+    }
+    if (p) svg.append("path").attr("d", p).attr("fill","none").attr("stroke",color).attr("stroke-width",2);
+  };
+  drawCurve(f, "#c2185b");
+  drawCurve(df, "#1565c0");
+  svg.append("text").attr("x", 12).attr("y", 18).attr("font-size","13").attr("fill","#c2185b").attr("font-weight","bold").text(`f(x) = ${fnSel5}`);
+  svg.append("text").attr("x", 12).attr("y", 36).attr("font-size","13").attr("fill","#1565c0").attr("font-weight","bold").text(derLabel);
+  return svg.node();
+}
+```
+
+The derivatives of trig, exp, and log are themselves familiar
+functions — and there's a beautiful constant ($e^x$ is its own
+derivative).
+
+## Wonder
+
+1. The derivative of $\sin x$ is $\cos x$. (Pink and blue agree at
+   the right offsets.) Why?
+2. The derivative of $e^x$ is $e^x$ itself. What's special about $e$?
+3. The derivative of $\ln x$ is $1/x$. Why does $\ln$ "undo" the $x$
+   in the denominator?
+
+## Discover
+
+### Problem 1
+
+Use the limit definition and $\lim_{h \to 0} \sin h / h = 1$ (Lesson
+01) and the angle-addition formula (T3 L09) to compute $\dfrac{d}{dx}
+\sin x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\dfrac{\sin(x + h) - \sin x}{h} = \dfrac{\sin x \cos h + \cos x \sin h - \sin x}{h}
+= \sin x \cdot \dfrac{\cos h - 1}{h} + \cos x \cdot \dfrac{\sin h}{h}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+As $h \to 0$: $\dfrac{\cos h - 1}{h} \to 0$ (Lesson 01 P3) and
+$\dfrac{\sin h}{h} \to 1$. So:
+$\dfrac{d}{dx} \sin x = \sin x \cdot 0 + \cos x \cdot 1 = \cos x$.
+
+Similarly $\dfrac{d}{dx} \cos x = -\sin x$.
+</details>
+
+### Problem 2
+
+Differentiate $f(x) = e^{2x}$ using the chain rule and $\dfrac{d}{dx}
+e^x = e^x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Outer: $u \mapsto e^u$, derivative $e^u$. Inner: $2x$, derivative 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{d}{dx} e^{2x} = e^{2x} \cdot 2 = 2 e^{2x}$.
+
+The derivative of $e^{ax}$ is $a e^{ax}$. This makes $e^{ax}$ the
+natural language of exponential growth and decay.
+</details>
+
+### Problem 3
+
+The derivative of $\ln x$ is $\dfrac{1}{x}$. **Verify** with implicit
+differentiation: let $y = \ln x$, so $x = e^y$. Differentiate both
+sides with respect to $x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\dfrac{d}{dx}(e^y) = e^y \cdot \dfrac{dy}{dx} = x \cdot \dfrac{dy}{dx}$.
+And $\dfrac{d}{dx}(x) = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 = x \cdot \dfrac{dy}{dx} \Rightarrow \dfrac{dy}{dx} = \dfrac{1}{x}$.
+
+So $(\ln x)' = 1/x$. The reciprocal pops out from the inverse
+relationship of $\ln$ and $\exp$.
+
+This is implicit differentiation in action: differentiate an
+equation, then solve for the unknown derivative.
+</details>
+
+### Problem 4
+
+Differentiate $f(x) = \tan x = \sin x / \cos x$ using the quotient
+rule.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = \dfrac{\cos x \cdot \cos x - \sin x \cdot (-\sin x)}{\cos^2 x}
+= \dfrac{\cos^2 x + \sin^2 x}{\cos^2 x} = \dfrac{1}{\cos^2 x} =
+\sec^2 x$.
+
+(Used the Pythagorean identity to simplify.)
+</details>
+
+### Problem 5
+
+A bacteria population grows as $P(t) = 100 e^{0.5 t}$. What's the
+*growth rate* $P'(t)$? Show: $P'(t) = 0.5 \cdot P(t)$ — the rate is
+*proportional to the population*.
+
+<details class="hint"><summary>Full solution</summary>
+$P'(t) = 100 \cdot e^{0.5 t} \cdot 0.5 = 50 e^{0.5 t} = 0.5 \cdot 100 e^{0.5 t} = 0.5 P(t)$.
+
+**Exponential = "rate proportional to current value."** This is the
+defining feature of exponential functions, and the reason they appear
+in *every* growth and decay model: bacterial growth, radioactive
+decay, compound interest, drug elimination, viral spread. We make
+this rigorous via *differential equations* in Lesson 12.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Trigonometric derivatives** (in radians):
+$$\dfrac{d}{dx}(\sin x) = \cos x, \qquad \dfrac{d}{dx}(\cos x) = -\sin x.$$
+$$\dfrac{d}{dx}(\tan x) = \sec^2 x, \qquad \dfrac{d}{dx}(\sec x) = \sec x \tan x.$$
+
+**Exponential derivatives:**
+$$\dfrac{d}{dx}(e^x) = e^x, \qquad \dfrac{d}{dx}(e^{ax}) = a e^{ax}, \qquad \dfrac{d}{dx}(b^x) = b^x \ln b.$$
+
+**Logarithmic derivatives:**
+$$\dfrac{d}{dx}(\ln x) = \dfrac{1}{x}, \qquad \dfrac{d}{dx}(\log_b x) = \dfrac{1}{x \ln b}.$$
+
+**Combined with the rules of Lesson 04**, these handle nearly every
+function of practical interest.
+
+:::
+
+> *sin → cos → −sin → −cos → sin (the four-step cycle);*
+> *$e^x$ is its own derivative; $\ln x$ has derivative $1/x$;*
+> *Radians required — degrees give the wrong constants.*
+
+## Apply
+
+### Worked example
+
+> Differentiate $f(x) = e^{x^2} \sin x$.
+
+A competent solver applies product, then chain.
+
+1. **Product:** $f' = (e^{x^2})' \sin x + e^{x^2} (\sin x)'$.
+2. **Chain on first factor:** $(e^{x^2})' = e^{x^2} \cdot 2x = 2x
+   e^{x^2}$.
+3. **Combine:** $f' = 2x e^{x^2} \sin x + e^{x^2} \cos x = e^{x^2} (2x
+   \sin x + \cos x)$.
+
+### Practice — Warm
+
+**W1.** $\dfrac{d}{dx}(\sin x + \cos x)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos x - \sin x$.
+</details>
+
+**W2.** $\dfrac{d}{dx}(e^{3x})$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 e^{3x}$.
+</details>
+
+**W3.** $\dfrac{d}{dx}(\ln(2x))$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Chain. Or: $\ln(2x) = \ln 2 + \ln x$, derivative $1/x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1/x$. (Either way.)
+</details>
+
+### Practice — Working
+
+**P1.** $\dfrac{d}{dx}(x^2 \sin x)$.
+
+<details class="hint"><summary>Full solution</summary>
+$2x \sin x + x^2 \cos x$.
+</details>
+
+**P2.** $\dfrac{d}{dx}(\sin(x^3))$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Chain.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos(x^3) \cdot 3 x^2 = 3 x^2 \cos(x^3)$.
+</details>
+
+**P3.** $\dfrac{d}{dx}(e^{-x^2})$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Chain.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$e^{-x^2} \cdot (-2x) = -2x e^{-x^2}$.
+
+(This function is the unscaled Gaussian / bell curve — central in
+statistics. Its derivative tells you where the bell peaks: at $x = 0$
+where $f' = 0$.)
+</details>
+
+### Practice — Stretch
+
+**S1.** **Sigmoid function in ML.** $\sigma(x) = 1/(1 + e^{-x})$.
+Show that $\sigma'(x) = \sigma(x) \cdot (1 - \sigma(x))$ — its
+derivative is computable from the value alone.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Quotient or chain rule. After getting $\sigma'(x)$, manipulate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sigma(x) = (1 + e^{-x})^{-1}$. Chain:
+$\sigma'(x) = -(1 + e^{-x})^{-2} \cdot (-e^{-x}) = \dfrac{e^{-x}}{(1 + e^{-x})^2}$.
+
+Now manipulate: $\dfrac{e^{-x}}{(1 + e^{-x})^2} = \dfrac{1}{1 + e^{-x}}
+\cdot \dfrac{e^{-x}}{1 + e^{-x}} = \sigma(x) \cdot (1 - \sigma(x))$
+(since $\dfrac{e^{-x}}{1 + e^{-x}} = 1 - \sigma(x)$).
+
+**Why this matters:** sigmoid is a classic activation function in
+neural networks. Its derivative being $\sigma(1 - \sigma)$ means
+backpropagation can reuse the forward-pass output instead of
+re-evaluating — a significant computational speedup.
+</details>
+
+**S2.** **Why does $e^x$ being its own derivative make it the natural
+choice for exponentials?**
+
+<details class="hint"><summary>Full solution</summary>
+**Two reasons.** (1) Calculations stay clean — no extra constants
+crop up. $\dfrac{d^n}{dx^n}(e^x) = e^x$ for any $n$.
+
+(2) Exponential growth in nature ("rate proportional to current
+value") is *exactly* described by $e^{kt}$, where $k$ is the growth
+constant. Any other base $b$ requires the awkward conversion $b^x
+= e^{x \ln b}$.
+
+So $e$ is the **canonical base for differentiation**. It earned its
+name "natural" by being precisely the right choice for calculus.
+Tier 5 will derive its value $e \approx 2.71828$ from the requirement
+$f'(0) = 1$.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\dfrac{d}{dx}(\sin(2x)) = \cos(2x)$."** Forgets the chain
+   rule! The right answer is $2 \cos(2x)$.
+2. **"Derivative of $e^x$ is $x e^{x-1}$."** Confusing with power
+   rule. $e^x$ is *exponential*; its derivative is itself.
+3. **"$\ln x$ is defined for negative $x$."** No — $\ln$ requires
+   positive arguments. Differentiating $\ln(x)$ gives $1/x$, valid
+   for $x > 0$. (The function $\ln|x|$ extends to $x \neq 0$, with
+   derivative still $1/x$.)
+:::
+
+### Self-Assessment
+
+1. Could you derive $(\sin x)' = \cos x$ from the limit definition
+   plus the angle-addition formula?
+2. Without scrolling back, what is $\dfrac{d}{dx}(\cos(3x))$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $-3 \sin(3x)$.)
+
+- **3 yes:** ready for **[06 · Optimisation](../06-optimization/index.qmd)**.
+- **2 yes:** redo **S1** (sigmoid derivative).
+- **0–1 yes:** re-read *Discover P1 and P3*.
+
+## Connect
+
+### Prerequisites used
+
+- **[04 · Differentiation Rules](../04-differentiation-rules/index.qmd)**
+- **[T3 L08 — Unit Circle](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd)**
+- **[T3 L06 — Exp & Log Functions](../../tier-3-algebra2-geometry-trig/06-exp-log-functions/index.qmd)**
+
+### What this unlocks
+
+- **[12 · Differential Equations](../12-differential-equations/index.qmd)** —
+  $y' = ky$ models exponential growth.
+- All future calculus topics involving these functions.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Sigmoid (S1), softmax, and other smooth
+activations rely on these derivatives for backpropagation.
+:::
+
+::: {.applied-callout}
+**Physics.** Sinusoidal oscillations, exponential decay (radioactive
+substances, RC circuits), exponential growth (populations) — all
+modelled by these derivatives.
+:::
+
+::: {.applied-callout}
+**Statistics.** The Gaussian (P3) and its derivative are foundational.
+Maximum-likelihood estimation differentiates log-likelihoods.
+:::
