@@ -1,0 +1,339 @@
+---
+title: "14 · Dot Product and Cross Product"
+subtitle: "Two ways to multiply vectors — and what each means geometrically"
+lesson-id: "t4.dot-cross-product"
+tier: 4
+prerequisites: ["t4.vectors-2d-3d", "t3.trig-ratios"]
+unlocks: []
+applied-domains: ["game-dev", "ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [13 · Vectors](../13-vectors-2d-3d/index.qmd)?
+2. Comfortable with magnitudes, unit vectors, and trig
+   ([T3 L07](../../tier-3-algebra2-geometry-trig/07-trig-ratios/index.qmd))?
+3. Recall $\cos(\theta)$ as the cosine of an angle?
+:::
+
+## Touch
+
+Pick two 2D vectors. The widget computes their dot product and the
+angle between them.
+
+```{ojs}
+viewof dpAx = Inputs.range([-5, 5], {value: 3, step: 1, label: "a x:"})
+viewof dpAy = Inputs.range([-5, 5], {value: 1, step: 1, label: "a y:"})
+viewof dpBx = Inputs.range([-5, 5], {value: 1, step: 1, label: "b x:"})
+viewof dpBy = Inputs.range([-5, 5], {value: 4, step: 1, label: "b y:"})
+```
+
+```{ojs}
+{
+  const dot = dpAx * dpBx + dpAy * dpBy;
+  const magA = Math.sqrt(dpAx*dpAx + dpAy*dpAy);
+  const magB = Math.sqrt(dpBx*dpBx + dpBy*dpBy);
+  const cosT = magA * magB === 0 ? 1 : dot / (magA * magB);
+  const angle = Math.acos(Math.max(-1, Math.min(1, cosT))) * 180 / Math.PI;
+  return html`<div style="margin: 1rem 0;">
+    <div style="text-align:center; font-family:monospace; font-size:1.1rem;">
+      a · b = ${dpAx}·${dpBx} + ${dpAy}·${dpBy} = <strong style="color:#c2185b;">${dot}</strong>
+    </div>
+    <div style="text-align:center; font-family:monospace; margin-top:0.4rem; color:#1565c0;">
+      a · b = |a| |b| cos θ &nbsp; ⇒ &nbsp; cos θ = ${dot}/(${magA.toFixed(2)}·${magB.toFixed(2)}) = ${cosT.toFixed(3)}
+    </div>
+    <div style="text-align:center; font-family:monospace; margin-top:0.4rem; color:#2e7d32; font-weight:bold;">
+      Angle between a and b: ${angle.toFixed(1)}°
+    </div>
+  </div>`;
+}
+```
+
+The **dot product** $a \cdot b = |a| |b| \cos \theta$ — measures
+**alignment**. **Positive** when angle is acute, **zero** when
+perpendicular, **negative** when obtuse.
+
+## Wonder
+
+1. When is $a \cdot b = 0$?
+2. When is $a \cdot b$ maximised? Minimised?
+3. The cross product $a \times b$ in 3D produces a *vector*
+   perpendicular to both — useful for normals.
+
+## Discover
+
+### Problem 1
+
+Compute $a \cdot b$ for $a = (1, 2, 3)$, $b = (4, -5, 6)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Componentwise products, then add: $a_1 b_1 + a_2 b_2 + a_3 b_3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1)(4) + (2)(-5) + (3)(6) = 4 - 10 + 18 = 12$.
+</details>
+
+### Problem 2
+
+Find the angle between $a = (3, 0)$ and $b = (1, 1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos \theta = (a \cdot b)/(|a||b|)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a \cdot b = 3$. $|a| = 3, |b| = \sqrt{2}$. $\cos \theta = 3/(3
+\sqrt{2}) = 1/\sqrt{2} \Rightarrow \theta = 45°$.
+
+The dot product computes angles. Equivalently:
+$\cos \theta = \dfrac{a \cdot b}{|a||b|}$.
+</details>
+
+### Problem 3
+
+Two vectors are **perpendicular** iff $a \cdot b = 0$. Verify $(1, 2)$
+and $(-2, 1)$ are perpendicular.
+
+<details class="hint"><summary>Full solution</summary>
+$1 \cdot (-2) + 2 \cdot 1 = 0$ ✓.
+
+(Geometrically, $(-2, 1)$ is $(1, 2)$ rotated 90° counter-clockwise.)
+</details>
+
+### Problem 4
+
+**Cross product** in 3D: $a \times b$ is a *vector* perpendicular to
+both $a$ and $b$, with magnitude $|a||b| \sin \theta$.
+
+Compute $\hat{i} \times \hat{j}$ where $\hat{i} = (1, 0, 0), \hat{j} =
+(0, 1, 0)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The general formula:
+$a \times b = (a_2 b_3 - a_3 b_2, a_3 b_1 - a_1 b_3, a_1 b_2 - a_2 b_1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\hat{i} \times \hat{j} = (0 \cdot 0 - 0 \cdot 1, 0 \cdot 0 - 1 \cdot 0,
+1 \cdot 1 - 0 \cdot 0) = (0, 0, 1) = \hat{k}$.
+
+Right-hand rule: $\hat{i} \times \hat{j} = \hat{k}$. The cross
+product is **anti-commutative**: $b \times a = -a \times b$.
+</details>
+
+### Problem 5
+
+A force $F = (10, 0, 0)$ is applied at position $r = (0, 5, 0)$ from
+the pivot. Compute the **torque** $\tau = r \times F$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\tau = (5 \cdot 0 - 0 \cdot 0, 0 \cdot 10 - 0 \cdot 0, 0 \cdot 0 - 5
+\cdot 10) = (0, 0, -50)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tau = (0, 0, -50)$. Magnitude 50, direction $-\hat{k}$.
+
+**Torque** = "how much rotation" a force produces about a pivot. The
+cross product captures both the magnitude (force × arm) and the axis
+of rotation. Foundational to mechanical engineering and game physics.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Dot product (scalar product):**
+$$a \cdot b = a_1 b_1 + a_2 b_2 + a_3 b_3 = |a||b| \cos \theta.$$
+
+A *number*. Geometric meaning: alignment. $a \cdot b > 0$ → acute
+angle. $a \cdot b = 0$ → perpendicular. $a \cdot b < 0$ → obtuse.
+
+**Cross product (3D only):**
+$$a \times b = (a_2 b_3 - a_3 b_2,\ a_3 b_1 - a_1 b_3,\ a_1 b_2 - a_2 b_1).$$
+
+A *vector*. Magnitude $|a||b| \sin \theta$ (= area of parallelogram
+spanned by $a$ and $b$). Direction perpendicular to both, by **right-
+hand rule**. Anti-commutative: $a \times b = -(b \times a)$.
+
+**Useful identities:**
+
+- $|a|^2 = a \cdot a$.
+- $a \cdot a = 0 \iff a = \mathbf{0}$.
+- $a \cdot (b + c) = a \cdot b + a \cdot c$ (linear).
+- $\hat{i} \times \hat{j} = \hat{k}$, $\hat{j} \times \hat{k} =
+  \hat{i}$, $\hat{k} \times \hat{i} = \hat{j}$ (cyclic).
+- $a \times a = \mathbf{0}$.
+
+:::
+
+> *Dot product = scalar = alignment ($|a||b|\cos\theta$);*
+> *Cross product = vector ⊥ both = $|a||b|\sin\theta$, right-hand rule;*
+> *Dot tests perpendicularity; cross gives normals and torques.*
+
+## Apply
+
+### Worked example
+
+> Find the angle between $a = (1, 0, 0)$ and $b = (1, 1, 1)$.
+
+$a \cdot b = 1$. $|a| = 1$. $|b| = \sqrt{3}$.
+
+$\cos \theta = 1/\sqrt{3} \Rightarrow \theta = \arccos(1/\sqrt{3})
+\approx 54.7°$.
+
+This is the angle between a coordinate axis and the diagonal of a
+unit cube — appears in chemistry (tetrahedral bond angles).
+
+### Practice — Warm
+
+**W1.** $(2, 3) \cdot (1, 4) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$2 + 12 = 14$.
+</details>
+
+**W2.** Are $(1, 0)$ and $(0, 1)$ perpendicular?
+
+<details class="hint"><summary>Full solution</summary>
+$0$, yes.
+</details>
+
+**W3.** $\hat{i} \times \hat{k} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$\hat{i} \times \hat{k} = -\hat{j} = (0, -1, 0)$.
+(Cyclic order $\hat i, \hat j, \hat k$: $\hat j \times \hat k = \hat i$
+positive, but $\hat i \times \hat k$ goes against the cycle, hence
+negative.)
+</details>
+
+### Practice — Working
+
+**P1.** Angle between $(2, 1)$ and $(1, 2)$?
+
+<details class="hint"><summary>Full solution</summary>
+$a \cdot b = 4$. $|a| = |b| = \sqrt{5}$. $\cos \theta = 4/5
+\Rightarrow \theta = \arccos(0.8) \approx 36.87°$.
+</details>
+
+**P2.** Show $a = (1, -1, 1)$ and $b = (1, 1, 0)$ are perpendicular.
+
+<details class="hint"><summary>Full solution</summary>
+$1 - 1 + 0 = 0$ ✓.
+</details>
+
+**P3.** Compute $(1, 2, 0) \times (0, 1, 1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$(2 \cdot 1 - 0 \cdot 1, 0 \cdot 0 - 1 \cdot 1, 1 \cdot 1 - 2 \cdot 0)
+= (2, -1, 1)$.
+Verify perpendicularity to both: $(1,2,0) \cdot (2,-1,1) = 2 - 2 + 0 =
+0$ ✓; $(0,1,1) \cdot (2,-1,1) = 0 - 1 + 1 = 0$ ✓.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Cosine similarity in NLP / search.** Documents are
+represented as high-dimensional vectors (one component per word).
+Their similarity is $\cos \theta = (a \cdot b)/(|a| |b|)$. Why is
+*cosine* better than the *dot product alone*?
+
+<details class="hint"><summary>Full solution</summary>
+**Cosine is normalised — independent of vector magnitudes.** Two
+documents on the same topic but of very different lengths still get
+high cosine similarity (small angle); their *raw* dot products would
+disagree on magnitudes.
+
+Cosine similarity is *the* standard similarity measure for word
+embeddings (Word2Vec, GloVe), document retrieval (BM25, modern
+neural retrievers), and recommendation systems. Modern semantic
+search ranks documents by cosine similarity of their dense vector
+representations to the query vector.
+
+The dot product you just learned is the workhorse of every search
+and recommendation system you use.
+</details>
+
+**S2.** **Lighting in 3D graphics.** A surface has normal vector $n$
+(perpendicular to it). Light comes from direction $\ell$ (unit
+vector). Brightness on the surface is proportional to $\max(0, n \cdot
+\ell)$. Why?
+
+<details class="hint"><summary>Full solution</summary>
+**Lambertian shading.** When light hits a surface head-on ($\ell$
+parallel to $n$), $n \cdot \ell = 1$ — full brightness. When light
+glances the surface ($\ell$ perpendicular to $n$), $n \cdot \ell = 0$ —
+no light hits. The dot product naturally captures this.
+
+The $\max(0, \cdot)$ ensures back-facing surfaces (where $n \cdot \ell
+< 0$) get zero light, not negative.
+
+Every 3D rendered image you see — games, movies, CAD — uses this dot-
+product calculation per pixel, often per lights × pixels. The cross
+product appears for *surface normals* themselves: for a triangle with
+edges $e_1, e_2$, the normal is $e_1 \times e_2$ (then normalised).
+
+Computer graphics is, fundamentally, dot products and cross products
+applied at scale.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Dot product is a vector."** No — it's a *scalar*. The cross
+   product is a vector.
+2. **"Cross product works in 2D."** Only in 3D (and 7D, but that's
+   exotic). For 2D you can compute a "scalar cross" $a_1 b_2 - a_2
+   b_1$ (the $z$-component of the 3D cross with $z=0$).
+3. **"$a \times b = b \times a$."** No, anti-commutative: $a \times
+   b = -b \times a$. Order matters.
+:::
+
+### Self-Assessment
+
+1. Could you compute $(2, 3, 1) \cdot (1, 0, -1)$?
+2. Without scrolling back, can you state the dot-product geometric
+   formula?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $1$; $a \cdot b = |a| |b| \cos \theta$.)
+
+- **3 yes:** ready for **[15 · Parametric Equations](../15-parametric-equations/index.qmd)**.
+- **2 yes:** redo **S2** (Lambertian lighting).
+- **0–1 yes:** re-read *Discover P2 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[13 · Vectors](../13-vectors-2d-3d/index.qmd)**
+- **[T3 L07 — Trig Ratios](../../tier-3-algebra2-geometry-trig/07-trig-ratios/index.qmd)** —
+  cosine and sine in the geometric formulas.
+
+### What this unlocks
+
+- **[15 · Parametric Equations](../15-parametric-equations/index.qmd)**
+- **Tier 5 — Linear Algebra & Multivariable Calculus** — generalised
+  inner products, gradient (a vector), curl (a cross-product
+  generalisation).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & graphics.** Lighting (S2), surface normals,
+collision detection (using cross products to find normal directions),
+rotations (via quaternions, Tier 7).
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Cosine similarity (S1) is the universal
+similarity measure for embeddings. Self-attention in Transformers
+computes $Q \cdot K$ — pure dot products at the heart of every LLM.
+:::
+
+::: {.applied-callout}
+**Physics & engineering.** Work = $F \cdot d$. Torque = $r \times F$.
+Magnetic force = $q v \times B$. Cross-products and dot-products
+*are* the language of vector physics.
+:::
