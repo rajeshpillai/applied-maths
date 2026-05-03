@@ -1,0 +1,375 @@
+---
+title: "03 · Galois Theory — Solvability of Polynomial Equations"
+subtitle: "When can a polynomial be solved by radicals? Symmetry decides."
+lesson-id: "t7.galois-theory"
+tier: 7
+prerequisites: ["t6.groups", "t6.rings-fields"]
+unlocks: []
+applied-domains: ["research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T6 L02 — Groups and Symmetry](../../tier-6-undergrad-advanced/02-groups/index.qmd) and [T6 L03 — Rings and Fields](../../tier-6-undergrad-advanced/03-rings-fields/index.qmd)?
+2. Recall: a **field** is a ring where every non-zero element has a multiplicative inverse ($\mathbb{Q}, \mathbb{R}, \mathbb{C}, \mathbb{F}_p$).
+3. Comfortable with permutation groups $S_n$ and normal subgroups?
+:::
+
+## Touch
+
+The quadratic formula:
+$$
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}.
+$$
+Cubic and quartic also have such "by-radicals" formulas (Cardano,
+Ferrari).
+
+But the **quintic** $x^5 + \cdots$ has *no* such formula. **Why?**
+
+```{ojs}
+viewof galDeg = Inputs.range([2, 6], {value: 4, step: 1, label: "Polynomial degree n:"})
+```
+
+```{ojs}
+{
+  const symGroupOrder = (n) => { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; };
+  const solvable = galDeg <= 4;
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#4527a0;">
+      Generic polynomial of degree ${galDeg} has Galois group ${galDeg > 0 ? `S<sub>${galDeg}</sub>` : ""} of order ${symGroupOrder(galDeg)}.
+    </div>
+    <div style="font-family:monospace; font-size:0.95rem; color:${solvable ? "#1b5e20" : "#b71c1c"};">
+      ${solvable ? "✓ Solvable group → solvable by radicals." : "✗ S₅ is not solvable → no general radical formula!"}
+    </div>
+  </div>`;
+}
+```
+
+The deepest fact: **solvability of polynomials = solvability of a
+group**.
+
+## Wonder
+
+1. What is a "field extension"? E.g. $\mathbb{Q}(\sqrt{2}) =
+   \{a + b\sqrt{2} : a, b \in \mathbb{Q}\}$.
+2. The **Galois group** of a polynomial $p(x)$ over a field $K$ is the
+   group of symmetries of its roots. Why does it carry information
+   about solvability?
+3. **The Galois correspondence:** subgroups of the Galois group ↔
+   intermediate fields. A *Rosetta stone*.
+
+## Discover
+
+### Problem 1
+
+Compute $\mathbb{Q}(\sqrt{2})$. Show every element is uniquely
+expressible as $a + b\sqrt{2}$ with $a, b \in \mathbb{Q}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Closure under multiplication: $(a + b\sqrt{2})(c + d\sqrt{2}) = (ac +
+2bd) + (ad + bc)\sqrt{2}$.
+
+Inverse: $(a + b\sqrt{2})^{-1} = (a - b\sqrt{2}) / (a^2 - 2b^2)$
+(rationalising).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{Q}(\sqrt{2})$ is a **field**, with $\mathbb{Q}$-basis
+$\{1, \sqrt{2}\}$. Dimension over $\mathbb{Q}$: $[\mathbb{Q}(\sqrt{2}) :
+\mathbb{Q}] = 2$.
+
+This is a **degree-2 field extension**.
+</details>
+
+### Problem 2
+
+The **Galois group** $\mathrm{Gal}(\mathbb{Q}(\sqrt{2}) / \mathbb{Q})$
+consists of $\mathbb{Q}$-fixing automorphisms of $\mathbb{Q}(\sqrt{2})$.
+
+Find them.
+
+<details class="hint"><summary>Full solution</summary>
+An automorphism $\sigma$ fixes $\mathbb{Q}$, so it's determined by
+where it sends $\sqrt{2}$. We need $\sigma(\sqrt{2})^2 = \sigma(2) =
+2$, so $\sigma(\sqrt{2}) = \pm\sqrt{2}$.
+
+Two automorphisms: identity, and $\sqrt{2} \mapsto -\sqrt{2}$. So
+$\mathrm{Gal}(\mathbb{Q}(\sqrt{2}) / \mathbb{Q}) \cong \mathbb{Z}/2\mathbb{Z}$.
+</details>
+
+### Problem 3
+
+Compute the Galois group of $x^3 - 2$ over $\mathbb{Q}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Roots: $\sqrt[3]{2}, \omega\sqrt[3]{2}, \omega^2\sqrt[3]{2}$ where
+$\omega = e^{2\pi i/3}$.
+
+Splitting field: $\mathbb{Q}(\sqrt[3]{2}, \omega)$, degree 6 over
+$\mathbb{Q}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Galois group has order 6 (since splitting field is degree-6 over
+$\mathbb{Q}$). It permutes the 3 cube roots — gives an embedding into
+$S_3$.
+
+Since $|S_3| = 6$, $\mathrm{Gal}(x^3 - 2 / \mathbb{Q}) \cong S_3$.
+
+$S_3$ is solvable: $\{e\} \trianglelefteq A_3 \trianglelefteq S_3$
+with abelian quotients. So $x^3 - 2$ is solvable by radicals.
+$\sqrt[3]{2}$ is the radical that does it.
+</details>
+
+### Problem 4
+
+**The Galois Correspondence.**
+
+For a Galois extension $L / K$ with Galois group $G$:
+
+- Subgroups $H \leq G$ correspond to intermediate fields $K \subseteq F
+  \subseteq L$ via $H \mapsto L^H$ (the fixed field) and $F \mapsto
+  \mathrm{Gal}(L/F)$.
+- Inclusion-reversing.
+- $H$ is normal in $G$ iff $L^H / K$ is a Galois extension, with
+  $\mathrm{Gal}(L^H / K) \cong G/H$.
+
+Apply to $\mathbb{Q}(\sqrt{2}, \sqrt{3}) / \mathbb{Q}$.
+
+<details class="hint"><summary>Full solution</summary>
+Galois group $\cong (\mathbb{Z}/2)^2 = \{e, \sigma_2, \sigma_3,
+\sigma_2\sigma_3\}$ (Klein 4-group), where $\sigma_2: \sqrt{2}
+\mapsto -\sqrt{2}$, $\sigma_3: \sqrt{3} \mapsto -\sqrt{3}$.
+
+Subgroups: 5 total — $\{e\}$, $\langle\sigma_2\rangle$,
+$\langle\sigma_3\rangle$, $\langle\sigma_2\sigma_3\rangle$, the whole
+group.
+
+Intermediate fields: 5 — $\mathbb{Q}(\sqrt{2}, \sqrt{3})$,
+$\mathbb{Q}(\sqrt{3})$, $\mathbb{Q}(\sqrt{2})$, $\mathbb{Q}(\sqrt{6})$,
+$\mathbb{Q}$.
+
+The lattice of subgroups (upside-down) **is** the lattice of
+intermediate fields. *Group theory replaces field theory.*
+</details>
+
+### Problem 5
+
+**The big theorem.** A polynomial $p(x) \in K[x]$ is **solvable by
+radicals** iff its Galois group is a *solvable group*.
+
+Why is the quintic *not* solvable by radicals?
+
+<details class="hint"><summary>Full solution</summary>
+The Galois group of a *generic* quintic is $S_5$. Recall a group $G$
+is **solvable** iff there's a chain $\{e\} = G_0 \trianglelefteq G_1
+\trianglelefteq \cdots \trianglelefteq G_n = G$ with each $G_{i+1}/G_i$
+abelian.
+
+For $S_5$: $A_5$ is the only proper non-trivial normal subgroup. And
+$A_5$ is **simple** (only normal subgroups: $\{e\}$ and $A_5$) — but
+non-abelian. So no chain to $\{e\}$ with abelian quotients. **$S_5$ is
+not solvable.**
+
+Hence the quintic $x^5 - x - 1$ (whose Galois group is indeed $S_5$)
+cannot be solved by radicals. Abel-Ruffini, 1824. **Galois explained
+why.**
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Field extension** $L / K$: $K \subseteq L$ both fields. Degree
+$[L : K] = \dim_K L$.
+
+**Galois extension** $L / K$: separable and normal — automorphisms of
+$L$ fixing $K$ are "as many as possible" ($|\mathrm{Aut}(L/K)| = [L : K]$).
+
+**Galois group** $\mathrm{Gal}(L / K)$: $K$-automorphisms of $L$.
+
+**Galois Correspondence (the main theorem):** For finite Galois $L/K$,
+inclusion-reversing bijection:
+$$
+\{\text{subgroups of } G\} \leftrightarrow \{\text{intermediate fields}\}, \qquad H \mapsto L^H.
+$$
+Plus: $H \trianglelefteq G \Leftrightarrow L^H / K$ Galois with group $G/H$.
+
+**Solvable group:** subnormal chain to $\{e\}$ with all factors abelian.
+
+**Solvability theorem (Galois):** $p(x) \in K[x]$ is solvable by
+radicals iff $\mathrm{Gal}(p)$ is solvable.
+
+**Consequence:** quintic isn't generally solvable by radicals
+($S_5$ isn't solvable).
+
+:::
+
+> *A field extension's symmetries form a group;*
+> *Subgroups mirror sub-fields;*
+> *Solvable polynomial = solvable group.*
+
+## Apply
+
+### Worked example
+
+> Show $x^4 - 2$ is solvable by radicals over $\mathbb{Q}$.
+
+Roots: $\pm\sqrt[4]{2}, \pm i\sqrt[4]{2}$.
+
+Splitting field: $\mathbb{Q}(\sqrt[4]{2}, i)$, degree 8 over $\mathbb{Q}$.
+
+Galois group: $D_4$ (dihedral of order 8). Subnormal chain: $\{e\}
+\trianglelefteq \langle r^2 \rangle \trianglelefteq \langle r \rangle
+\trianglelefteq D_4$ with each quotient $\cong \mathbb{Z}/2$ — abelian.
+
+So $D_4$ is solvable. Hence $x^4 - 2$ is solvable by radicals — and
+indeed, $\sqrt[4]{2}$ is the radical that does it.
+
+### Practice — Warm
+
+**W1.** What's the Galois group of $\mathbb{Q}(i) / \mathbb{Q}$?
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{Z}/2$. Generator: complex conjugation.
+</details>
+
+**W2.** What's $[\mathbb{Q}(\sqrt{2}, \sqrt{3}) : \mathbb{Q}]$?
+
+<details class="hint"><summary>Full solution</summary>
+$4$. Basis: $\{1, \sqrt{2}, \sqrt{3}, \sqrt{6}\}$.
+</details>
+
+**W3.** Is $\mathbb{Z}/n\mathbb{Z}$ solvable?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — abelian, so trivially solvable.
+</details>
+
+### Practice — Working
+
+**P1.** Why does the *constructibility* of regular polygons relate to
+Galois theory?
+
+<details class="hint"><summary>Full solution</summary>
+A regular $n$-gon is constructible by ruler and compass iff $\phi(n)$
+is a power of 2 (Gauss-Wantzel). Equivalently, the Galois group of
+$\mathbb{Q}(\zeta_n) / \mathbb{Q}$ — which is $(\mathbb{Z}/n\mathbb{Z})^*$
+— must be a 2-group.
+
+That's why the regular 17-gon is constructible (Gauss, age 19) but the
+regular 7-gon is not.
+</details>
+
+**P2.** Compute $\mathrm{Gal}(\mathbb{F}_{p^n} / \mathbb{F}_p)$.
+
+<details class="hint"><summary>Full solution</summary>
+**Cyclic of order $n$**, generated by the **Frobenius** $\phi: x
+\mapsto x^p$.
+
+Finite fields' Galois theory is uniformly cyclic.
+</details>
+
+**P3.** Why is $A_5$ simple?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Show every non-trivial normal subgroup must contain a 3-cycle, and 3-
+cycles generate $A_5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$A_5$ is the smallest non-abelian simple group.** This is the
+linchpin of Galois's proof of quintic insolvability.
+
+Proof: $A_5$ has order 60. Conjugacy classes have sizes $\{1, 15, 20,
+12, 12\}$. Any normal subgroup is a union of conjugacy classes whose
+sizes divide 60. Check all unions including $\{1\}$: only $\{1\}$ and
+$\{1, 15, 20, 12, 12\}$ (order 60) work. So $A_5$ has no proper
+non-trivial normal subgroup.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Inverse Galois Problem.** Given a finite group $G$, does
+there exist a polynomial over $\mathbb{Q}$ whose Galois group is $G$?
+
+<details class="hint"><summary>Full solution</summary>
+**Open in general.** Known for solvable groups (Shafarevich). Known for
+$S_n, A_n$, and many sporadic groups. The Monster group: yes.
+
+But not yet known for *every* finite group.
+
+This is one of the most concrete unsolved problems in modern algebra.
+</details>
+
+**S2.** **Cryptographic relevance: finite-field Galois.**
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{F}_{p^n}$'s Galois group is cyclic, generated by Frobenius. In
+**AES**, the multiplications happen in $\mathbb{F}_{2^8}$. The S-box
+involves an inverse in $\mathbb{F}_{2^8}$ followed by an affine map.
+
+In **elliptic-curve cryptography over** $\mathbb{F}_{p^n}$ (Tier 7
+L13), the Galois action constrains which curves are secure.
+
+Galois theory is the algebraic backbone behind the cryptographic
+schemes that secure the modern internet.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Galois proved the quintic has no formula."** Specifically: no
+   formula *using arithmetic operations and radicals*. Numerical roots
+   exist; the Bring radical and modular forms also yield closed forms
+   beyond radicals.
+2. **"The Galois group depends only on the polynomial."** It depends
+   on the polynomial *and the base field*. Same polynomial, different
+   $K$ → different group.
+3. **"All quintics are insolvable by radicals."** Many are: $x^5 -
+   1$, $x^5 - 2$, etc. The *general* (generic-coefficient) quintic is
+   not. Special ones can be.
+:::
+
+### Self-Assessment
+
+1. State the Galois Correspondence.
+2. Why is $S_5$ not solvable?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: $A_5$ is simple and non-abelian, blocking any subnormal chain
+with abelian factors.)
+
+- **3 yes:** ready for **[04 · Statistical Learning Theory](../04-statistical-learning-theory/index.qmd)**.
+- **2 yes:** redo **P3** ($A_5$ simple).
+- **0–1 yes:** re-read *Discover P4 (correspondence) and P5 (quintic)*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T6 L02 — Groups and Symmetry](../../tier-6-undergrad-advanced/02-groups/index.qmd)**
+- **[T6 L03 — Rings and Fields](../../tier-6-undergrad-advanced/03-rings-fields/index.qmd)**
+
+### What this unlocks
+
+- Algebraic number theory (T7 L12).
+- Class field theory.
+- The Langlands Program (T7 L15) — Galois representations are central.
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** Galois theory is the foundation of modern
+algebra, number theory, and arithmetic geometry.
+:::
+
+::: {.applied-callout}
+**Encryption.** Finite-field arithmetic for AES, ECC, and pairing-
+based cryptography rests on Galois-theoretic structure.
+:::
+
+::: {.applied-callout}
+**Coding theory.** Reed-Solomon codes use $\mathbb{F}_{p^n}$ — designed
+via Galois theory.
+:::
