@@ -1,0 +1,336 @@
+---
+title: "11 · Applications of Integration"
+subtitle: "Area between curves, volumes, average value, work"
+lesson-id: "t4.integration-applications"
+tier: 4
+prerequisites: ["t4.ftc"]
+unlocks: []
+applied-domains: ["research", "game-dev", "ai-ml"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [09 · FTC](../09-fundamental-theorem/index.qmd)?
+2. Comfortable computing $\int_a^b f \, dx = F(b) - F(a)$?
+3. Recall T1 L13 — area, volume formulas for basic shapes?
+:::
+
+## Touch
+
+Pick an application. The widget shows the integral computation.
+
+```{ojs}
+viewof appSel = Inputs.select(["area between y = x² and y = x", "volume of revolution: y = x², 0 to 1, around x-axis", "average value of sin(x) on [0, π]"], {value: "area between y = x² and y = x", label: "Application:"})
+```
+
+```{ojs}
+{
+  let formula, value;
+  if (appSel.startsWith("area between")) {
+    formula = "∫₀¹ (x − x²) dx = [x²/2 − x³/3]₀¹ = 1/6";
+    value = "1/6 ≈ 0.167";
+  } else if (appSel.startsWith("volume")) {
+    formula = "V = π ∫₀¹ (x²)² dx = π ∫₀¹ x⁴ dx = π/5";
+    value = "π/5 ≈ 0.628";
+  } else {
+    formula = "(1/π) ∫₀^π sin(x) dx = (1/π)[−cos x]₀^π = 2/π";
+    value = "2/π ≈ 0.637";
+  }
+  return html`<div style="margin: 1rem 0; text-align:center;">
+    <div style="font-family:monospace; font-size:1.1rem;">${formula}</div>
+    <div style="margin-top:0.5rem; color:#c2185b; font-weight:bold; font-size:1.2rem;">= ${value}</div>
+  </div>`;
+}
+```
+
+The definite integral computes much more than just the area under one
+curve.
+
+## Wonder
+
+1. Area *between* two curves: how does the formula change?
+2. Volume of a solid: how is integration used?
+3. Average value of a function over an interval: where does that
+   come from?
+
+## Discover
+
+### Problem 1
+
+**Area between curves.** If $f(x) \ge g(x)$ on $[a, b]$, the area
+between the curves is $\int_a^b (f - g) \, dx$.
+
+Find the area between $y = x$ and $y = x^2$ on $[0, 1]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+On $[0, 1]$: $x \ge x^2$ (the line is above the parabola). Compute
+$\int_0^1 (x - x^2) \, dx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int_0^1 (x - x^2) \, dx = [x^2/2 - x^3/3]_0^1 = 1/2 - 1/3 = 1/6$.
+
+**Area = 1/6.** Subtraction inside the integral handles "between."
+</details>
+
+### Problem 2
+
+**Volume of revolution.** Rotate $y = f(x)$ around the $x$-axis from
+$a$ to $b$. The resulting solid has volume $V = \pi \int_a^b [f(x)]^2
+\, dx$ (each slice is a disc of area $\pi r^2$, $r = f(x)$).
+
+Find the volume of the solid formed by rotating $y = \sqrt{x}$ on $[0,
+4]$ around the $x$-axis.
+
+<details class="hint"><summary>Full solution</summary>
+$V = \pi \int_0^4 (\sqrt{x})^2 \, dx = \pi \int_0^4 x \, dx = \pi \cdot
+8 = 8\pi$.
+
+This is a **paraboloid of revolution** — a satellite-dish shape (cf.
+T3 L02 S2). The disc method, with each cross-section a circle.
+</details>
+
+### Problem 3
+
+**Average value.** The average of $f$ on $[a, b]$ is
+$\bar{f} = \dfrac{1}{b - a} \int_a^b f(x) \, dx$.
+
+Compute the average of $\sin x$ on $[0, \pi]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\int_0^\pi \sin x \, dx = 2$ (Lesson 09 P5).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\bar{f} = \dfrac{1}{\pi} \cdot 2 = \dfrac{2}{\pi} \approx 0.637$.
+
+**About 64% of the maximum value.** Average is the integral divided
+by the interval length — exactly the *long-run average* of T1 L14
+generalised to continuous data.
+</details>
+
+### Problem 4
+
+**Work.** The work done by a variable force $F(x)$ moving an object
+from $x = a$ to $x = b$ is $W = \int_a^b F(x) \, dx$.
+
+A spring follows $F(x) = kx$ (Hooke's law). Find the work done
+stretching it from 0 to $L$.
+
+<details class="hint"><summary>Full solution</summary>
+$W = \int_0^L kx \, dx = k L^2 / 2$.
+
+Energy stored in a stretched spring: $\tfrac{1}{2} k L^2$. This is
+the **elastic potential energy** formula from physics — derived
+directly from integration.
+</details>
+
+### Problem 5
+
+**Total accumulated quantity from a rate.** If water flows into a
+tank at rate $r(t)$ (litres/second), the *total* water added from
+$t = 0$ to $t = T$ is $\int_0^T r(t) \, dt$.
+
+If $r(t) = 2 + 0.1 t$ (litres/sec), how much water is added in 60
+seconds?
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^{60} (2 + 0.1 t) \, dt = [2t + 0.05 t^2]_0^{60} = 120 + 180 =
+300$ litres.
+
+Integration converts rates → totals. Position from velocity (Lesson
+08 P3); cost from marginal cost; consumption from rate; charge from
+current.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Area between curves:** if $f(x) \ge g(x)$ on $[a, b]$,
+$$\text{area} = \int_a^b [f(x) - g(x)] \, dx.$$
+
+**Volume of solid of revolution** (disc method) about $x$-axis:
+$$V = \pi \int_a^b [f(x)]^2 \, dx.$$
+
+**Average value** of $f$ on $[a, b]$:
+$$\bar{f} = \dfrac{1}{b - a} \int_a^b f(x) \, dx.$$
+
+**Total from rate:** total = $\int$ (rate) $\, dt$. Examples:
+- Position = $\int$ velocity $\, dt$.
+- Total mass = $\int$ density $\, dV$.
+- Total charge = $\int$ current $\, dt$.
+- Work = $\int$ force $\, dx$.
+
+**Mean Value Theorem for Integrals:** there exists $c \in [a, b]$
+with $f(c) = \bar{f}$ — the average value is attained.
+
+:::
+
+> *Area between = $\int (f - g)$;*
+> *Volume of revolution = $\pi \int f^2$;*
+> *Average = integral / width;*
+> *Total = $\int$ rate.*
+
+## Apply
+
+### Worked example
+
+> Find the area enclosed by $y = x^2$ and $y = 2 - x^2$.
+
+Find intersections: $x^2 = 2 - x^2 \Rightarrow x = \pm 1$.
+
+On $[-1, 1]$, $2 - x^2 \ge x^2$.
+
+Area $= \int_{-1}^1 [(2 - x^2) - x^2] \, dx = \int_{-1}^1 (2 - 2x^2)
+\, dx = [2x - 2x^3/3]_{-1}^1 = (2 - 2/3) - (-2 + 2/3) = 4 - 4/3 =
+8/3$.
+
+**Area = $8/3 \approx 2.67$.**
+
+### Practice — Warm
+
+**W1.** Area under $y = x$ from 0 to 4.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^4 x \, dx = 8$.
+</details>
+
+**W2.** Average of $f(x) = x$ on $[0, 4]$.
+
+<details class="hint"><summary>Full solution</summary>
+$8/4 = 2$.
+</details>
+
+**W3.** Total water if rate is constant $r = 5$ L/s for 10 sec.
+
+<details class="hint"><summary>Full solution</summary>
+$50$ L.
+</details>
+
+### Practice — Working
+
+**P1.** Area between $y = x^2$ and $y = 4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Intersections: $x = \pm 2$. On $[-2, 2]$, $4 \ge x^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int_{-2}^2 (4 - x^2) \, dx = [4x - x^3/3]_{-2}^2 = (8 - 8/3) - (-8
++ 8/3) = 32/3$.
+</details>
+
+**P2.** Volume of revolution: rotate $y = x$ on $[0, 1]$ around the
+$x$-axis.
+
+<details class="hint"><summary>Full solution</summary>
+$V = \pi \int_0^1 x^2 \, dx = \pi/3$. (A cone — confirms $V = \pi r^2
+h / 3$ with $r = h = 1$.)
+</details>
+
+**P3.** Average of $f(x) = e^x$ on $[0, 1]$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{1} \int_0^1 e^x \, dx = e - 1 \approx 1.718$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Length of a curve.** The arc length of $y = f(x)$ from $x =
+a$ to $b$ is $L = \int_a^b \sqrt{1 + [f'(x)]^2} \, dx$. Compute the
+length of $y = x^{3/2}$ from 0 to 4.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f'(x) = (3/2) x^{1/2}$. $[f']^2 = (9/4) x$. So $\int_0^4 \sqrt{1 +
+9x/4} \, dx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Substitute $u = 1 + 9x/4, du = (9/4) dx$. Limits: $u = 1$ to $10$.
+$L = (4/9) \int_1^{10} \sqrt{u} \, du = (4/9) \cdot (2/3) [u^{3/2}]_1^{10}
+= (8/27)(10^{3/2} - 1) \approx (8/27)(31.62 - 1) \approx 9.07$.
+
+**Curve length $\approx 9.07$.** Game engines use arc-length
+parameterisation for animations along curves.
+</details>
+
+**S2.** **Why integration applications matter for ML.** A common ML
+quantity: the *KL divergence* between two distributions,
+$\text{KL}(p \| q) = \int p(x) \ln \dfrac{p(x)}{q(x)} \, dx$. What
+does this measure?
+
+<details class="hint"><summary>Full solution</summary>
+**KL divergence measures how much one distribution differs from
+another.** It's an *expected log-ratio* under $p$: how surprised would
+$p$ be by $q$'s probabilities?
+
+KL is asymmetric, non-negative, zero iff $p = q$. Used everywhere in
+ML: variational inference, information bottleneck, regularisation
+of generative models, training of variational autoencoders.
+
+The integral form is rarely computed exactly (intractable for most
+distributions). Instead, ML uses **Monte Carlo estimates** (Lesson 8
+S2) or *closed-form* tractable approximations.
+
+Integration applications in ML go far beyond areas and volumes —
+they appear in every Bayesian and probabilistic method.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Area between curves is $\int |f - g|$."** True if you don't
+   care which curve is on top. Without absolute values, you must
+   know the order.
+2. **"Volume of revolution always uses discs."** Sometimes the
+   *shell* method is easier (Tier 5), or the function is rotated
+   around a different axis, requiring shifts.
+3. **"Average value = midpoint."** Not generally — only for linear
+   functions. For curves, the average can lie anywhere in the range.
+:::
+
+### Self-Assessment
+
+1. Could you set up an integral for the area between two given
+   curves?
+2. Without scrolling back, can you find the average value of $f(x)
+   = x^2$ on $[0, 3]$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $(1/3) \int_0^3 x^2 \, dx = 9/3 = 3$.)
+
+- **3 yes:** ready for **[12 · Differential Equations](../12-differential-equations/index.qmd)**.
+- **2 yes:** redo **S1** (arc length).
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[09 · Fundamental Theorem](../09-fundamental-theorem/index.qmd)**
+
+### What this unlocks
+
+- **[12 · Differential Equations](../12-differential-equations/index.qmd)** —
+  often involve integration to solve.
+- **Tier 5 — Multivariable Calculus** — areas become volumes; volumes
+  become hyper-volumes (multi-dimensional integration).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** KL divergence (S2), expected values, and
+many other ML quantities are integrals.
+:::
+
+::: {.applied-callout}
+**Game development.** Arc-length parameterisation (S1) for camera
+paths and animations. Surface area / volume calculations for terrain,
+fluid simulation, lighting.
+:::
+
+::: {.applied-callout}
+**Engineering.** Centre of mass = $\int x \, dm$; moment of inertia
+= $\int r^2 \, dm$; energy stored in fields = $\int E^2 \, dV$. The
+language of physics is integral calculus.
+:::
