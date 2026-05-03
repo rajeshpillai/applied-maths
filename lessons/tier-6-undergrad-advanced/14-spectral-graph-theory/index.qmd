@@ -1,0 +1,350 @@
+---
+title: "14 · Spectral Graph Theory"
+subtitle: "Eigenvalues of graph matrices reveal structure"
+lesson-id: "t6.spectral-graph-theory"
+tier: 6
+prerequisites: ["t5.eigenvalues", "t5.graphs-algorithms"]
+unlocks: []
+applied-domains: ["ai-ml", "databases", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L04 — Eigenvalues](../../tier-5-undergrad-core/04-eigenvalues/index.qmd)
+   and [T5 L12 — Graphs](../../tier-5-undergrad-core/12-graphs-algorithms/index.qmd)?
+2. Comfortable with adjacency matrices?
+3. Recall the spectral approach to PageRank (T5 L04 S2).
+:::
+
+## Touch
+
+Encode a graph as the **adjacency matrix** $A_{ij} = 1$ if $i \sim j$,
+0 otherwise. Eigenvalues of $A$ (and related matrices) reveal
+structure.
+
+```{ojs}
+viewof sgSel = Inputs.select(["complete graph K_n: simple spectrum", "cycle C_n: cosine eigenvalues", "path graph: like a discrete Laplacian", "Laplacian L = D − A"], {value: "Laplacian L = D − A", label: "Topic:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(sgSel) {
+    case "complete graph K_n: simple spectrum": info = "K_n adjacency: eigenvalues n−1 (mult 1) and −1 (mult n−1). Highly symmetric."; break;
+    case "cycle C_n: cosine eigenvalues": info = "C_n: eigenvalues 2 cos(2πk/n) for k = 0, 1, ..., n−1. Connected to Fourier basis."; break;
+    case "path graph: like a discrete Laplacian": info = "Path P_n: eigenvalues 2 cos(πk/(n+1)). Discrete sine basis. Connection to vibrating string."; break;
+    case "Laplacian L = D − A": info = "L = degree matrix − adjacency. Always positive semi-definite. Number of zero eigenvalues = number of connected components."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. The **Laplacian** $L = D - A$ — why is it useful?
+2. The **second smallest eigenvalue** of $L$ ("algebraic connectivity")
+   measures how well-connected a graph is. How?
+3. **Spectral clustering:** use eigenvectors to partition graphs.
+
+## Discover
+
+### Problem 1
+
+For the complete graph $K_3$ (triangle): adjacency $A = \begin{pmatrix}
+0 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0 \end{pmatrix}$.
+
+Find its eigenvalues.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$A = J - I$ where $J$ is the all-ones matrix. $J$ has eigenvalues
+$3$ (once) and $0$ (twice). $A = J - I$ has eigenvalues $2, -1, -1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Eigenvalues:** $2$ (once), $-1$ (twice).
+
+For $K_n$ in general: $\lambda_1 = n - 1$ (eigenvector $\mathbf{1}$),
+$\lambda_2 = \cdots = \lambda_n = -1$.
+
+Spectrum reveals symmetry: highly symmetric graphs have repeated
+eigenvalues.
+</details>
+
+### Problem 2
+
+The **graph Laplacian** $L = D - A$ where $D$ is the diagonal degree
+matrix.
+
+Properties:
+
+- $L$ is **symmetric** and **positive semi-definite**.
+- Rows sum to 0 (so $L \mathbf{1} = 0$).
+- Eigenvalue 0 has multiplicity = number of connected components.
+
+Verify the last property for a graph with two components.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The all-ones vector restricted to each component is in the null space.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $V = V_1 \cup V_2$ (disconnected). Define $v_1 = \mathbf{1}_{V_1},
+v_2 = \mathbf{1}_{V_2}$. Both are in the null space of $L$ (each
+restricted-to-its-component's sum-of-rows is 0). Independent → $L$
+has at least 2 zero eigenvalues.
+
+So **# components = dim of null space of $L$**.
+
+This is one of the most-used facts in spectral graph theory.
+</details>
+
+### Problem 3
+
+The **second-smallest eigenvalue** $\lambda_2$ of $L$ is the
+**algebraic connectivity** (Fiedler 1973). High = well-connected;
+low = bottlenecks.
+
+For a path graph (long chain): is $\lambda_2$ large or small?
+
+<details class="hint"><summary>Full solution</summary>
+**Small.** Long path = poorly connected (cutting one edge separates
+into roughly equal halves). $\lambda_2 \to 0$ as length increases.
+
+In contrast, $K_n$: $\lambda_2 = n$ (large) — every pair connected
+directly.
+
+**Cheeger inequality:** $\lambda_2 / 2 \le h(G) \le \sqrt{2 \lambda_2
+\Delta}$ where $h(G)$ is the *Cheeger constant* (measures
+bottleneckedness) and $\Delta$ is max degree. Spectral bounds for
+combinatorial properties.
+</details>
+
+### Problem 4
+
+**Spectral clustering.** To partition a graph into 2 clusters: find
+the eigenvector of $L$ for $\lambda_2$ (the **Fiedler vector**).
+Sort vertices by Fiedler-vector value; cut at the median.
+
+Why does this work?
+
+<details class="hint"><summary>Full solution</summary>
+The Fiedler vector approximately solves the **graph cut**
+optimisation problem: partition $V$ to minimise edges between
+parts (subject to balance constraints).
+
+Spectral clustering generalises to $k$ clusters using the first $k$
+eigenvectors of $L$ (or normalised $L$). It's a backbone of
+unsupervised graph ML.
+
+**Used in:** image segmentation (graph of pixels), community
+detection in social networks, document clustering, manifold
+learning (spectral embedding).
+</details>
+
+### Problem 5
+
+**Random walks on graphs.** A walker at vertex $i$ moves to a random
+neighbour. The **transition matrix** $P_{ij} = A_{ij} / d_i$ where
+$d_i$ is the degree.
+
+The **stationary distribution** $\pi$ satisfies $\pi^T P = \pi^T$.
+For undirected graph: $\pi_i \propto d_i$.
+
+Verify for $K_3$.
+
+<details class="hint"><summary>Full solution</summary>
+$d_i = 2$ for all $i$ in $K_3$. $\pi_i \propto 2$, normalised
+$\pi_i = 1/3$. Uniform.
+
+The random walk has a stationary distribution proportional to degree
+in undirected graphs. This is the basis of **PageRank** (T5 L04 S2)
+and many other graph algorithms (random-walk embeddings, Markov
+chain Monte Carlo on graphs).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For graph $G = (V, E)$:
+
+**Adjacency matrix** $A$: $A_{ij} = 1$ if $\{i, j\} \in E$, else 0.
+
+**Degree matrix** $D$: diagonal, $D_{ii} = \deg(i)$.
+
+**Graph Laplacian:** $L = D - A$.
+
+- Symmetric, positive semi-definite.
+- Rows sum to 0.
+- Multiplicity of eigenvalue 0 = number of connected components.
+
+**Normalised Laplacian:** $\mathcal{L} = D^{-1/2} L D^{-1/2}$. Used
+for spectral clustering when degrees vary.
+
+**Algebraic connectivity** $\lambda_2(L)$ (Fiedler value): measures
+how connected the graph is.
+
+**Cheeger inequality:** bounds graph cut quality by $\lambda_2$.
+
+**Spectral clustering:** use first $k$ eigenvectors of $L$ to embed
+vertices in $\mathbb{R}^k$, then cluster.
+
+**Random walks:** transition matrix $P = D^{-1} A$. Stationary
+distribution proportional to degrees (undirected).
+
+:::
+
+> *Adjacency / Laplacian: matrix encodings of graph structure;*
+> *Eigenvalues reveal connectivity, components, bottlenecks;*
+> *Spectral methods: clustering, partitioning, embedding.*
+
+## Apply
+
+### Worked example
+
+> Find the spectrum of $K_4$.
+
+$A = J - I$, $J$ has eigenvalues $4, 0, 0, 0$. $A = J - I$ shifts
+each by $-1$: spectrum $\{3, -1, -1, -1\}$.
+
+$L = D - A = 3I - (J - I) = 4I - J$. Spectrum $\{4 - 4, 4, 4, 4\} =
+\{0, 4, 4, 4\}$. Single 0 → connected.
+
+### Practice — Warm
+
+**W1.** Adjacency of a single edge $K_2$?
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$, eigenvalues $\pm 1$.
+</details>
+
+**W2.** Number of zero eigenvalues of $L$ for a graph with 3
+components?
+
+<details class="hint"><summary>Full solution</summary>
+$3$.
+</details>
+
+**W3.** Stationary distribution of random walk on $K_n$?
+
+<details class="hint"><summary>Full solution</summary>
+Uniform $1/n$.
+</details>
+
+### Practice — Working
+
+**P1.** Adjacency for path $P_3$ (3 vertices, 2 edges in a row).
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 0 & 1 & 0 \\ 1 & 0 & 1 \\ 0 & 1 & 0 \end{pmatrix}$.
+Eigenvalues: $\sqrt{2}, 0, -\sqrt{2}$.
+</details>
+
+**P2.** Algebraic connectivity of $K_4$?
+
+<details class="hint"><summary>Full solution</summary>
+$\lambda_2 = 4$ (from worked example).
+</details>
+
+**P3.** $L$ for $K_2$?
+
+<details class="hint"><summary>Full solution</summary>
+$D = I, A = $ swap, $L = \begin{pmatrix} 1 & -1 \\ -1 & 1
+\end{pmatrix}$. Eigenvalues 0, 2.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Graph Neural Networks (GNNs)** propagate features along
+graph edges using matrix multiplications by $A$ (or normalised
+versions). Why does this work?
+
+<details class="hint"><summary>Full solution</summary>
+**Multiplying by $A$ averages neighbours' features.** Iterating $k$
+times reaches $k$-hop neighbourhoods.
+
+Many modern GNNs use $\hat A = D^{-1/2}(A + I) D^{-1/2}$ (normalised
+adjacency with self-loops). Layer: $H_{l+1} = \sigma(\hat A H_l W_l)$.
+
+**Spectral GNNs** explicitly use the eigenbasis of $L$ — a spectral
+filtering approach analogous to Fourier filtering for signals.
+
+Pioneered by Kipf & Welling (2016) and now standard for tasks like
+molecular property prediction, recommendation, knowledge graphs.
+</details>
+
+**S2.** **The Cheeger inequality** ties algebraic to combinatorial
+graph properties. Why is this surprising?
+
+<details class="hint"><summary>Full solution</summary>
+**Combinatorial questions** (graph cuts) are usually NP-hard. But
+**spectral computations** (eigenvalues) take polynomial time.
+
+Cheeger gives a **polynomial-time approximation** to the cut-quality
+question: bound it via $\lambda_2$.
+
+This is one of the *theoretical jewels* of spectral graph theory:
+hard combinatorial questions admit efficient spectral proxies.
+Applied widely in clustering, partitioning, expander graph
+construction.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Spectrum is just numbers."** Spectrum encodes geometry: many
+   graph properties (connectivity, bipartiteness, expansion) read
+   directly from eigenvalues.
+2. **"Spectral clustering is just k-means in some space."** It's
+   k-means on the *spectral embedding* (Fiedler-style coordinates).
+   The embedding is the magic.
+3. **"All graphs have unique spectra."** Most do (cospectral graphs
+   are rare), but some non-isomorphic graphs share spectra — the
+   "isospectral problem."
+:::
+
+### Self-Assessment
+
+1. Could you explain why # of zero eigenvalues of $L$ = # of
+   connected components?
+2. Without scrolling back, what's the Fiedler vector?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: eigenvector of $L$ for $\lambda_2$; used for spectral
+bisection.)
+
+- **3 yes:** ready for **[15 · Spectral Theorem](../15-spectral-theorem/index.qmd)**.
+- **2 yes:** redo **S1** (GNNs).
+- **0–1 yes:** re-read *Discover P2 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L04 — Eigenvalues](../../tier-5-undergrad-core/04-eigenvalues/index.qmd)**
+- **[T5 L12 — Graphs](../../tier-5-undergrad-core/12-graphs-algorithms/index.qmd)**
+
+### What this unlocks
+
+- **Tier 7 — Algebraic Graph Theory** — deeper spectral / algebraic
+  combinatorics.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Graph neural networks (S1). Spectral
+embeddings for visualisation (Laplacian eigenmaps).
+:::
+
+::: {.applied-callout}
+**Computer science.** Network design, expander graphs (used in
+error-correcting codes, sparse approximations).
+:::
+
+::: {.applied-callout}
+**Network science.** Community detection, robustness analysis,
+epidemic modelling on networks.
+:::
