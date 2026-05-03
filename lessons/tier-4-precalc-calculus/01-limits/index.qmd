@@ -1,0 +1,400 @@
+---
+title: "01 · Limits — The Idea of Approach"
+subtitle: "What value does $f(x)$ approach as $x$ approaches $a$?"
+lesson-id: "t4.limits"
+tier: 4
+prerequisites: ["t3.exp-log-functions", "t3.unit-circle"]
+unlocks: ["t4.continuity", "t4.derivative", "t4.definite-integral"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T3 L06 — Exp & Log Functions](../../tier-3-algebra2-geometry-trig/06-exp-log-functions/index.qmd)
+   and [T3 L08 — Unit Circle](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd)?
+2. Comfortable evaluating functions at specific points, e.g. $f(2) = 5$?
+3. Recall $0.\overline{9} = 1$ from [T1 L08 Stretch S2](../../tier-1-foundations/08-decimals/index.qmd)?
+   That's a limit in disguise.
+:::
+
+## Touch
+
+Pick a function and a target $x$-value $a$. The widget plots and
+shows the value $f(a)$ along with the *limit* — the value $f$ approaches
+as $x \to a$.
+
+```{ojs}
+viewof fnSel = Inputs.select(["f(x) = x²", "f(x) = (x²−1)/(x−1) — undefined at 1!", "f(x) = sin(x)/x — undefined at 0!", "f(x) = 1/x"], {value: "f(x) = (x²−1)/(x−1) — undefined at 1!", label: "Function:"})
+viewof aTarget = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "x → a:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 320, pad = 30;
+  const xMin = -3, xMax = 3, yMin = -2, yMax = 5;
+  const px = v => pad + ((v - xMin) / (xMax - xMin)) * (W - 2 * pad);
+  const py = v => H - pad - ((v - yMin) / (yMax - yMin)) * (H - 2 * pad);
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa;");
+  // axes
+  svg.append("line").attr("x1", pad).attr("x2", W - pad).attr("y1", py(0)).attr("y2", py(0)).attr("stroke", "#1f2933");
+  svg.append("line").attr("x1", px(0)).attr("x2", px(0)).attr("y1", pad).attr("y2", H - pad).attr("stroke", "#1f2933");
+  // function
+  let fn, undefAt = null, limitAt = null;
+  if (fnSel === "f(x) = x²") { fn = x => x * x; }
+  else if (fnSel.includes("(x²−1)/(x−1)")) { fn = x => Math.abs(x - 1) < 0.001 ? null : (x*x - 1) / (x - 1); undefAt = 1; limitAt = 2; }
+  else if (fnSel.includes("sin(x)/x")) { fn = x => Math.abs(x) < 0.001 ? null : Math.sin(x) / x; undefAt = 0; limitAt = 1; }
+  else { fn = x => Math.abs(x) < 0.001 ? null : 1 / x; }
+  // plot
+  let pathD = "";
+  for (let x = xMin; x <= xMax; x += 0.02) {
+    const y = fn(x);
+    if (y === null || y < yMin - 1 || y > yMax + 1) { if (pathD) svg.append("path").attr("d", pathD).attr("fill","none").attr("stroke","#c2185b").attr("stroke-width",2); pathD = ""; continue; }
+    pathD += (pathD ? " L " : "M ") + `${px(x)},${py(y)}`;
+  }
+  if (pathD) svg.append("path").attr("d", pathD).attr("fill","none").attr("stroke","#c2185b").attr("stroke-width",2);
+  // hole at undefined point
+  if (undefAt !== null && limitAt !== null) {
+    svg.append("circle").attr("cx", px(undefAt)).attr("cy", py(limitAt)).attr("r", 5).attr("fill","#fff").attr("stroke","#c2185b").attr("stroke-width",2);
+  }
+  // marker for x = aTarget
+  const yAtA = fn(aTarget);
+  svg.append("line").attr("x1", px(aTarget)).attr("x2", px(aTarget)).attr("y1", pad).attr("y2", H - pad).attr("stroke","#1565c0").attr("stroke-dasharray","4 4");
+  if (yAtA !== null && yAtA >= yMin && yAtA <= yMax) {
+    svg.append("circle").attr("cx", px(aTarget)).attr("cy", py(yAtA)).attr("r", 6).attr("fill","#1565c0");
+    svg.append("text").attr("x", px(aTarget) + 8).attr("y", py(yAtA) - 8).attr("font-size","12").attr("fill","#1565c0").attr("font-weight","bold").text(`(${aTarget.toFixed(2)}, ${yAtA.toFixed(3)})`);
+  } else {
+    svg.append("text").attr("x", px(aTarget) + 8).attr("y", py(0) - 8).attr("font-size","12").attr("fill","#1565c0").attr("font-weight","bold").text("undefined here");
+  }
+  return svg.node();
+}
+```
+
+A **limit** asks: as $x$ gets arbitrarily close to $a$, what value
+does $f(x)$ approach? The answer can exist even when $f(a)$ itself
+doesn't.
+
+## Wonder
+
+1. Pick "$f(x) = (x^2-1)/(x-1)$ — undefined at 1." Move $a$ near 1.
+   What does $f(x)$ approach?
+2. Try "$f(x) = \sin(x)/x$ — undefined at 0." What value does it
+   approach as $x \to 0$?
+3. Pick "$f(x) = 1/x$." What happens as $x \to 0$?
+
+## Discover
+
+### Problem 1
+
+Compute (just by substitution) the limits:
+
+(a) $\lim_{x \to 2} (3x + 1)$
+(b) $\lim_{x \to 0} \cos(x)$
+(c) $\lim_{x \to 1} (x^2 + 2x - 3)$
+
+<details class="hint"><summary>Full solution</summary>
+(a) $3 \cdot 2 + 1 = 7$.
+(b) $\cos 0 = 1$.
+(c) $1 + 2 - 3 = 0$.
+
+For *continuous* functions (Lesson 02), the limit equals the value:
+$\lim_{x \to a} f(x) = f(a)$. Most everyday limits are this easy.
+</details>
+
+### Problem 2
+
+Compute $\lim_{x \to 1} \dfrac{x^2 - 1}{x - 1}$.
+
+(*Direct substitution* gives $0/0$, which is **indeterminate** —
+neither defined nor "infinity". Try simplifying first.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor the numerator: $x^2 - 1 = (x - 1)(x + 1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{x^2 - 1}{x - 1} = \dfrac{(x-1)(x+1)}{x - 1} = x + 1$ (for $x \neq 1$).
+
+So $\lim_{x \to 1} \dfrac{x^2 - 1}{x - 1} = \lim_{x \to 1} (x + 1) = 2$.
+
+The function isn't *defined* at $x = 1$ (denominator zero), but its
+*limit* as $x \to 1$ is **2**. The graph has a "hole" at $(1, 2)$;
+the function gets arbitrarily close to 2 from both sides.
+
+The widget shows this hole as a hollow circle.
+</details>
+
+### Problem 3
+
+Compute $\lim_{x \to 0} \dfrac{\sin x}{x}$. Try plugging in small
+values: $x = 0.1, 0.01, 0.001$.
+
+<details class="hint"><summary>Full solution</summary>
+- $\sin(0.1)/0.1 \approx 0.99833$
+- $\sin(0.01)/0.01 \approx 0.99998$
+- $\sin(0.001)/0.001 \approx 0.99999983$
+
+The limit is **1**.
+
+This is one of the most important limits in calculus. It's not
+provable by simple algebra — it requires a geometric squeeze argument
+(unit circle areas) or the Taylor series of $\sin$ (Tier 4+). It
+underlies the derivative of $\sin x$ (Lesson 5).
+</details>
+
+### Problem 4
+
+Compute $\lim_{x \to \infty} \dfrac{1}{x}$ and $\lim_{x \to 0^+}
+\dfrac{1}{x}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For the first: as $x$ grows huge, $1/x$ shrinks. For the second:
+as $x$ approaches 0 from the *right* (positive side), $1/x$ grows
+huge.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\lim_{x \to \infty} 1/x = 0$.
+$\lim_{x \to 0^+} 1/x = +\infty$ (and $\lim_{x \to 0^-} 1/x = -\infty$).
+
+**Limits at infinity** ($x \to \infty$) describe long-run behaviour.
+**One-sided limits** ($x \to a^+$ or $a^-$) consider approach from
+just one side. **Infinite limits** describe blow-ups.
+
+The two-sided limit $\lim_{x \to 0} 1/x$ does **not exist** because
+left and right disagree.
+</details>
+
+### Problem 5
+
+A limit that *should* be 0 but is *actually* 1: compute $\lim_{x \to
+0^+} x \cdot \ln x$.
+
+(Hint: $\ln x \to -\infty$ as $x \to 0^+$, but $x \to 0$. What
+happens to the product?)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try numerical: $x = 0.1, 0.01, 0.001$. Compute $x \ln x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $0.1 \cdot \ln(0.1) \approx -0.230$
+- $0.01 \cdot \ln(0.01) \approx -0.046$
+- $0.001 \cdot \ln(0.001) \approx -0.0069$
+
+The limit is **0**: the $x$ factor crushes the $\ln x$ infinity. This
+is an "$0 \cdot \infty$" *indeterminate form* — its value depends on
+which factor wins.
+
+Resolving such forms rigorously needs **L'Hôpital's rule** (Tier 4
+later) or careful estimation. The fact that limits resolve such
+ambiguities is exactly what makes them useful.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **limit** of $f(x)$ as $x$ approaches $a$ is the value $L$ that
+$f(x)$ gets arbitrarily close to as $x$ gets arbitrarily close to $a$
+(but $x \neq a$):
+$$\lim_{x \to a} f(x) = L.$$
+
+**One-sided limits:**
+
+- $\lim_{x \to a^+} f(x)$ — from the right.
+- $\lim_{x \to a^-} f(x)$ — from the left.
+
+The two-sided limit exists *iff* both one-sided limits exist and are
+equal.
+
+**Limits at infinity:** $\lim_{x \to \infty} f(x) = L$ if $f(x)$ gets
+close to $L$ as $x$ grows without bound.
+
+**Indeterminate forms:** $\dfrac{0}{0}, \dfrac{\infty}{\infty}, 0 \cdot
+\infty, \infty - \infty, 0^0, 1^\infty, \infty^0$. These require *more
+work* (factoring, conjugates, L'Hôpital).
+
+**Limit laws** (when the individual limits exist):
+
+- $\lim (f + g) = \lim f + \lim g$.
+- $\lim (f \cdot g) = \lim f \cdot \lim g$.
+- $\lim (f/g) = \lim f / \lim g$ (if $\lim g \neq 0$).
+- $\lim c \cdot f = c \cdot \lim f$ for constant $c$.
+
+**Famous limits:**
+
+- $\lim_{x \to 0} \dfrac{\sin x}{x} = 1$.
+- $\lim_{n \to \infty} \left(1 + \dfrac{1}{n}\right)^n = e$.
+
+:::
+
+> *Limit asks where the function is heading, not where it lands;*
+> *Two-sided limits need agreement of both one-sided limits;*
+> *Indeterminate forms (0/0, ∞/∞, ...) need work; not the value, but the journey.*
+
+## Apply
+
+### Worked example
+
+> Compute $\lim_{x \to 4} \dfrac{x^2 - 16}{x - 4}$.
+
+A competent solver:
+
+1. **Direct sub:** $\dfrac{0}{0}$ — indeterminate.
+2. **Factor:** $x^2 - 16 = (x - 4)(x + 4)$.
+3. **Cancel:** $\dfrac{(x-4)(x+4)}{x - 4} = x + 4$ for $x \neq 4$.
+4. **Substitute now:** $\lim_{x \to 4} (x + 4) = 8$.
+
+**Answer: 8.** This pattern — substitute, get 0/0, factor, cancel,
+substitute again — is the standard playbook for rational limits.
+
+### Practice — Warm
+
+**W1.** $\lim_{x \to 3} (2x - 5)$?
+
+<details class="hint"><summary>Full solution</summary>
+$2 \cdot 3 - 5 = 1$.
+</details>
+
+**W2.** $\lim_{x \to 0} (3x^2 + 2)$?
+
+<details class="hint"><summary>Full solution</summary>
+2.
+</details>
+
+**W3.** $\lim_{x \to \pi} \cos(x)$?
+
+<details class="hint"><summary>Full solution</summary>
+$\cos \pi = -1$.
+</details>
+
+### Practice — Working
+
+**P1.** $\lim_{x \to 2} \dfrac{x^2 - 4}{x - 2}$.
+
+<details class="hint"><summary>Full solution</summary>
+Factor: $(x-2)(x+2)/(x-2) = x + 2$. Limit: $4$.
+</details>
+
+**P2.** $\lim_{x \to \infty} \dfrac{2x^2 + 3}{x^2 + 5}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide top and bottom by $x^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2 + 3/x^2}{1 + 5/x^2} \to \dfrac{2 + 0}{1 + 0} = 2$.
+
+For rational functions at infinity: ratio of leading coefficients (if
+degrees match).
+</details>
+
+**P3.** $\lim_{x \to 0} \dfrac{1 - \cos x}{x}$. (Hint: multiply top
+and bottom by $1 + \cos x$.)
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{(1 - \cos x)(1 + \cos x)}{x(1 + \cos x)} = \dfrac{1 - \cos^2 x}{x(1 + \cos x)} = \dfrac{\sin^2 x}{x(1 + \cos x)} = \dfrac{\sin x}{x} \cdot \dfrac{\sin x}{1 + \cos x}$.
+
+As $x \to 0$: first factor $\to 1$, second $\to 0/(1+1) = 0$. So
+limit is **0**.
+
+Conjugate-multiplication is a powerful trick for limits involving
+$1 - \cos$ or square roots.
+</details>
+
+### Practice — Stretch
+
+**S1.** Compute $\lim_{n \to \infty} (1 + 1/n)^n$ numerically for $n =
+1, 10, 100, 1000, 10000$. What number does it approach?
+
+<details class="hint"><summary>Full solution</summary>
+- $n = 1$: $(1 + 1)^1 = 2$
+- $n = 10$: $(1.1)^{10} \approx 2.594$
+- $n = 100$: $\approx 2.704$
+- $n = 1000$: $\approx 2.717$
+- $n = 10000$: $\approx 2.71815$
+
+The limit is $e \approx 2.71828\ldots$ — Euler's number.
+
+This is the **classic definition** of $e$ — the base of natural
+exponentials. Compound interest "continuously compounded" gives
+exactly this growth factor.
+</details>
+
+**S2.** **Why limits matter for ML.** A neural network is "trained" by
+many tiny updates: $w_{n+1} = w_n - \eta \nabla L(w_n)$. As $n \to
+\infty$ (and $\eta$ → 0 carefully), the discrete updates approach a
+continuous *gradient flow*. Why is this useful?
+
+<details class="hint"><summary>Full solution</summary>
+**Continuous-time analysis** (using calculus, Lessons 03+) is often
+more tractable than the discrete recursion. Researchers prove
+*convergence theorems* about gradient descent by studying the limiting
+ODE $\dot{w}(t) = -\nabla L(w(t))$ — a *differential equation* (Lesson
+12). Conclusions then transfer back to the actual training algorithm.
+
+Limits — discrete becoming continuous — are the *hidden engine* of
+nearly every theoretical result in optimisation and ML.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\lim_{x \to a} f(x) = f(a)$ always."** Only when $f$ is
+   *continuous* at $a$ (Lesson 02). Limits exist for many functions
+   that aren't even defined at $a$.
+2. **"$0/0 = 0$."** **Undefined.** $0/0$ is an indeterminate form;
+   it can equal *anything* depending on which $0$s shrink fastest.
+3. **"$\infty$ is a number."** No — it's a description of unbounded
+   behaviour. "$\lim = \infty$" means "grows without bound", not "equals
+   the number $\infty$".
+:::
+
+### Self-Assessment
+
+1. Could you explain why $\lim_{x \to 1} (x^2 - 1)/(x - 1) = 2$ even
+   though the function isn't defined at $x = 1$?
+2. Without scrolling back, can you compute $\lim_{x \to 0} (3x + 5)$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: 5.)
+
+- **3 yes:** ready for **[02 · Continuity](../02-continuity/index.qmd)**.
+- **2 yes:** redo **P3** (conjugate trick for trig limits).
+- **0–1 yes:** re-read *Discover P2 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T3 L06 — Exp & Log Functions](../../tier-3-algebra2-geometry-trig/06-exp-log-functions/index.qmd)**
+- **[T3 L08 — Unit Circle](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd)** —
+  for $\sin x / x$ and other trig limits.
+
+### What this unlocks
+
+- **[02 · Continuity](../02-continuity/index.qmd)** — defined via limits.
+- **[03 · Derivative](../03-derivative/index.qmd)** — defined as the
+  limit of a slope.
+- **[08 · Definite Integral](../08-definite-integral/index.qmd)** —
+  defined as a limit of Riemann sums.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Continuous-time analysis (S2) of gradient
+descent and other optimisation algorithms; convergence guarantees;
+all use limits.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Limits are the gateway to **real
+analysis** (Tier 5). The careful $\epsilon$-$\delta$ definition is
+the formal version of the intuitive "approach" idea here.
+:::
+
+::: {.applied-callout}
+**Physics & engineering.** Instantaneous speed (limit of average
+speed), instantaneous power (limit of energy/time), instantaneous
+flow rate — all *limits of ratios* in the world.
+:::
