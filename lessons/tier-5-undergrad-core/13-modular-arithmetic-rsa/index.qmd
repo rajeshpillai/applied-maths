@@ -1,0 +1,343 @@
+---
+title: "13 · Modular Arithmetic and the RSA Algorithm"
+subtitle: "The arithmetic that powers internet encryption"
+lesson-id: "t5.modular-arithmetic-rsa"
+tier: 5
+prerequisites: ["t1.divisibility-primes", "t3.exp-log-functions"]
+unlocks: []
+applied-domains: ["encryption", "research"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T1 L15 — Divisibility & Primes](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)?
+2. Comfortable with $a \div b$ remainder (T1 L06)?
+3. Comfortable with exponents (T2 L07)?
+:::
+
+## Touch
+
+**Modular arithmetic:** $a \equiv b \pmod n$ means $a$ and $b$ leave
+the same remainder when divided by $n$.
+
+```{ojs}
+viewof rsaSel = Inputs.select(["clock arithmetic mod 12", "small RSA: p=11, q=13", "Fermat's little theorem"], {value: "small RSA: p=11, q=13", label: "Topic:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(rsaSel) {
+    case "clock arithmetic mod 12": info = "9 + 5 ≡ 2 (mod 12). Clocks 'wrap': time after 9 + 5 hours is 2."; break;
+    case "small RSA: p=11, q=13": info = "n = 11×13 = 143. φ(n) = 10×12 = 120. Choose e = 7 (coprime to 120). d = 7^(-1) mod 120 = 103. Public key (n, e) = (143, 7). Private d = 103."; break;
+    case "Fermat's little theorem": info = "If p prime and gcd(a, p) = 1: a^(p−1) ≡ 1 (mod p). Example: 2^10 = 1024 ≡ 1 (mod 11). The basis of RSA's correctness."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Clock arithmetic: 9 + 5 = 2 (mod 12). Why "2"?
+2. Why is multiplication of large primes the basis of RSA?
+3. Multiplying primes is easy; factoring back is hard. Why?
+
+## Discover
+
+### Problem 1
+
+$a \equiv b \pmod n$ iff $n | (a - b)$. Compute $17 \pmod 5$, $-3
+\pmod 7$, $50 \pmod 9$.
+
+<details class="hint"><summary>Full solution</summary>
+$17 \equiv 2 \pmod 5$ ($17 = 3 \cdot 5 + 2$).
+$-3 \equiv 4 \pmod 7$ ($-3 + 7 = 4$).
+$50 \equiv 5 \pmod 9$ ($50 = 5 \cdot 9 + 5$).
+
+The "canonical" representative is in $\{0, 1, \ldots, n-1\}$.
+</details>
+
+### Problem 2
+
+Modular arithmetic respects $+, -, \cdot$. Compute $(7 \cdot 8 + 5)
+\pmod{11}$.
+
+<details class="hint"><summary>Full solution</summary>
+Reduce as you go: $7 \cdot 8 = 56 \equiv 1 \pmod{11}$ (since $56 = 5
+\cdot 11 + 1$). Then $1 + 5 = 6$. **Answer: 6.**
+
+This "reduce as you go" trick keeps numbers small.
+</details>
+
+### Problem 3
+
+**Fermat's Little Theorem.** For prime $p$ and $a$ with $\gcd(a, p) =
+1$: $a^{p-1} \equiv 1 \pmod p$.
+
+Verify for $p = 7, a = 3$.
+
+<details class="hint"><summary>Full solution</summary>
+$3^6 = 729 = 104 \cdot 7 + 1 \equiv 1 \pmod 7$ ✓.
+
+This gives a fast primality test (Fermat test) and underpins RSA.
+</details>
+
+### Problem 4
+
+The **Euler totient** $\varphi(n)$ counts integers in $\{1, \ldots,
+n\}$ coprime to $n$. For prime $p$: $\varphi(p) = p - 1$. For $n = pq$
+(two distinct primes): $\varphi(pq) = (p-1)(q-1)$.
+
+Compute $\varphi(15), \varphi(35)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\varphi(15) = \varphi(3) \cdot \varphi(5) = 2 \cdot 4 = 8$.
+$\varphi(35) = \varphi(5) \cdot \varphi(7) = 4 \cdot 6 = 24$.
+
+**Euler's theorem** generalises Fermat: $a^{\varphi(n)} \equiv 1
+\pmod n$ for $\gcd(a, n) = 1$.
+</details>
+
+### Problem 5
+
+**RSA setup.**
+
+1. Pick two large primes $p, q$.
+2. Compute $n = pq$ and $\varphi(n) = (p-1)(q-1)$.
+3. Pick $e$ coprime to $\varphi(n)$ (often $e = 65537$).
+4. Compute $d \equiv e^{-1} \pmod{\varphi(n)}$ (extended Euclidean
+   algorithm).
+5. **Public key:** $(n, e)$. **Private key:** $d$.
+
+**Encrypt** message $m$: $c = m^e \pmod n$.
+**Decrypt:** $m = c^d \pmod n$.
+
+For toy RSA $p = 5, q = 11$: $n = 55, \varphi = 40$. Pick $e = 3$
+(coprime to 40). $d = 27$ (since $3 \cdot 27 = 81 \equiv 1 \pmod{40}$).
+
+Encrypt $m = 4$: $c = 4^3 \pmod{55} = 64 \pmod{55} = 9$.
+Decrypt: $m = 9^{27} \pmod{55}$. Verify this gives back 4.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$9^{27} \pmod{55}$: compute by squaring. $9^2 = 81 \equiv 26$. $9^4
+\equiv 26^2 = 676 \equiv 16$. $9^8 \equiv 16^2 = 256 \equiv 36$.
+$9^{16} \equiv 36^2 = 1296 \equiv 31$. Then $9^{27} = 9^{16} \cdot
+9^8 \cdot 9^2 \cdot 9 \equiv 31 \cdot 36 \cdot 26 \cdot 9$. Reduce
+each step.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$31 \cdot 36 = 1116 \equiv 16 \pmod{55}$. $16 \cdot 26 = 416 \equiv
+31$. $31 \cdot 9 = 279 \equiv 4 \pmod{55}$ ✓.
+
+**Decrypted: 4** — original message recovered. RSA works because of
+Euler's theorem: $m^{ed} = m^{1 + k\varphi(n)} \equiv m \pmod n$
+(when $\gcd(m, n) = 1$).
+
+**Security:** $(n, e)$ is public. To decrypt, the attacker needs $d$,
+which requires $\varphi(n) = (p-1)(q-1)$, which requires factoring
+$n$ — *intractable* for $n \approx 10^{600}$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+$a \equiv b \pmod n$ iff $n | (a - b)$.
+
+The set $\mathbb{Z}/n$ has elements $\{0, 1, \ldots, n-1\}$ with $+,
+-, \cdot$ mod $n$.
+
+**Modular inverse:** $a^{-1} \pmod n$ exists iff $\gcd(a, n) = 1$.
+Found via the **extended Euclidean algorithm**.
+
+**Fermat's Little Theorem:** $a^{p-1} \equiv 1 \pmod p$ for prime
+$p$ and $\gcd(a, p) = 1$.
+
+**Euler's Theorem:** $a^{\varphi(n)} \equiv 1 \pmod n$ for $\gcd(a, n)
+= 1$.
+
+**Euler totient:** $\varphi(n) = $ count of integers in $[1, n]$
+coprime to $n$.
+- $\varphi(p) = p - 1$ for prime $p$.
+- $\varphi(p q) = (p - 1)(q - 1)$ for distinct primes.
+- General: multiplicative on coprime integers.
+
+**RSA:**
+
+1. Pick large primes $p, q$. $n = pq, \varphi = (p-1)(q-1)$.
+2. Choose $e$ coprime to $\varphi$. Compute $d = e^{-1} \pmod \varphi$.
+3. Public: $(n, e)$. Private: $d$.
+4. Encrypt: $c = m^e \pmod n$. Decrypt: $m = c^d \pmod n$.
+
+**Security:** rests on the hardness of factoring large $n$.
+
+:::
+
+> *Modular arithmetic: arithmetic with remainders;*
+> *Fermat's little: $a^{p-1} \equiv 1 \pmod p$ for prime $p$;*
+> *RSA: easy to multiply primes, hard to factor; security follows.*
+
+## Apply
+
+### Worked example
+
+> Compute $7^{100} \pmod{13}$ using Fermat.
+
+By Fermat: $7^{12} \equiv 1 \pmod{13}$.
+
+$100 = 12 \cdot 8 + 4$. So $7^{100} = (7^{12})^8 \cdot 7^4 \equiv 1
+\cdot 7^4 \pmod{13}$.
+
+$7^2 = 49 \equiv 10$. $7^4 = 10^2 = 100 \equiv 9$.
+
+**Answer: 9.**
+
+### Practice — Warm
+
+**W1.** $25 \pmod 7 = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$25 = 3 \cdot 7 + 4$, so $4$.
+</details>
+
+**W2.** $\varphi(7) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$6$.
+</details>
+
+**W3.** $2^{10} \pmod{11}$?
+
+<details class="hint"><summary>Full solution</summary>
+By Fermat: $\equiv 1$.
+</details>
+
+### Practice — Working
+
+**P1.** Compute $5^{50} \pmod{12}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\varphi(12) = 4$. Euler's theorem applies if $\gcd(5, 12) = 1$ ✓.
+$5^4 \equiv 1 \pmod{12}$. So $5^{50} = (5^4)^{12} \cdot 5^2 \equiv
+25 \equiv 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1$.
+</details>
+
+**P2.** Find $\varphi(100)$.
+
+<details class="hint"><summary>Full solution</summary>
+$100 = 4 \cdot 25 = 2^2 \cdot 5^2$. $\varphi(100) = 100 (1 - 1/2)(1 -
+1/5) = 100 \cdot 1/2 \cdot 4/5 = 40$.
+</details>
+
+**P3.** RSA toy: $p = 7, q = 13, e = 5$. Find $d$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\varphi = 72$. Find $5 d \equiv 1 \pmod{72}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$d = 29$ (extended Euclidean / search). Check: $5 \cdot 29 = 145 = 2
+\cdot 72 + 1$ ✓.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why is RSA secure if factoring is hard?** Suppose someone
+knows $n = pq$ but not $p, q$ separately. Why can't they compute $d$
+without factoring?
+
+<details class="hint"><summary>Full solution</summary>
+$d = e^{-1} \pmod{\varphi(n)}$. To compute this, you need $\varphi(n)
+= (p-1)(q-1)$. Knowing only $n$, you don't know $\varphi(n)$ —
+unless you can find $p, q$, i.e., factor $n$.
+
+In fact, computing $\varphi(n)$ from $n$ is *equivalent* to factoring
+$n$ (knowing both gives a quadratic equation $p, q$).
+
+So RSA's security reduces to "factoring $n = pq$ is hard for large
+$pq$." This is the most studied computational problem in
+cryptography. No efficient classical algorithm is known. **Shor's
+algorithm** (1994) factors in polynomial time on a *quantum*
+computer — motivating post-quantum cryptography (Tier 7).
+</details>
+
+**S2.** **Why $e = 65537$?** This is the most common choice for the
+RSA public exponent. Why?
+
+<details class="hint"><summary>Full solution</summary>
+$65537 = 2^{16} + 1$ is a **Fermat prime**. Special properties:
+
+1. Coprime to $\varphi(n)$ for almost all $n$ (since 65537 is prime).
+2. Binary representation: $10000000000000001_2$ — only two `1` bits.
+   This makes $m^e \pmod n$ fast: only ~17 squarings needed.
+3. Large enough to prevent low-exponent attacks (e.g., naive cube
+   root attacks for $e = 3$).
+
+Standardised choice; supported by virtually every implementation.
+
+The interplay of *number theory* (Fermat primes), *bit
+representation* (sparse binary for fast exponentiation), and
+*security* (avoiding small exponents) — all in one constant.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Mod is just remainder."** Mod = *equivalence relation*.
+   Multiple representatives ($17 \equiv 2 \equiv -3 \equiv 22 \pmod
+   5$).
+2. **"Modular inverse always exists."** Only if $\gcd(a, n) = 1$. E.g.,
+   $2$ has no inverse mod $4$.
+3. **"RSA is unbreakable."** RSA's security depends on factoring
+   *being hard*. Quantum computers may break it. Post-quantum
+   alternatives (lattice-based) are being deployed.
+:::
+
+### Self-Assessment
+
+1. Could you compute $3^{100} \pmod 7$?
+2. Without scrolling back, what's $\varphi(11)$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $3^6 \equiv 1$, $100 = 16 \cdot 6 + 4$, so $3^4 = 81 \equiv
+4$. $\varphi(11) = 10$.)
+
+- **3 yes:** ready for **[14 · Convergence](../14-sequences-series-convergence/index.qmd)**.
+- **2 yes:** redo **S1** (RSA security argument).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L15 — Divisibility & Primes](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)**
+- **[T3 L06 — Exp & Log Functions](../../tier-3-algebra2-geometry-trig/06-exp-log-functions/index.qmd)** —
+  exponentiation underlying modular powers.
+
+### What this unlocks
+
+- **Tier 7 — Algebraic Number Theory & Encryption track** —
+  modular arithmetic generalised to rings of algebraic integers;
+  elliptic curves over finite fields.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** RSA secures most internet traffic via TLS. Diffie-
+Hellman key exchange, ECDSA signatures all use modular arithmetic.
+Post-quantum schemes (Kyber, Dilithium) extend the toolkit.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Number theory is one of the deepest
+subjects in mathematics. The Riemann Hypothesis, the
+Birch-Swinnerton-Dyer conjecture, and many other open problems
+connect deeply to modular arithmetic.
+:::
