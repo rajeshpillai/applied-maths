@@ -1,0 +1,336 @@
+---
+title: "10 · Techniques of Integration"
+subtitle: "u-substitution and integration by parts"
+lesson-id: "t4.integration-techniques"
+tier: 4
+prerequisites: ["t4.ftc"]
+unlocks: ["t4.differential-equations"]
+applied-domains: ["research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [09 · Fundamental Theorem](../09-fundamental-theorem/index.qmd)?
+2. Comfortable with the chain rule and product rule (Lesson 04)?
+3. Know the standard antiderivatives ($x^n, e^x, \sin x, \cos x,
+   1/x$)?
+:::
+
+## Touch
+
+Integration techniques *invert* differentiation rules.
+
+```{ojs}
+viewof intTech = Inputs.select(["substitution: ∫2x cos(x²) dx", "by parts: ∫x e^x dx", "substitution: ∫e^(3x) dx"], {value: "substitution: ∫2x cos(x²) dx", label: "Integral:"})
+```
+
+```{ojs}
+{
+  let result, technique;
+  switch(intTech) {
+    case "substitution: ∫2x cos(x²) dx": result = "sin(x²) + C"; technique = "Let u = x². Then du = 2x dx, so ∫2x cos(x²) dx = ∫cos(u) du = sin(u) + C."; break;
+    case "by parts: ∫x e^x dx": result = "x e^x − e^x + C = (x − 1) e^x + C"; technique = "Let u = x, dv = e^x dx. Then du = dx, v = e^x. ∫u dv = uv − ∫v du = x e^x − ∫e^x dx."; break;
+    case "substitution: ∫e^(3x) dx": result = "(1/3) e^(3x) + C"; technique = "Let u = 3x. du = 3 dx, so dx = du/3. ∫e^u (du/3) = (1/3) e^u + C."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.2rem; text-align:center;">
+      ${intTech} = <strong style="color:#c2185b;">${result}</strong>
+    </div>
+    <div style="margin-top:0.5rem; color:#666; font-style:italic;">${technique}</div>
+  </div>`;
+}
+```
+
+Two main techniques: **u-substitution** (inverse of chain rule) and
+**integration by parts** (inverse of product rule).
+
+## Wonder
+
+1. The chain rule says $(f(g(x)))' = f'(g(x)) \cdot g'(x)$. What's
+   its integral form?
+2. The product rule says $(uv)' = u'v + uv'$. What's its integral form?
+3. Which technique works on $\int x \sin x \, dx$?
+
+## Discover
+
+### Problem 1
+
+Compute $\int 2x (x^2 + 1)^3 \, dx$ by **u-substitution**: let $u =
+x^2 + 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$du = 2x \, dx$, so $\int u^3 \, du$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int 2x (x^2 + 1)^3 \, dx = \int u^3 \, du = u^4/4 + C = (x^2 +
+1)^4/4 + C$.
+
+**Verify by differentiating:** $\dfrac{d}{dx}[(x^2 + 1)^4/4] = (x^2 +
+1)^3 \cdot 2x$ ✓.
+
+u-substitution is the chain rule run *backwards*: identify an "inner
+function" whose derivative also appears in the integrand.
+</details>
+
+### Problem 2
+
+Compute $\int x e^{x^2} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$u = x^2 \Rightarrow du = 2x \, dx \Rightarrow x \, dx = du/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int x e^{x^2} \, dx = \int e^u \cdot (du/2) = (1/2) e^u + C =
+(1/2) e^{x^2} + C$.
+</details>
+
+### Problem 3
+
+Compute $\int x e^x \, dx$ by **integration by parts** ($\int u \, dv
+= uv - \int v \, du$): let $u = x, dv = e^x \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$du = dx$, $v = e^x$. Apply the formula.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int x e^x \, dx = x e^x - \int e^x \, dx = x e^x - e^x + C = (x - 1)
+e^x + C$.
+
+**By parts is the product-rule integral.** Choosing $u$ and $dv$
+wisely is the art: a useful mnemonic is **LIATE** (Logarithm,
+Inverse trig, Algebraic, Trig, Exponential — pick $u$ from earlier
+in the list).
+</details>
+
+### Problem 4
+
+Compute $\int \ln x \, dx$. (Hint: use parts with $u = \ln x, dv =
+dx$.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$du = dx/x, v = x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int \ln x \, dx = x \ln x - \int x \cdot (1/x) \, dx = x \ln x - x +
+C = x(\ln x - 1) + C$.
+
+A trick: integrate $\ln x$ by treating it as $\ln x \cdot 1$, with
+$dv = 1 \, dx$.
+</details>
+
+### Problem 5
+
+Compute $\int \sin x \cos x \, dx$ in two ways:
+
+(a) Substitute $u = \sin x$.
+(b) Use double-angle: $\sin x \cos x = \tfrac{1}{2} \sin 2x$.
+
+<details class="hint"><summary>Full solution</summary>
+**(a)** $u = \sin x, du = \cos x \, dx$. $\int u \, du = u^2/2 + C =
+\sin^2 x / 2 + C$.
+
+**(b)** $\int \tfrac{1}{2} \sin 2x \, dx = -\tfrac{1}{4} \cos 2x +
+C$.
+
+These look different but differ by a constant ($\sin^2 x = (1 - \cos
+2x)/2$, so $\sin^2 x / 2 + C_1 = -\cos 2x / 4 + 1/4 + C_1 = -\cos 2x
+/ 4 + C_2$). Antiderivatives are equal up to constants — both forms
+are correct.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**u-substitution.** Reverse of chain rule. To compute $\int f(g(x))
+g'(x) \, dx$, let $u = g(x)$, so $du = g'(x) \, dx$:
+$$\int f(g(x)) g'(x) \, dx = \int f(u) \, du.$$
+
+For *definite integrals*, also change limits: $x = a \Rightarrow u =
+g(a), x = b \Rightarrow u = g(b)$.
+
+**Integration by parts.** Reverse of product rule.
+$$\int u \, dv = u v - \int v \, du.$$
+
+Choose $u$ via **LIATE** (later in the list = better choice for
+$dv$).
+
+**Other useful tricks:**
+
+- **Trig identities** to simplify before integrating ($\sin^2 = (1 -
+  \cos 2x)/2$).
+- **Partial fractions** to simplify rational functions (Tier 5).
+- **Trigonometric substitutions** for $\sqrt{a^2 - x^2}, \sqrt{x^2 -
+  a^2}, \sqrt{x^2 + a^2}$ (Tier 5).
+
+:::
+
+> *u-sub: chain rule backwards (find the inner function);*
+> *By parts: product rule backwards ($\int u dv = uv − \int v du$);*
+> *Always verify by differentiating the answer.*
+
+## Apply
+
+### Worked example
+
+> Compute $\int_0^{\pi/4} \tan x \sec^2 x \, dx$.
+
+A competent solver: let $u = \tan x$. Then $du = \sec^2 x \, dx$.
+Limits: $x = 0 \Rightarrow u = 0$; $x = \pi/4 \Rightarrow u = 1$.
+
+$\int_0^1 u \, du = [u^2/2]_0^1 = 1/2$.
+
+**Answer: $1/2$.**
+
+### Practice — Warm
+
+**W1.** $\int (3x + 1)^4 \, dx = ?$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$u = 3x + 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(3x + 1)^5 / 15 + C$.
+</details>
+
+**W2.** $\int x \cos x \, dx = ?$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+By parts: $u = x, dv = \cos x \, dx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x \sin x - \int \sin x \, dx = x \sin x + \cos x + C$.
+</details>
+
+**W3.** $\int e^{5x} \, dx$?
+
+<details class="hint"><summary>Full solution</summary>
+$e^{5x}/5 + C$.
+</details>
+
+### Practice — Working
+
+**P1.** $\int \dfrac{2x}{x^2 + 1} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$u = x^2 + 1, du = 2x dx$. Get $\int du/u$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\ln(x^2 + 1) + C$.
+</details>
+
+**P2.** $\int x^2 e^x \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+By parts twice. $u = x^2, dv = e^x \, dx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 e^x - 2 \int x e^x \, dx = x^2 e^x - 2(x e^x - e^x) + C = (x^2 -
+2x + 2) e^x + C$.
+</details>
+
+**P3.** $\int_0^1 x \sqrt{x^2 + 1} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$u = x^2 + 1, du = 2x \, dx$. Limits: $u = 1$ to $2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1/2) \int_1^2 u^{1/2} \, du = (1/2) [(2/3) u^{3/2}]_1^2 = (1/3)(2^{3/2}
+- 1) = (2\sqrt{2} - 1)/3 \approx 0.609$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Some integrals defy elementary techniques. $\int e^{-x^2} \,
+dx$ has no closed form. But the *definite* integral $\int_{-\infty}^{\infty}
+e^{-x^2} \, dx = \sqrt{\pi}$ — a famous result. Why does the
+*definite* version exist when the indefinite doesn't?
+
+<details class="hint"><summary>Full solution</summary>
+The function has no antiderivative expressible in elementary functions,
+but the area under it from $-\infty$ to $\infty$ is finite and computable
+(by clever 2D polar-coordinate trick — Tier 5). Many improper integrals
+of "non-elementary" functions evaluate to nice closed forms even
+though their indefinite counterparts don't.
+
+This integral is the bedrock of probability and statistics: the
+**normal distribution** has PDF proportional to $e^{-x^2/2}$, and
+the $\sqrt{\pi}$ ensures probabilities sum to 1.
+</details>
+
+**S2.** **Why are integration techniques less important in the AI
+era?** Modern numerical libraries (and ML frameworks like JAX,
+PyTorch) compute integrals symbolically or numerically with little
+human effort. Why learn the techniques?
+
+<details class="hint"><summary>Full solution</summary>
+**Two reasons.** First, *intuition*: knowing the techniques tells you
+which integrals are tractable, which aren't, and what kind of answer
+to expect. Second, *theoretical work*: proofs of convergence, bounds,
+and bound-derivation often require closed-form integration.
+
+**Algebra knows the techniques** — but humans guide the algebra. Like
+arithmetic, knowing the *manual* methods deepens your understanding
+of *automated* methods.
+
+Modern ML researchers still hand-derive integrals when designing new
+loss functions, regularisations, or probabilistic models. The
+techniques aren't going away.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Substitution: just replace $x$ with $u$."** No — also handle
+   $dx$ via $du = g'(x) dx$. Forgetting this is the most common error.
+2. **"Choose $u$ randomly in by parts."** LIATE picks well. Bad
+   choices lead to harder integrals.
+3. **"All integrals can be done by these techniques."** Many can't —
+   non-elementary integrals (S1) need named special functions or
+   numerical methods.
+:::
+
+### Self-Assessment
+
+1. Could you apply u-substitution to $\int 2x (x^2 + 5)^4 \, dx$?
+2. Without scrolling back, can you compute $\int x e^x \, dx$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $(x - 1) e^x + C$.)
+
+- **3 yes:** ready for **[11 · Integration Applications](../11-integration-applications/index.qmd)**.
+- **2 yes:** redo **P2** (by-parts twice).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[09 · Fundamental Theorem](../09-fundamental-theorem/index.qmd)**
+
+### What this unlocks
+
+- **[11 · Integration Applications](../11-integration-applications/index.qmd)**
+- **[12 · Differential Equations](../12-differential-equations/index.qmd)**
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** Many derivations in physics, statistics,
+and ML papers involve integration. Mastery of these techniques is
+table stakes for theoretical work.
+:::
+
+::: {.applied-callout}
+**Statistics.** The Gaussian integral (S1), Gamma function, Beta
+function — all bedrock of probability. Most are derived using the
+techniques here plus a few advanced tricks.
+:::
+
+::: {.applied-callout}
+**Engineering & physics.** Energy = $\int F \, dx$. Work, electric
+flux, fluid flow — all integrals computed via these techniques.
+:::
