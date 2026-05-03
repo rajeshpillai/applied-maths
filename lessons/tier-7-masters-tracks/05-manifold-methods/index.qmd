@@ -1,0 +1,344 @@
+---
+title: "05 · Manifold Methods for Machine Learning"
+subtitle: "When data lives on a curved surface, linear methods fail — manifold methods see the geometry."
+lesson-id: "t7.manifold-methods"
+tier: 7
+prerequisites: ["t6.spectral-theorem", "t5.partial-derivatives"]
+unlocks: []
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T6 L15 — Spectral Theorem](../../tier-6-undergrad-advanced/15-spectral-theorem/index.qmd)?
+2. Recall: eigenvalues of symmetric matrices, PCA.
+3. Comfortable with gradient and Jacobian?
+:::
+
+## Touch
+
+A "Swiss roll": data points spiral on a 2D surface embedded in 3D.
+
+```{ojs}
+viewof unfold = Inputs.range([0, 1], {value: 0, step: 0.05, label: "Unfold:"})
+```
+
+```{ojs}
+{
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  const N = 200, points = [];
+  for (let i = 0; i < N; i++) {
+    const t = 1 + 3 * Math.PI * Math.random();
+    const h = -2 + 4 * Math.random();
+    const x = (1 - unfold) * t * Math.cos(t) + unfold * t;
+    const y = h;
+    points.push({x, y, color: t});
+  }
+  return Plot.plot({
+    width: 540, height: 320, color: {scheme: "viridis"},
+    marks: [Plot.dot(points, {x: "x", y: "y", fill: "color", r: 3})]
+  });
+}
+```
+
+PCA (a *linear* method) would project this onto 2 axes and lose the
+spiral. **Manifold methods unfold the spiral first** — preserving local
+distances while flattening.
+
+## Wonder
+
+1. **Manifold hypothesis:** real-world data (images, text, audio) often
+   lies near a low-dimensional manifold inside a high-dimensional ambient
+   space.
+2. If the manifold is curved, *Euclidean distance* misjudges similarity.
+3. **Geodesic distance** along the manifold is the right notion.
+
+## Discover
+
+### Problem 1
+
+What's a **manifold**, intuitively? Locally flat (looks like
+$\mathbb{R}^d$), but globally curved.
+
+Example: surface of Earth. Locally: looks flat. Globally: a sphere.
+
+For the Swiss roll: locally a 2D plane, globally curved in 3D.
+
+<details class="hint"><summary>Full solution</summary>
+**Manifold $M$ of dimension $d$:** topological space such that every
+point has a neighbourhood homeomorphic to $\mathbb{R}^d$.
+
+For ML: assume data $\{x_i\} \subset \mathbb{R}^D$ (high $D$), but
+actually lies near a manifold of (much smaller) dimension $d \ll D$.
+</details>
+
+### Problem 2
+
+**PCA in one paragraph.** Centre data, compute covariance matrix
+$\Sigma$, take top-$k$ eigenvectors. New coords are $z_i = U_k^\top
+x_i$.
+
+PCA preserves what? Loses what?
+
+<details class="hint"><summary>Full solution</summary>
+**PCA preserves:** linear variance; Euclidean distances after the
+linear projection are best $L^2$-approximation.
+
+**PCA loses:** anything nonlinear. For curved manifolds (Swiss roll,
+faces under varying lighting), PCA's flat projection muddles geodesic
+neighbours.
+</details>
+
+### Problem 3
+
+**Isomap.** Fix $k$. For each point, find $k$ nearest neighbours.
+Build a graph; edge weights = Euclidean distance. **Geodesic distance**
+≈ shortest path in the graph. Apply MDS (multidimensional scaling) to
+the geodesic-distance matrix.
+
+What does Isomap discover for the Swiss roll?
+
+<details class="hint"><summary>Full solution</summary>
+**Isomap unrolls the Swiss roll.** Geodesic distance along the surface
+≈ true Euclidean distance after unrolling. MDS embedding into 2D
+recovers the unrolled "rectangle."
+
+PCA mixes near and far points across the spiral; Isomap respects the
+manifold structure.
+</details>
+
+### Problem 4
+
+**Spectral methods: Laplacian Eigenmaps.** Build a graph (k-NN); form
+the **graph Laplacian** $L = D - W$ where $D$ is degree, $W$ is
+weights.
+
+Embedding: bottom-$k$ eigenvectors of $L$ (smallest eigenvalues).
+
+Why does this preserve local structure?
+
+<details class="hint"><summary>Full solution</summary>
+$L$ is positive semi-definite; its smallest eigenvectors are smooth
+functions on the graph (they vary slowly between neighbours).
+
+Result: embed each node by its values across the $k$ smoothest
+eigenvectors → near-by nodes get near-by embeddings.
+
+Connection: graph Laplacian is a *discrete approximation* to the
+**Laplace-Beltrami operator** on the underlying manifold. Continuous
+limit theorems (Belkin-Niyogi) make this rigorous.
+</details>
+
+### Problem 5
+
+**Modern: t-SNE and UMAP.** Both build neighbourhood graphs, then
+embed nonlinearly to preserve local structure.
+
+t-SNE: probability of being a neighbour in high-D vs low-D; minimise
+KL divergence.
+
+UMAP: uses fuzzy topological structure; faster, often better global
+structure.
+
+Why are they everywhere in ML pipelines?
+
+<details class="hint"><summary>Full solution</summary>
+**Visualise high-dim data.** Embeddings from large NNs (ViT, CLIP, BERT)
+live in $\mathbb{R}^{768}$ or higher. UMAP / t-SNE projects them to 2D
+for inspection.
+
+Limits: distances *between* clusters in t-SNE/UMAP are not meaningful;
+only neighbourhood structure is. So they're for visualization, not
+geometric measurement.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Manifold $M$ of dimension $d$:** every point has a neighbourhood
+homeomorphic to $\mathbb{R}^d$. *Smooth* manifold: transition maps are
+smooth.
+
+**Manifold hypothesis (ML):** real high-dimensional data lies near a
+low-dimensional manifold $M \subset \mathbb{R}^D$ with $\dim M \ll D$.
+
+**Tangent space** $T_p M$: linear approximation of $M$ at $p$ — vectors
+of "directions you can move."
+
+**Geodesic distance** $d_M(p, q)$: shortest path on $M$. *Different*
+from ambient $\|p - q\|$ when $M$ is curved.
+
+**Methods:**
+
+- **PCA:** linear; misses curvature.
+- **Isomap:** k-NN graph + shortest paths + MDS.
+- **Laplacian Eigenmaps:** spectral decomposition of graph Laplacian.
+- **Diffusion maps:** $L = I - D^{-1}W$ with random-walk view.
+- **t-SNE / UMAP:** probabilistic neighbourhood preservation.
+
+**Graph Laplacian → Laplace-Beltrami:** in the limit $n \to \infty$ and
+neighbourhood radius $\to 0$, graph Laplacian converges to the manifold's
+intrinsic Laplacian.
+
+**Curvature and ML:** networks living on manifolds (CNNs on graphs,
+hyperbolic embeddings) leverage non-Euclidean geometry.
+
+:::
+
+> *Data lives on a manifold; manifold has its own distance;*
+> *Linear methods see ambient distance, manifold methods see geodesic;*
+> *Spectral methods are discrete Laplace-Beltrami.*
+
+## Apply
+
+### Worked example
+
+> **Word embeddings.** Word2Vec, GloVe, BERT all produce vectors $w_i \in
+> \mathbb{R}^{300}$. The "manifold" is the set of valid word-meaning
+> vectors, of much lower intrinsic dimension.
+
+Why does $w_{\text{king}} - w_{\text{man}} + w_{\text{woman}} \approx
+w_{\text{queen}}$? Because the manifold of word-meanings has approximate
+*linear* structure for analogies — a non-trivial empirical finding.
+
+But word vectors *also* have nonlinear structure (clusters of POS, sense
+ambiguities). UMAP visualises this; pure cosine similarity hides it.
+
+### Practice — Warm
+
+**W1.** Is the unit sphere $S^2$ a manifold?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — 2-dimensional smooth manifold.
+</details>
+
+**W2.** Is a figure-8 (two circles meeting at a point) a manifold?
+
+<details class="hint"><summary>Full solution</summary>
+**No** — the meeting point doesn't have a neighbourhood homeomorphic
+to $\mathbb{R}$.
+</details>
+
+**W3.** Why might cosine similarity work better than Euclidean for word
+embeddings?
+
+<details class="hint"><summary>Full solution</summary>
+Direction often encodes meaning; magnitude reflects frequency. Cosine
+ignores magnitude.
+</details>
+
+### Practice — Working
+
+**P1.** What's the intrinsic dimension of MNIST images, empirically?
+
+<details class="hint"><summary>Full solution</summary>
+Estimates: $d \approx 13$ (using local PCA / MLE methods). The
+ambient dim is $784 = 28 \times 28$.
+
+This is the **manifold hypothesis** in action.
+</details>
+
+**P2.** Compare t-SNE and UMAP at a high level.
+
+<details class="hint"><summary>Full solution</summary>
+- **t-SNE:** probabilistic neighbourhoods; minimises KL; slow but well-
+  understood.
+- **UMAP:** topological foundation (simplicial complexes); faster;
+  preserves more global structure.
+
+Both are visualisation tools, not metric-preserving embeddings.
+</details>
+
+**P3.** Why might **hyperbolic embeddings** beat Euclidean for tree-like
+data?
+
+<details class="hint"><summary>Full solution</summary>
+Hyperbolic space has *exponentially* more room as you move outward —
+matching the exponential branching of trees. Euclidean trees suffer
+exponential distortion at depth; hyperbolic embeddings (Poincaré
+ball, Lorentz model) avoid this.
+
+Used in: hierarchy embedding, knowledge graphs, taxonomies.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Geometric Deep Learning.** Generalise CNNs and GNNs to
+manifolds.
+
+<details class="hint"><summary>Full solution</summary>
+Key insight: convolutions are translation-invariant — generalisable to
+group-invariant operations on manifolds.
+
+- **Mesh CNNs** for 3D shapes.
+- **Spherical CNNs** for omnidirectional images and climate data.
+- **Equivariant networks** respecting symmetry of physical systems.
+
+Bronstein et al., "Geometric Deep Learning" (2021) is the survey.
+</details>
+
+**S2.** **Diffusion models and the manifold.** SOTA generative AI
+(Stable Diffusion, DALL-E 3) are *learning the data manifold via score-
+matching*.
+
+<details class="hint"><summary>Full solution</summary>
+Score: $\nabla_x \log p(x)$. A diffusion model learns it across noise
+scales. Sampling: SDE reverses noise, ending on the manifold.
+
+The score field's *zero set* is the data manifold; gradient ascent on
+score moves toward higher density.
+
+This is manifold learning at scale: image data manifold has effective
+dimension $\sim 10^2$ within ambient $\sim 10^6$.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"PCA reduces dimension; that's enough."** Linear projection;
+   misses curvature.
+2. **"Manifold dimension = number of features."** No — it's the
+   *intrinsic* dimension, often much smaller.
+3. **"t-SNE distances are meaningful."** Local yes, global no. Two
+   far-apart clusters in t-SNE may be near in original space.
+:::
+
+### Self-Assessment
+
+1. State the manifold hypothesis.
+2. Give one nonlinear dimension reduction method and what it preserves.
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: real high-dim data lies near a low-dim manifold.)
+
+- **3 yes:** ready for **[06 · RL Theory](../06-rl-theory/index.qmd)**.
+- **2 yes:** redo **P3** (hyperbolic).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T6 L15 — Spectral Theorem](../../tier-6-undergrad-advanced/15-spectral-theorem/index.qmd)**
+- **[T5 L11 — Partial Derivatives](../../tier-5-undergrad-core/11-partial-derivatives/index.qmd)**
+
+### What this unlocks
+
+- Geometric deep learning, score-based generative modelling.
+- Differential geometry (T7 L07).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Foundational for representation learning,
+generative AI, embeddings.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Bridge between differential geometry, spectral
+graph theory, and high-dimensional probability.
+:::
