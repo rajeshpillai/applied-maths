@@ -1,0 +1,421 @@
+---
+title: "13 · Similarity and Scale"
+subtitle: "Same shape, different size — and how lengths, areas, and volumes scale"
+lesson-id: "t2.similarity-scale"
+tier: 2
+prerequisites: ["t1.ratio-proportion", "t1.shapes-angles"]
+unlocks: []
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T1 L09 — Ratio and Proportion](../../tier-1-foundations/09-ratio-proportion/index.qmd)
+   and [T1 L12 — Shapes and Angles](../../tier-1-foundations/12-shapes-angles/index.qmd)?
+2. Recall: doubling a square's side **quadruples** its area? (T1 L13
+   Stretch S1 — the square-cube law.)
+3. Comfortable with the idea that *photographs and maps* are scaled
+   versions of the real thing?
+:::
+
+## Touch
+
+Pick a **scale factor** $k$. The widget shows two triangles: the
+original (orange), and a *similar* triangle scaled by $k$ (blue).
+
+```{ojs}
+viewof scaleK = Inputs.range([0.5, 3], {value: 1.5, step: 0.1, label: "Scale factor k:"})
+```
+
+```{ojs}
+{
+  const W = 720, H = 380, pad = 30;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:760px; background:#fafafa;");
+
+  // Original triangle
+  const o = {x: 80, y: 220};
+  const tri = (origin, k, fill, stroke, label) => {
+    const p1 = {x: origin.x, y: origin.y};
+    const p2 = {x: origin.x + 60 * k, y: origin.y};
+    const p3 = {x: origin.x, y: origin.y - 80 * k};
+    svg.append("polygon").attr("points", `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`)
+      .attr("fill", fill).attr("stroke", stroke).attr("stroke-width", 2).attr("opacity", 0.7);
+    svg.append("text").attr("x", origin.x).attr("y", origin.y + 25).attr("text-anchor", "start")
+      .attr("font-size", "13").attr("fill", stroke).attr("font-weight", "bold").text(label);
+    // Side lengths
+    svg.append("text").attr("x", origin.x - 12).attr("y", origin.y - 40 * k)
+      .attr("text-anchor", "end").attr("font-size", "11").attr("fill", stroke).text(`${(8 * k).toFixed(1)}`);
+    svg.append("text").attr("x", origin.x + 30 * k).attr("y", origin.y + 14)
+      .attr("text-anchor", "middle").attr("font-size", "11").attr("fill", stroke).text(`${(6 * k).toFixed(1)}`);
+    // Hypotenuse
+    const hyp = Math.sqrt((6 * k) ** 2 + (8 * k) ** 2);
+    svg.append("text").attr("x", origin.x + 35 * k).attr("y", origin.y - 35 * k)
+      .attr("font-size", "11").attr("fill", stroke).text(`${hyp.toFixed(1)}`);
+    return hyp;
+  };
+
+  tri(o, 1, "#ffe0b2", "#e65100", "Original");
+  tri({x: 380, y: 290}, scaleK, "#bbdefb", "#0d47a1", `Scaled (k = ${scaleK.toFixed(1)})`);
+
+  // Right side: ratios
+  svg.append("text").attr("x", 600).attr("y", 50).attr("font-size", "14").attr("font-weight", "bold").attr("fill", "#1f2933").text("Ratios:");
+  svg.append("text").attr("x", 600).attr("y", 80).attr("font-size", "13").attr("fill", "#1f2933").attr("font-family", "monospace")
+    .text(`Sides: ×${scaleK.toFixed(1)}`);
+  svg.append("text").attr("x", 600).attr("y", 105).attr("font-size", "13").attr("fill", "#1f2933").attr("font-family", "monospace")
+    .text(`Area:  ×${(scaleK ** 2).toFixed(2)}`);
+  svg.append("text").attr("x", 600).attr("y", 130).attr("font-size", "13").attr("fill", "#1f2933").attr("font-family", "monospace")
+    .text(`(area = k² for shapes)`);
+  svg.append("text").attr("x", 600).attr("y", 165).attr("font-size", "11").attr("fill", "#666")
+    .text(`(angles unchanged: same shape)`);
+  return svg.node();
+}
+```
+
+When the scale factor is $k$, every length multiplies by $k$. The
+*shape* is the same (same angles); only the *size* changes. That's
+**similarity**.
+
+## Wonder
+
+1. Set $k = 2$. The new triangle has all sides twice as long. By how
+   much does its **area** multiply?
+2. The two triangles look the same but at different sizes. What
+   *property* survives scaling? What changes?
+3. Could a square and a rectangle ever be similar?
+
+## Discover
+
+### Problem 1
+
+A photograph is **8 cm wide and 6 cm tall**. To enlarge it to 12 cm
+wide while keeping its shape, what should the new height be?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Scale factor: $k = 12/8 = 1.5$. Apply to height too.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$k = 1.5$. New height = $6 \times 1.5 = 9$ cm.
+
+The width:height ratio stays $4:3$. Scaling preserves *aspect ratio*
+— same shape, different size.
+</details>
+
+### Problem 2
+
+Two triangles have angles $(40°, 60°, 80°)$. Are they similar?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same angles → same shape → similar (by definition).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes, similar.** Two triangles are similar **iff** they have the same
+angles. (A condition called **AAA** — angle, angle, angle. Just AA is
+enough since angles sum to 180°.)
+
+This is one of the most useful facts in geometry. If you can show two
+triangles share two angles, *all corresponding sides are proportional*
+— and you can solve for unknown lengths.
+</details>
+
+### Problem 3
+
+A 1.8 m tall person casts a 2.4 m shadow. At the same time, a tree
+casts an 8 m shadow. How tall is the tree?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The triangles formed by sun-person-shadow and sun-tree-shadow are
+similar (same sun angle).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\text{height}}{\text{shadow}} = \dfrac{1.8}{2.4} = \dfrac{T}{8}$.
+Cross-multiply: $T = \dfrac{1.8 \times 8}{2.4} = \dfrac{14.4}{2.4} = 6$
+m.
+
+**Tree is 6 m tall.** This is the classic **shadow problem**, used by
+the ancient Greeks (Thales) to estimate the height of pyramids — the
+*first* recorded use of similarity for measurement.
+</details>
+
+### Problem 4
+
+A model car is **1:18 scale** (every length is 1/18 of the real car).
+The real car is **4.5 m long** and **2 m wide**. What are the
+dimensions of the model? What is the **ratio of areas** (real : model)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Lengths scale by 1/18. What about areas?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Model length: $4.5/18 = 0.25$ m = 25 cm. Model width: $2/18 \approx
+0.111$ m = 11.1 cm.
+
+**Ratio of areas:** $(18)^2 = 324$. The real car's *surface area* is
+324 times the model's. The model's area is 1/324 of the real area.
+</details>
+
+### Problem 5
+
+If the model car (Problem 4) is solid — same density as the real car —
+how does its **volume** compare to the real car's? What about its mass?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume scales by $k^3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Real volume = $(18)^3 = 5832$ × model volume. The real car has 5832 ×
+the volume.
+
+Mass is proportional to volume (for same material and density), so the
+real car has 5832 × the mass of the solid model. If the model weighs
+100 g, the real car would weigh 583 kg — close to a real small car.
+
+**The square-cube law again** (T1 L13 Stretch S1): scaling lengths by
+$k$ scales areas by $k^2$ and volumes by $k^3$. This is *the* reason
+elephant legs are proportionally thicker than mouse legs, why scaling
+buildings up requires new structural ideas, and why scaling a recipe
+2× doesn't always work for a cake (heat penetrates by surface area but
+must reach interior volume).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+Two figures are **similar** if one can be obtained from the other by
+**scaling** — multiplying every length by the same constant $k$
+(possibly with rotation or reflection).
+
+Equivalently, two figures are similar iff:
+
+- All corresponding angles are equal.
+- All corresponding sides are in the same ratio $k$.
+
+For two **triangles**, similarity is determined by *angles alone*:
+
+- **AA (Angle-Angle):** if two angles match, the third must (since
+  angles sum to 180°), so the triangles are similar.
+- **SAS:** two sides in ratio with the angle between them equal.
+- **SSS:** all three sides in ratio.
+
+**Scaling laws (the square-cube law):**
+
+| Quantity | Scales by |
+|---|---|
+| Lengths (sides, perimeter) | $k$ |
+| Areas (surface, cross-section) | $k^2$ |
+| Volumes (mass, capacity) | $k^3$ |
+
+:::
+
+> *Same angles, sides in ratio — that is similarity;*
+> *Lengths × k; areas × k²; volumes × k³.*
+
+## Apply
+
+### Worked example
+
+> A miniature toy is **1:50 scale** of a real bus. The real bus is
+> **12 m long** and weighs **15 tonnes**. What is the length of the
+> toy? If the toy is solid (same density as the real bus), how much
+> would it weigh?
+
+A competent solver applies the scaling laws:
+
+1. **Length:** $12 \div 50 = 0.24$ m = 24 cm.
+2. **Mass** (proportional to volume): scales by $(1/50)^3 = 1/125000$.
+   Toy mass $= 15{,}000{,}000 \div 125{,}000 = 120$ g.
+
+**Toy is 24 cm long and (if solid) about 120 g.**
+
+(Real toys are usually *hollow plastic*, much lighter than this — a
+deliberate departure from solid scaling.)
+
+### Practice — Warm
+
+**W1.** Two similar triangles. The smaller has sides 3, 4, 5. The
+larger is scaled by $k = 4$. What are its sides?
+
+<details class="hint"><summary>Full solution</summary>
+$12, 16, 20$.
+</details>
+
+**W2.** Scale factor 3. By how much does area multiply? Volume?
+
+<details class="hint"><summary>Full solution</summary>
+Area $\times 9$, volume $\times 27$.
+</details>
+
+**W3.** A scale model is 1:200. A 50 m flagpole has model height of...?
+
+<details class="hint"><summary>Full solution</summary>
+$50 / 200 = 0.25$ m = 25 cm.
+</details>
+
+### Practice — Working
+
+**P1.** Two photos are similar: small photo $4 \times 6$, large photo
+$10 \times 15$. Confirm they are similar (same aspect ratio). What is
+the scale factor of areas?
+
+<details class="hint"><summary>Full solution</summary>
+$4:6 = 2:3$ and $10:15 = 2:3$. Same aspect ratio — similar.
+Length scale: $10/4 = 2.5$. Area scale: $(2.5)^2 = 6.25$.
+
+Check: small area $= 24$, large area $= 150$. $150/24 = 6.25$ ✓.
+</details>
+
+**P2.** A pizza place sells **two pizza sizes**: 10-inch (Rs. 200) and
+20-inch (Rs. 600). Which gives more pizza per rupee?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pizza area scales like the *square* of the diameter.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Area scale (20-inch vs 10-inch): $(20/10)^2 = 4$. The big pizza has
+**4 times the area** of the small one.
+
+Cost-per-area: small = Rs. 200/area; big = Rs. 600/(4·area) = Rs.
+150/area. **The big pizza gives 33% more pizza per rupee.**
+
+This square-scaling is why doubling pizza diameter way more than
+doubles the food. Many fast-food chains exploit this — "small" pizzas
+are deliberately less efficient per rupee.
+</details>
+
+**P3.** A small triangle has sides 5, 12, 13 (a Pythagorean triple).
+A similar triangle has its longest side equal to 39. Find its other
+two sides.
+
+<details class="hint"><summary>Full solution</summary>
+Scale factor: $39/13 = 3$. Other sides: $5 \times 3 = 15$ and $12
+\times 3 = 36$. So 15, 36, 39 — itself a Pythagorean triple ($15^2 +
+36^2 = 225 + 1296 = 1521 = 39^2$ ✓).
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why a giant ant cannot exist.** An ordinary ant carries about
+50× its own weight. If you scaled an ant up to the size of a person
+(say, 1000× longer), what happens to its strength-to-weight ratio?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Strength scales like cross-sectional muscle area ($k^2$). Weight
+scales like volume ($k^3$). The ratio strength/weight scales like
+$k^2 / k^3 = 1/k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Strength: scales by $k^2 = 10^6$.
+Weight: scales by $k^3 = 10^9$.
+Strength-to-weight ratio: scales by $1/k = 1/1000$.
+
+**The giant ant would be 1000× weaker per unit weight** than its
+small cousin. Where the small ant carries 50× its weight, the giant
+ant could carry only $50/1000 = 0.05$ of its own weight — i.e., it
+couldn't even support itself.
+
+The square-cube law sets *physical limits* on biology: this is why
+big land animals (elephants) have proportionally massive legs, why
+whales must live in water (where buoyancy supports their weight),
+and why insects cannot be scaled up. Galileo wrote about exactly this
+in 1638 — and modern biology still finds the principle indispensable.
+</details>
+
+**S2.** A computer simulation models a virtual world at **1:1000
+scale**. To realistically simulate gravity, what should the simulation
+do with the time scale (frame rate, physics step) so that "scaled
+seconds" feel right?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Falling time under gravity scales with $\sqrt{\text{height}}$. So if
+heights scale by $1/1000$, times scale by $\sqrt{1/1000} = 1/\sqrt{1000}
+\approx 1/31.6$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For physical realism: time should scale by $\sqrt{1/1000} \approx
+1/31.6$. So the simulation should run **31.6× slower** than wall-clock
+time to look right. (Or, equivalently, gravity should be reduced.)
+
+This is why miniature movie sets (1980s practical effects era — *Star
+Wars*, *Lord of the Rings*) had to be filmed at very high frame rates,
+then played back normally — the *physics* of falling at miniature scale
+looks unnatural at normal speed. Modern CGI handles this correctly by
+explicit physical simulation in the right units.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Similar means identical."** No — similar shapes have the same
+   *shape* (angles) but possibly different *size*. Identical = similar
+   *and* same scale.
+2. **"Doubling dimensions doubles everything."** No — doubles
+   lengths, *quadruples* areas, *octuples* volumes. The square-cube
+   law catches everyone.
+3. **"AAA is the most general similarity test."** For triangles, AAA
+   (or AA) suffices. For *quadrilaterals*, AAA is *not* enough — you
+   need additional information about side lengths. (Two parallelograms
+   with the same angles can have different shapes.)
+:::
+
+### Self-Assessment
+
+1. Could you explain *why* doubling all sides of a square quadruples
+   its area, using the rectangle picture?
+2. Without scrolling back, can you find the scale factor between
+   triangles with sides 3,4,5 and 12,16,20?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answer: $k = 4$.)
+
+- **3 yes:** ready for **[14 · Quadratic Equations](../14-quadratic-equations-intro/index.qmd)**.
+- **2 yes:** redo **S1** (giant ant) — the strength-to-weight scaling
+  is one of the most consequential ideas in physics and biology.
+- **0–1 yes:** re-read *Discover P4 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T1 L09 — Ratio and Proportion](../../tier-1-foundations/09-ratio-proportion/index.qmd)**
+- **[T1 L12 — Shapes and Angles](../../tier-1-foundations/12-shapes-angles/index.qmd)**
+
+### What this unlocks
+
+- **Tier 3 — Trigonometry** — trigonometric ratios depend only on the
+  angles of a right triangle, by similarity.
+- **Tier 4 — Calculus & physics** — scaling arguments are everywhere
+  in dimensional analysis, fluid dynamics, biomechanics.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & graphics.** Sprite scaling, level-of-detail
+techniques (smaller models when far away), perspective rendering —
+all rest on similarity. The graphics card scales mesh data on the fly
+using the same proportionality you used for the toy car.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Scaling arguments and *dimensional
+analysis* are some of the most powerful tools in applied mathematics
+and theoretical physics — including in fluid dynamics, finance
+(option pricing scales with $\sqrt{T}$), and statistical mechanics.
+:::
+
+::: {.applied-callout}
+**Biology & medicine.** Allometry — the study of how biological
+quantities scale with body size — uses these ideas constantly.
+Drug doses scale with body mass, but metabolic rate scales with
+mass to the 3/4 power (Kleiber's law) — surprising and
+important.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Maps and blueprints, model trains, scaled
+prototypes (engineering, architecture), photography, recipe
+adjustment, taxes (proportional vs progressive scaling).
+:::
