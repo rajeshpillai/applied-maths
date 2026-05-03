@@ -1,0 +1,329 @@
+---
+title: "06 · Second-Order Linear ODEs"
+subtitle: "y'' + p y' + q y = 0 — and the harmonic oscillator"
+lesson-id: "t6.second-order-odes"
+tier: 6
+prerequisites: ["t4.differential-equations"]
+unlocks: ["t6.pdes"]
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T4 L12 — Differential Equations (Intro)](../../tier-4-precalc-calculus/12-differential-equations/index.qmd)?
+2. Recall $y' = ky$ has solution $y = A e^{kx}$?
+3. Comfortable with complex numbers (L04)?
+:::
+
+## Touch
+
+A **second-order linear ODE with constant coefficients**:
+$$a y'' + b y' + c y = 0.$$
+
+Solutions take three forms depending on the discriminant of the
+**characteristic equation** $a r^2 + b r + c = 0$.
+
+```{ojs}
+viewof odeSel = Inputs.select(["y'' + 9y = 0: oscillation", "y'' + 4y' + 4y = 0: critical damping", "y'' − 5y' + 6y = 0: distinct real roots", "y'' + 2y' + 5y = 0: damped oscillation"], {value: "y'' + 9y = 0: oscillation", label: "ODE:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(odeSel) {
+    case "y'' + 9y = 0: oscillation": info = "Char eq: r² + 9 = 0 ⇒ r = ±3i. Solution: y = A cos(3t) + B sin(3t). Pure oscillation, frequency 3/(2π)."; break;
+    case "y'' + 4y' + 4y = 0: critical damping": info = "r² + 4r + 4 = (r+2)² = 0 ⇒ r = −2 (double root). Solution: y = (A + Bt) e^(−2t). Decays without oscillation."; break;
+    case "y'' − 5y' + 6y = 0: distinct real roots": info = "r² − 5r + 6 = (r−2)(r−3) = 0 ⇒ r = 2, 3. Solution: y = A e^(2t) + B e^(3t). Both terms grow exponentially."; break;
+    case "y'' + 2y' + 5y = 0: damped oscillation": info = "r = −1 ± 2i. Solution: y = e^(−t) (A cos 2t + B sin 2t). Oscillates but decays — like a damped pendulum."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#c2185b; text-align:center;">${info}</div>
+  </div>`;
+}
+```
+
+## Wonder
+
+1. Why does $y'' + \omega^2 y = 0$ give sinusoidal solutions?
+2. The characteristic equation $a r^2 + b r + c = 0$ — same algebra
+   as quadratic. Why does the *complex roots* case give oscillation?
+3. The harmonic oscillator (mass on a spring) $m \ddot{x} + k x = 0$
+   is one specific case. What real systems share this equation?
+:::
+
+## Discover
+
+### Problem 1
+
+Try $y = e^{rt}$ in $y'' - 5 y' + 6 y = 0$. What equation does $r$
+satisfy?
+
+<details class="hint"><summary>Full solution</summary>
+$y' = r e^{rt}, y'' = r^2 e^{rt}$. Substituting: $(r^2 - 5r + 6) e^{rt}
+= 0$. Since $e^{rt} \ne 0$: **$r^2 - 5r + 6 = 0$**.
+
+This is the **characteristic equation**. Its roots are $r = 2, 3$.
+
+**General solution:** $y = A e^{2t} + B e^{3t}$ (linear combination
+since the ODE is *linear*).
+</details>
+
+### Problem 2
+
+For $y'' + \omega^2 y = 0$: characteristic equation is $r^2 + \omega^2
+= 0 \Rightarrow r = \pm i \omega$.
+
+The solutions $y = e^{\pm i\omega t}$ combine (using Euler's formula)
+into real solutions:
+
+<details class="hint"><summary>Full solution</summary>
+$y = A \cos \omega t + B \sin \omega t$.
+
+The simple harmonic oscillator! Frequency $\omega/(2\pi)$ Hz.
+
+**Springs, pendulums (small angles), LC circuits, atomic vibrations**
+— all governed by this equation.
+</details>
+
+### Problem 3
+
+For $y'' + 2y' + 5y = 0$: characteristic equation $r^2 + 2r + 5 = 0
+\Rightarrow r = -1 \pm 2i$.
+
+Find the real general solution.
+
+<details class="hint"><summary>Full solution</summary>
+Combining $e^{(-1 + 2i)t}$ and $e^{(-1 - 2i)t}$ into reals:
+$y = e^{-t} (A \cos 2t + B \sin 2t)$.
+
+**Damped oscillation:** the $e^{-t}$ factor decays, the cosine/sine
+oscillates. A real pendulum with friction.
+</details>
+
+### Problem 4
+
+For $y'' + 4y' + 4y = 0$: characteristic equation has *double root*
+$r = -2$.
+
+The general solution is *not* $A e^{-2t} + B e^{-2t}$ (only one
+parameter). Need a second solution: $y_2 = t e^{-2t}$. So
+$y = (A + B t) e^{-2t}$.
+
+Verify $y_2$ satisfies the ODE.
+
+<details class="hint"><summary>Full solution</summary>
+$y_2 = t e^{-2t}$. $y_2' = e^{-2t} - 2t e^{-2t} = (1 - 2t) e^{-2t}$.
+$y_2'' = (-2)(1 - 2t) e^{-2t} + (-2) e^{-2t} = (-4 + 4t) e^{-2t}$.
+
+Plug in: $y_2'' + 4 y_2' + 4 y_2 = ((-4 + 4t) + 4(1 - 2t) + 4t) e^{-2t}
+= 0$ ✓.
+
+**Critical damping:** the boundary between under-damped (oscillates)
+and over-damped (no oscillation). Used in shock absorbers (cars
+return to neutral as fast as possible without oscillation).
+</details>
+
+### Problem 5
+
+**Forced oscillation:** $y'' + \omega^2 y = F \cos(\omega_0 t)$
+(driving force at frequency $\omega_0$). Resonance occurs when
+$\omega_0 = \omega$.
+
+What happens to the amplitude in resonance?
+
+<details class="hint"><summary>Full solution</summary>
+**Amplitude grows linearly with time** (without damping). With
+damping, amplitude reaches a peak proportional to $1/\text{damping}$
+— *resonance amplification*.
+
+Famous failures from resonance: **Tacoma Narrows Bridge** (1940,
+collapsed), **opera singer breaking glass**, swing pumping.
+
+Resonance design is essential in mechanical engineering, civil
+engineering, and acoustics.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **second-order linear ODE with constant coefficients:**
+$$a y'' + b y' + c y = 0.$$
+
+**Characteristic equation:** $a r^2 + b r + c = 0$.
+
+**Three cases (discriminant $\Delta = b^2 - 4ac$):**
+
+| $\Delta$ | Roots | General solution |
+|---|---|---|
+| $> 0$ | Two distinct real $r_1, r_2$ | $A e^{r_1 t} + B e^{r_2 t}$ |
+| $= 0$ | Repeated root $r$ | $(A + B t) e^{r t}$ |
+| $< 0$ | Complex pair $\alpha \pm i \beta$ | $e^{\alpha t}(A \cos \beta t + B \sin \beta t)$ |
+
+**Initial conditions** $y(0), y'(0)$ determine $A, B$.
+
+**Forced (non-homogeneous) ODE:** $a y'' + b y' + c y = f(t)$. General
+solution: homogeneous + particular.
+
+**Resonance:** when forcing matches natural frequency, amplitude grows
+unboundedly (no damping) or to a large peak (with damping).
+
+:::
+
+> *Linear, constant coefficients: substitute y = e^(rt), get char eq;*
+> *Three cases: real distinct, repeated, complex (oscillation);*
+> *Resonance: forcing at the natural frequency builds large amplitudes.*
+
+## Apply
+
+### Worked example
+
+> Solve $y'' - 4y' + 13y = 0$ with $y(0) = 1, y'(0) = 0$.
+
+Char eq: $r^2 - 4r + 13 = 0 \Rightarrow r = 2 \pm 3i$.
+
+General: $y = e^{2t} (A \cos 3t + B \sin 3t)$.
+
+$y(0) = A = 1$. $y'(0) = 2A + 3B = 0 \Rightarrow B = -2/3$.
+
+$y = e^{2t} (\cos 3t - (2/3) \sin 3t)$. (Growing oscillation —
+exponential envelope $e^{2t}$ amplifies the oscillation.)
+
+### Practice — Warm
+
+**W1.** Char eq for $y'' + 4y = 0$?
+
+<details class="hint"><summary>Full solution</summary>
+$r^2 + 4 = 0$, roots $\pm 2i$.
+</details>
+
+**W2.** General solution of $y'' = 0$?
+
+<details class="hint"><summary>Full solution</summary>
+$y = A + Bt$ (repeated root $r = 0$).
+</details>
+
+**W3.** $y'' - y = 0$. Solution?
+
+<details class="hint"><summary>Full solution</summary>
+$r^2 - 1 = 0, r = \pm 1$. $y = A e^t + B e^{-t}$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $y'' + 6y' + 9y = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$r^2 + 6r + 9 = (r+3)^2 = 0$. Repeated root $-3$. $y = (A + Bt) e^{-3t}$.
+</details>
+
+**P2.** Solve $y'' + y' - 6y = 0$ with $y(0) = 5, y'(0) = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$r = -3, 2$. $y = A e^{-3t} + B e^{2t}$. $y(0): A + B = 5$. $y'(0): -3A
++ 2B = 0 \Rightarrow B = 3A/2$. So $A + 3A/2 = 5 \Rightarrow A = 2, B
+= 3$.
+
+$y = 2 e^{-3t} + 3 e^{2t}$.
+</details>
+
+**P3.** Solve $y'' + 4y' + 5y = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$r = -2 \pm i$. $y = e^{-2t} (A \cos t + B \sin t)$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **The pendulum equation.** Small-angle approximation: $\ddot
+\theta + (g/L) \theta = 0$. What's the period?
+
+<details class="hint"><summary>Full solution</summary>
+$\omega^2 = g/L \Rightarrow \omega = \sqrt{g/L}$. Period $T = 2\pi/\omega
+= 2\pi \sqrt{L/g}$.
+
+(**Galileo's pendulum law.** Period depends only on length, not on
+amplitude or mass — a remarkable physical fact, true only for *small*
+oscillations. Powered the first accurate clocks.)
+</details>
+
+**S2.** **In game physics, springs are everywhere — character
+joints, suspension, cloth, hair, water.** Why is the simple harmonic
+oscillator at the heart of game physics?
+
+<details class="hint"><summary>Full solution</summary>
+**Springs model elasticity / restoration force.** Hooke's law: $F = -k
+x$. Combined with damping $-c v$, Newton's $F = ma$ gives $m \ddot
+x + c \dot x + k x = 0$ — the damped oscillator.
+
+Game physics engines integrate this equation millions of times per
+second:
+
+- Cloth: spring network simulating fabric.
+- Hair / fur: chains of springs.
+- Vehicle suspension: spring + damper between wheel and chassis.
+- Soft-body objects: lattice of springs.
+
+Tuning $k$ (stiffness) and $c$ (damping) gives the desired feel.
+The *critical damping* case (Discover P4) makes things settle without
+overshoot.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"All ODEs have closed-form solutions."** Only special classes
+   (linear, constant coefficients, separable). Most ODEs need
+   numerical methods (Lesson 08).
+2. **"Forced ODE has only homogeneous solution."** No — *general
+   solution* = homogeneous + particular.
+3. **"Real solutions require real characteristic roots."** No: complex
+   roots give *real* sinusoidal solutions (via Euler).
+:::
+
+### Self-Assessment
+
+1. Could you solve $y'' + 9y = 0$?
+2. Without scrolling back, what's resonance?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $y = A \cos 3t + B \sin 3t$. Forcing at the natural
+frequency.)
+
+- **3 yes:** ready for **[07 · PDEs](../07-pdes/index.qmd)**.
+- **2 yes:** redo **S2** (springs in games).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T4 L12 — Differential Equations](../../tier-4-precalc-calculus/12-differential-equations/index.qmd)** —
+  first-order foundation.
+
+### What this unlocks
+
+- **[07 · PDEs](../07-pdes/index.qmd)** — partial differential
+  equations.
+- **Tier 7 — Dynamical Systems** — qualitative theory of ODEs.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Spring physics (S2), oscillating animations,
+character motion, vehicle suspensions.
+:::
+
+::: {.applied-callout}
+**Engineering.** Mechanical vibrations, electrical circuits (RLC),
+control systems — all governed by 2nd-order ODEs.
+:::
+
+::: {.applied-callout}
+**Physics.** Quantum harmonic oscillator (foundational quantum
+mechanics), classical pendulums and springs, electromagnetic
+oscillations.
+:::
