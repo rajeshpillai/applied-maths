@@ -1,0 +1,354 @@
+---
+title: "08 · Scientific Notation"
+subtitle: "Writing huge and tiny numbers compactly"
+lesson-id: "t2.scientific-notation"
+tier: 2
+prerequisites: ["t2.exponents-powers", "t1.decimals"]
+unlocks: []
+applied-domains: ["systems", "research", "ai-ml"]
+estimated-minutes: 20
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [07 · Exponents](../07-exponents-powers/index.qmd)
+   and [T1 L08 · Decimals](../../tier-1-foundations/08-decimals/index.qmd)?
+2. Can you compute $10^3 = 1000$ and $10^{-2} = 0.01$?
+3. Have you seen something like "1.5 × 10⁸" on a science textbook?
+:::
+
+## Touch
+
+Switch a number between *normal* and *scientific* form.
+
+```{ojs}
+viewof rawValue = Inputs.range([-15, 15], {value: 6, step: 1, label: "Power of 10:"})
+viewof mantissa = Inputs.range([1, 9.9], {value: 3.5, step: 0.1, label: "Mantissa (1 ≤ m < 10):"})
+```
+
+```{ojs}
+{
+  const value = mantissa * Math.pow(10, rawValue);
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.6rem;">
+      <span style="color:#c2185b;font-weight:bold;">${mantissa.toFixed(1)}</span>
+      &nbsp;×&nbsp;
+      <span style="color:#2c5f7c;font-weight:bold;">10<sup>${rawValue}</sup></span>
+      &nbsp;=&nbsp;
+      <span style="color:#1f2933;">${value.toExponential(4)}</span>
+    </div>
+    <div style="font-family:monospace; font-size:1.2rem; margin-top:0.5rem; color:#666;">
+      = ${value < 1e-4 || value >= 1e15 ? value.toExponential(2) : value.toLocaleString(undefined, {maximumFractionDigits: 8})}
+    </div>
+  </div>`;
+}
+```
+
+The form $a \times 10^n$ with $1 \le a < 10$ is **scientific notation**.
+$a$ is the **mantissa**, $n$ is the **exponent**. Try the speed of
+light: $3 \times 10^8$ m/s.
+
+## Wonder
+
+1. Set mantissa to 1 and power to 100. The number is enormous. Could
+   you even write it out longhand?
+2. Set mantissa to 6.022 and power to 23. That's **Avogadro's number**
+   — the count of atoms in 12 g of carbon-12. Why would you want
+   notation for such a number?
+3. Set the power to $-9$. What is "1 nanometre" as $10^{-9}$ metre?
+
+## Discover
+
+### Problem 1
+
+Write in normal form:
+
+(a) $4 \times 10^3$
+(b) $5.7 \times 10^5$
+(c) $2 \times 10^{-3}$
+
+<details class="hint"><summary>Full solution</summary>
+(a) $4000$. (b) $570{,}000$. (c) $0.002$.
+
+Each step in the exponent moves the decimal point one place. Positive
+exponent → move right (bigger number). Negative exponent → move left
+(smaller number).
+</details>
+
+### Problem 2
+
+Convert to scientific notation:
+
+(a) $73{,}000{,}000$
+(b) $0.000045$
+(c) $1{,}234$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The mantissa must be in $[1, 10)$. Move the decimal point to make this
+true; count how many places.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) $7.3 \times 10^7$. (b) $4.5 \times 10^{-5}$. (c) $1.234 \times 10^3$.
+
+Count the places carefully — the most common error is being off by one.
+</details>
+
+### Problem 3
+
+Multiply: $(2 \times 10^4) \times (3 \times 10^5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply mantissas; add exponents.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(2 \times 3) \times 10^{4+5} = 6 \times 10^9$.
+
+Scientific notation makes multiplication of huge numbers trivial.
+$200{,}000 \times 30{,}000 = 6{,}000{,}000{,}000$ — you'd have to count
+zeros without it.
+</details>
+
+### Problem 4
+
+Multiply: $(5 \times 10^4) \times (4 \times 10^3)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$5 \times 4 = 20$, but the mantissa must be < 10. So renormalise.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(5 \times 4) \times 10^{4+3} = 20 \times 10^7$. Renormalise: $20 = 2
+\times 10^1$, so result $= 2 \times 10^8$.
+
+Always finish by ensuring the mantissa is in $[1, 10)$. The "carry"
+from mantissa to exponent is just place-value bookkeeping.
+</details>
+
+### Problem 5
+
+The mass of an electron is about $9.1 \times 10^{-31}$ kg. The mass of
+the Sun is about $2 \times 10^{30}$ kg. By **what factor** is the Sun
+heavier than the electron?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide. Mantissas divide; exponents subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2 \times 10^{30}}{9.1 \times 10^{-31}} = \dfrac{2}{9.1} \times
+10^{30 - (-31)} = 0.22 \times 10^{61} \approx 2.2 \times 10^{60}$.
+
+The Sun is about **$2.2 \times 10^{60}$ times** as heavy as an
+electron. Numbers like this — spanning *60 orders of magnitude* — are
+literally unwritable without scientific notation.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Scientific notation** writes a number as
+$$a \times 10^n$$
+with $1 \le a < 10$ and $n$ an integer.
+
+- $a$ is the **mantissa** (or *significand*).
+- $n$ is the **exponent** (or *order of magnitude*).
+
+Operations:
+
+- **Multiply:** mantissas multiply, exponents add. Renormalise if
+  mantissa ≥ 10.
+- **Divide:** mantissas divide, exponents subtract.
+- **Add/subtract:** convert to the *same* exponent first, then add the
+  mantissas.
+
+The notation lets you compare orders of magnitude *just by looking at
+the exponent*.
+
+:::
+
+> *Mantissa between one and ten; exponent says how big or small;*
+> *Multiply — add exponents; divide — subtract;*
+> *Add only after exponents agree.*
+
+## Apply
+
+### Worked example
+
+> Compute $(3 \times 10^7) + (4 \times 10^6)$.
+
+A competent solver puts both terms in the *same* exponent first:
+
+1. $4 \times 10^6 = 0.4 \times 10^7$.
+2. Now add the mantissas: $3 \times 10^7 + 0.4 \times 10^7 = 3.4 \times
+   10^7$.
+
+**Answer: $3.4 \times 10^7$.** Addition (and subtraction) requires
+matched exponents — analogous to needing a common denominator for
+fractions (Tier 1 Lesson 7).
+
+### Practice — Warm
+
+**W1.** Write in normal form: $1.2 \times 10^4$, $7 \times 10^{-2}$.
+
+<details class="hint"><summary>Full solution</summary>
+$12{,}000$, $0.07$.
+</details>
+
+**W2.** Write in scientific notation: $345{,}000$, $0.0006$.
+
+<details class="hint"><summary>Full solution</summary>
+$3.45 \times 10^5$, $6 \times 10^{-4}$.
+</details>
+
+**W3.** Compute $(3 \times 10^4) \times (2 \times 10^3)$.
+
+<details class="hint"><summary>Full solution</summary>
+$6 \times 10^7$.
+</details>
+
+### Practice — Working
+
+**P1.** Compute $(8 \times 10^5) \div (2 \times 10^2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{8}{2} \times 10^{5-2} = 4 \times 10^3$.
+</details>
+
+**P2.** Compute $(7 \times 10^4) + (3 \times 10^5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Match exponents.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7 \times 10^4 = 0.7 \times 10^5$. Add: $0.7 + 3 = 3.7$. Answer:
+$3.7 \times 10^5 = 370{,}000$.
+</details>
+
+**P3.** The distance from Earth to the Sun is about $1.5 \times 10^{11}$
+m. Light travels $3 \times 10^8$ m/s. How long does light from the Sun
+take to reach Earth?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Time = distance ÷ speed.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1.5 \times 10^{11}}{3 \times 10^8} = 0.5 \times 10^{3} = 500$
+seconds, or about **8.3 minutes**.
+
+Sunlight you see right now left the Sun about 8 minutes ago. Scientific
+notation makes that calculation a one-liner.
+</details>
+
+### Practice — Stretch
+
+**S1.** A neural network has **1 trillion parameters** ($10^{12}$). Each
+parameter is stored as a 32-bit floating-point number (4 bytes). What
+is the total storage required, in **gigabytes** ($10^9$ bytes)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total bytes $= 10^{12} \times 4$. Divide by $10^9$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Bytes $= 4 \times 10^{12}$. Gigabytes $= 4 \times 10^{12} / 10^9 = 4
+\times 10^3 = 4000$ GB = **4 terabytes**.
+
+Modern AI models routinely require terabytes of storage. The largest
+research models in 2025 have over $10^{13}$ parameters — *tens of
+terabytes* just for the weights.
+
+This is why GPU memory and high-bandwidth networking matter so much:
+moving weights around is the bottleneck of large-scale training.
+</details>
+
+**S2.** Floating-point on a computer is *itself* essentially scientific
+notation — a mantissa and an exponent stored separately. A 32-bit float
+uses **23 bits for mantissa** and **8 bits for exponent** (plus 1 for
+sign). What is the largest representable number, *roughly*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+With 8 exponent bits, the exponent can range up to about ±127. The
+maximum value is mantissa × $2^{127}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\approx 2^{127} \approx 1.7 \times 10^{38}$. The standard IEEE 754
+single-precision range is from about $\pm 10^{-38}$ to $\pm 10^{38}$.
+
+This is why scientific computing uses **double-precision** (64-bit) for
+work that needs greater range or accuracy — exponent fields of 11 bits,
+allowing values up to $\sim 10^{308}$.
+
+Floating-point representation is *applied scientific notation* in
+silicon. The same mathematics you just learned governs how every
+calculator, phone, and supercomputer stores fractional numbers.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$1.5 \times 10^3$ is bigger than $1.5 \times 10^{-3}$ because the
+   first has a positive exponent."** True here, but **mantissas
+   matter**. $9 \times 10^3$ vs $1 \times 10^4$: the exponent of the
+   second is bigger, so it wins (10000 > 9000).
+2. **"You can add scientific-notation numbers by adding both parts."**
+   No — you must align exponents first, then add only mantissas.
+3. **"Scientific notation is just a fancy way to show big numbers."**
+   It also works for *tiny* numbers (negative exponents) and for any
+   number whose order of magnitude is unintuitive.
+:::
+
+### Self-Assessment
+
+1. Could you compute $(2 \times 10^5) \times (5 \times 10^{-3})$ in
+   your head?
+2. Without scrolling back, can you convert $0.0042$ to scientific
+   notation?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: $10^3 = 1000$; $4.2 \times 10^{-3}$.)
+
+- **3 yes:** ready for **[09 · Square Roots and Irrationals](../09-square-roots-irrationals/index.qmd)**.
+- **2 yes:** redo **S1** — billions and trillions of parameters in ML
+  systems is now standard.
+- **0–1 yes:** re-read *Discover P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[07 · Exponents and Powers](../07-exponents-powers/index.qmd)**
+- **[T1 L08 — Decimals](../../tier-1-foundations/08-decimals/index.qmd)**
+
+### What this unlocks
+
+- **Tier 3 — Logarithms** — the *inverse* of exponentials; pH, decibels,
+  Richter scale.
+
+### Where this matters
+
+::: {.applied-callout}
+**Systems.** Floating-point numbers (Stretch S2) are scientific
+notation in binary. Numerical precision, range, overflow, and
+underflow are all consequences.
+:::
+
+::: {.applied-callout}
+**Mathematical research.** Almost every constant in physics is
+quoted in scientific notation: Planck's constant ($6.6 \times 10^{-34}$),
+gravitational constant ($6.7 \times 10^{-11}$), speed of light
+($3 \times 10^8$), etc.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** Model parameter counts ($10^{12}$),
+training compute (FLOPs $\sim 10^{24}$), dataset sizes ($10^{14}$
+tokens) — all use scientific notation, often via the abbreviations
+"trillion," "exa-," etc.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Astronomy (light-years, parsecs), biology
+(cell counts, gene lengths), economics (national budgets,
+populations), pharmacology (microgram doses) — any field with
+extreme scales.
+:::
