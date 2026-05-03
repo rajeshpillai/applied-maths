@@ -1,0 +1,365 @@
+---
+title: "08 · Quaternions and 3D Rotations"
+subtitle: "Hamilton's invention — the right tool for rotating things smoothly in 3D."
+lesson-id: "t7.quaternions"
+tier: 7
+prerequisites: ["t6.groups", "t5.linear-algebra-foundation"]
+unlocks: []
+applied-domains: ["game-dev"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T6 L02 — Groups and Symmetry](../../tier-6-undergrad-advanced/02-groups/index.qmd) and [T5 L02 — Linear Algebra Foundation](../../tier-5-undergrad-core/02-linear-algebra-foundation/index.qmd)?
+2. Recall: complex numbers $a + bi$, matrix multiplication, dot/cross products.
+3. Have you encountered Euler angles or rotation matrices?
+:::
+
+## Touch
+
+Rotate a 3D object smoothly from orientation A to orientation B.
+
+```{ojs}
+viewof rotMethod = Inputs.select(["Euler angles (gimbal lock!)", "Rotation matrix (overdetermined)", "Quaternion (smooth)"], {value: "Quaternion (smooth)", label: "Method:"})
+```
+
+```{ojs}
+{
+  let info, count;
+  switch(rotMethod) {
+    case "Euler angles (gimbal lock!)": info = "3 numbers (roll, pitch, yaw). Suffers gimbal lock — singularity at certain orientations."; count = "3 params"; break;
+    case "Rotation matrix (overdetermined)": info = "9 entries with 6 constraints (orthogonality + det = 1). 3 effective DOF but overdetermined storage."; count = "9 nums, 3 DOF"; break;
+    case "Quaternion (smooth)": info = "4 numbers (w, x, y, z), |q| = 1. No gimbal lock. Smooth interpolation via slerp."; count = "4 nums, 3 DOF"; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.1rem; color:#1a237e;">${count}</div>
+    <div style="font-family:monospace; font-size:0.95rem; color:#444;">${info}</div>
+  </div>`;
+}
+```
+
+Quaternions: invented Oct 16, 1843 by Hamilton on Brougham Bridge.
+**The standard rotation representation in modern game engines.**
+
+## Wonder
+
+1. Complex numbers $a + bi$ encode 2D rotations. Could there be a 4D
+   number system encoding 3D rotations?
+2. **Quaternions** $\mathbb{H}$: $a + bi + cj + dk$ with $i^2 = j^2 =
+   k^2 = ijk = -1$.
+3. Multiplication is *non-commutative* — exactly what's needed for 3D
+   rotation (which is also non-commutative).
+
+## Discover
+
+### Problem 1
+
+Define $\mathbb{H} = \{a + bi + cj + dk : a, b, c, d \in \mathbb{R}\}$
+with $i^2 = j^2 = k^2 = ijk = -1$.
+
+Derive $ij$ and $ji$.
+
+<details class="hint"><summary>Full solution</summary>
+From $ijk = -1$ multiply right by $k^{-1} = -k$: $ij = -1 \cdot (-k) =
+k$. Similarly $jk = i$, $ki = j$.
+
+For $ji$: from $ij = k$, multiply left by $j^{-1} = -j$: $i = -jk$, so
+$ji = -k$.
+
+So **$ij = -ji = k$, $jk = -kj = i$, $ki = -ik = j$.** Anti-commutative
+on imaginaries — like cross product.
+
+This non-commutativity is what makes $\mathbb{H}$ encode 3D rotations.
+</details>
+
+### Problem 2
+
+For $q = a + bi + cj + dk$, define **conjugate** $\bar q = a - bi - cj
+- dk$ and **norm** $|q| = \sqrt{q \bar q}$.
+
+Show $|pq| = |p||q|$.
+
+<details class="hint"><summary>Full solution</summary>
+$|pq|^2 = (pq)(\overline{pq}) = pq \bar q \bar p = p (q \bar q) \bar
+p = p |q|^2 \bar p = |q|^2 p \bar p = |q|^2 |p|^2$.
+
+(We used $\overline{pq} = \bar q \bar p$ — order reverses!)
+
+So $|pq| = |p| |q|$. Multiplicativity. (Hence non-zero quaternions
+form a group under multiplication.)
+</details>
+
+### Problem 3
+
+A **unit quaternion** has $|q| = 1$. Set
+$q = \cos(\theta/2) + \sin(\theta/2)(u_1 i + u_2 j + u_3 k)$
+where $\hat{u} = (u_1, u_2, u_3)$ is a unit vector.
+
+Define rotation: for a 3D vector $\vec v = v_1 i + v_2 j + v_3 k$,
+$$
+R_q(\vec v) = q \vec v \bar q.
+$$
+Verify this is a rotation by angle $\theta$ around axis $\hat u$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try $\hat u = (1, 0, 0)$, so $q = \cos(\theta/2) + \sin(\theta/2) i$.
+Compute $q (v_2 j + v_3 k) \bar q$ — should rotate the $jk$-plane.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes** — a careful computation shows $R_q$ rotates $\vec v$ by angle
+$\theta$ around axis $\hat u$.
+
+Verify: $R_q(\hat u) = \hat u$ (axis is fixed); $R_q$ preserves length;
+the rotation in the plane orthogonal to $\hat u$ has the right angle.
+
+Note: $q$ and $-q$ give the same rotation. So unit quaternions are a
+**double cover** of $SO(3)$: $S^3 \to SO(3)$, kernel $\{\pm 1\}$.
+</details>
+
+### Problem 4
+
+**Composition of rotations.** $R_{q_2} \circ R_{q_1} = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$R_{q_2}(R_{q_1}(\vec v)) = q_2 (q_1 \vec v \bar q_1) \bar q_2 = (q_2
+q_1) \vec v \overline{(q_2 q_1)} = R_{q_2 q_1}(\vec v)$.
+
+So **composition = quaternion product**. To combine rotations, just
+multiply the quaternions.
+
+Compare to rotation matrices: also composition by multiplication, but
+9 entries vs 4 — quaternions are more compact and avoid singularities.
+</details>
+
+### Problem 5
+
+**SLERP** (spherical linear interpolation). For unit quaternions $q_0,
+q_1$, define
+$$
+\text{slerp}(q_0, q_1, t) = \frac{\sin((1-t)\Omega)}{\sin\Omega} q_0 + \frac{\sin(t \Omega)}{\sin\Omega} q_1
+$$
+where $\cos\Omega = q_0 \cdot q_1$.
+
+Why is slerp the *right* interpolation for rotations?
+
+<details class="hint"><summary>Full solution</summary>
+**Slerp traces a geodesic on $S^3$** (the unit-quaternion sphere) at
+constant angular velocity.
+
+Naive linear interpolation $((1-t)q_0 + t q_1)$ gives non-unit
+quaternions and uneven angular speed.
+
+Slerp gives:
+
+- Smooth motion.
+- Constant angular velocity.
+- Shortest path through orientation space.
+
+Used in: every modern animation system, character rigging, IK solvers.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Quaternions** $\mathbb{H} = \{a + bi + cj + dk\}$ with $i^2 = j^2 =
+k^2 = ijk = -1$.
+
+**Multiplication:** non-commutative. $ij = k$, $jk = i$, $ki = j$.
+
+**Conjugate** $\bar q = a - bi - cj - dk$. **Norm** $|q|^2 = q\bar q$.
+$\overline{pq} = \bar q \bar p$.
+
+**Inverse** of unit $q$: $q^{-1} = \bar q$.
+
+**Unit quaternions** $\cong S^3$ form a group, double-covering $SO(3)$.
+
+**Rotation by $\theta$ around unit axis $\hat u$:**
+$$
+q = \cos(\theta/2) + \sin(\theta/2) (u_1 i + u_2 j + u_3 k); \qquad R_q(\vec v) = q \vec v \bar q.
+$$
+
+**Composition:** $R_{q_2} \circ R_{q_1} = R_{q_2 q_1}$.
+
+**SLERP** for smooth rotation interpolation. **Geodesic on $S^3$.**
+
+**Advantages over Euler angles:** no gimbal lock. Over rotation
+matrices: more compact (4 vs 9 numbers); cheaper composition.
+
+:::
+
+> *Hamilton's i, j, k satisfy $i^2 = j^2 = k^2 = ijk = -1$;*
+> *Unit quaternions $\cong S^3$ double-cover $SO(3)$;*
+> *Rotate by $q\vec v\bar q$, compose by multiplication, interpolate by slerp.*
+
+## Apply
+
+### Worked example
+
+> **Rotate $(1, 0, 0)$ by 90° around the $z$-axis.**
+
+$\hat u = (0, 0, 1)$, $\theta = 90°$. So
+$$
+q = \cos 45° + \sin 45° \cdot k = \frac{\sqrt 2}{2}(1 + k).
+$$
+
+$\vec v = i$, $\bar q = \frac{\sqrt 2}{2}(1 - k)$.
+
+$q \vec v = \frac{\sqrt 2}{2}(1 + k) i = \frac{\sqrt 2}{2}(i + ki) =
+\frac{\sqrt 2}{2}(i + j)$.
+
+$(q \vec v) \bar q = \frac{\sqrt 2}{2}(i + j) \cdot \frac{\sqrt 2}{2}(1
+- k) = \frac{1}{2}(i - ik + j - jk) = \frac{1}{2}(i + j + j - i) = j$.
+
+So $i \mapsto j$ — exactly a 90° rotation around $z$. ✓
+
+### Practice — Warm
+
+**W1.** Compute $(1 + i)(1 + j)$.
+
+<details class="hint"><summary>Full solution</summary>
+$1 + j + i + ij = 1 + i + j + k$.
+</details>
+
+**W2.** What's $|2 + i + j + k|$?
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{4 + 1 + 1 + 1} = \sqrt{7}$.
+</details>
+
+**W3.** What rotation does $q = i$ encode?
+
+<details class="hint"><summary>Full solution</summary>
+$q = i = \cos 90° + \sin 90° \cdot i$, so 180° rotation around $x$-axis.
+</details>
+
+### Practice — Working
+
+**P1.** Why are quaternions a **division ring** but not a field?
+
+<details class="hint"><summary>Full solution</summary>
+Every non-zero quaternion has an inverse: $q^{-1} = \bar q / |q|^2$.
+
+But multiplication is **non-commutative** ($ij \neq ji$), so $\mathbb{H}$
+is not a *field*. It's a *division ring* (or "skew field").
+
+Frobenius: the only finite-dimensional associative division algebras
+over $\mathbb{R}$ are $\mathbb{R}, \mathbb{C}, \mathbb{H}$.
+</details>
+
+**P2.** Why is the relation between quaternions and $SO(3)$ a *double*
+cover?
+
+<details class="hint"><summary>Full solution</summary>
+Both $q$ and $-q$ produce the same rotation (since $(-q)\vec v(-\bar q)
+= q\vec v \bar q$).
+
+Topologically: $S^3$ (unit quaternions) is simply connected; $SO(3)$
+is not. The map $q \mapsto R_q$ is 2-to-1.
+
+Consequence: a 360° rotation in $SO(3)$ corresponds to going from $1$
+to $-1$ in $S^3$ — *not* back to identity. 720° gets back. ("Belt
+trick" / "Dirac string".)
+</details>
+
+**P3.** Why does the **NLERP** (normalised linear interpolation) often
+substitute for slerp in games?
+
+<details class="hint"><summary>Full solution</summary>
+NLERP: $((1-t)q_0 + t q_1)/|...|$ — linear then renormalise.
+
+Faster than slerp (no trig). Doesn't have constant angular velocity,
+but the visual difference is tiny for small angles.
+
+Trade-off: speed vs angular-velocity smoothness. Most games use NLERP
+when frame-rate matters more than physical correctness.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Octonions** $\mathbb{O}$: 8-dim, non-associative.
+
+<details class="hint"><summary>Full solution</summary>
+After $\mathbb{R}, \mathbb{C}, \mathbb{H}$, the octonions $\mathbb{O}$
+are 8-dim with multiplicative norm — but **non-associative**: $(ab)c \neq
+a(bc)$ in general.
+
+Hurwitz: only normed division algebras are $\mathbb{R}, \mathbb{C},
+\mathbb{H}, \mathbb{O}$ (dimensions 1, 2, 4, 8).
+
+Used in: exceptional Lie groups, string theory, certain finite simple
+groups.
+</details>
+
+**S2.** **Dual quaternions** for rigid-body motion (rotation +
+translation).
+
+<details class="hint"><summary>Full solution</summary>
+Dual quaternion: $\hat q = q + \epsilon p$ where $\epsilon^2 = 0$.
+
+Encodes both rotation ($q$) and translation ($p$) compactly.
+Composition is just dual-quaternion multiplication. Interpolation:
+"DLB" (dual quaternion linear blending) for character skinning.
+
+Used in robotics, character animation. Avoids "candy wrapper" artefacts
+of separate rotation + translation interpolation.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Quaternions are 4D rotations."** No — they encode 3D rotations
+   (using 4 numbers). Genuine 4D rotations need a different setup.
+2. **"$q\vec v \bar q$ vs $\bar q \vec v q$."** Both rotate, but in
+   opposite directions (one is the inverse of the other). Pick a
+   convention and stick to it.
+3. **"Half-angle is a hack."** It's deep — ties to the double cover
+   $S^3 \to SO(3)$. The half is *necessary*.
+:::
+
+### Self-Assessment
+
+1. Define quaternion multiplication ($ij = ?$, $ji = ?$).
+2. Why are unit quaternions a double cover of $SO(3)$?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: $ij = k$, $ji = -k$. $\pm q$ map to same rotation.)
+
+- **3 yes:** ready for **[09 · Relational Algebra](../09-relational-algebra/index.qmd)**.
+- **2 yes:** redo **P2** (double cover).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T6 L02 — Groups and Symmetry](../../tier-6-undergrad-advanced/02-groups/index.qmd)**
+- **[T5 L02 — Linear Algebra Foundation](../../tier-5-undergrad-core/02-linear-algebra-foundation/index.qmd)**
+
+### What this unlocks
+
+- $\mathrm{SU}(2)$ and spin physics; geometric algebra; Clifford
+  algebras.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Standard rotation representation in Unity, Unreal,
+Godot. SLERP is everywhere.
+:::
+
+::: {.applied-callout}
+**Robotics.** Pose representation. Trajectory planning on $SO(3)$.
+:::
+
+::: {.applied-callout}
+**Computer graphics.** Animation, IK, skinning. Avoids gimbal lock.
+:::
+
+::: {.applied-callout}
+**Physics.** Spin-1/2 particles. The half-angle ↔ $S^3 \to SO(3)$
+double cover ↔ spinors.
+:::
