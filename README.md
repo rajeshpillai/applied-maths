@@ -25,11 +25,13 @@ world*, reached incrementally.
 
 ## Status
 
-**Tiers 1–6 are complete: 90 lessons built (Grades 5 through Undergraduate Year 4).**
-Begin at [01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-number/index.qmd).
+**All seven tiers are complete: 105 lessons built (Grade 5 through Masters specialisations).**
+Begin at [01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-number/index.qmd) — or jump
+to a Tier 7 capstone such as [15 · The Langlands Program](lessons/tier-7-masters-tracks/15-langlands-program/index.qmd).
 
-Tier 7 is outlined in [`_curriculum.yml`](_curriculum.yml) and will be
-built next. See [`CLAUDE.md`](CLAUDE.md) for the authoring contract.
+The full dependency graph is in [`_curriculum.yml`](_curriculum.yml).
+See [`CLAUDE.md`](CLAUDE.md) for the authoring contract used to build
+every lesson.
 
 ## Building locally
 
