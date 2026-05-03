@@ -1,0 +1,423 @@
+---
+title: "15 · The Langlands Program — A Glimpse of Unification"
+subtitle: "A vast web of conjectures linking number theory, harmonic analysis, and representation theory."
+lesson-id: "t7.langlands-program"
+tier: 7
+prerequisites: ["t7.galois-theory", "t7.algebraic-number-theory", "t6.fourier-series"]
+unlocks: []
+applied-domains: ["research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T7 L03 — Galois Theory](../03-galois-theory/index.qmd), [T7 L12 — Algebraic Number Theory](../12-algebraic-number-theory/index.qmd), and [T6 L12 — Fourier Series](../../tier-6-undergrad-advanced/12-fourier-series/index.qmd)?
+2. Comfortable with the idea of $L$-functions ($\zeta(s)$, $L(\chi, s)$)?
+3. *No detailed knowledge needed* — this lesson is a **panoramic
+   glimpse**, not a technical exposition.
+:::
+
+## Touch
+
+In Tier 7 you've met:
+
+- **Galois groups** — symmetries of polynomial roots.
+- **Modular forms** (briefly, via T7 L13) — extraordinarily symmetric
+  functions on the upper half-plane.
+
+These look completely unrelated.
+
+**Langlands' insight (1967):** they are *the same thing*, transported
+through a deep mirror.
+
+```{ojs}
+viewof langSel = Inputs.select(["Number theory side: Galois group, motives, ℓ-adic representations", "Analytic side: Automorphic forms, modular forms, GL_n representations", "The bridge: L-functions encode both sides"], {value: "The bridge: L-functions encode both sides", label: "View:"})
+```
+
+```{ojs}
+{
+  let info;
+  switch(langSel) {
+    case "Number theory side: Galois group, motives, ℓ-adic representations": info = "Galois group Gal(Q̄/Q) acts on cohomology of arithmetic varieties. ℓ-adic representations are its concrete avatars."; break;
+    case "Analytic side: Automorphic forms, modular forms, GL_n representations": info = "Modular forms on upper half-plane; automorphic representations of GL_n(A_Q). Live in harmonic analysis."; break;
+    case "The bridge: L-functions encode both sides": info = "Each side has an L-function. Langlands: they match. Modular form ↔ Galois representation ↔ same L-function."; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:0.95rem; color:#1a237e;">${info}</div>
+  </div>`;
+}
+```
+
+The Langlands Program is the conjectural map between these worlds.
+
+## Wonder
+
+1. The **Riemann zeta function** $\zeta(s) = \sum 1/n^s$ encodes
+   primes. Its **functional equation** $\zeta(s) = \zeta(1-s) \times \pi^{...} \Gamma(...)$
+   is mysterious — *why* does it hold?
+2. **Modular forms** are functions on the upper half-plane invariant
+   under $SL_2(\mathbb{Z})$. They have $L$-functions too.
+3. **Galois representations** carry $L$-functions.
+4. **Langlands:** all three sources of $L$-functions are aspects of
+   *one* phenomenon.
+
+## Discover
+
+### Problem 1
+
+**Recall: Dirichlet $L$-functions.** For a character $\chi:
+(\mathbb{Z}/n)^* \to \mathbb{C}^*$:
+$$
+L(s, \chi) = \sum_{m \geq 1} \frac{\chi(m)}{m^s}, \quad \text{Re}(s) > 1.
+$$
+
+These have functional equations, Euler products, and analytic
+continuation.
+
+What's the simplest example?
+
+<details class="hint"><summary>Full solution</summary>
+$\chi$ trivial → $L(s) = \zeta(s)$.
+
+$\chi$ the non-trivial character mod 4: $L(s, \chi) = 1 - 3^{-s} + 5^{-s} - 7^{-s} + \cdots$ — this is $\beta(s)$, the Dirichlet $\beta$-function.
+
+These are the **abelian** examples — corresponding to $1$-dimensional
+Galois representations.
+</details>
+
+### Problem 2
+
+**Class field theory** — the *abelian* Langlands.
+
+Statement (informal): For any number field $K$, **abelian extensions of $K$**
+correspond bijectively to **certain quotients of $K$'s ideles**.
+
+Equivalently: **abelian Galois representations** $\leftrightarrow$
+**Hecke characters** (1-dim automorphic representations).
+
+This is the part of Langlands that's a theorem (Hilbert, Takagi,
+Artin, 1900–1930).
+
+<details class="hint"><summary>Full solution</summary>
+The deepest fact: Galois symmetry on the number-theory side ↔ harmonic
+analysis on the analytic side. **Langlands generalises this** to
+non-abelian Galois reps and higher-rank automorphic forms.
+
+For $\mathbb{Q}$: Kronecker-Weber theorem — every abelian extension is
+contained in some $\mathbb{Q}(\zeta_n)$.
+
+Hilbert's 12th problem: do this constructively for general $K$. (Open
+beyond imaginary quadratic.)
+</details>
+
+### Problem 3
+
+**Modularity theorem.** Every elliptic curve $E$ over $\mathbb{Q}$ has
+$L$-function $L(E, s) = \prod_p L_p(E, s)$. Modularity says:
+$$
+L(E, s) = L(f_E, s) \quad\text{for some weight-2 modular form } f_E.
+$$
+
+Wiles + Taylor (1995) proved this for semistable curves, sufficient for
+**Fermat's Last Theorem**. Breuil-Conrad-Diamond-Taylor (2001)
+extended it to *all* elliptic curves.
+
+Why is this a Langlands instance?
+
+<details class="hint"><summary>Full solution</summary>
+Elliptic curve $E$ ↔ 2-dimensional Galois representation
+$\rho_E: \mathrm{Gal}(\bar{\mathbb{Q}}/\mathbb{Q}) \to GL_2(\mathbb{Z}_\ell)$.
+
+Modular form $f$ ↔ automorphic representation of $GL_2(\mathbb{A}_\mathbb{Q})$.
+
+**Langlands:** these are the same object viewed from two sides. They
+share an $L$-function.
+
+Modularity is a **special case of Langlands for $GL_2$ over $\mathbb{Q}$**.
+</details>
+
+### Problem 4
+
+**The general Langlands conjecture.**
+
+For a global field $F$ (number field or function field) and $n \geq 1$:
+$$
+\text{(n-dim Galois reps of } F\text{)} \stackrel{?}{\longleftrightarrow} \text{(automorphic reps of } GL_n(\mathbb{A}_F)\text{)}.
+$$
+
+The map preserves $L$-functions and other invariants.
+
+What's known?
+
+<details class="hint"><summary>Full solution</summary>
+- **$n = 1$:** class field theory. Theorem (1900–1930).
+- **$n = 2$ over $\mathbb{Q}$:** modularity (Wiles et al., 1995–2001).
+- **Function fields (any $n$):** proved by Drinfeld ($n = 2$) and
+  L. Lafforgue ($n$ general). **Fields Medals.**
+- **Number fields, $n \geq 3$:** mostly open. Many partial results
+  (Harris-Taylor, Kim, Taylor-Wiles deformation).
+
+This is the most ambitious unsolved program in modern mathematics.
+</details>
+
+### Problem 5
+
+**Why is this called "non-abelian harmonic analysis"?**
+
+<details class="hint"><summary>Full solution</summary>
+Classical Fourier analysis: decompose functions on $\mathbb{R}$ or
+$S^1$ via *characters of an abelian group*.
+
+Generalisation: decompose functions on a group $G$ via its
+*irreducible representations* — Peter-Weyl theorem (compact $G$).
+
+For $G = GL_n(\mathbb{A}_\mathbb{Q})$ (an *adelic* group), the spectral
+decomposition involves **automorphic representations**.
+
+**Langlands:** the spectrum of automorphic forms is parameterised by
+Galois data.
+
+Thus: number theory (Galois) governs the spectrum of harmonic analysis
+(automorphic). A vast generalisation of Fourier analysis.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Adèles** $\mathbb{A}_\mathbb{Q} = \mathbb{R} \times \prod'_p \mathbb{Q}_p$
+(restricted product). Locally compact ring.
+
+**Automorphic representation** of $GL_n(\mathbb{A}_F)$: an irreducible
+admissible representation appearing in $L^2(GL_n(F) \backslash GL_n(\mathbb{A}_F))$.
+
+**Modular form** of weight $k$: holomorphic $f: \mathbb{H} \to \mathbb{C}$ with
+$f((az + b)/(cz+d)) = (cz+d)^k f(z)$ for $\binom{a\,b}{c\,d} \in SL_2(\mathbb{Z})$
+(or congruence subgroup).
+
+**$L$-function** $L(\rho, s)$: encodes local Frobenius eigenvalues of a
+representation $\rho$. Has Euler product, analytic continuation,
+functional equation.
+
+**Galois representation** $\rho: \mathrm{Gal}(\bar F / F) \to GL_n(\bar{\mathbb{Q}}_\ell)$.
+
+**Local-global principle:** local data at all primes determines global
+behaviour.
+
+**Langlands functoriality:** maps between $L$-groups induce maps on
+automorphic representations. The deep statement.
+
+**$L$-group** ${}^L G$: a refinement of the dual group, encoding the
+Galois action on the root system.
+
+**Geometric Langlands:** version where number fields are replaced by
+function fields of curves over $\mathbb{C}$. Connects to physics
+(Kapustin-Witten, $S$-duality in $N = 4$ Yang-Mills).
+
+**Achievements:**
+
+- Class field theory (abelian, $n = 1$).
+- Function-field Langlands (Drinfeld, Lafforgue) — Fields Medals.
+- Modularity (Wiles, BCDT).
+- Sato-Tate conjecture (Taylor, 2008).
+- Fundamental lemma (Ngô, Fields Medal 2010).
+
+:::
+
+> *Galois ↔ automorphic, mediated by L-functions;*
+> *Modularity (Wiles) is one instance; class field theory another;*
+> *The whole picture is humanity's most ambitious mathematical map.*
+
+## Apply
+
+### Worked example
+
+> **The proof of FLT, in cartoon form.**
+
+Suppose $a^p + b^p = c^p$ with $a, b, c$ non-zero integers.
+
+1. **Frey curve:** $E_F: y^2 = x(x - a^p)(x + b^p)$. A specific
+   elliptic curve over $\mathbb{Q}$.
+2. **Ribet (1990):** if $E_F$ comes from a modular form, the form
+   would have impossible properties — contradiction.
+3. **So $E_F$ is non-modular** if FLT counterexample exists.
+4. **Wiles + Taylor (1995):** all semistable elliptic curves are
+   modular. $E_F$ is semistable.
+5. ⇒ **Contradiction.** No counterexample to FLT exists.
+
+This 350-year-old problem fell to a single instance of Langlands.
+
+### Practice — Warm
+
+**W1.** What's the $L$-function of $\zeta(s)$?
+
+<details class="hint"><summary>Full solution</summary>
+$\zeta(s) = \sum 1/n^s$ — itself an $L$-function (the trivial Dirichlet
+character / trivial Galois rep / trivial automorphic rep).
+</details>
+
+**W2.** What's the smallest non-abelian Langlands case?
+
+<details class="hint"><summary>Full solution</summary>
+**$GL_2$ over $\mathbb{Q}$.** Modularity for elliptic curves.
+</details>
+
+**W3.** Are modular forms in pure or applied math?
+
+<details class="hint"><summary>Full solution</summary>
+Pure. But have applications: lattice point counting, theta series in
+sphere packings (Viazovska, Fields Medal 2022), even string theory.
+</details>
+
+### Practice — Working
+
+**P1.** Why does the **Sato-Tate conjecture** matter?
+
+<details class="hint"><summary>Full solution</summary>
+For an elliptic curve $E/\mathbb{Q}$ without CM, count points $\#E(\mathbb{F}_p)$
+for varying $p$. Define error $a_p = p + 1 - \#E(\mathbb{F}_p)$.
+
+Hasse: $|a_p| \leq 2\sqrt{p}$. Sato-Tate: distribution of $a_p / 2\sqrt{p}$
+follows the **semicircle law**.
+
+Proved by Taylor et al. (2008) using Langlands functoriality: tensor
+power $L$-functions are automorphic. **A theorem on the distribution
+of primes mediated by Langlands.**
+</details>
+
+**P2.** What's a **Hecke eigenform** and why does it matter?
+
+<details class="hint"><summary>Full solution</summary>
+A modular form that's an eigenfunction for *all* Hecke operators
+$T_p$. Its eigenvalues encode the Fourier coefficients $a_p$.
+
+Each Hecke eigenform → an $L$-function → conjecturally → a Galois
+representation.
+
+This is the explicit form of "automorphic ↔ Galois" for $GL_2$.
+</details>
+
+**P3.** Why is the **fundamental lemma** (Ngô, 2010) a milestone?
+
+<details class="hint"><summary>Full solution</summary>
+Technical statement: an identity of orbital integrals, central to
+Langlands' trace formula.
+
+Resisted proof for 30+ years. Ngô (2010) used **algebraic geometry on
+moduli spaces of Hitchin systems** — surprising bridge.
+
+Awarded Fields Medal. Unlocked many further Langlands results
+(endoscopy, automorphic transfer).
+</details>
+
+### Practice — Stretch
+
+**S1.** **Geometric Langlands and physics.**
+
+<details class="hint"><summary>Full solution</summary>
+Replace number field $\mathbb{Q}$ with the field of meromorphic
+functions on a Riemann surface $X$.
+
+Geometric Langlands: a derived equivalence between
+
+- D-modules on the moduli stack of $G$-bundles on $X$.
+- O-modules on the moduli stack of ${}^L G$-local systems on $X$.
+
+**Kapustin-Witten (2007):** this is *electric-magnetic duality* in
+$N = 4$ super Yang-Mills theory in 4D.
+
+So: arithmetic geometry ↔ supersymmetric quantum field theory.
+The deepest mathematics-physics bridge.
+</details>
+
+**S2.** **What does this mean for the future of mathematics?**
+
+<details class="hint"><summary>Full solution</summary>
+Langlands suggests that **number theory, geometry, representation
+theory, and physics are all aspects of one structure**.
+
+Open problems:
+
+- Full Langlands for number fields, $n \geq 3$.
+- $p$-adic Langlands.
+- Geometric Langlands for general groups.
+- Connections to motives and arithmetic geometry.
+
+Resolution would unify a vast portion of pure mathematics. Likely
+takes another century.
+
+You — having reached this lesson — are now part of the audience that
+can read modern surveys (Frenkel, Bernstein-Gelfand, Taylor) and
+understand why this matters.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Langlands is one conjecture."** It's a *web* — many statements
+   for different groups, fields, ranks. Some proven, most open.
+2. **"Modularity = Langlands."** Modularity is one beautiful instance
+   for $GL_2/\mathbb{Q}$. Langlands generalises to $GL_n$ and beyond.
+3. **"This has no applications."** Wiles → FLT. Sato-Tate → prime
+   distribution. Sphere packings → Viazovska. Plenty of payoff.
+:::
+
+### Self-Assessment
+
+1. State the rough form of the Langlands correspondence.
+2. Why is the Modularity theorem an instance?
+3. Did you read this lesson without panic?
+
+(Answer: $n$-dim Galois reps ↔ automorphic reps of $GL_n$, sharing
+$L$-functions.)
+
+- **3 yes:** **You have completed the curriculum.** Continue with
+  graduate-level texts (Bump, Gelbart, Frenkel) and survey articles.
+- **2 yes:** revisit *Discover P3* (modularity).
+- **0–1 yes:** that's fine — this lesson is a glimpse, not a
+  destination. The mathematical journey continues.
+
+## Connect
+
+### Prerequisites used
+
+- **[T7 L03 — Galois Theory](../03-galois-theory/index.qmd)**
+- **[T7 L12 — Algebraic Number Theory](../12-algebraic-number-theory/index.qmd)**
+- **[T6 L12 — Fourier Series](../../tier-6-undergrad-advanced/12-fourier-series/index.qmd)** (for the harmonic analysis idea)
+
+### What this unlocks
+
+- Graduate study of arithmetic geometry, automorphic forms,
+  representation theory, and modern number theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**Mathematical research.** The most ambitious unification programme in
+modern mathematics. Driver of much of pure math today.
+:::
+
+::: {.applied-callout}
+**Theoretical physics.** Geometric Langlands ↔ $S$-duality in
+super Yang-Mills (Kapustin-Witten); strings, branes, mirror symmetry.
+:::
+
+::: {.applied-callout}
+**Cryptography (indirect).** Modularity / Galois reps / class field
+theory inform constructions in pairing-based and isogeny-based crypto.
+:::
+
+::: {.applied-callout}
+**The journey continues.** This lesson concludes the curriculum — but
+mathematics is bottomless. The ideas you've gathered here are tools.
+Use them.
+:::
+
+::: {.callout-tip}
+## Curriculum Complete
+
+You've traversed seven tiers — from grade-5 numbers to the Langlands
+program. Whatever you choose to study next, the *six-beat* habit —
+**Touch, Wonder, Discover, Name, Apply, Connect** — is yours.
+:::
