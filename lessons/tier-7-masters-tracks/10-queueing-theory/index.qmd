@@ -1,0 +1,366 @@
+---
+title: "10 · Queueing Theory and Performance Modelling"
+subtitle: "Why your service slows down catastrophically — and the math that predicts it."
+lesson-id: "t7.queueing-theory"
+tier: 7
+prerequisites: ["t5.continuous-distributions", "t5.linear-algebra-foundation"]
+unlocks: []
+applied-domains: ["systems"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L12 — Continuous Distributions](../../tier-5-undergrad-core/12-continuous-distributions/index.qmd)?
+2. Recall: exponential distribution, Poisson process.
+3. Comfortable with random variables and expectations?
+:::
+
+## Touch
+
+A web server handling requests. Arrivals are random; service times
+vary. **What's the average wait time?**
+
+```{ojs}
+viewof rho = Inputs.range([0.1, 0.99], {value: 0.7, step: 0.01, label: "Utilization ρ:"})
+```
+
+```{ojs}
+{
+  const W_q = rho / (1 - rho);
+  const L_q = rho * rho / (1 - rho);
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.0rem; color:#1a237e;">
+      M/M/1 queue at utilization ρ = ${rho.toFixed(2)}:
+    </div>
+    <div style="font-family:monospace; font-size:0.95rem; color:#444;">
+      Mean queue length L_q = ρ²/(1-ρ) = ${L_q.toFixed(2)}
+    </div>
+    <div style="font-family:monospace; font-size:0.95rem; color:${rho > 0.85 ? "#b71c1c" : "#1b5e20"};">
+      Mean wait W_q = ρ/(1-ρ) × service-time = ${W_q.toFixed(2)} × s
+    </div>
+    <div style="font-family:monospace; font-size:0.85rem; color:#888;">
+      ${rho > 0.85 ? "⚠ Above 85% utilization — wait times explode!" : "✓ Below knee of the curve."}
+    </div>
+  </div>`;
+}
+```
+
+The wait time blows up *non-linearly* as utilization → 100%.
+
+## Wonder
+
+1. **Little's Law** $L = \lambda W$: items in system = arrival rate ×
+   average time spent.
+2. **Pollaczek-Khinchine** + variants: explicit formulas for various
+   queueing disciplines.
+3. **Why utilization > 80%** is a danger zone.
+
+## Discover
+
+### Problem 1
+
+A **Poisson arrival process** with rate $\lambda$: inter-arrival times
+$\sim \text{Exp}(\lambda)$, i.i.d.
+
+If arrivals are Poisson($\lambda$), what's $P(N(t) = n)$?
+
+<details class="hint"><summary>Full solution</summary>
+$P(N(t) = n) = \frac{(\lambda t)^n}{n!} e^{-\lambda t}$.
+
+Memoryless property of exponential: $P(\text{wait} > s + t \mid \text{wait} > s) = P(\text{wait} > t)$.
+
+Crucial: this enables Markovian analysis of queues.
+</details>
+
+### Problem 2
+
+**M/M/1 queue:** Markovian arrivals (rate $\lambda$), Markovian service
+(rate $\mu$), 1 server, infinite buffer.
+
+Define $\rho = \lambda/\mu$ (utilization). At steady state:
+$$
+P(\text{n in system}) = (1 - \rho) \rho^n.
+$$
+
+Derive expected number in system $L$.
+
+<details class="hint"><summary>Full solution</summary>
+$L = \sum_{n=0}^\infty n (1-\rho) \rho^n = (1-\rho) \rho \sum n \rho^{n-1} = (1-\rho) \rho \cdot \frac{1}{(1-\rho)^2} = \frac{\rho}{1-\rho}$.
+
+For $\rho = 0.5$: $L = 1$.
+For $\rho = 0.9$: $L = 9$.
+For $\rho = 0.99$: $L = 99$.
+
+**Hyperbolic explosion** as $\rho \to 1$.
+</details>
+
+### Problem 3
+
+**Little's Law.** For *any* stationary queue:
+$$
+L = \lambda W,
+$$
+where $L$ = avg # in system, $\lambda$ = arrival rate, $W$ = avg time
+in system.
+
+Apply to M/M/1: derive $W$.
+
+<details class="hint"><summary>Full solution</summary>
+$W = L / \lambda = \frac{\rho/(1-\rho)}{\lambda} = \frac{1}{\mu - \lambda}$.
+
+For $\mu = 10$, $\lambda = 9$: $W = 1$. For $\lambda = 9.9$: $W = 10$.
+For $\lambda = 9.99$: $W = 100$.
+
+**Little's Law is the most useful identity in performance modelling.**
+Holds for any stationary system — independent of arrival/service
+distributions.
+</details>
+
+### Problem 4
+
+**Pollaczek-Khinchine formula** (M/G/1 — Markovian arrivals, *general*
+service distribution):
+$$
+W_q = \frac{\lambda \mathbb{E}[S^2]}{2(1 - \rho)}.
+$$
+
+How does service-time *variance* affect wait?
+
+<details class="hint"><summary>Full solution</summary>
+Note $\mathbb{E}[S^2] = \text{Var}(S) + (\mathbb{E}[S])^2$. So
+$$
+W_q = \frac{\rho^2 (1 + C_v^2)}{2(1 - \rho)} \cdot \mathbb{E}[S]
+$$
+where $C_v = \sigma_S / \mathbb{E}[S]$ is the coefficient of variation.
+
+**Variance hurts.** Doubling variance doubles wait time at fixed
+utilization.
+
+Intuition: a single long request blocks subsequent ones (especially
+under FIFO).
+</details>
+
+### Problem 5
+
+**Why is high utilization dangerous?** Plot $W_q(\rho)$ for M/M/1.
+
+<details class="hint"><summary>Full solution</summary>
+$W_q = \rho/((1-\rho)\mu) \cdot \mathbb{E}[S] = \rho/(1-\rho) \cdot \mathbb{E}[S]$.
+
+$\rho = 0.5$: wait = 1× service.
+$\rho = 0.8$: wait = 4×.
+$\rho = 0.9$: wait = 9×.
+$\rho = 0.99$: wait = 99×.
+
+**Knee of the curve** ≈ 80%. Above, latency variance also explodes.
+
+Practical implication: capacity-plan for $\rho \leq 0.7-0.8$. Saturated
+systems see super-linear latency growth.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Kendall notation** $A/S/c$: arrival/service distribution + servers.
+
+- M = Markovian (Poisson arrivals or exponential service).
+- D = deterministic.
+- G = general.
+
+**Utilization** $\rho = \lambda / (c \mu)$.
+
+**Little's Law:** $L = \lambda W$. Always holds in steady state.
+
+**M/M/1:** $L = \rho/(1-\rho)$, $W = 1/(\mu - \lambda)$, $W_q = \rho W$.
+
+**M/M/c (multi-server):** Erlang C formula for $P(\text{wait} > 0)$.
+
+**M/G/1 (Pollaczek-Khinchine):**
+$$W_q = \frac{\lambda \mathbb{E}[S^2]}{2(1-\rho)} = \frac{\rho^2(1 + C_v^2)}{2(1-\rho)} \mathbb{E}[S].$$
+
+**Burke's theorem:** for stable M/M/c, departure process is also
+Poisson($\lambda$). (Composability!)
+
+**Jackson networks:** if each station is M/M/c and routing is
+Markovian, the joint stationary distribution factorises.
+
+**Operational laws** (independent of distributions): Little's, forced
+flow, response-time law.
+
+**Heavy traffic:** $\rho \to 1$ → diffusion approximation, reflected
+Brownian motion.
+
+:::
+
+> *Little's law L = λW always holds;*
+> *M/M/1 wait = ρ/(1−ρ) — explodes near 1;*
+> *Variance hurts: P-K formula scales with C_v² + 1.*
+
+## Apply
+
+### Worked example
+
+> **Web server.** 100 req/sec arrival rate (Poisson), service time
+> mean 8 ms, std-dev 4 ms. Single thread.
+
+$\rho = \lambda \cdot \mathbb{E}[S] = 100 \times 0.008 = 0.8$.
+$C_v^2 = (4/8)^2 = 0.25$.
+
+P-K: $W_q = \frac{0.8^2 (1 + 0.25)}{2 (1 - 0.8)} \cdot 0.008 = \frac{0.8 \cdot 1.25}{0.4} \cdot 0.008 = 2.5 \cdot 0.008 = 0.02$ s = **20 ms wait**.
+
+Total response: 8 ms service + 20 ms wait = 28 ms. Median user OK; tail
+latency much worse.
+
+To halve wait: reduce ρ (add capacity), or reduce variance (cap
+expensive operations).
+
+### Practice — Warm
+
+**W1.** What's $\mathbb{E}[\text{Exp}(\mu)]$?
+
+<details class="hint"><summary>Full solution</summary>
+$1/\mu$.
+</details>
+
+**W2.** If $\rho = 0.5$ in M/M/1, what's $L_q$?
+
+<details class="hint"><summary>Full solution</summary>
+$L_q = \rho^2/(1-\rho) = 0.25/0.5 = 0.5$.
+</details>
+
+**W3.** Does Little's Law need exponential assumptions?
+
+<details class="hint"><summary>Full solution</summary>
+**No.** Holds for any stationary system regardless of distributions.
+</details>
+
+### Practice — Working
+
+**P1.** Why does **load balancing** with $c$ servers beat $c$ separate
+M/M/1 queues?
+
+<details class="hint"><summary>Full solution</summary>
+$c$ separate queues at $\rho$ each: each has $L = \rho/(1-\rho)$;
+total wait $\sim \rho/(1-\rho)$.
+
+One M/M/c with same total $\rho$: shorter wait — server idleness can
+absorb a single long request.
+
+Hence: **single shared queue** + multiple servers (load balancer)
+beats sticky routing.
+</details>
+
+**P2.** What's the **tail-latency problem** in distributed systems?
+
+<details class="hint"><summary>Full solution</summary>
+For one server, P99 is bad but rare. For $n$ replicas in series, P99
+of *each* contributes — total P99 ≈ $1 - (1 - 0.01)^n \approx 0.01n$.
+
+For $n = 100$: 63% of requests hit *some* P99. Fan-out + per-stage
+variance = compounded tail.
+
+Mitigations: hedged requests, request cancellation, jitter.
+
+Dean & Barroso, "The Tail at Scale" (Google, 2013).
+</details>
+
+**P3.** **Throughput vs latency trade-off.** Why can you not maximise
+both?
+
+<details class="hint"><summary>Full solution</summary>
+Throughput maxed at high $\rho$; latency minimised at low $\rho$. P-K
+wait grows with $\rho$.
+
+Cannot have both:
+
+- High $\rho$ → high utilization → throughput-good but latency-bad.
+- Low $\rho$ → idle capacity → latency-good but throughput-bad.
+
+Capacity planning: pick a target P99 latency, work backward to max
+$\rho$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Network of queues** — Jackson's theorem.
+
+<details class="hint"><summary>Full solution</summary>
+For a network of M/M/c stations with Poisson external arrivals and
+Markovian routing, the joint stationary distribution is the *product*
+of per-station M/M/c distributions.
+
+Each station looks "independent" to the user. Practical: simulate /
+analyse multi-tier services as a Jackson network.
+
+Caveat: Jackson assumes Markovian routing; non-trivial state-dependent
+routing breaks it.
+</details>
+
+**S2.** **Diffusion / heavy-traffic approximation.**
+
+<details class="hint"><summary>Full solution</summary>
+Near $\rho = 1$, scaled queue length converges to **reflected
+Brownian motion** (Iglehart-Whitt). Lets you analyse intractable
+queues by approximating with a tractable diffusion.
+
+Tools: Skorohod's reflection mapping, Brownian limits.
+
+Heavy traffic + large-deviations theory → modern performance modelling
+(Sigman, Whitt, Harrison).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Higher utilization = better."** Latency-wise: no. Above 80%, P99
+   explodes.
+2. **"Adding servers always helps."** Yes for $\rho < 1$; if traffic
+   is bursty, may not be enough.
+3. **"Little's law needs Markov."** No — pure conservation law.
+:::
+
+### Self-Assessment
+
+1. State Little's Law.
+2. Why does M/M/1 latency blow up near 100% utilization?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: $L = \lambda W$ — items in system = arrival rate × time in
+system.)
+
+- **3 yes:** ready for **[11 · Formal Methods](../11-formal-methods/index.qmd)**.
+- **2 yes:** redo **P2** (tail latency).
+- **0–1 yes:** re-read *Discover P3 and P4*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L12 — Continuous Distributions](../../tier-5-undergrad-core/12-continuous-distributions/index.qmd)**
+- **[T5 L02 — Linear Algebra Foundation](../../tier-5-undergrad-core/02-linear-algebra-foundation/index.qmd)**
+
+### What this unlocks
+
+- Stochastic processes, Markov chains in continuous time.
+- Performance modelling, capacity planning.
+
+### Where this matters
+
+::: {.applied-callout}
+**Systems engineering.** Capacity planning, SLO design, latency
+budgeting.
+:::
+
+::: {.applied-callout}
+**Cloud / Distributed systems.** Auto-scaling, load balancers, tail
+latency.
+:::
+
+::: {.applied-callout}
+**Operations research.** Call centres, hospitals, manufacturing,
+airports.
+:::
