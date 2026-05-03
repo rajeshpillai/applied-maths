@@ -1,0 +1,392 @@
+---
+title: "Multiplication as Area"
+subtitle: "Two numbers, one rectangle"
+lesson-id: "t1.multiply-as-area"
+tier: 1
+prerequisites: ["t1.add-subtract"]
+unlocks: ["t1.divide-fair-share", "t1.area-perimeter-volume", "t1.intro-variables"]
+applied-domains: ["game-dev", "ai-ml"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute $7 + 7 + 7 + 7$ in your head? (= 28)
+2. Have you done [Lesson 4 — Addition & Subtraction, Re-grounded](../04-add-subtract/index.qmd)?
+3. Do you know your "times tables" up to about $7 \times 7$ — even
+   roughly?
+
+(3) helps but is not required — multiplication tables are *summaries* of
+what you will derive in this lesson.
+:::
+
+## Touch
+
+Drag the sliders to set the **width** and **height** of a rectangle. Count
+the small squares inside.
+
+```{ojs}
+viewof width = Inputs.range([1, 10], {value: 4, step: 1, label: "Width:"})
+```
+
+```{ojs}
+viewof height = Inputs.range([1, 8], {value: 3, step: 1, label: "Height:"})
+```
+
+```{ojs}
+{
+  const cellSize = 36, gap = 2, pad = 30;
+  const W = pad * 2 + 10 * (cellSize + gap);
+  const H = pad * 2 + 8 * (cellSize + gap) + 30;
+  const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`)
+    .attr("style", "width:100%; max-width:560px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px;");
+  const product = width * height;
+
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < width; col++) {
+      svg.append("rect")
+        .attr("x", pad + col * (cellSize + gap))
+        .attr("y", pad + row * (cellSize + gap))
+        .attr("width", cellSize).attr("height", cellSize)
+        .attr("fill", "#90caf9").attr("stroke", "#2c5f7c").attr("stroke-width", 1);
+    }
+  }
+  // Count label
+  svg.append("text")
+    .attr("x", pad + width * (cellSize + gap) / 2)
+    .attr("y", pad + height * (cellSize + gap) + 22)
+    .attr("text-anchor", "middle").attr("font-size", "16").attr("font-weight", "bold").attr("fill", "#1f2933")
+    .text(`${width} × ${height} = ${product} squares`);
+  return svg.node();
+}
+```
+
+That number — the count of small squares — is **width × height**. We call
+it **the product**. Multiplication is the recipe for that count.
+
+## Wonder
+
+1. If you swap the width and the height (4 × 3 vs. 3 × 4), does the count
+   change? Why or why not?
+2. What does $0 \times 5$ look like as a rectangle? What is the count?
+3. The widget caps at 10 × 8. Could you draw 100 × 100? How many squares
+   would that be?
+
+## Discover
+
+### Problem 1
+
+Set the slider to width 4, height 3. Count the squares — first by *rows*,
+then by *columns*. Did you get the same number? Should you?
+
+<details class="hint"><summary>Full solution</summary>
+**Yes — 12 either way.** Counting by rows: 3 rows of 4 = $4 + 4 + 4 = 12$.
+Counting by columns: 4 columns of 3 = $3 + 3 + 3 + 3 = 12$. They must
+agree, because *the squares didn't move*. This is why
+$$3 \times 4 = 4 \times 3.$$
+Multiplication is **commutative**, just like addition. The picture proves
+it.
+</details>
+
+### Problem 2
+
+Compute $6 \times 7$ without looking up a times table. Use repeated
+addition.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$6 \times 7$ means "six rows of seven" or equivalently "seven rows of six".
+Either repeated addition works. The smaller number of additions is
+faster.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7 + 7 + 7 + 7 + 7 + 7 = 42$, or equivalently $6 + 6 + 6 + 6 + 6 + 6 + 6 =
+42$. **$6 \times 7 = 42$.**
+
+Times tables are just *memorised* answers to these counts. Once memorised,
+they save the repeated additions — but the rectangle is always there
+beneath the table.
+</details>
+
+### Problem 3
+
+A floor tile is a square 1 metre on each side. A room measures **8 m by
+5 m**. How many tiles does it take to cover the floor?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is *literally* the rectangle picture above, scaled up.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$8 \times 5 = 40$ tiles. The "small squares" of the widget are now
+1-metre tiles. **Area is multiplication made visible.**
+</details>
+
+### Problem 4
+
+Imagine a rectangle whose width is **23** and whose height is **5**. What
+is the count?
+
+You don't have the widget for that — too big. But you can split the
+rectangle into two pieces.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Split the width 23 into 20 + 3. Now you have two smaller rectangles:
+20 × 5 and 3 × 5.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$23 \times 5 = (20 + 3) \times 5 = 20 \times 5 + 3 \times 5 = 100 + 15 = 115$.
+
+You just used the **distributive law** without anyone naming it. Picture:
+the 23 × 5 rectangle, split by a vertical line, becomes two rectangles
+sitting side by side. Their squares add up to the same total. We will
+name this property properly in
+[Lesson 11: Variables](../11-intro-variables/index.qmd).
+</details>
+
+### Problem 5
+
+What does **$0 \times 5$** look like as a rectangle? What is the count?
+
+What does **$1 \times 5$** look like?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Width 0 means... no width.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**$0 \times 5$:** the rectangle has no width. It collapses to a line
+segment with zero squares. $0 \times 5 = 0$.
+
+**$1 \times 5$:** a single column of 5 squares. $1 \times 5 = 5$.
+
+These give us two important rules:
+
+- **Multiplying by 0 always gives 0** (the rectangle collapses).
+- **Multiplying by 1 leaves the number unchanged** (one row of $n$ squares
+  is just $n$ squares). 1 is the *multiplicative identity*.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For two whole numbers $a$ and $b$, the **product** $a \times b$ is the
+total count of small squares in a rectangle of width $a$ and height $b$.
+
+Equivalently, $a \times b$ is "$b$ added to itself $a$ times" — the
+**repeated-addition** view.
+
+Multiplication is **commutative**: $a \times b = b \times a$.
+Multiplying by **0 gives 0**. Multiplying by **1 leaves the number
+unchanged**.
+
+:::
+
+> *To multiply is to count the squares of a rectangle;*
+> *Width times height — a single number for the whole.*
+> *Swap the sides — the count is the same.*
+> *Zero collapses; one preserves.*
+
+## Apply
+
+### Worked example
+
+> Compute $24 \times 6$.
+
+A competent solver splits the 24 into place-value chunks: $24 = 20 + 4$.
+
+1. $20 \times 6 = 120$ (because $2 \times 6 = 12$, and we are working in
+   tens).
+2. $4 \times 6 = 24$.
+3. Sum: $120 + 24 = 144$.
+
+**Answer: 144.** Picture: a rectangle 24 wide, 6 tall, sliced into a
+20 × 6 piece and a 4 × 6 piece. The two pieces together have 144 squares.
+
+This is exactly what the standard "long multiplication" algorithm does on
+paper — split by place value, multiply each chunk, add the partial
+products.
+
+### Practice — Warm
+
+**W1.** Without a calculator: $7 \times 8$, $\ 9 \times 6$, $\ 3 \times
+12$.
+
+<details class="hint"><summary>Full solution</summary>
+$7 \times 8 = 56$, $\ 9 \times 6 = 54$, $\ 3 \times 12 = 36$.
+</details>
+
+**W2.** What is $0 \times 9837$? What is $1 \times 9837$?
+
+<details class="hint"><summary>Full solution</summary>
+$0$ and $9837$. The size of the other number doesn't matter; the rules of
+multiplying by 0 and 1 are absolute.
+</details>
+
+**W3.** A garden bed is **4 m wide and 9 m long**. A bag of fertiliser
+covers **1 square metre**. How many bags do you need?
+
+<details class="hint"><summary>Full solution</summary>
+$4 \times 9 = 36$ bags.
+</details>
+
+### Practice — Working
+
+**P1.** Compute $36 \times 7$ by splitting 36 into 30 + 6.
+
+<details class="hint"><summary>Full solution</summary>
+$30 \times 7 = 210$, $\ 6 \times 7 = 42$, sum = **252**.
+</details>
+
+**P2.** A bookshelf has **5 shelves**. Each shelf holds **8 hardcovers**
+or **15 paperbacks**. If three shelves are filled with hardcovers and two
+with paperbacks, how many books total?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two multiplications, then an addition.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Hardcovers: $3 \times 8 = 24$. Paperbacks: $2 \times 15 = 30$. Total
+$24 + 30 = 54$ books.
+</details>
+
+**P3.** Compute $25 \times 4$ in your head. Then compute $25 \times 16$
+by reusing what you just found.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$16 = 4 \times 4$. So $25 \times 16 = (25 \times 4) \times 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$25 \times 4 = 100$. Then $25 \times 16 = 100 \times 4 = 400$.
+
+You just used the **associative** property: $(25 \times 4) \times 4 =
+25 \times (4 \times 4)$. The brackets can move freely. Multiplying in
+the easiest order is a powerful mental-arithmetic trick.
+</details>
+
+### Practice — Stretch
+
+**S1.** A computer screen is **1920 pixels wide** and **1080 pixels tall**
+(a "Full HD" screen). How many pixels in total?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is a rectangle picture again — width × height. Use round-number
+splitting: $1920 = 2000 - 80$, or $1920 \times 1000 + 1920 \times 80$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1920 \times 1080$. Split: $1920 \times 1000 = 1{,}920{,}000$, and
+$1920 \times 80 = 153{,}600$. Sum: **2,073,600 pixels**, often quoted as
+"about 2 megapixels".
+
+Every image, every video frame, every game render is exactly this
+rectangle — width times height — except instead of counting squares, the
+computer is choosing a colour for each one. Multiplication is the heart
+of every screen.
+</details>
+
+**S2.** Why do you think mathematicians sometimes write multiplication
+*without* the × sign — for example, $3a$ to mean $3 \times a$, or $(x+1)
+(x-2)$? When would the × sign cause confusion?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at $x \times y$ and ask: is that *one* thing or *three* things
+written together?
+</details>
+<details class="hint"><summary>Full solution</summary>
+The × sign looks confusingly like the letter $x$. Once we start using
+**variables** (letter-numbers — see [Lesson 11](../11-intro-variables/index.qmd)),
+$x \times y$ becomes ambiguous. The convention "just write the symbols
+next to each other" — *juxtaposition* — solves it: $3a$, $xy$,
+$(x+1)(x-2)$.
+
+This is one of those small notational decisions whose effects ripple
+through every later lesson in algebra, calculus, and beyond.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Multiplication is just repeated addition."** It is — for whole
+   numbers. But once we extend to fractions, decimals, and negatives, the
+   *rectangle picture* survives where the *repeated-addition picture*
+   breaks down. ("How do you add 0.5 to itself 0.3 times?") The geometric
+   view is the more general one.
+2. **"$a \times b$ is bigger than both $a$ and $b$."** True only when both
+   are bigger than 1. $0.5 \times 4 = 2$ is *smaller* than 4. Lesson 7
+   (fractions) and Lesson 8 (decimals) will revisit this.
+3. **"Multiplication tables are something to memorise blindly."** The
+   tables are *summaries* of the rectangles. Knowing why $7 \times 8 = 56$
+   (because seven rows of eight squares = 56 squares) means you can
+   reconstruct the answer if you forget it.
+:::
+
+### Self-Assessment
+
+1. Could you draw the picture for $5 \times 7$ on a scrap of paper, and
+   say in one sentence why $5 \times 7 = 7 \times 5$?
+2. Can you compute $36 \times 7$ in your head using place-value
+   splitting?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+- **3 yes:** ready for **[Lesson 6 — Division as Fair Share](../06-divide-fair-share/index.qmd)**.
+- **2 yes:** redo **P3** and **S1** — those exercise the splitting
+  technique.
+- **0–1 yes:** re-read *Discover, Problems 1 and 4* — the rectangle
+  picture and the splitting trick are the lesson.
+
+## Connect
+
+### Prerequisites used
+
+- **[Lesson 4 — Addition & Subtraction](../04-add-subtract/index.qmd)** —
+  multiplication is *built from* repeated addition; computing
+  partial-product sums uses the carry algorithm.
+
+### What this unlocks
+
+- **[Division as Fair Share](../06-divide-fair-share/index.qmd)** —
+  division undoes multiplication: "given the area, find a side length."
+- **[Area, Perimeter, Volume](../13-area-perimeter-volume/index.qmd)** —
+  the rectangle picture *is* area; we extend to other shapes and to 3D.
+- **[Variables](../11-intro-variables/index.qmd)** — distributivity
+  (*Discover P4*) and juxtaposition (*Stretch S2*) need names.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development & graphics.** Every screen is width × height pixels;
+every texture is a multiplication of dimensions; every image-processing
+operation is a sweep over that rectangle. Matrix multiplication — the
+engine of every 3D transform — is *rectangles of rectangles*, repeated
+many times.
+:::
+
+::: {.applied-callout}
+**AI / Machine Learning.** A neural network layer is, computationally, a
+huge matrix multiplication: a weight rectangle multiplied by an input
+vector. Modern AI training runs are measured in *trillions of
+multiplications per second*. The operation is the same one you just met;
+the scale is what's new.
+:::
+
+::: {.applied-callout}
+**Everywhere else.** Pricing (price × quantity), area (length × width),
+energy (power × time), travel (speed × time) — multiplication is the
+operation that combines two units into one. Understanding it as a
+rectangle is the difference between manipulating symbols and
+*seeing* what is going on.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (the rectangle is the canonical
+  Dienes-block picture for multiplication), Boole (the swap-the-sides
+  question surfaces commutativity before it is named), Russian school
+  (the distributive law in P4 falls out of *splitting* a rectangle),
+  Bhāskara (single-box Name + verse), Better Explained (the "Aha!"
+  framing is *area is multiplication, not the other way around*).
+- **Self-study guarantees** all present.
+:::
