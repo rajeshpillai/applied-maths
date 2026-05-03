@@ -1,0 +1,390 @@
+---
+title: "14 · Lattice-Based Post-Quantum Cryptography"
+subtitle: "When quantum computers break ECC, lattices are humanity's plan B."
+lesson-id: "t7.lattice-crypto"
+tier: 7
+prerequisites: ["t5.linear-systems-gaussian", "t1.divisibility-primes"]
+unlocks: []
+applied-domains: ["encryption", "research"]
+estimated-minutes: 25
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [T5 L03 — Vector Spaces](../../tier-5-undergrad-core/03-vector-spaces/index.qmd) and [T5 L04 — Linear Systems and Gaussian Elimination](../../tier-5-undergrad-core/04-linear-systems-gaussian/index.qmd)?
+2. Recall: bases of $\mathbb{R}^n$, modular arithmetic.
+3. Have you encountered the *closest vector problem*?
+:::
+
+## Touch
+
+A **lattice** $L \subset \mathbb{R}^n$ is a set of integer
+combinations of $n$ basis vectors. Picture: a grid, possibly skewed.
+
+Given a target point $t$ in $\mathbb{R}^n$, find the **closest lattice
+point**.
+
+```{ojs}
+viewof basisType = Inputs.select(["Orthogonal (easy)", "Skewed (hard)", "Cryptographic (very skewed)"], {value: "Skewed (hard)", label: "Basis quality:"})
+```
+
+```{ojs}
+{
+  let info, hardness;
+  switch(basisType) {
+    case "Orthogonal (easy)": info = "Orthogonal basis: nearest neighbor by rounding each coord. CVP trivial."; hardness = "Easy."; break;
+    case "Skewed (hard)": info = "Heavily-skewed basis: rounding gives wrong answer. CVP requires search."; hardness = "Hard."; break;
+    case "Cryptographic (very skewed)": info = "Lattice with deliberately bad public basis. Decryption uses good private basis."; hardness = "Trapdoor!"; break;
+  }
+  return html`<div style="margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.1rem; color:#1a237e;">${hardness}</div>
+    <div style="font-family:monospace; font-size:0.95rem; color:#444;">${info}</div>
+  </div>`;
+}
+```
+
+**The closest vector problem (CVP) is hard** in general. **The shortest
+vector problem (SVP) is hard.** And **even quantum computers don't
+crack them**. That's the basis of post-quantum cryptography.
+
+## Wonder
+
+1. **Lattices** generalise integer points; security comes from "good
+   basis vs bad basis."
+2. **Learning With Errors (LWE):** decoding noisy linear equations
+   modulo a prime. Believed quantum-hard.
+3. **Ring-LWE:** structured variant for efficiency; basis of Kyber,
+   NTRU, FALCON.
+
+## Discover
+
+### Problem 1
+
+A **lattice** $L = \{\sum a_i b_i : a_i \in \mathbb{Z}\}$ where $b_1,
+\ldots, b_n$ form a basis.
+
+Two bases of the *same* lattice can look very different. Show that
+$\mathbb{Z}^2$ has bases $\{(1, 0), (0, 1)\}$ and $\{(1, 0), (5, 1)\}$.
+
+<details class="hint"><summary>Full solution</summary>
+$(5, 1) = 5 (1, 0) + 1 (0, 1)$ — integer combination of standard
+basis. And $(1, 0), (0, 1)$ recoverable from the other: $(0, 1) =
+(5, 1) - 5 (1, 0)$.
+
+Both bases ⇒ the same lattice. But "good" basis (orthogonal)
+makes CVP easy; "bad" basis (skewed) makes CVP hard.
+
+This **basis-quality asymmetry** is the heart of lattice crypto.
+</details>
+
+### Problem 2
+
+**Closest Vector Problem (CVP).** Given basis $B$ and target $t$, find
+the closest lattice point.
+
+For orthogonal basis: trivial (round each coordinate).
+
+For skewed basis: NP-hard (in general). But "approx-CVP" with
+factor $> n$: efficient (LLL algorithm).
+
+Why does this matter for crypto?
+
+<details class="hint"><summary>Full solution</summary>
+- **Public:** bad (skewed) basis $B'$ — anyone can describe the
+  lattice but CVP is hard.
+- **Private:** good (near-orthogonal) basis $B$ — CVP becomes easy.
+
+Encryption: encode message as a lattice point + small noise. Recipient
+uses good basis to round to closest lattice point.
+
+LLL reduction (Lenstra-Lenstra-Lovász, 1982) approximates CVP — a
+**lower bound** on attack quality.
+</details>
+
+### Problem 3
+
+**Learning With Errors (LWE)** (Regev, 2005). Public:
+
+- Random $A \in \mathbb{Z}_q^{m \times n}$.
+- $b = As + e \mod q$ where $s \in \mathbb{Z}_q^n$ secret, $e \in
+  \mathbb{Z}_q^m$ small noise.
+
+Goal: recover $s$.
+
+Without noise: solvable (linear algebra). With small noise: believed
+hard.
+
+What's the connection to lattices?
+
+<details class="hint"><summary>Full solution</summary>
+$As + e \approx b$ — finding $s$ ≈ solving CVP on a specific lattice.
+
+**Regev's theorem:** breaking LWE on average ⇔ solving lattice
+problems (GapSVP, SIVP) in worst case.
+
+**Worst-case → average-case** reduction is unique to lattices among
+crypto candidates. Strong security guarantee.
+
+Believed: LWE is **quantum-hard**. Best known quantum algorithms still
+exponential.
+</details>
+
+### Problem 4
+
+**Ring-LWE.** Replace $\mathbb{Z}_q^n$ with the polynomial ring
+$\mathbb{Z}_q[x]/(x^n + 1)$.
+
+Why is this faster than vanilla LWE?
+
+<details class="hint"><summary>Full solution</summary>
+LWE: matrix $A$ has $m \cdot n$ entries; ciphertext is $O(n)$.
+
+Ring-LWE: $A$ a single polynomial; multiplication via NTT (Number
+Theoretic Transform — analogue of FFT). $O(n \log n)$ vs $O(n^2)$.
+
+Trade-off: structured assumption (Ring-LWE) is *stronger* than LWE
+(more attack surface) — but most attacks haven't found significantly
+better algorithms.
+
+**Module-LWE** (Kyber): a balance of efficiency and security.
+</details>
+
+### Problem 5
+
+**Why post-quantum?** Shor's algorithm (1994) factors integers and
+solves discrete log on a quantum computer in polynomial time.
+
+⇒ RSA broken, ECC broken, Diffie-Hellman broken (when large quantum
+computers exist).
+
+Lattice problems: no known polynomial-time quantum algorithm.
+
+What's the NIST PQC standardization outcome?
+
+<details class="hint"><summary>Full solution</summary>
+**NIST PQC competition (2016–2024):**
+
+- **CRYSTALS-Kyber** (Module-LWE) — primary KEM. **FIPS 203, 2024**.
+- **CRYSTALS-Dilithium** (Module-SIS / Module-LWE) — primary signature.
+  **FIPS 204, 2024**.
+- **FALCON** (NTRU lattice) — alternate signature. Faster but more
+  complex.
+- **SPHINCS+** (hash-based) — backup signature, not lattice-based.
+
+**Web is migrating** (Cloudflare, Google, Apple are deploying hybrid
+classical+PQC TLS).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Lattice** $L \subset \mathbb{R}^n$: discrete subgroup of full rank.
+$L = B \mathbb{Z}^n$ for basis $B$.
+
+**Hard problems:**
+
+- **SVP** (Shortest Vector): find shortest non-zero vector. NP-hard
+  (Ajtai 1998). $\gamma$-approx-SVP for poly $\gamma$: also believed
+  hard.
+- **CVP** (Closest Vector): given target, find closest lattice point.
+- **LWE** (Learning With Errors): decode $b = As + e \mod q$, $e$
+  small.
+- **Ring-LWE / Module-LWE:** structured.
+
+**Regev's worst-case to average-case reduction:** breaking LWE → solving
+worst-case lattice problems.
+
+**LLL algorithm:** poly-time approx-SVP factor $2^{n/2}$. Foundational.
+
+**Schemes:**
+
+- **NTRU** (1996, Hoffstein-Pipher-Silverman). Trapdoor lattice.
+- **GGH** (1997). Broken (1999).
+- **Regev's LWE encryption** (2005).
+- **CRYSTALS-Kyber** — NIST FIPS 203.
+- **CRYSTALS-Dilithium** — NIST FIPS 204.
+- **FALCON, NTRU.**
+- **Fully Homomorphic Encryption** (Gentry 2009): based on lattice
+  assumptions.
+
+**Post-quantum:** secure against quantum computers (no known polytime
+quantum algorithm for lattice problems).
+
+:::
+
+> *Lattice = integer combinations of basis vectors;*
+> *Good basis solves CVP, bad basis doesn't;*
+> *LWE / Ring-LWE: post-quantum hard, even quantum.*
+
+## Apply
+
+### Worked example
+
+> **Kyber-512 KEM.** Module-LWE with $n = 256$, $k = 2$, modulus $q = 3329$.
+
+Key gen:
+
+- Sample $A \in R_q^{k \times k}$ where $R_q = \mathbb{Z}_q[x]/(x^{256} + 1)$.
+- Sample small $s, e \in R_q^k$ (small coefficients).
+- Public key: $(A, t = As + e)$.
+
+Encapsulate:
+
+- Sample small $r, e_1, e_2$.
+- $u = A^T r + e_1$.
+- $v = t^T r + e_2 + \lfloor q/2 \rfloor m$ (encode message $m$).
+
+Decapsulate: $v - s^T u$ ≈ $\lfloor q/2 \rfloor m + \text{noise}$ →
+round to recover $m$.
+
+Security: ~128 quantum bits at small public-key size (~800 bytes).
+
+### Practice — Warm
+
+**W1.** Is $\mathbb{Z}^n \subset \mathbb{R}^n$ a lattice?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — the standard integer lattice. Basis: standard basis vectors.
+</details>
+
+**W2.** What does LLL produce?
+
+<details class="hint"><summary>Full solution</summary>
+A "reduced" basis — short, near-orthogonal. Good enough for many
+applications, including some crypto attacks.
+</details>
+
+**W3.** What's the role of *noise* in LWE?
+
+<details class="hint"><summary>Full solution</summary>
+Noise prevents linear-algebra recovery; turns a linear system into a
+hard decoding problem.
+</details>
+
+### Practice — Working
+
+**P1.** Why is **NTRU** older than LWE but still relevant?
+
+<details class="hint"><summary>Full solution</summary>
+NTRU (1996) predates LWE (2005). Cryptosystem in $\mathbb{Z}[x]/(x^n - 1)$.
+
+Doesn't have Regev's worst-case reduction — security relies on
+specific hardness assumption. But: practical, fast, broadly studied.
+
+NTRU and Falcon (lattice signatures) use NTRU lattices. Kyber is
+Module-LWE — distinct lineage.
+</details>
+
+**P2.** What's **Fully Homomorphic Encryption (FHE)**?
+
+<details class="hint"><summary>Full solution</summary>
+Operations on ciphertexts → ciphertexts of computed result.
+
+$\text{Enc}(a) + \text{Enc}(b) = \text{Enc}(a + b)$ (additive homomorphic).
+
+FHE: arbitrary circuits. Enables computing on encrypted data without
+seeing it.
+
+Gentry (2009): first construction. Modern: BGV, BFV, CKKS, TFHE — all
+based on (Ring)-LWE.
+
+Applications: privacy-preserving ML inference, secure cloud computing.
+Slow today (1000s× overhead), but improving.
+</details>
+
+**P3.** Why is **constant-time implementation** essential for lattice
+crypto?
+
+<details class="hint"><summary>Full solution</summary>
+Branching on secret data leaks info via timing side-channels.
+
+Many proposed schemes break in practice due to timing leaks (e.g., the
+GGH scheme).
+
+Constant-time NTT, modular reduction, sampling — all required.
+Implemented in Kyber and Dilithium reference code.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Why is LLL one of the most consequential algorithms?**
+
+<details class="hint"><summary>Full solution</summary>
+Lenstra-Lenstra-Lovász (1982): polynomial-time approx-SVP, factor
+$2^{n/2}$.
+
+Applications: factoring polynomials over $\mathbb{Q}$, knapsack
+cryptanalysis, Coppersmith's method (RSA attacks), integer relation
+finding (PSLQ).
+
+LLL turns "give up — too many vectors" into "search efficiently in
+the reduced lattice." Central to algorithmic number theory.
+</details>
+
+**S2.** **The post-quantum migration timeline.**
+
+<details class="hint"><summary>Full solution</summary>
+- **2024:** NIST FIPS 203/204/205 finalised. Major TLS libraries
+  (Google, Cloudflare, Apple) deploy hybrid classical+PQC.
+- **2030 (target):** US federal CNSA 2.0 deadline for PQC.
+- **"Harvest now, decrypt later":** adversaries collecting encrypted
+  traffic now to decrypt when quantum computers arrive. Hence: migrate
+  *before* quantum is real.
+- **Quantum estimate:** breaking RSA-2048 needs ~20M physical qubits
+  (Gidney-Ekerå 2021). Current systems: ~1000 qubits.
+- **Window:** maybe a decade. Migrate now.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Lattice crypto = ECC for quantum era."** Different math. ECC
+   uses elliptic-curve groups; lattice crypto uses geometric / algebraic
+   number-theoretic structures.
+2. **"Bigger keys = better security."** True up to a point. PQC keys
+   are larger than ECC (~1KB vs ~32 bytes); engineering trade-off.
+3. **"Quantum already breaks crypto."** Not yet — Shor needs many
+   logical qubits. But cryptographic agility now is essential.
+:::
+
+### Self-Assessment
+
+1. State the LWE problem.
+2. Why are lattice problems believed quantum-hard?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems?
+
+(Answer: given $b = As + e \mod q$ with small $e$, recover $s$.)
+
+- **3 yes:** ready for **[15 · The Langlands Program](../15-langlands-program/index.qmd)**.
+- **2 yes:** redo **P2** (FHE).
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[T5 L04 — Linear Systems and Gaussian Elimination](../../tier-5-undergrad-core/04-linear-systems-gaussian/index.qmd)**
+- **[T7 L12 — Algebraic Number Theory](../12-algebraic-number-theory/index.qmd)** (for ring-LWE on $\mathcal{O}_K$).
+
+### What this unlocks
+
+- Modern PQC standards; FHE; identity-based crypto.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** Standard for post-quantum security.
+:::
+
+::: {.applied-callout}
+**Privacy-preserving computing.** FHE enables secure outsourced
+computation.
+:::
+
+::: {.applied-callout}
+**National security.** Migration to PQC is a major government and
+industry priority.
+:::
