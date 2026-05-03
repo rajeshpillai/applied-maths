@@ -1,0 +1,342 @@
+---
+title: "13 · Basic Probability"
+subtitle: "Quantifying chance — favourable over total"
+lesson-id: "t3.basic-probability"
+tier: 3
+prerequisites: ["t3.combinatorics-counting", "t1.fractions-as-parts"]
+unlocks: ["t3.conditional-probability", "t3.discrete-distributions"]
+applied-domains: ["ai-ml", "research", "databases"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [11 · Combinatorics](../11-combinatorics-counting/index.qmd)
+   and [T1 L07 — Fractions](../../tier-1-foundations/07-fractions-as-parts/index.qmd)?
+2. Comfortable with $\binom{n}{r}$ and the multiplication principle?
+3. Have you ever predicted "70% chance of rain" or "1 in 14 million
+   to win the lottery"?
+:::
+
+## Touch
+
+Pick a die-roll outcome. The widget shows the **probability** as a
+fraction and a percentage.
+
+```{ojs}
+viewof event = Inputs.select(["roll a 6", "roll an even number", "roll greater than 4", "roll a 7", "roll any number 1–6"], {value: "roll a 6", label: "Event:"})
+```
+
+```{ojs}
+{
+  let favourable, total = 6;
+  switch(event) {
+    case "roll a 6": favourable = 1; break;
+    case "roll an even number": favourable = 3; break; // 2, 4, 6
+    case "roll greater than 4": favourable = 2; break; // 5, 6
+    case "roll a 7": favourable = 0; break;
+    case "roll any number 1–6": favourable = 6; break;
+  }
+  const p = favourable / total;
+  return html`<div style="text-align:center; margin: 1rem 0;">
+    <div style="font-family:monospace; font-size:1.4rem;">
+      P(event) = <span style="color:#c2185b; font-weight:bold;">${favourable}/${total}</span>
+      = <span style="color:#1565c0; font-weight:bold;">${p.toFixed(3)}</span>
+      = <span style="color:#2e7d32; font-weight:bold;">${(p * 100).toFixed(1)}%</span>
+    </div>
+    <div style="font-family:monospace; margin-top:0.4rem; color:#666;">
+      ${favourable} favourable outcomes out of ${total} possible
+    </div>
+  </div>`;
+}
+```
+
+Probability of an event = (favourable outcomes) / (total possible
+outcomes) — when each outcome is **equally likely**. Always between 0
+(impossible) and 1 (certain).
+
+## Wonder
+
+1. P(roll a 6) = 1/6. What's P(*not* a 6)?
+2. P(roll an even number) + P(roll an odd number) = ?
+3. Roll *two* dice. What's P(sum = 7)? More or less than P(sum = 12)?
+
+## Discover
+
+### Problem 1
+
+A bag contains 3 red and 2 blue balls. Pick one at random. What is
+P(red)? P(blue)?
+
+<details class="hint"><summary>Full solution</summary>
+P(red) = 3/5 = 0.6. P(blue) = 2/5 = 0.4. Sum is 1 (one of the two
+must occur).
+</details>
+
+### Problem 2
+
+Roll two fair six-sided dice. What is the **sample space** (set of
+all outcomes)? How big is it?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each die independently: 6 outcomes. Multiplication principle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\{(1,1), (1,2), \ldots, (6,6)\}$. **36 outcomes.** Each is equally
+likely (1/36).
+
+The sample space is "all possible outcomes." Probability is computed
+relative to it.
+</details>
+
+### Problem 3
+
+Two dice are rolled. What is P(sum = 7)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+List the favourable outcomes: $(1,6), (2,5), (3,4), (4,3), (5,2),
+(6,1)$ — 6 outcomes.
+</details>
+<details class="hint"><summary>Full solution</summary>
+P(sum = 7) = 6/36 = 1/6 ≈ 0.167.
+
+Sum 7 is the **most likely** sum. P(sum = 12) = 1/36 (only $(6,6)$).
+P(sum = 2) = 1/36 (only $(1,1)$). The middle sums are favoured because
+more pairs add to them.
+</details>
+
+### Problem 4
+
+A standard 52-card deck. P(drawing a heart)? P(drawing an ace)?
+P(drawing the ace of hearts)?
+
+<details class="hint"><summary>Full solution</summary>
+P(heart) = 13/52 = 1/4.
+P(ace) = 4/52 = 1/13.
+P(ace of hearts) = 1/52.
+
+Notice: P(ace AND heart) = 1/52 = P(ace) × P(heart) = $1/13 \cdot 1/4
+= 1/52$. The two attributes (rank, suit) are *independent* (Lesson 14).
+</details>
+
+### Problem 5
+
+Toss a fair coin 3 times. P(exactly 2 heads)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total outcomes: $2^3 = 8$. Favourable: HHT, HTH, THH — that's
+$\binom{3}{2} = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+P(exactly 2 heads in 3 tosses) = $\binom{3}{2}/2^3 = 3/8 = 0.375$.
+
+Combinatorics returns: $\binom{3}{2}$ counts the *which-toss-is-tails*
+choices. This is the **binomial probability** with $n = 3, k = 2,
+p = 1/2$ — formal in [Lesson 15](../15-discrete-distributions/index.qmd).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **sample space** $S$ is the set of all possible outcomes of an
+experiment. An **event** $E$ is a subset of $S$.
+
+For an experiment with **equally likely outcomes**:
+$$P(E) = \dfrac{|E|}{|S|} = \dfrac{\text{favourable}}{\text{total}}.$$
+
+**Properties:**
+
+- $0 \le P(E) \le 1$.
+- $P(\emptyset) = 0$ (impossible event).
+- $P(S) = 1$ (something happens).
+- $P(\text{not } E) = 1 - P(E)$ (the **complement rule**).
+- For two **mutually exclusive** events $E_1, E_2$ (no overlap):
+  $P(E_1 \text{ or } E_2) = P(E_1) + P(E_2)$.
+- For any two events: $P(E_1 \cup E_2) = P(E_1) + P(E_2) - P(E_1 \cap E_2)$
+  (the **inclusion–exclusion principle**).
+
+:::
+
+> *Probability = favourable / total (for equally likely outcomes);*
+> *Always between 0 and 1; sum over all outcomes is 1;*
+> *Complement rule: $P(\text{not } E) = 1 - P(E)$.*
+
+## Apply
+
+### Worked example
+
+> A drawer holds 5 black socks and 3 white socks (no pairs sorted).
+> You grab 2 at random. What is P(both same colour)?
+
+A competent solver:
+
+1. **Total ways to grab 2 from 8:** $\binom{8}{2} = 28$.
+2. **Both black:** $\binom{5}{2} = 10$.
+3. **Both white:** $\binom{3}{2} = 3$.
+4. **Same colour total:** $10 + 3 = 13$.
+5. **P(same colour):** $13/28 \approx 0.464$.
+
+Or compute the *complement* — P(different colours) = $\binom{5}{1}
+\binom{3}{1} / 28 = 15/28$ — and subtract: $1 - 15/28 = 13/28$.
+
+### Practice — Warm
+
+**W1.** Roll a die. P(1 or 2)?
+
+<details class="hint"><summary>Full solution</summary>
+2/6 = 1/3.
+</details>
+
+**W2.** Bag with 4 red, 6 blue marbles. P(blue)?
+
+<details class="hint"><summary>Full solution</summary>
+6/10 = 3/5.
+</details>
+
+**W3.** P(*not* a heart from a deck)?
+
+<details class="hint"><summary>Full solution</summary>
+$1 - 1/4 = 3/4$.
+</details>
+
+### Practice — Working
+
+**P1.** Two dice. P(sum is 8 or 11)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sums are mutually exclusive. P(8) + P(11).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum 8: $(2,6),(3,5),(4,4),(5,3),(6,2)$ — 5 outcomes.
+Sum 11: $(5,6),(6,5)$ — 2.
+Total favourable: 7. P = 7/36.
+</details>
+
+**P2.** From a deck of 52 cards, draw 5 without replacement. P(all 5
+are hearts)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total hands: $\binom{52}{5}$. Heart hands: $\binom{13}{5}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\binom{13}{5}}{\binom{52}{5}} = \dfrac{1287}{2598960} \approx
+0.000495$ — about **1 in 2000**.
+</details>
+
+**P3.** A card is drawn from a deck. P(king OR red card)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Inclusion-exclusion: $P(K) + P(R) - P(K \text{ AND } R)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(K) = 4/52$. $P(R) = 26/52$. $P(K \cap R) = 2/52$ (red kings:
+heart and diamond).
+$P(K \cup R) = 4/52 + 26/52 - 2/52 = 28/52 = 7/13$.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Birthday paradox.** In a room of 23 people, the probability
+that *some pair shares a birthday* is over 50%. (Surprising!) Compute
+P(no shared birthday) for $n$ people, then 1 minus that for shared.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(\text{no shared}) = \dfrac{365}{365} \cdot \dfrac{364}{365} \cdot
+\dfrac{363}{365} \cdots \dfrac{365 - n + 1}{365}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $n = 23$:
+$P(\text{no shared}) = \prod_{k=0}^{22} \dfrac{365 - k}{365} \approx 0.4927$.
+$P(\text{shared}) \approx 0.5073$ — over 50%.
+
+The reason: it's not "your birthday matches someone's" but "some pair
+matches" — and there are $\binom{23}{2} = 253$ pairs to check, each
+with $\approx 1/365$ chance.
+
+This is the **birthday attack** in cryptography: hash collisions
+become likely much sooner than naïve intuition suggests, which is why
+hash functions must produce *much* longer outputs than one might
+think necessary.
+</details>
+
+**S2.** A spam filter classifies an email as spam if it contains
+certain keywords. The classifier predicts probability of spam $p \in
+[0, 1]$. What rule should it use to *decide*?
+
+<details class="hint"><summary>Full solution</summary>
+**Decide "spam" if $p > 0.5$, else "not spam"** — the simplest
+threshold. (Adjusted higher if false-positive cost is large, lower if
+false-negative cost is large.)
+
+This is the heart of **classification in machine learning**: a model
+outputs a probability; a threshold decides the label. The choice of
+threshold (the **decision boundary**) trades off precision and
+recall — a foundational topic in information retrieval and ML
+evaluation.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Probabilities can exceed 1."** No — never. If you compute
+   $P > 1$, recheck (probably double-counted).
+2. **"Independent and mutually exclusive are the same."** Opposite!
+   Mutually exclusive events *cannot both happen*; independent events
+   can both happen, and the joint probability factors as $P(A) \cdot
+   P(B)$.
+3. **"Probability tells what *will* happen."** It tells the *long-
+   run frequency*. A coin with P(H) = 0.5 may give 7 heads in 10
+   tosses; only over very many tosses does it converge to 0.5.
+:::
+
+### Self-Assessment
+
+1. Could you compute P(roll an odd number) on a die in your head?
+2. Without scrolling back, can you compute P(both heads in 2 tosses)?
+3. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   practice problems without peeking past *Hint 1*?
+
+(Answers: 3/6 = 1/2; 1/4.)
+
+- **3 yes:** ready for **[14 · Conditional Probability](../14-conditional-probability/index.qmd)**.
+- **2 yes:** redo **S1** (birthday paradox) — central counter-
+  intuitive result.
+- **0–1 yes:** re-read *Discover P3 and P5*.
+
+## Connect
+
+### Prerequisites used
+
+- **[11 · Combinatorics](../11-combinatorics-counting/index.qmd)**
+- **[T1 L07 — Fractions](../../tier-1-foundations/07-fractions-as-parts/index.qmd)**
+
+### What this unlocks
+
+- **[14 · Conditional Probability](../14-conditional-probability/index.qmd)** —
+  what changes when extra info is known.
+- **[15 · Discrete Distributions](../15-discrete-distributions/index.qmd)** —
+  probability functions on possible values.
+- **Tier 5 — Statistics & Probability Theory** — the rigorous version.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / Machine Learning.** Every classifier outputs probabilities.
+Many models (Naive Bayes, logistic regression) directly model
+probabilities. Calibration of predicted probabilities is a major
+subfield.
+:::
+
+::: {.applied-callout}
+**Encryption.** Birthday paradox (S1) sets fundamental limits on
+hash function size. Cryptographic security analyses are statements
+about probabilities.
+:::
+
+::: {.applied-callout}
+**Databases.** Query estimation often involves probabilistic
+analyses (selectivity estimates, sampling, sketches like
+HyperLogLog and Bloom filters).
+:::
