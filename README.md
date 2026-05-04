@@ -42,6 +42,62 @@ quarto render        # build the site into _site/
 quarto preview       # live-reload server
 ```
 
+## Deploying to GitHub Pages
+
+The site is a static Quarto build, so any GitHub Pages flow works. The
+simplest path uses Quarto's built-in publisher, which renders locally and
+pushes the output to a `gh-pages` branch.
+
+**One-time setup** (from a clean working tree):
+
+```bash
+quarto publish gh-pages
+```
+
+The first run creates the `gh-pages` branch, pushes `_site/` to it, and asks
+you to confirm. After it completes, in GitHub:
+
+1. Go to **Settings → Pages**.
+2. Under *Build and deployment*, set **Source** to *Deploy from a branch*.
+3. Pick branch `gh-pages` and folder `/ (root)`. Save.
+
+The site will be live at `https://<your-user>.github.io/applied-maths/`
+within a minute or two.
+
+**Subsequent deploys:** just run `quarto publish gh-pages` again. Quarto
+re-renders, commits to `gh-pages`, and pushes.
+
+### Alternative: GitHub Actions
+
+If you'd rather have GitHub render the site on every push to `main`, drop a
+workflow into `.github/workflows/publish.yml`:
+
+```yaml
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+name: Quarto Publish
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: quarto-dev/quarto-actions/setup@v2
+      - uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Add Python/Julia/R setup steps before `publish` if any lesson uses
+executable code blocks in those languages.
+
 ## Contributing a lesson
 
 Read [`CLAUDE.md`](CLAUDE.md) end to end. Then:
