@@ -44,33 +44,32 @@ quarto preview       # live-reload server
 
 ## Deploying to GitHub Pages
 
-The site is a static Quarto build, so any GitHub Pages flow works. The
-simplest path uses Quarto's built-in publisher, which renders locally and
-pushes the output to a `gh-pages` branch.
-
-**One-time setup** (from a clean working tree):
+The site is published from the `gh-pages` branch of this repo. A helper
+script handles the render-and-push:
 
 ```bash
-quarto publish gh-pages
+./scripts/deploy-gh-pages.sh
 ```
 
-The first run creates the `gh-pages` branch, pushes `_site/` to it, and asks
-you to confirm. After it completes, in GitHub:
+That script renders the site into `_site/`, drops a `.nojekyll` marker,
+force-pushes the build to the `gh-pages` branch on `origin`, and prints a
+summary. It reuses your existing `origin` push credentials (SSH or HTTPS),
+so no extra auth setup is needed. Override the destination by exporting
+`DEPLOY_REPO=...` before running.
 
-1. Go to **Settings → Pages**.
+**One-time GitHub setup** (only needed the first time):
+
+1. Go to **Settings → Pages** on the repo.
 2. Under *Build and deployment*, set **Source** to *Deploy from a branch*.
 3. Pick branch `gh-pages` and folder `/ (root)`. Save.
 
-The site will be live at `https://<your-user>.github.io/applied-maths/`
-within a minute or two.
-
-**Subsequent deploys:** just run `quarto publish gh-pages` again. Quarto
-re-renders, commits to `gh-pages`, and pushes.
+The site goes live at <https://rajeshpillai.github.io/applied-maths/>
+within a minute or two. After that, every deploy is just one command.
 
 ### Alternative: GitHub Actions
 
-If you'd rather have GitHub render the site on every push to `main`, drop a
-workflow into `.github/workflows/publish.yml`:
+To deploy automatically on every push to `main`, drop a workflow into
+`.github/workflows/publish.yml`:
 
 ```yaml
 on:
