@@ -19,11 +19,9 @@ estimated-minutes: 25
 
 ## Touch
 
-A **lattice** $L \subset \mathbb{R}^n$ is a set of integer
-combinations of $n$ basis vectors. Picture: a grid, possibly skewed.
-
-Given a target point $t$ in $\mathbb{R}^n$, find the **closest lattice
-point**.
+Pick a basis quality — clean, skewed, or worst-case ugly. Drop a
+target point near a grid built from that basis. The widget tells you
+whether finding the closest grid point is easy, hard, or hopeless.
 
 ```{ojs}
 viewof basisType = Inputs.select(["Orthogonal (easy)", "Skewed (hard)", "Cryptographic (very skewed)"], {value: "Skewed (hard)", label: "Basis quality:"})
@@ -44,9 +42,9 @@ viewof basisType = Inputs.select(["Orthogonal (easy)", "Skewed (hard)", "Cryptog
 }
 ```
 
-**The closest vector problem (CVP) is hard** in general. **The shortest
-vector problem (SVP) is hard.** And **even quantum computers don't
-crack them**. That's the basis of post-quantum cryptography.
+A skewed-enough basis makes this search hopeless — and *even quantum
+computers can't crack it*. That stubborn hardness is the foundation
+of post-quantum cryptography.
 
 ## Wonder
 

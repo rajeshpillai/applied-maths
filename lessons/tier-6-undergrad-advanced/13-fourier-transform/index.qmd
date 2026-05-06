@@ -19,12 +19,10 @@ estimated-minutes: 25
 
 ## Touch
 
-The **Fourier transform** generalises Fourier series from periodic
-to *arbitrary* (square-integrable) functions:
-$$\hat f(k) = \int_{-\infty}^\infty f(x) e^{-i k x} \, dx.$$
-
-The inverse:
-$$f(x) = \dfrac{1}{2\pi} \int_{-\infty}^\infty \hat f(k) e^{i k x} \, dk.$$
+Pick a function. The widget shows what frequencies are inside it —
+its *spectrum* — and reveals a striking trade-off: the more sharply
+the signal is concentrated in time, the more spread out its spectrum
+becomes.
 
 ```{ojs}
 viewof ftSel = Inputs.select(["f(x) = e^(−x²/2): Gaussian → Gaussian", "f(x) = rectangle: → sinc(k)", "f(x) = δ(x) (delta): → 1 (constant)", "f(x) = sin(ωx): → δ(k − ω) − δ(k + ω)"], {value: "f(x) = e^(−x²/2): Gaussian → Gaussian", label: "Transform pair:"})
