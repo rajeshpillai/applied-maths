@@ -1,0 +1,447 @@
+---
+title: "Ch 12 — Linear Programming"
+subtitle: "Maximise (or minimise) a linear objective under linear constraints"
+lesson-id: "cbse12.linear-programming"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 12
+ncert-chapter-title: "Linear Programming"
+board-exam: true
+prerequisites: ["cbse11.linear-inequalities", "cbse11.straight-lines"]
+unlocks: ["cbse12.conditional-probability-bayes"]
+applied-domains: ["ai-ml", "databases", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you graph $2x + 3y \le 12$ as a half-plane?
+2. Comfortable finding intersection of two lines?
+3. Have you done Class 11 linear inequalities?
+:::
+
+## Touch
+
+A potter makes mugs and bowls. A mug needs 1 hour of clay-prep and 2
+hours of glazing; a bowl needs 2 hours of prep and 1 hour of glazing.
+She has at most 8 hours of clay-prep and 7 hours of glazing weekly.
+Profit: ₹40/mug, ₹30/bowl. **How many of each should she make to
+maximise weekly profit?**
+
+::: {.lesson-beat}
+
+Let $x$ = mugs, $y$ = bowls.
+
+**Constraints:**
+\begin{align*}
+x + 2y &\le 8 \quad\text{(prep hours)}\\
+2x + y &\le 7 \quad\text{(glazing hours)}\\
+x, y &\ge 0
+\end{align*}
+
+**Objective:** maximise $Z = 40x + 30y$.
+
+The set of $(x, y)$ satisfying all four inequalities is a polygon —
+the **feasible region**. The maximum of $Z$ occurs at a **corner**
+(vertex) of this polygon.
+
+:::
+
+You graph the polygon, list its vertices, evaluate $Z$ at each, and
+pick the best.
+
+That's the entire chapter. The hardest part is the *modelling* — turning
+words into the constraint inequalities.
+
+## Wonder
+
+1. Why must the maximum lie at a vertex, not in the middle of the
+   feasible region?
+2. What if the feasible region is unbounded — could $Z$ be infinite?
+3. Could a problem have *infinitely many* optimal solutions?
+
+## Discover
+
+### Problem 1
+
+Sketch the feasible region: $x + y \le 4, x \ge 0, y \ge 0$.
+
+<details class="hint"><summary>Full solution</summary>
+Triangle with vertices $(0, 0), (4, 0), (0, 4)$.
+</details>
+
+### Problem 2
+
+For the region in Problem 1, list the vertices and evaluate $Z = 3x +
+4y$ at each. Where is the max?
+
+<details class="hint"><summary>Full solution</summary>
+$Z(0,0) = 0, Z(4, 0) = 12, Z(0, 4) = 16$. **Max 16 at $(0, 4)$.**
+</details>
+
+### Problem 3
+
+Plot the region: $x + 2y \le 8, 2x + y \le 7, x, y \ge 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find intersection of $x + 2y = 8$ and $2x + y = 7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Intersection: solve $x + 2y = 8, 2x + y = 7$. Multiply first by 2:
+$2x + 4y = 16$. Subtract: $3y = 9 \Rightarrow y = 3, x = 2$. Vertex
+$(2, 3)$.
+Also $(0, 0), (7/2, 0), (0, 4)$.
+</details>
+
+### Problem 4
+
+For the region in Problem 3, maximise $Z = 40x + 30y$.
+
+<details class="hint"><summary>Full solution</summary>
+$Z(0, 0) = 0$. $Z(7/2, 0) = 140$. $Z(2, 3) = 80 + 90 = 170$. $Z(0, 4) =
+120$. **Max 170 at $(2, 3)$ — 2 mugs, 3 bowls.**
+</details>
+
+### Problem 5
+
+Same region as Problem 3, but minimise $Z = 5x + 10y$.
+
+<details class="hint"><summary>Full solution</summary>
+Evaluate: $Z(0, 0) = 0$. **Min 0 at $(0, 0)$.** (Trivial when origin is
+in feasible region and objective is non-negative.)
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **linear programming problem (LPP)** maximises or minimises a
+**linear objective function** $Z = c_1 x_1 + c_2 x_2 + \ldots + c_n x_n$
+subject to linear **constraints** of the form $a_{i1} x_1 + \ldots +
+a_{in} x_n \le b_i$ (or $\ge$ or $=$), with $x_i \ge 0$.
+
+The set of points satisfying all constraints is the **feasible
+region**. The optimum (if it exists, and the region is bounded) is
+attained at a **vertex** of the feasible region.
+
+**Graphical method (CBSE form):**
+
+1. Translate the word problem into constraints.
+2. Sketch the feasible region.
+3. Find all vertices.
+4. Evaluate $Z$ at each vertex.
+5. Pick the vertex with the best $Z$.
+
+For **unbounded** feasible regions: check whether $Z$ has a max/min.
+The max/min may not exist; if it does, an open half-line at the optimal
+direction must lie outside the feasible region.
+
+:::
+
+A verse:
+
+> *Linear targets, linear walls — that's an LPP;*
+> *Sketch the polygon, list its corners, evaluate, see.*
+> *Maximum on a vertex — boundedness saves the day;*
+> *Unbounded? Test if the objective can run away.*
+
+## Apply
+
+### Worked example
+
+> A factory makes products A and B. A needs 2 units of resource X and
+> 3 units of Y; B needs 4 of X and 1 of Y. The factory has 16 of X and
+> 12 of Y. Profit ₹6/A, ₹5/B. Find the production plan maximising
+> profit.
+
+A competent solver:
+
+1. Variables $x = $ # of A, $y = $ # of B.
+2. Constraints: $2x + 4y \le 16, 3x + y \le 12, x, y \ge 0$.
+3. Objective: max $Z = 6x + 5y$.
+4. Vertices: $(0, 0), (4, 0), (4 - \text{compute}, ?)$.
+   Solve $2x + 4y = 16$ and $3x + y = 12$. Multiply 2nd by 4: $12x +
+   4y = 48$. Subtract: $10x = 32 \Rightarrow x = 16/5 = 3.2, y = 12 -
+   9.6 = 2.4$. Vertex $(3.2, 2.4)$.
+   Also $(0, 4)$ from $2x + 4y = 16$ at $x = 0$.
+5. Vertices: $(0, 0), (4, 0), (3.2, 2.4), (0, 4)$.
+6. $Z$: $0, 24, 19.2 + 12 = 31.2, 20$. **Max 31.2 at $(3.2, 2.4)$.**
+
+(In practice, fractional production may need integer-LP, but the
+graphical method gives the exact LP optimum.)
+
+### Practice — Warm
+
+**W1.** Sketch and list vertices: $x + y \ge 2, x + y \le 5, x, y \ge
+0$.
+
+<details class="hint"><summary>Full solution</summary>
+A trapezoidal strip. Vertices: $(2, 0), (5, 0), (0, 5), (0, 2)$.
+</details>
+
+**W2.** Find max of $Z = x + y$ on $\{(x, y): 2x + y \le 6, x + 3y \le
+9, x, y \ge 0\}$.
+
+<details class="hint"><summary>Full solution</summary>
+Vertices: $(0, 0), (3, 0), (0, 3),$ intersection of two lines: $2x + y
+= 6, x + 3y = 9 \Rightarrow x = 9/5, y = 12/5$. $Z(9/5, 12/5) = 21/5 =
+4.2$. Also $Z(3, 0) = 3, Z(0, 3) = 3$. **Max 4.2.**
+</details>
+
+**W3.** A point in the unbounded region $x + y \ge 5, x \ge 0, y \ge 0$ —
+can $Z = -x - y$ be unbounded below? Yes/no, why.
+
+<details class="hint"><summary>Full solution</summary>
+$Z = -x - y$ moves to $-\infty$ as $x + y \to \infty$. **Unbounded
+below — no minimum.**
+</details>
+
+### Practice — Working
+
+**P1.** Maximise $Z = 5x + 3y$ subject to $3x + 5y \le 15, 5x + 2y \le
+10, x, y \ge 0$.
+
+<details class="hint"><summary>Full solution</summary>
+Vertices: $(0, 0), (2, 0), $ intersection: $3x + 5y = 15, 5x + 2y =
+10$. Multiply: $6x + 10y = 30, 25x + 10y = 50$. Subtract: $19x = 20
+\Rightarrow x = 20/19, y = 45/19$. Vertex $(20/19, 45/19)$. Also
+$(0, 3)$.
+$Z$ values: $0, 10, (100 + 135)/19 = 235/19 \approx 12.37, 9$. **Max
+235/19.**
+</details>
+
+**P2.** A small dietician's mix uses food F1 (₹6/100 g, 4 g protein per
+100 g) and F2 (₹10/100 g, 6 g protein per 100 g). She wants at least 8
+g of protein at minimum cost.
+
+<details class="hint"><summary>Full solution</summary>
+$x = $ 100g units of F1, $y$ of F2. Constraints: $4x + 6y \ge 8, x, y
+\ge 0$. Objective: min $Z = 6x + 10y$. The line $4x + 6y = 8$ passes
+through $(2, 0), (0, 4/3)$. Region above. Vertices on boundary: $(2,
+0)$ and $(0, 4/3)$. $Z(2, 0) = 12, Z(0, 4/3) = 40/3 \approx 13.33$.
+**Min ₹12 at $x = 2, y = 0$ — 200 g of F1 only.**
+</details>
+
+**P3.** A manufacturer makes shirts and trousers. Each shirt needs 2 m
+fabric and 3 hr labour; each trouser needs 3 m fabric and 2 hr labour.
+Available: 16 m fabric, 18 hr labour. Profit: ₹40/shirt, ₹50/trouser.
+Maximise profit.
+
+<details class="hint"><summary>Full solution</summary>
+$x = $ shirts, $y$ = trousers.
+Constraints: $2x + 3y \le 16, 3x + 2y \le 18, x, y \ge 0$.
+Objective: $Z = 40x + 50y$.
+Intersection of bounds: $2x + 3y = 16, 3x + 2y = 18$. Multiply: $6x +
+9y = 48, 6x + 4y = 36$. Subtract: $5y = 12 \Rightarrow y = 12/5 = 2.4,
+x = (18 - 4.8)/3 = 4.4$. Vertex $(4.4, 2.4)$.
+Vertices: $(0, 0), (6, 0), (4.4, 2.4), (0, 16/3 \approx 5.33)$.
+$Z$: $0, 240, 176 + 120 = 296, 266.67$. **Max ₹296 at 4.4 shirts, 2.4
+trousers** (round in practice).
+</details>
+
+### Practice — Stretch
+
+**S1.** A diet has two foods. Food I gives 200 cal, 20 mg vit C per
+unit; Food II gives 100 cal, 50 mg vit C. Minimum required: 800 cal,
+180 mg vit C. Cost: ₹30/unit (I), ₹40/unit (II). Find min cost.
+
+<details class="hint"><summary>Full solution</summary>
+$x, y \ge 0$. $200x + 100y \ge 800, 20x + 50y \ge 180$. Min $Z = 30x +
+40y$.
+Boundary intersections: $200x + 100y = 800, 20x + 50y = 180$.
+First: $2x + y = 8$. Second: $2x + 5y = 18$. Subtract: $4y = 10
+\Rightarrow y = 5/2, x = 11/4$.
+Vertex $(11/4, 5/2)$. Other vertices on the boundary: $(9, 0)$ from
+$2x + 5y = 18$ at $y = 0$ — but need $200x \ge 800 \Rightarrow x \ge
+4$, which holds. And $(0, 8)$ from $2x + y = 8$ at $x = 0$ — need $50y
+\ge 180 \Rightarrow y \ge 3.6$, holds.
+$Z$: $Z(11/4, 5/2) = 82.5 + 100 = 182.5$. $Z(9, 0) = 270$. $Z(0, 8) =
+320$.
+**Min ₹182.50 at $(11/4, 5/2)$.**
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** Max of $Z = 3x + 2y$ on the region with vertices
+$(0, 0), (3, 0), (1, 2), (0, 2)$ is (a) 0 (b) 7 (c) 9 (d) 4.
+
+<details class="hint"><summary>Full solution</summary>
+$Z(3, 0) = 9, Z(1, 2) = 7, Z(0, 2) = 4$. **(c) 9.**
+</details>
+
+**1-mark MCQ #2.** Optimal solution of LP problem (a) is always at a
+vertex (b) is unique (c) lies on a constraint line (d) cannot be at
+the origin.
+
+<details class="hint"><summary>Full solution</summary>
+**(a) is always at a vertex** (when bounded; if multiple optimal
+points exist, an entire edge is optimal but vertices are still
+optimal).
+</details>
+
+**2-mark.** Sketch and find vertices of $\{(x, y): x + y \le 4, x + y
+\ge 2, x, y \ge 0\}$.
+
+<details class="hint"><summary>Full solution</summary>
+Trapezoid: $(2, 0), (4, 0), (0, 4), (0, 2)$.
+</details>
+
+**2-mark.** Maximise $Z = x + 2y$ on the region from previous part.
+
+<details class="hint"><summary>Full solution</summary>
+$Z(2, 0) = 2, Z(4, 0) = 4, Z(0, 4) = 8, Z(0, 2) = 4$. **Max 8 at $(0,
+4)$.**
+</details>
+
+**3-mark.** A medicine company makes pills A and B. A: 4 mg ingredient
+X, 6 mg ingredient Y per pill, profit ₹3. B: 6 mg X, 3 mg Y, profit
+₹4. Available 60 mg X, 90 mg Y. Maximise profit.
+
+<details class="hint"><summary>Full solution</summary>
+$x, y \ge 0$. $4x + 6y \le 60, 6x + 3y \le 90$. Max $Z = 3x + 4y$.
+Intersection: $4x + 6y = 60, 6x + 3y = 90$. Multiply 2nd by 2: $12x +
+6y = 180$. Subtract: $8x = 120 \Rightarrow x = 15, y = 0$. So $(15,
+0)$. Other vertices: $(0, 0), (15, 0), (0, 10)$.
+$Z$: $0, 45, 40$. **Max ₹45 at $(15, 0)$.**
+</details>
+
+**3-mark.** Minimise $Z = 4x + 5y$ on $\{x + y \ge 6, 2x + y \ge 7, x,
+y \ge 0\}$.
+
+<details class="hint"><summary>Full solution</summary>
+Intersection: $x + y = 6, 2x + y = 7 \Rightarrow x = 1, y = 5$. Other
+boundary points: $(7/2, 0)$ from $2x + y = 7$, satisfies $x + y = 3.5 <
+6$ — not feasible. $(6, 0)$ — feasible. $(0, 7)$ feasible.
+Vertices of region: $(1, 5), (6, 0), (0, 7)$.
+$Z(1, 5) = 4 + 25 = 29, Z(6, 0) = 24, Z(0, 7) = 35$. **Min 24 at $(6,
+0)$.**
+</details>
+
+**5-mark long answer.** A farmer wants to plant wheat and barley on
+his 50-hectare field. Wheat needs 2 days of labour per hectare, ₹100/ha
+fertilizer; barley needs 3 days/ha, ₹150/ha. He has at most 80 days of
+labour and ₹6000 budget. Profit: ₹600/ha wheat, ₹500/ha barley. Find
+the optimal allocation.
+
+<details class="hint"><summary>Full solution</summary>
+$x = $ ha wheat, $y = $ ha barley. Constraints:
+- $x + y \le 50$
+- $2x + 3y \le 80$
+- $100x + 150y \le 6000 \Rightarrow 2x + 3y \le 120$ (looser than
+  above, redundant)
+- $x, y \ge 0$.
+
+Effective constraints: $x + y \le 50, 2x + 3y \le 80$.
+Intersection: $x + y = 50, 2x + 3y = 80 \Rightarrow y = -20$ — infeasible.
+So the constraints don't both bind. Try $x + y \le 50$ and $2x + 3y \le
+80$: at $(40, 0)$: $40 + 0 = 40 \le 50$ ✓, $80 + 0 = 80$ ✓. Vertex.
+At $(0, 80/3 \approx 26.67)$: ok.
+Vertices in region: $(0, 0), (40, 0), (0, 80/3)$.
+$Z = 600x + 500y$. $Z(40, 0) = 24000, Z(0, 80/3) = 40000/3 \approx
+13333$. **Max ₹24,000 at $(40, 0)$ — all wheat.**
+</details>
+
+**6-mark Case Study.** *School transport optimisation.*
+
+A school needs to transport at least 400 students using two types of
+buses. Type A holds 40 students and costs ₹1500/trip; Type B holds 60
+and costs ₹2000/trip. The school has at most 20 buses available, and
+no more than 8 buses can be Type A.
+
+(i) Set up the LP problem. (2 marks)
+(ii) Sketch the feasible region and list vertices. (2 marks)
+(iii) Find the minimum-cost plan. (2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $x = $ # type A, $y = $ # type B. $40x + 60y \ge 400$ (i.e.
+$2x + 3y \ge 20$), $x + y \le 20, x \le 8, x, y \ge 0$. Min $Z = 1500x +
+2000y$.
+**(ii)** Vertices: from $2x + 3y = 20$ at $x = 0$: $y = 20/3 \approx
+6.67$. At $x = 8$: $y = (20 - 16)/3 = 4/3 \approx 1.33$. From $x + y =
+20$: less likely binding here. Vertices: $(0, 20/3), (8, 4/3), (8,
+12)$ (where $x + y = 20$), $(0, 20)$ — but check $40 \cdot 0 + 60 \cdot
+20 = 1200 \ge 400$ ✓. Region is bounded by $2x + 3y = 20$ below, $x =
+8$ right, $x + y = 20$ upper. Hard to draw without picture; key
+candidates: $(0, 20/3)$ and $(8, 4/3)$.
+**(iii)** $Z(0, 20/3) = 40000/3 \approx 13333$. $Z(8, 4/3) = 12000 +
+8000/3 \approx 14667$. **Min ₹13,333 at 0 type A, $\approx 7$ type B.**
+(In integers: 0 A, 7 B carrying 420 students, cost ₹14,000.)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 12.1, 12.2 (full).
+**Previous-year pointer:** CBSE 2023 Set 1 Q33 (5-mark LP); CBSE 2022
+Q34.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"All vertices are equally optimal."** Only the vertex/vertices
+   with the best $Z$. Tie can occur — then the entire edge is optimal.
+2. **"The feasible region is always bounded."** It can be unbounded.
+   Then max/min may not exist; verify by checking the direction of
+   $Z$.
+3. **"Forgetting the non-negativity constraints."** $x, y \ge 0$ is
+   almost always implicit in CBSE problems.
+:::
+
+### Self-Assessment
+
+1. Could you set up an LPP from a fresh word problem in 5 minutes?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you sketch and identify the vertices of a 4-constraint region?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark farmer problem with a fresh setup.
+- **0–1 yes:** rewrite Problem 3's constraints from the words.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse11.linear-inequalities`](../../tier-cbse-11-class-11/05-linear-inequalities/index.qmd)
+  — graphing half-planes.
+- [`cbse11.straight-lines`](../../tier-cbse-11-class-11/09-straight-lines/index.qmd)
+  — intersection of lines for vertices.
+
+### What this unlocks
+
+- [`cbse12.conditional-probability-bayes`](../13a-conditional-probability-bayes/index.qmd)
+  — independent topic; LP closes the optimisation thread.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 12** (NCERT 2023). Sections 12.1–12.2.
+- **Sister synthesis lessons:**
+  [`t6.convex-optimization`](../../tier-6-grad-applied/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Support vector machines solve a quadratic program, but its
+linear-relaxation cousin is an LP. Resource scheduling in clusters is
+modelled as integer LP.
+:::
+
+::: {.applied-callout}
+**Databases.** Query optimisers express join-order selection as a
+combinatorial optimisation; LP relaxations give bounds.
+:::
+
+::: {.applied-callout}
+**Research.** The simplex algorithm (Dantzig, 1947) is one of the
+most-used algorithms in the world; modern interior-point methods
+extend the same ideas to convex programs.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Khan Academy (graphical LP), Bhāskara (verse), AoPS
+  (problem decomposition).
+:::

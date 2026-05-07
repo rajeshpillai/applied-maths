@@ -1,0 +1,445 @@
+---
+title: "Ch 12b — Derivatives (Introduction)"
+subtitle: "First principles and basic rules: the slope of a function at a single point"
+lesson-id: "cbse11.derivatives-intro"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 12
+ncert-chapter-title: "Limits and Derivatives"
+board-exam: false
+prerequisites: ["cbse11.limits"]
+unlocks: ["cbse12.continuity", "cbse12.application-derivatives"]
+applied-domains: ["ai-ml", "game-dev", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute simple limits from Lesson 12a?
+2. Are you fluent with the slope formula
+   $(y_2 - y_1)/(x_2 - x_1)$?
+3. Do you know $\dfrac{d}{dx}(x^n)$ informally as $n x^{n-1}$, even
+   without proof?
+4. Can you state $\lim_{x \to 0} \dfrac{\sin x}{x} = 1$?
+
+Three confident yeses — read on. Otherwise revisit
+**[Limits](../12a-limits/index.qmd)**.
+:::
+
+## Touch
+
+A car drives along a straight road. Its position at time $t$ seconds is
+$s(t) = t^2$ metres.
+
+- Average speed from $t = 1$ to $t = 3$: $(9 - 1)/(3 - 1) = 4$ m/s.
+- From $t = 1$ to $t = 1.5$: $(2.25 - 1)/0.5 = 2.5$ m/s.
+- From $t = 1$ to $t = 1.01$: $(1.0201 - 1)/0.01 = 2.01$ m/s.
+- From $t = 1$ to $t = 1.0001$: ≈ $2.0001$ m/s.
+
+The values converge to $2$ — the **instantaneous speed** at $t = 1$.
+
+The widget below shrinks the time interval and shows the average speed
+approaching the slope of the tangent line.
+
+```{ojs}
+viewof hVal = Inputs.range([0.001, 1], {value: 0.5, step: 0.001, label: "h (interval width)"})
+```
+
+```{ojs}
+{
+  const t = 1, h = hVal;
+  const s = t => t * t;
+  const avg = (s(t + h) - s(t)) / h;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>s(t) = t²</b>, evaluating at t = 1, h = ${h.toFixed(4)}.</div>
+    <div>Average rate: (s(1+h) − s(1))/h = <b>${avg.toFixed(6)}</b></div>
+    <div style="margin-top:0.4em;color:#666;">
+      As h → 0, this approaches <b>2</b> = ds/dt at t = 1.
+    </div>
+  </div>`;
+}
+```
+
+The instantaneous rate of change is *the limit* of the average rate.
+That's the derivative.
+
+## Wonder
+
+Sit with these.
+
+1. Why does the average rate become the *instantaneous* rate as
+   $h \to 0$? What if $h = 0$ outright?
+2. The derivative of $x^2$ at $x = 1$ is $2$. At $x = 3$ it is $6$.
+   Pattern?
+3. The graph of $f(x) = |x|$ has a sharp corner at $x = 0$. Does the
+   derivative exist there?
+4. If $g(x) = c$ (constant), what is $g'(x)$? Why?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) is the **power rule**: $\dfrac{d}{dx}(x^n) = n x^{n-1}$. (3) is the
+canonical example of a function that is continuous but not
+differentiable.
+:::
+
+## Discover
+
+### Problem 1 — From first principles
+
+Compute $f'(x)$ for $f(x) = x^2$ from the definition
+$f'(x) = \lim_{h \to 0} \dfrac{f(x + h) - f(x)}{h}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(x + h) - f(x) = (x + h)^2 - x^2 = 2xh + h^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2xh + h^2}{h} = 2x + h \to 2x$ as $h \to 0$.
+
+So $f'(x) = 2x$.
+</details>
+
+### Problem 2 — Constant
+
+Compute $f'(x)$ for $f(x) = 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(x + h) - f(x) = 5 - 5 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{0}{h} = 0 \to 0$. So $f'(x) = 0$ for any constant $f$.
+</details>
+
+### Problem 3 — Linear
+
+Compute $f'(x)$ for $f(x) = 3x + 7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f(x + h) - f(x) = 3h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{3h}{h} = 3 \to 3$. So $f'(x) = 3$, the slope of the line.
+</details>
+
+### Problem 4 — Power rule
+
+Compute $f'(x)$ for $f(x) = x^3$ from first principles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(x + h)^3 = x^3 + 3 x^2 h + 3 x h^2 + h^3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{3 x^2 h + 3 x h^2 + h^3}{h} = 3 x^2 + 3 x h + h^2 \to 3 x^2$.
+
+So $f'(x) = 3 x^2$. Pattern: $\dfrac{d}{dx}(x^n) = n x^{n-1}$.
+</details>
+
+### Problem 5 — Sum and difference rules
+
+Differentiate $f(x) = 2x^3 - 5x^2 + 7x - 4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Differentiate term by term using the power rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 6 x^2 - 10 x + 7$.
+</details>
+
+### Problem 6 — Product rule
+
+Use the product rule $(uv)' = u' v + u v'$ to differentiate
+$f(x) = (x^2)(x + 1)$. Verify by expanding first.
+
+<details class="hint"><summary>Full solution</summary>
+By product rule: $f'(x) = 2x \cdot (x + 1) + x^2 \cdot 1 = 2 x^2 + 2x + x^2 = 3 x^2 + 2x$.
+
+By expanding: $f(x) = x^3 + x^2 \Rightarrow f'(x) = 3 x^2 + 2x$. ✓
+</details>
+
+### Problem 7 — Trig derivative
+
+From first principles, $\dfrac{d}{dx}(\sin x)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $\sin(x + h) - \sin x = 2 \cos(x + h/2) \sin(h/2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\sin(x + h) - \sin x}{h} = \dfrac{2 \cos(x + h/2) \sin(h/2)}{h}
+= \cos(x + h/2) \cdot \dfrac{\sin(h/2)}{h/2}$.
+
+As $h \to 0$: $\cos(x + 0) \cdot 1 = \cos x$.
+
+So $\dfrac{d}{dx}(\sin x) = \cos x$.
+</details>
+
+You have just used **first principles**, the **power rule**, the **sum
+rule**, the **product rule**, and the **derivative of $\sin$**. Now we
+name them.
+
+## Name
+
+::: {.lesson-beat}
+
+The **derivative** of $f$ at $x$:
+$$ f'(x) = \dfrac{df}{dx} = \lim_{h \to 0} \dfrac{f(x + h) - f(x)}{h}, $$
+provided the limit exists.
+
+**Geometric interpretation:** the slope of the tangent line to $y = f(x)$
+at the point $(x, f(x))$.
+
+**Standard derivatives:**
+
+| $f(x)$ | $f'(x)$ |
+|:--|:--|
+| $c$ (constant) | $0$ |
+| $x^n$ | $n x^{n-1}$ |
+| $\sin x$ | $\cos x$ |
+| $\cos x$ | $-\sin x$ |
+| $\tan x$ | $\sec^2 x$ |
+| $\sec x$ | $\sec x \tan x$ |
+
+**Rules of differentiation:**
+
+- **Sum:** $(f \pm g)' = f' \pm g'$.
+- **Constant multiple:** $(c f)' = c f'$.
+- **Product:** $(uv)' = u' v + u v'$.
+- **Quotient:** $\left(\dfrac{u}{v}\right)' = \dfrac{u' v - u v'}{v^2}$.
+
+(The **chain rule** is reserved for Class 12.)
+
+:::
+
+A short verse:
+
+> *Slope of the tangent — that is the derivative;*
+> *Limit of $h \to 0$ — that is the conservative.*
+> *Power becomes coefficient, exponent shifts down;*
+> *And constants vanish as the rate is found.*
+
+## Apply
+
+### Worked example
+
+> Differentiate $f(x) = (3 x^2 + 1)(2x - 5)$ using the product rule.
+
+How a competent solver thinks:
+
+1. Let $u = 3 x^2 + 1$, $v = 2x - 5$. Then $u' = 6x$, $v' = 2$.
+2. $(uv)' = u' v + u v' = 6x (2x - 5) + (3 x^2 + 1)(2)$
+   $= 12 x^2 - 30 x + 6 x^2 + 2 = 18 x^2 - 30 x + 2$.
+3. (Verify by expanding first: $f(x) = 6 x^3 - 15 x^2 + 2x - 5$,
+   $f'(x) = 18 x^2 - 30 x + 2$. ✓)
+
+### Practice — Warm
+
+**W1.** Differentiate $f(x) = x^7$.
+
+<details class="hint"><summary>Full solution</summary>
+$7 x^6$.
+</details>
+
+**W2.** Differentiate $f(x) = 4 x^5 - 3 x^2 + 6$.
+
+<details class="hint"><summary>Full solution</summary>
+$20 x^4 - 6x$.
+</details>
+
+**W3.** $\dfrac{d}{dx}(\cos x)$.
+
+<details class="hint"><summary>Full solution</summary>
+$-\sin x$.
+</details>
+
+### Practice — Working
+
+**P1.** Differentiate $\sqrt{x}$ from first principles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Rationalise: $\sqrt{x + h} - \sqrt{x} = \dfrac{h}{\sqrt{x+h} + \sqrt{x}}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\sqrt{x+h} - \sqrt{x}}{h} = \dfrac{1}{\sqrt{x+h} + \sqrt{x}}
+\to \dfrac{1}{2\sqrt{x}}$.
+
+So $\dfrac{d}{dx}(x^{1/2}) = \dfrac{1}{2} x^{-1/2}$ — consistent with
+the power rule.
+</details>
+
+**P2.** Differentiate $f(x) = \dfrac{x + 1}{x - 1}$ using the quotient rule.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$u = x + 1, v = x - 1$. $u' = 1, v' = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = \dfrac{1 \cdot (x - 1) - (x + 1) \cdot 1}{(x - 1)^2} = \dfrac{-2}{(x - 1)^2}$.
+</details>
+
+**P3.** Differentiate $f(x) = x^2 \sin x$ at $x = \pi/2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Product rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 2x \sin x + x^2 \cos x$.
+
+At $x = \pi/2$: $2 \cdot \pi/2 \cdot 1 + (\pi/2)^2 \cdot 0 = \pi$.
+</details>
+
+### Practice — Stretch
+
+**S1.** From first principles, find $f'(x)$ for $f(x) = \dfrac{1}{x}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{f(x + h) - f(x)}{h} = \dfrac{\dfrac{1}{x+h} - \dfrac{1}{x}}{h}
+= \dfrac{x - (x + h)}{x(x + h) \cdot h} = \dfrac{-1}{x(x + h)}$.
+
+As $h \to 0$: $-\dfrac{1}{x^2}$. Consistent with $x^{-1}$ → $-x^{-2}$.
+</details>
+
+**S2.** Find the equation of the tangent line to $y = x^2 - 4x + 5$ at
+$x = 3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Tangent slope = $f'(3)$. Point: $(3, f(3))$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f(3) = 9 - 12 + 5 = 2$. $f'(x) = 2x - 4$, so $f'(3) = 2$.
+
+Tangent: $y - 2 = 2(x - 3) \Rightarrow y = 2x - 4$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $\dfrac{d}{dx}(x^{100})$ at $x = 1$ equals
+(a) $100$ (b) $99$ (c) $1$ (d) $0$.
+
+<details class="hint"><summary>Full solution</summary>
+$100 x^{99}$ at $x = 1$ is $100$. **Answer: (a).**
+</details>
+
+**2-mark (short answer).** Differentiate $f(x) = (2x + 3)^2$ by
+expanding and applying the power rule.
+
+<details class="hint"><summary>Full solution</summary>
+$f(x) = 4 x^2 + 12 x + 9$. $f'(x) = 8x + 12$.
+</details>
+
+**3-mark (short answer II).** From first principles, find the
+derivative of $f(x) = \cos x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos(x + h) - \cos x = -2 \sin(x + h/2) \sin(h/2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\cos(x + h) - \cos x}{h} = \dfrac{-2 \sin(x + h/2) \sin(h/2)}{h}
+= -\sin(x + h/2) \cdot \dfrac{\sin(h/2)}{h/2}$.
+
+As $h \to 0$: $-\sin x \cdot 1 = -\sin x$.
+
+So $\dfrac{d}{dx}(\cos x) = -\sin x$.
+</details>
+
+**5-mark (long answer).** Differentiate $f(x) = \dfrac{x \sin x}{1 + \cos x}$ at $x = \pi/2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Quotient rule with $u = x \sin x$ (use product rule for $u'$) and
+$v = 1 + \cos x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$u = x \sin x$. $u' = \sin x + x \cos x$.
+
+$v = 1 + \cos x$. $v' = -\sin x$.
+
+$f'(x) = \dfrac{(\sin x + x \cos x)(1 + \cos x) - (x \sin x)(-\sin x)}{(1 + \cos x)^2}$
+
+$= \dfrac{(\sin x + x \cos x)(1 + \cos x) + x \sin^2 x}{(1 + \cos x)^2}$.
+
+At $x = \pi/2$: $\sin = 1, \cos = 0$. Numerator: $(1 + (\pi/2) \cdot 0)(1 + 0) + (\pi/2)(1) = 1 + \pi/2$.
+Denominator: $1$.
+
+$f'(\pi/2) = 1 + \pi/2$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 12 LA "Differentiate
+$\frac{x \sin x}{1 + \cos x}$" matches the 5-mark item.
+**JEE pointer:** first-principles derivative of $\sin x, \cos x$ is
+JEE Main standard.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$f'(a) = f(a)/a$ in some way."** No. The derivative is the limit
+   of a *difference quotient*, not the value at a point.
+2. **"Power rule for $x^x$."** Doesn't apply — the exponent is itself
+   variable, requiring logarithmic differentiation (Class 12).
+3. **"$|x|$ is differentiable everywhere."** It is not — the corner at
+   $x = 0$ has different left and right slopes ($-1$ and $+1$).
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you compute $f'(x)$ from first principles for $f(x) = x^n$,
+   $\sin x$, $\cos x$ on demand?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you apply the product and quotient rules confidently?
+
+- **3 yes:** move on to **[Statistics](../13-statistics/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** drill first principles on five fresh functions.
+
+## Connect
+
+### Prerequisites used
+
+- **[Limits](../12a-limits/index.qmd)** — the derivative is a limit.
+
+### What this unlocks
+
+- **[Class 12 — Continuity & Differentiability](../../tier-cbse-12-class-12/04-continuity/index.qmd)** —
+  rigorous study of when derivatives exist.
+- **[Class 12 — Application of Derivatives](../../tier-cbse-12-class-12/06-application-derivatives/index.qmd)** —
+  maxima/minima, rate problems.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 12 — Limits and Derivatives** (NCERT 2023
+  rationalised). Sections 12.4–12.5: derivative from first principles,
+  algebra of derivatives.
+- **Sister synthesis lessons:**
+  [`t4.derivative`](../../tier-4-precalc-calculus/derivative/index.qmd) and
+  [`t4.differentiation-rules`](../../tier-4-precalc-calculus/differentiation-rules/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Gradient descent updates a parameter $\theta$ by
+$\theta \leftarrow \theta - \eta \cdot \dfrac{\partial L}{\partial \theta}$.
+The partial derivative is the slope of the loss surface — exactly the
+derivative you just learned, applied to functions of many variables.
+:::
+
+::: {.applied-callout}
+**Game development.** Velocity is the derivative of position. Acceleration
+is the derivative of velocity. Every physics-engine integration step
+updates position via $x \leftarrow x + v \, dt$ — one Euler step of
+the inverse problem (integration).
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: 3Blue1Brown (the "essence of calculus" — derivative as
+slope), Better Explained (instantaneous rate framing), Russian school
+(Discover sequence forces first-principles derivation of the power
+rule), Bhāskara (verse).
+:::

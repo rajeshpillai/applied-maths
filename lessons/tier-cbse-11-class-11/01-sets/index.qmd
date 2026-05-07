@@ -1,0 +1,529 @@
+---
+title: "Ch 1 — Sets"
+subtitle: "The language every modern mathematics speaks: collections, membership, and how they combine"
+lesson-id: "cbse11.sets"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 1
+ncert-chapter-title: "Sets"
+board-exam: false
+prerequisites: ["cbse10.real-numbers"]
+unlocks: ["cbse11.relations-and-functions", "cbse11.probability", "cbse12.relations-functions-types"]
+applied-domains: ["research", "databases", "encryption"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you list the divisors of $12$ without thinking?
+2. Are you comfortable with the symbols $\mathbb{N}, \mathbb{Z}, \mathbb{Q},
+   \mathbb{R}$ for natural, integer, rational, real numbers?
+3. Have you ever drawn a Venn diagram with two overlapping circles?
+4. Do you know what an **even integer** is, in one sentence?
+
+If three of these were a confident yes, read on. Otherwise spend twenty
+minutes refreshing **[Real Numbers](../../tier-cbse-10-class-10/01-real-numbers/index.qmd)**
+first.
+:::
+
+## Touch
+
+Open your kitchen drawer. Pull out everything that is **a spoon**. Now pull
+out everything that is **made of metal**. Lay them on the counter in two
+overlapping piles.
+
+You have just made two **collections** by stating a property each item must
+satisfy. Some items belong to the first pile. Some belong to the second.
+Some belong to *both* and you can see them in the overlap. Some belong to
+neither and stayed in the drawer.
+
+Move the slider below to add and remove members from two collections of
+small numbers, and watch the regions update.
+
+```{ojs}
+viewof maxN = Inputs.range([5, 20], {value: 12, step: 1, label: "Universe: 1..n"})
+```
+
+```{ojs}
+{
+  const universe = Array.from({length: maxN}, (_, i) => i + 1);
+  const A = universe.filter(x => x % 2 === 0);          // multiples of 2
+  const B = universe.filter(x => x % 3 === 0);          // multiples of 3
+  const both = A.filter(x => B.includes(x));
+  const onlyA = A.filter(x => !B.includes(x));
+  const onlyB = B.filter(x => !A.includes(x));
+  const neither = universe.filter(x => !A.includes(x) && !B.includes(x));
+  const fmt = arr => arr.length ? `{${arr.join(", ")}}` : "{ }";
+  return html`<div style="font-family:system-ui;font-size:1rem;line-height:1.7;">
+    <div><b>Universe U =</b> {1, 2, ..., ${maxN}}</div>
+    <div><b>A = even numbers in U =</b> ${fmt(A)}</div>
+    <div><b>B = multiples of 3 in U =</b> ${fmt(B)}</div>
+    <div style="margin-top:0.5rem;color:#444;">
+      <div>only in A: ${fmt(onlyA)}</div>
+      <div>only in B: ${fmt(onlyB)}</div>
+      <div>in both (A &cap; B): ${fmt(both)}</div>
+      <div>in neither: ${fmt(neither)}</div>
+    </div>
+  </div>`;
+}
+```
+
+Two well-defined collections, four named regions. That is the entire
+chapter.
+
+## Wonder
+
+Sit with these.
+
+1. The collection "tall students in your class" — is this a set, in the
+   precise sense the word will mean here?
+2. If $A$ has $7$ elements and $B$ has $5$ elements, can $A \cup B$ ever
+   have fewer than $7$ elements? More than $12$?
+3. Is the collection of all sets *itself* a set?
+4. How would you write "no number" — the empty pile?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+Question 1 hides a real subtlety: "tall" is fuzzy, so the collection is
+not a set. Sets need a sharp membership test. Question 3 led to one of
+the great crises of 20th-century logic — Russell's paradox. We touch
+both in *Discover*.
+:::
+
+## Discover
+
+### Problem 1 — Roster vs rule
+
+Write the set of single-digit positive odd numbers in two ways:
+(i) by listing all elements (roster form), and
+(ii) by stating a defining rule (set-builder form).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The single-digit positive odd numbers are 1, 3, 5, 7, 9. That is roster form.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Set-builder form looks like $\{x : \text{condition on } x\}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Roster:** $\{1, 3, 5, 7, 9\}$.
+
+**Set-builder:** $\{x : x \in \mathbb{N},\ x < 10,\ x \text{ is odd}\}$.
+
+Both name the same set. Sets are equal when they have exactly the same
+elements, regardless of how those elements are described.
+</details>
+
+### Problem 2 — Membership
+
+Let $A = \{1, 2, \{3, 4\}, 5\}$. Is $3 \in A$? Is $\{3, 4\} \in A$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the elements of $A$ one by one. The third element is itself a set.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 \notin A$ — the number 3 is not directly listed in $A$. But
+$\{3, 4\} \in A$ — the *set* $\{3, 4\}$ is the third element of $A$.
+
+Sets can have other sets as elements. Membership and being-a-subset are
+different relationships.
+</details>
+
+### Problem 3 — Subsets
+
+How many subsets does $\{a, b, c\}$ have? List them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each element is either in the subset or out. Two choices, three elements.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$2 \times 2 \times 2 = 8$ subsets. Don't forget the empty set $\varnothing$
+and the whole set itself.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Eight subsets:
+$\varnothing,\ \{a\},\ \{b\},\ \{c\},\ \{a,b\},\ \{a,c\},\ \{b,c\},\ \{a,b,c\}.$
+
+In general, a set with $n$ elements has $2^n$ subsets. The collection of
+all subsets of $A$ is called the **power set**, written $\mathcal{P}(A)$.
+</details>
+
+### Problem 4 — Union, intersection, difference
+
+Let $A = \{1, 2, 3, 4, 5\}$ and $B = \{4, 5, 6, 7\}$. Compute
+$A \cup B$, $A \cap B$, $A - B$, $B - A$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Union = everything in either. Intersection = elements in both. Difference
+$A - B$ = in $A$ but not in $B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $A \cup B = \{1, 2, 3, 4, 5, 6, 7\}$
+- $A \cap B = \{4, 5\}$
+- $A - B = \{1, 2, 3\}$
+- $B - A = \{6, 7\}$
+
+Notice $|A \cup B| = |A| + |B| - |A \cap B| = 5 + 4 - 2 = 7$. The overlap
+must not be counted twice — that's the inclusion–exclusion idea.
+</details>
+
+### Problem 5 — Venn for three sets
+
+In a class of 50, every student plays exactly one or more of cricket,
+football, hockey. Cricket: 30, Football: 25, Hockey: 18. Cricket and
+football: 12, football and hockey: 8, cricket and hockey: 7. All three: 4.
+How many play exactly one game?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Inclusion–exclusion for three sets:
+$|A \cup B \cup C| = |A|+|B|+|C| - |A \cap B| - |A \cap C| - |B \cap C| + |A \cap B \cap C|$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Compute total players first, then count overlaps separately.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Total $= 30 + 25 + 18 - 12 - 8 - 7 + 4 = 50$. Good — matches.
+
+Exactly one game = total − (exactly two) − (all three).
+
+Exactly two games: $(12-4) + (8-4) + (7-4) = 8 + 4 + 3 = 15$.
+Exactly three: $4$.
+
+Exactly one $= 50 - 15 - 4 = \mathbf{31}$.
+</details>
+
+### Problem 6 — Empty and universal
+
+Is $\{0\}$ the same as $\varnothing$? Is $\{\varnothing\}$ empty?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Count the elements.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $\{0\}$ contains *one* element, the number 0. Not empty.
+- $\varnothing$ contains no elements. Empty by definition.
+- $\{\varnothing\}$ contains *one* element, the empty set. Not empty.
+
+A set and its content are different layers. Confusing them is the most
+common error in this chapter.
+</details>
+
+You have just used **roster form**, **set-builder form**, **membership**,
+**subsets**, the **power set**, **union**, **intersection**, **set
+difference**, **Venn diagrams**, and the **empty set**. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+A **set** is a well-defined collection of distinct objects. We write
+$x \in A$ for "$x$ belongs to $A$" and $x \notin A$ otherwise.
+
+For sets $A, B$ inside a universal set $U$:
+
+- **Subset:** $A \subseteq B$ iff every element of $A$ is in $B$.
+- **Power set:** $\mathcal{P}(A) = \{S : S \subseteq A\}$, with
+  $|\mathcal{P}(A)| = 2^{|A|}$.
+- **Union:** $A \cup B = \{x : x \in A \text{ or } x \in B\}$.
+- **Intersection:** $A \cap B = \{x : x \in A \text{ and } x \in B\}$.
+- **Difference:** $A - B = \{x : x \in A,\ x \notin B\}$.
+- **Complement:** $A' = U - A$.
+
+**Inclusion–exclusion (two sets):**
+$$|A \cup B| = |A| + |B| - |A \cap B|.$$
+
+**De Morgan's laws:**
+$$(A \cup B)' = A' \cap B', \quad (A \cap B)' = A' \cup B'.$$
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Tell me the rule, the bag is filled;*
+> *Member or no — let the test decide.*
+> *Add the parts, then take back the shared —*
+> *That is the size of two seas combined.*
+
+Three pictures of the same idea:
+
+| Form | Example |
+|:--|:--|
+| Roster (visual list) | $A = \{2, 4, 6, 8\}$ |
+| Set-builder (rule) | $A = \{x : x \in \mathbb{N},\ x \text{ even},\ x < 10\}$ |
+| Venn diagram | a labelled circle inside the universal rectangle |
+
+## Apply
+
+### Worked example
+
+> In a survey of $200$ students: $120$ like tea, $90$ like coffee, $50$
+> like both. How many like (i) at least one, (ii) only tea, (iii) neither?
+
+How a competent solver thinks:
+
+1. Let $T$ = tea-likers, $C$ = coffee-likers. Given:
+   $|T| = 120$, $|C| = 90$, $|T \cap C| = 50$, total = 200.
+2. **(i)** $|T \cup C| = 120 + 90 - 50 = 160$.
+3. **(ii)** Only tea $= |T| - |T \cap C| = 120 - 50 = 70$.
+4. **(iii)** Neither $= 200 - 160 = 40$.
+
+**Answers:** $160$ at least one, $70$ only tea, $40$ neither.
+
+### Practice — Warm
+
+**W1.** Write $\{x : x \in \mathbb{Z},\ x^2 \le 9\}$ in roster form.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 \le 9 \Leftrightarrow -3 \le x \le 3$. So $\{-3,-2,-1,0,1,2,3\}$.
+</details>
+
+**W2.** If $A = \{1,2,3\}$, list $\mathcal{P}(A)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\mathcal{P}(A) = \{\varnothing, \{1\}, \{2\}, \{3\}, \{1,2\}, \{1,3\},
+\{2,3\}, \{1,2,3\}\}$ — eight subsets, since $2^3 = 8$.
+</details>
+
+**W3.** Let $U = \{1,2,3,4,5,6,7,8,9,10\}$, $A = \{2,4,6,8,10\}$. Find
+$A'$ and $|A'|$.
+
+<details class="hint"><summary>Full solution</summary>
+$A' = \{1,3,5,7,9\}$, $|A'| = 5$.
+</details>
+
+### Practice — Working
+
+**P1.** If $|A| = 30$, $|B| = 20$, $|A \cap B| = 8$, find $|A \cup B|$ and
+$|A - B|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the two-set formula and the fact that $A = (A - B) \cup (A \cap B)$
+disjointly.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|A \cup B| = 30 + 20 - 8 = 42$. $|A - B| = |A| - |A \cap B| = 30 - 8 = 22$.
+</details>
+
+**P2.** Verify De Morgan's law $(A \cup B)' = A' \cap B'$ for
+$U = \{1,\ldots,10\}$, $A = \{2,3,5,7\}$, $B = \{1,3,5,7,9\}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute LHS and RHS as explicit sets.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A \cup B = \{1,2,3,5,7,9\}$, so $(A \cup B)' = \{4,6,8,10\}$.
+
+$A' = \{1,4,6,8,9,10\}$, $B' = \{2,4,6,8,10\}$.
+
+$A' \cap B' = \{4,6,8,10\}$. Equal — verified.
+</details>
+
+**P3.** A set has $32$ subsets. How many elements does it have?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$2^n = 32$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$32 = 2^5$, so $n = 5$.
+</details>
+
+### Practice — Stretch
+
+**S1.** In a school of $400$ students: $250$ read a newspaper, $150$
+watch TV news, $50$ do both. (a) How many do at least one? (b) How many
+do exactly one? (c) How many do neither?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At least one = union. Exactly one = (only N) + (only T). Neither = total −
+union.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $N$ = newspaper, $T$ = TV.
+
+(a) $|N \cup T| = 250 + 150 - 50 = 350$.
+
+(b) Only $N$ = $250 - 50 = 200$. Only $T$ = $150 - 50 = 100$. Total
+exactly one = $300$.
+
+(c) Neither = $400 - 350 = 50$.
+</details>
+
+**S2.** Show that for any sets $A$ and $B$:
+$$A - (A \cap B) = A - B.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take an arbitrary element $x \in A - (A \cap B)$ and show $x \in A - B$.
+Then the reverse.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x \in A - (A \cap B) \Leftrightarrow x \in A \text{ and } x \notin A \cap B
+\Leftrightarrow x \in A \text{ and not}(x \in A \text{ and } x \in B)
+\Leftrightarrow x \in A \text{ and } x \notin B$ (since the first clause
+makes $x \in A$ true) $\Leftrightarrow x \in A - B$. Equality of sets
+proven.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** If $A \subseteq B$, then $A \cup B$ equals
+(a) $A$ (b) $B$ (c) $\varnothing$ (d) $A \cap B$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw two nested circles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Every element of $A$ is already in $B$, so $A \cup B = B$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Write the set
+$\{x \in \mathbb{R} : x^2 - 5x + 6 = 0\}$ in roster form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor the quadratic.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 5x + 6 = (x-2)(x-3) = 0$ gives $x = 2$ or $x = 3$. Set $= \{2, 3\}$.
+</details>
+
+**3-mark (short answer II).** In a class of $35$ students, $24$ play
+cricket, $20$ play football, and $4$ play neither. How many play both?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Number who play at least one = $35 - 4 = 31$. Use inclusion–exclusion.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|C \cup F| = 31$, $|C| = 24$, $|F| = 20$. So
+$|C \cap F| = |C| + |F| - |C \cup F| = 24 + 20 - 31 = \mathbf{13}$
+students play both.
+</details>
+
+**5-mark (long answer).** In a survey of $1000$ households,
+$720$ have a TV, $580$ have a refrigerator, $610$ have a smartphone,
+$390$ have TV and refrigerator, $400$ have refrigerator and smartphone,
+$320$ have TV and smartphone, $200$ have all three.
+
+(i) How many have at least one of the three?
+(ii) How many have only a TV?
+(iii) How many have none of the three?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three-set inclusion–exclusion. Then peel off the "only TV" region.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Only TV $= |T| - |T \cap R| - |T \cap S| + |T \cap R \cap S|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $|T \cup R \cup S| = 720 + 580 + 610 - 390 - 400 - 320 + 200 = \mathbf{1000}$.
+
+Wait — that equals the total surveyed, so every household has at least one.
+
+**(ii)** Only TV $= 720 - 390 - 320 + 200 = \mathbf{210}$.
+
+**(iii)** None $= 1000 - 1000 = \mathbf{0}$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 1 Long-answer Q "Survey of $1000$
+people on three newspapers" is a near-twin of the 5-mark item.
+**Previous-year pointer:** CBSE 2018, "In a class of 50 students,
+$28$ like cricket, $30$ like football, …" — same recipe as the 3-mark
+item.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\varnothing$ and $\{\varnothing\}$ are the same."** They are not.
+   The first is empty; the second contains one element (which happens to
+   be the empty set).
+2. **"$\subseteq$ and $\in$ mean the same thing."** No. $a \in A$ says
+   "$a$ is an element"; $A \subseteq B$ says "every element of $A$ is also
+   an element of $B$".
+3. **"In $A \cup B$ I should count the overlap twice."** No — a set has
+   no repeated elements. Inclusion–exclusion explicitly subtracts the
+   overlap.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain the difference between $\in$ and $\subseteq$ to a
+   friend, without notes?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   *Practice* problems without peeking past Hint 1?
+3. Can you draw a three-set Venn diagram and label all 8 regions on
+   demand?
+
+- **3 yes:** move on to **[Relations and Functions](../02-relations-and-functions/index.qmd)**.
+- **2 yes:** redo Stretch S1 and the 5-mark board item, then move on.
+- **0–1 yes:** redo *Discover* — sets are the language for everything
+  ahead, so the grammar must feel automatic.
+
+## Connect
+
+### Prerequisites used
+
+- **[Class 10 — Real Numbers](../../tier-cbse-10-class-10/01-real-numbers/index.qmd)** —
+  the standard number sets $\mathbb{N}, \mathbb{Z}, \mathbb{Q}, \mathbb{R}$
+  reappear here as the most common universes.
+
+### What this unlocks
+
+- **[Relations and Functions](../02-relations-and-functions/index.qmd)** —
+  built on top of the Cartesian product $A \times B$.
+- **[Probability (Axiomatic Approach)](../14-probability/index.qmd)** —
+  events *are* subsets of a sample space.
+- **[Class 12 — Relations & Functions](../../tier-cbse-12-class-12/01-relations-functions-types/index.qmd)** —
+  equivalence relations partition a set into classes.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 1 — Sets** (NCERT 2023 rationalised). Covers
+  Sections 1.1–1.10: roster and set-builder form, types of sets, subsets,
+  power set, universal set, Venn diagrams, operations on sets, complement,
+  practical word problems via inclusion–exclusion.
+- **Sister synthesis lesson:**
+  [`t5.sets-logic-proofs`](../../tier-5-undergrad-core/sets-logic-proofs/index.qmd)
+  treats the same material from a proof-and-foundations angle and
+  introduces formal logic. Read it after the Class 12 board year for
+  depth.
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** Every SQL query is a set operation. `UNION`, `INTERSECT`,
+`EXCEPT` are exactly $\cup$, $\cap$, $-$. The result of `SELECT`
+clauses is a set (or multiset) of rows. The clean algebra of sets is
+why relational databases scale.
+:::
+
+::: {.applied-callout}
+**Encryption.** Public-key systems work over carefully chosen finite
+sets — the integers modulo a prime, points on an elliptic curve. The
+operations of set membership ("is this a valid public key?") and set
+intersection ("are two keys equivalent?") are constant-time primitives
+underneath.
+:::
+
+::: {.applied-callout}
+**Research.** Modern mathematics is *built* on sets. Every object —
+function, relation, graph, group, topology, manifold — is ultimately a
+set with structure imposed on it. Cantor's set-theoretic foundation
+(1874) reorganised the entire subject.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones honoured: Pestalozzi (kitchen-drawer + interactive Venn
+slider), Boole (Wonder questions surface intuitions), Russian school
+(Discover problems force the structure), Bhāskara (Name beat is one box
++ verse), NRICH (low-floor-high-ceiling: every problem from Warm to
+5-mark uses inclusion–exclusion at increasing depth).
+:::

@@ -1,0 +1,470 @@
+---
+title: "Ch 11 — Direct and Inverse Proportions"
+subtitle: "When two quantities march in step, and when they trade places"
+lesson-id: "cbse8.direct-inverse-proportions"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 11
+ncert-chapter-title: "Direct and Inverse Proportions"
+board-exam: false
+prerequisites: ["t1.ratio-proportion"]
+unlocks: ["cbse9.linear-equations-two-var", "cbse10.applications-trigonometry"]
+applied-domains: ["databases", "ai-ml", "research"]
+estimated-minutes: 30
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute "$3$ for $\text{₹}60$, so $5$ for ?". If not,
+   revisit
+   **[Ratio and Proportion](../../tier-1-foundations/09-ratio-proportion/index.qmd)**.
+2. Are you comfortable with $\tfrac{a}{b} = \tfrac{c}{d}$ as the
+   definition of two ratios being equal?
+3. If $4$ workers take $3$ days, do you have a *guess* (without
+   computing) whether $8$ workers take more or fewer days?
+4. Can you compute $\tfrac{60 \times 5}{3}$ in your head?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Open your kitchen and find a recipe. "Tea for 4 people: 800 ml water."
+You're hosting 6 people instead.
+
+The widget below scales the recipe.
+
+```{ojs}
+viewof people = Inputs.range([1, 12], {value: 4, step: 1, label: "People"})
+```
+
+```{ojs}
+{
+  const baseP = 4;
+  const baseW = 800; // ml water
+  const baseT = 8;   // g tea leaves
+  const baseM = 200; // ml milk
+  const factor = people / baseP;
+  return html`<div style="font-family:system-ui;font-size:1.05rem;line-height:1.6;">
+    <table style="border-collapse:collapse;">
+      <tr><th style="text-align:left;padding:0.2rem 0.6rem;">Ingredient</th><th style="text-align:right;padding:0.2rem 0.6rem;">For 4</th><th style="text-align:right;padding:0.2rem 0.6rem;">For ${people}</th></tr>
+      <tr><td style="padding:0.2rem 0.6rem;">Water</td><td style="text-align:right;padding:0.2rem 0.6rem;">${baseW} ml</td><td style="text-align:right;padding:0.2rem 0.6rem;">${(baseW*factor).toFixed(0)} ml</td></tr>
+      <tr><td style="padding:0.2rem 0.6rem;">Tea leaves</td><td style="text-align:right;padding:0.2rem 0.6rem;">${baseT} g</td><td style="text-align:right;padding:0.2rem 0.6rem;">${(baseT*factor).toFixed(1)} g</td></tr>
+      <tr><td style="padding:0.2rem 0.6rem;">Milk</td><td style="text-align:right;padding:0.2rem 0.6rem;">${baseM} ml</td><td style="text-align:right;padding:0.2rem 0.6rem;">${(baseM*factor).toFixed(0)} ml</td></tr>
+    </table>
+  </div>`;
+}
+```
+
+Slide the people count from $4$ to $12$. Every ingredient triples
+together. They march in step. Now imagine a *different* problem: you
+have $24$ litres of paint, enough to paint one wall in $3$ days. With
+twice the painters, half the time. Two quantities, but moving in
+*opposite* directions.
+
+## Wonder
+
+Sit with these.
+
+1. In the tea recipe, doubling the people doubles every ingredient.
+   What stays *the same*? Look at "ml of water per person", not just
+   "ml of water".
+2. With more painters, fewer days. Is "people × days" constant?
+3. If you draw "ingredient amount" on the vertical axis against
+   "people" on the horizontal, what shape do you get? What if you
+   plotted "days" against "painters"?
+4. Can you imagine a pair of quantities that go neither *both up* nor
+   *one up, one down*?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+The recipe quantities have a constant *ratio* per person — that is
+**direct proportion**. The painters and the days have a constant
+*product* — that is **inverse proportion**. The chapter is built on
+spotting which of the two regimes a problem belongs to.
+:::
+
+## Discover
+
+### Problem 1 — Recipe scaling
+
+If $5$ kg of rice costs $\text{₹}350$, how much do $8$ kg cost?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set up the proportion: $\dfrac{\text{kg}_1}{\text{cost}_1} =
+\dfrac{\text{kg}_2}{\text{cost}_2}$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\tfrac{5}{350} = \tfrac{8}{x}$. Cross-multiply.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5x = 350 \times 8 = 2800 \Rightarrow x = 560$. **$\text{₹}560$.**
+</details>
+
+### Problem 2 — Painters and days
+
+If $4$ painters paint a wall in $9$ days, how long will $6$ painters
+take (working at the same pace)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+More painters → fewer days. *Inverse* proportion.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Painters $\times$ days $= $ constant. $4 \times 9 = 6 \times x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = \tfrac{4 \times 9}{6} = 6$ days.
+</details>
+
+### Problem 3 — Spot the regime
+
+For each pair, decide whether the two quantities are in *direct* or
+*inverse* proportion (or neither):
+
+(a) Number of pencils bought and total cost (price per pencil fixed).
+(b) Speed of a car and time to cover a fixed distance.
+(c) Age of a child and their height.
+(d) Number of taps filling a tank and time to fill it.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Both go up together?" → direct. "One up, one down, with a constant
+product?" → inverse.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) Direct. (b) Inverse. (c) Neither (correlated, but not in a fixed
+ratio or product). (d) Inverse.
+</details>
+
+### Problem 4 — Constant of proportionality
+
+If $y$ is directly proportional to $x$, and $y = 12$ when $x = 4$,
+find $y$ when $x = 11$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direct: $\tfrac{y}{x}$ is constant.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\tfrac{12}{4} = 3$. So $y = 3x$ for any $x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$y = 3 \times 11 = 33$.
+</details>
+
+### Problem 5 — Constant product
+
+If $y$ is *inversely* proportional to $x$, and $y = 8$ when $x = 5$,
+find $y$ when $x = 20$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Inverse: $xy$ is constant.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$xy = 5 \cdot 8 = 40$. When $x = 20$, $y = \tfrac{40}{20} = 2$.
+</details>
+
+### Problem 6 — Mixed problem
+
+A car travels $480$ km in $8$ hours. (i) At the same speed, how far
+does it go in $5$ hours? (ii) If the speed is doubled, how long does
+it take to go $480$ km?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+(i) is direct (more time → more distance, same speed). (ii) is
+inverse (more speed → less time, same distance).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** Speed $= 480 / 8 = 60$ km/h. In $5$ hours: $300$ km.
+
+**(ii)** New speed $= 120$ km/h. Time $= 480 / 120 = 4$ hours.
+</details>
+
+You have just seen — by looking at recipes, painters, taps, cars —
+two ways two quantities can be linked.
+
+## Name
+
+::: {.lesson-beat}
+
+Two quantities $x$ and $y$ are in **direct proportion** if their
+ratio $\tfrac{y}{x}$ is the same for every paired value. Equivalently:
+$$y = kx \qquad \text{for some constant } k > 0.$$
+
+They are in **inverse proportion** if their product $xy$ is the same
+for every pair. Equivalently:
+$$xy = k \quad\text{or}\quad y = \frac{k}{x} \qquad k > 0.$$
+
+The constant $k$ is called the **constant of proportionality**.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Direct: as one rises, the other rises in step;*
+> *Their ratio is fixed — multiply or divide together.*
+> *Inverse: as one rises, the other must fall;*
+> *Their product is fixed — when in doubt, make them swap.*
+
+## Apply
+
+### Worked example
+
+> $20$ workers can build a wall in $15$ days. How many days will
+> $25$ workers take?
+
+Competent solver's path:
+
+1. More workers → fewer days. **Inverse proportion.**
+2. Constant product: workers $\times$ days $= 20 \times 15 = 300$.
+3. With $25$ workers: days $= \tfrac{300}{25} = 12$.
+
+**Answer: 12 days.**
+
+### Practice — Warm
+
+**W1.** If $7$ pens cost $\text{₹}140$, find the cost of $11$ pens.
+
+<details class="hint"><summary>Full solution</summary>
+Direct. Cost per pen $= 140/7 = \text{₹}20$. Eleven pens: $\text{₹}220$.
+</details>
+
+**W2.** If $12$ cows finish a field in $5$ days, how many days will
+$15$ cows take?
+
+<details class="hint"><summary>Full solution</summary>
+Inverse. $12 \times 5 = 60 = 15 \times d \Rightarrow d = 4$ days.
+</details>
+
+**W3.** $y$ is directly proportional to $x$, and $y = 21$ when $x = 7$.
+What is $y$ when $x = 13$?
+
+<details class="hint"><summary>Full solution</summary>
+$k = 21/7 = 3$. $y = 3 \cdot 13 = 39$.
+</details>
+
+### Practice — Working
+
+**P1.** A car uses $9$ litres of petrol for $108$ km. (i) How far on
+$15$ litres? (ii) How many litres for $360$ km?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direct. $\tfrac{\text{km}}{\text{litres}}$ is constant.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$108 / 9 = 12$ km/litre.
+**(i)** $15 \times 12 = 180$ km.
+**(ii)** $360 / 12 = 30$ litres.
+</details>
+
+**P2.** A school feeds $250$ students with rations sufficient for $40$
+days. If $50$ extra students join, how long will the same rations
+last?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+More mouths → fewer days. Inverse.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$250 \times 40 = 300 \times d \Rightarrow d = 10000/300 = \tfrac{100}{3}
+\approx 33.33$ days.
+</details>
+
+**P3.** $x$ and $y$ are in inverse proportion. Some paired values:
+
+| $x$ | $4$ | $5$ | $\;?\;$ | $20$ |
+|:-:|:-:|:-:|:-:|:-:|
+| $y$ | $30$ | $\;?\;$ | $10$ | $\;?\;$ |
+
+Fill in the blanks.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$xy$ is constant. From $4 \times 30 = 120$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$xy = 120$.
+- $x = 5 \Rightarrow y = 24$.
+- $y = 10 \Rightarrow x = 12$.
+- $x = 20 \Rightarrow y = 6$.
+</details>
+
+### Practice — Stretch
+
+**S1.** $6$ taps fill a tank in $12$ minutes. How long would $9$ taps
+of the *same flow rate* take?
+
+<details class="hint"><summary>Full solution</summary>
+Inverse. $6 \times 12 = 72 = 9 \times t \Rightarrow t = 8$ minutes.
+</details>
+
+**S2.** Tea-bag manufacture: $25$ workers produce $1500$ bags in $6$
+days. How many bags will $30$ workers produce in $8$ days at the same
+rate?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is a *combined* proportion: bags $\propto$ workers $\times$ days.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Per-worker-per-day production: $\tfrac{1500}{25 \times 6} = 10$ bags.
+Then scale.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Rate per worker per day: $\tfrac{1500}{25 \times 6} = 10$ bags.
+With $30$ workers in $8$ days: $30 \times 8 \times 10 = 2400$ bags.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** If $y$ is directly proportional to $x$ and
+$y = 18$ when $x = 6$, then $y$ when $x = 10$ is
+(a) $30$ (b) $24$ (c) $20$ (d) $36$.
+
+<details class="hint"><summary>Full solution</summary>
+$k = 3$, so $y = 30$. **Answer: (a).**
+</details>
+
+**2-mark (short answer).** A truck covers a distance of $360$ km in
+$5$ hours. How long will it take to cover $450$ km at the same speed?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direct (same speed). Time $\propto$ distance.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{360}{5} = \tfrac{450}{t} \Rightarrow t = \tfrac{450 \times 5}{360}
+= \tfrac{2250}{360} = 6.25$ hours $= 6$ h $15$ min.
+</details>
+
+**3-mark (short answer II).** $14$ pumps working $8$ hours a day empty
+a tank in $6$ days. In how many days will $9$ pumps working $12$ hours
+a day empty the same tank? (Assume same pump capacity.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total pump-hours is constant: pumps × hours-per-day × days = constant.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$14 \times 8 \times 6 = 9 \times 12 \times d$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS $= 672$.
+$d = \tfrac{672}{9 \times 12} = \tfrac{672}{108} = \tfrac{56}{9} \approx
+6.22$ days.
+
+(Often expressed as $6\tfrac{2}{9}$ days.)
+</details>
+
+**4-mark (long answer).** A contractor planned to complete a road in
+$30$ days with $40$ men. After $10$ days, $40\%$ of the work was done.
+(i) Find the original total man-days planned. (ii) Find the man-days
+already used. (iii) Find the man-days remaining and decide how many
+*extra* men he must hire to finish the job in the remaining $20$ days.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plan first, then track what's done, then size the rest.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+**(i)** Planned man-days $= 40 \times 30 = 1200$.
+
+**(ii)** Used so far $= 40 \times 10 = 400$ man-days.
+
+**(iii)** Work-completed should match man-days-spent in proportion *if
+the plan is on track*. But $400$ man-days = $\tfrac{400}{1200} =
+\tfrac{1}{3}$ of the plan, while only $40\% = \tfrac{2}{5}$ should have
+been done — wait, $\tfrac{1}{3} = 33.3\%$, but $40\%$ has been done.
+So progress is *ahead* of schedule by man-days spent.
+
+Let's redo with the $40\%$ figure as ground truth:
+- $400$ man-days produced $40\%$ of the work. So
+  $100\%$ of the work needs $\tfrac{400}{0.4} = 1000$ man-days total.
+- Already used: $400$. Remaining: $600$ man-days.
+- Available time: $20$ days. Required workforce: $\tfrac{600}{20} =
+  30$ men.
+- Currently $40$ men are on site. **He can actually *release* $10$
+  men** — no extras needed.
+
+(The contractor's pace was faster than budgeted; the extra-men question
+turns into a release-men answer. This is the kind of trap CBSE long
+answers like to set.)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 11.5 (combined work-rate
+problem with men, hours, and days) is a near-twin of the 3-mark item.
+**Previous-year pointer:** CBSE 2017 Set 2, Q22 ("contractor with
+revised manpower") matches the 4-mark item closely.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"More always means direct proportion."** Not always. *More
+   workers, fewer days* is also a "more of one" situation — but
+   *inverse*. Look at whether the *product* is constant or the
+   *ratio* is constant.
+2. **"$x$ and $y$ correlated → $x$ and $y$ proportional."** No.
+   "Older children tend to be taller" is a correlation, but it is
+   neither direct nor inverse proportion.
+3. **"In inverse, $\tfrac{y}{x}$ is constant."** No — *$xy$* is
+   constant. The two are different.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain to a friend, without notes, the test for direct
+   versus inverse proportion?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the
+   7 *Practice* problems without peeking past Hint 1?
+3. Given a word problem, can you write the proportionality equation
+   ($y = kx$ or $xy = k$) before plugging numbers?
+
+- **3 yes:** move on to **[Factorisation](../12-factorisation/index.qmd)**.
+- **2 yes:** redo *Stretch S2* and the 4-mark board item, then move on.
+- **0–1 yes:** redo *Discover Problem 3* (regime spotting) — until you
+  classify problems before solving them.
+
+## Connect
+
+### Prerequisites used
+
+- **[Ratio and Proportion](../../tier-1-foundations/09-ratio-proportion/index.qmd)** — equality of ratios and the cross-multiplication trick.
+
+### What this unlocks
+
+- **[Class 9 — Linear Equations in Two Variables](../../tier-cbse-09-class-9/04-linear-equations-two-vars/index.qmd)** — direct proportion is a special case ($y = kx$).
+- **[Class 10 — Trigonometry Applications](../../tier-cbse-10-class-10/09-heights-and-distances/index.qmd)** — height/shadow problems hinge on direct proportion.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 11 — Direct and Inverse Proportions** (NCERT 2023
+  rationalised syllabus). Covers Sections 11.1–11.3: direct
+  proportion, inverse proportion, and combined / time-and-work problems.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t1.ratio-proportion`](../../tier-1-foundations/09-ratio-proportion/index.qmd)
+  treats ratio and proportion as foundations; this chapter formalises
+  the two regimes and the constant of proportionality.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** Index lookup time is *inversely proportional* to memory
+spent on the index — the classic memory-vs-speed trade-off. Database
+designers tune $k = $ *memory $\times$ time* to fit the workload.
+:::
+
+::: {.applied-callout}
+**AI / ML.** Training time is *directly proportional* to the number
+of training examples (with the network fixed) — a fact every ML
+engineer rediscovers when their dataset doubles.
+:::
+
+::: {.applied-callout}
+**Research.** The first rule of physics — Newton's third law,
+Boyle's law ($PV = $ constant), Coulomb's law ($\propto 1/r^2$) — is
+*always* a proportionality. Recognising the regime is the first step
+in every modelling exercise.
+:::

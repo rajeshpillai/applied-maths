@@ -1,0 +1,468 @@
+---
+title: "Ch 14 — Probability (Classical Definition)"
+subtitle: "Count the favourables, count the totals, divide — and call it chance"
+lesson-id: "cbse10.probability"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 14
+ncert-chapter-title: "Probability"
+board-exam: true
+prerequisites: [cbse9.statistics, t1.fractions-as-parts]
+unlocks: [cbse11.probability, cbse12.probability-distributions]
+applied-domains: [ai-ml, encryption, research, databases]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you list all the outcomes when you toss a fair coin? When you roll
+   a fair die?
+2. Can you compute $\dfrac{3}{6}$ in lowest terms? See
+   [`t1.fractions-as-parts`](../../tier-1-foundations/07-fractions-as-parts/index.qmd).
+3. Do you know what *equally likely* means?
+4. Can you list the 13 cards of a single suit in a deck of 52?
+
+Three yeses, you are ready.
+:::
+
+## Touch
+
+A standard deck of 52 cards. Shuffle. Pick one card at random.
+
+- What is the chance it is a **spade**? There are 13 spades out of 52
+  cards. So $13/52 = 1/4$.
+- A **king**? There are 4 kings. $4/52 = 1/13$.
+- A **black card**? Spades + clubs = 26. $26/52 = 1/2$.
+
+```{ojs}
+viewof eventChoice = Inputs.select(
+  ["Spade", "King", "Black card", "Face card (J/Q/K)", "Ace of Spades", "Red queen"],
+  {label: "Event"})
+```
+
+```{ojs}
+{
+  const counts = {
+    "Spade": 13, "King": 4, "Black card": 26,
+    "Face card (J/Q/K)": 12, "Ace of Spades": 1, "Red queen": 2
+  };
+  const fav = counts[eventChoice];
+  return html`<pre style="font-size: 13px;">
+P(${eventChoice}) = favourable / total = ${fav} / 52 = ${(fav/52).toFixed(4)}
+                                                  = ${fav/Math.pow(2, 1)}/${52/Math.pow(2,1)}  in some lowest form
+</pre>`;
+}
+```
+
+The pattern: **probability = (favourable outcomes) / (total outcomes)**,
+when all outcomes are equally likely.
+
+## Wonder
+
+1. Tossing a coin: probability of heads is $1/2$. If you toss it $10$
+   times, will you get *exactly* 5 heads?
+2. Rolling a die: probability of getting a 7?
+3. Probability of getting any number from 1 to 6 on a die?
+4. If P(A) = $0.3$ — what is the probability that A *does not* happen?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Not necessarily — probability is about long-run, not single trials.
+(2) Zero — impossible event. (3) One — certain event. (4) $1 - 0.3 = 0.7$.
+:::
+
+## Discover
+
+### Problem 1 — A coin toss
+What is the probability of getting heads when a fair coin is tossed?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two equally-likely outcomes: H and T. Favourable: 1 (just H).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{H}) = 1/2$.
+</details>
+
+### Problem 2 — A die roll
+What is the probability of getting an even number on a fair die?
+
+<details class="hint"><summary>Full solution</summary>
+Even numbers: $\{2, 4, 6\}$ — 3 outcomes. Total: 6. $P = 3/6 = 1/2$.
+</details>
+
+### Problem 3 — Two coins
+Two coins are tossed simultaneously. Find the probability of getting at
+least one head.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sample space: HH, HT, TH, TT — 4 outcomes. Favourable: HH, HT, TH.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{at least one H}) = 3/4$.
+
+Alternative: $P = 1 - P(\text{no H}) = 1 - 1/4 = 3/4$.
+</details>
+
+### Problem 4 — Two dice
+Two dice are rolled. What is the probability that the sum is $7$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+List the pairs $(d_1, d_2)$ that sum to 7: $(1, 6), (2, 5), \ldots, (6, 1)$
+— 6 pairs. Total: $6 \times 6 = 36$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P = 6/36 = 1/6$.
+</details>
+
+### Problem 5 — Cards
+A card is drawn at random from a well-shuffled standard deck. Find the
+probability it is:
+(a) a heart, (b) a queen, (c) a black queen, (d) the queen of hearts.
+
+<details class="hint"><summary>Full solution</summary>
+(a) $13/52 = 1/4$. (b) $4/52 = 1/13$. (c) $2/52 = 1/26$. (d) $1/52$.
+</details>
+
+### Problem 6 — Complementary event
+A bag has $5$ red, $4$ green, $3$ blue balls. One ball is drawn at random.
+What is the probability that it is **not red**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(\text{not red}) = 1 - P(\text{red})$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{red}) = 5/12$. $P(\text{not red}) = 7/12$.
+
+Or directly: $P(\text{green or blue}) = 7/12$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Classical (theoretical) definition of probability.** If a random
+experiment has $n$ equally likely outcomes, and an event $E$ corresponds to
+$m$ of them (the *favourable* outcomes), then
+$$P(E) = \dfrac{m}{n} = \dfrac{\text{number of outcomes favourable to }
+E}{\text{total number of outcomes}}.$$
+
+**Properties:**
+
+- $0 \le P(E) \le 1$ for every event $E$.
+- $P(\emptyset) = 0$ (impossible event).
+- $P(\text{sample space}) = 1$ (certain event).
+- $P(\bar{E}) = 1 - P(E)$, where $\bar{E}$ is the **complement** of $E$
+  ("$E$ does not happen").
+
+:::
+
+A verse:
+
+> *Count the favourables, count the totals, divide — that's chance.*
+> *All outcomes equal? Then the rule does its dance.*
+> *Zero is impossible, one is sure to be —*
+> *Complement plus event makes one, you'll see.*
+
+## Apply
+
+### Worked example
+
+> A box contains $90$ discs numbered $1$ to $90$. One disc is drawn at
+> random. Find the probability that the number on the drawn disc is:
+> (a) a two-digit number, (b) a perfect square, (c) divisible by 5.
+
+(a) Two-digit numbers in $\{1, \ldots, 90\}$: $10$ to $90$. Count =
+$90 - 10 + 1 = 81$. $P = 81/90 = 9/10$.
+
+(b) Perfect squares from 1 to 90: $1, 4, 9, 16, 25, 36, 49, 64, 81$ — 9 of
+them. $P = 9/90 = 1/10$.
+
+(c) Divisible by 5: $5, 10, \ldots, 90$. Count = $18$. $P = 18/90 = 1/5$.
+
+### Practice — Warm
+
+**W1.** A coin is tossed. $P$(tails)?
+
+<details class="hint"><summary>Full solution</summary>
+$1/2$.
+</details>
+
+**W2.** A die is rolled. $P$(getting a 4)?
+
+<details class="hint"><summary>Full solution</summary>
+$1/6$.
+</details>
+
+**W3.** A card is drawn. $P$(king of hearts)?
+
+<details class="hint"><summary>Full solution</summary>
+$1/52$.
+</details>
+
+### Practice — Working
+
+**P1.** A bag contains $3$ red, $5$ black, $7$ white balls. A ball is
+drawn at random. Find the probability that it is (a) white, (b) not black.
+
+<details class="hint"><summary>Full solution</summary>
+Total = 15.
+(a) $7/15$.
+(b) Not black = red or white = 10/15 = $2/3$.
+</details>
+
+**P2.** A die is rolled twice. Find the probability of getting a 5 on the
+first roll **and** an even number on the second.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Independent events: multiply.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{5 first}) = 1/6$. $P(\text{even second}) = 1/2$.
+$P(\text{both}) = 1/6 \cdot 1/2 = 1/12$.
+
+Alternative count: total outcomes $36$; favourable $(5, 2), (5, 4), (5,
+6)$ — 3 outcomes. $3/36 = 1/12$. ✓
+</details>
+
+**P3.** Two players, A and B, take turns drawing one card each from a
+shuffled deck (without replacement, A first). Find $P(\text{A draws a
+king on the first try})$ and $P(\text{B draws a king on her first try,
+given A drew a non-king})$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First: 4 kings out of 52. Second: 4 kings out of remaining 51, given the
+first card wasn't a king.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{A king}) = 4/52 = 1/13$.
+$P(\text{B king} \mid \text{A non-king}) = 4/51$.
+</details>
+
+### Practice — Stretch
+
+**S1.** A child has a die whose six faces show the letters **A, B, C, D,
+E, A**. The die is thrown once. Find the probability that the letter is
+(a) A, (b) D, (c) a vowel.
+
+<details class="hint"><summary>Full solution</summary>
+(a) 2 As out of 6: $1/3$. (b) 1 D: $1/6$. (c) Vowels: A, A, E — 3 out of
+6: $1/2$.
+</details>
+
+**S2.** A jar contains $24$ marbles, some green and others blue. If a
+marble is drawn at random and the probability it is green is $2/3$, find
+the number of blue marbles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Green count = $24 \cdot 2/3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Green = 16. Blue = $24 - 16 = 8$.
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** The probability of an impossible event is:
+(a) 1  (b) 0  (c) $1/2$  (d) less than 0.
+
+<details class="hint"><summary>Full solution</summary>
+**(b) 0.**
+</details>
+
+**Q2 (1 mark — assertion-reason).** Assertion (A): The probability of
+getting a number more than 6 on a single throw of a die is 0.
+Reason (R): A die has only 6 faces, numbered 1 to 6.
+
+<details class="hint"><summary>Full solution</summary>
+A is true, R is true, R correctly explains A.
+</details>
+
+**Q3 (2 marks).** Two dice are rolled simultaneously. Find the probability
+that:
+(a) the sum is 8;
+(b) at least one die shows 6.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+List or count.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** Sum = 8: $(2,6), (3,5), (4,4), (5,3), (6,2)$ — 5 pairs. $P = 5/36$.
+
+**(b)** Pairs with at least one 6: $6 + 6 - 1 = 11$ (using inclusion-
+exclusion: 6 pairs with first die = 6, 6 pairs with second die = 6,
+subtract the double-counted $(6,6)$). $P = 11/36$.
+</details>
+
+**Q4 (2 marks).** A card is drawn from a well-shuffled deck of 52. Find
+the probability that the card is:
+(a) a face card; (b) neither a heart nor a king.
+
+<details class="hint"><summary>Full solution</summary>
+**(a)** Face cards = J, Q, K of each suit = $4 \times 3 = 12$. $P =
+12/52 = 3/13$.
+
+**(b)** Hearts: 13. Kings: 4. Heart-kings (overlap): 1. Heart-or-king:
+$13 + 4 - 1 = 16$. Neither = $52 - 16 = 36$. $P = 36/52 = 9/13$.
+</details>
+
+**Q5 (3 marks).** A bag contains $5$ red balls, some white balls. The
+probability of drawing a white ball is twice the probability of drawing a
+red ball. Find the number of white balls.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let white = $w$. Then $P(\text{white}) = w/(5 + w)$, $P(\text{red}) =
+5/(5 + w)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{w}{5 + w} = 2 \cdot \dfrac{5}{5 + w} \Rightarrow w = 10$.
+
+**10 white balls.**
+</details>
+
+**Q6 (3 marks).** Two unbiased coins are tossed simultaneously. Find the
+probability of getting:
+(a) two heads; (b) at most one head; (c) exactly one tail.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sample space: HH, HT, TH, TT — 4 outcomes.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** $P(\text{HH}) = 1/4$.
+
+**(b)** "At most one H" = TT, HT, TH = 3 outcomes. $P = 3/4$.
+
+**(c)** "Exactly one T" = HT, TH = 2 outcomes. $P = 2/4 = 1/2$.
+</details>
+
+**Q7 (5 marks — long answer).** A box contains cards numbered from $1$ to
+$30$. One card is drawn at random.
+(a) Find the probability that the number on the drawn card is a prime.
+(b) Find the probability that the number is a multiple of 3 *or* a
+multiple of 5.
+(c) Find the probability that the number is a perfect square.
+(d) Find the probability that the number is divisible by 6 *and* by 8.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+List in each case. Inclusion-exclusion on (b).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** Primes in $\{1, \ldots, 30\}$: $\{2, 3, 5, 7, 11, 13, 17, 19, 23,
+29\}$ — 10 primes. $P = 10/30 = 1/3$.
+
+**(b)** Multiples of 3: $\{3, 6, 9, \ldots, 30\}$ — 10. Multiples of 5:
+$\{5, 10, 15, 20, 25, 30\}$ — 6. Both (multiples of 15): $\{15, 30\}$ — 2.
+By inclusion-exclusion: $10 + 6 - 2 = 14$. $P = 14/30 = 7/15$.
+
+**(c)** Perfect squares: $\{1, 4, 9, 16, 25\}$ — 5. $P = 5/30 = 1/6$.
+
+**(d)** Divisible by 6 and 8 = divisible by lcm$(6, 8) = 24$. In
+$\{1, \ldots, 30\}$: only $24$. $P = 1/30$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 14.3 Q1–Q12 cover deck/coin/die
+problems like Q3–Q6; Exemplar 14.4 Q1–Q12 cover word-problem-style
+applications like Q5 and Q7.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q33 mirrors Q5. CBSE 2023
+Standard, Q35 mirrors Q7.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$P(\text{A}) + P(\text{B})$ when A and B are not exclusive."**
+   Wrong. The correct formula is $P(A \cup B) = P(A) + P(B) - P(A \cap
+   B)$. Inclusion-exclusion is mandatory.
+2. **"Probability is a percentage."** It can be expressed as a percentage
+   ($1/2 = 50\%$), but the *natural* form is a fraction or decimal in
+   $[0, 1]$.
+3. **"Probability tells you what *will* happen on a single trial."** No —
+   it tells you the **long-run frequency** over many trials. A single
+   coin toss is either H or T; the probability $1/2$ describes a million
+   tosses, not one.
+:::
+
+### Self-Assessment
+
+1. Could you state the classical definition and the four properties
+   without notes?
+2. Did Q5 and Q7 fall out cleanly with at most one hint?
+3. Could you spot when a problem requires inclusion-exclusion (Q4(b),
+   Q7(b))?
+
+- **3 yes:** you have completed Class 10. Begin Class 11 with confidence.
+- **2 yes:** redo Q4 and Q7. The board paper picks an "or" / "and"
+  problem nearly every year.
+- **0–1 yes:** the formula is simple, but the *counting* is everything.
+  Drill the listing exercises (Q3, Q6) until they are automatic.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.statistics`](../../tier-cbse-09-class-9/12-statistics/index.qmd) —
+  basic frequency-as-relative-count.
+- [`t1.fractions-as-parts`](../../tier-1-foundations/07-fractions-as-parts/index.qmd) —
+  fractions as ratios of parts to wholes.
+
+### What this unlocks
+
+- [`cbse11.probability`](../../tier-cbse-11-class-11/14-probability/index.qmd) —
+  axiomatic probability, Bayes' theorem.
+- [`cbse12.probability-distributions`](../../tier-cbse-12-class-12/13a-conditional-probability-bayes/index.qmd) —
+  random variables, expectation, variance.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 14 — Probability** (NCERT 2023 rationalised
+  syllabus). Covers Sections 14.1–14.2: classical (theoretical)
+  probability, simple problems on coins, dice, cards, balls.
+- **Sister synthesis lesson:**
+  [`t3.basic-probability`](../../tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd) —
+  probability from a synthesis angle.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Every classifier in machine learning outputs a probability:
+"this image is a cat with probability 0.92". The computation happens at
+billion-element scale, but the elementary arithmetic is the same:
+favourable / total, weighted appropriately.
+:::
+
+::: {.applied-callout}
+**Encryption.** Cryptography rests on probabilistic guarantees: "the
+probability that an attacker without the key can read the message is
+$2^{-128}$". The notation looks fancier, but the question is exactly
+the one you've been answering: favourables over totals.
+:::
+
+::: {.applied-callout}
+**Databases.** Query optimisers in modern databases (PostgreSQL,
+Snowflake, BigQuery) make probabilistic estimates of how many rows a
+query will return — the "selectivity" of a filter. Choosing the cheaper
+query plan reduces to a probability comparison.
+:::
+
+::: {.applied-callout}
+**Research.** Probability is the language of every modern scientific
+inference — clinical trials, particle physics, climate models. The
+classical definition you have just learned is the historical seed
+(Pascal, Fermat, 1654) of a vast tree.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained (the deck-of-cards entry); Russian
+  school (problem-first); Bhāskara (compact *Name* + verse).
+- **Source notes:** Q3 (two-dice) and Q5 (white-ball ratio) are NCERT
+  Examples 14.5 and 14.13 archetypes; Q7 closely follows the NCERT
+  14.2 multi-part shaded-region template.
+:::

@@ -1,0 +1,440 @@
+---
+title: "Ch 7 — Comparing Quantities"
+subtitle: "Percentages, profit and loss, simple and compound interest — the everyday algebra of money"
+lesson-id: "cbse8.comparing-quantities"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 7
+ncert-chapter-title: "Comparing Quantities"
+board-exam: false
+prerequisites: ["t1.ratio-proportion", "t1.fractions-as-parts"]
+unlocks: ["cbse8.direct-inverse-proportions", "cbse10.applications-trigonometry"]
+applied-domains: ["databases", "ai-ml", "research"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Do you know that $\tfrac{1}{2}$ means the same as $50\%$? If not,
+   revisit
+   **[Fractions as Parts](../../tier-1-foundations/07-fractions-as-parts/index.qmd)**.
+2. Are you comfortable with ratios like $3 : 4$? If not, revisit
+   **[Ratio and Proportion](../../tier-1-foundations/09-ratio-proportion/index.qmd)**.
+3. Can you compute $25\%$ of $200$ in your head?
+4. If something costs $\text{₹}80$ and you sell it for $\text{₹}100$,
+   would you call that a profit or a loss?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Open your wallet or imagine one. You have $\text{₹}500$. A shop offers
+"$20\%$ off" on an item priced at $\text{₹}250$.
+
+How much do you actually pay? How much do you save? Slide below to
+explore.
+
+```{ojs}
+viewof price = Inputs.range([100, 1000], {value: 250, step: 10, label: "Marked price (rupees)"})
+viewof discount = Inputs.range([0, 60], {value: 20, step: 1, label: "Discount %"})
+```
+
+```{ojs}
+{
+  const saving = price * discount / 100;
+  const pay = price - saving;
+  return html`<div style="font-family:system-ui;font-size:1.05rem;line-height:1.7;">
+    <div><b>Marked price:</b> &#8377; ${price}</div>
+    <div><b>Discount of ${discount}%:</b> &#8377; ${saving.toFixed(2)} off</div>
+    <div><b>You pay:</b> &#8377; ${pay.toFixed(2)}</div>
+  </div>`;
+}
+```
+
+Push the discount up and down. The amount-paid and amount-saved are
+*proportional* to the discount percentage. The whole chapter sits on
+that simple fact.
+
+## Wonder
+
+Sit with these.
+
+1. A discount of $20\%$ on $\text{₹}500$ — is that the same number of
+   rupees as $50\%$ on $\text{₹}200$?
+2. If a price increases by $10\%$ and then *decreases* by $10\%$, do
+   you end up at the original price?
+3. You earn $\text{₹}100$ interest in one year on $\text{₹}1000$. Next
+   year, would you expect the same $\text{₹}100$ — or more, or less?
+4. If a bag's marked price is $\text{₹}800$ but you bought it for
+   $\text{₹}600$, what fraction of the marked price was the discount?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+Question 2 has a counter-intuitive answer: $+10\%$ then $-10\%$ does
+*not* return you to the start. ($100 \to 110 \to 99$.) Percentages
+compose in a multiplicative way, not an additive way. That is the seed
+of compound interest, the headline idea of this chapter.
+:::
+
+## Discover
+
+### Problem 1 — Percent of a quantity
+
+What is $35\%$ of $80$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"$35\%$" means "$\tfrac{35}{100}$".
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{35}{100} \times 80 = \tfrac{35 \times 80}{100} = \tfrac{2800}{100}
+= 28$.
+</details>
+
+### Problem 2 — Express as a percent
+
+A class has $25$ students; $9$ are absent. What percentage are absent?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $\tfrac{9}{25}$, then multiply by $100$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{9}{25} \times 100 = \tfrac{900}{25} = 36\%$.
+</details>
+
+### Problem 3 — Profit or loss
+
+A trader buys a chair for $\text{₹}1{,}200$ and sells it for
+$\text{₹}1{,}500$. What is the profit, and what is the profit *percent*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Profit $= \text{SP} - \text{CP}$. Profit percent uses CP as the base.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Profit% $= \tfrac{\text{Profit}}{\text{CP}} \times 100$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Profit $= 1500 - 1200 = \text{₹}300$.
+Profit% $= \tfrac{300}{1200} \times 100 = 25\%$.
+</details>
+
+### Problem 4 — Discount
+
+The marked price (MP) of a shirt is $\text{₹}800$. After a discount of
+$15\%$, what is the selling price (SP)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the discount amount, then subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Discount $= 15\%$ of $\text{₹}800 = \text{₹}120$.
+SP $= 800 - 120 = \text{₹}680$.
+
+(Equivalently: SP $= 85\%$ of MP $= 0.85 \times 800 = 680$.)
+</details>
+
+### Problem 5 — Simple interest
+
+Find the simple interest (SI) on $\text{₹}5{,}000$ for $3$ years at
+$8\%$ per annum.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\text{SI} = \tfrac{P \times R \times T}{100}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{SI} = \tfrac{5000 \times 8 \times 3}{100} = \tfrac{120000}{100} =
+\text{₹}1200$.
+
+Total amount after 3 years: $5000 + 1200 = \text{₹}6200$.
+</details>
+
+### Problem 6 — Compound interest, year by year
+
+Find the compound interest (CI) on $\text{₹}1{,}000$ for $2$ years at
+$10\%$ per annum, compounded annually.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Year 1: simple interest. Year 2: interest on the *new* principal.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+After year 1: amount $= 1000 + 100 = 1100$. Year 2 interest is on
+$1100$, not on $1000$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- After year 1: $1000 \times 1.10 = 1100$.
+- After year 2: $1100 \times 1.10 = 1210$.
+
+CI $= 1210 - 1000 = \text{₹}210$.
+
+(Compare with SI for the same case: $\tfrac{1000 \cdot 10 \cdot 2}{100}
+= \text{₹}200$. Compound interest beats simple interest by $\text{₹}10$ —
+the "interest on interest".)
+</details>
+
+You have just used the same engine — *percent of a quantity* — to
+compute discount, profit, simple interest, and compound interest. Four
+shop-floor problems, one idea.
+
+## Name
+
+::: {.lesson-beat}
+
+**Percent.** $r\%$ means $\tfrac{r}{100}$. To find $r\%$ of a quantity
+$x$: compute $\tfrac{r}{100} \cdot x$.
+
+**Profit / loss.**
+$$\text{Profit\%} = \frac{\text{SP} - \text{CP}}{\text{CP}} \times 100,
+\qquad \text{Loss\%} = \frac{\text{CP} - \text{SP}}{\text{CP}} \times 100.$$
+
+**Simple interest.** $\text{SI} = \dfrac{P \cdot R \cdot T}{100}$.
+
+**Compound interest, annual compounding.** Amount after $n$ years:
+$$A = P \left(1 + \tfrac{R}{100}\right)^n,$$
+and $\text{CI} = A - P$.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Percent is per-hundred — divide and you read it right.*
+> *Profit on cost; discount on price displayed.*
+> *Simple grows by addition; compound grows by multiplication —*
+> *Each year a new pile, each pile breeds the next.*
+
+## Apply
+
+### Worked example
+
+> An article was bought for $\text{₹}4{,}000$ and sold so as to gain
+> $15\%$. Find the selling price.
+
+Competent solver's path:
+
+1. Profit $= 15\%$ of $\text{₹}4000 = \text{₹}600$.
+2. SP $= \text{CP} + \text{Profit} = 4000 + 600 = \text{₹}4600$.
+
+(Or directly: SP $= 1.15 \times \text{CP} = 1.15 \times 4000 = \text{₹}
+4600$.)
+
+**Answer: $\text{₹}4600$.**
+
+### Practice — Warm
+
+**W1.** Convert $\tfrac{3}{8}$ to a percentage.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{3}{8} = \tfrac{3 \times 100}{8}\% = 37.5\%$.
+</details>
+
+**W2.** A pen costs $\text{₹}50$. After a $20\%$ discount, what is the
+selling price?
+
+<details class="hint"><summary>Full solution</summary>
+Discount $= \text{₹}10$. SP $= \text{₹}40$.
+</details>
+
+**W3.** SI on $\text{₹}8000$ at $12\%$ for $2.5$ years?
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{8000 \times 12 \times 2.5}{100} = \tfrac{240000}{100} = \text{₹}
+2400$.
+</details>
+
+### Practice — Working
+
+**P1.** A shopkeeper marks his goods at $40\%$ above cost price and
+gives a discount of $10\%$. Find his profit percent.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick a convenient CP — say $\text{₹}100$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Take CP $= \text{₹}100$. MP $= 100 + 40 = \text{₹}140$.
+SP $= 140 - 10\%$ of $140 = 140 - 14 = \text{₹}126$.
+Profit $= 126 - 100 = \text{₹}26$.
+Profit% $= 26\%$.
+</details>
+
+**P2.** Find CI on $\text{₹}8000$ for $2$ years at $5\%$ per annum,
+compounded annually.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$A = P(1 + R/100)^n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = 8000 \times (1.05)^2 = 8000 \times 1.1025 = \text{₹}8820$.
+CI $= 8820 - 8000 = \text{₹}820$.
+</details>
+
+**P3.** A scooter is bought for $\text{₹}60{,}000$ and depreciates by
+$10\%$ each year. Find its value after $2$ years.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Depreciation works just like compound interest, but with a *minus*
+sign.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = 60000 \times (0.9)^2 = 60000 \times 0.81 = \text{₹}48{,}600$.
+</details>
+
+### Practice — Stretch
+
+**S1.** The population of a town is $1{,}21{,}000$ and grows at $10\%$
+per year. What was the population two years ago?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The current population is *after* two years of growth: $P_0 \times
+(1.1)^2 = 121000$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P_0 = \tfrac{121000}{(1.1)^2} = \tfrac{121000}{1.21} = 1{,}00{,}000$.
+
+**Two years ago: 1,00,000 people.**
+</details>
+
+**S2.** Sameer borrowed $\text{₹}25{,}000$ at $12\%$ p.a. compounded
+*half-yearly* for $1$ year. Find the amount he repays.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Half-yearly compounding: rate per period is $\tfrac{12}{2} = 6\%$,
+and there are $2$ periods.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = 25000 \times (1.06)^2 = 25000 \times 1.1236 = \text{₹}28{,}090$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $25\%$ of $80$ is
+(a) $15$ (b) $20$ (c) $25$ (d) $30$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{25}{100} \times 80 = 20$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** A man bought a watch for $\text{₹}1{,}500$
+and sold it at a loss of $8\%$. Find the selling price.
+
+<details class="hint"><summary>Full solution</summary>
+Loss $= 8\%$ of $1500 = \text{₹}120$. SP $= 1500 - 120 = \text{₹}1380$.
+</details>
+
+**3-mark (short answer II).** A sum of money becomes $\text{₹}6655$ in
+$3$ years at $10\%$ per annum, compounded annually. Find the principal.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$A = P(1 + R/100)^n$. Solve for $P$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$P = \dfrac{A}{(1.1)^3}$. $(1.1)^3 = 1.331$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P = \tfrac{6655}{1.331} = \text{₹}5000$.
+
+Check: $5000 \to 5500 \to 6050 \to 6655$. ✓
+</details>
+
+**4-mark (long answer).** A trader allows a discount of $10\%$ on his
+marked price and still gains $20\%$. (i) If the cost price of an
+article is $\text{₹}540$, find the marked price. (ii) Find the discount
+amount and the selling price.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+SP $= 1.20 \times \text{CP}$ (since gain is $20\%$).
+SP $= 0.90 \times \text{MP}$ (since discount is $10\%$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+**(i)** SP $= 1.20 \times 540 = \text{₹}648$.
+SP $= 0.90 \times \text{MP} \Rightarrow \text{MP} = \tfrac{648}{0.9} =
+\text{₹}720$.
+
+**(ii)** Discount $= 10\%$ of $720 = \text{₹}72$.
+SP $= 720 - 72 = \text{₹}648$. ✓
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 7.5 (interlocking
+discount and gain percent) is a near-twin of the 4-mark item.
+**Previous-year pointer:** CBSE 2018 Set 2, Q21 ("compound interest
+half-yearly") matches *Stretch S2* exactly.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Profit% is computed on the SP."** It is on the **CP**. Always.
+   Discount% is on the **MP**. Mixing the bases is the most common
+   error in this chapter.
+2. **"$+10\%$ then $-10\%$ returns to the start."** It does not.
+   ($100 \to 110 \to 99$.) Percentage changes compose multiplicatively.
+3. **"Compound interest is just $n$ times simple interest."** No.
+   Compound is *bigger* than that, because each year's interest itself
+   earns interest the next year.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain to a friend, without notes, the difference between
+   simple and compound interest using only one example?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   *Practice* problems without peeking past Hint 1?
+3. Given a word problem mixing CP, SP, MP, and discount, can you sort
+   them out and pick the right base for each percent?
+
+- **3 yes:** move on to **[Algebraic Expressions and Identities](../08-algebraic-expressions/index.qmd)**.
+- **2 yes:** redo *Stretch S2* and the 4-mark board item, then move on.
+- **0–1 yes:** redo *Discover Problem 6* — until compound interest
+  feels like *interest on interest*, the chapter is not yet yours.
+
+## Connect
+
+### Prerequisites used
+
+- **[Ratio and Proportion](../../tier-1-foundations/09-ratio-proportion/index.qmd)** — percent is a ratio out of $100$.
+- **[Fractions as Parts](../../tier-1-foundations/07-fractions-as-parts/index.qmd)** — percent is a fraction in disguise.
+
+### What this unlocks
+
+- **[Direct and Inverse Proportions](../11-direct-inverse-proportions/index.qmd)** — generalises proportional reasoning beyond money.
+- **[Class 9 — Statistics](../../tier-cbse-09-class-9/12-statistics/index.qmd)** — pie charts, frequency percentages.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 7 — Comparing Quantities** (NCERT 2023
+  rationalised syllabus). Covers Sections 7.1–7.4: percentages, profit
+  and loss, simple and compound interest.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t1.ratio-proportion`](../../tier-1-foundations/09-ratio-proportion/index.qmd)
+  treats proportional reasoning at the foundation level; this chapter
+  applies it to money.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** Every analytics dashboard reports percentages —
+year-over-year growth, click-through rate, conversion percentage. The
+formulas you learnt today are the ones that engineers actually type into
+SQL queries.
+:::
+
+::: {.applied-callout}
+**AI / ML.** Model accuracy ($\tfrac{\text{correct}}{\text{total}}
+\times 100$) is a percent. So is precision, recall, and F1. The whole
+language of evaluating a classifier is the language of this chapter.
+:::
+
+::: {.applied-callout}
+**Research.** The compound-interest formula
+$A = P (1 + r/n)^{nt}$ is the discrete cousin of $A = P e^{rt}$, the
+exponential growth equation that governs population biology, finance,
+and bacterial colonies.
+:::

@@ -1,0 +1,494 @@
+---
+title: "Ch 1 — Rational Numbers"
+subtitle: "Every fraction, every negative, every decimal that ends — they all live on one line"
+lesson-id: "cbse8.rational-numbers"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 1
+ncert-chapter-title: "Rational Numbers"
+board-exam: false
+prerequisites: ["t1.fractions-as-parts", "t1.negative-numbers"]
+unlocks: ["cbse8.linear-equations-one-var", "cbse8.squares-and-square-roots", "cbse9.number-systems"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you say what $\tfrac{3}{4}$ means in one breath? If not, revisit
+   **[Fractions as Parts](../../tier-1-foundations/07-fractions-as-parts/index.qmd)**.
+2. Are you comfortable with $-3$ being smaller than $-1$? If not, revisit
+   **[Negative Numbers](../../tier-1-foundations/10-negative-numbers/index.qmd)**.
+3. Can you write $0.25$ as a fraction without panicking?
+4. Do you remember how to find a common denominator for $\tfrac{1}{2}$ and
+   $\tfrac{1}{3}$?
+
+If three of these were a confident yes, read on. Otherwise spend twenty
+minutes on the linked lessons first — this chapter will reward the prep.
+:::
+
+## Touch
+
+Take a strip of paper. Fold it in half. Fold it in half again. Open it.
+You should see four equal parts.
+
+Now mark the strip like a number line: write $0$ at the left edge, $1$ at
+the right edge. The fold creases are sitting at $\tfrac{1}{4}$,
+$\tfrac{1}{2}$, $\tfrac{3}{4}$.
+
+Move the slider below to drop a marker on your strip. Watch how the same
+point has *many* names.
+
+```{ojs}
+viewof q = Inputs.range([-2, 2], {value: 0.5, step: 0.05, label: "Pick a point"})
+```
+
+```{ojs}
+{
+  const x = q;
+  const approx = (a, b) => Math.abs(a - b) < 1e-9;
+  const candidates = [];
+  for (let d = 1; d <= 12; d++) {
+    const n = Math.round(x * d);
+    if (approx(n / d, x)) candidates.push(`${n}/${d}`);
+  }
+  const decimal = x.toFixed(2);
+  return html`<div style="font-family:system-ui;font-size:1.1rem;line-height:1.6;">
+    <div><b>Decimal:</b> ${decimal}</div>
+    <div><b>As a fraction (many names):</b> ${candidates.slice(0,4).join(", ") || "doesn't land cleanly here"}</div>
+    <div style="margin-top:0.6rem;color:#666;font-size:0.95rem;">
+      Many fractions, the same point. The point is more fundamental than its names.
+    </div>
+  </div>`;
+}
+```
+
+Drag through positive and negative values. Notice three things: the same
+point can be written as $\tfrac{2}{4}$ or $\tfrac{1}{2}$; some points have
+short decimal names; and the negative side mirrors the positive side
+exactly.
+
+## Wonder
+
+Sit with these. No notes needed.
+
+1. If $\tfrac{1}{2}$ and $\tfrac{2}{4}$ name the same point, do they
+   "count" as the same number, or different numbers that happen to be
+   equal?
+2. Between $\tfrac{1}{3}$ and $\tfrac{1}{2}$, can you always find another
+   fraction? How many?
+3. Where would $-\tfrac{2}{3}$ sit on your folded strip if you let the
+   strip extend to the left of $0$?
+4. Is $0.\overline{3}$ (i.e. $0.333\ldots$ forever) the same number as
+   $\tfrac{1}{3}$, or only nearly the same?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+Question 2 is the secret of the chapter: between any two of these
+numbers there is always *another* one — in fact, infinitely many. They
+pack the line densely. We come back to this in *Discover*.
+:::
+
+## Discover
+
+### Problem 1 — Same point, different name
+
+Mark $\tfrac{2}{6}$ on a number line from $0$ to $1$. Now mark
+$\tfrac{1}{3}$. Do they land in the same place?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Both denominators measure how many equal pieces the unit is cut into.
+Cut the unit into 6 pieces, take 2. Cut into 3 pieces, take 1.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Multiply the top and bottom of $\tfrac{1}{3}$ by $2$. What do you get?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{3} = \tfrac{1 \times 2}{3 \times 2} = \tfrac{2}{6}$. They land on
+the *same point*. Multiplying numerator and denominator by the same
+non-zero number gives a different *name* for the same number.
+</details>
+
+### Problem 2 — Adding with different names
+
+Compute $\tfrac{1}{2} + \tfrac{1}{3}$ as a single fraction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You can't add halves and thirds directly. Make the pieces the same
+size first.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Find a denominator both 2 and 3 divide into. Six works.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{2} = \tfrac{3}{6}$ and $\tfrac{1}{3} = \tfrac{2}{6}$. So
+$\tfrac{1}{2} + \tfrac{1}{3} = \tfrac{3}{6} + \tfrac{2}{6} = \tfrac{5}{6}$.
+</details>
+
+### Problem 3 — A negative fraction
+
+Where does $-\tfrac{3}{4}$ sit between $-1$ and $0$? Is it closer to $-1$
+or to $0$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\tfrac{3}{4}$ is closer to $1$ than to $0$. Mirror that across $0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-\tfrac{3}{4}$ is three-quarters of the way from $0$ to $-1$, so it sits
+much closer to $-1$ than to $0$. On a number line: $-1, \ -\tfrac{3}{4},
+\ -\tfrac{1}{2}, \ -\tfrac{1}{4}, \ 0$.
+</details>
+
+### Problem 4 — Find me one in between
+
+Find any number that lies strictly between $\tfrac{1}{4}$ and $\tfrac{1}{3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Convert both to a common denominator and look for room.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\tfrac{1}{4} = \tfrac{3}{12}$ and $\tfrac{1}{3} = \tfrac{4}{12}$. There
+is no twelfth between them. Try twenty-fourths.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{4} = \tfrac{6}{24}$ and $\tfrac{1}{3} = \tfrac{8}{24}$. So
+$\tfrac{7}{24}$ sits exactly between them. Another easy answer: their
+average, $\tfrac{1}{2}\left(\tfrac{1}{4}+\tfrac{1}{3}\right) =
+\tfrac{7}{24}$. The average of two numbers always lands between them.
+</details>
+
+### Problem 5 — Multiplication
+
+Compute $\tfrac{2}{3} \times \tfrac{3}{5}$. Then compute
+$\tfrac{2}{3} \div \tfrac{3}{5}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For multiplication: top times top, bottom times bottom. For division:
+flip the second one and multiply.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{2}{3} \times \tfrac{3}{5} = \tfrac{6}{15} = \tfrac{2}{5}$.
+
+$\tfrac{2}{3} \div \tfrac{3}{5} = \tfrac{2}{3} \times \tfrac{5}{3} =
+\tfrac{10}{9}$.
+</details>
+
+### Problem 6 — Decimal in disguise
+
+Write $0.75$ and $-1.2$ each as a fraction in lowest terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$0.75$ has two decimal places, so denominator $100$. Then simplify.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0.75 = \tfrac{75}{100} = \tfrac{3}{4}$.
+
+$-1.2 = -\tfrac{12}{10} = -\tfrac{6}{5}$.
+</details>
+
+You have just written down (and added, and multiplied, and located on a
+line) numbers that come from dividing one whole number by another
+non-zero whole number. That family has a name.
+
+## Name
+
+::: {.lesson-beat}
+
+A **rational number** is any number that can be written as
+$$\frac{p}{q}$$
+where $p$ and $q$ are integers and $q \neq 0$.
+
+Two rational numbers are **equal** when reducing both to lowest terms gives
+the same fraction. Between any two distinct rational numbers there are
+**infinitely many** more — they are *dense* on the line.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Top over bottom, the bottom not zero;*
+> *Cancel what's common, the form is then clean.*
+> *Between any two, find their average sleeping —*
+> *Endless rationals lie quietly between.*
+
+The four rules at a glance:
+
+| Operation | Rule |
+|:--|:--|
+| Add / subtract | common denominator, then add/subtract numerators |
+| Multiply | numerator $\times$ numerator, denominator $\times$ denominator |
+| Divide by $\tfrac{c}{d}$ | multiply by $\tfrac{d}{c}$ |
+| Compare | put on a common denominator, compare numerators |
+
+## Apply
+
+### Worked example
+
+> A rope is $\tfrac{7}{4}$ metres long. You cut off $\tfrac{2}{3}$ of a
+> metre. How much rope is left?
+
+How a competent solver thinks:
+
+1. The question is a subtraction: $\tfrac{7}{4} - \tfrac{2}{3}$.
+2. Common denominator of $4$ and $3$ is $12$. Rewrite both:
+   $\tfrac{7}{4} = \tfrac{21}{12}$, $\tfrac{2}{3} = \tfrac{8}{12}$.
+3. Subtract: $\tfrac{21}{12} - \tfrac{8}{12} = \tfrac{13}{12}$.
+4. Sanity check: $\tfrac{13}{12}$ is just above $1$, and the rope was
+   $1.75$ metres, and we removed about $0.67$. So $1.75 - 0.67 \approx
+   1.08$. The fractional answer $\tfrac{13}{12} \approx 1.083$ matches.
+
+**Answer: $\tfrac{13}{12}$ metres of rope** (one whole metre and a
+twelfth more).
+
+### Practice — Warm
+
+**W1.** Reduce to lowest terms: $\tfrac{18}{24}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What is the largest number that divides both 18 and 24?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\gcd(18,24) = 6$. So $\tfrac{18}{24} = \tfrac{3}{4}$.
+</details>
+
+**W2.** Compute $\tfrac{5}{6} - \tfrac{1}{4}$.
+
+<details class="hint"><summary>Full solution</summary>
+LCM of $6$ and $4$ is $12$. $\tfrac{5}{6} = \tfrac{10}{12}$,
+$\tfrac{1}{4} = \tfrac{3}{12}$. Answer: $\tfrac{7}{12}$.
+</details>
+
+**W3.** Place these in increasing order: $-\tfrac{1}{2}, \ \tfrac{2}{3}, \
+-\tfrac{3}{4}, \ 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Negatives are smaller than zero; among negatives, the *bigger* the
+fraction, the *smaller* the value.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-\tfrac{3}{4} < -\tfrac{1}{2} < 0 < \tfrac{2}{3}$.
+</details>
+
+### Practice — Working
+
+**P1.** Find a rational number between $\tfrac{2}{5}$ and $\tfrac{3}{5}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The average always works.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{2}\left(\tfrac{2}{5}+\tfrac{3}{5}\right) = \tfrac{1}{2} \cdot
+\tfrac{5}{5} = \tfrac{1}{2}$. Equivalently: rewrite both with denominator
+$10$, getting $\tfrac{4}{10}$ and $\tfrac{6}{10}$, so $\tfrac{5}{10} =
+\tfrac{1}{2}$ sits between.
+</details>
+
+**P2.** Compute $\left(-\tfrac{2}{3}\right) \times \tfrac{9}{4}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply the absolute values; track the sign separately.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{2}{3} \times \tfrac{9}{4} = \tfrac{18}{12} = \tfrac{3}{2}$. The
+sign is negative. Answer: $-\tfrac{3}{2}$.
+</details>
+
+**P3.** Verify by direct calculation that $\tfrac{2}{5} + \tfrac{3}{7} =
+\tfrac{3}{7} + \tfrac{2}{5}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute both sides with a common denominator of 35.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{2}{5} = \tfrac{14}{35}$, $\tfrac{3}{7} = \tfrac{15}{35}$. Both
+sums equal $\tfrac{29}{35}$. Addition of rationals is **commutative** —
+order does not matter.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that between $\tfrac{1}{1000}$ and $\tfrac{1}{999}$ there is
+*at least one* rational number, by exhibiting one.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two fractions are very close. Take the average.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The average is $\tfrac{1}{2}\left(\tfrac{1}{999}+\tfrac{1}{1000}\right) =
+\tfrac{1999}{2 \cdot 999 \cdot 1000} = \tfrac{1999}{1{,}998{,}000}$. This
+is strictly between the two given numbers. The same trick works no matter
+how close two distinct rationals are — that is what *dense* means.
+</details>
+
+**S2.** A pole of length $\tfrac{15}{4}$ m is painted in three colours:
+$\tfrac{1}{3}$ of it red, $\tfrac{2}{5}$ of it blue, and the rest yellow.
+What length is yellow?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"$\tfrac{1}{3}$ of $\tfrac{15}{4}$" is multiplication. Find red, find
+blue, subtract from the whole.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Red: $\tfrac{1}{3} \times \tfrac{15}{4} = \tfrac{15}{12} = \tfrac{5}{4}$
+m. Blue: $\tfrac{2}{5} \times \tfrac{15}{4} = \tfrac{30}{20} = \tfrac{3}{2}$
+m. Together: $\tfrac{5}{4} + \tfrac{3}{2} = \tfrac{5}{4} + \tfrac{6}{4} =
+\tfrac{11}{4}$ m. Yellow: $\tfrac{15}{4} - \tfrac{11}{4} = \tfrac{4}{4} =
+1$ m. **Answer: 1 m of yellow.**
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The additive inverse of $-\tfrac{7}{12}$ is
+(a) $\tfrac{12}{7}$ (b) $\tfrac{7}{12}$ (c) $-\tfrac{12}{7}$ (d) $0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Additive inverse of $x$ is the number that adds to $x$ to give $0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-\tfrac{7}{12} + \tfrac{7}{12} = 0$, so the additive inverse is
+$\tfrac{7}{12}$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Simplify
+$\tfrac{2}{3} \times \tfrac{-5}{7} - \tfrac{1}{6} \times \tfrac{2}{9}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two products, then a subtraction.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+First product: $\tfrac{-10}{21}$. Second product: $\tfrac{2}{54} =
+\tfrac{1}{27}$. Common denominator of 21 and 27 is 189.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{2}{3} \times \tfrac{-5}{7} = -\tfrac{10}{21}$;
+$\tfrac{1}{6} \times \tfrac{2}{9} = \tfrac{2}{54} = \tfrac{1}{27}$.
+
+LCM$(21,27) = 189$. So $-\tfrac{10}{21} = -\tfrac{90}{189}$,
+$\tfrac{1}{27} = \tfrac{7}{189}$. Answer:
+$-\tfrac{90}{189} - \tfrac{7}{189} = -\tfrac{97}{189}$.
+</details>
+
+**3-mark (short answer II).** Verify the distributive law for
+$a = \tfrac{1}{2}$, $b = \tfrac{2}{3}$, $c = \tfrac{-3}{5}$:
+$$a \times (b + c) = a \times b + a \times c.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the LHS and the RHS separately. They must match.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$b + c = \tfrac{2}{3} - \tfrac{3}{5} = \tfrac{10-9}{15} = \tfrac{1}{15}$.
+
+LHS $= \tfrac{1}{2} \cdot \tfrac{1}{15} = \tfrac{1}{30}$.
+
+$a b = \tfrac{1}{2} \cdot \tfrac{2}{3} = \tfrac{1}{3}$;
+$a c = \tfrac{1}{2} \cdot \tfrac{-3}{5} = -\tfrac{3}{10}$.
+
+RHS $= \tfrac{1}{3} - \tfrac{3}{10} = \tfrac{10-9}{30} = \tfrac{1}{30}$.
+
+LHS = RHS. Verified.
+</details>
+
+**5-mark (long answer).** A scout walked $\tfrac{5}{2}$ km on Day 1,
+$\tfrac{4}{3}$ km on Day 2, and $\tfrac{7}{6}$ km on Day 3. (i) Find the
+total distance walked. (ii) The full route was $\tfrac{20}{3}$ km. What
+fraction of the route is still left? Express in lowest terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add three fractions in part (i). For (ii), subtract from $\tfrac{20}{3}$
+and divide by the total route.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Common denominator of 2, 3, 6 is 6.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\tfrac{5}{2}+\tfrac{4}{3}+\tfrac{7}{6} = \tfrac{15}{6}+\tfrac{8}{6}+\tfrac{7}{6} = \tfrac{30}{6} = 5$ km.
+
+**(ii)** Distance left $= \tfrac{20}{3} - 5 = \tfrac{20}{3} - \tfrac{15}{3} = \tfrac{5}{3}$ km.
+
+Fraction left $= \dfrac{5/3}{20/3} = \dfrac{5}{20} = \dfrac{1}{4}$.
+
+**One quarter of the route remains.**
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 1.3 (verifying associativity
+and distributivity) is a near-twin of the 3-mark item.
+**Previous-year pointer:** CBSE 2019 SQP, "Find a rational number
+between $\tfrac{1}{4}$ and $\tfrac{1}{2}$" — the recipe in *Stretch S1* is
+the answer key.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\tfrac{1}{2}$ and $\tfrac{2}{4}$ are different numbers."** They are
+   different *names*, the same *number*. Reducing to lowest terms is the
+   way to check equality.
+2. **"$-\tfrac{2}{3}$ is bigger than $-\tfrac{1}{3}$ because 2 > 1."** No.
+   Among negatives, the bigger the magnitude, the *smaller* the number.
+   $-\tfrac{2}{3} < -\tfrac{1}{3}$.
+3. **"You can't divide by a fraction."** You can — and you already know
+   how. Dividing by $\tfrac{c}{d}$ means multiplying by $\tfrac{d}{c}$.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain to a friend, without notes, why $\tfrac{2}{4}$ and
+   $\tfrac{1}{2}$ are the *same* number?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   *Practice* problems without peeking past Hint 1?
+3. Can you find a rational number between any two given rationals on
+   demand?
+
+- **3 yes:** move on to **[Linear Equations in One Variable](../02-linear-equations-one-var/index.qmd)**.
+- **2 yes:** redo *Stretch S1* and the 3-mark board item, then move on.
+- **0–1 yes:** rebuild from *Discover*. Most stumbles here come from
+  weak fraction arithmetic, not from the new ideas.
+
+## Connect
+
+### Prerequisites used
+
+- **[Fractions as Parts](../../tier-1-foundations/07-fractions-as-parts/index.qmd)** — what $\tfrac{p}{q}$ means and how to add, subtract, multiply, and divide them.
+- **[Negative Numbers](../../tier-1-foundations/10-negative-numbers/index.qmd)** — the line extends both directions; sign rules.
+
+### What this unlocks
+
+- **[Linear Equations in One Variable](../02-linear-equations-one-var/index.qmd)** — equations whose solutions live in $\mathbb{Q}$.
+- **[Squares and Square Roots](../05-squares-and-square-roots/index.qmd)** — the rationals are not enough; some lengths refuse to be $\tfrac{p}{q}$.
+- **[Class 9 — Number Systems](../../tier-cbse-09-class-9/01-number-systems/index.qmd)** — formalises rationals vs irrationals.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 1 — Rational Numbers** (NCERT 2023 rationalised
+  syllabus). Covers Sections 1.1–1.2: properties of rationals, additive
+  and multiplicative inverses, representation on the number line, and
+  density.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t1.fractions-as-parts`](../../tier-1-foundations/07-fractions-as-parts/index.qmd)
+  treats fractions as parts of a whole; this chapter formalises the
+  arithmetic and adds the negative half of the line.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** The set of rational numbers $\mathbb{Q}$ is the smallest
+field containing $\mathbb{Z}$. Whole branches of algebra — number theory,
+field extensions, the construction of $\mathbb{R}$ — start by asking
+*what is missing from* $\mathbb{Q}$ and filling those holes carefully.
+:::
+
+::: {.applied-callout}
+**AI / ML.** Inside a neural network, every weight is stored as a
+floating-point number — a rational of the form $p/2^k$. The strange
+behaviours of training (vanishing gradients, numerical underflow) trace
+back to the gaps in the rationals representable on a computer.
+:::

@@ -1,0 +1,556 @@
+---
+title: "Ch 3 — Pair of Linear Equations in Two Variables"
+subtitle: "Two lines, three possible fates: one meeting, infinite meetings, none at all"
+lesson-id: "cbse10.pair-linear-equations"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 3
+ncert-chapter-title: "Pair of Linear Equations in Two Variables"
+board-exam: true
+prerequisites: [cbse9.linear-equations-two-vars]
+unlocks: [cbse10.coordinate-geometry, cbse11.straight-lines, cbse12.matrices]
+applied-domains: [research, ai-ml]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you plot a line like $2x + y = 5$ on graph paper, by computing two
+   points? See
+   [`cbse9.linear-equations-two-vars`](../../tier-cbse-09-class-9/04-linear-equations-two-vars/index.qmd).
+2. Can you solve $3x = 12$ for $x$? (Yes? Good.)
+3. Can you substitute $y = 4 - x$ into $2x + 3y = 11$ and simplify?
+4. Do you know what the **slope** of a line means, even informally?
+
+Three yeses, you are ready.
+:::
+
+## Touch
+
+Two paper strips. On each, one straight line is drawn. Slide one over the
+other and ask: *where do they touch?* Sometimes one point. Sometimes —
+when the strips are parallel — never. Sometimes — when the lines coincide —
+everywhere along the strip.
+
+Try the widget. Two lines, two equations:
+$$a_1 x + b_1 y = c_1, \qquad a_2 x + b_2 y = c_2.$$
+
+```{ojs}
+viewof a1 = Inputs.range([-3, 3], {value: 1, step: 0.5, label: "a₁"})
+```
+
+```{ojs}
+viewof b1 = Inputs.range([-3, 3], {value: 1, step: 0.5, label: "b₁"})
+```
+
+```{ojs}
+viewof c1 = Inputs.range([-6, 6], {value: 4, step: 1, label: "c₁"})
+```
+
+```{ojs}
+viewof a2 = Inputs.range([-3, 3], {value: 2, step: 0.5, label: "a₂"})
+```
+
+```{ojs}
+viewof b2 = Inputs.range([-3, 3], {value: -1, step: 0.5, label: "b₂"})
+```
+
+```{ojs}
+viewof c2 = Inputs.range([-6, 6], {value: 1, step: 1, label: "c₂"})
+```
+
+```{ojs}
+{
+  const w = 420, h = 280, padX = 30, padY = 30;
+  const xMin = -6, xMax = 6, yMin = -6, yMax = 6;
+  const xS = d3.scaleLinear().domain([xMin, xMax]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([yMin, yMax]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  svg.append("line").attr("x1", padX).attr("x2", w - padX)
+    .attr("y1", yS(0)).attr("y2", yS(0)).attr("stroke", "#bbb");
+  svg.append("line").attr("x1", xS(0)).attr("x2", xS(0))
+    .attr("y1", padY).attr("y2", h - padY).attr("stroke", "#bbb");
+  function drawLine(a, b, c, color) {
+    if (Math.abs(b) > 1e-9) {
+      const y1 = (c - a * xMin) / b;
+      const y2 = (c - a * xMax) / b;
+      svg.append("line").attr("x1", xS(xMin)).attr("y1", yS(y1))
+        .attr("x2", xS(xMax)).attr("y2", yS(y2))
+        .attr("stroke", color).attr("stroke-width", 2);
+    } else if (Math.abs(a) > 1e-9) {
+      const x = c / a;
+      svg.append("line").attr("x1", xS(x)).attr("y1", padY)
+        .attr("x2", xS(x)).attr("y2", h - padY)
+        .attr("stroke", color).attr("stroke-width", 2);
+    }
+  }
+  drawLine(a1, b1, c1, "#26a");
+  drawLine(a2, b2, c2, "#c33");
+  // intersection
+  const det = a1 * b2 - a2 * b1;
+  let label = "";
+  if (Math.abs(det) < 1e-9) {
+    // parallel or coincident
+    if (Math.abs(a1 * c2 - a2 * c1) < 1e-9 && Math.abs(b1 * c2 - b2 * c1) < 1e-9) {
+      label = "Coincident — infinitely many solutions";
+    } else {
+      label = "Parallel — no solution";
+    }
+  } else {
+    const x = (c1 * b2 - c2 * b1) / det;
+    const y = (a1 * c2 - a2 * c1) / det;
+    label = `Intersection: (${x.toFixed(2)}, ${y.toFixed(2)})`;
+    svg.append("circle").attr("cx", xS(x)).attr("cy", yS(y))
+      .attr("r", 5).attr("fill", "#0a7");
+  }
+  svg.append("text").attr("x", padX).attr("y", h - 6)
+    .attr("font-size", 13).text(label);
+  return svg.node();
+}
+```
+
+Set $a_1 = 1, b_1 = 1, c_1 = 4$ and $a_2 = 2, b_2 = 2, c_2 = 8$ — what
+happens? Set $a_2 = 2, b_2 = 2, c_2 = 6$ — what happens *now*?
+
+## Wonder
+
+1. When do two distinct lines never meet? Look at their equations — what is
+   the same and what is different?
+2. When do two equations describe *the same* line?
+3. When you saw a unique intersection, was the answer always at "nice"
+   integer coordinates? What governs that?
+4. If you had three equations in two unknowns, would you expect a solution?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+Same slopes, different intercepts → never meet (no solution). Same slopes,
+same intercept → identical line (infinite solutions). Different slopes →
+exactly one meeting.
+:::
+
+## Discover
+
+### Problem 1 — Solve graphically
+Plot $x + y = 4$ and $x - y = 2$ on the same axes. Where do they meet?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For each line, find two points; draw; mark the intersection.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + y = 4$ passes through $(0, 4)$ and $(4, 0)$.
+$x - y = 2$ passes through $(0, -2)$ and $(2, 0)$.
+They cross at $\mathbf{(3, 1)}$. Verify: $3 + 1 = 4$ ✓ and $3 - 1 = 2$ ✓.
+</details>
+
+### Problem 2 — Solve by substitution
+Solve $2x + y = 7$, $x - y = 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+From the second: $y = x - 2$. Substitute into the first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2x + (x - 2) = 7 \Rightarrow 3x = 9 \Rightarrow x = 3$. Then $y = 1$.
+**$(3, 1)$.**
+</details>
+
+### Problem 3 — Solve by elimination
+Solve $3x + 4y = 10$, $2x - 2y = 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply the second equation by 2 to make $y$-coefficients add to zero with
+the first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Second × 2: $4x - 4y = 4$. Add to first: $7x = 14$, so $x = 2$. From second:
+$2(2) - 2y = 2 \Rightarrow y = 1$. **$(2, 1)$.**
+</details>
+
+### Problem 4 — When does no solution exist?
+Try to solve $2x + 3y = 7$ and $4x + 6y = 9$. What goes wrong?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply the first by 2 and compare with the second.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First × 2 gives $4x + 6y = 14$. But the second says $4x + 6y = 9$. The same
+expression cannot equal two different values. **No solution.** Notice
+$\dfrac{a_1}{a_2} = \dfrac{b_1}{b_2} \ne \dfrac{c_1}{c_2}$.
+</details>
+
+### Problem 5 — When are there infinitely many solutions?
+Try $x + 2y = 3$ and $2x + 4y = 6$. How many solutions?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The second is just the first multiplied by 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Both equations describe the **same line**. Every point on the line is a
+solution — **infinitely many**. Here $\dfrac{a_1}{a_2} = \dfrac{b_1}{b_2} =
+\dfrac{c_1}{c_2}$ (all equal $\frac{1}{2}$).
+</details>
+
+### Problem 6 — A word problem
+The cost of $5$ pencils and $7$ pens together is ₹50. The cost of $7$
+pencils and $5$ pens together is ₹46. Find the cost of one pencil and one
+pen.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $x$ = pencil cost, $y$ = pen cost. Two equations.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Add and subtract the equations cleverly.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5x + 7y = 50$ and $7x + 5y = 46$. Adding: $12x + 12y = 96$, so
+$x + y = 8$. Subtracting: $-2x + 2y = 4$, so $y - x = 2$. Solve: $y = 5$,
+$x = 3$. **Pencil ₹3, pen ₹5.**
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **pair of linear equations in two variables** is a system
+$$a_1 x + b_1 y + c_1 = 0, \qquad a_2 x + b_2 y + c_2 = 0,$$
+where the $a_i, b_i, c_i$ are real and at least one of $a_i, b_i$ is nonzero
+in each equation.
+
+**Three cases (consistency criterion):**
+
+| Ratio condition | Geometry | Solutions |
+|:-:|:-:|:-:|
+| $\dfrac{a_1}{a_2} \ne \dfrac{b_1}{b_2}$ | Lines intersect | Unique solution (consistent) |
+| $\dfrac{a_1}{a_2} = \dfrac{b_1}{b_2} = \dfrac{c_1}{c_2}$ | Same line | Infinitely many (dependent) |
+| $\dfrac{a_1}{a_2} = \dfrac{b_1}{b_2} \ne \dfrac{c_1}{c_2}$ | Parallel | No solution (inconsistent) |
+
+(Caution: with the $+ c$ form rather than $= c$ form, all three constants
+flip sign — but the ratios are the same.)
+
+**Solution methods:** graphical, substitution, elimination. The
+*cross-multiplication method* of older NCERT is no longer in the
+rationalised syllabus but appears in some reference books.
+
+:::
+
+A verse:
+
+> *Compare the ratios, then declare the fate:*
+> *Cross — they meet once. Match all three — they're mate.*
+> *Match the slopes but not the third — they pass like ships at night.*
+> *Three rules, three cases, never out of sight.*
+
+## Apply
+
+### Worked example
+
+> A boat goes 30 km upstream and 44 km downstream in 10 hours. In 13 hours,
+> it can go 40 km upstream and 55 km downstream. Find the speed of the boat
+> in still water and the speed of the stream.
+
+Let $u$ be the speed in still water (km/h), $v$ the speed of the stream.
+Upstream speed $= u - v$; downstream $= u + v$.
+
+Time = distance / speed:
+$$\dfrac{30}{u - v} + \dfrac{44}{u + v} = 10, \qquad
+\dfrac{40}{u - v} + \dfrac{55}{u + v} = 13.$$
+
+Let $p = \dfrac{1}{u - v}$, $q = \dfrac{1}{u + v}$. Then:
+$30p + 44q = 10, \quad 40p + 55q = 13.$
+
+Multiply: first × 4, second × 3 → $120p + 176q = 40$ and $120p + 165q = 39$.
+Subtract: $11q = 1 \Rightarrow q = \frac{1}{11}$, so $u + v = 11$.
+Back-substitute: $30p = 10 - 4 = 6 \Rightarrow p = \frac{1}{5}$, so
+$u - v = 5$.
+
+Solving: $u = 8, v = 3$. **Boat speed 8 km/h, stream speed 3 km/h.**
+
+### Practice — Warm
+
+**W1.** Solve by substitution: $x + y = 14$, $x - y = 4$.
+
+<details class="hint"><summary>Full solution</summary>
+$y = 14 - x$ → $x - (14 - x) = 4 \Rightarrow 2x = 18 \Rightarrow x = 9$,
+$y = 5$. **$(9, 5)$.**
+</details>
+
+**W2.** Solve by elimination: $2x + 3y = 8$, $4x + 6y = 7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply first by 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4x + 6y = 16$ vs $4x + 6y = 7$ — contradiction. **No solution** (parallel).
+</details>
+
+**W3.** Without solving, decide: do $3x + 2y = 5$ and $9x + 6y = 15$ have a
+unique, no, or infinitely many solutions?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare $\frac{a_1}{a_2}, \frac{b_1}{b_2}, \frac{c_1}{c_2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{3}{9} = \frac{2}{6} = \frac{5}{15} = \frac{1}{3}$. All equal:
+**infinitely many solutions** — same line.
+</details>
+
+### Practice — Working
+
+**P1.** A father is three times as old as his son. Five years later he will
+be two and a half times. Find their present ages.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two equations in $f, s$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f = 3s$ and $f + 5 = 2.5(s + 5)$. Substitute: $3s + 5 = 2.5s + 12.5
+\Rightarrow 0.5s = 7.5 \Rightarrow s = 15$, $f = 45$. **Son 15, father 45.**
+</details>
+
+**P2.** Solve $\dfrac{2}{x} + \dfrac{3}{y} = 13$ and $\dfrac{5}{x} -
+\dfrac{4}{y} = -2$ (where $x, y \ne 0$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $u = 1/x, v = 1/y$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2u + 3v = 13$, $5u - 4v = -2$. Multiply first by 4, second by 3:
+$8u + 12v = 52$, $15u - 12v = -6$. Add: $23u = 46 \Rightarrow u = 2$.
+Then $v = 3$. So $x = 1/2, y = 1/3$.
+</details>
+
+**P3.** For what value of $k$ does $kx + 3y = k - 3$ and $12x + ky = k$ have
+**no solution**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Need $\frac{a_1}{a_2} = \frac{b_1}{b_2} \ne \frac{c_1}{c_2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{k}{12} = \frac{3}{k}$ gives $k^2 = 36$, so $k = \pm 6$. Check
+inequality with constants: $\frac{k - 3}{k}$.
+- $k = 6$: ratios are $\frac{1}{2} = \frac{1}{2}$, $\frac{3}{6} = \frac{1}{2}$.
+  **All three equal — infinitely many solutions, not "no solution".** Reject.
+- $k = -6$: $\frac{-6}{12} = -\frac{1}{2}$, $\frac{3}{-6} = -\frac{1}{2}$,
+  $\frac{-9}{-6} = \frac{3}{2} \ne -\frac{1}{2}$. ✓ **$k = -6$.**
+</details>
+
+### Practice — Stretch
+
+**S1.** A two-digit number is such that the product of its digits is 18.
+When 63 is subtracted from the number, the digits interchange their places.
+Find the number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the digits be $x$ (tens) and $y$ (units). Number $= 10x + y$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$xy = 18$ and $10x + y - 63 = 10y + x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Second equation: $9x - 9y = 63 \Rightarrow x - y = 7$. With $xy = 18$ and $x
+- y = 7$: $x = 9, y = 2$. Number = $\mathbf{92}$. Check: $92 - 63 = 29$. ✓
+</details>
+
+**S2.** A train covers 480 km. If its speed is reduced by 8 km/h, it takes
+3 hours longer. Find the original speed.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let speed = $u$, time = $t$. Then $ut = 480$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+New speed $u - 8$, new time $t + 3$, with $(u - 8)(t + 3) = 480$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$ut = 480$ and $(u - 8)(t + 3) = 480$. Expand: $ut + 3u - 8t - 24 = 480$,
+i.e. $3u - 8t = 24$. With $t = 480/u$: $3u - 3840/u = 24$, multiply by $u$:
+$3u^2 - 24u - 3840 = 0 \Rightarrow u^2 - 8u - 1280 = 0$. Use quadratic
+formula: $u = \frac{8 + \sqrt{64 + 5120}}{2} = \frac{8 + 72}{2} = 40$.
+**40 km/h.**
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** The pair of equations $x = a$ and $y = b$ graphically
+represents lines that:
+(a) intersect at $(a, b)$  (b) are parallel
+(c) are coincident  (d) intersect at $(b, a)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x = a$ is a vertical line. $y = b$ is a horizontal line.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a) intersect at $(a, b)$.**
+</details>
+
+**Q2 (1 mark — MCQ).** The pair $2x + 3y = 5$ and $4x + 6y = 11$ has:
+(a) unique solution  (b) infinitely many  (c) no solution  (d) two solutions.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{2}{4} = \frac{3}{6} = \frac{1}{2}$, but $\frac{5}{11} \ne \frac{1}{2}$.
+**(c) no solution.**
+</details>
+
+**Q3 (2 marks).** Solve: $3x + 2y = 11$ and $2x + 3y = 4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply to align coefficients of one variable.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First × 3, second × 2: $9x + 6y = 33$, $4x + 6y = 8$. Subtract: $5x = 25
+\Rightarrow x = 5$. Then $3(5) + 2y = 11 \Rightarrow y = -2$.
+**$(5, -2)$.**
+</details>
+
+**Q4 (2 marks).** For what value of $k$ does the system $2x + ky = 1$ and
+$3x - 5y = 7$ have a **unique** solution?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\frac{a_1}{a_2} \ne \frac{b_1}{b_2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{2}{3} \ne \frac{k}{-5}$, i.e. $k \ne -\frac{10}{3}$. **All real $k$
+except $-\frac{10}{3}$.**
+</details>
+
+**Q5 (3 marks).** Solve graphically: $x + 2y = 6$ and $2x - y = 2$. Find
+the area of the triangle formed by the lines and the y-axis.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plot. Find intersection. The triangle's vertices are: y-intercept of line
+1, y-intercept of line 2, and the intersection point.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Line 1 hits y-axis at $(0, 3)$; Line 2 at $(0, -2)$. Intersection: from
+substitution, $y = 2x - 2$, $x + 2(2x - 2) = 6 \Rightarrow 5x = 10
+\Rightarrow x = 2, y = 2$. So intersection $(2, 2)$.
+Triangle vertices: $(0, 3), (0, -2), (2, 2)$. Base on y-axis = $5$, height
+= $2$. **Area $= \frac{1}{2} \cdot 5 \cdot 2 = 5$ sq units.**
+</details>
+
+**Q6 (3 marks).** A fraction becomes $\frac{4}{5}$ if 1 is added to both
+numerator and denominator. If 5 is subtracted from both, it becomes
+$\frac{1}{2}$. Find the fraction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let fraction = $\frac{x}{y}$. Two equations.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{x + 1}{y + 1} = \frac{4}{5}$ ⟹ $5x - 4y = -1$.
+$\frac{x - 5}{y - 5} = \frac{1}{2}$ ⟹ $2x - y = 5$.
+From second: $y = 2x - 5$. Substitute: $5x - 4(2x - 5) = -1 \Rightarrow
+-3x = -21 \Rightarrow x = 7, y = 9$. **Fraction = $\frac{7}{9}$.**
+</details>
+
+**Q7 (5 marks — long answer).** A man travels 600 km partly by train and
+partly by car. If he covers 400 km by train and the rest by car, it takes
+him 6 hours 30 minutes. If he travels 200 km by train and the rest by car,
+he takes 30 minutes longer. Find the speed of the train and that of the car.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let train speed $= u$ km/h, car speed $= v$ km/h. Time = distance/speed.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Substitute $p = 1/u, q = 1/v$ to make the equations linear.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{400}{u} + \dfrac{200}{v} = 6.5 \quad \text{(i)}$
+$\dfrac{200}{u} + \dfrac{400}{v} = 7 \quad \text{(ii)}$
+Let $p = 1/u, q = 1/v$:
+$400p + 200q = 6.5$ and $200p + 400q = 7$.
+Add: $600p + 600q = 13.5 \Rightarrow p + q = 0.0225$.
+Subtract (i − ii): $200p - 200q = -0.5 \Rightarrow p - q = -0.0025$.
+So $p = 0.01, q = 0.0125$. Hence $u = 100$, $v = 80$.
+**Train: 100 km/h, Car: 80 km/h.**
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 3.3 Q3–Q8 cover word-problems shaped
+like Q5 and Q6; 3.4 Q4–Q9 are full long-answer pairs like Q7.
+
+**Previous-year pointer:** CBSE 2019 Set 1, Q22 closely matches Q7's
+boat/train shape. CBSE 2023 Standard Q33 mirrors Q5's graphical-area
+combination.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\frac{a_1}{a_2} = \frac{b_1}{b_2}$ means infinite solutions."** Only
+   if **also** $\frac{c_1}{c_2}$ matches. If the constant ratio breaks
+   away, you get **no solution** (parallel), not infinite.
+2. **"Substitute $1/x = u$ only works if $x \ne 0$."** True. Always check
+   that the final answer doesn't make any denominator zero.
+3. **"Graphical solution is approximate, so it doesn't count."** In CBSE
+   3-mark questions like Q5, the solution must read off **exactly** at the
+   given graph paper scale. Always pick scales that make the intersection
+   land on a grid point.
+:::
+
+### Self-Assessment
+
+1. Could you state the three cases (unique / infinite / none) and tie each
+   to its ratio condition, without notes?
+2. Did Q7 fall out cleanly with the substitution $p = 1/u, q = 1/v$?
+3. Can you recognise when a word problem hides a 2×2 linear system?
+
+- **3 yes:** move on.
+- **2 yes:** redo P3 and Q5. Then move on.
+- **0–1 yes:** the ratio criterion is doing more work than you realise.
+  Re-read *Name* and re-attempt Discover Problems 4–5.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.linear-equations-two-vars`](../../tier-cbse-09-class-9/04-linear-equations-two-vars/index.qmd) —
+  one linear equation in two variables; lines on the plane.
+
+### What this unlocks
+
+- [`cbse10.coordinate-geometry`](../07-coordinate-geometry/index.qmd) —
+  lines as geometric objects with distance and division formulas.
+- [`cbse11.straight-lines`](../../tier-cbse-11-class-11/09-straight-lines/index.qmd) —
+  slope-intercept and point-slope forms.
+- [`cbse12.matrices`](../../tier-cbse-12-class-12/03a-matrices-intro/index.qmd) —
+  the same systems generalised to $n$ unknowns.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 3 — Pair of Linear Equations in Two Variables**
+  (NCERT 2023 rationalised syllabus). Covers Sections 3.1–3.4: graphical
+  method, substitution, elimination. (Cross-multiplication and 3.6
+  reducible-to-linear were trimmed in 2023, though P2 / Q7-style
+  $1/x, 1/y$ problems remain board-frequent.)
+- **Sister synthesis lesson:**
+  [`t2.systems-linear-equations`](../../tier-2-prealgebra/06-systems-linear-equations/index.qmd) —
+  the synthesis lens, including row-reduction in matrix shape.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Linear regression — the simplest model in machine learning —
+solves a vastly larger version of this same system: thousands of
+equations, hundreds of unknowns, with no exact intersection (so we settle
+for "closest possible"). Every bit of theory you build here scales up.
+:::
+
+::: {.applied-callout}
+**Research.** Linear systems are the engine of numerical analysis, finite
+element methods, and signal processing. The substitution and elimination
+methods you just used are the textbook ancestors of Gaussian elimination
+— the workhorse algorithm of scientific computing.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown (lines as geometric objects); Russian
+  school (problem-first *Discover*); Bhāskara (compact *Name* table).
+- **Source notes:** Q7 follows the standard NCERT train-and-car pattern.
+  The ratio-criterion table is the standard NCERT 3.2 framing.
+:::

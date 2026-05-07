@@ -1,0 +1,475 @@
+---
+title: "Ch 2 — Linear Equations in One Variable"
+subtitle: "Balance the scales — what you do to one side, do to the other"
+lesson-id: "cbse8.linear-equations-one-var"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 2
+ncert-chapter-title: "Linear Equations in One Variable"
+board-exam: false
+prerequisites: ["t1.intro-variables", "cbse8.rational-numbers"]
+unlocks: ["cbse8.algebraic-expressions", "cbse8.factorisation", "cbse9.linear-equations-two-var"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you read $3x + 5$ as "three times some unknown number, plus five"?
+   If not, revisit
+   **[Intro to Variables](../../tier-1-foundations/11-intro-variables/index.qmd)**.
+2. Are you comfortable adding $\tfrac{2}{3}$ and $\tfrac{1}{4}$? If not,
+   revisit **[Rational Numbers](../01-rational-numbers/index.qmd)**.
+3. If both sides of $2 = 2$ are multiplied by $5$, do you trust that the
+   equation still holds?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Imagine an old-fashioned two-pan balance. On the left pan: a known weight
+of $7$ grams plus an unknown stone of weight $x$. On the right pan: a
+known weight of $19$ grams. The pans hang level — they are balanced.
+
+Move the slider. Watch the pans. Find the value of $x$ that makes them
+hang level.
+
+```{ojs}
+viewof guess = Inputs.range([0, 25], {value: 5, step: 1, label: "Your guess for x (grams)"})
+```
+
+```{ojs}
+{
+  const left = guess + 7;
+  const right = 19;
+  const tilt = left === right ? 0 : (left > right ? -10 : 10);
+  const status = left === right ? "BALANCED" : (left > right ? "left pan heavier" : "right pan heavier");
+  return html`<div style="font-family:system-ui;font-size:1.05rem;text-align:center;line-height:1.5;">
+    <div style="margin-bottom:0.5rem;">
+      <b>Left pan:</b> x + 7 = ${left} g &nbsp;&nbsp;|&nbsp;&nbsp;
+      <b>Right pan:</b> 19 g
+    </div>
+    <div style="font-size:2rem;color:${left===right?"green":"#999"};transform:rotate(${tilt}deg);transition:0.3s;">
+      &#x2696;
+    </div>
+    <div style="color:${left===right?"green":"#666"};margin-top:0.4rem;">
+      ${status}
+    </div>
+  </div>`;
+}
+```
+
+When you find the balance you have *solved* the puzzle. The arithmetic
+behind the answer is the topic of this lesson.
+
+## Wonder
+
+Sit with these.
+
+1. If both pans gain the *same* extra weight, do they remain balanced?
+2. If both pans are halved (you remove half the weight from each), do
+   they still hang level?
+3. The puzzle on the slider had only one balance point. Could a similar
+   puzzle have *two* answers — two different stone-weights that work?
+4. Could a balanced equation have *no* answer at all?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+The balance is preserved if you do the *same thing* to both sides. That
+is the only rule the chapter really uses. Whether the equation has one
+answer, no answer, or many answers depends on its shape — we'll see all
+three cases.
+:::
+
+## Discover
+
+### Problem 1 — Undo addition
+
+A box has $x$ apples. You put in $5$ more. Now there are $12$. How many
+were there?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Write the situation as an equation, then *undo* the $+5$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$x + 5 = 12$. Subtract $5$ from both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + 5 = 12 \;\Rightarrow\; x = 12 - 5 = 7$. Seven apples.
+</details>
+
+### Problem 2 — Undo multiplication
+
+You have $3x$ rupees. You divide them equally among three friends; each
+gets $24$ rupees. What is $x$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each friend got $\tfrac{3x}{3} = x$, but actually rethink: total $= 3x$, three friends, so each gets $x$. We're told each gets 24.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each friend gets $x = 24$. Or read it differently: $3x = 72$, so
+$x = 24$. (Multiplication is undone by division.)
+</details>
+
+### Problem 3 — Two operations, one variable
+
+Solve $2x + 3 = 11$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x$ is wrapped first by multiplying by $2$, then by adding $3$. Unwrap
+in reverse order.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+First subtract $3$ from both sides; then divide by $2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2x + 3 = 11 \Rightarrow 2x = 8 \Rightarrow x = 4$.
+</details>
+
+### Problem 4 — Variable on both sides
+
+Solve $5x - 7 = 3x + 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Get all $x$-terms on one side and all numbers on the other. Subtract
+$3x$ from both sides first.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$5x - 3x - 7 = 9 \Rightarrow 2x - 7 = 9$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5x - 7 = 3x + 9 \Rightarrow 2x - 7 = 9 \Rightarrow 2x = 16 \Rightarrow
+x = 8$. Check: $5(8)-7 = 33$ and $3(8)+9 = 33$. Balanced.
+</details>
+
+### Problem 5 — Brackets and fractions
+
+Solve $\dfrac{x+1}{2} = \dfrac{x-3}{3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Clear the denominators by multiplying both sides by $6$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$3(x+1) = 2(x-3)$, then expand.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Multiply both sides by $6$:
+$3(x+1) = 2(x-3)$
+$\Rightarrow 3x + 3 = 2x - 6$
+$\Rightarrow x = -9$.
+Check: LHS $= \tfrac{-9+1}{2} = -4$; RHS $= \tfrac{-9-3}{3} = -4$. ✓
+</details>
+
+### Problem 6 — Word puzzle
+
+A father is currently four times as old as his son. Twenty years from
+now, he will be only twice as old. Find their present ages.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the son's age now be $x$. Then the father's age is $4x$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+In 20 years: son is $x+20$, father is $4x+20$. The condition
+$4x+20 = 2(x+20)$ gives the equation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4x + 20 = 2(x+20) = 2x + 40 \Rightarrow 2x = 20 \Rightarrow x = 10$.
+**Son is 10, father is 40.** Check 20 years later: father 60, son 30 —
+yes, exactly twice.
+</details>
+
+You have just solved equations by always doing the *same operation* on
+both sides until $x$ stood alone. That recipe is the whole chapter.
+
+## Name
+
+::: {.lesson-beat}
+
+A **linear equation in one variable** is an equation of the form
+$$ax + b = cx + d$$
+where $a, b, c, d$ are rational numbers and $a \neq c$. It has exactly
+**one solution**, found by isolating $x$.
+
+The **rule of balance:** if $A = B$, then for any rational $k$,
+$A + k = B + k$, $A - k = B - k$, $kA = kB$, and (if $k \neq 0$)
+$A/k = B/k$.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Move terms across with the sign reversed;*
+> *Same act on both sides keeps the truth.*
+> *When at last the unknown stands alone —*
+> *Read it off; that is the proof.*
+
+The standard recipe:
+
+1. Clear fractions (multiply both sides by the LCM of denominators).
+2. Open brackets (distributive law).
+3. Move all $x$-terms to one side, all constants to the other.
+4. Divide by the coefficient of $x$.
+5. **Always verify** by substituting back.
+
+## Apply
+
+### Worked example
+
+> The sum of three consecutive integers is $72$. Find them.
+
+Competent solver's path:
+
+1. Let the smallest integer be $x$. The next two are $x+1$ and $x+2$.
+2. Sum: $x + (x+1) + (x+2) = 72$.
+3. Combine: $3x + 3 = 72$.
+4. Subtract $3$: $3x = 69$.
+5. Divide by $3$: $x = 23$.
+
+The integers are $23, 24, 25$. Check: $23 + 24 + 25 = 72$. ✓
+
+### Practice — Warm
+
+**W1.** Solve $7x = 42$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 42 / 7 = 6$.
+</details>
+
+**W2.** Solve $x - 9 = -3$.
+
+<details class="hint"><summary>Full solution</summary>
+Add $9$ to both sides: $x = 6$.
+</details>
+
+**W3.** Solve $\tfrac{x}{4} = -2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both sides by $4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = -8$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $4x + 9 = 25 - 2x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Get all $x$ on the left. Add $2x$ to both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$6x + 9 = 25 \Rightarrow 6x = 16 \Rightarrow x = \tfrac{8}{3}$.
+</details>
+
+**P2.** Solve $5(x-2) = 3(x+4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Open the brackets first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5x - 10 = 3x + 12 \Rightarrow 2x = 22 \Rightarrow x = 11$.
+</details>
+
+**P3.** Solve $\dfrac{2x-3}{4} - \dfrac{x+1}{6} = \dfrac{1}{2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+LCM of denominators is $12$. Multiply through.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Multiply by $12$: $3(2x-3) - 2(x+1) = 6 \Rightarrow 6x - 9 - 2x - 2 = 6
+\Rightarrow 4x - 11 = 6 \Rightarrow 4x = 17 \Rightarrow x = \tfrac{17}{4}$.
+</details>
+
+### Practice — Stretch
+
+**S1.** A two-digit number has digit-sum $9$. When the digits are
+swapped, the new number is $27$ greater than the original. Find the
+number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the tens digit be $t$ and the units digit be $u$. The number is
+$10t + u$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$t + u = 9$ and $10u + t = 10t + u + 27$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+From the second equation: $9u - 9t = 27 \Rightarrow u - t = 3$.
+Combined with $t + u = 9$: add to get $2u = 12 \Rightarrow u = 6$ and
+$t = 3$. Original number: **36**. Check: swap gives $63$, which is
+$36 + 27$. ✓
+</details>
+
+**S2.** Distance from town A to town B is travelled by a car at
+$60$ km/h, and back at $40$ km/h. The total trip takes $5$ hours. Find
+the one-way distance.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Time = distance ÷ speed. Let one-way distance be $d$ km.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\tfrac{d}{60} + \tfrac{d}{40} = 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LCM(60, 40) = 120. Multiply through:
+$2d + 3d = 600 \Rightarrow 5d = 600 \Rightarrow d = 120$ km. **One-way
+distance is 120 km.**
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The solution of $3(x-1) = 2x + 5$ is
+(a) $5$ (b) $-2$ (c) $8$ (d) $2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Open the bracket, collect terms.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x - 3 = 2x + 5 \Rightarrow x = 8$. **Answer: (c).**
+</details>
+
+**2-mark (short answer).** Solve and verify: $7y + 4 = -4y - 18$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add $4y$ to both sides; subtract $4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7y + 4y = -18 - 4 \Rightarrow 11y = -22 \Rightarrow y = -2$.
+Check: LHS $= 7(-2)+4 = -10$; RHS $= -4(-2) - 18 = 8 - 18 = -10$. ✓
+</details>
+
+**3-mark (short answer II).** Solve
+$\dfrac{3x+1}{16} + \dfrac{2x-3}{7} = \dfrac{x+3}{8} + \dfrac{3x-1}{14}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+LCM of $16, 7, 8, 14$ is $112$. Multiply through.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+After multiplying: $7(3x+1) + 16(2x-3) = 14(x+3) + 8(3x-1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7(3x+1) + 16(2x-3) = 14(x+3) + 8(3x-1)$
+$21x + 7 + 32x - 48 = 14x + 42 + 24x - 8$
+$53x - 41 = 38x + 34$
+$15x = 75$
+$\boxed{x = 5}$.
+
+Check: LHS $= \tfrac{16}{16} + \tfrac{7}{7} = 1 + 1 = 2$;
+RHS $= \tfrac{8}{8} + \tfrac{14}{14} = 2$. ✓
+</details>
+
+**5-mark (long answer).** Two pipes can together fill a tank in
+$12$ minutes. Pipe A alone takes $20$ minutes. (i) How long would pipe B
+alone take? (ii) If pipe A is shut after $5$ minutes, how much longer
+will pipe B alone take to finish the tank?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Think in *rates*. A fills at $\tfrac{1}{20}$ tank/min. Together they
+fill at $\tfrac{1}{12}$ tank/min.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Let B's rate be $\tfrac{1}{x}$. Equation: $\tfrac{1}{20} + \tfrac{1}{x} =
+\tfrac{1}{12}$. Solve for $x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\tfrac{1}{20} + \tfrac{1}{x} = \tfrac{1}{12}$
+$\Rightarrow \tfrac{1}{x} = \tfrac{1}{12} - \tfrac{1}{20} = \tfrac{5 - 3}{60} = \tfrac{2}{60} = \tfrac{1}{30}$.
+
+So pipe B alone takes **30 minutes**.
+
+**(ii)** In 5 minutes both pipes together fill $5 \times \tfrac{1}{12} =
+\tfrac{5}{12}$ of the tank.
+
+Remaining: $1 - \tfrac{5}{12} = \tfrac{7}{12}$.
+
+Time for B alone to finish $\tfrac{7}{12}$ of the tank at rate
+$\tfrac{1}{30}$ per min: $\tfrac{7}{12} \div \tfrac{1}{30} =
+\tfrac{7}{12} \times 30 = \tfrac{210}{12} = 17.5$ minutes.
+
+**Pipe B needs another 17.5 minutes (= 17 min 30 sec).**
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 2.2 (work-rate puzzles) is
+a near-twin of the 5-mark item.
+**Previous-year pointer:** CBSE 2020 Set 2, Q9 ("solve the equation with
+fractions on both sides") matches the 3-mark item closely.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Transposing means flipping the sign."** It means *moving and
+   reversing*. When you move $+3$ across $=$, it becomes $-3$. The reason
+   is that you are subtracting $3$ from both sides — the sign reversal is
+   a *consequence* of the balance rule, not a magic move.
+2. **"You can multiply both sides by $x$ to clear it."** Sometimes — but
+   if $x$ might be $0$ you can lose solutions or invent fake ones.
+   Always pause when you multiply by something containing the unknown.
+3. **"The check is optional."** It is not. A wrong sign somewhere will
+   pass undetected unless you substitute back and read both sides.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain to a friend, without notes, *why* moving a term
+   across the $=$ sign reverses its sign?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   *Practice* problems without peeking past Hint 1?
+3. Can you turn a one-paragraph word problem into a linear equation?
+
+- **3 yes:** move on to **[Understanding Quadrilaterals](../03-understanding-quadrilaterals/index.qmd)**.
+- **2 yes:** redo *Stretch S2* and the 5-mark board item, then move on.
+- **0–1 yes:** rebuild from *Discover*. Most stumbles here are about
+  fraction handling — revisit
+  **[Rational Numbers](../01-rational-numbers/index.qmd)**.
+
+## Connect
+
+### Prerequisites used
+
+- **[Intro to Variables](../../tier-1-foundations/11-intro-variables/index.qmd)** — letters as placeholders for unknown numbers.
+- **[Rational Numbers](../01-rational-numbers/index.qmd)** — solutions live in $\mathbb{Q}$.
+
+### What this unlocks
+
+- **[Algebraic Expressions and Identities](../08-algebraic-expressions/index.qmd)** — manipulating expressions before solving them.
+- **[Factorisation](../12-factorisation/index.qmd)** — equations whose left side is a product of two factors.
+- **[Class 9 — Linear Equations in Two Variables](../../tier-cbse-09-class-9/04-linear-equations-two-vars/index.qmd)** — adds a second unknown.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 2 — Linear Equations in One Variable** (NCERT 2023
+  rationalised syllabus). Covers Sections 2.1–2.4: solving equations
+  with the variable on either or both sides, equations reducible to
+  linear form, word problems.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t2.linear-equations-one-var`](../../tier-2-prealgebra/02-linear-equations-one-var/index.qmd)
+  treats linear equations as an algebraic structure; this chapter
+  emphasises the balance metaphor and word-problem translation.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** "Solve for $x$" is the smallest possible mathematical
+problem, but the *technique* — apply inverse operations until the
+unknown is isolated — is the seed of the entire field of solving
+equations, from quadratics in Class 10 to differential equations in
+graduate analysis.
+:::
+
+::: {.applied-callout}
+**AI / ML.** Training a neural network is, at its heart, solving
+millions of equations of the form *gradient = 0* simultaneously.
+Gradient descent is the iterative cousin of "do the same thing to both
+sides".
+:::

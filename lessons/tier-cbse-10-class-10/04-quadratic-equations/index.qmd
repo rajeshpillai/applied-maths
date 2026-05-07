@@ -1,0 +1,530 @@
+---
+title: "Ch 4 — Quadratic Equations"
+subtitle: "One formula, three cases, every parabola accounted for"
+lesson-id: "cbse10.quadratic-equations"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 4
+ncert-chapter-title: "Quadratic Equations"
+board-exam: true
+prerequisites: [cbse10.polynomials, cbse9.number-systems]
+unlocks: [cbse10.arithmetic-progressions, cbse11.complex-numbers, cbse11.sequences-series]
+applied-domains: [game-dev, research, ai-ml]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you factor $x^2 - 5x + 6$? See [`cbse10.polynomials`](../02-polynomials/index.qmd).
+2. Can you compute $\sqrt{49}$ and $\sqrt{50}$ (the second left in surd form)?
+3. Do you know what a *zero* of a quadratic polynomial is?
+4. Can you expand $(x + 3)^2$ in your head?
+
+If yes to most, proceed.
+:::
+
+## Touch
+
+A football is kicked from the ground. Its height $h$ in metres after $t$
+seconds is given by
+$$h(t) = 20t - 5t^2.$$
+
+Drag the slider — when does the ball hit the ground again?
+
+```{ojs}
+viewof t = Inputs.range([0, 5], {value: 0, step: 0.1, label: "Time t (seconds)"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 240, padX = 30, padY = 20;
+  const ts = d3.range(0, 4.05, 0.05);
+  const f = u => 20 * u - 5 * u * u;
+  const xS = d3.scaleLinear().domain([0, 4]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([0, 22]).range([h - padY, padY]);
+  const line = d3.line().x(d => xS(d)).y(d => yS(f(d)));
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  svg.append("line").attr("x1", padX).attr("x2", w - padX)
+    .attr("y1", yS(0)).attr("y2", yS(0)).attr("stroke", "#888");
+  svg.append("path").attr("d", line(ts)).attr("fill", "none")
+    .attr("stroke", "#26a").attr("stroke-width", 2);
+  // current point
+  const ht = f(t);
+  svg.append("circle").attr("cx", xS(t)).attr("cy", yS(Math.max(ht, 0)))
+    .attr("r", 6).attr("fill", "#c33");
+  svg.append("text").attr("x", padX).attr("y", padY + 14)
+    .attr("font-size", 13).text(`t = ${t.toFixed(1)} s,  h = ${ht.toFixed(2)} m`);
+  return svg.node();
+}
+```
+
+The ball is on the ground when $h = 0$. That is, when $20t - 5t^2 = 0$. The
+slider should suggest two answers: one at $t = 0$ (the kick) and one a few
+seconds later. Find that second time.
+
+## Wonder
+
+1. The ball's height is $0$ at the start *and* at the end. So the equation
+   $h = 0$ has **two** solutions. Could one of them have been negative? What
+   would a negative time mean?
+2. What if the equation were $h = 25$? Would there be a time the ball is at
+   $25$ m?
+3. The expression $20t - 5t^2$ factors easily. Try $5t(4 - t)$. Could every
+   quadratic be factored over the integers?
+4. If a parabola does not touch the x-axis at all (e.g. $y = x^2 + 1$), what
+   does that say about the equation $x^2 + 1 = 0$ over the reals?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) is the cleanest entry into the discriminant: peak height is $20$ m, so
+$h = 25$ is impossible — there is **no real** solution. (4) is the same
+phenomenon: $x^2 + 1 = 0$ has no real solution.
+:::
+
+## Discover
+
+### Problem 1 — Factoring
+Solve $x^2 - 7x + 12 = 0$ by factoring.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two numbers multiplying to 12 and summing to 7.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 3)(x - 4) = 0$, so $x = 3$ or $x = 4$.
+</details>
+
+### Problem 2 — Completing the square
+Solve $x^2 + 6x - 7 = 0$ **without** factoring. Move the constant. Add and
+subtract $9$ on the left to make a perfect square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 + 6x = 7$. Add $9$ to both sides.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$(x + 3)^2 = 16$. Take square roots.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x + 3)^2 = 16 \Rightarrow x + 3 = \pm 4 \Rightarrow x = 1 \text{ or } -7$.
+</details>
+
+### Problem 3 — The general case
+Apply the same trick to $ax^2 + bx + c = 0$ (with $a > 0$). What do you get?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide by $a$ first. Then complete the square.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$x^2 + \dfrac{b}{a}x + \dfrac{c}{a} = 0$. Complete the square: add and
+subtract $\left(\dfrac{b}{2a}\right)^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\left(x + \dfrac{b}{2a}\right)^2 = \dfrac{b^2 - 4ac}{4a^2}$.
+Take square roots:
+$$x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}.$$
+That is the **quadratic formula**. The thing under the root sign,
+$D = b^2 - 4ac$, decides everything.
+</details>
+
+### Problem 4 — Discriminant cases
+For each of the following, compute $D = b^2 - 4ac$ and predict how many real
+roots the equation has:
+(a) $x^2 - 4x + 4 = 0$,
+(b) $x^2 - 5x + 6 = 0$,
+(c) $x^2 + 2x + 3 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plug into $b^2 - 4ac$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) $D = 16 - 16 = 0$ — **one real root** (a "double" root).
+(b) $D = 25 - 24 = 1 > 0$ — **two distinct real roots**.
+(c) $D = 4 - 12 = -8 < 0$ — **no real roots**.
+
+The pattern: $D > 0$ → two real roots; $D = 0$ → one (repeated); $D < 0$ →
+no real roots.
+</details>
+
+### Problem 5 — A real situation
+A field is rectangular. Its length is 3 m more than its breadth, and its
+area is $54 \text{ m}^2$. Find the breadth.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let breadth = $x$. Then length = $x + 3$, and $x(x + 3) = 54$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 3x - 54 = 0$. Factor: $(x + 9)(x - 6) = 0$, so $x = -9$ or $x = 6$.
+A breadth cannot be negative, so $x = 6$ m. (Length = 9 m.)
+
+Notice — both solutions came from the algebra, but only one fits the
+problem. **Always check feasibility.**
+</details>
+
+### Problem 6 — Roots and coefficients
+Quadratic with roots $\alpha, \beta$: $\alpha + \beta = -b/a$,
+$\alpha\beta = c/a$. (You proved this in [`cbse10.polynomials`](../02-polynomials/index.qmd).)
+Use it: find a quadratic whose roots are $2 + \sqrt{3}$ and $2 - \sqrt{3}$.
+
+<details class="hint"><summary>Full solution</summary>
+Sum $= 4$. Product $= 4 - 3 = 1$. Polynomial: $x^2 - 4x + 1 = 0$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **quadratic equation** in $x$ is one of the form
+$$ax^2 + bx + c = 0, \qquad a \ne 0.$$
+
+**Quadratic formula.** The roots are
+$$x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}.$$
+
+**Discriminant** $D = b^2 - 4ac$ classifies the roots:
+
+| $D > 0$ | $D = 0$ | $D < 0$ |
+|:-:|:-:|:-:|
+| Two distinct real roots | One real root (repeated) | No real roots |
+
+A quadratic has **at most two** real roots.
+
+:::
+
+The verse:
+
+> *Square the b, take four times a-c away,*
+> *Plus or minus the root, then divide by two-a.*
+> *Discriminant positive — twice the line is met;*
+> *Zero, just kissed; negative, no real bet.*
+
+## Apply
+
+### Worked example
+
+> Solve $2x^2 - 5x + 3 = 0$ by the quadratic formula.
+
+$a = 2, b = -5, c = 3$. Discriminant: $D = 25 - 24 = 1 > 0$, so two real
+roots.
+
+$$x = \dfrac{5 \pm \sqrt{1}}{4} = \dfrac{5 \pm 1}{4}.$$
+
+So $x = \dfrac{6}{4} = \dfrac{3}{2}$ or $x = \dfrac{4}{4} = 1$.
+
+**Roots: $\dfrac{3}{2}$ and $1$.** (Verify by factoring: $(2x - 3)(x - 1) =
+2x^2 - 5x + 3$. ✓)
+
+### Practice — Warm
+
+**W1.** Solve $x^2 - 9 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 = 9, x = \pm 3$.
+</details>
+
+**W2.** Solve $x^2 + 5x + 6 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x + 2)(x + 3) = 0$ → $x = -2, -3$.
+</details>
+
+**W3.** Find the discriminant of $3x^2 - 2x - 1 = 0$ and predict the nature
+of the roots.
+
+<details class="hint"><summary>Full solution</summary>
+$D = 4 + 12 = 16 > 0$. **Two distinct real roots.** (Indeed
+$(3x + 1)(x - 1) = 0$ gives $-1/3, 1$.)
+</details>
+
+### Practice — Working
+
+**P1.** Solve by completing the square: $x^2 - 4x - 1 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 - 4x = 1$. Add 4.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 2)^2 = 5 \Rightarrow x = 2 \pm \sqrt{5}$.
+</details>
+
+**P2.** For what values of $k$ does $kx^2 + 2x + 1 = 0$ have **equal** roots?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Equal roots" means $D = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = 4 - 4k = 0 \Rightarrow k = 1$. (Also need $k \ne 0$ for the equation to
+be quadratic at all.)
+</details>
+
+**P3.** Solve $\sqrt{2} x^2 + 7x + 5\sqrt{2} = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look for two numbers multiplying to $\sqrt{2} \cdot 5\sqrt{2} = 10$ and
+summing to $7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5$ and $2$. Split: $\sqrt{2}x^2 + 5x + 2x + 5\sqrt{2}$
+$= x(\sqrt{2}x + 5) + \sqrt{2}(\sqrt{2}x + 5)$
+$= (\sqrt{2}x + 5)(x + \sqrt{2}) = 0$.
+$x = -\dfrac{5}{\sqrt{2}} = -\dfrac{5\sqrt{2}}{2}$ or $x = -\sqrt{2}$.
+</details>
+
+### Practice — Stretch
+
+**S1.** A quadratic has integer coefficients and $2 - \sqrt{3}$ as one root.
+What is the other root, and write the smallest such polynomial.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Roots involving $\sqrt{n}$ where $n$ is not a perfect square come in
+conjugate pairs whenever the coefficients are rational.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Other root: $2 + \sqrt{3}$. Sum $= 4$, product $= 4 - 3 = 1$. Polynomial:
+$\mathbf{x^2 - 4x + 1}$.
+</details>
+
+**S2.** The product of two consecutive positive odd integers is $483$. Find
+them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let them be $x$ and $x + 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x(x + 2) = 483 \Rightarrow x^2 + 2x - 483 = 0$.
+$D = 4 + 1932 = 1936$, $\sqrt{D} = 44$. So $x = \frac{-2 + 44}{2} = 21$ (the
+positive root). **The integers are 21 and 23.**
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** The roots of the equation $x^2 + x - 2 = 0$ are:
+(a) $-1, 2$  (b) $1, -2$  (c) $-1, -2$  (d) $1, 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x - 1)(x + 2) = 0$. **(b) $1, -2$.**
+</details>
+
+**Q2 (1 mark — assertion-reason style).** Assertion (A): The equation
+$2x^2 - 4x + 3 = 0$ has no real roots. Reason (R): The discriminant of the
+equation is negative.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $D$. Both A and R must be true.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = 16 - 24 = -8 < 0$. So **A is true, R is true, and R correctly explains
+A.** Marked as such on board scripts.
+</details>
+
+**Q3 (2 marks).** Find the values of $k$ for which $9x^2 + 3kx + 4 = 0$ has
+equal roots.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$D = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = 9k^2 - 144 = 0 \Rightarrow k^2 = 16 \Rightarrow k = \pm 4$.
+</details>
+
+**Q4 (2 marks).** Solve $4x^2 + 4\sqrt{3}\,x + 3 = 0$ using the quadratic
+formula.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a = 4, b = 4\sqrt{3}, c = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = 48 - 48 = 0$. So $x = \dfrac{-4\sqrt{3}}{8} = -\dfrac{\sqrt{3}}{2}$
+(repeated).
+</details>
+
+**Q5 (3 marks).** The sum of a number and its reciprocal is $\dfrac{17}{4}$.
+Find the number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x + 1/x = 17/4$. Multiply by $4x$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$4x^2 - 17x + 4 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = 289 - 64 = 225$, $\sqrt{D} = 15$.
+$x = \dfrac{17 \pm 15}{8}$ → $x = 4$ or $x = \dfrac{1}{4}$.
+**The number is 4 (or $\frac{1}{4}$).** (They are reciprocals of each other,
+consistent with the symmetry of the problem.)
+</details>
+
+**Q6 (3 marks).** A train travels 360 km at uniform speed. If the speed had
+been 5 km/h more, it would have taken 1 hour less. Find the speed.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let speed = $u$. Time = $360/u$. Then $\dfrac{360}{u + 5} = \dfrac{360}{u}
+- 1$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Multiply through by $u(u + 5)$ and simplify to a quadratic.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{360}{u} - \dfrac{360}{u + 5} = 1 \Rightarrow \dfrac{360 \cdot 5}
+{u(u + 5)} = 1 \Rightarrow u^2 + 5u - 1800 = 0$.
+$D = 25 + 7200 = 7225$, $\sqrt{D} = 85$. $u = \dfrac{-5 + 85}{2} = 40$.
+**Speed = 40 km/h.**
+</details>
+
+**Q7 (5 marks — long answer).** Two pipes running together can fill a tank
+in $\dfrac{40}{13}$ minutes. If one pipe takes $3$ minutes more than the
+other to fill the tank separately, find the time in which each pipe would
+fill the tank alone.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the faster pipe take $t$ minutes alone; the slower, $t + 3$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+"Working together" means rates add: in one minute, the faster fills
+$\frac{1}{t}$ of the tank and the slower $\frac{1}{t+3}$. Their sum is
+the combined rate $\dfrac{13}{40}$.
+</details>
+<details class="hint"><summary>Hint 3 — the first step</summary>
+Set $\dfrac{1}{t} + \dfrac{1}{t+3} = \dfrac{13}{40}$ and clear
+denominators by multiplying through by $40\,t(t+3)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Set up.** Let $t$ = minutes the faster pipe alone needs. The slower
+needs $t + 3$. In one minute together they fill
+$$
+\dfrac{1}{t} + \dfrac{1}{t+3} \;=\; \dfrac{13}{40}.
+$$
+
+**Clear denominators.** Multiply both sides by $40\,t(t+3)$:
+$$
+40(t+3) + 40t \;=\; 13\,t(t+3),
+$$
+$$
+80t + 120 \;=\; 13t^2 + 39t,
+$$
+$$
+13t^2 - 41t - 120 \;=\; 0.
+$$
+
+**Solve.** $D = 41^2 + 4\cdot 13 \cdot 120 = 1681 + 6240 = 7921$, and
+$\sqrt{7921} = 89$.
+$$
+t \;=\; \dfrac{41 \pm 89}{26} \;=\; 5 \text{ or } -\dfrac{48}{26}.
+$$
+
+**Reject infeasible.** A negative time has no physical meaning, so
+$t = 5$.
+
+**Answer.** The faster pipe takes $\boxed{5 \text{ minutes}}$ alone; the
+slower takes $\boxed{8 \text{ minutes}}$ alone.
+
+**Check.** $\frac{1}{5} + \frac{1}{8} = \frac{8+5}{40} = \frac{13}{40}$
+of the tank per minute, so together they need $\frac{40}{13}$ minutes to
+fill it. ✓
+
+**Pedagogical takeaway.** After setting up the quadratic, check that the
+discriminant is a perfect square — for clean board questions it always
+is. If $\sqrt{D}$ comes out irrational, re-read the question for a
+mis-copied number before continuing.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 4.3 Q3–Q11 are "discriminant +
+nature-of-roots" questions like Q3; Exemplar 4.4 Q1–Q11 are full
+word-problems like Q5–Q7.
+
+**Previous-year pointer:** CBSE 2023 Set 1, Q26 is essentially Q5. CBSE
+2020 Set 1, Q33 is the same shape as Q6.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$D < 0$ means there's an error."** No — it means *no real roots*. The
+   parabola simply does not cross the x-axis. Real-world feasibility may
+   force you to reject this case (no real time, no real length), but the
+   algebra is still correct.
+2. **"Both roots of a quadratic are always valid answers."** Algebraically
+   yes; physically no. A negative breadth, a negative time, or a non-integer
+   number of children must be rejected. Always check.
+3. **"Equal roots means one root."** Convention: a double root is *counted
+   twice*. The equation has *one distinct value*, but mathematicians say
+   the equation has **a repeated root of multiplicity 2**.
+:::
+
+### Self-Assessment
+
+1. Could you derive the quadratic formula by completing the square, without
+   notes?
+2. Did you correctly use the discriminant in Q3 and Q4 (read the case from
+   $D$, not from a guess)?
+3. Did you check feasibility in every word problem (reject negative
+   lengths, times, etc.)?
+
+- **3 yes:** move on.
+- **2 yes:** redo Q5 and Q6 with feasibility commentary.
+- **0–1 yes:** completing-the-square is the load-bearing skill. Re-read
+  *Discover, Problem 3*. Re-derive the formula.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse10.polynomials`](../02-polynomials/index.qmd) — zeros and Vieta
+  relations for quadratics.
+- [`cbse9.number-systems`](../../tier-cbse-09-class-9/01-number-systems/index.qmd) —
+  surds and rationals.
+
+### What this unlocks
+
+- [`cbse10.arithmetic-progressions`](../05-arithmetic-progressions/index.qmd) —
+  AP problems often reduce to quadratics in $n$.
+- [`cbse11.complex-numbers`](../../tier-cbse-11-class-11/04-complex-numbers/index.qmd) —
+  $D < 0$ becomes meaningful when complex roots are admitted.
+- [`cbse11.sequences-series`](../../tier-cbse-11-class-11/08a-sequences-ap-gp/index.qmd).
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 4 — Quadratic Equations** (NCERT 2023 rationalised
+  syllabus). Covers Sections 4.1–4.4: factorisation, quadratic formula,
+  nature of roots. (Section 4.3 *completing the square method* was
+  retained as a derivation route to the formula.)
+- **Sister synthesis lessons:**
+  - [`t2.quadratic-equations-intro`](../../tier-2-prealgebra/14-quadratic-equations-intro/index.qmd)
+    — first encounter with quadratics, factoring focus.
+  - [`t3.quadratic-formula`](../../tier-3-algebra2-geometry-trig/01-quadratic-formula/index.qmd)
+    — the formula derived again, plus complex roots.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Projectile trajectories, collision predictions, and
+ball-bounce timings all reduce to quadratic equations like the football
+example in *Touch*. Every game-engine physics module solves thousands per
+second.
+:::
+
+::: {.applied-callout}
+**Research.** The discriminant — and the qualitative branching it
+encodes — is the prototype for *bifurcation* in dynamical systems. The
+moment a parameter crosses $D = 0$, behaviour changes character.
+:::
+
+::: {.applied-callout}
+**AI/ML.** The optimisation step in many ML algorithms (least squares,
+ridge regression) closes in one step on a quadratic objective — exactly
+the algebraic shape you've been solving by hand.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained (the projectile metaphor in *Touch*);
+  Russian school (problem-first *Discover*); Bhāskara (compact *Name*).
+- **Q7 caveat:** the standard NCERT pipes-problem variant uses
+  $\frac{40}{13}$; the printed $\frac{40}{3}$ admits no clean factor pair.
+  The full solution discusses this honestly to model board-exam diagnosis.
+:::

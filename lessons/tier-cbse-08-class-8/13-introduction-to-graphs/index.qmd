@@ -1,0 +1,499 @@
+---
+title: "Ch 13 — Introduction to Graphs"
+subtitle: "Two number lines crossed — a place for every pair of numbers"
+lesson-id: "cbse8.introduction-to-graphs"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 13
+ncert-chapter-title: "Introduction to Graphs"
+board-exam: false
+prerequisites: ["t1.data-and-average", "t1.number-line"]
+unlocks: ["cbse9.coordinate-geometry", "cbse9.linear-equations-two-var", "cbse10.coordinate-geometry"]
+applied-domains: ["ai-ml", "databases", "game-dev"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you read a thermometer or a ruler? If not, revisit
+   **[The Number Line](../../tier-1-foundations/02-number-line/index.qmd)**.
+2. Have you ever made a bar chart by hand? If not, revisit
+   **[Data and Average](../../tier-1-foundations/14-data-and-average/index.qmd)**.
+3. Do you know what *positive* and *negative* mean on a number line?
+4. Can you describe a place in your school using "two streets across,
+   then one street up"?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Find a sheet of squared graph paper, or imagine one. Draw a horizontal
+line across the middle and a vertical line down the middle. Where they
+cross, write $0$. To the right of the cross, mark $1, 2, 3, \ldots$.
+Going up, mark $1, 2, 3, \ldots$.
+
+Pick a place on the paper. *How* would you tell a friend where it is,
+just using two numbers?
+
+The slider below shows the same idea.
+
+```{ojs}
+viewof px = Inputs.range([0, 10], {value: 4, step: 1, label: "Across (x)"})
+viewof py = Inputs.range([0, 10], {value: 3, step: 1, label: "Up (y)"})
+```
+
+```{ojs}
+{
+  const k = 30;
+  const margin = 25;
+  const cells = [];
+  for (let i = 0; i <= 10; i++) {
+    cells.push(`<line x1="${margin+i*k}" y1="${margin}" x2="${margin+i*k}" y2="${margin+10*k}" stroke="#eee"/>`);
+    cells.push(`<line x1="${margin}" y1="${margin+i*k}" x2="${margin+10*k}" y2="${margin+i*k}" stroke="#eee"/>`);
+  }
+  cells.push(`<line x1="${margin}" y1="${margin}" x2="${margin}" y2="${margin+10*k}" stroke="#333" stroke-width="1.5"/>`);
+  cells.push(`<line x1="${margin}" y1="${margin+10*k}" x2="${margin+10*k}" y2="${margin+10*k}" stroke="#333" stroke-width="1.5"/>`);
+  const cx = margin + px*k;
+  const cy = margin + (10-py)*k;
+  cells.push(`<line x1="${margin}" y1="${cy}" x2="${cx}" y2="${cy}" stroke="#1d4ed8" stroke-dasharray="3,3"/>`);
+  cells.push(`<line x1="${cx}" y1="${margin+10*k}" x2="${cx}" y2="${cy}" stroke="#1d4ed8" stroke-dasharray="3,3"/>`);
+  cells.push(`<circle cx="${cx}" cy="${cy}" r="6" fill="#dc2626"/>`);
+  cells.push(`<text x="${cx+10}" y="${cy-6}" font-size="13" font-family="system-ui">(${px}, ${py})</text>`);
+  return html`<div style="font-family:system-ui;">
+    <svg width="${margin*2 + 10*k}" height="${margin*2 + 10*k}" style="background:#fafafa;">
+      ${cells.join("")}
+    </svg>
+  </div>`;
+}
+```
+
+Slide the two numbers. The red dot moves. Two numbers determine a
+position. The first says *across*; the second says *up*. They are not
+interchangeable.
+
+## Wonder
+
+Sit with these.
+
+1. If you swap the two numbers — point $(4, 3)$ becomes $(3, 4)$ — do
+   you arrive at the same place?
+2. The point $(0, 5)$ sits *on* the up-line. The point $(5, 0)$ sits
+   *on* the across-line. The point $(0, 0)$ sits where?
+3. What do you call the point a temperature graph touches when the
+   temperature is $0\,°$C?
+4. Can you imagine a chart where every dot is the *same* height?
+   Could you describe that chart in just one sentence?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+A horizontal line is "all dots have the same up-value". A vertical
+line is "all dots have the same across-value". Lines that climb
+left-to-right are the next step — and they encode the relationship
+$y = mx + b$. The chapter starts with bar charts and ends with
+straight-line graphs of linear equations.
+:::
+
+## Discover
+
+### Problem 1 — Plot a point
+
+On graph paper (or in your head), plot the point $(3, 4)$. Then plot
+$(4, 3)$. Are they the same point?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First number = how far right; second number = how far up.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(3, 4)$ is $3$ right and $4$ up. $(4, 3)$ is $4$ right and $3$ up.
+**They are different points.** Order matters.
+</details>
+
+### Problem 2 — Read a bar chart
+
+A bar chart of fruit sales (in kg) shows: apple $30$, banana $50$,
+orange $20$, mango $40$. (i) Which fruit sold most? (ii) Which sold
+least? (iii) Total kg sold?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find the tallest and shortest bars; sum the heights.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** Banana ($50$ kg).
+**(ii)** Orange ($20$ kg).
+**(iii)** Total $= 30 + 50 + 20 + 40 = 140$ kg.
+</details>
+
+### Problem 3 — A linear graph
+
+Plot the points $(0, 1), (1, 3), (2, 5), (3, 7)$ on graph paper. What
+shape do they form? Can you spot a rule connecting $x$ and $y$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Check: when $x$ goes up by $1$, what happens to $y$?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$x$ goes up by $1$, $y$ goes up by $2$. So $y = 2x + ?$. Plug in $x =
+0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The four points lie on a **straight line**. Each unit right takes you
+$2$ units up. At $x = 0$, $y = 1$. So $y = 2x + 1$.
+
+(All four points satisfy $y = 2x + 1$. Verify: $2 \cdot 3 + 1 = 7$. ✓)
+</details>
+
+### Problem 4 — Read a linear graph
+
+A graph shows distance against time for a car: at $t = 0$ hour the
+distance is $0$ km; at $t = 2$ the distance is $120$ km; at $t = 4$
+it is $240$ km. (i) What is the speed? (ii) How far at $t = 7$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Speed = distance change / time change. (Constant speed → straight line
+through origin.)
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** Speed $= 120 / 2 = 60$ km/h.
+
+**(ii)** Distance $= 60 \times 7 = 420$ km.
+</details>
+
+### Problem 5 — Fill in the table
+
+If $y = 3x - 1$, complete the table and plot the points.
+
+| $x$ | $0$ | $1$ | $2$ | $3$ |
+|:-:|:-:|:-:|:-:|:-:|
+| $y$ | ? | ? | ? | ? |
+
+<details class="hint"><summary>Full solution</summary>
+
+| $x$ | $0$ | $1$ | $2$ | $3$ |
+|:-:|:-:|:-:|:-:|:-:|
+| $y$ | $-1$ | $2$ | $5$ | $8$ |
+
+When plotted, all four points lie on a straight line. They all satisfy
+$y = 3x - 1$.
+</details>
+
+### Problem 6 — Pie vs bar vs line
+
+You want to display: (i) percentage marks of one student in different
+subjects, (ii) population of a town from year 1980 to 2020, (iii) the
+share of expenses by category in a household budget. For each, which
+of *bar*, *line*, *pie* is the most natural choice?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Categories vs over-time vs share-of-whole.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(i) bar chart (categories: subjects). (ii) line graph (continuous time
+trend). (iii) pie chart (parts of a whole).
+</details>
+
+You have just plotted points, read straight-line graphs, computed
+slope from two readings, and matched chart-type to data type. That is
+the chapter.
+
+## Name
+
+::: {.lesson-beat}
+
+The **Cartesian plane** is two number lines crossed at right angles
+at the **origin** $(0, 0)$. The horizontal line is the **$x$-axis**;
+the vertical line is the **$y$-axis**. Every point is named by an
+**ordered pair** $(x, y)$ — first $x$ across, then $y$ up.
+
+A **linear graph** is a straight line. The graph of $y = mx + c$ is a
+straight line; $m$ is the **slope** (how much $y$ changes per unit of
+$x$) and $c$ is the **$y$-intercept** (the $y$-value at $x = 0$).
+
+**Common graph types:**
+- *Bar chart* — separate categories.
+- *Histogram* — continuous numerical bins (no gaps).
+- *Pie chart* — share of a whole.
+- *Line graph* — change over a continuous variable, especially time.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Across is x, up is y; the cross is the origin's home.*
+> *Two numbers, in order — one place; reverse them, you've roamed.*
+> *Steps right by one, jumps up by m — slope, and the line is born:*
+> *$y = m x + c$ — c is where it cuts the upright at noon.*
+
+## Apply
+
+### Worked example
+
+> The cost of $1$ kg of a vegetable is $\text{₹}40$. (i) Make a table
+> showing cost for $1, 2, 3, 4, 5$ kg. (ii) Draw a graph of cost (on
+> $y$-axis) against weight (on $x$-axis). (iii) Use the graph to find
+> the cost of $3.5$ kg.
+
+Competent solver's path:
+
+**(i)**
+
+| Weight (kg) | $1$ | $2$ | $3$ | $4$ | $5$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| Cost (₹) | $40$ | $80$ | $120$ | $160$ | $200$ |
+
+**(ii)** All five points lie on the line $y = 40 x$, passing through
+the origin.
+
+**(iii)** At $x = 3.5$, $y = 40 \cdot 3.5 = \text{₹}140$. Reading the
+graph at $3.5$ kg gives the same answer.
+
+### Practice — Warm
+
+**W1.** Plot the points $A(2, 5), B(0, 4), C(-1, 3), D(3, 0)$ and name
+the axes each lies on, if any.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$y$-axis: $x = 0$. $x$-axis: $y = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A$ is in the interior. $B$ lies on the $y$-axis. $C$ is in the
+interior (this lesson concentrates on the first quadrant — negative
+coordinates appear in *Class 9*). $D$ lies on the $x$-axis.
+</details>
+
+**W2.** From the table $y = 2x$ for $x \in \{0, 1, 2, 3, 4\}$, plot
+the points. Are they collinear?
+
+<details class="hint"><summary>Full solution</summary>
+$(0,0), (1,2), (2,4), (3,6), (4,8)$ — all on the line $y = 2x$. Yes,
+collinear.
+</details>
+
+**W3.** A line passes through $(0, 5)$ and $(2, 9)$. Find its slope.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Slope = (change in $y$) / (change in $x$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{9 - 5}{2 - 0} = \dfrac{4}{2} = 2$.
+</details>
+
+### Practice — Working
+
+**P1.** A car uses petrol at $\text{₹}100$ per litre. Make a table
+showing cost for $1$ to $5$ litres, and draw the graph.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cost $= 100 \times $ litres.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Litres | $1$ | $2$ | $3$ | $4$ | $5$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| Cost (₹) | $100$ | $200$ | $300$ | $400$ | $500$ |
+
+The graph is a straight line through the origin with slope $100$.
+</details>
+
+**P2.** A bar chart of monthly savings (in $\text{₹}$) of a family for
+$5$ months: Jan $2000$, Feb $1500$, Mar $2500$, Apr $1800$, May $3000$.
+Find the (i) total saved, (ii) average saving per month.
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** Total $= 2000 + 1500 + 2500 + 1800 + 3000 = \text{₹}10800$.
+
+**(ii)** Average $= 10800 / 5 = \text{₹}2160$.
+</details>
+
+**P3.** Plot $A(1, 1), B(1, 4), C(5, 4), D(5, 1)$. What shape is
+$ABCD$? Find its area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two pairs of opposite sides are vertical and horizontal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$ABCD$ is a **rectangle** (sides $4$ and $3$ at right angles).
+Width $|AD| = 5 - 1 = 4$. Height $|AB| = 4 - 1 = 3$.
+Area $= 4 \times 3 = 12$ square units.
+</details>
+
+### Practice — Stretch
+
+**S1.** The graph of $y = mx$ passes through $(4, 12)$. Find $m$, and
+the value of $y$ when $x = 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute the point. $12 = 4m$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$m = 3$. So $y = 3x$. At $x = 9$: $y = 27$.
+</details>
+
+**S2.** A water tank holds $200$ litres. A tap fills it at $5$ litres
+per minute. (i) Make a table showing water in the tank at $t = 0, 5,
+10, 15, 20$ minutes. (ii) Plot the line graph. (iii) After how many
+minutes will the tank be full?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume $V = 5t$ until full.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| $t$ (min) | $0$ | $5$ | $10$ | $15$ | $20$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $V$ (L) | $0$ | $25$ | $50$ | $75$ | $100$ |
+
+Line through origin, slope $5$.
+
+Tank full when $V = 200 \Rightarrow t = 200 / 5 = 40$ minutes.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The point $(0, 0)$ is called the
+(a) origin (b) abscissa (c) ordinate (d) coordinate.
+
+<details class="hint"><summary>Full solution</summary>
+**Answer: (a) origin.**
+</details>
+
+**2-mark (short answer).** Plot the points $(2, 3)$ and $(2, 7)$. Find
+the distance between them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two points share an $x$-coordinate. The line is vertical.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Distance $= |7 - 3| = 4$ units.
+</details>
+
+**3-mark (short answer II).** Draw the graph of $y = 2x + 3$ for
+$x = -1, 0, 1, 2$. Use the graph to find $y$ when $x = 1.5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the four $y$-values, plot, then read between the third and
+fourth points.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| $x$ | $-1$ | $0$ | $1$ | $2$ |
+|:-:|:-:|:-:|:-:|:-:|
+| $y$ | $1$ | $3$ | $5$ | $7$ |
+
+All four points lie on the same straight line.
+
+By computation: $y = 2(1.5) + 3 = 6$.
+</details>
+
+**4-mark (long answer).** A factory's monthly production for the
+first $6$ months of $2024$ (in thousand units) was: Jan $20$, Feb
+$24$, Mar $32$, Apr $30$, May $40$, Jun $44$. (i) Draw a line graph.
+(ii) Find the total production for the half-year. (iii) In which
+month was the increase from the previous month largest?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plot months on $x$-axis and production on $y$-axis. Compute differences
+between consecutive months.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+**(i)** Plot the six points $(1, 20), (2, 24), (3, 32), (4, 30), (5,
+40), (6, 44)$ and join with line segments.
+
+**(ii)** Total $= 20 + 24 + 32 + 30 + 40 + 44 = 190$ thousand units
+$= 1{,}90{,}000$ units.
+
+**(iii)** Differences: Feb $+4$, Mar $+8$, Apr $-2$, May $+10$, Jun
+$+4$. **Largest jump: May (+10)**.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 13.4 (line graph,
+total/average/biggest-change) is a near-twin of the 4-mark item.
+**Previous-year pointer:** CBSE 2018 Set 1, Q17 ("plot $y = 2x + 1$
+and find $y$ at a non-integer $x$") matches the 3-mark item closely.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$(3, 4)$ is the same as $(4, 3)$."** No. The first number is
+   *across* (x); the second is *up* (y). Order matters absolutely.
+2. **"A bar chart and a histogram are the same."** Bar charts have
+   gaps between bars (separate categories). Histograms have no gaps
+   (continuous bins). The kind of data on the $x$-axis decides which.
+3. **"A line graph means values are continuous between data
+   points."** Joining data points with line segments is a *visual aid*,
+   not always a claim that the data really took those in-between
+   values. (E.g., monthly sales — there is no "1.5 March".)
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you, with no help, plot four points from a table and
+   confirm whether they are collinear?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the
+   7 *Practice* problems without peeking past Hint 1?
+3. Given a real-world question (e.g., "show this household's monthly
+   spending"), can you pick the right chart type without thinking?
+
+- **3 yes:** congratulations — you have completed the **Class 8 NCERT
+  curriculum** in this track. Move on to **[Class 9 — Number Systems](../../tier-cbse-09-class-9/01-number-systems/index.qmd)**.
+- **2 yes:** redo *Stretch S2* and the 4-mark board item, then move
+  on.
+- **0–1 yes:** redo *Discover Problem 3* — the leap from a table of
+  numbers to a straight-line graph is the keystone of this chapter.
+
+## Connect
+
+### Prerequisites used
+
+- **[The Number Line](../../tier-1-foundations/02-number-line/index.qmd)** — placing a single number on a line.
+- **[Data and Average](../../tier-1-foundations/14-data-and-average/index.qmd)** — bar charts, mean, mode.
+
+### What this unlocks
+
+- **[Class 9 — Coordinate Geometry](../../tier-cbse-09-class-9/03-coordinate-geometry/index.qmd)** — adds the four quadrants and signed coordinates.
+- **[Class 9 — Linear Equations in Two Variables](../../tier-cbse-09-class-9/04-linear-equations-two-vars/index.qmd)** — a straight line *is* the solution set of a two-variable linear equation.
+- **[Class 10 — Coordinate Geometry](../../tier-cbse-10-class-10/07-coordinate-geometry/index.qmd)** — distance and section formula.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 13 — Introduction to Graphs** (NCERT 2023
+  rationalised syllabus). Covers Sections 13.1–13.3: bar graphs,
+  histograms, pie charts, line graphs, and the Cartesian plane in the
+  first quadrant.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t2.coordinate-plane`](../../tier-2-prealgebra/04-coordinate-plane/index.qmd)
+  treats the coordinate plane at the synthesis level (all four
+  quadrants); this chapter focuses on the first quadrant and on
+  reading and producing data graphs.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every plot you have ever seen produced by a machine
+learning library — loss curves, precision-recall, confusion matrices
+— is built on the Cartesian plane and the line-graph idea you just
+formalised.
+:::
+
+::: {.applied-callout}
+**Databases.** Every query result returned to a dashboard is a row
+of $(x, y)$ pairs, awaiting plotting. The first chart any analyst
+draws on new data is the line graph from this chapter.
+:::
+
+::: {.applied-callout}
+**Game development.** Every position in a 2D game is an ordered pair
+$(x, y)$ on a screen-sized Cartesian plane. The same plotting rules
+move characters, fire bullets, and decide which sprite is on top.
+:::

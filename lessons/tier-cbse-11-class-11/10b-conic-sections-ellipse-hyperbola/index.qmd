@@ -1,0 +1,489 @@
+---
+title: "Ch 10b — Conic Sections (Ellipse and Hyperbola)"
+subtitle: "Two foci instead of one — and a constant sum or difference of distances"
+lesson-id: "cbse11.conic-sections-ellipse-hyperbola"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 10
+ncert-chapter-title: "Conic Sections"
+board-exam: false
+prerequisites: ["cbse11.conic-sections-circle-parabola"]
+unlocks: ["cbse12.three-d-geometry"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you state the standard equation of a circle?
+2. Are you fluent with completing the square?
+3. Have you understood the focus-directrix definition of a parabola?
+4. Can you compute $\sqrt{a^2 - b^2}$ for given $a, b$?
+
+Three confident yeses — read on. Otherwise revisit
+**[Conic Sections (Circle and Parabola)](../10a-conic-sections-circle-parabola/index.qmd)**.
+:::
+
+## Touch
+
+Pin two thumbtacks into a board, $4$ cm apart. Take a string $10$ cm
+long and tie its ends to the two tacks. Pull the string taut with a
+pencil and trace a curve while keeping the string taut.
+
+You have just drawn an **ellipse**: every point on the curve has the
+property that the *sum* of its distances to the two tacks equals $10$
+(the string length).
+
+If instead you used the *difference* of distances staying constant —
+that traces a **hyperbola** (the gardener trick is harder; we use the
+equation directly).
+
+The widget below sweeps the semi-axes of the ellipse $x^2/a^2 + y^2/b^2 = 1$.
+
+```{ojs}
+viewof aE = Inputs.range([1, 6], {value: 4, step: 0.1, label: "a (semi-major axis)"})
+```
+```{ojs}
+viewof bE = Inputs.range([0.5, 6], {value: 3, step: 0.1, label: "b (semi-minor axis)"})
+```
+
+```{ojs}
+{
+  const a = aE, b = bE;
+  if (b > a) return html`<div style="color:#a00;">Need b ≤ a for the standard horizontal ellipse.</div>`;
+  const c = Math.sqrt(a * a - b * b);
+  const e = c / a;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>Ellipse:</b> x²/a² + y²/b² = 1</div>
+    <div>a = ${a.toFixed(2)}, b = ${b.toFixed(2)}, c = √(a² − b²) = ${c.toFixed(3)}</div>
+    <div><b>Foci:</b> (${(-c).toFixed(2)}, 0) and (${c.toFixed(2)}, 0)</div>
+    <div><b>Eccentricity</b> e = c/a = ${e.toFixed(3)} (between 0 and 1)</div>
+    <div style="margin-top:0.4em;color:#666;">
+      Sum of distances from any point on the ellipse to the two foci = 2a.
+    </div>
+  </div>`;
+}
+```
+
+When $b = a$, the ellipse degenerates to a circle. As $b/a \to 0$, the
+ellipse stretches into something flat. The ratio $e = c/a$ measures
+how "squashed" it is.
+
+## Wonder
+
+Sit with these.
+
+1. The Earth orbits the Sun in an ellipse. Where does the Sun sit — at
+   the centre or at a focus?
+2. Suppose you stretch an ellipse with semi-axes $a, b$ until $a = b$.
+   What does it become? What if $a > b$? $b > a$?
+3. The hyperbola $\dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1$ has two
+   branches. Why two, not one?
+4. As $a \to \infty$ in the ellipse equation, the curve flattens to a
+   pair of horizontal lines. What does that suggest the hyperbola is
+   "doing"?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) hints at the **eccentricity** $e$ as the master parameter:
+$e = 0$ circle, $0 < e < 1$ ellipse, $e = 1$ parabola, $e > 1$
+hyperbola. (4) is the **asymptote** picture — the hyperbola lives
+between two slanted lines.
+:::
+
+## Discover
+
+### Problem 1 — Standard ellipse
+
+Sketch $\dfrac{x^2}{25} + \dfrac{y^2}{16} = 1$. Find the foci.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a^2 = 25, b^2 = 16$. $c^2 = a^2 - b^2 = 9$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a = 5, b = 4, c = 3$. Foci $(\pm 3, 0)$. Vertices $(\pm 5, 0)$ and
+co-vertices $(0, \pm 4)$. Eccentricity $e = 3/5$.
+</details>
+
+### Problem 2 — Eccentricity and shape
+
+Two ellipses: $E_1$ has $e = 0.1$, $E_2$ has $e = 0.9$. Which is closer
+to a circle?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$e = 0$ is a circle. Smaller $e$ means rounder.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$E_1$ (with $e = 0.1$) is nearly circular. $E_2$ is highly elongated.
+</details>
+
+### Problem 3 — Standard hyperbola
+
+Sketch $\dfrac{x^2}{16} - \dfrac{y^2}{9} = 1$. Find the foci and
+asymptotes.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a^2 = 16, b^2 = 9$. For a hyperbola, $c^2 = a^2 + b^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a = 4, b = 3, c = 5$. Foci $(\pm 5, 0)$.
+
+Asymptotes: $y = \pm \dfrac{b}{a} x = \pm \dfrac{3}{4} x$.
+
+Vertices $(\pm 4, 0)$. Eccentricity $e = c/a = 5/4 > 1$.
+</details>
+
+### Problem 4 — Find equation given foci
+
+Find the equation of the ellipse with foci $(\pm 4, 0)$ and vertices
+$(\pm 5, 0)$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = 5, c = 4 \Rightarrow b^2 = a^2 - c^2 = 9$.
+
+Equation: $\dfrac{x^2}{25} + \dfrac{y^2}{9} = 1$.
+</details>
+
+### Problem 5 — Hyperbola from foci
+
+Find the equation of the hyperbola with foci $(\pm 5, 0)$ and vertices
+$(\pm 3, 0)$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = 3, c = 5 \Rightarrow b^2 = c^2 - a^2 = 16$.
+
+$\dfrac{x^2}{9} - \dfrac{y^2}{16} = 1$.
+</details>
+
+### Problem 6 — Latus rectum
+
+Find the length of the latus rectum of $\dfrac{x^2}{36} + \dfrac{y^2}{9} = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For an ellipse, latus rectum length $= 2b^2/a$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a^2 = 36 \Rightarrow a = 6$. $b^2 = 9$. Latus rectum $= 2 \cdot 9 / 6 = 3$.
+</details>
+
+### Problem 7 — Vertical major axis
+
+Sketch $\dfrac{x^2}{16} + \dfrac{y^2}{25} = 1$. Identify the major axis.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The denominator under $y^2$ ($25$) is larger, so the major axis is
+vertical.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Major axis vertical, semi-major $5$ along $y$, semi-minor $4$ along $x$.
+
+$c^2 = 25 - 16 = 9 \Rightarrow c = 3$. Foci $(0, \pm 3)$.
+</details>
+
+You have just used the **standard ellipse** and **standard hyperbola**
+equations, **eccentricity**, **latus rectum**, **foci-from-equation**,
+and the **asymptote** picture for hyperbolas. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**Ellipse.** Locus of points whose *sum* of distances to two fixed
+points (foci) is constant.
+
+Standard form (horizontal major axis):
+$$ \dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1, \quad a > b > 0. $$
+
+- Foci: $(\pm c, 0)$ with $c = \sqrt{a^2 - b^2}$.
+- Vertices: $(\pm a, 0)$. Co-vertices: $(0, \pm b)$.
+- **Eccentricity:** $e = c/a$, with $0 \le e < 1$.
+- **Latus rectum:** $\dfrac{2 b^2}{a}$.
+
+If $b > a$: major axis is vertical; the formulas swap roles.
+
+**Hyperbola.** Locus of points whose *difference* of distances to two
+fixed points is constant.
+
+Standard form (horizontal transverse axis):
+$$ \dfrac{x^2}{a^2} - \dfrac{y^2}{b^2} = 1. $$
+
+- Foci: $(\pm c, 0)$ with $c = \sqrt{a^2 + b^2}$.
+- Vertices: $(\pm a, 0)$.
+- **Asymptotes:** $y = \pm \dfrac{b}{a} x$.
+- **Eccentricity:** $e = c/a > 1$.
+- **Latus rectum:** $\dfrac{2 b^2}{a}$.
+
+**Eccentricity dictionary:**
+
+| Curve | $e$ |
+|:--|:--|
+| Circle | $0$ |
+| Ellipse | $0 < e < 1$ |
+| Parabola | $e = 1$ |
+| Hyperbola | $e > 1$ |
+
+:::
+
+A short verse:
+
+> *Ellipse: sum of distances stays the same.*
+> *Hyperbola: difference is the cleaner game.*
+> *Larger denominator rules the longer axis;*
+> *Asymptote slope is $b$ over $a$.*
+
+## Apply
+
+### Worked example
+
+> Find the equation of the ellipse whose major axis is along the
+> $x$-axis, whose semi-major axis is $5$, and which passes through the
+> point $(4, 12/5)$.
+
+How a competent solver thinks:
+
+1. Major axis along $x$-axis: $\dfrac{x^2}{25} + \dfrac{y^2}{b^2} = 1$.
+2. Substitute $(4, 12/5)$: $\dfrac{16}{25} + \dfrac{144/25}{b^2} = 1
+   \Rightarrow \dfrac{144/25}{b^2} = \dfrac{9}{25} \Rightarrow b^2 = 16$.
+3. Equation: $\dfrac{x^2}{25} + \dfrac{y^2}{16} = 1$.
+
+### Practice — Warm
+
+**W1.** Foci of $\dfrac{x^2}{49} + \dfrac{y^2}{36} = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$c^2 = 49 - 36 = 13$. Foci $(\pm \sqrt{13}, 0)$.
+</details>
+
+**W2.** Eccentricity of $\dfrac{x^2}{16} - \dfrac{y^2}{9} = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$c = \sqrt{16 + 9} = 5$, $a = 4$. $e = 5/4$.
+</details>
+
+**W3.** Asymptotes of $\dfrac{x^2}{4} - \dfrac{y^2}{9} = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$y = \pm \dfrac{3}{2} x$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the equation of the ellipse whose foci are $(\pm 2, 0)$
+and eccentricity is $1/2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$c = 2$, $e = c/a = 1/2 \Rightarrow a = 4$, $b^2 = a^2 - c^2 = 12$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{x^2}{16} + \dfrac{y^2}{12} = 1$.
+</details>
+
+**P2.** Find the eccentricity of the ellipse whose latus rectum is half
+its major axis.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\dfrac{2 b^2}{a} = \dfrac{2a}{2} = a$, so $b^2 = a^2/2$.
+Use $b^2 = a^2(1 - e^2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a^2/2 = a^2(1 - e^2) \Rightarrow 1 - e^2 = 1/2 \Rightarrow e^2 = 1/2
+\Rightarrow e = 1/\sqrt{2}$.
+</details>
+
+**P3.** Find the equation of the hyperbola with vertices $(\pm 7, 0)$
+and eccentricity $4/3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a = 7$, $c = ae = 28/3$, $b^2 = c^2 - a^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$c^2 = 784/9$, $b^2 = 784/9 - 49 = 343/9$.
+
+$\dfrac{x^2}{49} - \dfrac{9 y^2}{343} = 1$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the line $y = mx + c$ is tangent to the ellipse
+$\dfrac{x^2}{a^2} + \dfrac{y^2}{b^2} = 1$ if and only if
+$c^2 = a^2 m^2 + b^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute the line into the ellipse, get a quadratic in $x$. The
+discriminant is zero for tangency.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{x^2}{a^2} + \dfrac{(mx + c)^2}{b^2} = 1
+\Rightarrow b^2 x^2 + a^2 (mx + c)^2 = a^2 b^2
+\Rightarrow (b^2 + a^2 m^2) x^2 + 2 a^2 m c x + a^2(c^2 - b^2) = 0$.
+
+Discriminant zero: $4 a^4 m^2 c^2 - 4(b^2 + a^2 m^2)(a^2)(c^2 - b^2) = 0$,
+
+i.e. $a^2 m^2 c^2 = (b^2 + a^2 m^2)(c^2 - b^2)$.
+
+Expanding gives $c^2 = b^2 + a^2 m^2$, as required. ✓
+</details>
+
+**S2.** Reflection property of an ellipse: a ray from one focus, after
+striking the ellipse, passes through the other focus. Use the
+sum-of-distances definition to argue why.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At any point $P$, the sum $|PF_1| + |PF_2|$ is locally constant. The
+unit vectors from $P$ to $F_1$ and to $F_2$ thus make equal angles with
+the tangent.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Differentiating $|PF_1| + |PF_2| = 2a$ along the curve gives that the
+projections of the unit vectors $\hat{u}_1 = (P - F_1)/|PF_1|$ and
+$\hat{u}_2 = (P - F_2)/|PF_2|$ onto the tangent direction are equal in
+magnitude but opposite in sign. Equivalently, the angle between
+$\hat{u}_1$ and the tangent equals the angle between the tangent and
+$\hat{u}_2$ — exactly the law of reflection.
+
+This is why **whispering galleries** (e.g. St Paul's Cathedral) work:
+a whisper from one focus is heard at the other.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The eccentricity of the ellipse
+$\dfrac{x^2}{36} + \dfrac{y^2}{20} = 1$ is
+(a) $1/3$ (b) $2/3$ (c) $4/3$ (d) $\sqrt{5}/3$.
+
+<details class="hint"><summary>Full solution</summary>
+$c = \sqrt{36 - 20} = 4$, $a = 6$. $e = 4/6 = 2/3$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Find the foci and length of the latus rectum
+of $25 x^2 + 4 y^2 = 100$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide by $100$ to get standard form.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{x^2}{4} + \dfrac{y^2}{25} = 1$. Major along $y$: $a^2 = 25, b^2 = 4$.
+
+$c^2 = 21 \Rightarrow c = \sqrt{21}$. Foci $(0, \pm\sqrt{21})$.
+
+Latus rectum $= 2 b^2/a = 8/5$.
+</details>
+
+**3-mark (short answer II).** Find the equation of the hyperbola with
+foci $(0, \pm 5)$ and vertices $(0, \pm 3)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Vertical transverse axis. $a = 3, c = 5 \Rightarrow b^2 = 16$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{y^2}{9} - \dfrac{x^2}{16} = 1$.
+</details>
+
+**5-mark (long answer).** An arch is in the shape of half an ellipse,
+$8$ m wide at the base and $3$ m high at the centre. Take the origin at
+the centre of the base and the $x$-axis along the ground.
+
+(i) Find the equation of the ellipse.
+(ii) Find the height of the arch at a point $1.5$ m from the centre.
+(iii) Find the foci of the full ellipse.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Half-width $= a = 4$. Half-height $= b = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\dfrac{x^2}{16} + \dfrac{y^2}{9} = 1$.
+
+**(ii)** At $x = 1.5$: $\dfrac{2.25}{16} + \dfrac{y^2}{9} = 1
+\Rightarrow \dfrac{y^2}{9} = \dfrac{13.75}{16} \Rightarrow y^2 = \dfrac{123.75}{16}
+\Rightarrow y \approx 2.78$ m. (Take positive root.)
+
+**(iii)** $c^2 = 16 - 9 = 7 \Rightarrow c = \sqrt{7}$. Foci $(\pm\sqrt{7}, 0)$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 10 LA "elliptical arch / bridge"
+matches the 5-mark item.
+**JEE pointer:** the tangent-line condition (Stretch S1) is JEE Main
+standard.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$c^2 = a^2 - b^2$ for both ellipse and hyperbola."** No. Ellipse:
+   $c^2 = a^2 - b^2$. Hyperbola: $c^2 = a^2 + b^2$. The sign flips
+   because the hyperbola's foci are *outside* the vertices.
+2. **"The hyperbola has only one branch."** Two — one for each sign of
+   the difference $|PF_1| - |PF_2|$.
+3. **"Eccentricity tells you the size."** No — eccentricity tells you
+   the *shape*. Two ellipses can have the same $e$ but very different
+   sizes.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state the eccentricity dictionary for circle / ellipse /
+   parabola / hyperbola from memory?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you spot the major axis direction (horizontal vs vertical) by
+   looking at which denominator is larger?
+
+- **3 yes:** move on to **[Three-Dimensional Geometry Intro](../11-three-d-geometry-intro/index.qmd)**.
+- **2 yes:** redo Stretch S1 and the 5-mark item.
+- **0–1 yes:** redo *Discover*. Ellipse and hyperbola structure pays
+  back across Class 12 calculus and JEE.
+
+## Connect
+
+### Prerequisites used
+
+- **[Conic Sections (Circle and Parabola)](../10a-conic-sections-circle-parabola/index.qmd)** —
+  the focus-directrix framework.
+
+### What this unlocks
+
+- **[Class 12 — Three-Dimensional Geometry](../../tier-cbse-12-class-12/11-three-d-geometry-vectors/index.qmd)** —
+  conic-section reasoning extends to quadric surfaces (ellipsoids,
+  hyperboloids).
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 10 — Conic Sections** (NCERT 2023 rationalised).
+  Sections 10.4–10.5: ellipse and hyperbola — definitions, standard
+  equations, properties.
+- **Sister synthesis lesson:**
+  [`t3.conic-sections`](../../tier-3-algebra2-geometry-trig/conic-sections/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**Research / Astronomy.** Kepler's First Law: planets move in ellipses
+with the Sun at one focus. The reflection property of the ellipse
+explains why parabolic dishes (Lesson 10a) focus parallel rays — the
+ellipse's two-foci version, with one focus "at infinity", *is* the
+parabola.
+:::
+
+::: {.applied-callout}
+**Game development.** Hyperbolic trajectories arise in slingshot
+manoeuvres for spacecraft and in some power-up paths for racing games.
+Asymptotes give a clean upper bound on travel direction.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: Pestalozzi (the gardener's-string ellipse construction),
+3Blue1Brown (eccentricity as the master parameter for the conic family),
+Russian school (Discover sequence forces the eccentricity dictionary),
+Bhāskara (verse on sum vs difference of distances).
+:::

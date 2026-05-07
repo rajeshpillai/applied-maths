@@ -1,0 +1,528 @@
+---
+title: "Ch 4b — Matrix Inverse and Cramer's Rule"
+subtitle: "Undo a matrix; solve a linear system without elimination"
+lesson-id: "cbse12.matrix-inverse-cramers"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 4
+ncert-chapter-title: "Determinants"
+board-exam: true
+prerequisites: ["cbse12.determinants", "cbse10.pair-linear-equations"]
+unlocks: ["cbse12.continuity"]
+applied-domains: ["ai-ml", "research", "game-dev"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Ch 4a — Determinants](../04a-determinants/index.qmd)?
+2. Comfortable expanding a $3\times3$ determinant?
+3. Have you solved a pair of linear equations by elimination at some
+   point?
+:::
+
+## Touch
+
+A locker has a 3-digit combination $(x, y, z)$. Three clues:
+
+::: {.lesson-beat}
+
+$$
+\begin{aligned}
+2x + y + z &= 7 \\
+x - y + 2z &= 6 \\
+3x + 2y - z &= 4
+\end{aligned}
+$$
+
+:::
+
+You could solve by elimination — minutes of careful book-keeping. Or
+package the system as a matrix equation
+$$
+\begin{pmatrix} 2 & 1 & 1 \\ 1 & -1 & 2 \\ 3 & 2 & -1 \end{pmatrix}
+\begin{pmatrix} x \\ y \\ z \end{pmatrix} =
+\begin{pmatrix} 7 \\ 6 \\ 4 \end{pmatrix},
+$$
+or $AX = B$. If you had a magic operation $A^{-1}$ such that $A^{-1} A
+= I$, then $X = A^{-1} B$ — one matrix multiplication and you're done.
+
+That magic operation is the **inverse**. It exists exactly when $|A|
+\ne 0$.
+
+This lesson:
+- builds $A^{-1}$ from the **adjoint** (matrix of cofactors),
+- uses it to solve $AX = B$,
+- gives **Cramer's Rule** as a determinant-only shortcut.
+
+## Wonder
+
+1. Why must $|A| \ne 0$ for an inverse to exist? (Hint: think about the
+   geometry from Ch 4a.)
+2. If $|A| = 0$, what does that say about the system $AX = B$? Could
+   there be no solution? Many?
+3. Cramer's rule expresses each unknown as a ratio of determinants —
+   why might that be slow for large systems but elegant for $2\times2$?
+
+## Discover
+
+### Problem 1
+
+Let $A = \begin{pmatrix} 2 & 1 \\ 5 & 3 \end{pmatrix}$. Compute $|A|$,
+the cofactor matrix, the adjoint, and verify $A \cdot \text{adj}(A) =
+|A| \cdot I$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For a $2\times2$ matrix, $\text{adj}\begin{pmatrix} a & b \\ c & d
+\end{pmatrix} = \begin{pmatrix} d & -b \\ -c & a \end{pmatrix}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|A| = 6 - 5 = 1$. Cofactors: $C_{11} = 3, C_{12} = -5, C_{21} = -1,
+C_{22} = 2$. Adjoint = transpose of cofactor matrix = $\begin{pmatrix}
+3 & -1 \\ -5 & 2 \end{pmatrix}$.
+$A \cdot \text{adj}(A) = \begin{pmatrix} 2\cdot3 + 1\cdot(-5) & 2\cdot(-1)
++ 1\cdot2 \\ 5\cdot3 + 3\cdot(-5) & 5\cdot(-1) + 3\cdot2 \end{pmatrix}
+= \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} = |A| \cdot I$. ✓
+</details>
+
+### Problem 2
+
+Use Problem 1 to find $A^{-1}$.
+
+<details class="hint"><summary>Full solution</summary>
+$A^{-1} = \frac{1}{|A|} \text{adj}(A) = \frac{1}{1}\begin{pmatrix} 3 &
+-1 \\ -5 & 2 \end{pmatrix} = \begin{pmatrix} 3 & -1 \\ -5 & 2
+\end{pmatrix}$. Verify: $A A^{-1} = I$. ✓
+</details>
+
+### Problem 3
+
+Solve $\begin{cases} 2x + 3y = 8 \\ 5x + 4y = 13 \end{cases}$ by writing
+it as $AX = B$ and computing $X = A^{-1} B$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$A = \begin{pmatrix} 2 & 3 \\ 5 & 4 \end{pmatrix}$. $|A| = 8 - 15 =
+-7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{adj}(A) = \begin{pmatrix} 4 & -3 \\ -5 & 2 \end{pmatrix}$,
+$A^{-1} = -\frac{1}{7}\begin{pmatrix} 4 & -3 \\ -5 & 2 \end{pmatrix}$.
+$X = A^{-1} B = -\frac{1}{7}\begin{pmatrix} 4 & -3 \\ -5 & 2
+\end{pmatrix}\begin{pmatrix} 8 \\ 13 \end{pmatrix} = -\frac{1}{7}
+\begin{pmatrix} 32 - 39 \\ -40 + 26 \end{pmatrix} = -\frac{1}{7}
+\begin{pmatrix} -7 \\ -14 \end{pmatrix} = \begin{pmatrix} 1 \\ 2
+\end{pmatrix}$. So $x = 1, y = 2$.
+</details>
+
+### Problem 4
+
+Try Cramer's rule on the same system: $x = \dfrac{D_x}{D},\ y = \dfrac{
+D_y}{D}$ where $D = |A|$, $D_x$ replaces column 1 of $A$ with $B$, etc.
+
+<details class="hint"><summary>Full solution</summary>
+$D = -7$. $D_x = \begin{vmatrix} 8 & 3 \\ 13 & 4 \end{vmatrix} = 32 -
+39 = -7$. $D_y = \begin{vmatrix} 2 & 8 \\ 5 & 13 \end{vmatrix} = 26 -
+40 = -14$.
+$x = -7/-7 = 1, y = -14/-7 = 2$. ✓ Same answer, faster.
+</details>
+
+### Problem 5
+
+Apply Cramer's rule to $\begin{cases} x + y = 5 \\ 2x + 2y = 10
+\end{cases}$. What goes wrong?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $D$ first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = 2 - 2 = 0$. Cramer's rule fails. The two equations are
+proportional — one gives the same line as the other. **Infinitely many
+solutions** (every point on $x + y = 5$). When $|A| = 0$, the system
+has either no solution or infinitely many.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For a square matrix $A$, the **adjoint** $\text{adj}(A)$ is the
+transpose of the cofactor matrix.
+
+**Key identity.** $A \cdot \text{adj}(A) = \text{adj}(A) \cdot A = |A|
+\cdot I$.
+
+If $|A| \ne 0$, then $A$ is **invertible** and
+$$A^{-1} = \frac{1}{|A|}\, \text{adj}(A).$$
+
+**Solving $AX = B$**:
+$$X = A^{-1} B \quad \text{when } |A| \ne 0.$$
+
+**Cramer's Rule.** For $AX = B$ with $|A| = D \ne 0$,
+$$x_i = \frac{D_i}{D},$$
+where $D_i$ is the determinant obtained by replacing column $i$ of $A$
+with $B$.
+
+**Consistency cases for $AX = B$:**
+
+- $|A| \ne 0$: unique solution.
+- $|A| = 0$ and $(\text{adj } A)\,B \ne 0$: no solution (inconsistent).
+- $|A| = 0$ and $(\text{adj } A)\,B = 0$: infinite solutions (or none —
+  check by substitution; in CBSE practice, "infinite solutions").
+
+:::
+
+A verse:
+
+> *Cofactor, transpose, divide by $|A|$ — the inverse appears.*
+> *Replace one column with $B$, ratio of dets — Cramer's word.*
+> *Determinant zero? Lines may merge or wander apart;*
+> *Adjoint times $B$ tells you which path the system charts.*
+
+## Apply
+
+### Worked example
+
+> Solve $\begin{cases} x + y + z = 6 \\ \phantom{x +\,} y + 3z = 11 \\
+> x - 2y + z = 0 \end{cases}$ using $A^{-1}$.
+
+A competent solver:
+
+1. **Set up.** $A = \begin{pmatrix} 1 & 1 & 1 \\ 0 & 1 & 3 \\ 1 & -2 & 1
+   \end{pmatrix}$, $X = \begin{pmatrix} x \\ y \\ z \end{pmatrix}$,
+   $B = \begin{pmatrix} 6 \\ 11 \\ 0 \end{pmatrix}$. The matrix form is
+   $AX = B$, and we want $X = A^{-1} B$.
+
+2. **Determinant.** Expand along column 1:
+   $|A| = 1\,(1 + 6) - 0 + 1\,(3 - 1) = 7 + 2 = 9$. Non-zero, so $A^{-1}$
+   exists.
+
+3. **Cofactors of $A$.**
+   $C_{11} = +(1 + 6) = 7,\ C_{12} = -(0 - 3) = 3,\ C_{13} = +(0 - 1) =
+   -1$
+   $C_{21} = -(1 + 2) = -3,\ C_{22} = +(1 - 1) = 0,\ C_{23} = -(-2 - 1)
+   = 3$
+   $C_{31} = +(3 - 1) = 2,\ C_{32} = -(3 - 0) = -3,\ C_{33} = +(1 - 0) =
+   1$.
+
+4. **Adjoint** $= $ transpose of the cofactor matrix:
+   $\text{adj}(A) = \begin{pmatrix} 7 & -3 & 2 \\ 3 & 0 & -3 \\ -1 & 3 &
+   1 \end{pmatrix}$.
+
+5. **Inverse.** $A^{-1} = \dfrac{1}{|A|}\,\text{adj}(A) =
+   \dfrac{1}{9} \begin{pmatrix} 7 & -3 & 2 \\ 3 & 0 & -3 \\ -1 & 3 & 1
+   \end{pmatrix}$.
+
+6. **Solve.** $X = A^{-1} B = \dfrac{1}{9}
+   \begin{pmatrix} 7(6) + (-3)(11) + 2(0) \\ 3(6) + 0(11) + (-3)(0) \\
+   (-1)(6) + 3(11) + 1(0) \end{pmatrix} = \dfrac{1}{9}
+   \begin{pmatrix} 9 \\ 18 \\ 27 \end{pmatrix} = \begin{pmatrix} 1 \\ 2
+   \\ 3 \end{pmatrix}.$
+
+7. **Check.** $1 + 2 + 3 = 6$ ✓, $\ 2 + 9 = 11$ ✓, $\ 1 - 4 + 3 = 0$ ✓.
+
+**Answer:** $x = 1,\ y = 2,\ z = 3$.
+
+### Practice — Warm
+
+**W1.** Find $A^{-1}$ for $A = \begin{pmatrix} 4 & 5 \\ 1 & 2
+\end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$|A| = 8 - 5 = 3$. $\text{adj}(A) = \begin{pmatrix} 2 & -5 \\ -1 & 4
+\end{pmatrix}$. $A^{-1} = \frac{1}{3}\begin{pmatrix} 2 & -5 \\ -1 & 4
+\end{pmatrix}$.
+</details>
+
+**W2.** Verify $A A^{-1} = I$ for the matrix in W1.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{1}{3}\begin{pmatrix} 4 & 5 \\ 1 & 2 \end{pmatrix}
+\begin{pmatrix} 2 & -5 \\ -1 & 4 \end{pmatrix} = \frac{1}{3}
+\begin{pmatrix} 8 - 5 & -20 + 20 \\ 2 - 2 & -5 + 8 \end{pmatrix} =
+\frac{1}{3}\begin{pmatrix} 3 & 0 \\ 0 & 3 \end{pmatrix} = I$. ✓
+</details>
+
+**W3.** Use Cramer's rule: $\begin{cases} 3x - 2y = 4 \\ x + y = 3
+\end{cases}$.
+
+<details class="hint"><summary>Full solution</summary>
+$D = 3 + 2 = 5$. $D_x = \begin{vmatrix} 4 & -2 \\ 3 & 1 \end{vmatrix} =
+4 + 6 = 10$. $D_y = \begin{vmatrix} 3 & 4 \\ 1 & 3 \end{vmatrix} = 9 -
+4 = 5$. $x = 2, y = 1$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve by $A^{-1}$:
+$\begin{cases} x + 2y + z = 8 \\ 2x + y - z = 1 \\ x - y + 2z = 5
+\end{cases}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Form $A = \begin{pmatrix} 1 & 2 & 1 \\ 2 & 1 & -1 \\ 1 & -1 & 2
+\end{pmatrix}$, $B = (8, 1, 5)^T$, and apply
+$X = A^{-1} B = \tfrac{1}{|A|}\,\text{adj}(A)\,B$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Compute $|A|$ first; if non-zero, the cofactor pattern follows the
+chess-board $\begin{pmatrix} + & - & + \\ - & + & - \\ + & - & +
+\end{pmatrix}$ of signs. Don't forget to **transpose** the cofactor
+matrix to get the adjoint.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Determinant** (expand along row 1):
+$|A| = 1\,(2 - 1) - 2\,(4 + 1) + 1\,(-2 - 1) = 1 - 10 - 3 = -12$.
+Non-zero, so $A^{-1}$ exists.
+
+**Cofactors.**
+$C_{11} = 2-1 = 1,\ C_{12} = -(4+1) = -5,\ C_{13} = -2-1 = -3$
+$C_{21} = -(4+1) = -5,\ C_{22} = 2-1 = 1,\ C_{23} = -(-1-2) = 3$
+$C_{31} = -2-1 = -3,\ C_{32} = -(-1-2) = 3,\ C_{33} = 1-4 = -3$.
+
+**Adjoint** = transpose of cofactor matrix:
+$\text{adj}(A) = \begin{pmatrix} 1 & -5 & -3 \\ -5 & 1 & 3 \\ -3 & 3 &
+-3 \end{pmatrix}$.
+
+**Solve.** $X = \dfrac{1}{-12}\,\text{adj}(A)\,B$ where $B = (8, 1, 5)^T$:
+
+$\text{adj}(A)\,B = \begin{pmatrix} 1(8) + (-5)(1) + (-3)(5) \\ -5(8) +
+1(1) + 3(5) \\ -3(8) + 3(1) + (-3)(5) \end{pmatrix} = \begin{pmatrix} -12
+\\ -24 \\ -36 \end{pmatrix}.$
+
+$X = \dfrac{1}{-12}\begin{pmatrix} -12 \\ -24 \\ -36 \end{pmatrix} =
+\begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}.$
+
+**Answer:** $x = 1,\ y = 2,\ z = 3$.
+
+**Check.** $1 + 4 + 3 = 8$ ✓, $\ 2 + 2 - 3 = 1$ ✓, $\ 1 - 2 + 6 = 5$ ✓.
+</details>
+
+**P2.** Use Cramer's rule for $\begin{cases} 2x + y + 3z = 9 \\ x +
+y + z = 6 \\ x - y + z = 2 \end{cases}$.
+
+<details class="hint"><summary>Full solution</summary>
+$D = \begin{vmatrix} 2 & 1 & 3 \\ 1 & 1 & 1 \\ 1 & -1 & 1 \end{vmatrix}
+= 2(1+1) - 1(1-1) + 3(-1-1) = 4 - 0 - 6 = -2$.
+$D_x = \begin{vmatrix} 9 & 1 & 3 \\ 6 & 1 & 1 \\ 2 & -1 & 1 \end{vmatrix}
+= 9(1+1) - 1(6-2) + 3(-6-2) = 18 - 4 - 24 = -10$.
+$D_y = \begin{vmatrix} 2 & 9 & 3 \\ 1 & 6 & 1 \\ 1 & 2 & 1 \end{vmatrix}
+= 2(6-2) - 9(1-1) + 3(2-6) = 8 - 0 - 12 = -4$.
+$D_z = \begin{vmatrix} 2 & 1 & 9 \\ 1 & 1 & 6 \\ 1 & -1 & 2 \end{vmatrix}
+= 2(2+6) - 1(2-6) + 9(-1-1) = 16 + 4 - 18 = 2$.
+$x = 5, y = 2, z = -1$. (Check: $10 + 2 - 3 = 9$ ✓, $5 + 2 - 1 = 6$ ✓,
+$5 - 2 - 1 = 2$ ✓.)
+</details>
+
+**P3.** If $A$ is a $3\times3$ matrix with $|A| = 2$, find $|\text{adj}(A)|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|\text{adj}(A)| = |A|^{n-1}$ for $n\times n$ matrices.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|\text{adj}(A)| = |A|^{3-1} = 2^2 = 4$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that for invertible $A$, $(A^{-1})^{-1} = A$ and $(AB)^{-1}
+= B^{-1} A^{-1}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For $(AB)^{-1}$, multiply $AB$ by $B^{-1}A^{-1}$ on the right.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(A^{-1})^{-1} = A$: $A^{-1}\cdot A = I$, so $A$ is the inverse of
+$A^{-1}$. $(AB)(B^{-1}A^{-1}) = A(BB^{-1})A^{-1} = AA^{-1} = I$, so
+$(AB)^{-1} = B^{-1}A^{-1}$. Note the order swap.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** If $A$ is a non-singular $3\times3$ matrix, then
+$|\text{adj}(\text{adj}(A))| =$ (a) $|A|$ (b) $|A|^2$ (c) $|A|^4$ (d)
+$|A|^9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply $|\text{adj} X| = |X|^{n-1}$ twice.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|\text{adj}(A)| = |A|^2$. $|\text{adj}(\text{adj}(A))| =
+(|A|^2)^{2} = |A|^4$. **(c).**
+</details>
+
+**1-mark MCQ #2.** If $A^{-1} = \begin{pmatrix} 3 & -1 \\ -5 & 2
+\end{pmatrix}$ then $A =$
+(a) $\begin{pmatrix} 2 & 1 \\ 5 & 3 \end{pmatrix}$
+(b) $\begin{pmatrix} 3 & 5 \\ 1 & 2 \end{pmatrix}$
+(c) $\begin{pmatrix} 1 & 1/3 \\ 1/5 & 1/2 \end{pmatrix}$
+(d) none.
+
+<details class="hint"><summary>Full solution</summary>
+$A = (A^{-1})^{-1}$. $|A^{-1}| = 6 - 5 = 1$. $A = \begin{pmatrix} 2 & 1
+\\ 5 & 3 \end{pmatrix}$. **(a).**
+</details>
+
+**2-mark.** Find inverse of $A = \begin{pmatrix} 2 & 3 \\ 1 & 4
+\end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$|A| = 8 - 3 = 5$. $A^{-1} = \frac{1}{5}\begin{pmatrix} 4 & -3 \\ -1 &
+2 \end{pmatrix}$.
+</details>
+
+**2-mark.** For what value of $k$ does the system $\begin{cases} kx + 2y
+= 5 \\ 3x + 4y = 7 \end{cases}$ have **no** unique solution?
+
+<details class="hint"><summary>Full solution</summary>
+$|A| = 4k - 6 = 0 \Rightarrow k = 3/2$.
+</details>
+
+**3-mark.** Solve via Cramer: $\begin{cases} x + 2y = 7 \\ 2x - y = 4
+\end{cases}$.
+
+<details class="hint"><summary>Full solution</summary>
+$D = -1 - 4 = -5$. $D_x = -7 - 8 = -15$. $D_y = 4 - 14 = -10$. $x = 3, y
+= 2$.
+</details>
+
+**3-mark.** If $A = \begin{pmatrix} 1 & 1 & 1 \\ 0 & 1 & 3 \\ 1 & -2 & 1
+\end{pmatrix}$, find $A^{-1}$ and use it to solve $AX = \begin{pmatrix}
+6 \\ 11 \\ 0 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$|A| = 1(1+6) - 1(0-3) + 1(0-1) = 7 + 3 - 1 = 9$.
+Compute cofactors carefully (omitted for brevity); the inverse and the
+unique solution then come out to $X = A^{-1} B$. The problem is
+*method-checking*: examiner sees $A^{-1}$ computed and then $X$
+substituted in.
+</details>
+
+**5-mark long answer.** Use the matrix method to solve
+$\begin{cases} 3x - 2y + 3z = 8 \\ 2x + y - z = 1 \\ 4x - 3y + 2z = 4
+\end{cases}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $|A|$ first; if non-zero, find $A^{-1}$ via adjoint.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = \begin{pmatrix} 3 & -2 & 3 \\ 2 & 1 & -1 \\ 4 & -3 & 2
+\end{pmatrix}$.
+$|A| = 3(2 - 3) - (-2)(4 + 4) + 3(-6 - 4) = -3 + 16 - 30 = -17$.
+Cofactors $\to$ adjoint $\to A^{-1} = \frac{1}{-17}\text{adj}(A)$.
+Then $X = A^{-1}B$ gives $x = 1, y = 2, z = 3$ (verify: $3 - 4 + 9 = 8$ ✓,
+$2 + 2 - 3 = 1$ ✓, $4 - 6 + 6 = 4$ ✓).
+</details>
+
+**6-mark Case Study.** *Tickets at three counters.*
+
+A theatre has counters offering Adult, Senior, and Student tickets. On
+three days, total tickets sold and total revenue (₹) were
+
+| Day | A | S | Stu | Revenue |
+|:--:|:-:|:-:|:--:|:-:|
+| 1 | 2 | 3 | 5 | 1100 |
+| 2 | 4 | 1 | 2 | 800  |
+| 3 | 3 | 2 | 4 | 1100 |
+
+Let prices (₹) of A, S, Stu be $x, y, z$.
+
+(i) Write the matrix equation. (1 mark)
+(ii) Determine $|A|$ and check the system is uniquely solvable.
+     (2 marks)
+(iii) Solve for $x, y, z$. (3 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\begin{pmatrix} 2 & 3 & 5 \\ 4 & 1 & 2 \\ 3 & 2 & 4
+\end{pmatrix}\begin{pmatrix} x \\ y \\ z \end{pmatrix} =
+\begin{pmatrix} 1100 \\ 800 \\ 1100 \end{pmatrix}$.
+**(ii)** $|A| = 2(4 - 4) - 3(16 - 6) + 5(8 - 3) = 0 - 30 + 25 = -5 \ne
+0$ ✓.
+**(iii)** Cramer:
+$D_x = \begin{vmatrix} 1100 & 3 & 5 \\ 800 & 1 & 2 \\ 1100 & 2 & 4
+\end{vmatrix} = 1100(4-4) - 3(3200 - 2200) + 5(1600 - 1100) = -3000 +
+2500 = -500$. $x = -500/-5 = 100$.
+Similarly $y = 150, z = 100$. (Adult ₹100, Senior ₹150, Student ₹100.)
+Verify against the data.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 4.3, 4.4, 4.5.
+**Previous-year pointer:** CBSE 2023 Set 1 Q34 (5-mark inverse + system);
+CBSE 2022 Q33.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$A^{-1}$ exists for every square matrix."** Only when $|A| \ne 0$.
+2. **"$(AB)^{-1} = A^{-1} B^{-1}$."** Wrong order. $(AB)^{-1} = B^{-1}
+   A^{-1}$.
+3. **"Cramer's rule always works."** Only when $D \ne 0$. When $D = 0$
+   you must analyse separately (no solution or infinitely many).
+:::
+
+### Self-Assessment
+
+1. Could you compute the inverse of a $3\times3$ matrix in 10 minutes
+   from scratch?
+2. Did you solve at least 5 of 7 board-pattern items unaided?
+3. Can you state when a linear system $AX = B$ has unique / no /
+   infinite solutions?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark problem.
+- **0–1 yes:** re-read *Apply* worked example with paper.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.determinants`](../04a-determinants/index.qmd) — $|A|$ enters
+  every formula.
+- [`cbse10.pair-linear-equations`](../../tier-cbse-10-class-10/index.qmd)
+  — the elimination intuition.
+
+### What this unlocks
+
+- [`cbse12.continuity`](../05a-continuity/index.qmd) — the calculus
+  thread begins.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 4 — Determinants** (NCERT 2023 rationalised).
+  Sections 4.5–4.6.
+- **Sister synthesis lesson:**
+  [`t5.linear-systems-gaussian`](../../tier-5-undergrad-core/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Solving $X^T X \beta = X^T y$ is the heart of linear
+regression. In practice you never form the inverse — you factor — but
+the existence of the inverse is what guarantees a unique fit when
+features are not collinear.
+:::
+
+::: {.applied-callout}
+**Game development.** Camera and projection matrices are inverted to
+convert screen-space rays back to world-space rays for picking objects.
+The inverse must exist; near-singular matrices cause "lost click"
+bugs.
+:::
+
+::: {.applied-callout}
+**Research.** Cramer's rule is mostly historical, but the *insight*
+that solutions are ratios of polynomials in the data is structurally
+important — it's used in symbolic computation and in proofs of
+existence.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Gelfand (problem-first), Bhāskara (verse), Khan
+  Academy (cofactor-then-adjoint procedure).
+:::

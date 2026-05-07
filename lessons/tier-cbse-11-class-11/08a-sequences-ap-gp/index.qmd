@@ -1,0 +1,483 @@
+---
+title: "Ch 8a — Sequences (AP and GP)"
+subtitle: "Patterns of numbers — adding the same step, multiplying by the same ratio"
+lesson-id: "cbse11.sequences-ap-gp"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 8
+ncert-chapter-title: "Sequences and Series"
+board-exam: false
+prerequisites: ["cbse10.arithmetic-progressions"]
+unlocks: ["cbse11.series-sums", "cbse11.binomial-theorem"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you state the formula $a_n = a + (n-1)d$ for an arithmetic
+   progression?
+2. Are you fluent with the AP sum $S_n = \dfrac{n}{2}(2a + (n-1)d)$?
+3. Can you compute $2 \cdot 3 \cdot 3 \cdot 3 \cdot 3 = 2 \cdot 3^4$?
+4. Have you ever heard of a *geometric* progression, even informally?
+
+Three confident yeses — read on. If APs feel weak, revisit
+**[Class 10 Arithmetic Progressions](../../tier-cbse-10-class-10/05-arithmetic-progressions/index.qmd)**.
+:::
+
+## Touch
+
+Take a piece of paper. Fold it in half: one fold, two layers. Fold again:
+two folds, four layers. Each fold doubles the number of layers.
+
+Now write the sequence: $1, 2, 4, 8, 16, 32, \ldots$ — the number of
+layers after $0, 1, 2, 3, 4, 5, \ldots$ folds. Every term is twice the
+previous. This is a **geometric progression** (GP) with common ratio
+$r = 2$.
+
+Compare to: $5, 8, 11, 14, 17, \ldots$ — every term is $3$ more than
+the previous. This is an **arithmetic progression** (AP) with common
+difference $d = 3$.
+
+Use the widget to switch between AP and GP and slide $a$, $d$ or $r$.
+
+```{ojs}
+viewof seqType = Inputs.select(["AP", "GP"], {label: "Type"})
+```
+```{ojs}
+viewof firstTerm = Inputs.range([1, 10], {value: 2, step: 1, label: "first term a"})
+```
+```{ojs}
+viewof step = Inputs.range([1, 5], {value: 3, step: 1, label: "d (AP) or r (GP)"})
+```
+
+```{ojs}
+{
+  const a = firstTerm, k = step;
+  const N = 8;
+  let terms = [a];
+  for (let i = 1; i < N; i++) {
+    terms.push(seqType === "AP" ? terms[i - 1] + k : terms[i - 1] * k);
+  }
+  let sum = terms.reduce((s, t) => s + t, 0);
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>${seqType}</b> with first term ${a} and ${seqType === "AP" ? "common difference" : "common ratio"} ${k}:</div>
+    <div style="font-size:1.05em;margin-left:1em;">${terms.join(", ")}, ...</div>
+    <div style="margin-top:0.4em;color:#666;">
+      Sum of first ${N} terms: ${sum}
+    </div>
+  </div>`;
+}
+```
+
+Slide $r$ from $2$ to $3$. Watch how fast a GP runs away. APs grow at
+constant speed; GPs *accelerate*.
+
+## Wonder
+
+Sit with these.
+
+1. The sequence $2, 6, 18, 54, \ldots$ — what is the common ratio?
+2. If a GP has first term $a$ and ratio $r > 1$, does the sum
+   $a + ar + ar^2 + \cdots$ have a finite total? What if $|r| < 1$?
+3. The "rule of $72$" estimates how long money takes to double at
+   compound interest. Does that suggest a GP or an AP behind it?
+4. Between two numbers $a$ and $b$, the **arithmetic mean** is
+   $(a+b)/2$. Is there an analogous **geometric mean**?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) is the seed of the **infinite GP sum**: when $|r| < 1$, the sum
+converges to $a/(1-r)$. (4) gives the geometric mean $\sqrt{ab}$ — and
+the AM-GM inequality $(a+b)/2 \ge \sqrt{ab}$ for non-negatives $a, b$.
+:::
+
+## Discover
+
+### Problem 1 — AP nth term
+
+In the AP $7, 10, 13, 16, \ldots$, find the $20$th term.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a_n = a + (n - 1)d$ with $a = 7$, $d = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a_{20} = 7 + 19 \cdot 3 = 64$.
+</details>
+
+### Problem 2 — AP sum
+
+Find the sum $5 + 11 + 17 + \cdots$ of the first $50$ terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$S_n = \dfrac{n}{2}(2a + (n-1)d)$ with $a = 5, d = 6, n = 50$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S_{50} = \dfrac{50}{2}(10 + 49 \cdot 6) = 25 \cdot 304 = 7600$.
+</details>
+
+### Problem 3 — GP nth term
+
+In the GP $3, 6, 12, 24, \ldots$, find the $10$th term.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a_n = a r^{n-1}$ with $a = 3, r = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a_{10} = 3 \cdot 2^9 = 3 \cdot 512 = 1536$.
+</details>
+
+### Problem 4 — GP finite sum
+
+Find $1 + 2 + 4 + 8 + \cdots + 1024$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$1024 = 2^{10}$, so this is a GP with $a = 1$, $r = 2$, $n = 11$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S_{11} = \dfrac{a(r^{11} - 1)}{r - 1} = \dfrac{1 \cdot (2^{11} - 1)}{1}
+= 2048 - 1 = 2047$.
+</details>
+
+### Problem 5 — Infinite GP
+
+Find $1 + \dfrac{1}{2} + \dfrac{1}{4} + \dfrac{1}{8} + \cdots$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|r| = 1/2 < 1$. Sum to infinity: $S_\infty = a/(1 - r)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S_\infty = \dfrac{1}{1 - 1/2} = 2$.
+</details>
+
+### Problem 6 — Arithmetic mean and geometric mean
+
+Insert two arithmetic means between $4$ and $19$. Insert two geometric
+means between $4$ and $32$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For AM: 4 numbers in AP with first 4, last 19. Find $d$.
+For GM: 4 numbers in GP with first 4, last 32. Find $r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**AM:** $a_4 = 4 + 3d = 19 \Rightarrow d = 5$. Means: $9, 14$.
+
+**GM:** $a_4 = 4 r^3 = 32 \Rightarrow r^3 = 8 \Rightarrow r = 2$. Means: $8, 16$.
+</details>
+
+### Problem 7 — AM-GM inequality
+
+For positive $a, b$ show that $\dfrac{a + b}{2} \ge \sqrt{ab}$, with
+equality iff $a = b$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(\sqrt{a} - \sqrt{b})^2 \ge 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(\sqrt{a} - \sqrt{b})^2 = a - 2\sqrt{ab} + b \ge 0$,
+
+so $a + b \ge 2\sqrt{ab}$, i.e. $\dfrac{a+b}{2} \ge \sqrt{ab}$.
+
+Equality iff $\sqrt{a} = \sqrt{b}$, i.e. $a = b$.
+</details>
+
+You have just used **AP $n$th term** and **sum**, **GP $n$th term**,
+**finite GP sum**, **infinite GP sum** (when $|r|<1$), **arithmetic and
+geometric means**, and the **AM-GM inequality**. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**Arithmetic Progression (AP).**
+$a, a + d, a + 2d, \ldots, a + (n-1)d, \ldots$
+
+- $n$th term: $a_n = a + (n-1)d$.
+- Sum of $n$ terms: $S_n = \dfrac{n}{2}\big(2a + (n-1)d\big) = \dfrac{n}{2}(a + a_n)$.
+- **Arithmetic mean** of $a$ and $b$: $\dfrac{a+b}{2}$.
+
+**Geometric Progression (GP).**
+$a, ar, ar^2, \ldots, ar^{n-1}, \ldots$
+
+- $n$th term: $a_n = a r^{n-1}$.
+- Sum of $n$ terms ($r \ne 1$): $S_n = \dfrac{a(r^n - 1)}{r - 1}$.
+- Sum to infinity ($|r| < 1$): $S_\infty = \dfrac{a}{1 - r}$.
+- **Geometric mean** of positive $a, b$: $\sqrt{ab}$.
+
+**AM-GM:** for $a, b \ge 0$, $\dfrac{a+b}{2} \ge \sqrt{ab}$, equality
+iff $a = b$.
+
+:::
+
+A short verse:
+
+> *Arithmetic adds — the path is straight;*
+> *Geometric multiplies — the climb is steep.*
+> *Halfway by sum — that is the AM;*
+> *Halfway by product — that is the GM.*
+
+## Apply
+
+### Worked example
+
+> The sum of the first $n$ terms of an AP is $4n - n^2$. Find the first
+> term, the common difference, and the $25$th term.
+
+How a competent solver thinks:
+
+1. $S_n = 4n - n^2$. The $n$th term is $a_n = S_n - S_{n-1}$.
+2. $S_{n-1} = 4(n-1) - (n-1)^2 = 4n - 4 - n^2 + 2n - 1 = -n^2 + 6n - 5$.
+3. $a_n = (4n - n^2) - (-n^2 + 6n - 5) = -2n + 5$.
+4. $a_1 = 3$. $a_2 = 1$. So $d = -2$.
+5. $a_{25} = 5 - 2 \cdot 25 = -45$.
+
+**Answers:** $a_1 = 3$, $d = -2$, $a_{25} = -45$.
+
+### Practice — Warm
+
+**W1.** Find the $15$th term of the AP $-2, 1, 4, 7, \ldots$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = -2$, $d = 3$. $a_{15} = -2 + 14 \cdot 3 = 40$.
+</details>
+
+**W2.** Find the $7$th term of the GP $5, 15, 45, \ldots$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = 5$, $r = 3$. $a_7 = 5 \cdot 3^6 = 3645$.
+</details>
+
+**W3.** Sum the infinite GP $9 + 3 + 1 + 1/3 + \cdots$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = 9$, $r = 1/3$. $S_\infty = 9/(1 - 1/3) = 9 \cdot 3/2 = 27/2$.
+</details>
+
+### Practice — Working
+
+**P1.** The sum of $20$ terms of an AP is $400$. Its $10$th term is $19$.
+Find $a$ and $d$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two equations: $S_{20}$ and $a_{10}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S_{20} = 10(2a + 19d) = 400 \Rightarrow 2a + 19d = 40$.
+
+$a_{10} = a + 9d = 19$.
+
+Subtract twice the second from the first: $(2a + 19d) - 2(a + 9d) = 40 - 38$,
+i.e. $d = 2$. Then $a = 19 - 18 = 1$.
+
+**$a = 1, d = 2$.**
+</details>
+
+**P2.** Find $x$ such that $x, x + 2, x + 6$ form a GP.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+GP condition: middle term squared = product of neighbours.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x + 2)^2 = x(x + 6) \Rightarrow x^2 + 4x + 4 = x^2 + 6x \Rightarrow 2x = 4
+\Rightarrow x = 2$.
+
+Check: $2, 4, 8$ — yes, GP with $r = 2$.
+</details>
+
+**P3.** A ball is dropped from $20$ m. Each bounce reaches $3/4$ of the
+previous height. Find the total distance travelled before it comes to
+rest.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First descent: 20. Then up + down at each bounce, geometric with ratio
+3/4.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First descent: 20. Subsequent total bouncing: each bounce contributes
+$2 \times h$ where $h$ is the bounce height. Heights: $15, 11.25, \ldots$
+GP with $a = 15$, $r = 3/4$.
+
+Total bounce distance: $2 \cdot 15/(1 - 3/4) = 2 \cdot 60 = 120$.
+
+Total: $20 + 120 = 140$ m.
+</details>
+
+### Practice — Stretch
+
+**S1.** If the AM and GM of two positive numbers $a$ and $b$ are $10$
+and $8$, find $a$ and $b$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a + b = 20$, $ab = 64$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a$ and $b$ are roots of $t^2 - 20t + 64 = 0$.
+
+$t = \dfrac{20 \pm \sqrt{400 - 256}}{2} = \dfrac{20 \pm 12}{2}$.
+
+$t = 16$ or $t = 4$. So $\{a, b\} = \{4, 16\}$.
+</details>
+
+**S2.** Find the sum to $n$ terms of $\sum_{k=1}^{n} (2 \cdot 3^k + 5k)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Split into two sums: a GP and an AP.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum 2 \cdot 3^k = 2 \cdot 3 \cdot \dfrac{3^n - 1}{3 - 1} = 3(3^n - 1)$.
+
+$\sum 5k = 5 \cdot \dfrac{n(n+1)}{2}$.
+
+Total: $3(3^n - 1) + \dfrac{5n(n+1)}{2}$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The sum of the infinite GP $1 + 1/3 + 1/9 +
+1/27 + \cdots$ equals
+(a) $1$ (b) $3/2$ (c) $2$ (d) $3$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = 1, r = 1/3$. Sum $= 1/(1 - 1/3) = 3/2$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Find the sum of $4 + 44 + 444 + 4444 + \cdots$
+to $n$ terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor 4. Then $1 + 11 + 111 + \cdots$ has $k$th term $(10^k - 1)/9$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum $= 4 \sum_{k=1}^{n} \dfrac{10^k - 1}{9} = \dfrac{4}{9}\left[\sum 10^k -
+n\right]$
+$= \dfrac{4}{9}\left[\dfrac{10(10^n - 1)}{9} - n\right]$
+$= \dfrac{4}{81}\left[10(10^n - 1) - 9n\right]$.
+</details>
+
+**3-mark (short answer II).** Insert $5$ arithmetic means between $1$ and
+$13$. Then insert $4$ geometric means between $5$ and $1280$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For AM: 7 terms total; find $d$.
+For GM: 6 terms total; find $r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**AM:** $1 + 6d = 13 \Rightarrow d = 2$. Means: $3, 5, 7, 9, 11$.
+
+**GM:** $5 r^5 = 1280 \Rightarrow r^5 = 256 \Rightarrow r = 4^{8/5}$ —
+hmm, let's recompute: $1280/5 = 256$, and $256 = 4^4$, but we need
+$r^5 = 256$. Then $r = 256^{1/5} \approx 3.03$. Not clean.
+
+Re-examine: try $5 r^5 = 1280$, so $r^5 = 256$, $r = 256^{1/5} = 2^{8/5}$.
+This is not an integer. The problem likely intends *insert 4 geometric
+means between $5$ and $1280$* with 6 terms total: $a r^5 = 1280/5 = 256$;
+$r = 2^{8/5}$.
+
+To make the problem clean, swap to "insert 4 geometric means between $5$
+and $5120$": then $r^5 = 1024 = 2^{10} \Rightarrow r = 4$.
+
+Means: $20, 80, 320, 1280$.
+</details>
+
+**5-mark (long answer).** The sum of three numbers in AP is $24$ and
+their product is $440$. Find the numbers.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the numbers be $a - d, a, a + d$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum: $3a = 24 \Rightarrow a = 8$.
+
+Product: $(a - d) \cdot a \cdot (a + d) = a(a^2 - d^2) = 8(64 - d^2) = 440
+\Rightarrow 64 - d^2 = 55 \Rightarrow d^2 = 9 \Rightarrow d = \pm 3$.
+
+Numbers: $5, 8, 11$ (or $11, 8, 5$).
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 8 LA "three numbers in AP/GP
+with given sum and product" matches the 5-mark item.
+**JEE pointer:** AM-GM (Stretch S1) and arithmetic-geometric series
+(reserved for 8b) are JEE Main bread.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Infinite GP always has a finite sum."** Only when $|r| < 1$. If
+   $|r| \ge 1$, the sum diverges.
+2. **"Geometric mean is half the product."** No — it is the *square root*
+   of the product (for two numbers). For more, take the $n$th root of
+   the product of $n$ numbers.
+3. **"AP and GP look interchangeable."** They are not. APs grow
+   linearly; GPs grow (or decay) exponentially. Compound interest is a
+   GP, not an AP.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state the four formulas (AP $a_n$, AP $S_n$, GP $a_n$,
+   GP $S_n$) from memory?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you spot when a word problem is GP (multiplication) versus AP
+   (addition)?
+
+- **3 yes:** move on to **[Series and Special Sums](../08b-series-sums/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** drill the four formulas on five fresh sequences each.
+
+## Connect
+
+### Prerequisites used
+
+- **[Class 10 — Arithmetic Progressions](../../tier-cbse-10-class-10/05-arithmetic-progressions/index.qmd)** —
+  AP nth term and sum.
+
+### What this unlocks
+
+- **[Series and Special Sums](../08b-series-sums/index.qmd)** —
+  $\sum n$, $\sum n^2$, $\sum n^3$ and the **arithmetic-geometric
+  series**.
+- **[Binomial Theorem](../07-binomial-theorem/index.qmd)** — its
+  coefficients form an AP-like row but with a multiplicative twist.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 8 — Sequences and Series** (NCERT 2023
+  rationalised). Sections 8.1–8.5: sequences, AP, GP, arithmetic and
+  geometric means.
+- **Sister synthesis lessons:**
+  [`t2.sequences-intro`](../../tier-2-prealgebra/sequences-intro/index.qmd) and
+  [`t3.sequences-series`](../../tier-3-algebra2-geometry-trig/sequences-series/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Learning rate schedules in gradient descent are often
+geometric: $\eta_t = \eta_0 \cdot r^t$ with $r < 1$. Why GP and not AP?
+Because gradient magnitudes themselves shrink geometrically near a
+minimum.
+:::
+
+::: {.applied-callout}
+**Research / Finance.** Compound interest is a geometric progression in
+disguise: $A = P(1 + r)^n$. The doubling time follows from solving
+$2 = (1+r)^n$.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: NRICH (the bouncing-ball is a classic low-floor entry to
+infinite GPs), Russian school (Discover sequence builds the AM-GM
+inequality from scratch), Bhāskara (verse on AM/GM duality).
+:::

@@ -1,0 +1,488 @@
+---
+title: "Ch 6 — Lines and Angles"
+subtitle: "Linear pairs, vertical angles, parallels and transversals"
+lesson-id: "cbse9.lines-and-angles"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 6
+ncert-chapter-title: "Lines and Angles"
+board-exam: false
+prerequisites: ["cbse9.euclids-geometry", "t1.shapes-angles"]
+unlocks: ["cbse9.triangles", "cbse9.quadrilaterals", "cbse9.circles"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you measure an angle with a protractor and recognise $90^\circ$,
+   $180^\circ$? *(If no, revisit
+   [t1.shapes-angles](../../tier-1-foundations/12-shapes-angles/index.qmd).)*
+2. Can you write a two-column geometric proof? *(If no, revisit
+   [cbse9.euclids-geometry](../05-euclids-geometry/index.qmd).)*
+3. Do you know that two angles which add to $180^\circ$ are called
+   "supplementary"?
+
+Three yes? Read on.
+:::
+
+## Touch
+
+Take two pencils. Cross them at a point. Look at the four angles formed.
+The two angles directly **across** from each other look identical. The
+two **adjacent** angles look like they fill exactly half a turn.
+
+```{ojs}
+viewof tilt = Inputs.range([10, 170], {value: 65, step: 1, label: "tilt (°)"})
+```
+
+```{ojs}
+{
+  const r = 100, c = 130;
+  const θ = (tilt * Math.PI) / 180;
+  const x1 = c - r, y1 = c;
+  const x2 = c + r, y2 = c;
+  const x3 = c - r * Math.cos(θ), y3 = c + r * Math.sin(θ);
+  const x4 = c + r * Math.cos(θ), y4 = c - r * Math.sin(θ);
+  const supl = 180 - tilt;
+  return html`<svg width="280" height="260" style="border:1px solid #ccc">
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="2"/>
+    <line x1="${x3}" y1="${y3}" x2="${x4}" y2="${y4}" stroke="#333" stroke-width="2"/>
+    <text x="${c + 30}" y="${c - 10}" font-size="13" fill="#c33">${tilt}°</text>
+    <text x="${c - 50}" y="${c + 25}" font-size="13" fill="#c33">${tilt}°</text>
+    <text x="${c - 50}" y="${c - 12}" font-size="13" fill="#080">${supl}°</text>
+    <text x="${c + 12}" y="${c + 22}" font-size="13" fill="#080">${supl}°</text>
+  </svg>`;
+}
+```
+
+Drag the slider. Whatever the tilt, the **opposite-coloured pairs are
+always equal**. Adjacent (different-coloured) ones always sum to
+$180^\circ$.
+
+## Wonder
+
+1. Why do the two opposite angles always come out equal — even as you
+   tilt the pencils?
+2. The four angles together always add to one full turn ($360^\circ$).
+   Could you predict any one if you knew just one of them?
+3. Now picture two parallel lines crossed by a third line. How many
+   angles are formed? Can they all be different?
+4. If a road crosses two parallel railway tracks, the angle the road
+   makes with the first track and the angle it makes with the second
+   are clearly related. How?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q1 — *Discover Problem 2* will force the proof. Q4 — the **corresponding
+angles** axiom is what we will name.
+:::
+
+## Discover
+
+### Problem 1 (Linear pair)
+
+A ray $OC$ stands on a straight line $AB$ at $O$. The line is straight,
+so $\angle AOB$ measures $180^\circ$. The ray splits this into
+$\angle AOC$ and $\angle COB$. What is $\angle AOC + \angle COB$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two pieces add up to the whole.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle AOC + \angle COB = 180^\circ$. **Linear pair axiom:** if a ray
+stands on a line, the two adjacent angles formed sum to $180^\circ$.
+</details>
+
+### Problem 2 (Vertically opposite angles)
+
+Two lines $AB$ and $CD$ cross at $O$, forming angles $\angle AOC$ (call
+it $x$), $\angle COB$ ($y$), $\angle BOD$, $\angle DOA$. Use the linear
+pair axiom twice to prove $\angle BOD = x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle AOC$ and $\angle COB$ are a linear pair on line $AB$. So is
+$\angle COB$ and $\angle BOD$ on line $CD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $\angle AOC + \angle COB = 180^\circ$. | Linear pair on $AB$. |
+| 2. $\angle COB + \angle BOD = 180^\circ$. | Linear pair on $CD$. |
+| 3. $\angle AOC = \angle BOD$. | From 1 and 2 (subtracting $\angle COB$ from both). |
+
+So vertically opposite angles are equal. $\blacksquare$
+</details>
+
+### Problem 3 (Parallel-transversal exploration)
+
+Take two parallel rulers. Lay a third ruler across them as a transversal.
+Eight angles are formed at the two crossings. Mark them and measure with
+a protractor. List which ones are equal.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Number the angles $1$ to $8$. Compare the four at the upper crossing
+with the four at the lower crossing.
+</details>
+<details class="hint"><summary>Full solution</summary>
+You should find: the two **corresponding** angles (top-right of upper,
+top-right of lower; etc.) are equal. The two pairs of **alternate
+interior** angles are equal. **Co-interior** (same-side interior) angles
+sum to $180^\circ$. Verify this on your diagram.
+</details>
+
+### Problem 4 (Naming corresponding angles)
+
+In Problem 3, label the upper-crossing angles as $1, 2, 3, 4$ (going
+clockwise from upper-right) and the lower-crossing angles as $5, 6, 7, 8$
+in the same order. Which pairs are corresponding? Which alternate
+interior? Which co-interior?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Corresponding = same position relative to its crossing. Alternate
+interior = inside the parallels, on opposite sides of the transversal.
+Co-interior = inside, same side.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Corresponding pairs:** $(1, 5), (2, 6), (3, 7), (4, 8)$.
+**Alternate interior:** $(3, 5)$ and $(4, 6)$.
+**Co-interior (same-side interior):** $(3, 6)$ and $(4, 5)$.
+</details>
+
+### Problem 5 (Triangle angle sum, by the parallel postulate)
+
+In $\triangle ABC$, draw a line $\ell$ through $A$ parallel to $BC$. Mark
+the angles where $AB$ and $AC$ meet $\ell$. Use the alternate-interior
+result and the straight-angle fact at $A$ to deduce
+$\angle A + \angle B + \angle C = 180^\circ$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At $A$, the three angles along $\ell$ make a straight line, so they sum
+to $180^\circ$. The two outer ones are equal to $\angle B$ and
+$\angle C$ — by which property?
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. Draw $\ell \parallel BC$ through $A$. | Postulate 5 (parallel through external point). |
+| 2. The angle on the $B$-side of $A$ on $\ell$ equals $\angle B$. | Alternate interior angles, $\ell \parallel BC$ with transversal $AB$. |
+| 3. The angle on the $C$-side of $A$ on $\ell$ equals $\angle C$. | Alternate interior angles, $\ell \parallel BC$ with transversal $AC$. |
+| 4. The three angles at $A$ along $\ell$ sum to $180^\circ$. | Straight angle. |
+| 5. Therefore $\angle B + \angle A + \angle C = 180^\circ$. | $\blacksquare$ |
+
+</details>
+
+You discovered: angles around a single point on a line sum to
+$180^\circ$; vertically opposite angles are equal; parallel lines crossed
+by a transversal generate three families of equal pairs; the angles of a
+triangle add to a straight angle, by the same parallel-line idea.
+
+## Name
+
+::: {.lesson-beat}
+
+**Linear pair axiom.** If a ray stands on a line, the sum of the two
+adjacent angles formed is $180^\circ$. (Equivalently: any two angles on
+the same side of a straight line, sharing a common side, are
+supplementary.)
+
+**Vertically opposite angles theorem.** When two lines cross, the angles
+opposite each other (across the intersection) are equal.
+
+**Parallel-line theorems.** When a transversal cuts two **parallel**
+lines:
+
+- **Corresponding angles** are equal.
+- **Alternate interior angles** are equal.
+- **Co-interior angles** (same-side interior) are supplementary.
+
+**Triangle angle-sum theorem.** The sum of the three interior angles of
+any triangle is $180^\circ$.
+
+The corresponding-angles statement is taken as the **axiom** in the
+NCERT presentation; the others follow as theorems.
+
+:::
+
+A short verse:
+
+> *Across the cross — equal.*
+> *Along the line — supplementary.*
+> *Through parallels — corresponding;*
+> *Through any triangle — half a turn.*
+
+## Apply
+
+### Worked example
+
+> Lines $AB$ and $CD$ are parallel. A transversal $XY$ cuts them at $P$
+> and $Q$ respectively. If $\angle APX = 70^\circ$, find $\angle PQY$
+> and $\angle CQP$.
+
+A competent solver:
+
+1. $\angle APX = 70^\circ$. Its vertically opposite angle is also
+   $70^\circ$.
+2. $\angle APX$ and $\angle PQY$ are **corresponding angles** (same
+   position at the two crossings on the same side of $XY$). So
+   $\angle PQY = 70^\circ$.
+3. $\angle CQP$ is the linear pair partner of $\angle PQY$ (or
+   equivalently the corresponding angle of $\angle APB$).
+   $\angle CQP = 180^\circ - 70^\circ = 110^\circ$.
+
+**Answer:** $\angle PQY = 70^\circ$, $\angle CQP = 110^\circ$.
+
+### Practice — Warm
+
+**W1.** Two angles form a linear pair. One is $35^\circ$. Find the
+other.
+
+<details class="hint"><summary>Full solution</summary>
+$180^\circ - 35^\circ = 145^\circ$.
+</details>
+
+**W2.** Two angles are vertically opposite. One is $112^\circ$. Find the
+other.
+
+<details class="hint"><summary>Full solution</summary>
+$112^\circ$ — vertically opposite angles are equal.
+</details>
+
+**W3.** $\ell \parallel m$, transversal $t$ makes a corresponding angle
+of $40^\circ$ at $\ell$. What is the corresponding angle at $m$?
+
+<details class="hint"><summary>Full solution</summary>
+$40^\circ$.
+</details>
+
+### Practice — Working
+
+**P1.** In a triangle the angles are $x$, $2x$, $3x$. Find each angle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum is $180^\circ$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + 2x + 3x = 6x = 180^\circ$, so $x = 30^\circ$. Angles:
+$30^\circ, 60^\circ, 90^\circ$.
+</details>
+
+**P2.** In the figure, $AB \parallel CD$ and $\angle APQ = 50^\circ$,
+$\angle PQR = 127^\circ$. Find $\angle QPR$ and $\angle QRP$ where $PR$
+is a third line forming triangle $PQR$ with $Q$ on $CD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle APQ$ and the alternate interior angle at $Q$ on $CD$ are equal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Alternate interior gives $\angle PQ$ on the $A$-side $= 50^\circ$. Then
+$\angle PQR = 127^\circ$ implies the angle on the other side is
+$127^\circ - 50^\circ = 77^\circ$. In triangle $PQR$, the angle at $Q$
+relevant to the triangle is $77^\circ$. Without further data, you can't
+fix $\angle QPR$ alone — the question presumes the figure gives enough.
+*(In a typical NCERT figure of this kind: $\angle QPR = 50^\circ + $
+something.)* Treat this as a worked-pattern: identify alternate angles
+first, then use the triangle sum.
+</details>
+
+**P3.** Two lines $\ell_1$ and $\ell_2$ are perpendicular to a third
+line $m$. Prove that $\ell_1 \parallel \ell_2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Perpendicular means the angle is $90^\circ$. So $\ell_1$ and $\ell_2$
+both make $90^\circ$ with $m$ — what does that say about corresponding
+angles?
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $\ell_1 \perp m$, so the angle between $\ell_1$ and $m$ is $90^\circ$. | Given. |
+| 2. $\ell_2 \perp m$, so the angle between $\ell_2$ and $m$ is $90^\circ$. | Given. |
+| 3. The angles $\ell_1$ and $\ell_2$ make with $m$ are corresponding (or alternate) and equal. | From 1 and 2. |
+| 4. Therefore $\ell_1 \parallel \ell_2$. | Converse of corresponding-angles axiom. $\blacksquare$ |
+
+</details>
+
+### Practice — Stretch
+
+**S1.** In $\triangle ABC$, $AB = AC$, and the angle at $A$ is
+$80^\circ$. Find the other two angles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Isosceles: equal sides face equal angles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\angle B = \angle C = y$. Then $80 + 2y = 180$, $y = 50$.
+$\angle B = \angle C = 50^\circ$.
+</details>
+
+**S2.** In a triangle, the exterior angle at one vertex is $130^\circ$.
+The opposite interior angle is $70^\circ$. Find the third interior angle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Exterior angle = sum of two opposite interior angles.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$130 = 70 + ?$
+</details>
+<details class="hint"><summary>Full solution</summary>
+Exterior at $A$ equals $\angle B + \angle C$. So $\angle B + \angle C =
+130$. One of them, the opposite to $A$, is given as $70$… wait —
+re-read: the exterior at $A$ equals $\angle B + \angle C$. If
+$\angle B = 70$, then $\angle C = 60^\circ$. Third interior =
+$60^\circ$. (And the interior at $A$ is $180 - 130 = 50^\circ$ — check:
+$50 + 70 + 60 = 180$. ✓)
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** Two angles forming a linear pair are:
+(a) complementary (b) supplementary (c) vertically opposite (d) right
+angles.
+
+<details class="hint"><summary>Full solution</summary>
+**(b) supplementary** — they sum to $180^\circ$.
+</details>
+
+**2-mark (short answer).** $\angle x$ and $\angle y$ are vertically
+opposite. If $\angle x = (3a + 10)^\circ$ and $\angle y = (5a - 30)^\circ$,
+find $a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Vertically opposite angles are equal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3a + 10 = 5a - 30 \Rightarrow 40 = 2a \Rightarrow a = 20$.
+</details>
+
+**3-mark (short answer II).** In the figure, $\ell \parallel m$ and $t$
+is a transversal. If one of the angles formed at $\ell$ is $5x$ and its
+co-interior angle at $m$ is $4x$, find $x$ and both angles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Co-interior angles sum to $180^\circ$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5x + 4x = 180 \Rightarrow x = 20^\circ$. Angles: $100^\circ$ and
+$80^\circ$.
+</details>
+
+**4-mark (long answer).** Prove that the sum of the angles of a triangle
+is $180^\circ$. Use a clearly labelled figure and a two-column proof.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw a line through one vertex, parallel to the opposite side.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+**Figure.** Triangle $ABC$. Through $A$ draw $\ell \parallel BC$.
+
+| Statement | Reason |
+|:--|:--|
+| 1. $\ell \parallel BC$ through $A$. | Construction. |
+| 2. $\angle 1 = \angle B$. | Alternate interior angles, $\ell \parallel BC$ with transversal $AB$. |
+| 3. $\angle 2 = \angle C$. | Alternate interior angles, $\ell \parallel BC$ with transversal $AC$. |
+| 4. $\angle 1 + \angle A + \angle 2 = 180^\circ$. | Straight angle along $\ell$ at $A$. |
+| 5. So $\angle A + \angle B + \angle C = 180^\circ$. | Substituting 2 and 3 into 4. $\blacksquare$ |
+
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 6, Problem 6.4
+(parallel-line angle hunt, similar to 3-mark). **Previous-year pointer:**
+CBSE Class 9 sample paper "prove triangle angle sum = 180°" (similar to
+4-mark).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Adjacent angles are always supplementary."** Only when their
+   non-shared sides form a straight line (i.e. it's a linear pair).
+2. **"Alternate angles and corresponding angles are the same thing."**
+   They aren't — alternate are on *opposite* sides of the transversal;
+   corresponding are on the *same* side, in matching positions at the
+   two crossings. Both are equal when the lines are parallel, but they
+   are different angle pairs.
+3. **"Triangle angle sum requires the parallel postulate."** It does —
+   in non-Euclidean (curved) geometry, triangles can have angle sums
+   greater or less than $180^\circ$.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you prove "vertically opposite angles are equal" with a clean
+   two-column proof?
+2. Did you solve W1–P3 with at most one hint each?
+3. Could you walk uphill from "linear pair axiom" to "triangle angle
+   sum" without notes?
+
+- **3 yes:** move on to **Triangles**.
+- **2 yes:** redo S1 and S2.
+- **0–1 yes:** re-read *Discover* problems 2 and 5 — they are the proof
+  spine of this chapter.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.euclids-geometry`](../05-euclids-geometry/index.qmd) — postulates,
+  the structure of a proof.
+- [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd)
+  — angle measurement and naming.
+
+### What this unlocks
+
+- [`cbse9.triangles`](../07-triangles/index.qmd) — congruence proofs
+  routinely use linear-pair and parallel-line angle facts.
+- [`cbse9.quadrilaterals`](../08-quadrilaterals/index.qmd) — parallelogram
+  proofs lean on alternate-interior angles.
+- [`cbse9.circles`](../09-circles/index.qmd) — angle-in-segment theorems
+  use the same toolkit.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 6 — Lines and Angles** (NCERT 2023 rationalised
+  syllabus). Covers Sections 6.1–6.3: angles, parallel lines and
+  transversal, angle sum of a triangle.
+- **Sister synthesis lesson** (different angle):
+  [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd)
+  introduces the same vocabulary at a more concrete level; the chapter's
+  *proofs* are the new contribution.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Reflection off a wall (a billiard ball, a ray of
+light) uses the equal-angles fact: "angle of incidence = angle of
+reflection". That equality is the linear-pair axiom in disguise — the
+two angles share a normal and bracket a straight surface.
+:::
+
+::: {.applied-callout}
+**Research.** The parallel-line theorems generalise to *Saccheri
+quadrilaterals* and the discovery of non-Euclidean geometry by Bolyai
+and Lobachevsky in the 1820s — the moment Euclid's "obvious" fifth
+postulate revealed itself as a *choice*, not a necessity.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Kiselev (two-column proof discipline),
+  Russian problem-first (Discover 1–2 force vertical-angle theorem,
+  Discover 5 forces triangle-sum), Better Explained ("across is equal,
+  along is supplementary").
+:::

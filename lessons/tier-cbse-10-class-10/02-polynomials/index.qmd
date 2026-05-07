@@ -1,0 +1,502 @@
+---
+title: "Ch 2 — Polynomials"
+subtitle: "Where the graph cuts the x-axis, and what the coefficients quietly tell you"
+lesson-id: "cbse10.polynomials"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 2
+ncert-chapter-title: "Polynomials"
+board-exam: true
+prerequisites: [cbse9.polynomials]
+unlocks: [cbse10.quadratic-equations, cbse10.pair-linear-equations, cbse11.complex-numbers]
+applied-domains: [research, ai-ml]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you expand $(x + 3)(x - 5)$ and collect like terms? See
+   [`cbse9.polynomials`](../../tier-cbse-09-class-9/02-polynomials/index.qmd).
+2. Can you say what the *degree* of $4x^3 - 2x + 1$ is?
+3. Do you know what a *zero* (root) of a polynomial is?
+4. Can you plot $y = x^2 - 4$ on rough graph paper, even sketchily?
+
+If yes to most, read on. Otherwise revisit Class 9 polynomials first.
+:::
+
+## Touch
+
+Below is the graph of $y = x^2 - 5x + 6$. Drag the slider to shift the
+parabola left or right, and watch where it cuts the x-axis.
+
+```{ojs}
+viewof shift = Inputs.range([-3, 3], {value: 0, step: 0.5, label: "Shift left/right"})
+```
+
+```{ojs}
+{
+  const w = 480, h = 280, padX = 30, padY = 30;
+  const xs = d3.range(-2, 7.01, 0.05);
+  const f = x => (x - shift) ** 2 - 5 * (x - shift) + 6;
+  const xScale = d3.scaleLinear().domain([-2, 7]).range([padX, w - padX]);
+  const yScale = d3.scaleLinear().domain([-3, 8]).range([h - padY, padY]);
+  const line = d3.line().x(d => xScale(d)).y(d => yScale(f(d)));
+  // roots of x^2 -5x + 6 are 2, 3 — shifted right by `shift`
+  const r1 = 2 + shift, r2 = 3 + shift;
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  svg.append("line").attr("x1", padX).attr("x2", w - padX)
+    .attr("y1", yScale(0)).attr("y2", yScale(0)).attr("stroke", "#888");
+  svg.append("line").attr("y1", padY).attr("y2", h - padY)
+    .attr("x1", xScale(0)).attr("x2", xScale(0)).attr("stroke", "#888");
+  svg.append("path").attr("d", line(xs)).attr("fill", "none")
+    .attr("stroke", "#26a").attr("stroke-width", 2);
+  for (const r of [r1, r2]) {
+    svg.append("circle").attr("cx", xScale(r)).attr("cy", yScale(0))
+      .attr("r", 4).attr("fill", "#c33");
+  }
+  svg.append("text").attr("x", w - padX - 90).attr("y", padY + 14)
+    .attr("font-size", 12).text(`roots: ${r1.toFixed(1)}, ${r2.toFixed(1)}`);
+  return svg.node();
+}
+```
+
+The two red dots are where the curve meets the x-axis — the **zeros** of the
+polynomial. Notice three things as you drag:
+
+- The two red dots move together with the curve.
+- The *gap* between them stays the same.
+- Their **midpoint** also moves with the curve.
+
+We will quantify all three in *Discover*.
+
+## Wonder
+
+1. The polynomial $x^2 - 5x + 6$ has zeros at $2$ and $3$. What is $2 + 3$?
+   What is $2 \times 3$? Now compare those to the coefficients of the
+   polynomial. Coincidence?
+2. Could a quadratic curve cross the x-axis three times?
+3. If you knew only the zeros of a polynomial — say "the zeros are $-1$ and
+   $7$" — could you reconstruct the polynomial?
+4. A cubic polynomial has degree 3. How many zeros (real or complex) might it
+   have, at most?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+$2 + 3 = 5$, and the coefficient of $x$ in $x^2 - 5x + 6$ is $-5$. $2 \cdot 3
+= 6$, and the constant term is $6$. The signs flip, the magnitudes match.
+That is the heart of this chapter.
+:::
+
+## Discover
+
+### Problem 1 — Zeros from a factored form
+The polynomial $p(x) = (x - 2)(x + 5)$ is given. Without expanding, what are
+its zeros?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A product is zero when at least one factor is zero.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x - 2 = 0$ or $x + 5 = 0$, so the zeros are $\mathbf{2}$ and $\mathbf{-5}$.
+</details>
+
+### Problem 2 — The expansion
+Expand $(x - 2)(x + 5)$. What are the coefficients?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+FOIL: $x \cdot x + x \cdot 5 + (-2) \cdot x + (-2)(5)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 5x - 2x - 10 = x^2 + 3x - 10$. Notice: sum of zeros $= 2 + (-5) = -3$,
+which is the *negative* of the coefficient of $x$. Product of zeros $= -10$,
+which **is** the constant term.
+</details>
+
+### Problem 3 — The general quadratic
+Suppose $p(x) = ax^2 + bx + c$ has zeros $\alpha$ and $\beta$. Then
+$p(x) = a(x - \alpha)(x - \beta)$. Expand and read off the relations.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a(x - \alpha)(x - \beta) = a[x^2 - (\alpha + \beta)x + \alpha\beta]$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Comparing $ax^2 - a(\alpha + \beta)x + a\alpha\beta$ with $ax^2 + bx + c$:
+$$\alpha + \beta = -\dfrac{b}{a}, \qquad \alpha\beta = \dfrac{c}{a}.$$
+</details>
+
+### Problem 4 — Cubic's turn
+Write down $a(x - \alpha)(x - \beta)(x - \gamma)$ and expand. (Just the
+$x^2$, $x$, and constant terms — don't worry about the $x^3$ term.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First multiply two of the brackets, then the third.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$ax^3 - a(\alpha + \beta + \gamma)x^2 + a(\alpha\beta + \beta\gamma +
+\gamma\alpha)x - a\alpha\beta\gamma$.
+So if $p(x) = ax^3 + bx^2 + cx + d$ with zeros $\alpha, \beta, \gamma$:
+$\alpha + \beta + \gamma = -\dfrac{b}{a}$;
+$\alpha\beta + \beta\gamma + \gamma\alpha = \dfrac{c}{a}$;
+$\alpha\beta\gamma = -\dfrac{d}{a}$.
+</details>
+
+### Problem 5 — How many zeros, geometrically?
+Sketch (or imagine) the graph of a cubic. How many times can it cross the
+x-axis? Try to reach the maximum and the minimum.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try $y = x^3$. Try $y = (x - 1)(x - 2)(x - 3)$. Try $y = x(x^2 + 1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+A cubic crosses the x-axis at least **once** (since it goes from $-\infty$ to
+$+\infty$) and at most **three** times. Real zeros count: 1, 2, or 3 — never
+0, never 4 or more.
+</details>
+
+### Problem 6 — Build a polynomial from its zeros
+Find a quadratic polynomial whose zeros are $-3$ and $\frac{1}{2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum and product of zeros — read them off, then write the polynomial.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Sum $= -3 + \frac{1}{2} = -\frac{5}{2}$. Product $= -\frac{3}{2}$. Use
+$x^2 - (\text{sum})x + \text{product}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + \dfrac{5}{2}x - \dfrac{3}{2}$. Multiplying through by 2 gives a
+cleaner $2x^2 + 5x - 3$. Either is correct.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Zero of a polynomial.** A real number $\alpha$ is a **zero** (or **root**)
+of $p(x)$ if $p(\alpha) = 0$. Geometrically, the zeros are exactly the
+x-intercepts of the graph $y = p(x)$.
+
+**Number of real zeros.** A polynomial of degree $n$ has **at most $n$ real
+zeros**.
+
+**Quadratic — relations.** If $\alpha, \beta$ are the zeros of
+$ax^2 + bx + c$ ($a \ne 0$), then
+$$\alpha + \beta = -\dfrac{b}{a}, \qquad \alpha\beta = \dfrac{c}{a}.$$
+
+**Cubic — relations.** If $\alpha, \beta, \gamma$ are the zeros of
+$ax^3 + bx^2 + cx + d$ ($a \ne 0$), then
+$\alpha + \beta + \gamma = -\dfrac{b}{a}$,
+$\alpha\beta + \beta\gamma + \gamma\alpha = \dfrac{c}{a}$,
+$\alpha\beta\gamma = -\dfrac{d}{a}$.
+
+:::
+
+A verse to remember:
+
+> *Sum of the roots: minus b over a.*
+> *Product of the roots: c over a.*
+> *Sign-flip the constant when the degree is odd —*
+> *Vieta's recipe, never a mistake to be had.*
+
+## Apply
+
+### Worked example
+
+> Find the zeros of $4x^2 - 4x - 3$ and verify the relations between zeros
+> and coefficients.
+
+**Factor.** Look for two numbers that multiply to $4 \cdot (-3) = -12$ and
+sum to $-4$: those are $-6$ and $+2$. So
+$$4x^2 - 4x - 3 = 4x^2 - 6x + 2x - 3 = 2x(2x - 3) + 1(2x - 3) = (2x + 1)(2x - 3).$$
+
+So zeros are $\alpha = -\frac{1}{2}$ and $\beta = \frac{3}{2}$.
+
+**Verify.**
+$\alpha + \beta = -\frac{1}{2} + \frac{3}{2} = 1$, and
+$-\dfrac{b}{a} = -\dfrac{-4}{4} = 1$. ✓
+$\alpha \beta = -\frac{1}{2} \cdot \frac{3}{2} = -\frac{3}{4}$, and
+$\dfrac{c}{a} = \dfrac{-3}{4}$. ✓
+
+### Practice — Warm
+
+**W1.** Find the zeros of $x^2 - 7x + 12$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor: two numbers that multiply to 12 and sum to 7.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 3)(x - 4)$. Zeros: $\mathbf{3, 4}$.
+</details>
+
+**W2.** Form a quadratic polynomial whose zeros are $5$ and $-2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 - (\text{sum})x + (\text{product})$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum $= 3$, product $= -10$, so $\mathbf{x^2 - 3x - 10}$.
+</details>
+
+**W3.** If the zeros of $x^2 + px + 12$ are $\alpha$ and $\beta$ with
+$\alpha = 4$, find $\beta$ and $p$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use product first: $\alpha\beta = 12$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\beta = 12 / 4 = 3$. Sum $= 7 = -p$, so $p = -7$. **$\beta = 3, p = -7$.**
+</details>
+
+### Practice — Working
+
+**P1.** Find a quadratic polynomial with sum of zeros $= \dfrac{2}{3}$ and
+product of zeros $= -\dfrac{1}{3}$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 - \dfrac{2}{3}x - \dfrac{1}{3}$. Multiplying by 3 (allowed: any scalar
+multiple has the same zeros): $\mathbf{3x^2 - 2x - 1}$.
+</details>
+
+**P2.** If $\alpha$ and $\beta$ are zeros of $x^2 - 6x + 8$, find
+$\alpha^2 + \beta^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(\alpha + \beta)^2 = \alpha^2 + 2\alpha\beta + \beta^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\alpha + \beta = 6$, $\alpha\beta = 8$. So
+$\alpha^2 + \beta^2 = 36 - 16 = \mathbf{20}$.
+</details>
+
+**P3.** A cubic $p(x) = x^3 - 6x^2 + 11x - 6$ has integer zeros. Find them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Integer roots must divide the constant term $6$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Try $x = 1$: $1 - 6 + 11 - 6 = 0$. ✓ So $(x - 1)$ is a factor. Divide.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$p(x) = (x - 1)(x^2 - 5x + 6) = (x-1)(x-2)(x-3)$. Zeros: $\mathbf{1, 2, 3}$.
+Check: sum $= 6 = -(-6)/1$. ✓
+</details>
+
+### Practice — Stretch
+
+**S1.** If $\alpha, \beta$ are zeros of $2x^2 + 3x - 1$, find a quadratic
+polynomial whose zeros are $\dfrac{1}{\alpha}$ and $\dfrac{1}{\beta}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+New sum $= \dfrac{1}{\alpha} + \dfrac{1}{\beta} = \dfrac{\alpha + \beta}
+{\alpha\beta}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\alpha + \beta = -\frac{3}{2}$, $\alpha\beta = -\frac{1}{2}$. New sum
+$= \dfrac{-3/2}{-1/2} = 3$. New product $= \dfrac{1}{\alpha\beta} = -2$.
+Polynomial: $x^2 - 3x - 2$ (or any nonzero scalar multiple).
+</details>
+
+**S2.** Find $k$ so that $x^2 - 8x + k$ has zeros differing by $4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum is $8$. Difference is $4$. Solve for the two zeros.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Zeros: $\alpha + \beta = 8$, $\alpha - \beta = 4$ → $\alpha = 6, \beta = 2$.
+Product $\alpha\beta = 12 = k$. **$k = 12$.**
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** The zeros of the polynomial $x^2 - 3$ are:
+(a) $\sqrt{3}, -\sqrt{3}$  (b) $3, -3$  (c) $0, 3$  (d) None.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a) $\sqrt{3}, -\sqrt{3}$.**
+</details>
+
+**Q2 (1 mark — fill-in).** If the sum of the zeros of $kx^2 + 2x + 3k$ equals
+their product, then $k = $ ____.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum = $-2/k$, product = $3$. Set equal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-\dfrac{2}{k} = 3 \Rightarrow k = -\dfrac{2}{3}$.
+</details>
+
+**Q3 (2 marks).** Find the zeros of $6x^2 - 7x - 3$ and verify the relations
+between zeros and coefficients.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Splitting middle term: find two numbers multiplying to $6 \cdot -3 = -18$ and
+summing to $-7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numbers: $-9$ and $+2$. $6x^2 - 9x + 2x - 3 = 3x(2x - 3) + 1(2x - 3) =
+(3x + 1)(2x - 3)$. Zeros: $-\frac{1}{3}, \frac{3}{2}$.
+Sum $= -\frac{1}{3} + \frac{3}{2} = \frac{7}{6} = -(-7)/6$. ✓
+Product $= -\frac{1}{3} \cdot \frac{3}{2} = -\frac{1}{2} = -3/6$. ✓
+</details>
+
+**Q4 (2 marks).** Find the value of $k$ such that the polynomial
+$x^2 - (k+6)x + 2(2k - 1)$ has the sum of its zeros equal to half their
+product.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum = $k + 6$, Product = $2(2k - 1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$k + 6 = \dfrac{1}{2} \cdot 2(2k - 1) = 2k - 1 \Rightarrow k = 7$.
+</details>
+
+**Q5 (3 marks).** If $\alpha$ and $\beta$ are zeros of the polynomial
+$x^2 - 6x + a$ such that $3\alpha + 2\beta = 20$, find the value of $a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two equations: $\alpha + \beta = 6$ and $3\alpha + 2\beta = 20$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Solve the linear pair for $\alpha, \beta$, then $a = \alpha\beta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+From first: $\beta = 6 - \alpha$. Substitute: $3\alpha + 2(6 - \alpha) = 20$
+$\Rightarrow \alpha + 12 = 20 \Rightarrow \alpha = 8, \beta = -2$.
+$a = \alpha\beta = -16$. **$a = -16$.**
+</details>
+
+**Q6 (3 marks).** Find a quadratic polynomial whose zeros are $3 + \sqrt{2}$
+and $3 - \sqrt{2}$. Use the sum-product method.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Conjugate pair. The sum is real; the product is real.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum $= 6$. Product $= (3)^2 - (\sqrt{2})^2 = 9 - 2 = 7$.
+Polynomial: $\mathbf{x^2 - 6x + 7}$.
+</details>
+
+**Q7 (5 marks — long answer).** Given that one zero of the cubic
+$2x^3 + 3x^2 - 11x - 6$ is $-3$:
+(a) find the other two zeros, and
+(b) verify all three Vieta relations.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(x + 3)$ is a factor. Divide.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+After division you get a quadratic; factor it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** Polynomial division: $2x^3 + 3x^2 - 11x - 6 \div (x + 3) = 2x^2 - 3x
+- 2$. Factor the quotient: $2x^2 - 3x - 2 = (2x + 1)(x - 2)$. Zeros of
+quotient: $-\frac{1}{2}, 2$. So all three zeros are
+$\alpha = -3, \beta = -\frac{1}{2}, \gamma = 2$.
+
+**(b)** With $a = 2, b = 3, c = -11, d = -6$:
+$\alpha + \beta + \gamma = -3 - \frac{1}{2} + 2 = -\frac{3}{2} = -\frac{b}{a}$. ✓
+$\alpha\beta + \beta\gamma + \gamma\alpha = \frac{3}{2} - 1 - 6 =
+-\frac{11}{2} = \frac{c}{a}$. ✓
+$\alpha\beta\gamma = (-3)(-\frac{1}{2})(2) = 3 = -\frac{d}{a} = \frac{6}{2}$.
+✓
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 2.3 Q5–Q9 are direct sum/product
+applications similar to Q3 and Q5; Exemplar 2.4 Q4–Q6 mirror Q7's cubic
+factoring.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q19 is a near-twin of Q5. CBSE
+2023 Standard, Q31 is the same shape as Q7.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A degree-2 polynomial has exactly 2 zeros."** It has **at most** 2 real
+   zeros. It might have 0 (e.g. $x^2 + 1$ has no real zero), 1 (a double
+   root, e.g. $x^2 - 2x + 1$), or 2.
+2. **"$\alpha + \beta = b/a$."** It is $-b/a$. The minus sign is the most
+   common board-paper mistake. Memorise: *sum has a minus, product has none*.
+3. **"You can read off the zeros from the coefficients without solving."** No
+   — you can read off their **sum** and **product**, not the zeros
+   themselves. Solving still needs factoring or the quadratic formula.
+:::
+
+### Self-Assessment
+
+1. Could you state the sum-and-product relations for both quadratics and
+   cubics, without notes?
+2. Did Q7 fall out cleanly with at most one hint?
+3. Can you build a quadratic from a pair of zeros (P1, Q6), forwards and
+   backwards?
+
+- **3 yes:** move on.
+- **2 yes:** redo Q5 and Q7. Then move on.
+- **0–1 yes:** re-read *Discover, Problem 3*. The whole chapter pivots on
+  that derivation.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.polynomials`](../../tier-cbse-09-class-9/02-polynomials/index.qmd) —
+  degree, factor theorem, basic factoring.
+
+### What this unlocks
+
+- [`cbse10.quadratic-equations`](../04-quadratic-equations/index.qmd) —
+  solving $ax^2 + bx + c = 0$ via the formula and discriminant.
+- [`cbse10.pair-linear-equations`](../03-pair-linear-equations/index.qmd) —
+  shares the algebraic-substitution toolkit.
+- [`cbse11.complex-numbers`](../../tier-cbse-11-class-11/04-complex-numbers/index.qmd) —
+  zeros without real existence become tractable.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 2 — Polynomials** (NCERT 2023 rationalised
+  syllabus). Covers Sections 2.1–2.2: geometrical meaning of zeros,
+  relationship between zeros and coefficients (quadratic and cubic).
+  Polynomial division was deleted in the 2023 rationalisation but a
+  cubic with one given zero (as in Q7) still appears.
+- **Sister synthesis lessons:**
+  - [`t2.polynomials`](../../tier-2-prealgebra/11-polynomials/index.qmd)
+    — polynomial arithmetic from scratch.
+  - [`t2.factoring-polynomials`](../../tier-2-prealgebra/12-factoring-polynomials/index.qmd)
+    — focused factoring drill.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Polynomial regression — fitting a curve through data — is the
+direct generalisation of "build a polynomial from points". The zeros and
+turning points of the fitted polynomial are how you find equilibria,
+break-even points, and decision thresholds.
+:::
+
+::: {.applied-callout}
+**Research.** Vieta's relations (which you derived in *Discover, Problem
+4*) are the entry point to a vast subject: the theory of symmetric
+functions, which underlies Galois theory and modern algebra.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown (the *Touch* widget builds the visual
+  intuition for "zeros are x-intercepts"); AoPS (graduated CBSE-style
+  problems); Bhāskara (compact *Name*).
+- **Source notes:** Q5 follows the standard CBSE 2020 problem pattern; Q7
+  is a direct adaptation of NCERT Example 9.
+- **Vieta's relations** named informally — full Vieta-style symmetric
+  functions are revisited in Tier 5.
+:::

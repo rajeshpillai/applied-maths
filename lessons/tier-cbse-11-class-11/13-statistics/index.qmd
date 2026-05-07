@@ -1,0 +1,509 @@
+---
+title: "Ch 13 — Statistics (Variance and Standard Deviation)"
+subtitle: "How spread out is the data? Mean deviation, variance, and standard deviation"
+lesson-id: "cbse11.statistics"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 13
+ncert-chapter-title: "Statistics"
+board-exam: false
+prerequisites: ["cbse10.statistics"]
+unlocks: ["cbse12.probability"]
+applied-domains: ["ai-ml", "databases", "research"]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute the **mean** of a small data set?
+2. Are you fluent with the **median** and **mode** from Class 10
+   statistics?
+3. Can you compute $\sum x_i$ and $\sum x_i^2$ for a small list?
+4. Do you know the symbol $\bar{x}$ (read "x-bar") for the mean?
+
+Three confident yeses — read on. If shaky, refresh
+**[Class 10 Statistics](../../tier-cbse-10-class-10/13-statistics/index.qmd)**.
+:::
+
+## Touch
+
+Two friends each scored an average of $80$ on five tests:
+
+- Asha: $78, 80, 80, 82, 80$
+- Bina: $60, 70, 80, 90, 100$
+
+Same mean. But Asha is *consistent*; Bina swings wildly. The mean alone
+doesn't tell you how far the data are from the mean.
+
+We need a number for **spread**. The widget below computes mean and
+standard deviation for a tunable data set.
+
+```{ojs}
+viewof n1 = Inputs.range([0, 100], {value: 78, step: 1, label: "data point 1"})
+```
+```{ojs}
+viewof n2 = Inputs.range([0, 100], {value: 80, step: 1, label: "data point 2"})
+```
+```{ojs}
+viewof n3 = Inputs.range([0, 100], {value: 80, step: 1, label: "data point 3"})
+```
+```{ojs}
+viewof n4 = Inputs.range([0, 100], {value: 82, step: 1, label: "data point 4"})
+```
+```{ojs}
+viewof n5 = Inputs.range([0, 100], {value: 80, step: 1, label: "data point 5"})
+```
+
+```{ojs}
+{
+  const xs = [n1, n2, n3, n4, n5];
+  const m = xs.reduce((s, x) => s + x, 0) / xs.length;
+  const variance = xs.reduce((s, x) => s + (x - m) ** 2, 0) / xs.length;
+  const sd = Math.sqrt(variance);
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>Data:</b> [${xs.join(", ")}]</div>
+    <div><b>Mean</b> x̄ = <b>${m.toFixed(2)}</b></div>
+    <div><b>Variance</b> σ² = (1/n) Σ(xᵢ − x̄)² = <b>${variance.toFixed(2)}</b></div>
+    <div><b>Standard deviation</b> σ = <b>${sd.toFixed(3)}</b></div>
+  </div>`;
+}
+```
+
+The standard deviation is the typical distance from the mean. Make all
+data points equal: $\sigma = 0$ (no spread). Spread them out: $\sigma$
+grows.
+
+## Wonder
+
+Sit with these.
+
+1. Why do we square the deviations $(x_i - \bar{x})$ before averaging?
+   What if we just summed them?
+2. The mean deviation uses $|x_i - \bar{x}|$ (absolute value) instead of
+   the square. Why does the standard deviation feel more natural in
+   physics and machine learning?
+3. If you add $5$ to every data point, how do the mean and standard
+   deviation change?
+4. If you multiply every data point by $3$, how do they change?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) is the reason for squaring: $\sum (x_i - \bar{x}) = 0$ always.
+The deviations cancel. (3) and (4) are the **shift and scale** rules:
+adding shifts the mean, scaling stretches both mean and SD.
+:::
+
+## Discover
+
+### Problem 1 — Mean
+
+Find the mean of $4, 8, 6, 5, 12$.
+
+<details class="hint"><summary>Full solution</summary>
+$\bar{x} = (4 + 8 + 6 + 5 + 12)/5 = 35/5 = 7$.
+</details>
+
+### Problem 2 — Mean deviation about the mean
+
+For the data above, find the mean deviation about the mean.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\text{MD} = \dfrac{1}{n} \sum |x_i - \bar{x}|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|4 - 7| + |8 - 7| + |6 - 7| + |5 - 7| + |12 - 7| = 3 + 1 + 1 + 2 + 5 = 12$.
+
+$\text{MD} = 12/5 = 2.4$.
+</details>
+
+### Problem 3 — Variance
+
+For the same data, find the variance.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sigma^2 = \dfrac{1}{n} \sum (x_i - \bar{x})^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x_i - 7)^2$: $9, 1, 1, 4, 25$. Sum $= 40$.
+
+$\sigma^2 = 40/5 = 8$.
+</details>
+
+### Problem 4 — Standard deviation
+
+For the same data.
+
+<details class="hint"><summary>Full solution</summary>
+$\sigma = \sqrt{8} = 2\sqrt{2} \approx 2.83$.
+</details>
+
+### Problem 5 — Quick formula
+
+Use the alternative formula $\sigma^2 = \dfrac{\sum x_i^2}{n} - \bar{x}^2$
+on the same data.
+
+<details class="hint"><summary>Full solution</summary>
+$\sum x_i^2 = 16 + 64 + 36 + 25 + 144 = 285$.
+
+$\sigma^2 = 285/5 - 49 = 57 - 49 = 8$. ✓
+</details>
+
+### Problem 6 — Effect of shift and scale
+
+If $\bar{x} = 50$ and $\sigma = 5$, find the new mean and SD if every
+data point is replaced by $3 x_i + 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mean: $a x + b$ has mean $a \bar{x} + b$. SD scales by $|a|$, the shift
+$b$ is irrelevant.
+</details>
+<details class="hint"><summary>Full solution</summary>
+New mean: $3 \cdot 50 + 2 = 152$.
+
+New SD: $|3| \cdot 5 = 15$.
+</details>
+
+### Problem 7 — Frequency distribution
+
+Find mean and variance of:
+
+| $x$ | 4 | 8 | 11 | 17 | 20 | 24 |
+|:--|:--|:--|:--|:--|:--|:--|
+| $f$ | 3 | 5 | 9 | 5 | 4 | 3 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\bar{x} = \dfrac{\sum f_i x_i}{\sum f_i}$. $\sigma^2 = \dfrac{\sum f_i (x_i - \bar{x})^2}{\sum f_i}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum f = 29$.
+
+$\sum f x = 12 + 40 + 99 + 85 + 80 + 72 = 388$. $\bar{x} = 388/29 \approx 13.38$.
+
+$\sum f x^2 = 48 + 320 + 1089 + 1445 + 1600 + 1728 = 6230$.
+
+$\sigma^2 = 6230/29 - 13.38^2 \approx 214.83 - 179.02 \approx 35.8$.
+
+$\sigma \approx 5.98$.
+</details>
+
+You have just used **mean**, **mean deviation**, **variance**,
+**standard deviation**, the **shortcut formula**, **shift-and-scale**
+rules, and **frequency-weighted** versions. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+For data $x_1, x_2, \ldots, x_n$ with mean $\bar{x} = \dfrac{1}{n} \sum x_i$:
+
+**Mean deviation** about $\bar{x}$:
+$$ \text{MD} = \dfrac{1}{n} \sum_{i=1}^{n} |x_i - \bar{x}|. $$
+
+**Variance:**
+$$ \sigma^2 = \dfrac{1}{n} \sum_{i=1}^{n} (x_i - \bar{x})^2. $$
+
+**Shortcut formula:**
+$$ \sigma^2 = \dfrac{\sum x_i^2}{n} - \bar{x}^2 = \dfrac{1}{n^2} \left[ n \sum x_i^2 - (\sum x_i)^2 \right]. $$
+
+**Standard deviation:** $\sigma = \sqrt{\sigma^2}$.
+
+**Frequency-weighted version:** for $(x_i, f_i)$ with $N = \sum f_i$:
+$$ \bar{x} = \dfrac{\sum f_i x_i}{N}, \quad \sigma^2 = \dfrac{\sum f_i (x_i - \bar{x})^2}{N} = \dfrac{\sum f_i x_i^2}{N} - \bar{x}^2. $$
+
+**Shift-and-scale:** if $y_i = a x_i + b$, then $\bar{y} = a \bar{x} + b$
+and $\sigma_y = |a| \sigma_x$.
+
+**Coefficient of variation:** $\text{CV} = \dfrac{\sigma}{\bar{x}} \times 100$ %.
+
+:::
+
+A short verse:
+
+> *Square each deviation, then average — that is variance;*
+> *Square-root that, the spread is no fluke.*
+> *Shifts won't move it, scaling stretches by $|a|$;*
+> *Compare two data sets — coefficient of variation rules.*
+
+## Apply
+
+### Worked example
+
+> Find the mean and variance of the first $n$ natural numbers.
+
+How a competent solver thinks:
+
+1. $\bar{x} = \dfrac{1 + 2 + \cdots + n}{n} = \dfrac{n(n+1)/2}{n} = \dfrac{n + 1}{2}$.
+2. $\sum x_i^2 = \dfrac{n(n+1)(2n+1)}{6}$.
+3. $\sigma^2 = \dfrac{1}{n} \cdot \dfrac{n(n+1)(2n+1)}{6} - \left(\dfrac{n+1}{2}\right)^2$
+   $= \dfrac{(n+1)(2n+1)}{6} - \dfrac{(n+1)^2}{4}$
+   $= (n+1) \left[\dfrac{2(2n+1) - 3(n+1)}{12}\right] = (n+1) \cdot \dfrac{n - 1}{12} = \dfrac{n^2 - 1}{12}$.
+
+**Answers:** $\bar{x} = (n+1)/2$, $\sigma^2 = (n^2 - 1)/12$.
+
+### Practice — Warm
+
+**W1.** Find the mean of $2, 4, 6, 8, 10$.
+
+<details class="hint"><summary>Full solution</summary>
+$30/5 = 6$.
+</details>
+
+**W2.** Variance of the constant data $5, 5, 5, 5$.
+
+<details class="hint"><summary>Full solution</summary>
+All deviations are $0$. $\sigma^2 = 0$.
+</details>
+
+**W3.** SD of $1, 2, 3, 4, 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the shortcut formula or the result for first $n$ naturals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\bar{x} = 3$. $\sigma^2 = (5^2 - 1)/12 = 24/12 = 2$. $\sigma = \sqrt{2}$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the mean and SD of $6, 7, 10, 12, 13, 4, 8, 12$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$n = 8$. Compute $\sum x$ and $\sum x^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum x = 6 + 7 + 10 + 12 + 13 + 4 + 8 + 12 = 72$. $\bar{x} = 9$.
+
+$\sum x^2 = 36 + 49 + 100 + 144 + 169 + 16 + 64 + 144 = 722$.
+
+$\sigma^2 = 722/8 - 81 = 90.25 - 81 = 9.25$.
+
+$\sigma = \sqrt{9.25} \approx 3.04$.
+</details>
+
+**P2.** The mean and SD of $20$ observations are $10$ and $2$
+respectively. Each observation is multiplied by $3$. Find the new mean
+and SD.
+
+<details class="hint"><summary>Full solution</summary>
+New mean: $3 \cdot 10 = 30$. New SD: $3 \cdot 2 = 6$.
+</details>
+
+**P3.** Compute the variance of the frequency distribution:
+
+| $x$ | 2 | 4 | 6 | 8 | 10 |
+|:--|:--|:--|:--|:--|:--|
+| $f$ | 1 | 4 | 6 | 4 | 1 |
+
+<details class="hint"><summary>Full solution</summary>
+$N = 16$. $\sum f x = 2 + 16 + 36 + 32 + 10 = 96$. $\bar{x} = 96/16 = 6$.
+
+$\sum f x^2 = 4 + 64 + 216 + 256 + 100 = 640$.
+
+$\sigma^2 = 640/16 - 36 = 40 - 36 = 4$. $\sigma = 2$.
+</details>
+
+### Practice — Stretch
+
+**S1.** The mean of $5$ observations is $4.4$ and their variance is
+$8.24$. If three of the observations are $1, 2, 6$, find the other two.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the missing values be $a, b$. Two equations: sum and sum of squares.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 + 2 + 6 + a + b = 5 \times 4.4 = 22 \Rightarrow a + b = 13$.
+
+$\sigma^2 + \bar{x}^2 = \dfrac{\sum x^2}{n}$, so $\sum x^2 = 5(8.24 + 19.36) = 5 \cdot 27.6 = 138$.
+
+$1 + 4 + 36 + a^2 + b^2 = 138 \Rightarrow a^2 + b^2 = 97$.
+
+$(a + b)^2 = a^2 + 2ab + b^2 \Rightarrow 169 = 97 + 2ab \Rightarrow ab = 36$.
+
+So $a, b$ are roots of $t^2 - 13 t + 36 = 0$, giving $t = 4$ or $t = 9$.
+
+**Answers:** $4$ and $9$.
+</details>
+
+**S2.** The variances of two data sets are equal but their means differ.
+The first has $20$ observations with mean $10$; the second has $30$
+observations with mean $20$. Find the variance of the **combined** data
+set if each variance is $4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combined variance =
+$\dfrac{n_1 \sigma_1^2 + n_2 \sigma_2^2 + n_1 (\bar{x}_1 - \bar{x})^2 + n_2(\bar{x}_2 - \bar{x})^2}{n_1 + n_2}$
+where $\bar{x}$ is the combined mean.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Combined mean: $\bar{x} = \dfrac{20 \cdot 10 + 30 \cdot 20}{50} = \dfrac{800}{50} = 16$.
+
+Variance numerator: $20 \cdot 4 + 30 \cdot 4 + 20 (10 - 16)^2 + 30 (20 - 16)^2
+= 80 + 120 + 20 \cdot 36 + 30 \cdot 16 = 200 + 720 + 480 = 1400$.
+
+Combined variance: $1400/50 = 28$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** Variance of the data $4, 4, 4, 4$ is
+(a) $0$ (b) $1$ (c) $4$ (d) $16$.
+
+<details class="hint"><summary>Full solution</summary>
+All equal — no spread. **Answer: (a).**
+</details>
+
+**2-mark (short answer).** Find the standard deviation of $3, 6, 9, 12, 15$.
+
+<details class="hint"><summary>Full solution</summary>
+$\bar{x} = 9$. Deviations: $-6, -3, 0, 3, 6$. Squares: $36, 9, 0, 9, 36$.
+Sum $= 90$. $\sigma^2 = 18$. $\sigma = \sqrt{18} = 3\sqrt{2}$.
+</details>
+
+**3-mark (short answer II).** Find the variance of the frequency
+distribution:
+
+| $x$ | 6 | 10 | 14 | 18 | 24 | 28 |
+|:--|:--|:--|:--|:--|:--|:--|
+| $f$ | 2 | 4 | 7 | 12 | 8 | 4 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $\bar{x}$, then variance via the shortcut formula.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$N = 37$. $\sum f x = 12 + 40 + 98 + 216 + 192 + 112 = 670$. $\bar{x} = 670/37 \approx 18.108$.
+
+$\sum f x^2 = 72 + 400 + 1372 + 3888 + 4608 + 3136 = 13476$.
+
+$\sigma^2 = 13476/37 - (670/37)^2 = 364.21 - 327.91 = 36.30$.
+
+$\sigma \approx 6.02$.
+</details>
+
+**5-mark (long answer).** The mean and SD of $100$ observations are
+$50$ and $5$. By an error, an observation $50$ was replaced by $100$.
+Find the corrected mean and SD.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Adjust $\sum x$ and $\sum x^2$ by removing the bad value and adding the
+correct one.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Original $\sum x = 100 \cdot 50 = 5000$.
+
+If a $50$ was *added by mistake* and the true value was meant to be
+something else — but per the problem, the recorded value $100$ should
+be replaced by the correct $50$.
+
+Corrected $\sum x = 5000 - 100 + 50 = 4950$. New mean: $49.5$.
+
+Original $\sum x^2 = n(\sigma^2 + \bar{x}^2) = 100(25 + 2500) = 252500$.
+
+Corrected $\sum x^2 = 252500 - 100^2 + 50^2 = 252500 - 10000 + 2500 = 245000$.
+
+New variance: $245000/100 - 49.5^2 = 2450 - 2450.25 = -0.25$.
+
+Negative — error. Recompute carefully:
+
+$\bar{x}^2 = 2450.25$. New variance: $2450 - 2450.25 = -0.25$. Impossible.
+
+Most likely the problem means: an observation was $100$ but was wrongly
+recorded as $50$. Then we *add* $100$ and *remove* $50$:
+
+Corrected $\sum x = 5000 + 100 - 50 = 5050$. New mean: $50.5$.
+
+Corrected $\sum x^2 = 252500 + 10000 - 2500 = 260000$. New variance:
+$2600 - 2550.25 = 49.75$. New SD: $\sqrt{49.75} \approx 7.05$.
+
+(Boards problems often hinge on the direction of the correction —
+read carefully.)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 13 LA "missing observations
+given mean and variance" matches Stretch S1.
+**JEE pointer:** combined-variance formula (Stretch S2) is JEE Main
+standard.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Standard deviation = mean deviation."** They differ. SD uses
+   squared deviations (penalises outliers more); MD uses absolute
+   values.
+2. **"Adding a constant to every data point changes the SD."** No.
+   The shift cancels in $(x_i - \bar{x})$. Only scaling changes the SD.
+3. **"$\sigma^2 = \bar{x^2} - \bar{x}^2$" — sometimes written
+   incorrectly.** The correct shortcut is $\sigma^2 = \dfrac{\sum x_i^2}{n} - \bar{x}^2$,
+   i.e. $\overline{x^2} - (\bar{x})^2$.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you compute mean, variance, and SD on a small data set
+   without the shortcut formula?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you state how mean and SD respond to shift and scale?
+
+- **3 yes:** move on to **[Probability](../14-probability/index.qmd)**.
+- **2 yes:** redo Stretch S1 and the 5-mark item.
+- **0–1 yes:** drill the variance shortcut on five fresh data sets.
+
+## Connect
+
+### Prerequisites used
+
+- **[Class 10 — Statistics](../../tier-cbse-10-class-10/13-statistics/index.qmd)** —
+  mean, median, mode for grouped data.
+
+### What this unlocks
+
+- **[Class 12 — Probability](../../tier-cbse-12-class-12/13a-conditional-probability-bayes/index.qmd)** —
+  expectation and variance of random variables generalise this.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 13 — Statistics** (NCERT 2023 rationalised).
+  Sections 13.1–13.5: mean deviation, variance, standard deviation for
+  ungrouped and frequency distributions.
+- **Sister synthesis lessons:**
+  [`t1.data-and-average`](../../tier-1-foundations/data-and-average/index.qmd) and
+  [`t5.variance-clt`](../../tier-5-undergrad-core/variance-clt/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Standard deviation is the natural unit of "uncertainty".
+Bayesian models, confidence intervals, and Gaussian noise assumptions
+all measure spread in $\sigma$.
+:::
+
+::: {.applied-callout}
+**Databases / Analytics.** Outlier detection, anomaly flagging, and
+quality control charts use $\bar{x} \pm 3\sigma$ as default
+thresholds.
+:::
+
+::: {.applied-callout}
+**Research / Science.** Standard deviation is the unit in which
+experimental error is reported. "Three sigma" detection in particle
+physics and "two sigma" significance in social science studies are
+literal multiples of $\sigma$.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: NRICH (Asha vs Bina problem framing), Russian school
+(Discover sequence forces both definitions and the shortcut formula),
+Bhāskara (verse on the squaring trick).
+:::

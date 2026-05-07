@@ -1,0 +1,475 @@
+---
+title: "Ch 7 — Binomial Theorem"
+subtitle: "Expanding (a + b)^n without multiplying it out by hand"
+lesson-id: "cbse11.binomial-theorem"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 7
+ncert-chapter-title: "Binomial Theorem"
+board-exam: false
+prerequisites: ["cbse11.permutations-combinations", "cbse10.polynomials"]
+unlocks: ["cbse11.sequences-ap-gp", "cbse12.probability"]
+applied-domains: ["research", "encryption"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute $\binom{n}{r}$ from the formula?
+2. Do you remember the identity $(a+b)^2 = a^2 + 2ab + b^2$?
+3. Are you fluent with summation $\sum$ notation?
+4. Can you expand $(a+b)^3$ without looking it up?
+
+Three confident yeses — read on. If $\binom{n}{r}$ feels uncertain,
+revisit **[Permutations and Combinations](../06-permutations-combinations/index.qmd)**.
+:::
+
+## Touch
+
+Write Pascal's triangle. Start with a $1$ at the top. Each row begins
+and ends with $1$; every interior entry is the sum of the two entries
+above it.
+
+```
+                1
+              1   1
+            1   2   1
+          1   3   3   1
+        1   4   6   4   1
+      1   5  10  10   5   1
+    1   6  15  20  15   6   1
+```
+
+The $n$-th row is the list of $\binom{n}{0}, \binom{n}{1}, \ldots,
+\binom{n}{n}$. And those are *exactly* the coefficients in the
+expansion of $(a+b)^n$.
+
+The widget below expands $(a + b)^n$ for any $n$ you choose.
+
+```{ojs}
+viewof bn = Inputs.range([1, 8], {value: 4, step: 1, label: "n"})
+```
+
+```{ojs}
+{
+  // build (a+b)^n
+  function fact(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+  function C(n, r) { return fact(n) / (fact(r) * fact(n - r)); }
+  const terms = [];
+  for (let r = 0; r <= bn; r++) {
+    const c = C(bn, r);
+    const aPow = bn - r === 0 ? "" : (bn - r === 1 ? "a" : `a^${bn - r}`);
+    const bPow = r === 0 ? "" : (r === 1 ? "b" : `b^${r}`);
+    const coef = c === 1 ? "" : `${c}`;
+    let term = coef + aPow + bPow;
+    if (term === "") term = "1";
+    terms.push(term);
+  }
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>(a + b)<sup>${bn}</sup></b> =</div>
+    <div style="font-size:1.1em;margin-left:1em;">${terms.join(" + ")}</div>
+  </div>`;
+}
+```
+
+Note how the powers of $a$ go from $n$ down to $0$, the powers of $b$
+go from $0$ up to $n$, and the coefficients trace exactly Pascal's
+$n$-th row.
+
+## Wonder
+
+Sit with these.
+
+1. The expansion of $(a+b)^n$ has $n+1$ terms. Why exactly $n+1$ — and
+   not, say, $n$ or $2^n$?
+2. The total of the coefficients in the row is $1 + n + \binom{n}{2} +
+   \cdots + 1$. Is there a clean formula for this total?
+3. If you replace $b$ by $-b$, what changes about the expansion?
+4. The middle of the row holds the largest entries. Where exactly is
+   the middle?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) is solved by setting $a = b = 1$: the sum of any row of Pascal's
+triangle is $2^n$. (3) explains alternating signs in expansions like
+$(1 - x)^n$.
+:::
+
+## Discover
+
+### Problem 1 — Expand by hand
+
+Expand $(x + 2)^4$ using Pascal's row $1, 4, 6, 4, 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x + 2)^4 = x^4 + 4 x^3(2) + 6 x^2 (2)^2 + 4 x (2)^3 + (2)^4$
+$= x^4 + 8x^3 + 24x^2 + 32x + 16$.
+</details>
+
+### Problem 2 — Single term
+
+Find the term containing $x^5$ in $(x + 2)^7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+General term: $T_{r+1} = \binom{n}{r} a^{n-r} b^r$. We need power of
+$x$ to be 5.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T_{r+1} = \binom{7}{r} x^{7-r} 2^r$. Want $7 - r = 5$, so $r = 2$.
+
+$T_3 = \binom{7}{2} x^5 \cdot 4 = 21 \cdot 4 x^5 = 84 x^5$.
+</details>
+
+### Problem 3 — Sum of coefficients
+
+What is the sum of the coefficients in $(2x + 3)^5$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $x = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At $x = 1$: $(2 + 3)^5 = 5^5 = 3125$.
+</details>
+
+### Problem 4 — Middle term
+
+Find the middle term of $(x + y)^{10}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$11$ terms total ($n + 1$ when $n = 10$). Middle is the $6$th, i.e.
+$r = 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T_6 = \binom{10}{5} x^5 y^5 = 252 \, x^5 y^5$.
+</details>
+
+### Problem 5 — Negative inside
+
+Expand $(1 - 2x)^4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the binomial theorem with $b = -2x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{4}{0}(1)^4 + \binom{4}{1}(1)^3(-2x) + \binom{4}{2}(1)^2(-2x)^2 +
+\binom{4}{3}(1)(-2x)^3 + \binom{4}{4}(-2x)^4$
+$= 1 - 8x + 24x^2 - 32x^3 + 16x^4$.
+</details>
+
+### Problem 6 — Term independent of x
+
+Find the term independent of $x$ in $\left(x + \dfrac{1}{x}\right)^6$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_{r+1} = \binom{6}{r} x^{6-r} (1/x)^r = \binom{6}{r} x^{6 - 2r}$.
+Power of $x$ is zero when…
+</details>
+<details class="hint"><summary>Full solution</summary>
+$6 - 2r = 0 \Rightarrow r = 3$. $T_4 = \binom{6}{3} = 20$.
+
+The constant term is $\mathbf{20}$.
+</details>
+
+You have just used the **binomial theorem**, the **general term**, the
+**middle term**, and the **independent-of-x trick**. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**Binomial theorem** for any positive integer $n$:
+
+$$ (a + b)^n = \sum_{r=0}^{n} \binom{n}{r} a^{n-r} b^r. $$
+
+The **general term** (the $(r+1)$-th term) is
+$$ T_{r+1} = \binom{n}{r} a^{n-r} b^r. $$
+
+**Number of terms:** $n + 1$.
+
+**Sum of coefficients** in $(a+b)^n$, evaluated at $a = b = 1$:
+$\displaystyle \sum_{r=0}^{n} \binom{n}{r} = 2^n$.
+
+**Alternating sum:** at $a = 1, b = -1$:
+$\displaystyle \sum_{r=0}^{n} (-1)^r \binom{n}{r} = 0$ for $n \ge 1$.
+
+**Middle term(s):**
+
+- $n$ even ($n = 2m$): one middle term, $T_{m+1}$.
+- $n$ odd ($n = 2m+1$): two middle terms, $T_{m+1}$ and $T_{m+2}$.
+
+**Pascal's rule:** $\binom{n}{r-1} + \binom{n}{r} = \binom{n+1}{r}$ —
+the construction rule of the triangle.
+
+:::
+
+A short verse:
+
+> *Powers of $a$ slide down from $n$;*
+> *Powers of $b$ climb up to greet them.*
+> *Coefficients live in Pascal's house —*
+> *Add the two above, the next is born.*
+
+## Apply
+
+### Worked example
+
+> Find the coefficient of $x^4$ in the expansion of $(1 + 2x)^7$.
+
+How a competent solver thinks:
+
+1. General term: $T_{r+1} = \binom{7}{r} (1)^{7-r} (2x)^r = \binom{7}{r}
+   2^r x^r$.
+2. Want the $x^4$ term: $r = 4$.
+3. $T_5 = \binom{7}{4} 2^4 x^4 = 35 \cdot 16 \cdot x^4 = 560 x^4$.
+
+**Coefficient: $560$.**
+
+### Practice — Warm
+
+**W1.** Expand $(1 + x)^5$.
+
+<details class="hint"><summary>Full solution</summary>
+$1 + 5x + 10x^2 + 10x^3 + 5x^4 + x^5$.
+</details>
+
+**W2.** Number of terms in $(2x - 3y)^9$?
+
+<details class="hint"><summary>Full solution</summary>
+$n + 1 = 10$.
+</details>
+
+**W3.** Sum of coefficients in $(x + 1)^{12}$.
+
+<details class="hint"><summary>Full solution</summary>
+At $x = 1$: $2^{12} = 4096$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the middle term of $\left(\dfrac{x}{2} + \dfrac{2}{x}\right)^8$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$n = 8$ is even, so one middle term at $r = 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T_5 = \binom{8}{4} \left(\dfrac{x}{2}\right)^4 \left(\dfrac{2}{x}\right)^4
+= 70 \cdot \dfrac{x^4}{16} \cdot \dfrac{16}{x^4} = 70$.
+
+(Independent of $x$.)
+</details>
+
+**P2.** Find the coefficient of $x^{10}$ in $\left(2x^2 - \dfrac{1}{x}\right)^{11}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_{r+1} = \binom{11}{r}(2x^2)^{11-r}(-1/x)^r$. Find $r$ that gives
+power $10$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x$ power: $2(11 - r) - r = 22 - 3r = 10 \Rightarrow r = 4$.
+
+$T_5 = \binom{11}{4} 2^7 (-1)^4 x^{10} = 330 \cdot 128 \cdot x^{10} =
+42240 x^{10}$.
+
+**Coefficient: $42{,}240$.**
+</details>
+
+**P3.** Use the binomial expansion of $(1.01)^5 = (1 + 0.01)^5$ to
+estimate $(1.01)^5$ to 4 decimal places.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The first few terms dominate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 + 5(0.01) + 10(0.01)^2 + 10(0.01)^3 + \cdots
+= 1 + 0.05 + 0.001 + 0.00001 + \cdots \approx 1.0510$.
+</details>
+
+### Practice — Stretch
+
+**S1.** If the coefficients of three consecutive terms in $(1 + x)^n$ are
+in the ratio $1 : 7 : 42$, find $n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Coefficients: $\binom{n}{r-1}, \binom{n}{r}, \binom{n}{r+1}$.
+Ratios: $\binom{n}{r}/\binom{n}{r-1} = (n - r + 1)/r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\binom{n}{r}}{\binom{n}{r-1}} = \dfrac{n - r + 1}{r} = 7$ gives
+$n + 1 = 8r$.
+
+$\dfrac{\binom{n}{r+1}}{\binom{n}{r}} = \dfrac{n - r}{r + 1} = 6$ gives
+$n - r = 6(r+1)$, i.e. $n = 7r + 6$.
+
+From the first: $n = 8r - 1$. Equate: $8r - 1 = 7r + 6 \Rightarrow r = 7$.
+Then $n = 55$.
+
+**$n = 55$.**
+</details>
+
+**S2.** Show that $\binom{2n}{n}$ is the largest binomial coefficient in
+$(a + b)^{2n}$, and use the binomial theorem to prove
+$\sum_{r=0}^{n} \binom{n}{r}^2 = \binom{2n}{n}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare $(1 + x)^n (1 + x)^n$ with $(1 + x)^{2n}$. Match the coefficient
+of $x^n$ on both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS: $(1+x)^n (1+x)^n$. The coefficient of $x^n$ is
+$\sum_{r=0}^{n} \binom{n}{r} \binom{n}{n-r} = \sum_{r=0}^{n} \binom{n}{r}^2$
+(using $\binom{n}{n-r} = \binom{n}{r}$).
+
+RHS: $(1+x)^{2n}$. The coefficient of $x^n$ is $\binom{2n}{n}$.
+
+Equating coefficients: $\sum_{r=0}^{n} \binom{n}{r}^2 = \binom{2n}{n}$. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The number of terms in $(1 + x)^n + (1 - x)^n$,
+when $n$ is even, equals
+(a) $n$ (b) $n + 1$ (c) $n/2 + 1$ (d) $n/2$.
+
+<details class="hint"><summary>Full solution</summary>
+Terms with even powers of $x$ survive (odd cancel). For $n$ even, even
+powers are $0, 2, 4, \ldots, n$, count $n/2 + 1$. **Answer: (c).**
+</details>
+
+**2-mark (short answer).** Expand $(1 + x)^4 - (1 - x)^4$.
+
+<details class="hint"><summary>Full solution</summary>
+$(1 + x)^4 = 1 + 4x + 6x^2 + 4x^3 + x^4$.
+
+$(1 - x)^4 = 1 - 4x + 6x^2 - 4x^3 + x^4$.
+
+Difference: $8x + 8x^3$.
+</details>
+
+**3-mark (short answer II).** Find the coefficient of $x^6 y^3$ in
+$(x + 2y)^9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_{r+1} = \binom{9}{r} x^{9-r}(2y)^r$. Want $9 - r = 6$, so $r = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{9}{3} \cdot 2^3 = 84 \cdot 8 = 672$.
+
+**Coefficient: $672$.**
+</details>
+
+**5-mark (long answer).** (i) Find the term independent of $x$ in
+$\left(\dfrac{3}{2} x^2 - \dfrac{1}{3x}\right)^9$.
+(ii) Verify by computing the same with $\dfrac{3}{2} x^2 + \dfrac{1}{3x}$ (the
+"$+$" version) and contrasting the sign of the result.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_{r+1} = \binom{9}{r}\left(\tfrac{3}{2}\right)^{9-r} x^{2(9-r)}
+\left(-\tfrac{1}{3}\right)^r x^{-r}$. The exponent of $x$ is
+$2(9-r) - r = 18 - 3r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $18 - 3r = 0 \Rightarrow r = 6$.
+
+$T_7 = \binom{9}{6} \left(\dfrac{3}{2}\right)^3 \left(-\dfrac{1}{3}\right)^6$
+$= 84 \cdot \dfrac{27}{8} \cdot \dfrac{1}{729}
+= \dfrac{84 \cdot 27}{8 \cdot 729} = \dfrac{2268}{5832} = \dfrac{7}{18}$.
+
+**(ii)** With "$+$": same magnitude, with $(+1/3)^6 = 1/729$ — sign
+unchanged. Both versions give $\dfrac{7}{18}$. (For odd $r$, the sign
+*would* differ; for even $r$, it does not.)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 7 LA "term independent of $x$"
+is the prototype of P2 and the 5-mark item.
+**JEE pointer:** the consecutive-coefficient ratio (Stretch S1) is
+JEE Main standard.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Coefficient of $x^k$ equals $\binom{n}{k}$ in $(a + bx)^n$."**
+   Only when $a = 1$. The general formula gives the term
+   $\binom{n}{k} a^{n-k} b^k x^k$, so the coefficient is
+   $\binom{n}{k} a^{n-k} b^k$, not just $\binom{n}{k}$.
+2. **"Number of terms = $n$."** It's $n + 1$. Always include the $r = 0$
+   case.
+3. **"Middle term position."** For $n$ even there is one middle term at
+   $r = n/2$; for $n$ odd there are two, at $r = (n-1)/2$ and $r = (n+1)/2$.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you write the general term of any binomial expansion in 30
+   seconds?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you find "term independent of $x$" in any expansion on demand?
+
+- **3 yes:** move on to **[Sequences (AP and GP)](../08a-sequences-ap-gp/index.qmd)**.
+- **2 yes:** redo Stretch S1 and the 5-mark item.
+- **0–1 yes:** drill the general-term recipe on five fresh expansions.
+
+## Connect
+
+### Prerequisites used
+
+- **[Permutations and Combinations](../06-permutations-combinations/index.qmd)** —
+  $\binom{n}{r}$ is the building block.
+- **[Class 10 — Polynomials](../../tier-cbse-10-class-10/02-polynomials/index.qmd)** —
+  the expansion is a polynomial.
+
+### What this unlocks
+
+- **[Series and Special Sums](../08b-series-sums/index.qmd)** —
+  combinatorial identities feed cleanly into series sums.
+- **[Class 12 — Probability](../../tier-cbse-12-class-12/13a-conditional-probability-bayes/index.qmd)** —
+  binomial *distribution*: the probability of $r$ successes in $n$
+  trials is exactly $\binom{n}{r} p^r (1-p)^{n-r}$.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 7 — Binomial Theorem** (NCERT 2023 rationalised).
+  Sections 7.1–7.4: positive integer index, general term, middle term,
+  applications.
+- **Sister synthesis lesson:**
+  [`t3.binomial-theorem`](../../tier-3-algebra2-geometry-trig/binomial-theorem/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**Probability / AI.** A coin tossed $n$ times produces $k$ heads with
+probability $\binom{n}{k} p^k (1-p)^{n-k}$. This is the **binomial
+distribution**, the most common discrete distribution in statistics
+and machine learning.
+:::
+
+::: {.applied-callout}
+**Encryption.** Cyclic codes and BCH codes rely on polynomial identities
+that follow from binomial-coefficient combinatorics in finite fields.
+:::
+
+::: {.applied-callout}
+**Research.** Newton extended the binomial theorem to negative and
+fractional $n$, opening the path to power-series analysis. The
+identity in Stretch S2 — the **Vandermonde identity** — is one of
+combinatorics' most reused tools.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: 3Blue1Brown (Pascal's triangle as a generative process),
+Russian school (Discover problems extract general-term mastery from
+direct expansion), Bhāskara (verse on coefficients sliding up and
+down).
+:::

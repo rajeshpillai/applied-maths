@@ -1,0 +1,513 @@
+---
+title: "Ch 10 — Circles (Tangents)"
+subtitle: "A line that touches but does not cross — and the right angle that always shows up"
+lesson-id: "cbse10.circles-tangents"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 10
+ncert-chapter-title: "Circles"
+board-exam: true
+prerequisites: [cbse9.circles]
+unlocks: [cbse10.areas-related-to-circles, cbse11.conic-sections]
+applied-domains: [game-dev, research]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state what a *radius*, *chord*, and *diameter* of a circle are?
+   See [`cbse9.circles`](../../tier-cbse-09-class-9/09-circles/index.qmd).
+2. Do you know that the perpendicular from the centre of a circle to a
+   chord bisects the chord?
+3. Can you state and use Pythagoras?
+4. Can you state when two triangles are congruent (RHS, SAS, SSS)? See
+   [`cbse9.triangles`](../../tier-cbse-09-class-9/07-triangles/index.qmd).
+
+Three yeses and you are ready.
+:::
+
+## Touch
+
+Roll a ball along the floor. Place a ruler flat on the floor. Drag the
+ruler closer and closer to the ball.
+
+There are three cases:
+- The ruler is **far** from the ball — they don't touch.
+- The ruler is **just touching** the ball at one point.
+- The ruler **passes through** the ball (impossible for a real ball, but
+  for a circle drawn on paper, the line cuts through the circle in two
+  points).
+
+```{ojs}
+viewof d = Inputs.range([0, 6], {value: 4, step: 0.1, label: "Distance from centre to line"})
+```
+
+```{ojs}
+{
+  const w = 380, h = 220, padX = 30;
+  const r = 3; // radius
+  const cx = w / 2, cy = h / 2;
+  const scale = 25;
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  // circle
+  svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", r * scale)
+    .attr("fill", "rgba(38,102,170,0.1)").attr("stroke", "#26a").attr("stroke-width", 2);
+  svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", 3).attr("fill", "#333");
+  // line at distance d below centre, horizontal
+  const lineY = cy + d * scale;
+  svg.append("line").attr("x1", padX).attr("x2", w - padX)
+    .attr("y1", lineY).attr("y2", lineY).attr("stroke", "#c33").attr("stroke-width", 2);
+  // perpendicular
+  svg.append("line").attr("x1", cx).attr("x2", cx).attr("y1", cy).attr("y2", lineY)
+    .attr("stroke", "#888").attr("stroke-dasharray", "3,3");
+  // label
+  let label = "";
+  if (d > r + 0.05) label = `d = ${d.toFixed(1)} > r = 3 → no intersection (the line misses the circle)`;
+  else if (d > r - 0.05) label = `d = r → tangent (one touch point)`;
+  else label = `d = ${d.toFixed(1)} < r = 3 → secant (two intersection points)`;
+  svg.append("text").attr("x", padX).attr("y", h - 6).attr("font-size", 12).text(label);
+  return svg.node();
+}
+```
+
+When the line just touches — that's the **tangent** case. Notice: at the
+touch point, the line is **perpendicular to the radius**. That single fact
+drives the entire chapter.
+
+## Wonder
+
+1. When the line just touches the circle (tangent), how many points do
+   they share? When the line cuts through (secant), how many?
+2. The perpendicular from the centre to the line equals the **radius** in
+   the tangent case. Why?
+3. From a point outside the circle, can you draw more than one tangent?
+4. If you draw two tangents from the same external point, are they the
+   same length?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Tangent: 1 point. Secant: 2 points. (2) Because the closest point on
+the line to the centre is the touch point, and the closest distance from
+a centre to a line is along the perpendicular. (3) Yes — exactly two
+tangents. (4) Yes — that's a board-favourite theorem.
+:::
+
+## Discover
+
+### Problem 1 — Tangent ⊥ Radius
+Suppose a line $\ell$ touches a circle at point $P$, and let $O$ be the
+centre. Why must $OP \perp \ell$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose $OP$ is not perpendicular. Drop a perpendicular from $O$ to $\ell$
+at $Q \ne P$. Compare $OQ$ and $OP$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$OQ < OP$ (perpendicular is shortest). But $OP$ is the radius. So $OQ <$
+radius, meaning $Q$ is *inside* the circle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+If $Q \ne P$ is inside the circle, then $\ell$ has at least two
+intersection points with the circle (one near $P$, one near where it
+re-emerges past $Q$ — a secant). That contradicts "tangent". So $OP \perp
+\ell$. $\square$
+</details>
+
+### Problem 2 — Length of a tangent
+A circle has centre $O$ and radius $r$. From an external point $P$, a
+tangent is drawn, touching the circle at $T$. If $OP = d$, find the length
+$PT$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle OTP$ is right-angled at $T$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$PT^2 + r^2 = d^2 \Rightarrow PT = \sqrt{d^2 - r^2}$.
+</details>
+
+### Problem 3 — Two tangents from an external point
+From external point $P$, two tangents are drawn to a circle with centre
+$O$, touching at $A$ and $B$. Show that $PA = PB$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at triangles $\triangle OAP$ and $\triangle OBP$. What can you say
+about them?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+RHS congruence: $OA = OB$ (radii), $OP = OP$ (common), and both have a
+right angle at $A, B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle OAP \cong \triangle OBP$ by RHS. So $PA = PB$ (corresponding
+sides). $\square$
+</details>
+
+### Problem 4 — The angle the tangents subtend
+Continuing from Problem 3, show $\angle APB + \angle AOB = 180°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum of angles in quadrilateral $OAPB$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$OAPB$ has $\angle A = \angle B = 90°$ (radius ⊥ tangent). Sum of angles =
+$360°$, so $\angle APB + \angle AOB = 180°$. $\square$
+</details>
+
+### Problem 5 — A specific calculation
+A tangent of length $24$ is drawn from a point $25$ cm from the centre of a
+circle. Find the radius.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$25^2 = 24^2 + r^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$r^2 = 625 - 576 = 49 \Rightarrow r = 7$ cm.
+</details>
+
+### Problem 6 — Tangent from an external point with given angle
+From an external point $P$, two tangents are drawn to a circle of radius
+$r$, with the angle between them $60°$. Find the distance $OP$ and the
+tangent length.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle OAP$ is right-angled at $A$. The line $OP$ bisects $\angle APB$
+(by symmetry), so $\angle OPA = 30°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin 30° = OA/OP = r/OP \Rightarrow OP = 2r$.
+$\tan 30° = OA/PA = r/PA \Rightarrow PA = r\sqrt{3}$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **tangent** to a circle is a line that meets the circle at exactly one
+point — the **point of contact**.
+
+**Theorem 10.1.** The tangent at any point of a circle is perpendicular to
+the radius through the point of contact.
+
+**Theorem 10.2.** The lengths of the two tangents drawn from an external
+point to a circle are equal.
+
+A consequence: if two tangents from external point $P$ touch the circle at
+$A, B$ with centre $O$, then $\angle APB + \angle AOB = 180°$.
+
+:::
+
+A verse:
+
+> *Tangent meets circle at one point alone.*
+> *Radius and tangent — perpendicular, set in stone.*
+> *Two from a point? Their lengths are the same — twin friends.*
+> *The angle they form, with the central angle, makes a hundred-eighty's mend.*
+
+## Apply
+
+### Worked example
+
+> Two concentric circles have radii $5$ cm and $3$ cm. Find the length of
+> the chord of the larger circle that is tangent to the smaller one.
+
+Let $O$ be the common centre. Let $AB$ be the chord of the larger circle
+that touches the smaller circle at $P$. Then $OP \perp AB$ (radius-of-small-
+circle ⊥ tangent), and $OP = 3$ (radius of small).
+
+Also, $OA = 5$ (radius of large). $P$ is the foot of perpendicular from $O$
+to $AB$, so $P$ is the **midpoint** of the chord (perpendicular from
+centre bisects chord).
+
+In right $\triangle OPA$: $AP^2 = OA^2 - OP^2 = 25 - 9 = 16$, so $AP = 4$.
+
+Chord $AB = 2 \cdot AP = \mathbf{8 \text{ cm}}$.
+
+### Practice — Warm
+
+**W1.** A tangent of length $15$ cm is drawn from a point $17$ cm from
+the centre. Find the radius.
+
+<details class="hint"><summary>Full solution</summary>
+$r^2 = 17^2 - 15^2 = 289 - 225 = 64$, $r = 8$ cm.
+</details>
+
+**W2.** Two tangents from external point $P$ to a circle of radius $5$ cm
+have length $12$ cm each. Find $OP$.
+
+<details class="hint"><summary>Full solution</summary>
+$OP^2 = 5^2 + 12^2 = 169 \Rightarrow OP = 13$ cm.
+</details>
+
+**W3.** Two tangents from $P$ make an angle of $90°$ at $P$. The radius is
+$5$ cm. Find $OP$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle APB = 90°$, so $\angle AOB = 90°$. The quadrilateral $OAPB$ is a
+square.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$OAPB$ is a square with side $5$, so $OP = $ diagonal $= 5\sqrt{2}$ cm.
+</details>
+
+### Practice — Working
+
+**P1.** From a point $Q$, the length of the tangent to a circle is $24$ cm
+and the distance of $Q$ from the centre is $25$ cm. Find the radius.
+
+<details class="hint"><summary>Full solution</summary>
+$r^2 = 25^2 - 24^2 = 625 - 576 = 49 \Rightarrow r = 7$ cm.
+</details>
+
+**P2.** A circle is inscribed in $\triangle ABC$ (i.e., it touches all
+three sides). Let $D, E, F$ be the touch points on $BC, CA, AB$. Show that
+$AF = AE$, $BF = BD$, $CD = CE$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each pair is "two tangents from the same external point".
+</details>
+<details class="hint"><summary>Full solution</summary>
+Tangents from $A$: $AF = AE$ (by Theorem 10.2). Similarly $BF = BD$ from
+$B$, and $CD = CE$ from $C$. $\square$
+</details>
+
+**P3.** A quadrilateral $ABCD$ is drawn to circumscribe a circle. Prove
+that $AB + CD = AD + BC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply tangent-equality at each vertex.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let the circle touch $AB, BC, CD, DA$ at $P, Q, R, S$ respectively.
+$AP = AS$ (tangents from $A$). $BP = BQ$ (from $B$). $CR = CQ$ (from $C$).
+$DR = DS$ (from $D$).
+$AB + CD = (AP + PB) + (CR + RD) = AS + BQ + CQ + DS = (AS + DS) + (BQ +
+CQ) = AD + BC$. $\square$
+</details>
+
+### Practice — Stretch
+
+**S1.** Two tangents from $P$ to a circle with centre $O$ touch at $A, B$.
+Prove that $AB \perp OP$, and that $OP$ bisects $AB$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle OAP \cong \triangle OBP$ (RHS, as in Problem 3). Use the
+correspondence.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By symmetry (the two right triangles), $OP$ bisects $\angle APB$ and
+$\angle AOB$. Drop a perpendicular from $O$ to $AB$, meeting it at $M$. By
+the bisecting property, $M$ is the midpoint of $AB$ — i.e. $OP$ bisects
+$AB$. Also $\triangle OMA \cong \triangle OMB$ gives $OM \perp AB$. Since
+$O, M, P$ are collinear (along the angle bisector $OP$), $AB \perp OP$.
+$\square$
+</details>
+
+**S2.** A circle is inscribed in a right triangle with legs $a, b$ and
+hypotenuse $c$. Find the radius of the inscribed circle in terms of $a, b, c$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the area twice. Area $= \frac{1}{2}ab$. Also area $= rs$, where $s$ is
+the semiperimeter and $r$ the inradius.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{1}{2}ab = r \cdot \dfrac{a + b + c}{2}$, so $r = \dfrac{ab}{a + b
++ c}$.
+
+(For a right triangle, this also equals $\dfrac{a + b - c}{2}$. Verify by
+substituting $c = \sqrt{a^2 + b^2}$.)
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** The number of tangents that can be drawn from an
+external point to a circle is:
+(a) 0 (b) 1 (c) 2 (d) infinite.
+
+<details class="hint"><summary>Full solution</summary>
+**(c) 2.**
+</details>
+
+**Q2 (1 mark — assertion-reason).** Assertion (A): Two tangents drawn from
+the same external point to a circle are equal. Reason (R): The two tangent
+triangles formed are congruent by SSS criterion.
+
+<details class="hint"><summary>Full solution</summary>
+A is true. R is *partially* true — the congruence is by **RHS**, not SSS.
+So R is false. Mark: A true, R false.
+</details>
+
+**Q3 (2 marks).** A tangent $PT$ from point $P$ to a circle has length $4$
+cm. The line $POQ$ through the centre meets the circle at $Q$, with $OQ$
+the radius and $PQ = 8$ cm. Find the radius.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$OP = PQ - OQ$? Wait — $P$ is external, $Q$ is on the far side. So $OP =
+PQ - r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$OP = PQ - OQ = 8 - r$. $\triangle OTP$ right-angled at $T$:
+$OP^2 = r^2 + 4^2 \Rightarrow (8 - r)^2 = r^2 + 16$
+$\Rightarrow 64 - 16r + r^2 = r^2 + 16 \Rightarrow 16r = 48 \Rightarrow r =
+3$ cm.
+</details>
+
+**Q4 (2 marks).** Prove that the tangents drawn at the ends of a diameter
+of a circle are parallel.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each tangent ⊥ its radius. The two radii are the same line (a diameter).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $AB$ be a diameter. The tangent at $A$ is perpendicular to $OA$. The
+tangent at $B$ is perpendicular to $OB$. Since $A, O, B$ are collinear
+(diameter), $OA$ and $OB$ are the same line. Two lines perpendicular to
+the same line are parallel. $\square$
+</details>
+
+**Q5 (3 marks).** From a point $P$, two tangents $PA, PB$ are drawn to a
+circle with centre $O$. If $OP = $ diameter of the circle, prove that
+$\triangle APB$ is equilateral.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$OA = r$, $OP = 2r$. So in $\triangle OAP$, $\sin(\angle APO) = OA/OP =
+1/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin\angle APO = 1/2 \Rightarrow \angle APO = 30°$. By symmetry, $\angle
+APB = 60°$. Also $PA = PB$ (tangents from external point). So $\triangle
+APB$ is isoceles with apex angle $60°$ — hence equilateral. $\square$
+</details>
+
+**Q6 (3 marks).** A chord of a circle of radius $10$ cm subtends a right
+angle at the centre. Find the length of the tangent from one endpoint of
+the chord to the line through the other endpoint perpendicular to that
+chord. (For simplicity: just find the chord length.)
+
+<details class="hint"><summary>Full solution</summary>
+$\angle AOB = 90°$, $OA = OB = 10$. By Pythagoras, $AB = \sqrt{200} = 10
+\sqrt{2}$ cm.
+</details>
+
+**Q7 (5 marks — long answer).** Prove that the lengths of the tangents
+from an external point to a circle are equal. Hence, in $\triangle ABC$
+with sides $a = BC$, $b = CA$, $c = AB$, an inscribed circle touches the
+sides at $D$ (on $BC$), $E$ (on $CA$), $F$ (on $AB$). Prove that
+$$AF = s - a, \quad BD = s - b, \quad CE = s - c,$$
+where $s = \frac{a + b + c}{2}$ is the semiperimeter.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First half: Theorem 10.2. Second: use tangent-equalities and add up.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Set $AF = AE = x, BF = BD = y, CD = CE = z$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Theorem 10.2 (proof).** Let $P$ be external; tangents at $A, B$. In
+$\triangle OAP$ and $\triangle OBP$: $OA = OB$ (radii), $OP$ common, $\angle
+OAP = \angle OBP = 90°$. By RHS, $\triangle OAP \cong \triangle OBP$. Hence
+$PA = PB$. $\square$
+
+**Inradius lengths.** Let $AF = AE = x$, $BF = BD = y$, $CD = CE = z$ (by
+tangent-equality). Then:
+$AB = AF + FB = x + y = c$,
+$BC = BD + DC = y + z = a$,
+$CA = CE + EA = z + x = b$.
+Adding: $2(x + y + z) = a + b + c \Rightarrow x + y + z = s$.
+$x = s - (y + z) = s - a \Rightarrow AF = s - a$.
+$y = s - (x + z) = s - b \Rightarrow BD = s - b$.
+$z = s - (x + y) = s - c \Rightarrow CE = s - c$.
+$\square$
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 10.3 Q1–Q12 are direct
+tangent-length applications like Q3; Exemplar 10.4 Q1–Q12 are full proofs
+like Q4 and Q7.
+
+**Previous-year pointer:** CBSE 2023 Standard, Q35 mirrors Q7. CBSE 2020
+Set 1, Q31 mirrors Q5.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A tangent meets the circle at two points (just *very close*)."** No
+   — exactly **one** point. Two close points define a *secant*.
+2. **"$PA = PB$ requires the tangents to be drawn at the same time."** It
+   doesn't matter when or how they were drawn — for any two tangents from
+   the same external point $P$, the lengths to the touch points are
+   equal.
+3. **"Tangent ⊥ radius needs proof from Pythagoras."** No — it's a
+   geometric proof from the "shortest distance from centre to line" idea
+   (see Discover Problem 1). It's a *theorem*, but the proof uses
+   inequalities, not Pythagoras.
+:::
+
+### Self-Assessment
+
+1. Could you prove both Theorem 10.1 and 10.2 cleanly, without notes?
+2. Did Q3 and Q5 fall out cleanly with at most one hint?
+3. Could you spot the right-angle-at-touch-point pattern in any new
+   tangent diagram?
+
+- **3 yes:** move on.
+- **2 yes:** redo Q4 and Q7. The board paper picks one of these proofs
+  every other year.
+- **0–1 yes:** the *radius ⊥ tangent* fact is the entire chapter. Drill
+  the Discover problems again.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.circles`](../../tier-cbse-09-class-9/09-circles/index.qmd) —
+  basic circle vocabulary; perpendicular from centre bisects chord.
+
+### What this unlocks
+
+- [`cbse10.areas-related-to-circles`](../11-areas-related-to-circles/index.qmd) —
+  sectors, segments, and combined areas.
+- [`cbse11.conic-sections`](../../tier-cbse-11-class-11/10a-conic-sections-circle-parabola/index.qmd) —
+  tangent and normal as algebraic curves.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 10 — Circles** (NCERT 2023 rationalised
+  syllabus). Covers Sections 10.1–10.2: tangent at point of contact
+  (Theorem 10.1), tangents from external point (Theorem 10.2). The
+  rationalised text also moved the construction of tangents to NCERT
+  reference; only the theorems remain examinable.
+- **Sister synthesis lesson:**
+  [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd) —
+  basic geometric reasoning from scratch.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Collision response — when a ball bounces off a
+curved wall — uses the tangent direction at the touch point to compute
+the bounce angle. The "ball reflects off circle" formula needs exactly
+the radius-perpendicular-to-tangent fact.
+:::
+
+::: {.applied-callout}
+**Research.** The tangent line is the simplest case of a *derivative* in
+calculus: the line that best approximates a curve near a given point.
+The tangent-at-touch-point theorem in this chapter is the geometric
+ancestor of differential calculus.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (proof exposition for the two theorems);
+  Russian school (problem-first); Bhāskara (compact *Name*).
+- **Source notes:** Q7 is the NCERT 10.2 Example 4 and is a board
+  staple; Q5 is the NCERT 10.2 Q12 long-answer pattern.
+:::

@@ -1,0 +1,522 @@
+---
+title: "Ch 1 — Relations and Functions (Types)"
+subtitle: "Reflexive, symmetric, transitive — and one-one, onto, bijective"
+lesson-id: "cbse12.relations-functions-types"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 1
+ncert-chapter-title: "Relations and Functions"
+board-exam: true
+prerequisites: ["cbse11.relations-and-functions"]
+unlocks: ["cbse12.inverse-trig-functions", "cbse12.matrices-intro"]
+applied-domains: ["research", "databases", "ai-ml"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you list the elements of a Cartesian product $A \times B$ when
+   $A$ and $B$ are small finite sets?
+2. Do you remember that a *function* from $A$ to $B$ assigns **exactly one**
+   element of $B$ to each element of $A$?
+3. Do "domain", "codomain", and "range" feel familiar? (Class 11, Ch 2.)
+
+If you said no to any, revisit
+[Class 11 · Ch 2 — Relations and Functions](../../tier-cbse-11-class-11/02-relations-and-functions/index.qmd).
+:::
+
+## Touch
+
+Below is a tiny social network of three friends — Asha, Bina, Chetan —
+and the relation **"is the same age as"**.
+
+::: {.lesson-beat}
+
+| | Asha | Bina | Chetan |
+|:-:|:-:|:-:|:-:|
+| **Asha**   | ✓ | ✓ | ✗ |
+| **Bina**   | ✓ | ✓ | ✗ |
+| **Chetan** | ✗ | ✗ | ✓ |
+
+:::
+
+Toggle a few cells in your head:
+
+- Every person is the same age as themselves — the diagonal is all ✓.
+- If Asha is the same age as Bina, then Bina is the same age as Asha — the
+  table is **mirror-symmetric** about the diagonal.
+- If Asha is the same age as Bina and Bina is the same age as Chetan,
+  then Asha must be the same age as Chetan — the relation **chains
+  through**.
+
+Now redraw the table for **"is taller than"**. The diagonal is empty (you
+aren't taller than yourself). The mirror symmetry is broken. The chaining
+still works.
+
+That's the whole lesson hiding in two tables.
+
+## Wonder
+
+1. Which of the two tables looks "neater"? Why?
+2. Could a relation be its own mirror image but fail to chain through?
+3. If a relation chains and mirrors and has a full diagonal, what does the
+   set get sliced into?
+4. For a function $f : A \to B$, when do two different inputs produce the
+   same output — and when does that *not* happen?
+
+## Discover
+
+Let $A = \{1, 2, 3\}$. Treat each problem as a small puzzle.
+
+### Problem 1
+
+Define $R_1 = \{(a,b) : a = b\}$ on $A$. Write out every pair in $R_1$.
+Does the diagonal of the $3 \times 3$ table have any blanks?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a = b$ means *exactly* the diagonal pairs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$R_1 = \{(1,1), (2,2), (3,3)\}$. Full diagonal, nothing off it. Every
+element relates to itself.
+</details>
+
+### Problem 2
+
+Define $R_2 = \{(a,b) : a < b\}$ on $A$. Write out the pairs. Is $(2,2)$
+in there? Is $(1,2)$ in but $(2,1)$ out?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+List all ordered pairs $(a,b)$ from $A \times A$ where $a < b$ holds.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$R_2 = \{(1,2), (1,3), (2,3)\}$. Diagonal empty. The table is **not**
+mirror-symmetric: $(1,2) \in R_2$ but $(2,1) \notin R_2$.
+</details>
+
+### Problem 3
+
+Define $R_3 = \{(a,b) : a + b \text{ is even}\}$ on $A = \{1,2,3\}$. List
+the pairs. Check three things: is $(a,a)$ always in? Is the table
+mirror-symmetric? If $(a,b)$ and $(b,c)$ are in, is $(a,c)$ in?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a+b$ is even iff $a$ and $b$ are both odd or both even.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$R_3 = \{(1,1), (2,2), (3,3), (1,3), (3,1)\}$. Diagonal full ✓. Mirror
+symmetric ✓ (because $(1,3)$ and $(3,1)$ both appear). Chaining: $(1,3),
+(3,1)$ gives $(1,1)$ ✓; $(3,1),(1,3)$ gives $(3,3)$ ✓.
+
+This relation slices $A$ into two groups: $\{1,3\}$ (odd) and $\{2\}$
+(even). Watch for that pattern in *Name*.
+</details>
+
+### Problem 4
+
+Define $f : A \to A$ by $f(1) = 2,\ f(2) = 3,\ f(3) = 1$. Are any two
+different inputs sent to the same output? Does every element of $A$ appear
+as some $f(x)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Read the three arrows. Note the outputs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Outputs are $2, 3, 1$ — all different. So no two inputs share an output.
+And every element of $A$ appears as an output. The arrow diagram is a
+*permutation* — a perfect pairing of inputs and outputs.
+</details>
+
+### Problem 5
+
+Define $g : A \to A$ by $g(1) = 2,\ g(2) = 2,\ g(3) = 3$. Now answer the
+same two questions.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the outputs again.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Outputs $2, 2, 3$. The element $1$ never appears as $g(x)$. And $1$ and
+$2$ both go to $2$ — different inputs, same output. Two ways this $g$
+fails to be the "perfect pairing" you saw with $f$.
+</details>
+
+You have just felt the four important properties: a relation can be
+**reflexive** (full diagonal), **symmetric** (mirror), **transitive**
+(chaining); a function can be **one-one** (no two inputs share an output)
+and **onto** (every element of the codomain is hit).
+
+## Name
+
+::: {.lesson-beat}
+
+Let $R$ be a relation on a set $A$. Then $R$ is
+
+- **reflexive** if $(a,a) \in R$ for every $a \in A$,
+- **symmetric** if $(a,b) \in R \Rightarrow (b,a) \in R$,
+- **transitive** if $(a,b),(b,c) \in R \Rightarrow (a,c) \in R$.
+
+A relation that is reflexive, symmetric, *and* transitive is called an
+**equivalence relation**. It partitions $A$ into disjoint **equivalence
+classes**.
+
+A function $f : A \to B$ is
+
+- **one-one (injective)** if $f(a_1) = f(a_2) \Rightarrow a_1 = a_2$,
+- **onto (surjective)** if for every $b \in B$ there exists $a \in A$
+  with $f(a) = b$,
+- **bijective** if it is both one-one and onto.
+
+:::
+
+A verse to memorise, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Diagonal full — call it reflexive;*
+> *Mirror across — symmetric, alive;*
+> *Chain a to c through b — transitive, true;*
+> *Three together: one class for each crew.*
+> *No two share — one-one is plain;*
+> *Every target hit — onto's domain;*
+> *Both at once — bijection's name.*
+
+## Apply
+
+### Worked example
+
+> Let $\mathbb{Z}$ be the set of integers. Define $R$ on $\mathbb{Z}$ by
+> $a R b \iff a - b \text{ is divisible by } 5$.
+> Show that $R$ is an equivalence relation and find the equivalence class
+> of $0$.
+
+A competent solver thinks like this:
+
+1. **Reflexive.** $a - a = 0$, divisible by 5. ✓
+2. **Symmetric.** If $5 \mid (a - b)$, then $5 \mid (b - a)$. ✓
+3. **Transitive.** If $5 \mid (a-b)$ and $5 \mid (b-c)$, add the two:
+   $5 \mid (a-c)$. ✓
+4. **Class of 0.** Integers $b$ with $b - 0$ divisible by 5, i.e.
+   $b \in \{\ldots, -10, -5, 0, 5, 10, \ldots\}$ — all multiples of 5.
+
+**Answer:** $R$ is an equivalence relation; $[0] = 5\mathbb{Z}$.
+
+### Practice — Warm
+
+**W1.** On $A = \{1, 2, 3\}$, the relation $R = \{(1,1), (2,2)\}$ — is it
+reflexive? symmetric? transitive?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Check each property in turn against the definition.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Not reflexive** — $(3,3)$ is missing. **Symmetric** — every pair is its
+own mirror. **Transitive** — vacuously: there's no $(a,b),(b,c)$ to chain.
+</details>
+
+**W2.** Is $f : \mathbb{R} \to \mathbb{R},\ f(x) = 2x + 3$ one-one? onto?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve $f(a) = f(b)$ for $a, b$. Then ask: for any $y$, does $f(x) = y$
+have a real solution?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2a + 3 = 2b + 3 \Rightarrow a = b$, so **one-one**. Given $y \in
+\mathbb{R}$, set $x = (y-3)/2$ — real. So **onto**. Hence **bijective**.
+</details>
+
+**W3.** Is $f : \mathbb{R} \to \mathbb{R},\ f(x) = x^2$ one-one? onto?
+
+<details class="hint"><summary>Full solution</summary>
+$f(2) = f(-2) = 4$ — **not one-one**. Outputs are $\geq 0$ — $-1$ is
+never hit, **not onto**.
+</details>
+
+### Practice — Working
+
+**P1.** Let $T$ be the set of triangles in a plane. Define $R$ on $T$ by
+$T_1 R T_2 \iff T_1 \text{ is similar to } T_2$. Show $R$ is an
+equivalence relation. (NCERT Ch 1.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Check the three axioms: a triangle is similar to itself; if $T_1$
+similar to $T_2$ then so back; chain through $T_2$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Each step rests on a basic fact about similarity.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Reflexive.** $T \sim T$ via the identity correspondence. **Symmetric.**
+Similarity is symmetric — if angles match and sides are in proportion
+$k$, the reverse uses ratio $1/k$. **Transitive.** Compose the two
+similarity ratios. ✓ All three. Hence equivalence relation.
+</details>
+
+**P2.** Let $f : \mathbb{R} \to \mathbb{R}$, $f(x) = x^3$. Show $f$ is
+bijective.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For one-one, suppose $a^3 = b^3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**One-one.** $a^3 = b^3 \Rightarrow a = b$ (cubing is strictly
+increasing on $\mathbb{R}$). **Onto.** For any $y \in \mathbb{R}$,
+$x = y^{1/3}$ is real and $f(x) = y$. ✓
+</details>
+
+**P3.** Let $A = \{1,2,3,4,5\}$. The relation $R = \{(a,b) : |a-b| =
+2\}$. Is $R$ an equivalence relation? If not, which property fails?
+
+<details class="hint"><summary>Full solution</summary>
+**Not reflexive** — $|a-a| = 0 \ne 2$. So $R$ is not an equivalence
+relation. (Symmetric ✓; transitive fails: $(1,3),(3,5) \in R$ but
+$(1,5) \notin R$.)
+</details>
+
+### Practice — Stretch
+
+**S1.** Let $f : \mathbb{N} \to \mathbb{N}$ be defined by $f(n) = n+1$.
+Is $f$ one-one? Is $f$ onto?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same domain and codomain — $\mathbb{N} = \{1, 2, 3, \ldots\}$. Which
+$n \in \mathbb{N}$ is hit?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Try to solve $f(n) = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**One-one.** $n_1 + 1 = n_2 + 1 \Rightarrow n_1 = n_2$. ✓
+**Not onto.** $f(n) = 1$ requires $n = 0 \notin \mathbb{N}$. So $1$ is
+never hit. A function from an infinite set to itself can be one-one
+without being onto — a key point.
+</details>
+
+**S2.** Show that the number of equivalence relations on a set with 3
+elements is 5. (Hint: count partitions.)
+
+<details class="hint"><summary>Full solution</summary>
+Equivalence relations on $A$ correspond to partitions of $A$. For
+$A = \{a,b,c\}$:
+1. $\{a\},\{b\},\{c\}$ (all singletons)
+2. $\{a,b\},\{c\}$
+3. $\{a,c\},\{b\}$
+4. $\{b,c\},\{a\}$
+5. $\{a,b,c\}$ (one big block)
+
+**5 partitions, 5 equivalence relations.**
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** Let $R$ be a relation on $\mathbb{Z}$ defined by
+$aRb \iff a = -b$. Then $R$ is: (a) reflexive (b) symmetric
+(c) transitive (d) equivalence.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Check each axiom on a few integers.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0R0$ ✓, but $1R(-1)$ does not give $1R1$ (since $1 \ne -1$). Not
+reflexive in general — wait: $aRa \iff a = -a \iff a = 0$. So **not
+reflexive**. **Symmetric** ✓. Not transitive: $1R(-1), (-1)R1$ but
+$1R1$ would need $1=-1$. **(b) symmetric.**
+</details>
+
+**1-mark MCQ #2.** $f : \mathbb{R} \to \mathbb{R}$, $f(x) = x^2 + 1$.
+Then $f$ is: (a) one-one onto (b) one-one not onto (c) not one-one onto
+(d) not one-one not onto.
+
+<details class="hint"><summary>Full solution</summary>
+$f(1) = f(-1) = 2$, not one-one. Range $[1, \infty)$, not all of
+$\mathbb{R}$, not onto. **(d).**
+</details>
+
+**2-mark.** Show that the relation $R$ on $\mathbb{R}$ defined by
+$aRb \iff a \le b^2$ is neither reflexive, nor symmetric, nor transitive.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find a single counterexample for each.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Not reflexive:** $a = 1/2$ gives $1/2 \le 1/4$? No.
+**Not symmetric:** $-1 \le 0^2 = 0$ ✓, but $0 \le (-1)^2 = 1$ ✓ — both
+hold here, try harder: take $a = 1, b = 2$. $1 \le 4$ ✓ but $2 \le 1$ ✗.
+**Not transitive:** $a=2, b=-2, c=1$. $2 \le 4$ ✓, $-2 \le 1$ ✓, but
+$2 \le 1$? ✗.
+</details>
+
+**2-mark.** Let $f : \mathbb{N} \to \mathbb{N}$, $f(n) = 2n$. Show $f$ is
+one-one but not onto.
+
+<details class="hint"><summary>Full solution</summary>
+$2n_1 = 2n_2 \Rightarrow n_1 = n_2$ — one-one. Range $= \{2, 4, 6,
+\ldots\}$, the odd naturals are missed — not onto.
+</details>
+
+**3-mark.** Let $A = \{1,2,3,\ldots,9\}$ and let $R$ on $A \times A$ be
+defined by $(a,b)R(c,d) \iff a + d = b + c$. Show $R$ is an equivalence
+relation.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reflexive: $a + b = b + a$ ✓ trivially. Symmetric: swap. Transitive:
+add two equations and cancel.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Reflexive:** $(a,b)R(a,b)$ since $a+b = b+a$ ✓.
+**Symmetric:** $(a,b)R(c,d) \Rightarrow a+d = b+c \Rightarrow c+b = d+a
+\Rightarrow (c,d)R(a,b)$ ✓.
+**Transitive:** $(a,b)R(c,d)$ and $(c,d)R(e,f)$ give $a+d = b+c$ and
+$c+f = d+e$. Add: $a+d+c+f = b+c+d+e \Rightarrow a+f = b+e \Rightarrow
+(a,b)R(e,f)$ ✓.
+</details>
+
+**3-mark.** Let $f : \mathbb{R} - \{2\} \to \mathbb{R} - \{1\}$,
+$f(x) = \dfrac{x-3}{x-2}$. Show $f$ is bijective.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve $y = (x-3)/(x-2)$ for $x$ in terms of $y$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$y(x-2) = x-3 \Rightarrow yx - 2y = x - 3 \Rightarrow x(y-1) = 2y - 3
+\Rightarrow x = \frac{2y-3}{y-1}$. Defined for $y \ne 1$, gives a unique
+$x \ne 2$. Hence one-one and onto.
+</details>
+
+**5-mark long answer.** Show that the function $f : \mathbb{R} \to
+\mathbb{R}$ defined by $f(x) = \dfrac{x}{1+|x|}$ is one-one. What is its
+range?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Split into $x \ge 0$ and $x < 0$ to handle $|x|$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+For one-one, examine each case and the boundary.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $x \ge 0$: $f(x) = x/(1+x)$, increasing from $0$ to (almost) $1$.
+For $x < 0$: $f(x) = x/(1-x)$, increasing from (almost) $-1$ to $0$.
+$f$ is strictly increasing on all of $\mathbb{R}$, hence one-one.
+**Range** $= (-1, 1)$. (Not onto $\mathbb{R}$, but onto $(-1,1)$.)
+</details>
+
+**6-mark Case Study.** *Family relations as a relation on a set.*
+
+A school maintains a database of $n$ students. Define $R$ on the set of
+students by $aRb \iff a$ and $b$ have the same year of birth. Answer:
+
+(i) Show $R$ is an equivalence relation. (2 marks)
+(ii) If 5 students were born in 2007, 4 in 2008, and 3 in 2009, how many
+ordered pairs lie in $R$? (2 marks)
+(iii) Why does this partition the school neatly into class batches?
+(2 marks)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Equivalence classes = birth-year groups. Pairs within each class.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** *Reflexive:* same year as self. *Symmetric:* same year is
+symmetric. *Transitive:* same year chains through. ✓
+
+**(ii)** Pairs within each class: $5^2 + 4^2 + 3^2 = 25 + 16 + 9 = 50$
+ordered pairs.
+
+**(iii)** Every student belongs to exactly one birth-year class — the
+classes partition the school into disjoint batches that exhaust the
+roster. Equivalence classes are *exactly* what "batch" means.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 1.1 (full set), Ex 1.2 Q5, 7, 9.
+**Previous-year pointer:** CBSE 2023 Set 1 Q19 (similar to 3-mark
+$(a,b)R(c,d)$ problem); CBSE 2022 Q21.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A relation that is symmetric and transitive must be reflexive."**
+   No — there's a famous trap. If $R$ is symmetric and transitive, you
+   can almost prove $aRb \Rightarrow aRa$, *but only if* there exists
+   some $b$ with $aRb$. An element with no partners has no diagonal
+   pair forced. Example: $A = \{1,2\}$, $R = \{(2,2)\}$ is symmetric and
+   transitive but not reflexive.
+2. **"Onto means the function covers $\mathbb{R}$."** No — onto is
+   relative to the **codomain** declared. $f : \mathbb{R} \to [1,\infty)$,
+   $f(x) = x^2 + 1$, *is* onto. It's the same rule as before; the
+   codomain changed.
+3. **"One-one functions are always invertible on their codomain."** Only
+   when the function is *also* onto. Inverse needs bijection. We meet
+   this carefully in the next lesson.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state the three properties of an equivalence relation, and
+   give a one-line counterexample for each, without notes?
+2. Did you solve at least 5 of the 7 board-pattern problems with at most
+   one hint?
+3. Can you explain the difference between "one-one" and "onto" using a
+   small arrow diagram?
+
+- **3 yes:** move on to *Inverse Trigonometric Functions*.
+- **2 yes:** redo the Stretch and 5-mark problems.
+- **0–1 yes:** re-read *Discover* and *Apply*.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse11.relations-and-functions`](../../tier-cbse-11-class-11/02-relations-and-functions/index.qmd)
+  — Cartesian products, the *idea* of a function.
+
+### What this unlocks
+
+- [`cbse12.inverse-trig-functions`](../02-inverse-trig-functions/index.qmd) —
+  needs bijectivity to invert.
+- [`cbse12.matrices-intro`](../03a-matrices-intro/index.qmd) — matrices
+  *are* functions $\{1,\ldots,m\} \times \{1,\ldots,n\} \to \mathbb{R}$.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 1 — Relations and Functions**
+  (NCERT 2023 rationalised syllabus). Covers Sections 1.1–1.3:
+  types of relations, types of functions.
+- **Sister synthesis lessons:**
+  [`t2.functions-as-machines`](../../tier-2-arithmetic-prealgebra/index.qmd) and
+  [`t5.sets-logic-proofs`](../../tier-5-undergrad-core/index.qmd).
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** A primary key is exactly an injective function from rows
+to identifiers. Joining two tables on a key is composition of functions.
+SQL's `GROUP BY` partitions a table into equivalence classes — the same
+mathematical move you just made.
+:::
+
+::: {.applied-callout}
+**AI/ML.** Embedding a categorical feature is a function from a finite
+set of labels to a vector space; you want it injective so different
+labels stay distinguishable in the model.
+:::
+
+::: {.applied-callout}
+**Research.** Equivalence classes appear everywhere — modular arithmetic
+in number theory, homotopy classes in topology, similarity classes of
+matrices in linear algebra. The pattern *partition by an equivalence
+relation* is a load-bearing tool.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Gelfand (problem-first *Discover*), Bhāskara (compact
+  *Name* with verse), AoPS (graduated practice).
+- All forward references are to declared *Unlocks*.
+:::

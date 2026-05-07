@@ -1,0 +1,430 @@
+---
+title: "Ch 3 — Coordinate Geometry"
+subtitle: "Two number lines, four quadrants, every point named"
+lesson-id: "cbse9.coordinate-geometry"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 3
+ncert-chapter-title: "Coordinate Geometry"
+board-exam: false
+prerequisites: ["cbse8.introduction-to-graphs", "t1.negative-numbers"]
+unlocks: ["cbse9.linear-equations-two-vars", "cbse10.coordinate-geometry"]
+applied-domains: ["game-dev", "ai-ml"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you read a value off a number line, including negatives?
+   *(If no, revisit
+   [t1.negative-numbers](../../tier-1-foundations/06-negative-numbers/index.qmd).)*
+2. Can you draw a bar graph on a grid? *(If no, revisit
+   [cbse8.introduction-to-graphs](../../tier-cbse-08-class-8/13-introduction-to-graphs/index.qmd).)*
+3. Do you know that $(-3) + 5 = 2$ and $(-3) \times 4 = -12$?
+
+Three yes? Read on.
+:::
+
+## Touch
+
+Open a chessboard. Pick a piece, say a knight at **e4**. Name the square
+two ways: by the letter–number system the chess world uses (`e4`), and by
+the *row, column* pair counting from the bottom-left corner. Slide the
+piece to **f6** — record both names again.
+
+```{ojs}
+viewof px = Inputs.range([-5, 5], {value: 3, step: 1, label: "x"})
+```
+
+```{ojs}
+viewof py = Inputs.range([-5, 5], {value: 2, step: 1, label: "y"})
+```
+
+```{ojs}
+{
+  const grid = 5;
+  const size = 280;
+  const c = size / 2;
+  const u = (size - 20) / (2 * grid);
+  let lines = "";
+  for (let i = -grid; i <= grid; i++) {
+    lines += `<line x1="${c + i*u}" y1="10" x2="${c + i*u}" y2="${size - 10}" stroke="#ddd"/>`;
+    lines += `<line x1="10" y1="${c - i*u}" x2="${size - 10}" y2="${c - i*u}" stroke="#ddd"/>`;
+  }
+  const ax = `<line x1="10" y1="${c}" x2="${size - 10}" y2="${c}" stroke="#333"/>
+              <line x1="${c}" y1="10" x2="${c}" y2="${size - 10}" stroke="#333"/>`;
+  const dot = `<circle cx="${c + px*u}" cy="${c - py*u}" r="6" fill="#c33"/>
+               <text x="${c + px*u + 8}" y="${c - py*u - 8}" font-size="13">(${px}, ${py})</text>`;
+  return html`<svg width="${size}" height="${size}" style="border:1px solid #ccc">
+    ${lines}${ax}${dot}
+  </svg>`;
+}
+```
+
+Drag both sliders. The red dot moves on a grid built from two number
+lines crossed at right angles. Every position on the plane gets a name in
+the form $(x, y)$.
+
+## Wonder
+
+1. The chess square `e4` and the pair $(5, 4)$ both name the same place,
+   but in different ways. Could you invent a third way?
+2. The point $(3, 2)$ sits to the upper right of the centre. Where does
+   $(-3, 2)$ sit? $(-3, -2)$? $(3, -2)$?
+3. Are $(2, 3)$ and $(3, 2)$ the same point?
+4. The two number lines cross at one place. What is that place's name in
+   the new system?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q3 is the trap. Q4 has a single, very simple answer that the *Name* beat
+will state. Q2 is what we mean by "quadrants".
+:::
+
+## Discover
+
+### Problem 1
+
+A child stands at her front door. She walks $3$ paces east, then $4$
+paces north. Mark her path on graph paper. Where is she relative to the
+door?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take east as the positive $x$ direction, north as the positive $y$
+direction. Door is at the origin.
+</details>
+<details class="hint"><summary>Full solution</summary>
+She is at $(3, 4)$. East-of-door is the $x$-coordinate; north-of-door is
+the $y$-coordinate. The order matters: $(3,4)$ is not the same place as
+$(4,3)$.
+</details>
+
+### Problem 2
+
+Plot the four points $A(2, 3)$, $B(-2, 3)$, $C(-2, -3)$, $D(2, -3)$ on
+the same diagram. What kind of figure do they form?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$A$ is upper-right; $B$ is upper-left; $C$ is lower-left; $D$ is
+lower-right. Connect the dots in order.
+</details>
+<details class="hint"><summary>Full solution</summary>
+A **rectangle**. Sides $AB$ and $CD$ are horizontal of length $4$; sides
+$BC$ and $AD$ are vertical of length $6$. The four points sit symmetrically
+about both axes.
+</details>
+
+### Problem 3
+
+In which **quadrant** (upper-right, upper-left, lower-left, lower-right)
+does each of these points lie?
+
+$P(4, -1), \quad Q(-3, -2), \quad R(0, 5), \quad S(-1, 4).$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The sign of $x$ tells you left/right; the sign of $y$ tells you up/down.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P$: $x > 0, y < 0$ — **lower-right (Q-IV)**. $Q$: both negative —
+**lower-left (Q-III)**. $R$: $x = 0$, so **on the $y$-axis** (no quadrant).
+$S$: $x < 0, y > 0$ — **upper-left (Q-II)**.
+</details>
+
+### Problem 4
+
+A point lies on the $x$-axis. What can you say about its $y$-coordinate?
+A point lies on the $y$-axis. What can you say about its $x$-coordinate?
+
+<details class="hint"><summary>Full solution</summary>
+On $x$-axis: $y = 0$, so the point is $(x, 0)$. On $y$-axis: $x = 0$, so
+the point is $(0, y)$. The origin $(0, 0)$ is on both axes.
+</details>
+
+### Problem 5
+
+Plot $(2, 0)$ and $(2, 5)$. The segment between them is vertical. How
+long is it? Now plot $(-1, 3)$ and $(4, 3)$ — how long is *that* segment?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For points sharing an $x$-coordinate, the distance is just the
+difference of $y$-values. For points sharing a $y$-coordinate, the
+distance is the difference of $x$-values.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Vertical segment: $|5 - 0| = 5$ units. Horizontal segment: $|4 - (-1)| =
+5$ units. Both have length $5$.
+</details>
+
+You have just discovered: every point on the plane has a unique label
+$(x, y)$; signs of the two coordinates split the plane into four
+quadrants; points on the axes have one coordinate zero; horizontal and
+vertical distances reduce to subtraction.
+
+## Name
+
+::: {.lesson-beat}
+
+The **Cartesian plane** is two perpendicular number lines (the $x$-axis,
+horizontal; the $y$-axis, vertical) meeting at the **origin** $(0, 0)$.
+
+Every point $P$ in the plane is named by its **coordinates** $(x, y)$:
+- $x$ is the perpendicular distance from $P$ to the $y$-axis (positive
+  right, negative left).
+- $y$ is the perpendicular distance from $P$ to the $x$-axis (positive
+  up, negative down).
+
+The four **quadrants**, numbered counter-clockwise from the upper right:
+
+| Quadrant | Sign of $x$ | Sign of $y$ |
+|:-:|:-:|:-:|
+| I (upper-right) | + | + |
+| II (upper-left) | − | + |
+| III (lower-left) | − | − |
+| IV (lower-right) | + | − |
+
+Points on the $x$-axis have $y = 0$; points on the $y$-axis have $x = 0$.
+
+:::
+
+A short verse:
+
+> *Two lines that meet at right angles —*
+> *Four quadrants, an origin, a name.*
+> *Read $x$ first, then $y$;*
+> *Order matters, lest two points share the same.*
+
+## Apply
+
+### Worked example
+
+> Plot $A(3, 4)$, $B(3, -2)$, $C(-1, -2)$. Name the figure $ABC$ might
+> belong to and find the lengths of $AB$ and $BC$.
+
+A competent solver thinks:
+
+1. $A$ and $B$ share $x = 3$, so $AB$ is **vertical** with
+   length $|4 - (-2)| = 6$.
+2. $B$ and $C$ share $y = -2$, so $BC$ is **horizontal** with
+   length $|3 - (-1)| = 4$.
+3. The angle $\angle ABC$ is therefore $90^\circ$.
+4. $ABC$ is a **right triangle**, right-angled at $B$.
+
+**Answer:** Right triangle. $AB = 6$, $BC = 4$.
+
+### Practice — Warm
+
+**W1.** Write the coordinates of the origin and of any point on the
+positive $x$-axis at distance 5 from origin.
+
+<details class="hint"><summary>Full solution</summary>
+Origin $(0, 0)$; the point is $(5, 0)$.
+</details>
+
+**W2.** In which quadrant does $(-7, 2)$ lie?
+
+<details class="hint"><summary>Full solution</summary>
+$x < 0, y > 0$ — **Quadrant II**.
+</details>
+
+**W3.** Plot $A(0, 3), B(-4, 0), C(0, -3), D(4, 0)$ and join them in
+order. What shape is $ABCD$?
+
+<details class="hint"><summary>Full solution</summary>
+A **rhombus** (in fact a square's cousin — a kite that is symmetric, so a
+rhombus). Diagonals lie on the axes; lengths $6$ and $8$ on the two axes.
+Each side has length $\sqrt{16 + 9} = 5$ — all equal, so it is a rhombus.
+</details>
+
+### Practice — Working
+
+**P1.** Three vertices of a rectangle are $A(1, 1)$, $B(5, 1)$, $C(5, 4)$.
+Find the fourth vertex $D$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sketch. $D$ is across from $B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For a rectangle, $D$ shares its $x$ with $A$ and its $y$ with $C$:
+$D = (1, 4)$.
+</details>
+
+**P2.** A point $P$ lies on the $y$-axis at a distance of $4$ units below
+the origin. What are its coordinates?
+
+<details class="hint"><summary>Full solution</summary>
+On the $y$-axis means $x = 0$. Below origin means $y < 0$. So $P = (0, -4)$.
+</details>
+
+**P3.** Plot $(2, 3), (3, 2), (-2, 3), (-3, -2)$. Group them by
+quadrant.
+
+<details class="hint"><summary>Full solution</summary>
+Q-I: $(2,3)$ and $(3,2)$. Q-II: $(-2, 3)$. Q-III: $(-3, -2)$. Note
+$(2,3) \ne (3,2)$ — both are in Q-I but they are different points.
+</details>
+
+### Practice — Stretch
+
+**S1.** The vertices of a triangle are $A(0, 0)$, $B(6, 0)$, $C(0, 8)$.
+Without using a distance formula, find the perimeter of the triangle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two sides lie on the axes — those are easy. For the third, you need the
+hypotenuse of a right triangle.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$AB$ has length $6$, $AC$ has length $8$. Use Pythagoras for $BC$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AB = 6$ (along $x$-axis), $AC = 8$ (along $y$-axis). The angle at $A$ is
+$90^\circ$. By Pythagoras $BC = \sqrt{36 + 64} = 10$. Perimeter
+$= 6 + 8 + 10 = 24$.
+</details>
+
+**S2.** Plot the points $(1, 1), (1, 4), (4, 4), (4, 1)$. Now plot
+$(2, 2), (2, 3), (3, 3), (3, 2)$. What relationship do you see between
+the two figures, and how is it visible from the coordinates alone?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare side lengths. Compare centres.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Both are squares centred at $(2.5, 2.5)$. The first has side $3$; the
+second has side $1$. The second is the first **scaled by 1/3 about the
+common centre**. The coordinates make this scaling visible: each
+coordinate of the inner square is the centre $2.5$ plus $\pm 0.5$, while
+the outer is $\pm 1.5$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The point $(0, -7)$ lies on:
+(a) Quadrant III (b) Quadrant IV (c) the $x$-axis (d) the $y$-axis.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 0$ — **on the $y$-axis**. Answer: (d).
+</details>
+
+**2-mark (short answer).** Without plotting, in which quadrant or on
+which axis do these points lie?
+$A(2, -3), B(0, 5), C(-4, -1), D(7, 0)$.
+
+<details class="hint"><summary>Full solution</summary>
+$A$: Q-IV. $B$: $y$-axis. $C$: Q-III. $D$: $x$-axis.
+</details>
+
+**3-mark (short answer II).** Plot the points $A(-2, 4), B(-2, -2),
+C(4, -2)$ and find the area of triangle $ABC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Are $A, B, C$ aligned with the axes?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$AB$ is vertical. $BC$ is horizontal. So $\triangle ABC$ is right-angled
+at $B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AB = |4 - (-2)| = 6$. $BC = |4 - (-2)| = 6$. The right angle is at $B$.
+Area $= \tfrac{1}{2} \cdot AB \cdot BC = \tfrac{1}{2} \cdot 6 \cdot 6 = 18$
+square units.
+</details>
+
+**4-mark (long answer).** Plot the points $P(1, 0), Q(4, 0), R(4, 3),
+S(1, 3)$. Identify the shape and find its area and perimeter.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sides parallel to the axes; opposite sides should have equal lengths.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$PQ$: horizontal, length $3$. $QR$: vertical, length $3$. $RS$:
+horizontal, length $3$. $SP$: vertical, length $3$. All four sides $= 3$;
+all angles $90^\circ$. **Square.** Area $= 9$ sq.units. Perimeter $= 12$
+units.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 3, Problem 3.2 (axis
+classification, similar to 1-mark). **Previous-year pointer:** CBSE Class
+9 sample paper "plot four points and identify shape" (similar to 4-mark).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$(2, 3)$ and $(3, 2)$ are the same point."** No — order matters.
+   The first coordinate is always $x$, the second is always $y$.
+2. **"The $y$-axis is the horizontal line."** No — $x$ is horizontal, $y$
+   is vertical. (The mnemonic: "$x$ is across, $y$ is high.")
+3. **"$(0, 0)$ is in some quadrant."** No — the origin is on both axes
+   and lies in *no* quadrant.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you sketch a labelled coordinate plane from memory and place a
+   given point in the correct quadrant?
+2. Did you solve W1–P3 with at most one hint each?
+3. Can you read off horizontal and vertical distances between two points
+   without thinking about a formula?
+
+- **3 yes:** move on to **Linear Equations in Two Variables**.
+- **2 yes:** redo S1 and S2.
+- **0–1 yes:** re-read *Discover* and *Apply*.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse8.introduction-to-graphs`](../../tier-cbse-08-class-8/13-introduction-to-graphs/index.qmd)
+  — bar graphs, pictographs, simple line graphs.
+- [`t1.negative-numbers`](../../tier-1-foundations/06-negative-numbers/index.qmd)
+  — sign rules, the number line going both ways.
+
+### What this unlocks
+
+- [`cbse9.linear-equations-two-vars`](../04-linear-equations-two-vars/index.qmd)
+  — every solution $(x, y)$ becomes a point.
+- [`cbse10.coordinate-geometry`](../../tier-cbse-10-class-10/07-coordinate-geometry/index.qmd)
+  — distance formula, section formula, area of a triangle.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 3 — Coordinate Geometry** (NCERT 2023 rationalised
+  syllabus). Covers Sections 3.1–3.2: the Cartesian plane, plotting
+  points.
+- **Sister synthesis lesson** (different angle):
+  [`t2.coordinate-plane`](../../tier-2-algebra1/04-coordinate-plane/index.qmd).
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every 2D game treats the screen as a coordinate
+plane (with $y$ usually flipped, increasing downward). When a sprite
+moves, the engine adds a velocity vector to its $(x, y)$. The chess board
+in *Touch* is the simplest possible case — a discrete plane.
+:::
+
+::: {.applied-callout}
+**AI / ML.** A dataset of two-feature points (e.g. height vs weight)
+lives in $\mathbb{R}^2$. A linear classifier draws a line. Generalised to
+$\mathbb{R}^{784}$ (an MNIST digit), the same idea — points in a plane,
+separated by a hyperplane — drives modern image classifiers.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (chessboard Touch), Boole (the
+  Wonder questions surface the asymmetry $(2,3) \ne (3,2)$ before the
+  text states it), Better Explained (the "Aha" is *one point, two
+  numbers, in this order*).
+:::

@@ -1,0 +1,453 @@
+---
+title: "Ch 10a — Conic Sections (Circle and Parabola)"
+subtitle: "Where you slice a cone, a circle and a parabola fall out — and their equations follow"
+lesson-id: "cbse11.conic-sections-circle-parabola"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 10
+ncert-chapter-title: "Conic Sections"
+board-exam: false
+prerequisites: ["cbse11.straight-lines", "cbse10.quadratic-equations"]
+unlocks: ["cbse11.conic-sections-ellipse-hyperbola"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you state the distance formula in the plane?
+2. Are you fluent with completing the square on a quadratic?
+3. Can you sketch $y = x^2$ from memory?
+4. Have you heard the words *focus* and *directrix*, even informally?
+
+Three confident yeses — read on.
+:::
+
+## Touch
+
+Take a flashlight and shine it at a wall. Tilt the flashlight slowly.
+
+- Pointed straight at the wall: the bright region is a **circle**.
+- Tilted slightly: the boundary becomes an **ellipse** (you'll see this in
+  Lesson 10b).
+- Tilted until one edge of the cone is parallel to the wall: a
+  **parabola**.
+- Tilted further: a **hyperbola** (10b again).
+
+All four shapes are *slices of a cone*. Today we focus on the circle and
+the parabola.
+
+The widget below shows a parabola $y = x^2/(4p)$ with focus
+$(0, p)$ and directrix $y = -p$. Drag $p$ and watch the curve open.
+
+```{ojs}
+viewof pVal = Inputs.range([0.5, 4], {value: 1, step: 0.1, label: "p (focus distance)"})
+```
+
+```{ojs}
+{
+  const p = pVal;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>Parabola:</b> y² = 4p x with focus at (p, 0), directrix x = −p.</div>
+    <div>Here p = ${p.toFixed(2)}, so equation: <b>y² = ${(4 * p).toFixed(2)} x</b>.</div>
+    <div>Focus: <b>(${p.toFixed(2)}, 0)</b>, directrix: <b>x = ${(-p).toFixed(2)}</b>.</div>
+    <div style="margin-top:0.4em;color:#666;">
+      Every point on this parabola is equidistant from the focus and the directrix.
+    </div>
+  </div>`;
+}
+```
+
+The parabola is *not* "the graph of $y = x^2$ that I drew in Class 10".
+It is the curve of points that are *equidistant from a fixed point and
+a fixed line*.
+
+## Wonder
+
+Sit with these.
+
+1. A circle is "all points at distance $r$ from a centre". Can you turn
+   that sentence into an equation?
+2. A parabola is "all points equidistant from a focus and a directrix".
+   Why does that lead to a *curve*, not a single point or a line?
+3. Light arriving parallel to the axis of a parabola, after reflecting,
+   passes through *one* point. Which?
+4. The equation $x^2 + y^2 = 25$ — is the centre at the origin?
+   What if you had $(x - 3)^2 + (y + 4)^2 = 25$ instead?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(3) is why parabolic dishes (satellite, telescope, headlight) work.
+(4) is the **standard form vs general form** issue — completing the
+square shifts between them.
+:::
+
+## Discover
+
+### Problem 1 — Equation of a circle
+
+Find the equation of the circle with centre $(2, -3)$ and radius $5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distance from $(x, y)$ to $(2, -3)$ equals $5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 2)^2 + (y + 3)^2 = 25$.
+
+Expanded: $x^2 - 4x + 4 + y^2 + 6y + 9 = 25 \Rightarrow x^2 + y^2 - 4x + 6y - 12 = 0$.
+</details>
+
+### Problem 2 — General to standard
+
+Find the centre and radius of $x^2 + y^2 - 6x + 8y - 11 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Complete the square in $x$ and $y$ separately.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x^2 - 6x) + (y^2 + 8y) = 11$
+$\Rightarrow (x - 3)^2 - 9 + (y + 4)^2 - 16 = 11$
+$\Rightarrow (x - 3)^2 + (y + 4)^2 = 36$.
+
+Centre $(3, -4)$, radius $6$.
+</details>
+
+### Problem 3 — Circle through three points
+
+Find the equation of the circle through $(0, 0), (4, 0), (0, 6)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+General circle: $x^2 + y^2 + 2gx + 2fy + c = 0$. Substitute each point.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At $(0,0)$: $c = 0$.
+
+At $(4, 0)$: $16 + 8g = 0 \Rightarrow g = -2$.
+
+At $(0, 6)$: $36 + 12f = 0 \Rightarrow f = -3$.
+
+Equation: $x^2 + y^2 - 4x - 6y = 0$. Centre $(2, 3)$, radius
+$\sqrt{4 + 9} = \sqrt{13}$.
+</details>
+
+### Problem 4 — Standard parabola
+
+Sketch $y^2 = 8x$. Find the focus and directrix.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare with $y^2 = 4px$. Then $p$ identifies the focus and directrix.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4p = 8 \Rightarrow p = 2$. Focus $(2, 0)$, directrix $x = -2$. Opens to
+the right.
+</details>
+
+### Problem 5 — Parabola from focus
+
+Find the equation of the parabola with focus $(0, 3)$ and directrix
+$y = -3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Vertex at the midpoint of "focus to directrix" = $(0, 0)$. Axis along
+the $y$-axis.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 = 4 \cdot 3 \cdot y = 12y$.
+</details>
+
+### Problem 6 — Tangent to a circle
+
+Find the equation of the tangent to $x^2 + y^2 = 25$ at the point $(3, 4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Tangent to $x^2 + y^2 = r^2$ at $(x_1, y_1)$ is $x x_1 + y y_1 = r^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x + 4y = 25$.
+</details>
+
+You have just used the **standard circle equation**, **completing the
+square**, the **focus-directrix definition** of the parabola, and the
+**tangent formula**. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**Circle.** Locus of points at distance $r$ from a fixed centre $(h, k)$.
+
+Standard form:
+$$ (x - h)^2 + (y - k)^2 = r^2. $$
+
+General form:
+$$ x^2 + y^2 + 2gx + 2fy + c = 0, $$
+with centre $(-g, -f)$ and radius $\sqrt{g^2 + f^2 - c}$ (provided
+$g^2 + f^2 - c > 0$).
+
+**Tangent at $(x_1, y_1)$ on $x^2 + y^2 = r^2$:** $x x_1 + y y_1 = r^2$.
+
+**Parabola.** Locus of points equidistant from a fixed point (focus) and
+a fixed line (directrix).
+
+| Equation | Vertex | Focus | Directrix | Opens |
+|:--|:--|:--|:--|:--|
+| $y^2 = 4px$ | $(0, 0)$ | $(p, 0)$ | $x = -p$ | right ($p > 0$) |
+| $y^2 = -4px$ | $(0, 0)$ | $(-p, 0)$ | $x = p$ | left |
+| $x^2 = 4py$ | $(0, 0)$ | $(0, p)$ | $y = -p$ | up |
+| $x^2 = -4py$ | $(0, 0)$ | $(0, -p)$ | $y = p$ | down |
+
+**Latus rectum** of $y^2 = 4px$: chord through focus perpendicular to
+axis, length $|4p|$.
+
+:::
+
+A short verse:
+
+> *Circle: square of distance equals $r$ squared.*
+> *Parabola: distance to point matches distance to line.*
+> *Complete the square — the centre slides;*
+> *Match $4p$ — and the focus aligns.*
+
+## Apply
+
+### Worked example
+
+> Find the equation of the circle that passes through $(2, 3)$ and has
+> centre on the line $y = x + 1$, with radius $5$.
+
+How a competent solver thinks:
+
+1. Centre $(h, h + 1)$ for some $h$.
+2. Distance from $(h, h+1)$ to $(2, 3)$ equals $5$:
+   $(h - 2)^2 + (h + 1 - 3)^2 = 25$.
+3. $(h - 2)^2 + (h - 2)^2 = 25 \Rightarrow 2(h - 2)^2 = 25 \Rightarrow (h-2)^2 = 25/2 \Rightarrow h = 2 \pm 5/\sqrt{2}$.
+4. Two circles, with centres $(2 + 5/\sqrt{2}, 3 + 5/\sqrt{2})$ and
+   $(2 - 5/\sqrt{2}, 3 - 5/\sqrt{2})$, both of radius $5$.
+
+**Answer:** two valid circles, with the centres above.
+
+### Practice — Warm
+
+**W1.** Equation of the circle centred at origin, radius $3$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 + y^2 = 9$.
+</details>
+
+**W2.** Find the centre and radius of $x^2 + y^2 + 4x - 6y + 4 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$g = 2, f = -3, c = 4$. Centre $(-2, 3)$, radius $\sqrt{4 + 9 - 4} = 3$.
+</details>
+
+**W3.** Focus and directrix of $y^2 = 12x$.
+
+<details class="hint"><summary>Full solution</summary>
+$4p = 12 \Rightarrow p = 3$. Focus $(3, 0)$, directrix $x = -3$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the equation of the circle that has $(1, 1)$ and $(5, 7)$
+as the endpoints of a diameter.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Centre = midpoint. Radius = half the diameter length.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Centre $(3, 4)$. Radius $= \dfrac{1}{2}\sqrt{16 + 36} = \sqrt{13}$.
+
+Equation: $(x - 3)^2 + (y - 4)^2 = 13$.
+</details>
+
+**P2.** Find the equation of the parabola with vertex at $(0, 0)$,
+focus on the $y$-axis, passing through $(2, 4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 = 4py$. Plug in $(2, 4)$ to find $p$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4 = 4p \cdot 4 \Rightarrow 4 = 16p \Rightarrow p = 1/4$.
+
+Equation: $x^2 = y$.
+</details>
+
+**P3.** Find the length of the chord of the circle $x^2 + y^2 = 25$ cut
+off by the line $3x + 4y - 5 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the perpendicular-from-centre approach: chord length $= 2\sqrt{r^2 - d^2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Distance from origin to line: $d = |{-5}|/\sqrt{9 + 16} = 1$.
+
+Chord length $= 2\sqrt{25 - 1} = 2\sqrt{24} = 4\sqrt{6}$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Find the equation of the circle that passes through the origin
+and cuts intercepts of $a$ on the $x$-axis and $b$ on the $y$-axis.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three points on the circle: $(0,0), (a, 0), (0, b)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+General: $x^2 + y^2 + 2gx + 2fy + c = 0$.
+
+At $(0,0)$: $c = 0$.
+
+At $(a, 0)$: $a^2 + 2ga = 0 \Rightarrow g = -a/2$.
+
+At $(0, b)$: $b^2 + 2fb = 0 \Rightarrow f = -b/2$.
+
+Equation: $x^2 + y^2 - ax - by = 0$.
+</details>
+
+**S2.** A parabola has its vertex at the origin and passes through the
+point $(2, 3)$. The axis of the parabola is along the $x$-axis. Find
+its equation and the coordinates of the focus.
+
+<details class="hint"><summary>Full solution</summary>
+$y^2 = 4px$. At $(2, 3)$: $9 = 8p \Rightarrow p = 9/8$.
+
+Equation: $y^2 = \dfrac{9}{2} x$.
+
+Focus: $(p, 0) = (9/8, 0)$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The radius of the circle $x^2 + y^2 - 4x + 6y + 4 = 0$ is
+(a) $1$ (b) $2$ (c) $3$ (d) $4$.
+
+<details class="hint"><summary>Full solution</summary>
+$g = -2, f = 3, c = 4$. Radius $= \sqrt{4 + 9 - 4} = 3$. **Answer: (c).**
+</details>
+
+**2-mark (short answer).** Find the focus and directrix of the parabola
+$x^2 = 16y$.
+
+<details class="hint"><summary>Full solution</summary>
+$4p = 16 \Rightarrow p = 4$. Focus $(0, 4)$, directrix $y = -4$.
+</details>
+
+**3-mark (short answer II).** Find the equation of the circle through
+$(2, 3)$ and concentric with $x^2 + y^2 - 4x + 6y - 5 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Concentric: same centre. Find centre, then compute the new radius.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Centre of given circle: $(2, -3)$. Distance from $(2, -3)$ to $(2, 3)$: $6$.
+
+So new radius $= 6$. Equation: $(x - 2)^2 + (y + 3)^2 = 36$, or
+$x^2 + y^2 - 4x + 6y - 23 = 0$.
+</details>
+
+**5-mark (long answer).** A parabolic dish for a satellite has its
+cross-section described by $y^2 = 8x$. (i) Where is the focus?
+(ii) The dish is $4$ m wide at the rim. How deep is the dish?
+(iii) Where should the receiver be placed?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The receiver goes at the focus. "Width at the rim" gives the chord
+perpendicular to the axis at the depth.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $4p = 8 \Rightarrow p = 2$. Focus at $(2, 0)$.
+
+**(ii)** Width at depth $x$: $y$ ranges from $-\sqrt{8x}$ to
+$+\sqrt{8x}$, so width $= 2\sqrt{8x}$. Set $2\sqrt{8x} = 4 \Rightarrow
+\sqrt{8x} = 2 \Rightarrow 8x = 4 \Rightarrow x = 1/2$. Depth $= 0.5$ m.
+
+**(iii)** At the focus, $(2, 0)$ — at horizontal distance $2$ m from the
+back of the dish along the axis of symmetry.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 10 LA "parabolic reflector"
+matches the 5-mark item.
+**JEE pointer:** the chord-length-from-distance-to-centre identity
+(P3) is JEE Main standard.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$x^2 + y^2 = -4$ is a circle of radius $2i$."** No — it has *no
+   real points*. The radius squared must be non-negative.
+2. **"$y^2 = 4x$ is the same as $y = 2\sqrt{x}$."** Half-true — the
+   square root keeps only the upper branch. The full parabola has both
+   $y > 0$ and $y < 0$ branches.
+3. **"The directrix is inside the parabola."** It is *outside* — on the
+   opposite side from the focus, beyond the vertex.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you derive the standard parabola equation from the
+   focus-directrix definition?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you complete the square on a general circle equation in under a
+   minute?
+
+- **3 yes:** move on to **[Conic Sections (Ellipse and Hyperbola)](../10b-conic-sections-ellipse-hyperbola/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** drill the four parabola orientations and the
+  centre-radius extraction by completing the square.
+
+## Connect
+
+### Prerequisites used
+
+- **[Straight Lines](../09-straight-lines/index.qmd)** — directrix is a
+  line; chords are line segments.
+- **[Class 10 — Quadratic Equations](../../tier-cbse-10-class-10/04-quadratic-equations/index.qmd)** —
+  conic equations are second-degree.
+
+### What this unlocks
+
+- **[Conic Sections (Ellipse and Hyperbola)](../10b-conic-sections-ellipse-hyperbola/index.qmd)** —
+  the other two slices of the cone, with two foci instead of one.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 10 — Conic Sections** (NCERT 2023 rationalised).
+  Sections 10.1–10.3: circle, parabola — definitions, standard
+  equations, properties.
+- **Sister synthesis lesson:**
+  [`t3.conic-sections`](../../tier-3-algebra2-geometry-trig/conic-sections/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Parabolic projectile motion: a thrown object's
+path under gravity is a parabola. Characters' jump trajectories,
+artillery shells, and bouncing physics use the equation $y = -\dfrac{g}{2v^2}x^2 + \dfrac{v_y}{v_x}x$.
+:::
+
+::: {.applied-callout}
+**Research / Engineering.** Parabolic mirrors focus parallel rays to a
+single point — used in solar concentrators, car headlights, satellite
+dishes. The reflective property is a consequence of the
+focus-directrix definition.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: 3Blue1Brown (the cone-slice intuition for conics), Russian
+school (Discover problems force the focus-directrix definition before
+the equation), Bhāskara (verse on completing-the-square shifting the
+centre).
+:::

@@ -1,0 +1,456 @@
+---
+title: "Ch 12a — Limits"
+subtitle: "What value does f(x) approach as x sneaks up on a — even when f(a) is undefined?"
+lesson-id: "cbse11.limits"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 12
+ncert-chapter-title: "Limits and Derivatives"
+board-exam: false
+prerequisites: ["cbse11.relations-and-functions", "cbse11.trig-functions"]
+unlocks: ["cbse11.derivatives-intro", "cbse12.continuity"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute $f(2)$ when $f(x) = x^2 + 1$ in your head?
+2. Are you fluent with factoring $x^2 - 9 = (x - 3)(x + 3)$?
+3. Do you know $\sin\theta / \theta$ tends to a limit as $\theta \to 0$
+   (even informally)?
+4. Can you sketch $y = 1/x$ and explain what happens near $x = 0$?
+
+Three confident yeses — read on.
+:::
+
+## Touch
+
+Take a calculator. Enter $f(x) = \dfrac{x^2 - 4}{x - 2}$ and try to
+compute $f(2)$. The calculator complains: division by zero. But try
+$x = 1.9, 1.99, 1.999, \ldots$ and $x = 2.1, 2.01, 2.001, \ldots$.
+
+| $x$ | $f(x)$ |
+|:--|:--|
+| 1.9 | 3.9 |
+| 1.99 | 3.99 |
+| 1.999 | 3.999 |
+| 2.001 | 4.001 |
+| 2.01 | 4.01 |
+| 2.1 | 4.1 |
+
+The values converge to **4** from both sides. We say "the limit of $f$
+as $x$ approaches $2$ is $4$" — even though $f(2)$ itself is not
+defined. The widget below lets you watch the squeeze.
+
+```{ojs}
+viewof xt = Inputs.range([1.5, 2.5], {value: 2.001, step: 0.0001, label: "x (avoid x = 2)"})
+```
+
+```{ojs}
+{
+  const x = xt;
+  if (Math.abs(x - 2) < 1e-10) {
+    return html`<div style="color:#a00;">f(2) is undefined (division by zero).</div>`;
+  }
+  const f = (x * x - 4) / (x - 2);
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>x = ${x.toFixed(4)}</b></div>
+    <div><b>f(x) = (x² − 4)/(x − 2) = ${f.toFixed(6)}</b></div>
+    <div style="margin-top:0.4em;color:#666;">
+      Slide x toward 2. The values approach 4 — but x never quite arrives.
+    </div>
+  </div>`;
+}
+```
+
+A limit is "the destination", not "the value at the destination".
+
+## Wonder
+
+Sit with these.
+
+1. The function $f(x) = (x^2 - 4)/(x - 2)$ simplifies to $x + 2$ for
+   $x \ne 2$. So why didn't we just say "plug in $x = 2$, get $4$"?
+2. What does it mean for $\lim_{x \to 0} \dfrac{\sin x}{x}$ to equal $1$?
+3. Is it possible for a function to *not* have a limit at a point?
+4. What if the left-hand limit and the right-hand limit at $x = a$
+   disagree?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) is the reason limits are *worth* defining: you can extract the
+value the function "wants to be" at a hole. (4) is exactly the
+**jump discontinuity** that makes $\lim_{x \to a} f(x)$ fail to exist.
+:::
+
+## Discover
+
+### Problem 1 — Direct substitution
+
+$\displaystyle\lim_{x \to 3} (x^2 + 2x - 1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Polynomials are continuous — just plug in.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$9 + 6 - 1 = 14$.
+</details>
+
+### Problem 2 — 0/0 by factoring
+
+$\displaystyle\lim_{x \to 1} \dfrac{x^2 - 1}{x - 1}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direct substitution gives $0/0$. Factor.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{(x-1)(x+1)}{x - 1} = x + 1$ for $x \ne 1$.
+
+Limit $= 1 + 1 = 2$.
+</details>
+
+### Problem 3 — Rationalising
+
+$\displaystyle\lim_{x \to 0} \dfrac{\sqrt{1 + x} - 1}{x}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply by the conjugate $\sqrt{1 + x} + 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{(\sqrt{1+x} - 1)(\sqrt{1+x} + 1)}{x(\sqrt{1+x} + 1)} =
+\dfrac{1 + x - 1}{x(\sqrt{1+x} + 1)} = \dfrac{1}{\sqrt{1+x} + 1}$.
+
+Limit at $x = 0$: $\dfrac{1}{2}$.
+</details>
+
+### Problem 4 — Standard trig limit
+
+$\displaystyle\lim_{x \to 0} \dfrac{\sin x}{x}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is one of the *standard limits* you must memorise (and which is
+proved by a squeeze argument in radians).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\displaystyle\lim_{x \to 0} \dfrac{\sin x}{x} = 1$.
+
+Equivalently $\lim_{x \to 0} \dfrac{\tan x}{x} = 1$.
+</details>
+
+### Problem 5 — Use the standard
+
+$\displaystyle\lim_{x \to 0} \dfrac{\sin 5x}{x}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Force the form $\sin(\text{stuff})/\text{same stuff}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\sin 5x}{x} = 5 \cdot \dfrac{\sin 5x}{5x}$.
+
+As $x \to 0$, $5x \to 0$, so $\sin(5x)/(5x) \to 1$. Limit $= 5$.
+</details>
+
+### Problem 6 — Limit at infinity
+
+$\displaystyle\lim_{x \to \infty} \dfrac{3x^2 + 5x + 1}{x^2 - 7}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide top and bottom by the highest power of $x$ in the denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{3 + 5/x + 1/x^2}{1 - 7/x^2}$.
+
+As $x \to \infty$, $5/x, 1/x^2, 7/x^2 \to 0$. Limit $= 3$.
+</details>
+
+### Problem 7 — Left and right limits
+
+Consider $f(x) = \dfrac{|x|}{x}$. Find $\lim_{x \to 0^+} f(x)$ and
+$\lim_{x \to 0^-} f(x)$. Does $\lim_{x \to 0} f(x)$ exist?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For $x > 0$, $|x| = x$, so $f(x) = 1$. For $x < 0$, $|x| = -x$, so
+$f(x) = -1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Right limit: $1$. Left limit: $-1$. They disagree, so the two-sided
+limit **does not exist**.
+</details>
+
+You have just used **direct substitution**, **factoring**,
+**rationalising**, **standard trig limits**, **limits at infinity**, and
+**left/right limits**. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**Limit (informal).** $\displaystyle\lim_{x \to a} f(x) = L$ means: as
+$x$ gets arbitrarily close to $a$ (but $x \ne a$), $f(x)$ gets
+arbitrarily close to $L$.
+
+**Two-sided limit exists** iff
+$\displaystyle\lim_{x \to a^-} f(x) = \lim_{x \to a^+} f(x) = L$.
+
+**Algebra of limits.** If both limits exist:
+$$ \lim (f \pm g) = \lim f \pm \lim g, \quad \lim (fg) = (\lim f)(\lim g) $$
+$$ \lim \dfrac{f}{g} = \dfrac{\lim f}{\lim g} \text{ (provided } \lim g \ne 0). $$
+
+**Standard limits to memorise:**
+$$ \lim_{x \to 0} \dfrac{\sin x}{x} = 1, \quad \lim_{x \to 0} \dfrac{\tan x}{x} = 1, \quad \lim_{x \to 0} \dfrac{1 - \cos x}{x^2} = \dfrac{1}{2}. $$
+$$ \lim_{x \to a} \dfrac{x^n - a^n}{x - a} = n a^{n-1}. $$
+$$ \lim_{x \to 0} \dfrac{e^x - 1}{x} = 1, \quad \lim_{x \to 0} \dfrac{\log(1 + x)}{x} = 1. $$
+
+(Use only those listed in the rationalised NCERT — the trig and
+$x^n - a^n$ are the headline three for boards.)
+
+**Strategy menu** for $0/0$ form:
+
+1. Factor and cancel.
+2. Rationalise (for radicals).
+3. Recognise a standard limit and force the form.
+
+:::
+
+A short verse:
+
+> *Approach $a$ but never arrive;*
+> *The value the function aims at is alive.*
+> *If left and right disagree at the gate,*
+> *No limit awaits — they cancel and break.*
+
+## Apply
+
+### Worked example
+
+> Compute $\displaystyle\lim_{x \to 2} \dfrac{x^3 - 8}{x^2 - 4}$.
+
+How a competent solver thinks:
+
+1. Substitute $x = 2$: $0/0$. Need to factor.
+2. $x^3 - 8 = (x - 2)(x^2 + 2x + 4)$. $x^2 - 4 = (x - 2)(x + 2)$.
+3. Cancel: $\dfrac{x^2 + 2x + 4}{x + 2}$.
+4. Substitute: $\dfrac{4 + 4 + 4}{4} = 3$.
+
+**Answer:** $3$.
+
+### Practice — Warm
+
+**W1.** $\lim_{x \to 1} (3x^2 - 5x + 2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 - 5 + 2 = 0$.
+</details>
+
+**W2.** $\lim_{x \to 0} \dfrac{\tan 3x}{x}$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 \cdot \tan(3x)/(3x) \to 3$.
+</details>
+
+**W3.** $\lim_{x \to \infty} \dfrac{2x + 1}{5x - 3}$.
+
+<details class="hint"><summary>Full solution</summary>
+Divide by $x$: $(2 + 1/x)/(5 - 3/x) \to 2/5$.
+</details>
+
+### Practice — Working
+
+**P1.** $\lim_{x \to 2} \dfrac{x^4 - 16}{x - 2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $\lim (x^n - a^n)/(x - a) = n a^{n-1}$ with $n = 4, a = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4 \cdot 2^3 = 32$.
+</details>
+
+**P2.** $\lim_{x \to 0} \dfrac{\sin x - x \cos x}{x^3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use Taylor expansions of $\sin x = x - x^3/6 + \cdots$ and $\cos x = 1 - x^2/2 + \cdots$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin x \approx x - x^3/6$. $x \cos x \approx x - x^3/2$.
+
+Numerator: $-x^3/6 + x^3/2 = x^3/3$.
+
+Limit: $1/3$.
+</details>
+
+**P3.** $\lim_{x \to 0} \dfrac{\cos x - 1}{x^2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Standard limit: $(1 - \cos x)/x^2 \to 1/2$. Negate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-1/2$.
+</details>
+
+### Practice — Stretch
+
+**S1.** $\lim_{x \to 0} \dfrac{\sqrt{1 + x} - \sqrt{1 - x}}{x}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Rationalise.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Multiply by $\dfrac{\sqrt{1+x} + \sqrt{1-x}}{\sqrt{1+x} + \sqrt{1-x}}$:
+
+$\dfrac{(1+x) - (1-x)}{x(\sqrt{1+x} + \sqrt{1-x})} = \dfrac{2x}{x(\sqrt{1+x} + \sqrt{1-x})} = \dfrac{2}{\sqrt{1+x} + \sqrt{1-x}}$.
+
+At $x = 0$: $2/2 = 1$.
+</details>
+
+**S2.** $\lim_{x \to \pi/4} \dfrac{\sin x - \cos x}{x - \pi/4}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At $x = \pi/4$, top is $0$ and bottom is $0$. Substitute $h = x - \pi/4$
+and use compound-angle identities.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $h = x - \pi/4$. Then $\sin x = \sin(\pi/4 + h) = (\sin h + \cos h)/\sqrt{2}$,
+$\cos x = (\cos h - \sin h)/\sqrt{2}$.
+
+$\sin x - \cos x = \dfrac{2 \sin h}{\sqrt{2}} = \sqrt{2} \sin h$.
+
+So the limit becomes $\lim_{h \to 0} \dfrac{\sqrt{2} \sin h}{h} = \sqrt{2}$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $\lim_{x \to 0} \dfrac{\sin 4x}{2x}$ equals
+(a) $1$ (b) $2$ (c) $4$ (d) $1/2$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\sin 4x}{2x} = 2 \cdot \dfrac{\sin 4x}{4x} \to 2$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** $\lim_{x \to 0} \dfrac{1 - \cos 2x}{x^2}$.
+
+<details class="hint"><summary>Full solution</summary>
+$1 - \cos 2x = 2 \sin^2 x$. So $\dfrac{2 \sin^2 x}{x^2} \to 2$.
+</details>
+
+**3-mark (short answer II).** Evaluate $\lim_{x \to 1} \dfrac{x^{15} - 1}{x^{10} - 1}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $\lim (x^n - 1)/(x - 1) = n$. Divide top by bottom by $(x - 1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{x^{15} - 1}{x^{10} - 1} = \dfrac{(x^{15} - 1)/(x - 1)}{(x^{10} - 1)/(x - 1)}$.
+
+Limit numerator: $15$. Limit denominator: $10$. Ratio: $15/10 = 3/2$.
+</details>
+
+**5-mark (long answer).** Evaluate (i) $\lim_{x \to 0} \dfrac{\tan 2x - x}{3x - \sin x}$,
+(ii) $\lim_{x \to a} \dfrac{\sin x - \sin a}{x - a}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For (i), expand using $\tan x \approx x$ and $\sin x \approx x$ at
+leading order.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\dfrac{\tan 2x - x}{3x - \sin x} = \dfrac{x(2\sec^2(c) - 1)}{x(3 - \cos(c'))}$
+(by mean-value-like approximation), or more concretely:
+
+$\tan 2x - x = (\tan 2x)/x \cdot x - x \to (2 - 1)x = x$ at leading order
+($\tan 2x / (2x) \to 1$, so $\tan 2x \to 2x$ at leading order, giving
+$\tan 2x - x \to x$).
+
+$3x - \sin x \to 3x - x = 2x$ at leading order.
+
+Limit: $1/2$.
+
+**(ii)** Use sum-to-product: $\sin x - \sin a = 2 \cos\dfrac{x + a}{2} \sin\dfrac{x - a}{2}$.
+
+$\lim \dfrac{2 \cos\frac{x+a}{2} \sin\frac{x-a}{2}}{x - a} = \cos a \cdot \lim \dfrac{2 \sin\frac{x - a}{2}}{x - a} = \cos a \cdot 1 = \cos a$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 12 LA on standard trig limits
+matches the 5-mark item.
+**JEE pointer:** the substitution trick (Stretch S2) is JEE Main
+standard.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\lim f(x) = f(a)$ always."** Only when $f$ is continuous at $a$.
+   Many Class 11 problems are crafted with $0/0$ holes precisely to
+   force you to compute limits *not* by direct substitution.
+2. **"$\sin x / x = 1$ at $x = 0$."** No — $\sin 0 / 0$ is undefined.
+   The *limit* is $1$.
+3. **"Limit at infinity is computed by plugging in $\infty$."** Treat
+   limits at infinity by *dividing* by the highest power, not by
+   substituting a number.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state the four standard limits for boards from memory?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you spot when a limit needs factoring, rationalising, or a
+   standard-limit force-fit?
+
+- **3 yes:** move on to **[Derivatives (Introduction)](../12b-derivatives-intro/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** drill the three strategies (factor / rationalise /
+  standard-limit) on five fresh limits.
+
+## Connect
+
+### Prerequisites used
+
+- **[Relations and Functions](../02-relations-and-functions/index.qmd)** —
+  the limit is a property of a function.
+- **[Trigonometric Functions](../03a-trig-functions/index.qmd)** —
+  $\sin x/x \to 1$ requires radians.
+
+### What this unlocks
+
+- **[Derivatives (Introduction)](../12b-derivatives-intro/index.qmd)** —
+  the derivative *is* a particular limit.
+- **[Class 12 — Continuity & Differentiability](../../tier-cbse-12-class-12/04-continuity/index.qmd)**.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 12 — Limits and Derivatives** (NCERT 2023
+  rationalised). Sections 12.1–12.3: limits, algebra of limits,
+  standard trigonometric limits.
+- **Sister synthesis lesson:**
+  [`t4.limits`](../../tier-4-precalc-calculus/limits/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**Research / Calculus.** Every theorem in calculus rests on the limit
+concept. The intermediate value theorem, the mean value theorem, the
+fundamental theorem of calculus — all start with limits.
+:::
+
+::: {.applied-callout}
+**AI / ML.** Numerical optimisation studies "what does the loss
+function approach as the parameters approach the optimum?" — exactly a
+limit question.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: 3Blue1Brown (limits as the value the function "wants to
+be"), Better Explained (the destination metaphor), Russian school
+(Discover sequence forces the four canonical patterns), Bhāskara
+(verse).
+:::

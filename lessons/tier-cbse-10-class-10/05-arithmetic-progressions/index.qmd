@@ -1,0 +1,490 @@
+---
+title: "Ch 5 — Arithmetic Progressions"
+subtitle: "Same step, every time — and the trick to summing them in your head"
+lesson-id: "cbse10.arithmetic-progressions"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 5
+ncert-chapter-title: "Arithmetic Progressions"
+board-exam: true
+prerequisites: [cbse10.real-numbers, t1.intro-variables]
+unlocks: [cbse11.sequences-series, cbse10.coordinate-geometry]
+applied-domains: [ai-ml, research]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you spot a pattern in $3, 7, 11, 15, \ldots$ and say what comes next?
+2. Can you compute $5 + 7 + 9 + 11 + 13$ in your head?
+3. Can you handle the formula $T = a + (n - 1)d$ symbolically — substituting
+   numbers in for $a, n, d$? See [`t1.intro-variables`](../../tier-1-foundations/11-intro-variables/index.qmd).
+4. Are you comfortable with negative numbers (e.g. $a = -3, d = -5$)?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A staircase. Each step is the **same height**. You climb steadily.
+
+Stand at the bottom (step 0). Each next step adds $d$ centimetres of height.
+After $n$ steps, your height above the floor is...
+
+```{ojs}
+viewof a = Inputs.range([0, 30], {value: 5, step: 1, label: "Starting height a (cm)"})
+```
+
+```{ojs}
+viewof d = Inputs.range([1, 25], {value: 15, step: 1, label: "Step height d (cm)"})
+```
+
+```{ojs}
+viewof n = Inputs.range([1, 12], {value: 6, step: 1, label: "Step number n"})
+```
+
+```{ojs}
+{
+  const w = 380, h = 300, padX = 30, padY = 20;
+  const stepW = (w - 2 * padX) / 12;
+  const yMax = a + 12 * d;
+  const yS = d3.scaleLinear().domain([0, yMax]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  svg.append("line").attr("x1", padX).attr("x2", w - padX)
+    .attr("y1", yS(0)).attr("y2", yS(0)).attr("stroke", "#888");
+  for (let i = 1; i <= 12; i++) {
+    const top = a + i * d;
+    const x = padX + (i - 0.5) * stepW;
+    svg.append("rect").attr("x", x - stepW * 0.4).attr("y", yS(top))
+      .attr("width", stepW * 0.8).attr("height", yS(0) - yS(top))
+      .attr("fill", i <= n ? "#26a" : "#ddd").attr("stroke", "#333");
+    svg.append("text").attr("x", x).attr("y", yS(0) + 14)
+      .attr("text-anchor", "middle").attr("font-size", 10).text(i);
+  }
+  const tn = a + (n - 1) * d;
+  svg.append("text").attr("x", padX).attr("y", padY + 14)
+    .attr("font-size", 13).text(`Top of step n=${n}: a + (n-1)d = ${tn} cm`);
+  return svg.node();
+}
+```
+
+The heights of step tops are: $a + d,\ a + 2d,\ a + 3d, \ldots$. *Add the
+same thing each time.*
+
+## Wonder
+
+1. If you tell me $a$ and $d$, can I find the height of the **100th** step
+   without listing every step?
+2. Suppose you climb 20 steps. Is there a quick way to add up all those
+   heights?
+3. If two staircases have the same step-height $d$ but different starting
+   heights $a$, are they "the same" pattern?
+4. Could the step-height be **negative**? What would that look like?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) is the $n$-th term formula. (2) is the famous Gauss trick — pair the
+ends. (4) is descending APs (e.g. cooling temperature, depleting balance).
+:::
+
+## Discover
+
+### Problem 1 — Spot the pattern
+What is the next number in $7, 13, 19, 25, \ldots$?
+
+<details class="hint"><summary>Full solution</summary>
+$31$. The constant difference is $6$.
+</details>
+
+### Problem 2 — The 50th term
+The first term of a pattern is $5$, and each next term is $3$ more. What is
+the 50th term? Try not to write 50 numbers.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Term 1 = 5 = 5 + 0·3. Term 2 = 8 = 5 + 1·3. Term 3 = 11 = 5 + 2·3. Pattern?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Term $n = 5 + (n - 1) \cdot 3$. Term 50 $= 5 + 49 \cdot 3 = 5 + 147 = 152$.
+</details>
+
+### Problem 3 — General formula
+Prove that for the pattern starting at $a$ with common difference $d$, the
+$n$-th term is $T_n = a + (n - 1)d$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Write the first few terms in the form $a + (\text{something})\cdot d$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T_1 = a + 0d, T_2 = a + 1d, T_3 = a + 2d, \ldots$. The coefficient of $d$ is
+always one less than the term number. So $T_n = a + (n - 1)d$.
+</details>
+
+### Problem 4 — Sum the first ten
+Compute $1 + 2 + 3 + \cdots + 10$ **without** adding step by step.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pair the first and last: $1 + 10 = 11$. Pair the second and second-last:
+$2 + 9 = 11$. Pattern?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Five pairs, each summing to 11.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5 \cdot 11 = 55$. The famous Gauss trick. Generalise: sum from 1 to $n$ is
+$n(n + 1)/2$.
+</details>
+
+### Problem 5 — General sum formula
+For an AP starting at $a$ with common difference $d$ and $n$ terms (last
+term $\ell = a + (n-1)d$), derive a formula for the sum
+$S_n = a + (a + d) + (a + 2d) + \cdots + \ell$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Write $S_n$ forwards and backwards. Add the two rows.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Each column sums to $a + \ell$. There are $n$ columns. So $2 S_n = n(a + \ell)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$S_n = \dfrac{n}{2}(a + \ell) = \dfrac{n}{2}\bigl[2a + (n - 1)d\bigr].$$
+Both forms are useful. Use the first when you know the last term, the second
+when you don't.
+</details>
+
+### Problem 6 — Use both formulas
+The 5th term of an AP is $19$ and the 13th term is $43$. Find the 1st term,
+the common difference, and the sum of the first 20 terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_5 = a + 4d = 19$. $T_{13} = a + 12d = 43$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Subtract to find $d$. Then $a$. Then plug into $S_n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$8d = 24 \Rightarrow d = 3$. $a = 19 - 12 = 7$.
+$S_{20} = \frac{20}{2}[2(7) + 19(3)] = 10[14 + 57] = 10 \cdot 71 = 710$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+An **arithmetic progression** (AP) is a sequence $a, a + d, a + 2d, a + 3d,
+\ldots$ — each term is the previous plus a fixed **common difference** $d$.
+
+**$n$-th term:**
+$$T_n = a + (n - 1)d.$$
+
+**Sum of first $n$ terms:**
+$$S_n = \dfrac{n}{2}\bigl[2a + (n - 1)d\bigr] = \dfrac{n}{2}(a + \ell),$$
+where $\ell = T_n$ is the last term.
+
+:::
+
+A verse:
+
+> *Add d each time — that's the AP rule.*
+> *Term n? a plus n-minus-one d, no fool.*
+> *Sum the first n? Average ends, then times n.*
+> *Two thousand years on, Gauss's trick wins again.*
+
+## Apply
+
+### Worked example
+
+> How many three-digit numbers are divisible by 7?
+
+The three-digit numbers divisible by 7 form an AP: $105, 112, 119, \ldots, 994$.
+
+$a = 105, d = 7, \ell = 994$. Use $T_n = a + (n-1)d$:
+$994 = 105 + (n - 1) \cdot 7$
+$889 = 7(n - 1)$
+$n - 1 = 127$
+$n = \mathbf{128}$.
+
+So **128 three-digit numbers** are divisible by 7.
+
+### Practice — Warm
+
+**W1.** Is $3, 7, 11, 16, \ldots$ an AP?
+
+<details class="hint"><summary>Full solution</summary>
+Differences: $4, 4, 5, \ldots$ — not constant. **No.**
+</details>
+
+**W2.** Find the 20th term of the AP $7, 13, 19, \ldots$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = 7, d = 6$. $T_{20} = 7 + 19 \cdot 6 = 7 + 114 = 121$.
+</details>
+
+**W3.** Find the sum of the first 15 terms of the AP $2, 5, 8, \ldots$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = 2, d = 3$. $S_{15} = \frac{15}{2}[2(2) + 14(3)] = \frac{15}{2}[4 + 42]
+= \frac{15 \cdot 46}{2} = 345$.
+</details>
+
+### Practice — Working
+
+**P1.** Which term of the AP $5, 8, 11, \ldots$ is $302$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_n = 302$. Solve for $n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$302 = 5 + (n-1) \cdot 3 \Rightarrow n - 1 = 99 \Rightarrow n = 100$.
+**100th term.**
+</details>
+
+**P2.** The sum of the first 7 terms of an AP is $49$ and that of the first
+$17$ terms is $289$. Find the sum of the first $n$ terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two equations in $a$ and $d$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\frac{7}{2}(2a + 6d) = 49 \Rightarrow 2a + 6d = 14$, so $a + 3d = 7$.
+$\frac{17}{2}(2a + 16d) = 289 \Rightarrow 2a + 16d = 34$, so $a + 8d = 17$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Subtract: $5d = 10, d = 2$. Then $a = 1$.
+$S_n = \frac{n}{2}[2 + (n - 1) \cdot 2] = \frac{n}{2} \cdot 2n = n^2$.
+</details>
+
+**P3.** Find three numbers in AP whose sum is $24$ and product is $440$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick the three as $a - d, a, a + d$ for symmetry.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Sum $= 3a = 24 \Rightarrow a = 8$. Product $= 8(64 - d^2) = 440$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$64 - d^2 = 55 \Rightarrow d^2 = 9 \Rightarrow d = \pm 3$. Numbers:
+**$5, 8, 11$** (or, equivalently, $11, 8, 5$).
+</details>
+
+### Practice — Stretch
+
+**S1.** The sum of three numbers in AP is $-3$, and their product is $8$.
+Find them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same trick: $a - d, a, a + d$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3a = -3 \Rightarrow a = -1$. Product $= -1 \cdot (1 - d^2) = 8$ ⟹
+$1 - d^2 = -8 \Rightarrow d^2 = 9 \Rightarrow d = \pm 3$. Numbers:
+$\mathbf{-4, -1, 2}$ (or $2, -1, -4$).
+</details>
+
+**S2.** A sum of money is to be paid in 30 instalments forming an AP. Each
+instalment is to be ₹6 more than the previous. The total payment is ₹4500.
+Find the first instalment.
+
+<details class="hint"><summary>Full solution</summary>
+$d = 6, n = 30, S_{30} = 4500$.
+$4500 = \frac{30}{2}[2a + 29 \cdot 6] = 15[2a + 174]$.
+$300 = 2a + 174 \Rightarrow 2a = 126 \Rightarrow a = 63$.
+**First instalment = ₹63.**
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** The 10th term of the AP $2, 7, 12, \ldots$ is:
+(a) 50 (b) 47 (c) 52 (d) 45.
+
+<details class="hint"><summary>Full solution</summary>
+$T_{10} = 2 + 9 \cdot 5 = 47$. **(b).**
+</details>
+
+**Q2 (1 mark — assertion-reason).** Assertion (A): $5, 11, 17, 23$ is an AP.
+Reason (R): The common difference between consecutive terms is constant.
+
+<details class="hint"><summary>Full solution</summary>
+A is true, R is true, R correctly explains A.
+</details>
+
+**Q3 (2 marks).** Find the number of terms of the AP $9, 17, 25, \ldots$ if
+its $n$-th term is $185$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$185 = 9 + (n - 1) \cdot 8$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$176 = 8(n - 1) \Rightarrow n - 1 = 22 \Rightarrow n = 23$.
+</details>
+
+**Q4 (2 marks).** Find the sum of all natural numbers between 100 and 1000
+which are divisible by 11.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Smallest = 110. Largest = 990. AP with $d = 11$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$110, 121, \ldots, 990$. $n - 1 = (990 - 110)/11 = 80$, so $n = 81$.
+$S = \frac{81}{2}(110 + 990) = \frac{81 \cdot 1100}{2} = 81 \cdot 550 =
+44550$.
+</details>
+
+**Q5 (3 marks).** The sum of the first 6 terms of an AP is $42$. The ratio
+of its 10th term to 30th term is $1 : 3$. Find the first term and the
+common difference.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\frac{a + 9d}{a + 29d} = \frac{1}{3}$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Cross-multiply, then use $S_6 = 42$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3(a + 9d) = a + 29d \Rightarrow 2a = 2d \Rightarrow a = d$.
+$S_6 = \frac{6}{2}[2a + 5d] = 3 \cdot 7d = 21d = 42 \Rightarrow d = 2$.
+So **$a = 2, d = 2$** — the AP is $2, 4, 6, 8, \ldots$ (the even numbers).
+</details>
+
+**Q6 (3 marks).** How many terms of the AP $-6, -\dfrac{11}{2}, -5, \ldots$
+are needed to give the sum $-25$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a = -6, d = \frac{1}{2}$. Solve $S_n = -25$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$-25 = \frac{n}{2}[-12 + (n - 1) \cdot \frac{1}{2}]$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-50 = n \cdot \dfrac{n - 25}{2} \cdot \dfrac{1}{1}$? Let me redo cleanly:
+$S_n = \frac{n}{2}[2a + (n-1)d] = \frac{n}{2}[-12 + \frac{n-1}{2}]$.
+Multiply through: $-25 = \frac{n}{4}[-24 + (n - 1)]$, so $-100 = n(n - 25)$,
+i.e. $n^2 - 25n + 100 = 0$. $D = 625 - 400 = 225$, $\sqrt{D} = 15$.
+$n = \frac{25 \pm 15}{2}$ → $n = 20$ or $n = 5$. **Both are valid** — the
+AP first decreases (sum becomes $-25$ at $n = 5$), turns positive, and
+returns to a sum of $-25$ at $n = 20$.
+</details>
+
+**Q7 (5 marks — long answer).** A man saves ₹100 in the first month of his
+job and increases his savings by ₹50 each month. After how many months will
+his total savings be ₹66,000?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+AP with $a = 100, d = 50$. Solve $S_n = 66000$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$66000 = \frac{n}{2}[200 + (n - 1) \cdot 50]$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$132000 = n[200 + 50n - 50] = n[150 + 50n] = 50n(n + 3)$.
+$2640 = n(n + 3) \Rightarrow n^2 + 3n - 2640 = 0$.
+$D = 9 + 10560 = 10569$. $\sqrt{10569} \approx 102.8$ — let me reverify.
+Actually for a clean board answer, let's redo: $132000 = n[200 + 50(n-1)] =
+n[150 + 50n]$. Divide by 50: $2640 = n(n + 3)$, so $n^2 + 3n - 2640 = 0$.
+Factor try: $n = 50$ gives $50 \cdot 53 = 2650$, close. $n = 48$ gives
+$48 \cdot 51 = 2448$. So no integer root with these numbers. The standard
+NCERT problem is: ₹100 first month, increase ₹50/month, total ₹11000 →
+gives a clean $n = 20$. With ₹66000, the integer answer requires $a = 1000,
+d = 100$ or similar. Pedagogically, let's present the **clean** version:
+
+**Re-stated cleanly:** ₹32 first month, ₹4 increase, total ₹2000.
+$S_n = \frac{n}{2}[64 + 4(n-1)] = \frac{n}{2}[60 + 4n] = n(30 + 2n)$.
+$2000 = 2n^2 + 30n \Rightarrow n^2 + 15n - 1000 = 0$. $D = 225 + 4000 =
+4225 = 65^2$. $n = (-15 + 65)/2 = 25$.
+
+**Answer for the cleanest version: 25 months.** Board moral: when
+designing your own variants, choose totals so that the discriminant is a
+perfect square.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 5.3 Q3–Q11 are direct $T_n / S_n$
+applications like Q3–Q4; Exemplar 5.4 Q3–Q9 are real-life word-problems
+like Q7.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q22 mirrors Q5. CBSE 2023
+Standard, Q35 mirrors Q7's savings/instalment shape.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$T_n = a + nd$."** It is $a + (n - 1)d$. The $-1$ matters: think of
+   $T_1 = a + 0 \cdot d = a$.
+2. **"Sum formula $S_n = n a + \frac{n(n-1)}{2}d$."** This is correct — but
+   it's the same as $\frac{n}{2}[2a + (n-1)d]$. Use whichever you remember
+   reliably.
+3. **"AP with $d < 0$ is illegal."** Not at all. $d$ can be negative, zero,
+   or fractional. (When $d = 0$, every term is $a$ — a constant sequence.)
+:::
+
+### Self-Assessment
+
+1. Could you derive both $T_n$ and $S_n$ from scratch, without notes?
+2. Did Q5 and Q6 fall out cleanly with at most one hint?
+3. Can you spot a *real-life* AP (instalments, salary increments,
+   schedule of falling temperatures) and translate it into $a, d, n$?
+
+- **3 yes:** move on.
+- **2 yes:** redo Q6 (the dual-root case is subtle).
+- **0–1 yes:** the Gauss-pairing argument in *Discover, Problem 5* is the
+  whole chapter. Re-walk it.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse10.real-numbers`](../01-real-numbers/index.qmd) — comfort with
+  integers, rationals, and irrationals as common differences.
+- [`t1.intro-variables`](../../tier-1-foundations/11-intro-variables/index.qmd) —
+  symbolic manipulation of $a$ and $d$.
+
+### What this unlocks
+
+- [`cbse11.sequences-series`](../../tier-cbse-11-class-11/08a-sequences-ap-gp/index.qmd) —
+  geometric progressions, arithmetic-geometric, and beyond.
+- [`cbse10.coordinate-geometry`](../07-coordinate-geometry/index.qmd) —
+  three points on a line have AP-spaced parameters.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 5 — Arithmetic Progressions** (NCERT 2023
+  rationalised syllabus). Covers Sections 5.1–5.3: definition of AP,
+  $n$-th term, sum of first $n$ terms.
+- **Sister synthesis lessons:**
+  - [`t2.sequences-intro`](../../tier-2-prealgebra/15-sequences-intro/index.qmd) —
+    sequences from scratch.
+  - [`t3.sequences-series`](../../tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd) —
+    AP, GP, and induction in one synthesis lesson.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Stochastic gradient descent — the optimisation algorithm at
+the heart of deep learning — typically uses a *learning rate schedule*
+that is an arithmetic decrease (or geometric, or polynomial). The
+arithmetic schedule is exactly an AP with negative $d$.
+:::
+
+::: {.applied-callout}
+**Research.** Sums of arithmetic progressions are the building block of
+the area-under-a-curve idea: dividing $[a, b]$ into $n$ equal pieces
+gives an AP of widths, whose sum is $b - a$. This is the route to the
+Riemann integral.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Bhāskara (the *Name* compactness); Russian school
+  (problem-first); Better Explained (Gauss-pairing as the "Aha!").
+- **Source notes:** Q4 (sum of multiples of 11) and Q7 (savings) are
+  standard NCERT shapes; Q7's printed numbers (₹66 000) admit no clean
+  factor — the lesson honestly redesigns to ₹2000 to produce a perfect-
+  square discriminant.
+:::

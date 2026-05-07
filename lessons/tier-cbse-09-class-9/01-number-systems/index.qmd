@@ -1,0 +1,498 @@
+---
+title: "Ch 1 — Number Systems"
+subtitle: "Rationals, irrationals, and the real line"
+lesson-id: "cbse9.number-systems"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 1
+ncert-chapter-title: "Number Systems"
+board-exam: false
+prerequisites: ["cbse8.rational-numbers", "cbse8.squares-and-square-roots"]
+unlocks: ["cbse9.polynomials", "cbse10.real-numbers", "cbse10.quadratic-equations"]
+applied-domains: ["research", "encryption"]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you place fractions like $\tfrac{3}{4}$ and $-\tfrac{5}{2}$ on a
+   number line? *(If no, revisit
+   [cbse8.rational-numbers](../../tier-cbse-08-class-8/01-rational-numbers/index.qmd).)*
+2. Do you know what $\sqrt{4} = 2$ means and that $\sqrt{2}$ is between $1$
+   and $2$? *(If no, revisit
+   [cbse8.squares-and-square-roots](../../tier-cbse-08-class-8/05-squares-and-square-roots/index.qmd).)*
+3. Can you write a fraction as a decimal by long division?
+4. Can you compute $2^3$ and $3^2$ in your head?
+
+Three or four yes? Read on. Otherwise, walk back to the prerequisites first.
+:::
+
+## Touch
+
+Take a piece of string and a 30 cm ruler. Measure exactly **1 unit** of
+string and lay it flat. Now construct a square on it with the four corners
+pinned. Stretch a second string from one corner to the opposite corner —
+the **diagonal**.
+
+Measure the diagonal in centimetres. Write it down to two decimal places.
+
+Now try this with a unit square of side 10 cm; then 20 cm. Each time, divide
+the diagonal length by the side length.
+
+```{ojs}
+viewof side = Inputs.range([1, 50], {value: 10, step: 1, label: "Side (cm)"})
+```
+
+```{ojs}
+{
+  const d = side * Math.SQRT2;
+  return html`<div style="font-family: monospace; font-size: 1.05rem; padding: 0.4rem 0;">
+    side = ${side} cm<br/>
+    diagonal ≈ ${d.toFixed(6)} cm<br/>
+    diagonal ÷ side ≈ ${(d/side).toFixed(10)}
+  </div>`;
+}
+```
+
+Drag the slider. The ratio diagonal÷side never settles — it just keeps
+spitting out more digits. Try to write it as a fraction $\tfrac{p}{q}$.
+You can't.
+
+## Wonder
+
+Sit with these for a minute.
+
+1. The fraction $\tfrac{1}{3}$ written as a decimal is $0.3333\ldots$ — it
+   never stops. Yet we still call it a "nice" number. Why?
+2. The diagonal-to-side ratio of a unit square also never stops. Is it the
+   same *kind* of "never stops" as $\tfrac{1}{3}$?
+3. If you and a friend each pick a decimal with infinitely many digits at
+   random, would you ever produce the same one?
+4. Are there *more* decimals than fractions? How would you even check?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+The first wonder is about a pattern: $0.3333\ldots$ repeats forever.
+The second is about whether *every* infinite decimal repeats. Hold both
+questions in your head as you read on.
+:::
+
+## Discover
+
+Five problems. Do them with paper.
+
+### Problem 1
+
+Convert each fraction to a decimal by long division.
+$\tfrac{1}{4}, \quad \tfrac{1}{3}, \quad \tfrac{2}{11}, \quad \tfrac{7}{8}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Long division. Do not stop early. If a remainder repeats, you've seen this
+remainder before.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Mark each remainder you see. The moment a remainder repeats, the digits
+will repeat from there on.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{4} = 0.25$ (terminates), $\tfrac{1}{3} = 0.\overline{3}$
+(repeats), $\tfrac{2}{11} = 0.\overline{18}$ (block of 2 repeats),
+$\tfrac{7}{8} = 0.875$ (terminates). Every fraction either terminates or
+falls into a repeating block — there's nowhere else for the remainders to
+go.
+</details>
+
+### Problem 2
+
+Reverse direction. Write $0.\overline{6}$ (i.e. $0.6666\ldots$) as a
+fraction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $x = 0.6666\ldots$ . Multiply both sides by 10. Then subtract the
+original.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$10x - x = 6.666\ldots - 0.666\ldots = 6$. Solve for $x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = 0.\overline{6}$, $10x = 6.\overline{6}$, so $9x = 6$, hence
+$x = \tfrac{6}{9} = \tfrac{2}{3}$. Every repeating decimal is a fraction.
+</details>
+
+### Problem 3
+
+Suppose $\sqrt{2}$ is a fraction $\tfrac{p}{q}$ in lowest terms. Then
+$p^2 = 2q^2$. Argue this forces $p$ to be even, then $q$ to be even — and
+spot the contradiction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Even squared" is what kind of number? "Odd squared" is what kind?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$p^2 = 2q^2$ is even, so $p^2$ is even, so $p$ is even. Write $p = 2k$.
+Substitute. What does $q^2$ become?
+</details>
+<details class="hint"><summary>Full solution</summary>
+If $p = 2k$, then $4k^2 = 2q^2$, so $q^2 = 2k^2$. So $q^2$ is even, so $q$
+is even. But then both $p$ and $q$ are even — contradicting "lowest
+terms". So $\sqrt{2}$ cannot be a fraction. (This is the proof Euclid
+records in *Elements*, Book X.)
+</details>
+
+### Problem 4
+
+Find a rational number between $\tfrac{1}{2}$ and $\tfrac{2}{3}$. Then
+find an irrational number between them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For the rational, take the average. For the irrational, scale a known
+irrational like $\sqrt{2}$ down to fit.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\tfrac{1}{2} = 0.5$, $\tfrac{2}{3} = 0.6\overline{6}$. Pick a non-repeating
+decimal between $0.5$ and $0.6\overline{6}$ that you can construct with no
+pattern.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Rational: $\tfrac{1}{2} + \tfrac{1}{2}(\tfrac{2}{3} - \tfrac{1}{2}) =
+\tfrac{7}{12}$. Irrational: $0.5101001000100001\ldots$ (1's separated by
+growing runs of zeros). It lies in the interval and never repeats. Between
+*any* two distinct real numbers there are infinitely many of each kind.
+</details>
+
+### Problem 5
+
+Compute $(\sqrt{3} + \sqrt{2})(\sqrt{3} - \sqrt{2})$ without a calculator.
+What kind of number do you get?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a+b)(a-b) = a^2 - b^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(\sqrt{3})^2 - (\sqrt{2})^2 = 3 - 2 = 1$. A whole number from two
+irrationals — they cancelled. This is the trick that powers
+**rationalising the denominator**, which we name in a moment.
+</details>
+
+You have just shown: every rational has a terminating or repeating
+decimal; every repeating decimal is rational; some real numbers (like
+$\sqrt{2}$) are *not* rational; and yet pairs of irrationals can multiply
+to a rational. The naming follows.
+
+## Name
+
+::: {.lesson-beat}
+
+A **rational number** is a number that can be written as $\tfrac{p}{q}$
+where $p, q$ are integers and $q \ne 0$. Equivalently, its decimal
+expansion either **terminates** or **repeats**.
+
+An **irrational number** is a real number whose decimal expansion is
+**non-terminating and non-repeating** — it cannot be written as a fraction
+of two integers.
+
+The set of all rationals together with all irrationals is the set of
+**real numbers**, $\mathbb{R}$. Every real number sits at exactly one
+point on the number line.
+
+For surds (square roots that are irrational), useful identities are:
+$$\sqrt{a}\,\sqrt{b} = \sqrt{ab}, \qquad \frac{\sqrt{a}}{\sqrt{b}} = \sqrt{\tfrac{a}{b}},$$
+$$(\sqrt{a}+\sqrt{b})(\sqrt{a}-\sqrt{b}) = a - b.$$
+
+To **rationalise** a denominator like $\tfrac{1}{a + \sqrt{b}}$, multiply
+top and bottom by the conjugate $a - \sqrt{b}$.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Fractions repeat or stop — both are rational.*
+> *That which never repeats lives outside that house.*
+> *Together on the line they leave no gap;*
+> *Conjugates clear the surd from the floor.*
+
+## Apply
+
+### Worked example
+
+> Rationalise $\dfrac{1}{3 + \sqrt{2}}$ and simplify.
+
+A competent solver thinks step by step:
+
+1. The denominator is $3 + \sqrt{2}$. Its conjugate is $3 - \sqrt{2}$.
+2. Multiply numerator and denominator by the conjugate:
+   $$\frac{1}{3 + \sqrt{2}} \cdot \frac{3 - \sqrt{2}}{3 - \sqrt{2}}
+   = \frac{3 - \sqrt{2}}{(3)^2 - (\sqrt{2})^2}.$$
+3. The denominator becomes $9 - 2 = 7$.
+4. **Answer:** $\dfrac{3 - \sqrt{2}}{7}$.
+
+The denominator is now a plain rational; the irrational has been pushed up
+into the numerator where it can be evaluated cleanly.
+
+### Practice — Warm
+
+**W1.** Express $0.\overline{4}$ as a fraction in lowest terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same trick as Discover P2: let $x = 0.\overline{4}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$10x - x = 4$, so $x = \tfrac{4}{9}$.
+</details>
+
+**W2.** Simplify $\sqrt{45} + \sqrt{20}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pull perfect squares out of each radical first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{45} = 3\sqrt{5}$, $\sqrt{20} = 2\sqrt{5}$, so the sum is
+$5\sqrt{5}$.
+</details>
+
+**W3.** Is $0.1010010001\ldots$ (1's separated by an increasing run of
+zeros) rational or irrational? Why?
+
+<details class="hint"><summary>Full solution</summary>
+**Irrational.** The pattern is non-repeating because the gap between 1's
+keeps growing. No finite block of digits ever repeats.
+</details>
+
+### Practice — Working
+
+**P1.** Find two irrational numbers between $\tfrac{1}{7}$ and
+$\tfrac{2}{7}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the decimals. $\tfrac{1}{7} = 0.\overline{142857}$,
+$\tfrac{2}{7} = 0.\overline{285714}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two examples that lie between: $0.16100100010001\ldots$ and
+$0.21010010001\ldots$. Both non-repeating, both within the interval. There
+are infinitely many such choices.
+</details>
+
+**P2.** Rationalise $\dfrac{1}{\sqrt{7} - \sqrt{3}}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The conjugate is $\sqrt{7} + \sqrt{3}$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$(\sqrt{7})^2 - (\sqrt{3})^2 = 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{\sqrt{7}-\sqrt{3}} \cdot \dfrac{\sqrt{7}+\sqrt{3}}{\sqrt{7}+\sqrt{3}}
+= \dfrac{\sqrt{7}+\sqrt{3}}{4}.$
+</details>
+
+**P3.** Simplify $(2 + \sqrt{3})(2 - \sqrt{3}) + (\sqrt{5})^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a+b)(a-b) = a^2 - b^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(4 - 3) + 5 = 1 + 5 = 6$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Without using a calculator, prove that $\sqrt{3}$ is irrational.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mimic the proof for $\sqrt{2}$. Suppose $\sqrt{3} = \tfrac{p}{q}$ in
+lowest terms.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$p^2 = 3q^2$ forces $3 \mid p^2$, so $3 \mid p$. Then $p = 3k$, and you
+recover $3 \mid q$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose $\sqrt{3} = \tfrac{p}{q}$ with $\gcd(p,q) = 1$. Then $p^2 = 3q^2$,
+so $3 \mid p^2$. Since $3$ is prime, $3 \mid p$. Write $p = 3k$, then
+$9k^2 = 3q^2$, i.e. $q^2 = 3k^2$, so $3 \mid q$. But then $3$ divides both
+$p$ and $q$, contradicting $\gcd(p,q) = 1$. So $\sqrt{3}$ is irrational.
+</details>
+
+**S2.** If $a = \tfrac{1}{3 - 2\sqrt{2}}$, find $a^2 + \tfrac{1}{a^2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Rationalise $a$ first. Then compute $\tfrac{1}{a}$ and notice the
+symmetry.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$a + \tfrac{1}{a}$ might be simpler than $a$ alone. Use
+$a^2 + \tfrac{1}{a^2} = (a + \tfrac{1}{a})^2 - 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a = \dfrac{1}{3 - 2\sqrt{2}} \cdot \dfrac{3 + 2\sqrt{2}}{3 + 2\sqrt{2}}
+= \dfrac{3 + 2\sqrt{2}}{9 - 8} = 3 + 2\sqrt{2}$. Then
+$\tfrac{1}{a} = 3 - 2\sqrt{2}$, so $a + \tfrac{1}{a} = 6$. Therefore
+$a^2 + \tfrac{1}{a^2} = 6^2 - 2 = 34$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** Which of the following is irrational?
+(a) $\sqrt{16}$ (b) $\sqrt{12}$ (c) $0.\overline{27}$ (d) $\tfrac{22}{7}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three of the four can be written as $\tfrac{p}{q}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{16} = 4$, $0.\overline{27}$ is rational, $\tfrac{22}{7}$ is rational
+by definition. $\sqrt{12} = 2\sqrt{3}$ is irrational. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Express $0.6\overline{4}$ (i.e. $0.6444\ldots$)
+as a fraction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $x = 0.6444\ldots$. Multiply by $10$ once to align the repeating block.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = 0.6\overline{4}$. $10x = 6.\overline{4}$, $100x = 64.\overline{4}$.
+Subtract: $90x = 58$, so $x = \tfrac{58}{90} = \tfrac{29}{45}$.
+</details>
+
+**3-mark (short answer II).** Simplify
+$\dfrac{7 + 3\sqrt{5}}{3 + \sqrt{5}} - \dfrac{7 - 3\sqrt{5}}{3 - \sqrt{5}}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Rationalise each term separately, then subtract.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+The denominators $3 \pm \sqrt{5}$ are conjugates; multiplying gives
+$9 - 5 = 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First term: $\dfrac{(7 + 3\sqrt{5})(3 - \sqrt{5})}{4} = \dfrac{21 - 7\sqrt{5} + 9\sqrt{5} - 15}{4}
+= \dfrac{6 + 2\sqrt{5}}{4} = \dfrac{3 + \sqrt{5}}{2}$.
+Second term (using conjugate $3 + \sqrt{5}$):
+$\dfrac{(7 - 3\sqrt{5})(3 + \sqrt{5})}{4} = \dfrac{21 + 7\sqrt{5} - 9\sqrt{5} - 15}{4}
+= \dfrac{6 - 2\sqrt{5}}{4} = \dfrac{3 - \sqrt{5}}{2}$.
+Difference: $\dfrac{3 + \sqrt{5}}{2} - \dfrac{3 - \sqrt{5}}{2} = \sqrt{5}$.
+</details>
+
+**5-mark (long answer).** Locate $\sqrt{5}$ on the number line by a
+ruler-and-compass construction. Show your work and justify each step using
+the Pythagorean idea.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Build a right triangle whose hypotenuse is $\sqrt{5}$. Which legs work?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Legs $2$ and $1$ give hypotenuse $\sqrt{4+1} = \sqrt{5}$.
+</details>
+<details class="hint"><summary>Hint 3 — the first step</summary>
+Mark $O$ at $0$ and $A$ at $2$. Erect a perpendicular at $A$ of length $1$;
+call its top $B$. Then $OB$ has length $\sqrt{5}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+1. Draw the number line. Mark $O$ at $0$, $A$ at $2$.
+2. At $A$, draw $AB$ perpendicular to the number line with $AB = 1$ unit.
+3. Triangle $OAB$ is right-angled at $A$, so by Pythagoras,
+   $OB^2 = OA^2 + AB^2 = 4 + 1 = 5$, giving $OB = \sqrt{5}$.
+4. With $O$ as centre and radius $OB$, draw an arc cutting the number line
+   at $P$ to the right of $O$. Then $OP = \sqrt{5}$, so $P$ marks the
+   position of $\sqrt{5}$ on the number line. $\blacksquare$
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 1, Problem 1.4 (irrational
+classification, similar to 1-mark above). **Previous-year pointer:** CBSE
+Class 9 standard sample paper "Rationalisation" question (similar to
+3-mark above).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Every infinite decimal is irrational."** No — $0.\overline{3}$ is
+   infinite but repeats, and equals $\tfrac{1}{3}$. Irrational means
+   non-terminating *and* non-repeating.
+2. **"$\tfrac{22}{7}$ is $\pi$."** No — $\tfrac{22}{7}$ is a rational
+   approximation. $\pi$ is irrational; the two are not equal.
+3. **"$\sqrt{a} + \sqrt{b} = \sqrt{a+b}$."** Almost never. Try $a = b = 1$:
+   $\sqrt{1} + \sqrt{1} = 2$, but $\sqrt{2} \approx 1.414$. The identity
+   $\sqrt{a}\sqrt{b} = \sqrt{ab}$ is for *products*, not sums.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain why $\sqrt{2}$ is irrational, in your own words, to
+   someone who has never seen the proof?
+2. Did you solve at least 4 of the 5 *Discover* problems and 4 of the 6
+   Warm/Working problems without peeking past Hint 1?
+3. Could you take a brand-new fraction like $\tfrac{1}{4 + \sqrt{7}}$ and
+   rationalise it without notes?
+
+- **3 yes:** move on to **Polynomials**.
+- **2 yes:** redo S1 and S2, then move on.
+- **0–1 yes:** re-read *Discover* and *Apply*. Rationalisation needs
+  practice, not just understanding.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse8.rational-numbers`](../../tier-cbse-08-class-8/01-rational-numbers/index.qmd)
+  — fractions on the number line, decimal forms.
+- [`cbse8.squares-and-square-roots`](../../tier-cbse-08-class-8/05-squares-and-square-roots/index.qmd)
+  — meaning of $\sqrt{n}$, perfect vs non-perfect squares.
+
+### What this unlocks
+
+- [`cbse9.polynomials`](../02-polynomials/index.qmd) — coefficients live in
+  $\mathbb{R}$, and irrational roots will appear.
+- [`cbse10.real-numbers`](../../tier-cbse-10-class-10/01-real-numbers/index.qmd)
+  — Euclid's lemma, fundamental theorem of arithmetic.
+- [`cbse10.quadratic-equations`](../../tier-cbse-10-class-10/04-quadratic-equations/index.qmd)
+  — solutions are often surds.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 1 — Number Systems** (NCERT 2023 rationalised
+  syllabus). Covers Sections 1.1–1.5: irrational numbers, real numbers and
+  their decimal expansions, representing reals on the number line, laws of
+  exponents for real numbers.
+- **Sister synthesis lesson** (different angle):
+  [`t2.square-roots-irrationals`](../../tier-2-algebra1/06-square-roots-irrationals/index.qmd).
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the school exam.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** RSA depends on the fact that integers factor into primes
+in only one way — a property of $\mathbb{Z}$, not $\mathbb{R}$. But
+post-quantum schemes (lattice cryptography) live inside fields like
+$\mathbb{Q}(\sqrt{2})$, where exactly the kinds of conjugate identities
+you learned today decide what is hard.
+:::
+
+::: {.applied-callout}
+**Research.** That $\sqrt{2}$ is irrational was the first crisis in Greek
+mathematics. The proof you just walked through (Euclid, *Elements*, Book
+X) is the same one mathematicians teach today — a proof so clean that
+2300 years have not improved it.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (string-and-square Touch), Russian
+  problem-first (Discover forces irrationality before naming it),
+  Bhāskara (one-verse *Name*), Better Explained (the "Aha" is *the
+  diagonal of the unit square cannot be a fraction*).
+- **Prerequisites declared:** rational numbers and square roots from
+  Class 8. No forward references except to the explicitly listed unlocks.
+:::

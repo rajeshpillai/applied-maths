@@ -1,0 +1,397 @@
+---
+title: "Ch 7b — Integration Techniques (Substitution, Parts, Partial Fractions)"
+subtitle: "Three workhorses that turn an unknown integral into a known one"
+lesson-id: "cbse12.integration-techniques"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 7
+ncert-chapter-title: "Integrals"
+board-exam: true
+prerequisites: ["cbse12.indefinite-integrals"]
+unlocks: ["cbse12.definite-integrals-properties", "cbse12.differential-equations"]
+applied-domains: ["research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are you fluent with the standard antiderivative table?
+2. Comfortable with the chain rule and product rule?
+3. Have you done [Ch 7a](../07a-indefinite-integrals/index.qmd)?
+:::
+
+## Touch
+
+You meet $\int 2x \cos(x^2) \, dx$. The standard table doesn't list it.
+
+::: {.lesson-beat}
+
+But notice: the inner thing $x^2$ has derivative $2x$, sitting right in
+the integrand. Substitute $u = x^2,\ du = 2x \, dx$:
+$$\int \cos u \, du = \sin u + C = \sin(x^2) + C.$$
+
+That's **substitution** — chain rule run in reverse.
+
+Now meet $\int x e^x \, dx$. Substitution doesn't help. But the
+**product rule** says $\frac{d}{dx}(xe^x) = e^x + xe^x$, so $xe^x =
+\frac{d}{dx}(xe^x) - e^x$. Integrate:
+$$\int xe^x \, dx = xe^x - e^x + C.$$
+
+That's **integration by parts** — product rule in reverse.
+
+Now meet $\int \frac{1}{(x-1)(x+2)} \, dx$. Decompose:
+$$\frac{1}{(x-1)(x+2)} = \frac{A}{x-1} + \frac{B}{x+2}.$$
+
+That's **partial fractions** — turning a hard rational integrand into
+a sum of easy ones.
+
+:::
+
+These three techniques cover almost everything CBSE asks.
+
+## Wonder
+
+1. When does substitution work? (When the integrand contains $f(g(x))
+   \cdot g'(x)$ or close to it.)
+2. By-parts gives $\int u\,dv = uv - \int v\,du$. Why must you pick $u$
+   wisely?
+3. Why must the rational function be **proper** (degree of numerator <
+   degree of denominator) before partial fractions?
+
+## Discover
+
+### Problem 1
+
+Compute $\int 2x e^{x^2} \, dx$ by substitution.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$u = x^2,\ du = 2x \, dx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int e^u \, du = e^u + C = e^{x^2} + C$.
+</details>
+
+### Problem 2
+
+Compute $\int \dfrac{1}{x \log x} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$u = \log x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$du = dx/x$. $\int \frac{du}{u} = \log|u| + C = \log|\log x| + C$.
+</details>
+
+### Problem 3
+
+Compute $\int x \cos x \, dx$ by parts.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+**ILATE rule**: pick $u$ in order Inverse trig, Logarithm, Algebraic,
+Trig, Exponential. Algebraic before trig: $u = x, dv = \cos x \,dx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$u = x, du = dx$. $dv = \cos x \, dx, v = \sin x$.
+$\int x \cos x \, dx = x \sin x - \int \sin x \, dx = x \sin x + \cos x
++ C$.
+</details>
+
+### Problem 4
+
+Compute $\int \log x \, dx$ by parts.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Trick: $u = \log x, dv = dx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$du = dx/x, v = x$. $\int \log x \, dx = x \log x - \int x \cdot
+\frac{1}{x} dx = x \log x - x + C$.
+</details>
+
+### Problem 5
+
+Compute $\int \dfrac{dx}{(x - 1)(x + 2)}$ by partial fractions.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\frac{1}{(x-1)(x+2)} = \frac{A}{x-1} + \frac{B}{x+2}$. Solve for $A,
+B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 = A(x+2) + B(x-1)$. Set $x = 1$: $1 = 3A \Rightarrow A = 1/3$. Set $x
+= -2$: $1 = -3B \Rightarrow B = -1/3$.
+$\int \frac{dx}{(x-1)(x+2)} = \frac{1}{3}\log|x-1| - \frac{1}{3}
+\log|x+2| + C = \frac{1}{3}\log\left|\frac{x-1}{x+2}\right| + C$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Substitution.** If $u = g(x)$, then
+$$\int f(g(x))\, g'(x) \, dx = \int f(u) \, du.$$
+
+**By-parts.** $\int u\, dv = uv - \int v\, du$. Pick $u$ by **ILATE**.
+
+**Partial fractions.** A proper rational function $P(x)/Q(x)$ where
+$Q(x)$ factorises into linear and irreducible quadratic factors splits
+as a sum of terms $\frac{A_i}{(x - a_i)^k}$ and $\frac{Bx + C}{x^2 +
+px + q}$. Solve for the constants by substitution or comparing
+coefficients.
+
+**Three high-yield standard integrals** (extending Ch 7a):
+
+$$\int \frac{dx}{a^2 - x^2} = \frac{1}{2a}\log\left|\frac{a+x}{a-x}
+\right| + C,$$
+$$\int \frac{dx}{x^2 - a^2} = \frac{1}{2a}\log\left|\frac{x-a}{x+a}
+\right| + C,$$
+$$\int \frac{dx}{\sqrt{x^2 \pm a^2}} = \log\left|x + \sqrt{x^2 \pm
+a^2}\right| + C.$$
+
+:::
+
+A verse:
+
+> *Spot $g'$ in the wild — substitute $u = g$;*
+> *Pick $u$ by ILATE — and parts shall set you free.*
+> *Roots in the bottom? Decompose by partial fraction art —*
+> *Three tools, infinite hunt; pick the right one to start.*
+
+## Apply
+
+### Worked example
+
+> Evaluate $\int x^2 e^x \, dx$.
+
+A competent solver:
+
+1. By parts. $u = x^2, dv = e^x\,dx$. $du = 2x\,dx, v = e^x$.
+2. $\int x^2 e^x \, dx = x^2 e^x - \int 2x e^x \, dx$.
+3. Apply by parts again to $\int 2x e^x dx$: $u = 2x, dv = e^x dx$.
+   $= 2xe^x - \int 2 e^x dx = 2xe^x - 2e^x$.
+4. Combine: $x^2 e^x - 2xe^x + 2e^x + C = (x^2 - 2x + 2)e^x + C$.
+
+### Practice — Warm
+
+**W1.** $\int (3x + 2)^5 \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$u = 3x + 2$. $\frac{1}{3}\int u^5 du = u^6/18 + C = (3x+2)^6/18 + C$.
+</details>
+
+**W2.** $\int x e^x \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+By parts (W4 of Discover): $xe^x - e^x + C$.
+</details>
+
+**W3.** $\int \dfrac{2x}{x^2 + 1} \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$u = x^2 + 1, du = 2x\,dx$. $\int du/u = \log(x^2+1) + C$.
+</details>
+
+### Practice — Working
+
+**P1.** $\int \dfrac{x}{(x+1)(x+2)}\, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Partial fractions: $\frac{x}{(x+1)(x+2)} = \frac{A}{x+1} +
+\frac{B}{x+2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = A(x+2) + B(x+1)$. $x = -1$: $-1 = A \Rightarrow A = -1$. $x = -2$:
+$-2 = -B \Rightarrow B = 2$. Integral: $-\log|x+1| + 2\log|x+2| + C$.
+</details>
+
+**P2.** $\int x \sin x \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+By parts. $u = x, dv = \sin x dx$. $v = -\cos x$. $\int x \sin x dx =
+-x \cos x + \int \cos x dx = -x\cos x + \sin x + C$.
+</details>
+
+**P3.** $\int e^x \sin x \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+By parts twice; the original integral reappears.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$I = \int e^x \sin x \, dx$. By parts: $u = \sin x, dv = e^x dx$. $I =
+e^x \sin x - \int e^x \cos x \, dx$. Again by parts on $\int e^x \cos
+x dx = e^x \cos x + \int e^x \sin x dx = e^x \cos x + I$.
+So $I = e^x \sin x - e^x \cos x - I \Rightarrow 2I = e^x(\sin x - \cos
+x) \Rightarrow I = \frac{e^x(\sin x - \cos x)}{2} + C$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show $\int e^x [f(x) + f'(x)] \, dx = e^x f(x) + C$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $\frac{d}{dx}(e^x f(x))$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{d}{dx}(e^x f(x)) = e^x f(x) + e^x f'(x) = e^x[f(x) + f'(x)]$.
+Integrate both sides. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $\int \cos(2x + 3) \, dx =$ (a) $\sin(2x+3) + C$
+(b) $\sin(2x+3)/2 + C$ (c) $-\sin(2x+3)/2 + C$ (d) $-2\sin(2x+3) + C$.
+
+<details class="hint"><summary>Full solution</summary>
+Substitute $u = 2x + 3$, $du = 2dx$. $\frac{1}{2}\sin u + C$. **(b).**
+</details>
+
+**1-mark MCQ #2.** $\int xe^{x^2}\,dx =$ (a) $e^{x^2}/2 + C$ (b)
+$xe^{x^2} + C$ (c) $e^{x^2} + C$ (d) $e^{x^2}/x + C$.
+
+<details class="hint"><summary>Full solution</summary>
+$u = x^2, du = 2x dx$. $\frac{1}{2}e^u + C$. **(a).**
+</details>
+
+**2-mark.** $\int \dfrac{\sin x}{1 + \cos x}\, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$u = 1 + \cos x, du = -\sin x dx$. $-\int du/u = -\log|1 + \cos x| + C$.
+</details>
+
+**2-mark.** $\int x \log x \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+By parts. $u = \log x, dv = x dx$. $du = dx/x, v = x^2/2$.
+$= \frac{x^2}{2}\log x - \int \frac{x}{2}\, dx = \frac{x^2}{2}\log x -
+\frac{x^2}{4} + C$.
+</details>
+
+**3-mark.** $\int \dfrac{x + 1}{x^2 - 4x + 5} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Numerator $= \frac{1}{2}(2x - 4) + 3$. Split.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int \frac{(2x-4)/2 + 3}{x^2 - 4x + 5} dx = \frac{1}{2}\log|x^2 - 4x +
+5| + 3 \int \frac{dx}{(x-2)^2 + 1} = \frac{1}{2}\log(x^2 - 4x + 5) + 3
+\tan^{-1}(x - 2) + C$.
+</details>
+
+**3-mark.** $\int \dfrac{dx}{(x^2 + 1)(x^2 + 2)}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Partial fractions: $\frac{1}{(x^2+1)(x^2+2)} = \frac{1}{x^2+1} -
+\frac{1}{x^2+2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tan^{-1}x - \frac{1}{\sqrt 2}\tan^{-1}(x/\sqrt 2) + C$.
+</details>
+
+**5-mark long answer.** Evaluate $\int \dfrac{2x}{(x^2 + 1)(x^2 + 3)}
+\, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $u = x^2$, then partial fractions in $u$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$u = x^2, du = 2x dx$. Integral becomes $\int \frac{du}{(u+1)(u+3)} =
+\frac{1}{2}[\log|u+1| - \log|u+3|] + C = \frac{1}{2}\log\left|\frac{u+1}
+{u+3}\right| + C = \frac{1}{2}\log\left(\frac{x^2+1}{x^2+3}\right) + C$.
+</details>
+
+**6-mark Case Study.** *Drug concentration in blood.*
+
+A drug's plasma concentration after dose has $C(t) = At e^{-kt}$ where
+$A = 5,\ k = 0.5$.
+
+(i) Compute the antiderivative $\int A t e^{-kt}\,dt$. (3 marks)
+(ii) Total drug exposure (AUC, area under curve) on $[0, T]$ is $\int_0^T C(t)\,dt$ — set up the antiderivative for $T = 4$. (2 marks)
+(iii) Why is the by-parts technique natural for this integrand?
+(1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** By parts: $u = t, dv = e^{-kt} dt$. $du = dt, v = -e^{-kt}/k$.
+$\int t e^{-kt} dt = -t e^{-kt}/k + \int e^{-kt}/k \, dt = -t e^{-kt}/k
+- e^{-kt}/k^2 + C = -e^{-kt}(t/k + 1/k^2) + C$.
+With $A = 5, k = 0.5$: $\int 5 t e^{-t/2} dt = -10 e^{-t/2}(t/0.5 \cdot
+0.5 + ...) = -10 e^{-t/2}(t + 2) \cdot \text{(check)}$.
+Recompute carefully with $k = 0.5$: $\int 5 t e^{-0.5 t} dt = 5\cdot(-2t
+e^{-0.5t} - 4 e^{-0.5t}) + C = -10 e^{-0.5t}(t + 2) + C$.
+**(ii)** AUC $= [-10 e^{-0.5t}(t+2)]_0^4 = -10 e^{-2}(6) + 10 \cdot 1
+\cdot 2 = -60 e^{-2} + 20$.
+**(iii)** Product of an algebraic ($t$) and exponential ($e^{-kt}$) —
+exactly the ILATE pattern.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 7.2–7.5.
+**Previous-year pointer:** CBSE 2023 Set 1 Q31 (5-mark partial
+fractions); CBSE 2022 Q22.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Just memorise more standard integrals."** Better to recognise
+   structure: chain hidden? → substitute. Product? → parts. Rational?
+   → partial fractions.
+2. **"By-parts: any choice of $u, dv$ works."** Wrong. ILATE chooses
+   $u$ such that $du$ becomes simpler.
+3. **"Partial fractions on $\frac{x^3}{x^2 + 1}$."** Improper —
+   long-divide first.
+:::
+
+### Self-Assessment
+
+1. Could you decide which of the three techniques to apply within 30
+   seconds for any standard integrand?
+2. Did you solve at least 5 of 7 board items unaided?
+3. Can you do a by-parts twice (e.g. $\int x^2 e^x$) confidently?
+
+- **3 yes:** move on.
+- **2 yes:** redo Stretch and 5-mark problems.
+- **0–1 yes:** memorise the ILATE rule and three standard integrals.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.indefinite-integrals`](../07a-indefinite-integrals/index.qmd)
+  — the standard table.
+
+### What this unlocks
+
+- [`cbse12.definite-integrals-properties`](../07c-definite-integrals-properties/index.qmd)
+  — applying these techniques on bounded intervals.
+- [`cbse12.differential-equations`](../09-differential-equations/index.qmd)
+  — separable and linear ODEs need integration.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 7** (NCERT 2023). Sections 7.4–7.6.
+- **Sister synthesis lessons:**
+  [`t4.integration-techniques`](../../tier-4-precalc-calculus/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research / engineering.** Pharmacokinetics, signal processing, and
+physics are saturated with integrals of $t^n e^{-kt}$ and rational
+functions — the techniques here are everyday tools.
+:::
+
+::: {.applied-callout}
+**AI/ML.** Computing the partition function in some probabilistic
+models reduces to integration by parts; conjugate priors arise where
+products of polynomials and exponentials integrate cleanly.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Gelfand (problem-first), Bhāskara (verse), AoPS
+  (graded by-parts examples).
+:::

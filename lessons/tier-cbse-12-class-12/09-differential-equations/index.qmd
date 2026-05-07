@@ -1,0 +1,385 @@
+---
+title: "Ch 9 — Differential Equations"
+subtitle: "Equations whose unknowns are functions — solved by integration"
+lesson-id: "cbse12.differential-equations"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 9
+ncert-chapter-title: "Differential Equations"
+board-exam: true
+prerequisites: ["cbse12.integration-techniques"]
+unlocks: ["cbse12.vector-algebra"]
+applied-domains: ["research", "ai-ml", "game-dev"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Comfortable with substitution and by-parts?
+2. Can you compute $\int e^x \, dx$ and $\int 1/x \, dx$?
+3. Have you done [Ch 7b](../07b-integration-techniques/index.qmd)?
+:::
+
+## Touch
+
+A culture of bacteria doubles every hour. If $N(t)$ is the count at
+time $t$, the *rate of change* of $N$ is proportional to $N$ itself:
+$$\frac{dN}{dt} = kN.$$
+
+::: {.lesson-beat}
+
+This is a **differential equation** — an equation involving an unknown
+function and its derivative.
+
+To solve: separate the variables.
+$$\frac{dN}{N} = k\, dt \implies \int \frac{dN}{N} = \int k \, dt
+\implies \log N = kt + C \implies N(t) = N_0 e^{kt}.$$
+
+For doubling per hour: $N(1) = 2N_0 \Rightarrow e^k = 2 \Rightarrow k =
+\log 2$.
+
+:::
+
+A differential equation **is** an integration problem in disguise. The
+chapter teaches three forms:
+
+1. **Variable-separable** — push $y$ to one side, $x$ to the other.
+2. **Homogeneous** — substitute $y = vx$.
+3. **Linear (first-order)** — multiply by an integrating factor.
+
+## Wonder
+
+1. Why does an indefinite integration give one constant — but the
+   general solution of a *first-order* ODE has one arbitrary constant
+   while a *second-order* ODE has two?
+2. Could a function fail to satisfy *any* differential equation?
+3. The IF for $y' + Py = Q$ is $e^{\int P dx}$. Why?
+
+## Discover
+
+### Problem 1
+
+Solve $\dfrac{dy}{dx} = x^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$y = x^3/3 + C$.
+</details>
+
+### Problem 2
+
+Solve $\dfrac{dy}{dx} = xy$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Separate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{dy}{y} = x \, dx \Rightarrow \log|y| = x^2/2 + C \Rightarrow y =
+A e^{x^2/2}$.
+</details>
+
+### Problem 3
+
+Solve $\dfrac{dy}{dx} = \dfrac{y}{x}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Homogeneous of degree 0. Try $y = vx$, so $\frac{dy}{dx} = v + x
+\frac{dv}{dx}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v + x \frac{dv}{dx} = v \Rightarrow x \frac{dv}{dx} = 0 \Rightarrow v
+= C \Rightarrow y = Cx$.
+</details>
+
+### Problem 4
+
+Solve $\dfrac{dy}{dx} + y = e^x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Linear with $P = 1, Q = e^x$. IF $= e^{\int 1 dx} = e^x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Multiply by $e^x$: $e^x y' + e^x y = e^{2x}$, i.e. $\frac{d}{dx}(e^x y)
+= e^{2x}$. Integrate: $e^x y = e^{2x}/2 + C \Rightarrow y = e^x/2 + C
+e^{-x}$.
+</details>
+
+### Problem 5
+
+Find the order and degree of $\left(\dfrac{d^2 y}{dx^2}\right)^3 + 5
+\left(\dfrac{dy}{dx}\right) = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+**Order**: highest derivative = 2. **Degree**: power of highest
+derivative when polynomial = 3.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **differential equation** (DE) is an equation in $x, y, y', y'',
+\ldots$ Its **order** is the highest derivative; its **degree** is
+that derivative's polynomial power (after clearing radicals/fractions).
+
+**General solution.** Contains as many arbitrary constants as the
+order. **Particular solution.** Constants fixed by initial / boundary
+conditions.
+
+**Three solvable types** (Class 12 syllabus):
+
+1. **Variable-separable.** $\dfrac{dy}{dx} = f(x) g(y)$ → $\int dy/g(y)
+   = \int f(x) dx$.
+2. **Homogeneous.** $\dfrac{dy}{dx} = F(y/x)$. Let $y = vx$; reduces
+   to separable in $v, x$.
+3. **Linear of first order.** $\dfrac{dy}{dx} + P(x) y = Q(x)$.
+   **Integrating factor** $\text{IF} = e^{\int P \, dx}$. Solution:
+   $y \cdot \text{IF} = \int Q \cdot \text{IF} \, dx + C$.
+
+:::
+
+A verse:
+
+> *Order: highest derivative. Degree: its polynomial coat.*
+> *Separable — split sides; integrate; arbitrary constant on the
+>  float.*
+> *Homogeneous — let $y = vx$, reduce to separable;*
+> *Linear — IF is $e^{\int P}$, the trick that makes it tameable.*
+
+## Apply
+
+### Worked example
+
+> Solve $x \dfrac{dy}{dx} + 2y = x^2 \log x$.
+
+A competent solver:
+
+1. Standard form: $y' + (2/x)y = x \log x$. Linear with $P = 2/x$.
+2. IF $= e^{\int 2/x dx} = e^{2 \log x} = x^2$.
+3. Multiply: $x^2 y' + 2x y = x^3 \log x \Rightarrow \frac{d}{dx}(x^2 y)
+   = x^3 \log x$.
+4. Integrate by parts: $\int x^3 \log x \, dx$. $u = \log x, dv = x^3
+   dx$. $= (x^4/4)\log x - x^4/16$.
+5. So $x^2 y = (x^4/4)\log x - x^4/16 + C \Rightarrow y = (x^2/4) \log
+   x - x^2/16 + C/x^2$.
+
+### Practice — Warm
+
+**W1.** Solve $\dfrac{dy}{dx} = \cos x$.
+
+<details class="hint"><summary>Full solution</summary>
+$y = \sin x + C$.
+</details>
+
+**W2.** Order and degree of $\sqrt{1 + (y')^2} = y''$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Square first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 + (y')^2 = (y'')^2$. Order 2, degree 2.
+</details>
+
+**W3.** Solve $\dfrac{dy}{dx} = -y$.
+
+<details class="hint"><summary>Full solution</summary>
+$y = Ce^{-x}$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $\dfrac{dy}{dx} = \dfrac{1 + y^2}{1 + x^2}$.
+
+<details class="hint"><summary>Full solution</summary>
+Separable: $\frac{dy}{1 + y^2} = \frac{dx}{1 + x^2} \Rightarrow
+\tan^{-1}y = \tan^{-1}x + C$.
+</details>
+
+**P2.** Solve $\dfrac{dy}{dx} = \dfrac{x + y}{x}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\frac{dy}{dx} = 1 + y/x$ — homogeneous. Or rearrange to linear.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Linear: $y' - y/x = 1$. IF $= e^{-\int dx/x} = 1/x$.
+$\frac{d}{dx}(y/x) = 1/x \Rightarrow y/x = \log|x| + C \Rightarrow y =
+x \log|x| + Cx$.
+</details>
+
+**P3.** Solve $(1 + x^2) \dfrac{dy}{dx} + 2xy = 4x^2$ given $y(0) = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Linear. $P = 2x/(1+x^2), Q = 4x^2/(1+x^2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+IF $= e^{\int 2x/(1+x^2) dx} = e^{\log(1+x^2)} = 1 + x^2$.
+$\frac{d}{dx}((1+x^2)y) = 4x^2 \Rightarrow (1+x^2)y = 4x^3/3 + C$.
+$y(0) = 0 \Rightarrow C = 0$. So $y = \frac{4x^3}{3(1+x^2)}$.
+</details>
+
+### Practice — Stretch
+
+**S1.** A radioactive substance decays at a rate proportional to its
+mass. If half decays in 1620 years, find the time required to decay
+to $1/4$ of its original mass.
+
+<details class="hint"><summary>Full solution</summary>
+$dm/dt = -km$, $m = m_0 e^{-kt}$. Half-life: $1/2 = e^{-1620 k}
+\Rightarrow k = \log 2 / 1620$. To reach $1/4$: $1/4 = e^{-kt}
+\Rightarrow t = 2 \cdot 1620 = 3240$ years.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** Order and degree of $y'' + (y')^3 = 0$ are (a) 1, 1
+(b) 2, 1 (c) 2, 3 (d) 1, 3.
+
+<details class="hint"><summary>Full solution</summary>
+Order 2 (highest derivative), degree 1 (power of $y''$). **(b).**
+</details>
+
+**1-mark MCQ #2.** IF for $y' + 3y = e^x$ is (a) $e^x$ (b) $e^{3x}$
+(c) $3 e^x$ (d) $\log 3 + x$.
+
+<details class="hint"><summary>Full solution</summary>
+$P = 3$, IF $= e^{3x}$. **(b).**
+</details>
+
+**2-mark.** Solve $(x + 1) \frac{dy}{dx} = 2 y$.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{dy}{y} = \frac{2 dx}{x+1} \Rightarrow \log y = 2 \log(x+1) + C
+\Rightarrow y = A(x+1)^2$.
+</details>
+
+**2-mark.** Solve $\frac{dy}{dx} = e^{x + y}$.
+
+<details class="hint"><summary>Full solution</summary>
+$e^{-y} dy = e^x dx \Rightarrow -e^{-y} = e^x + C \Rightarrow e^x +
+e^{-y} = -C$ (combine constants).
+</details>
+
+**3-mark.** Solve $\frac{dy}{dx} + y \tan x = \sin x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Linear. $P = \tan x$, IF $= e^{\int \tan x \, dx} = \sec x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Multiply by $\sec x$: $\frac{d}{dx}(y \sec x) = \sin x \sec x = \tan x$.
+$y \sec x = \log|\sec x| + C \Rightarrow y = \cos x \log|\sec x| + C
+\cos x$.
+</details>
+
+**3-mark.** Solve $x \frac{dy}{dx} - y = x^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' - y/x = x$. Linear. IF = $1/x$. $\frac{d}{dx}(y/x) = 1 \Rightarrow
+y/x = x + C \Rightarrow y = x^2 + Cx$.
+</details>
+
+**5-mark long answer.** Solve $(x^2 + y^2) \, dx - 2xy \, dy = 0$
+(homogeneous).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\frac{dy}{dx} = \frac{x^2 + y^2}{2xy}$. Substitute $y = vx$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{dy}{dx} = \frac{1 + v^2}{2v}$. With $y = vx$: $v + x v' = (1 +
+v^2)/(2v)$, so $x v' = (1 + v^2)/(2v) - v = (1 - v^2)/(2v)$.
+Separate: $\frac{2v\, dv}{1 - v^2} = \frac{dx}{x}$. Integrate: $-\log|1
+- v^2| = \log|x| + C \Rightarrow \log|1 - v^2| = -\log|x| + C'
+\Rightarrow 1 - v^2 = K/x$ where $K = e^{C'}$.
+Substitute $v = y/x$: $1 - y^2/x^2 = K/x \Rightarrow x^2 - y^2 = Kx$.
+</details>
+
+**6-mark Case Study.** *Newton's law of cooling.*
+
+A coffee cup at $80°$C cools in a room at $25°$C. After 5 minutes the
+coffee is at $60°$C. Newton's law: $\dfrac{dT}{dt} = -k(T - 25)$.
+
+(i) Solve the ODE for $T(t)$. (3 marks)
+(ii) Use $T(5) = 60$ to find $k$. (1 mark)
+(iii) Find $T(15)$. (2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\frac{dT}{T - 25} = -k \, dt \Rightarrow \log(T - 25) = -kt +
+C \Rightarrow T = 25 + A e^{-kt}$. With $T(0) = 80$: $A = 55$. So $T =
+25 + 55 e^{-kt}$.
+**(ii)** $60 = 25 + 55 e^{-5k} \Rightarrow e^{-5k} = 35/55 = 7/11
+\Rightarrow k = \frac{1}{5}\log(11/7) \approx 0.090$.
+**(iii)** $T(15) = 25 + 55 e^{-15k} = 25 + 55 (7/11)^3 = 25 + 55 \cdot
+343/1331 \approx 25 + 14.18 \approx 39.2°$C.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 9.1, 9.2, 9.3.
+**Previous-year pointer:** CBSE 2023 Set 1 Q35 (5-mark linear ODE);
+CBSE 2022 Q34.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Forgetting the constant of integration."** Always present.
+2. **"Linear equations are also separable."** Sometimes — but the IF
+   method works even when separation fails.
+3. **"Order = degree."** Different concepts. Order is the highest
+   derivative; degree is its polynomial power.
+:::
+
+### Self-Assessment
+
+1. Could you classify a fresh ODE as separable / homogeneous / linear
+   in 30 seconds?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you derive the IF for any first-order linear ODE?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark homogeneous problem.
+- **0–1 yes:** rewrite the three solution forms from memory.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.integration-techniques`](../07b-integration-techniques/index.qmd)
+  — every step is an integration.
+
+### What this unlocks
+
+- [`cbse12.vector-algebra`](../10a-vector-algebra/index.qmd).
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 9** (NCERT 2023). Sections 9.1–9.5.
+- **Sister synthesis lessons:**
+  [`t4.differential-equations`](../../tier-4-precalc-calculus/12-differential-equations/index.qmd),
+  [`t6.second-order-odes`](../../tier-6-grad-applied/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research / engineering.** Population dynamics, radioactive decay,
+RC and RL circuits, drug elimination — all are first-order linear or
+separable ODEs.
+:::
+
+::: {.applied-callout}
+**AI/ML.** Neural ODEs treat hidden states as continuous-time
+trajectories — the network learns $f$ in $dh/dt = f(h, t)$.
+:::
+
+::: {.applied-callout}
+**Game development.** Particle physics, spring-mass systems,
+projectile motion — all simulated by integrating ODEs each frame.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained ("ODE = future from now"), Bhāskara
+  (verse), Gelfand (problem-first).
+:::

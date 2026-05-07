@@ -1,0 +1,449 @@
+---
+title: "Ch 2 — Inverse Trigonometric Functions"
+subtitle: "Restrict the domain, gain an inverse, work the principal branch"
+lesson-id: "cbse12.inverse-trig-functions"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 2
+ncert-chapter-title: "Inverse Trigonometric Functions"
+board-exam: true
+prerequisites: ["cbse11.trig-functions", "cbse12.relations-functions-types"]
+unlocks: ["cbse12.differentiability-and-rules", "cbse12.integration-techniques"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Do the graphs of $\sin x$, $\cos x$, $\tan x$ feel familiar?
+2. Can you read the values $\sin(\pi/6) = 1/2$, $\cos(\pi/3) = 1/2$,
+   $\tan(\pi/4) = 1$ off the unit circle?
+3. From last lesson — what does it mean for a function to be **bijective**?
+
+If no on (1) or (2), revisit
+[Class 11 · Ch 3a — Trigonometric Functions](../../tier-cbse-11-class-11/03a-trig-functions/index.qmd).
+If no on (3), see
+[Class 12 · Ch 1](../01-relations-functions-types/index.qmd).
+:::
+
+## Touch
+
+Pick any number $y$ between $-1$ and $1$. Ask: which angle $\theta$ has
+$\sin \theta = y$?
+
+Try $y = 1/2$.
+
+::: {.lesson-beat}
+
+| $\theta$ (degrees) | $-330°$ | $-210°$ | $30°$ | $150°$ | $390°$ | $510°$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| $\sin \theta$      | $1/2$ | $1/2$ | $1/2$ | $1/2$ | $1/2$ | $1/2$ |
+
+:::
+
+Six different angles, all giving $\sin \theta = 1/2$. Infinitely many
+in fact — every $30° + 360°k$ and every $150° + 360°k$.
+
+If you tell me $\sin \theta = 1/2$, you have **not** told me $\theta$.
+
+So we play a game: agree once and for all that *sin's inverse will
+return the angle in the range $[-90°, 90°]$ — and only that*. Then
+$\sin^{-1}(1/2) = 30°$, full stop.
+
+**That trick** — restricting the domain of $\sin$ to $[-\pi/2, \pi/2]$ so
+it becomes bijective — is the whole chapter.
+
+## Wonder
+
+1. Could you have picked a different range, say $[\pi/2, 3\pi/2]$, and
+   still got a working inverse? What would it return for $\sin^{-1}(1/2)$?
+2. Why must the chosen range *cover* every value of $\sin$ once?
+3. The range $[-\pi/2, \pi/2]$ contains $0$ and is symmetric — convenient
+   for what?
+
+## Discover
+
+### Problem 1
+
+Find every angle $\theta$ in $[0, 2\pi)$ with $\cos \theta = -1/2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reference angle: $\cos(\pi/3) = 1/2$. The negative sign sends you to
+quadrants II and III.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\theta = 2\pi/3, \ 4\pi/3$. Two answers in one period.
+</details>
+
+### Problem 2
+
+You want to invert $\cos$. Pick a range so that *every* value in $[-1,1]$
+is hit by exactly one angle. Try $[0, \pi]$. Does that work?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sketch $\cos x$ on $[0, \pi]$. Does it hit $-1, 0, 1$ each exactly once?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos$ on $[0, \pi]$ runs strictly from $1$ down to $-1$ — every value
+in $[-1,1]$ is hit exactly once. ✓ This is the **principal range** for
+$\cos^{-1}$.
+</details>
+
+### Problem 3
+
+Compute $\sin^{-1}(\sin(2\pi/3))$ if $\sin^{-1}$ outputs an angle in
+$[-\pi/2, \pi/2]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin(2\pi/3) = \sin(\pi/3)$. Now $\pi/3$ *is* in $[-\pi/2, \pi/2]$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin(2\pi/3) = \sqrt{3}/2 = \sin(\pi/3)$. Since $\pi/3 \in [-\pi/2,
+\pi/2]$, $\sin^{-1}(\sin(2\pi/3)) = \pi/3$, **not** $2\pi/3$.
+
+Important: $\sin^{-1}(\sin x) = x$ only on the principal branch.
+</details>
+
+### Problem 4
+
+A right triangle has legs of length 3 and 4. The hypotenuse is 5. Find
+the angle $\theta$ opposite the leg of length 3.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin \theta = 3/5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\theta = \sin^{-1}(3/5) \approx 36.87°$. We don't write the answer
+exactly because $3/5$ isn't on the standard table — but it *is* a
+unique angle, and your calculator returns it because the principal
+branch makes the inverse function well-defined.
+</details>
+
+### Problem 5
+
+Show that $\sin^{-1}(-x) = -\sin^{-1}(x)$ for $x \in [-1,1]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use that $\sin$ is odd: $\sin(-\theta) = -\sin\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\theta = \sin^{-1}(x)$, so $\sin \theta = x$ and $\theta \in
+[-\pi/2, \pi/2]$. Then $\sin(-\theta) = -\sin\theta = -x$ and $-\theta
+\in [-\pi/2, \pi/2]$. So $\sin^{-1}(-x) = -\theta = -\sin^{-1}(x)$. ✓
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **principal value branches** of the six inverse trig functions:
+
+| Function | Domain | Principal range |
+|:--|:-:|:-:|
+| $\sin^{-1} x$ | $[-1,1]$ | $[-\pi/2, \pi/2]$ |
+| $\cos^{-1} x$ | $[-1,1]$ | $[0, \pi]$ |
+| $\tan^{-1} x$ | $\mathbb{R}$ | $(-\pi/2, \pi/2)$ |
+| $\cot^{-1} x$ | $\mathbb{R}$ | $(0, \pi)$ |
+| $\sec^{-1} x$ | $|x| \ge 1$ | $[0, \pi] \setminus \{\pi/2\}$ |
+| $\csc^{-1} x$ | $|x| \ge 1$ | $[-\pi/2, \pi/2] \setminus \{0\}$ |
+
+Two key identities (derive from complementarity):
+
+$$\sin^{-1} x + \cos^{-1} x = \frac{\pi}{2}, \qquad \tan^{-1} x +
+\cot^{-1} x = \frac{\pi}{2}.$$
+
+:::
+
+A verse to remember:
+
+> *Sine bows from $-\pi/2$ to $\pi/2$;*
+> *Cosine reigns from $0$ to $\pi$, no minus side.*
+> *Tangent runs the open half-line, ends excluded;*
+> *Half-pi sums them — sine with cosine, tan with cot.*
+
+## Apply
+
+### Worked example
+
+> Find the value of $\tan^{-1}(\sqrt{3}) + \cos^{-1}(-1/2)$.
+
+A competent solver thinks:
+
+1. $\tan^{-1}(\sqrt{3})$ — angle in $(-\pi/2, \pi/2)$ with $\tan = \sqrt{3}$.
+   That's $\pi/3$.
+2. $\cos^{-1}(-1/2)$ — angle in $[0, \pi]$ with $\cos = -1/2$. That's
+   $2\pi/3$.
+3. Sum: $\pi/3 + 2\pi/3 = \pi$.
+
+**Answer: $\pi$.**
+
+### Practice — Warm
+
+**W1.** Compute $\sin^{-1}(\sqrt{3}/2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi/3$. (And not $2\pi/3$, even though $\sin(2\pi/3) = \sqrt{3}/2$.)
+</details>
+
+**W2.** Compute $\cos^{-1}(0) + \sin^{-1}(0)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi/2 + 0 = \pi/2$. (Or: use the identity $\sin^{-1}x + \cos^{-1}x =
+\pi/2$ at $x = 0$.)
+</details>
+
+**W3.** Compute $\tan^{-1}(-1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Principal range is $(-\pi/2, \pi/2)$. Pick the angle there with
+$\tan = -1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-\pi/4$.
+</details>
+
+### Practice — Working
+
+**P1.** Show $\sin^{-1}(2x\sqrt{1-x^2}) = 2 \sin^{-1} x$ for
+$|x| \le 1/\sqrt{2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $\theta = \sin^{-1} x$, so $\sin\theta = x$, $\cos\theta =
+\sqrt{1-x^2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin(2\theta) = 2\sin\theta\cos\theta = 2x\sqrt{1-x^2}$. For
+$|x| \le 1/\sqrt{2}$, $|2\theta| \le \pi/2$, so $\sin^{-1}$ of both
+sides gives $2\theta = 2\sin^{-1} x$. ✓
+</details>
+
+**P2.** Simplify $\tan^{-1}\left(\dfrac{\sin x}{1 + \cos x}\right)$ for
+$x \in (-\pi, \pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Half-angle: $\sin x = 2\sin(x/2)\cos(x/2)$, $1 + \cos x = 2\cos^2(x/2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The fraction simplifies to $\tan(x/2)$. So the expression is
+$\tan^{-1}(\tan(x/2)) = x/2$ (for $x/2$ in the principal branch
+$(-\pi/2, \pi/2)$, which holds when $x \in (-\pi, \pi)$).
+</details>
+
+**P3.** Find $\cos\big(\sin^{-1}(3/5) + \cos^{-1}(4/5)\big)$.
+
+<details class="hint"><summary>Full solution</summary>
+Let $\alpha = \sin^{-1}(3/5)$, so $\sin\alpha = 3/5,\ \cos\alpha = 4/5$.
+Let $\beta = \cos^{-1}(4/5)$, so $\cos\beta = 4/5,\ \sin\beta = 3/5$.
+$\cos(\alpha+\beta) = \cos\alpha\cos\beta - \sin\alpha\sin\beta = (4/5)
+(4/5) - (3/5)(3/5) = 16/25 - 9/25 = 7/25$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Prove $\tan^{-1} x + \tan^{-1} y = \tan^{-1}\left(\dfrac{x+y}{1
+- xy}\right)$ when $xy < 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $\tan(A + B)$ formula on $\tan(\tan^{-1} x + \tan^{-1} y)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $A = \tan^{-1} x,\ B = \tan^{-1} y$, so $\tan A = x, \tan B = y$.
+$\tan(A+B) = \dfrac{x+y}{1-xy}$. For $xy < 1$, $A + B \in (-\pi/2,
+\pi/2)$, so $\tan^{-1}\tan(A+B) = A + B$. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $\sin^{-1}(\sin(3\pi/5)) =$ (a) $3\pi/5$ (b) $2\pi/5$
+(c) $-2\pi/5$ (d) $\pi/5$.
+
+<details class="hint"><summary>Full solution</summary>
+$3\pi/5 \notin [-\pi/2, \pi/2]$. $\sin(3\pi/5) = \sin(\pi - 3\pi/5) =
+\sin(2\pi/5)$. Now $2\pi/5 \in [-\pi/2, \pi/2]$. **(b) $2\pi/5$.**
+</details>
+
+**1-mark MCQ #2.** Principal value of $\cos^{-1}(-\sqrt{3}/2)$ is
+(a) $\pi/6$ (b) $5\pi/6$ (c) $-\pi/6$ (d) $11\pi/6$.
+
+<details class="hint"><summary>Full solution</summary>
+Need angle in $[0, \pi]$ with cosine $-\sqrt{3}/2$. **$5\pi/6$**.
+</details>
+
+**2-mark.** Find the value of $\tan^{-1}(1) + \cos^{-1}(-1/2) +
+\sin^{-1}(-1/2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi/4 + 2\pi/3 + (-\pi/6) = 3\pi/12 + 8\pi/12 - 2\pi/12 = 9\pi/12 =
+3\pi/4$.
+</details>
+
+**2-mark.** Show $2\tan^{-1}(1/3) + \tan^{-1}(1/7) = \pi/4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$2\tan^{-1}(1/3) = \tan^{-1}\left(\dfrac{2 \cdot 1/3}{1 - 1/9}\right)
+= \tan^{-1}(3/4)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2\tan^{-1}(1/3) = \tan^{-1}(3/4)$. Then $\tan^{-1}(3/4) +
+\tan^{-1}(1/7) = \tan^{-1}\left(\dfrac{3/4 + 1/7}{1 - 3/28}\right) =
+\tan^{-1}\left(\dfrac{25/28}{25/28}\right) = \tan^{-1}(1) = \pi/4$. ✓
+</details>
+
+**3-mark.** Express $\tan^{-1}\left(\dfrac{\cos x}{1 - \sin x}\right)$ for
+$x \in (-\pi/2, \pi/2)$ in simplest form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Half-angle identities: $\cos x = \cos^2(x/2) - \sin^2(x/2)$,
+$1 - \sin x = (\cos(x/2) - \sin(x/2))^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numerator $= (\cos\tfrac x2 - \sin\tfrac x2)(\cos\tfrac x2 +
+\sin\tfrac x2)$. Denominator $= (\cos\tfrac x2 - \sin\tfrac x2)^2$.
+Fraction $= \dfrac{\cos\tfrac x2 + \sin\tfrac x2}{\cos\tfrac x2 -
+\sin\tfrac x2} = \dfrac{1 + \tan(x/2)}{1 - \tan(x/2)} = \tan(\pi/4 +
+x/2)$. So expression $= \pi/4 + x/2$.
+</details>
+
+**3-mark.** Find $x$ if $\sin^{-1}(1 - x) - 2\sin^{-1} x = \pi/2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Move $2\sin^{-1} x$ to the right, take $\sin$ of both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin^{-1}(1-x) = \pi/2 + 2\sin^{-1} x$. Take sine: $1 - x =
+\sin(\pi/2 + 2\sin^{-1} x) = \cos(2\sin^{-1} x) = 1 - 2x^2$. So
+$x = 2x^2 \Rightarrow x(2x - 1) = 0 \Rightarrow x = 0$ or $x = 1/2$.
+Check both: $x = 0$ ✓, $x = 1/2$ gives $\sin^{-1}(1/2) - 2\sin^{-1}(1/2)
+= -\pi/6 \ne \pi/2$, ✗. **$x = 0$.**
+</details>
+
+**5-mark long answer.** Solve for $x$:
+$\tan^{-1}(2x) + \tan^{-1}(3x) = \pi/4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the addition formula for $\tan^{-1}$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Take $\tan$ of both sides; check the side condition $xy < 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tan^{-1}(2x) + \tan^{-1}(3x) = \tan^{-1}\left(\dfrac{2x + 3x}{1 - 6
+x^2}\right) = \pi/4$ (provided $6x^2 < 1$). So $\dfrac{5x}{1 - 6x^2} =
+1 \Rightarrow 6x^2 + 5x - 1 = 0 \Rightarrow (6x - 1)(x + 1) = 0
+\Rightarrow x = 1/6$ or $x = -1$.
+
+Check the side condition: $x = 1/6 \Rightarrow 6x^2 = 1/6 < 1$ ✓.
+$x = -1 \Rightarrow 6x^2 = 6 > 1$ ✗ — that root came from where the
+formula breaks. **$x = 1/6$.**
+</details>
+
+**6-mark Case Study.** *Camera elevation angle.*
+
+A camera mounted on a tripod 1.5 m tall is photographing a wall 8 m
+away. The wall has a painting whose bottom is 0.5 m above ground and
+whose top is 3.5 m above ground.
+
+(i) Find $\theta_1$, the angle of elevation from the camera to the
+bottom of the painting. (2 marks)
+(ii) Find $\theta_2$, the angle of elevation to the top. (2 marks)
+(iii) The painting subtends an angle $\alpha = \theta_2 - \theta_1$ at
+the camera. Compute $\tan\alpha$ exactly. (2 marks)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set up the right triangles. Camera height 1.5, horizontal distance 8.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** Bottom is 0.5 below camera, so $\tan\theta_1 = -1/8 \Rightarrow
+\theta_1 = \tan^{-1}(-1/8)$.
+
+**(ii)** Top is 2 m above camera, $\tan\theta_2 = 2/8 = 1/4 \Rightarrow
+\theta_2 = \tan^{-1}(1/4)$.
+
+**(iii)** $\tan\alpha = \tan(\theta_2 - \theta_1) = \dfrac{1/4 -
+(-1/8)}{1 + (1/4)(-1/8) \cdot (-1)} = \dfrac{3/8}{1 + 1/32} = \dfrac{3/8}
+{33/32} = \dfrac{12}{33} = \dfrac{4}{11}$.
+
+(Watch the sign on $\theta_1$ — it's a *depression*, technically.)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 2.1 Q11–14, Ex 2.2 Q1–6.
+**Previous-year pointer:** CBSE 2023 Set 2 Q5 (similar to W1);
+CBSE 2022 Q19 (similar to 5-mark).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sin^{-1}(\sin x) = x$ always."** Only when $x \in [-\pi/2,
+   \pi/2]$. Otherwise the answer is the angle in the principal range
+   that has the same sine.
+2. **"$\sin^{-1} x = 1/\sin x$."** No. The $-1$ here means inverse
+   *function*, not reciprocal. The reciprocal is written $\csc x$.
+3. **"You can apply the addition formula $\tan^{-1} x + \tan^{-1} y =
+   \tan^{-1}\frac{x+y}{1-xy}$ always."** Only when $xy < 1$. Otherwise
+   the sum jumps out of $(-\pi/2, \pi/2)$ and you need a $\pm \pi$
+   correction.
+:::
+
+### Self-Assessment
+
+1. Could you state every principal range from memory in 30 seconds?
+2. Did you solve at least 5 of the board-pattern items with at most one
+   hint?
+3. Can you spot when a problem requires the $\tan^{-1}$ addition formula
+   and check $xy < 1$ before applying it?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark and Stretch problems.
+- **0–1 yes:** re-read *Discover* with a unit circle in front of you.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse11.trig-functions`](../../tier-cbse-11-class-11/03a-trig-functions/index.qmd)
+  — values, periodicity, evenness/oddness.
+- [`cbse12.relations-functions-types`](../01-relations-functions-types/index.qmd)
+  — bijectivity is what makes the inverse exist.
+
+### What this unlocks
+
+- [`cbse12.differentiability-and-rules`](../05b-differentiability-and-rules/index.qmd)
+  — $\frac{d}{dx}\sin^{-1} x$, etc.
+- [`cbse12.integration-techniques`](../07b-integration-techniques/index.qmd)
+  — many integrals land on $\sin^{-1}$ or $\tan^{-1}$.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 2 — Inverse Trigonometric Functions** (NCERT 2023
+  rationalised). Sections 2.1–2.2.
+- **Sister synthesis lessons:**
+  [`t3.unit-circle`](../../tier-3-algebra2-geometry-trig/index.qmd) and
+  [`t3.trig-identities`](../../tier-3-algebra2-geometry-trig/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Recovering an angle from a 2D vector uses
+`atan2(y, x)`, which is a careful real-world implementation of
+$\tan^{-1}$ that handles all four quadrants. Steering, AI line-of-sight,
+camera tracking — all need it.
+:::
+
+::: {.applied-callout}
+**Research / engineering.** Phase recovery in signal processing, joint
+angles in robotics, and the inverse kinematics of robotic arms all rest
+on selecting the right principal branch.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained (the *Aha!* — restrict the domain),
+  Bhāskara (the verse), Gelfand (problem-first sequencing).
+:::

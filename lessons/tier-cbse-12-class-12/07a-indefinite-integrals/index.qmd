@@ -1,0 +1,380 @@
+---
+title: "Ch 7a — Indefinite Integrals"
+subtitle: "Reverse the derivative — and accept the constant"
+lesson-id: "cbse12.indefinite-integrals"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 7
+ncert-chapter-title: "Integrals"
+board-exam: true
+prerequisites: ["cbse12.differentiability-and-rules"]
+unlocks: ["cbse12.integration-techniques"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute $\frac{d}{dx}(\text{any polynomial})$ in seconds?
+2. Do you know derivatives of $\sin, \cos, e^x, \log x$?
+3. Have you done [Ch 5b](../05b-differentiability-and-rules/index.qmd)?
+:::
+
+## Touch
+
+You know that $\frac{d}{dx}(x^2) = 2x$. The reverse question:
+> *"What function has derivative $2x$?"*
+
+Easy: $x^2$. But also $x^2 + 5$. And $x^2 - 100$. Any function of the
+form $x^2 + C$ with $C$ constant.
+
+::: {.lesson-beat}
+
+| Original $F(x)$ | Derivative $F'(x)$ |
+|:--:|:--:|
+| $x^2$ | $2x$ |
+| $x^2 + 7$ | $2x$ |
+| $x^2 - 100$ | $2x$ |
+| $x^2 + C$ | $2x$ for any constant $C$ |
+
+:::
+
+So the *anti-derivative* of $2x$ is *not a function*; it's a *family*
+of functions, one for each constant. We write
+$$\int 2x \, dx = x^2 + C.$$
+
+The "$+ C$" is the cost of inverting differentiation: information about
+the constant is lost when you take a derivative, and you can't recover
+it.
+
+This lesson: a working table of standard antiderivatives — and
+practice reading off the right one.
+
+## Wonder
+
+1. Why can't $C$ be determined just by looking at $f(x)$?
+2. What does the family of antiderivatives look like geometrically? (A
+   stack of vertical translates.)
+3. Is $\int (f + g) \, dx = \int f \, dx + \int g \, dx$ true?
+
+## Discover
+
+### Problem 1
+
+Find $\int 3x^2 \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try $x^3$ — its derivative is $3x^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int 3x^2 \, dx = x^3 + C$.
+</details>
+
+### Problem 2
+
+Find $\int x^5 \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\frac{d}{dx}(x^6) = 6x^5$. So divide by 6.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int x^5 \, dx = x^6/6 + C$.
+</details>
+
+### Problem 3
+
+Find $\int (3x^2 + 4x + 7) \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Integral of a sum is sum of integrals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^3 + 2x^2 + 7x + C$.
+</details>
+
+### Problem 4
+
+Find $\int \cos x \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sin x + C$ (since $\frac{d}{dx}\sin x = \cos x$).
+</details>
+
+### Problem 5
+
+Find $\int \dfrac{1}{x} \, dx$ for $x > 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$\log x + C$. (For $x \ne 0$ in general: $\log|x| + C$.)
+</details>
+
+### Problem 6
+
+Find a function $F$ with $F'(x) = e^x$ and $F(0) = 5$.
+
+<details class="hint"><summary>Full solution</summary>
+General antiderivative: $F(x) = e^x + C$. Apply $F(0) = 5$: $1 + C = 5
+\Rightarrow C = 4$. **$F(x) = e^x + 4$.**
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **indefinite integral** of $f$ is the family of all
+antiderivatives:
+$$\int f(x) \, dx = F(x) + C, \quad \text{where } F'(x) = f(x).$$
+
+**Linearity:**
+$$\int (af + bg) \, dx = a \int f \, dx + b \int g \, dx.$$
+
+**Standard table** (memorise):
+
+| $f(x)$ | $\int f(x)\,dx$ |
+|:--:|:--:|
+| $x^n,\ n \ne -1$ | $\dfrac{x^{n+1}}{n+1} + C$ |
+| $1/x$ | $\log|x| + C$ |
+| $e^x$ | $e^x + C$ |
+| $a^x$ | $a^x/\log a + C$ |
+| $\sin x$ | $-\cos x + C$ |
+| $\cos x$ | $\sin x + C$ |
+| $\sec^2 x$ | $\tan x + C$ |
+| $\csc^2 x$ | $-\cot x + C$ |
+| $\sec x \tan x$ | $\sec x + C$ |
+| $\csc x \cot x$ | $-\csc x + C$ |
+| $\dfrac{1}{\sqrt{1 - x^2}}$ | $\sin^{-1} x + C$ |
+| $\dfrac{1}{1 + x^2}$ | $\tan^{-1} x + C$ |
+| $\dfrac{1}{x\sqrt{x^2 - 1}}$ | $\sec^{-1}|x| + C$ |
+
+:::
+
+A verse:
+
+> *Reverse the rule, add $C$ — that's the trick;*
+> *Power rule with $n+1$ in the denominator, brick by brick.*
+> *Sine becomes minus-cosine, cosine becomes sine;*
+> *Exp stays exp; $1/x$ logs; learn this table by line.*
+
+## Apply
+
+### Worked example
+
+> Evaluate $\int \left(3\sqrt{x} + \dfrac{2}{x} - 5e^x\right) dx$.
+
+A competent solver:
+
+1. Linearity: split into three pieces.
+2. $\int 3x^{1/2}\,dx = 3 \cdot \frac{x^{3/2}}{3/2} = 2x^{3/2}$.
+3. $\int \frac{2}{x}\,dx = 2 \log|x|$.
+4. $\int -5 e^x \, dx = -5 e^x$.
+5. Combine: $2x^{3/2} + 2\log|x| - 5e^x + C$.
+
+### Practice — Warm
+
+**W1.** $\int x^7 \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^8/8 + C$.
+</details>
+
+**W2.** $\int (x + 1)^2 \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int(x^2 + 2x + 1)\,dx = x^3/3 + x^2 + x + C$.
+</details>
+
+**W3.** $\int \dfrac{1}{x^2} \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int x^{-2}\,dx = -x^{-1} + C = -1/x + C$.
+</details>
+
+### Practice — Working
+
+**P1.** $\int \dfrac{x^2 + 1}{x} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Split the fraction.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int(x + 1/x)\,dx = x^2/2 + \log|x| + C$.
+</details>
+
+**P2.** $\int \tan^2 x \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\tan^2 x = \sec^2 x - 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int(\sec^2 x - 1)\,dx = \tan x - x + C$.
+</details>
+
+**P3.** $\int \dfrac{1}{\sin^2 x \cos^2 x} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\frac{1}{\sin^2 x \cos^2 x} = \frac{\sin^2 + \cos^2}{\sin^2 \cos^2} =
+\sec^2 x + \csc^2 x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int(\sec^2 x + \csc^2 x)\,dx = \tan x - \cot x + C$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Find $F$ with $F'(x) = \cos x$ and $F(\pi) = 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$F(x) = \sin x + C$. $F(\pi) = 0 + C = 2 \Rightarrow C = 2$.
+**$F(x) = \sin x + 2$.**
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $\int \dfrac{dx}{1 + x^2}$ equals (a) $\sin^{-1}x +
+C$ (b) $\tan^{-1}x + C$ (c) $\log(1+x^2) + C$ (d) $\sec^{-1}x + C$.
+
+<details class="hint"><summary>Full solution</summary>
+**(b).**
+</details>
+
+**1-mark MCQ #2.** $\int \dfrac{dx}{\sqrt{1 - x^2}}$ equals (a)
+$\sin^{-1}x + C$ (b) $\tan^{-1}x + C$ (c) $-\sin^{-1}x + C$ (d)
+$\sec^{-1}x + C$.
+
+<details class="hint"><summary>Full solution</summary>
+**(a).**
+</details>
+
+**2-mark.** $\int \left(\dfrac{1}{x^3} - \dfrac{1}{\sqrt{x}}\right) dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$-\frac{1}{2x^2} - 2\sqrt{x} + C$.
+</details>
+
+**2-mark.** $\int e^{2x + 3} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Constant $\times$ $e^{2x}$ via chain reverse.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$e^{2x+3}/2 + C$.
+</details>
+
+**3-mark.** $\int (1 + \cos 2x) \, dx$ using $\cos 2x = 2\cos^2 x - 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int (1 + 2\cos^2 x - 1) dx = \int 2\cos^2 x \,dx = \int(1 + \cos 2x)
+dx$ — wait. Just integrate: $\int 1\,dx + \int \cos 2x\,dx = x +
+\sin(2x)/2 + C$.
+</details>
+
+**3-mark.** $\int \dfrac{x^4 - x^2 + 1}{x^2 + 1} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Polynomial long division: divide numerator by $x^2 + 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^4 - x^2 + 1 = (x^2 + 1)(x^2 - 2) + 3$. So integrand $= x^2 - 2 +
+3/(x^2 + 1)$. Integral: $x^3/3 - 2x + 3\tan^{-1}x + C$.
+</details>
+
+**5-mark long answer.** Find $\int \dfrac{1}{x^2 + 4x + 13}\,dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Complete the square in the denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 4x + 13 = (x + 2)^2 + 9$. So $\int \frac{dx}{(x+2)^2 + 9} =
+\frac{1}{3}\tan^{-1}\left(\frac{x+2}{3}\right) + C$ (using
+$\int \frac{du}{u^2 + a^2} = \frac{1}{a}\tan^{-1}(u/a)$).
+</details>
+
+**6-mark Case Study.** *Position from velocity.*
+
+A car has velocity $v(t) = 6t^2 - 4t + 5$ m/s, with $t$ in seconds.
+Position $s(t)$ satisfies $s'(t) = v(t)$.
+
+(i) Find the general antiderivative $s(t)$. (2 marks)
+(ii) If $s(0) = 10$ m, find $s(t)$. (2 marks)
+(iii) Compute the position at $t = 3$ s. (2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $s(t) = 2t^3 - 2t^2 + 5t + C$.
+**(ii)** $s(0) = C = 10$. So $s(t) = 2t^3 - 2t^2 + 5t + 10$.
+**(iii)** $s(3) = 54 - 18 + 15 + 10 = 61$ m.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 7.1.
+**Previous-year pointer:** CBSE 2023 Set 2 Q9 (1-mark integral); CBSE
+2022 Q14.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Forgetting $+ C$."** Costs marks every time. Indefinite integral
+   is a *family*, not a single function.
+2. **"$\int x^n \, dx = x^{n+1}/(n+1)$ even for $n = -1$."** No — for
+   $n = -1$, the formula breaks (division by zero). Use $\log|x|$.
+3. **"$\int (fg) \, dx = (\int f)(\int g)$."** False! Linearity holds
+   for sums, *not* products. (Products need integration by parts —
+   next lesson.)
+:::
+
+### Self-Assessment
+
+1. Could you list 8 of the 12 standard antiderivatives from memory?
+2. Did you solve at least 5 of 7 board items unaided?
+3. Can you spot when to expand vs. simplify before integrating?
+
+- **3 yes:** move on.
+- **2 yes:** redo Working problems.
+- **0–1 yes:** rewrite the standard table 5 times.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.differentiability-and-rules`](../05b-differentiability-and-rules/index.qmd)
+  — every formula is a derivative formula in reverse.
+
+### What this unlocks
+
+- [`cbse12.integration-techniques`](../07b-integration-techniques/index.qmd)
+  — substitution, parts, partial fractions.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 7** (NCERT 2023). Sections 7.1–7.3.
+- **Sister synthesis lessons:**
+  [`t4.definite-integral`](../../tier-4-precalc-calculus/index.qmd),
+  [`t4.ftc`](../../tier-4-precalc-calculus/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research / engineering.** Position from velocity, work from force,
+charge from current — every "running total" in physics is an
+antiderivative.
+:::
+
+::: {.applied-callout}
+**AI/ML.** Antiderivatives appear in survival analysis (cumulative
+hazard) and in normalising flows (where the inverse of a flow needs
+its log-determinant integrated).
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained ("anti-derivative as a family"),
+  Bhāskara (verse), Gelfand (problem-first table-building).
+:::

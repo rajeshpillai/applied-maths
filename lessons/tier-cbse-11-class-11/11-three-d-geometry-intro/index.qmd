@@ -1,0 +1,466 @@
+---
+title: "Ch 11 — Introduction to Three-Dimensional Geometry"
+subtitle: "Coordinates step out of the page: distance, midpoint, and section in 3D"
+lesson-id: "cbse11.three-d-geometry-intro"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 11
+ncert-chapter-title: "Introduction to Three-Dimensional Geometry"
+board-exam: false
+prerequisites: ["cbse10.coordinate-geometry", "t2.pythagorean-theorem"]
+unlocks: ["cbse12.three-d-geometry-vectors", "cbse12.vectors"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you place a point in the 2D coordinate plane given $(x, y)$?
+2. Are you fluent with the 2D distance formula
+   $\sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$?
+3. Do you remember the midpoint formula?
+4. Have you ever held a model of a cube and pointed at one of its
+   corners?
+
+Three confident yeses — read on.
+:::
+
+## Touch
+
+Hold a Rubik's cube. Pick one corner — call it the **origin**, $(0,0,0)$.
+Now point along three edges: one going right ($x$-axis), one going up
+($y$-axis), one going *toward you* out of the cube ($z$-axis).
+
+Every other corner of the cube has coordinates picked from $\{0, 1\}$
+in each axis. Eight corners, eight triples:
+$(0,0,0), (1,0,0), (0,1,0), (0,0,1), (1,1,0), (1,0,1), (0,1,1), (1,1,1)$.
+
+That's all 3D coordinate geometry is. The widget below sweeps a single
+point and reports its distance from the origin.
+
+```{ojs}
+viewof xx = Inputs.range([-5, 5], {value: 3, step: 0.5, label: "x"})
+```
+```{ojs}
+viewof yy = Inputs.range([-5, 5], {value: 4, step: 0.5, label: "y"})
+```
+```{ojs}
+viewof zz = Inputs.range([-5, 5], {value: 0, step: 0.5, label: "z"})
+```
+
+```{ojs}
+{
+  const d = Math.sqrt(xx*xx + yy*yy + zz*zz);
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>Point:</b> (${xx}, ${yy}, ${zz})</div>
+    <div><b>Distance from origin</b> = √(x² + y² + z²) = <b>${d.toFixed(3)}</b></div>
+    <div style="margin-top:0.4em;color:#666;">
+      The 3D distance is just one Pythagorean step beyond the 2D version.
+    </div>
+  </div>`;
+}
+```
+
+That formula — and only one or two more — is the entire chapter.
+
+## Wonder
+
+Sit with these.
+
+1. The point $(3, 4, 0)$ — is it "in the plane"? Which plane?
+2. How many *octants* does 3D space have, in analogy with the four
+   *quadrants* of 2D?
+3. What is the midpoint of $(1, 2, 3)$ and $(7, 8, 9)$? Same recipe as
+   in 2D?
+4. How far is the corner $(1, 1, 1)$ of a unit cube from the corner at
+   the origin?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) — eight octants, named by the sign-pattern $(\pm, \pm, \pm)$.
+(4) — the long diagonal of the unit cube has length $\sqrt{3}$, a fact
+to remember.
+:::
+
+## Discover
+
+### Problem 1 — Octants
+
+Which octant contains the point $(-2, 3, -5)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sign pattern: $(-, +, -)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The octant where $x < 0$, $y > 0$, $z < 0$. (NCERT numbers them
+"$VI$" by convention; the physical region is what matters.)
+</details>
+
+### Problem 2 — Distance in 3D
+
+Find the distance between $(1, 2, 3)$ and $(4, 6, 3)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$d = \sqrt{(\Delta x)^2 + (\Delta y)^2 + (\Delta z)^2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$d = \sqrt{9 + 16 + 0} = \sqrt{25} = 5$.
+</details>
+
+### Problem 3 — Midpoint
+
+Find the midpoint of $A(2, -3, 4)$ and $B(8, 5, -2)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Average each coordinate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$M = \left(\dfrac{2+8}{2}, \dfrac{-3+5}{2}, \dfrac{4+(-2)}{2}\right) =
+(5, 1, 1)$.
+</details>
+
+### Problem 4 — Section formula (internal)
+
+Find the point that divides the join of $A(1, 2, 3)$ and $B(4, 5, 6)$
+in the ratio $2 : 1$ internally.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P = \dfrac{m B + n A}{m + n}$ in coordinates.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P = \left(\dfrac{2 \cdot 4 + 1 \cdot 1}{3}, \dfrac{2 \cdot 5 + 1 \cdot 2}{3}, \dfrac{2 \cdot 6 + 1 \cdot 3}{3}\right) = (3, 4, 5)$.
+</details>
+
+### Problem 5 — Distance equation
+
+Show that the points $A(1, 2, 3)$, $B(2, 3, 4)$, $C(3, 4, 5)$ are
+**collinear**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three points are collinear iff $|AB| + |BC| = |AC|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|AB| = \sqrt{1+1+1} = \sqrt{3}$. $|BC| = \sqrt{3}$. $|AC| = \sqrt{4+4+4} = 2\sqrt{3}$.
+
+$|AB| + |BC| = 2\sqrt{3} = |AC|$. So $B$ lies on segment $AC$. ✓
+</details>
+
+### Problem 6 — Coordinates from distance
+
+Find a point on the $z$-axis equidistant from $(1, 5, 7)$ and $(5, 1, -4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A point on the $z$-axis has form $(0, 0, z)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1 + 25 + (z - 7)^2 = 25 + 1 + (z + 4)^2$
+$\Rightarrow (z-7)^2 = (z+4)^2$
+$\Rightarrow z^2 - 14z + 49 = z^2 + 8z + 16$
+$\Rightarrow -22 z = -33 \Rightarrow z = 3/2$.
+
+Point: $(0, 0, 3/2)$.
+</details>
+
+You have just used **3D coordinates**, **distance**, **midpoint**, the
+**section formula**, **collinearity by distance**, and a
+**equidistant-locus** computation. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+A point in 3D space has three coordinates: $(x, y, z)$.
+
+**Distance** between $P(x_1, y_1, z_1)$ and $Q(x_2, y_2, z_2)$:
+$$ d(P, Q) = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2 + (z_2 - z_1)^2}. $$
+
+**Midpoint:**
+$$ M = \left(\dfrac{x_1 + x_2}{2}, \dfrac{y_1 + y_2}{2}, \dfrac{z_1 + z_2}{2}\right). $$
+
+**Section formula** — point dividing $PQ$ in ratio $m : n$ internally:
+$$ R = \left(\dfrac{m x_2 + n x_1}{m + n}, \dfrac{m y_2 + n y_1}{m + n}, \dfrac{m z_2 + n z_1}{m + n}\right). $$
+
+External division: replace $n$ by $-n$.
+
+**Collinearity** of three points: $|AB| + |BC| = |AC|$ (with $B$
+between).
+
+**Coordinate planes** divide space into 8 **octants**.
+
+:::
+
+A short verse:
+
+> *Three numbers fix a point in space.*
+> *Squared differences sum, then square-rooted — that's the distance.*
+> *Average for the midpoint; weighted average for the section.*
+> *That is the chapter.*
+
+## Apply
+
+### Worked example
+
+> Find the coordinates of the point that divides the line segment from
+> $(1, 2, -3)$ to $(7, 0, 6)$ externally in the ratio $2 : 3$.
+
+How a competent solver thinks:
+
+1. External division: replace $n$ by $-n$.
+2. $R = \dfrac{m B - n A}{m - n}$ with $m = 2, n = 3$.
+3. $R = \dfrac{2(7, 0, 6) - 3(1, 2, -3)}{2 - 3} = \dfrac{(14 - 3, -6, 12 + 9)}{-1}
+   = \dfrac{(11, -6, 21)}{-1} = (-11, 6, -21)$.
+
+**Answer:** $(-11, 6, -21)$.
+
+### Practice — Warm
+
+**W1.** Distance from origin to $(2, -3, 6)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{4 + 9 + 36} = 7$.
+</details>
+
+**W2.** Midpoint of $(1, 1, 1)$ and $(5, 7, 9)$.
+
+<details class="hint"><summary>Full solution</summary>
+$(3, 4, 5)$.
+</details>
+
+**W3.** Octant of $(2, -1, 4)$.
+
+<details class="hint"><summary>Full solution</summary>
+Sign pattern $(+, -, +)$.
+</details>
+
+### Practice — Working
+
+**P1.** Show that the triangle with vertices $A(0, 7, 10),
+B(-1, 6, 6), C(-4, 9, 6)$ is right-angled and isosceles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the squared lengths of all three sides; check both that two are
+equal (isosceles) and that the Pythagorean relation holds (right-angled).
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$|PQ|^2 = (x_2 - x_1)^2 + (y_2 - y_1)^2 + (z_2 - z_1)^2$. Stay in
+squared form until the very end — square roots are only needed for the
+final reporting.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Squared side lengths.**
+
+$|AB|^2 = (-1-0)^2 + (6-7)^2 + (6-10)^2 = 1 + 1 + 16 = 18.$
+
+$|BC|^2 = (-4 - (-1))^2 + (9-6)^2 + (6-6)^2 = 9 + 9 + 0 = 18.$
+
+$|AC|^2 = (-4-0)^2 + (9-7)^2 + (6-10)^2 = 16 + 4 + 16 = 36.$
+
+**Isosceles?** $|AB|^2 = |BC|^2 = 18$, so $|AB| = |BC| = \sqrt{18} =
+3\sqrt{2}$. Two sides equal, so $\triangle ABC$ is isosceles. ✓
+
+**Right-angled?** Test the Pythagorean relation on the longest side
+$AC$: $|AB|^2 + |BC|^2 = 18 + 18 = 36 = |AC|^2$. The converse of the
+Pythagorean theorem gives $\angle ABC = 90^\circ$. ✓
+
+So $\triangle ABC$ is a **right-angled isosceles triangle** with the
+right angle at $B$. $\blacksquare$
+</details>
+
+**P2.** Find the equation of the locus of points equidistant from
+$A(1, 2, 3)$ and $B(3, 2, -1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|PA|^2 = |PB|^2$ where $P = (x, y, z)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x-1)^2 + (y-2)^2 + (z-3)^2 = (x-3)^2 + (y-2)^2 + (z+1)^2$.
+
+Expand: $x^2 - 2x + 1 + (y-2)^2 + z^2 - 6z + 9$
+$= x^2 - 6x + 9 + (y-2)^2 + z^2 + 2z + 1$.
+
+Cancel: $-2x + 1 - 6z + 9 = -6x + 9 + 2z + 1$,
+
+$4x - 8z = 0 \Rightarrow x = 2z$, or $x - 2z = 0$.
+
+This is a plane (the perpendicular bisector of segment $AB$).
+</details>
+
+**P3.** The points $(1, -1, 0), (2, 1, 2), (3, 3, 4)$ — show they are
+collinear.
+
+<details class="hint"><summary>Full solution</summary>
+$|AB|^2 = 1 + 4 + 4 = 9, |AB| = 3$.
+$|BC|^2 = 1 + 4 + 4 = 9, |BC| = 3$.
+$|AC|^2 = 4 + 16 + 16 = 36, |AC| = 6$.
+
+$|AB| + |BC| = 6 = |AC|$. Collinear with $B$ between $A$ and $C$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Find the ratio in which the line segment joining $(1, 2, 3)$
+and $(-2, -3, 5)$ is divided by the $XY$-plane (i.e. $z = 0$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Section formula: $z$-coordinate of point of division is $0$. Solve for
+ratio $\lambda : 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Ratio $\lambda : 1$. $z = \dfrac{5\lambda + 3}{\lambda + 1} = 0
+\Rightarrow 5\lambda + 3 = 0 \Rightarrow \lambda = -3/5$.
+
+Negative — external division. Ratio $|3 : 5|$ externally, or $3 : 5$
+externally. (Equivalently, the segment is divided externally
+in ratio $3 : 5$ by the $XY$-plane.)
+</details>
+
+**S2.** Find the coordinates of the foot of the perpendicular from
+$(1, 2, 3)$ to the line through $(0, 0, 0)$ and $(2, 3, 6)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The line is parametrised by $t (2, 3, 6)$. Find $t$ such that the
+displacement from the foot to $(1, 2, 3)$ is perpendicular to
+$(2, 3, 6)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Foot $F = t(2, 3, 6)$. Displacement $(1 - 2t, 2 - 3t, 3 - 6t)$.
+
+Perpendicular to direction: $2(1 - 2t) + 3(2 - 3t) + 6(3 - 6t) = 0
+\Rightarrow 2 + 6 + 18 - (4 + 9 + 36)t = 0 \Rightarrow 26 - 49t = 0
+\Rightarrow t = 26/49$.
+
+$F = (52/49, 78/49, 156/49)$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The distance from origin to $(0, 0, 5)$ is
+(a) $0$ (b) $5$ (c) $25$ (d) $\sqrt{5}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{0 + 0 + 25} = 5$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Find the distance between $(1, 0, -1)$ and
+$(2, 1, 1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{1 + 1 + 4} = \sqrt{6}$.
+</details>
+
+**3-mark (short answer II).** Find the centroid of the triangle with
+vertices $(1, 2, 3), (4, -3, 5), (7, 4, -2)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Centroid = average of the three vertex vectors.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$G = \left(\dfrac{1+4+7}{3}, \dfrac{2-3+4}{3}, \dfrac{3+5-2}{3}\right) = (4, 1, 2)$.
+</details>
+
+**5-mark (long answer).** A point $P$ has coordinates $(2, 3, 4)$, and
+$Q$ has coordinates $(8, 0, 10)$. (i) Find the distance $|PQ|$. (ii)
+Find the midpoint of $PQ$. (iii) Find the point dividing $PQ$ internally
+in ratio $1 : 2$. (iv) Find the point dividing $PQ$ externally in ratio
+$3 : 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply each formula in turn.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $|PQ| = \sqrt{36 + 9 + 36} = \sqrt{81} = 9$.
+
+**(ii)** Midpoint: $(5, 3/2, 7)$.
+
+**(iii)** Internal $1:2$: $\dfrac{1 \cdot Q + 2 \cdot P}{3} = \dfrac{(8 + 4, 0 + 6, 10 + 8)}{3} = (4, 2, 6)$.
+
+**(iv)** External $3:1$: $\dfrac{3 Q - 1 \cdot P}{3 - 1} = \dfrac{(24 - 2, 0 - 3, 30 - 4)}{2} = (11, -3/2, 13)$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 11 LA "ratio in which a plane
+divides a segment" matches Stretch S1.
+**JEE pointer:** the foot-of-perpendicular computation (Stretch S2) is
+JEE Main bread.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"3D distance is $|x| + |y| + |z|$."** No — that's "Manhattan
+   distance", not Euclidean. The 3D Pythagorean formula is the
+   straight-line Euclidean distance.
+2. **"Internal and external section give the same point if you flip the
+   ratio."** No. External division produces a point *outside* the
+   segment $PQ$; internal stays inside. Watch the sign.
+3. **"$z$ is just like $y$ but renamed."** Computationally yes, but
+   the physical role is different — $z$ is the third dimension
+   sticking out of the page.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you compute the 3D distance and midpoint of any two points in
+   under 30 seconds?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you set up a "locus" problem that involves equidistance?
+
+- **3 yes:** move on to **[Limits](../12a-limits/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** drill the section formula on five fresh problems.
+
+## Connect
+
+### Prerequisites used
+
+- **[Class 10 — Coordinate Geometry](../../tier-cbse-10-class-10/07-coordinate-geometry/index.qmd)** —
+  the 2D distance, midpoint, and section formulas.
+- **[Pythagorean Theorem](../../tier-2-prealgebra/pythagorean-theorem/index.qmd)** —
+  applied twice to derive the 3D distance.
+
+### What this unlocks
+
+- **[Class 12 — Vectors](../../tier-cbse-12-class-12/10-vectors/index.qmd)** —
+  positions in 3D as vectors.
+- **[Class 12 — 3D Geometry (vector form)](../../tier-cbse-12-class-12/11-three-d-geometry-vectors/index.qmd)** —
+  lines and planes in 3D.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 11 — Introduction to Three-Dimensional Geometry**
+  (NCERT 2023 rationalised). Sections 11.1–11.3: 3D coordinates,
+  distance formula, section formula.
+- **Sister synthesis lesson:**
+  [`t4.vectors-2d-3d`](../../tier-4-precalc-calculus/vectors-2d-3d/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every 3D game lives in $(x, y, z)$. Cameras,
+characters, projectiles all carry positions; collision tests reduce
+to "is the distance less than the sum of radii?" — the 3D distance
+formula thousands of times per second.
+:::
+
+::: {.applied-callout}
+**Research / Science.** Molecular geometry, GPS triangulation,
+satellite positioning — all expressed in 3D coordinates with the
+Euclidean distance.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: Pestalozzi (the Rubik's cube as a manipulable 3D coord
+system), Bhāskara (verse), Russian school (Discover sequence forces
+the Pythagorean leap from 2D to 3D).
+:::

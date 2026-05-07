@@ -1,0 +1,421 @@
+---
+title: "Ch 13a — Conditional Probability and Bayes' Theorem"
+subtitle: "Update beliefs as evidence arrives"
+lesson-id: "cbse12.conditional-probability-bayes"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 13
+ncert-chapter-title: "Probability"
+board-exam: true
+prerequisites: ["cbse11.probability"]
+unlocks: ["cbse12.random-variables-distributions"]
+applied-domains: ["ai-ml", "encryption", "research", "databases"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Comfortable with $P(A) = $ favourable/total for finite uniform
+   sample spaces?
+2. Do you remember $P(A \cup B) = P(A) + P(B) - P(A \cap B)$?
+3. Have you done [Class 11 · Ch 14 — Probability](../../tier-cbse-11-class-11/14-probability/index.qmd)?
+:::
+
+## Touch
+
+A box has 5 red and 3 blue marbles. You draw two **without
+replacement**.
+
+::: {.lesson-beat}
+
+$P(\text{1st red}) = 5/8.$
+
+$P(\text{2nd red} \mid \text{1st red}) = 4/7.$ (After taking a red,
+only 4 reds and 3 blues remain.)
+
+$P(\text{both red}) = (5/8)(4/7) = 20/56 = 5/14.$
+
+:::
+
+The vertical bar in $P(B \mid A)$ reads "given $A$". You **update**
+the probability of $B$ based on the new fact that $A$ has occurred.
+
+This lesson:
+- compute $P(B \mid A)$ from the formula,
+- understand independence,
+- apply the **multiplication rule** $P(A \cap B) = P(A) P(B \mid A)$,
+- the **law of total probability**,
+- and **Bayes' theorem** — reversing the conditioning.
+
+## Wonder
+
+1. If $A$ and $B$ are *independent*, does $P(B \mid A)$ change with
+   $A$?
+2. If you know $P(B \mid A)$, do you know $P(A \mid B)$?
+3. A doctor knows $P(\text{positive test} \mid \text{disease})$. The
+   patient wants $P(\text{disease} \mid \text{positive test})$. Why
+   are these different?
+
+## Discover
+
+### Problem 1
+
+A fair die is rolled. Let $A = \{2, 4, 6\}$ (even) and $B = \{1, 2, 3,
+4\}$. Find $P(A \mid B)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(A \mid B) = P(A \cap B)/P(B)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A \cap B = \{2, 4\}$. $P(A \cap B) = 2/6, P(B) = 4/6$. $P(A \mid B) =
+2/4 = 1/2$.
+</details>
+
+### Problem 2
+
+A coin is tossed twice. $A = $ at least one head, $B = $ both heads.
+Find $P(B \mid A)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\Omega = \{HH, HT, TH, TT\}$. $A = \{HH, HT, TH\}$, $B = \{HH\}$.
+$P(B \mid A) = (1/4)/(3/4) = 1/3$.
+</details>
+
+### Problem 3
+
+In Problem 2, are $A$ and $B$ independent?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Independent iff $P(A \cap B) = P(A)P(B)$, equivalently $P(B \mid A) =
+P(B)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(B) = 1/4, P(B \mid A) = 1/3$. Different. **Not independent.**
+</details>
+
+### Problem 4
+
+Two boxes. Box 1 has 3 red, 1 blue. Box 2 has 1 red, 3 blue. A box is
+chosen at random; a marble is drawn. Find $P(\text{red})$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total probability: condition on which box.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{red}) = P(\text{red} \mid B_1) P(B_1) + P(\text{red} \mid B_2)
+P(B_2) = (3/4)(1/2) + (1/4)(1/2) = 1/2$.
+</details>
+
+### Problem 5
+
+Same setup. Given the marble is red, find $P(B_1 \mid \text{red})$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Bayes' theorem: $P(B_1 \mid \text{red}) = \frac{P(\text{red} \mid
+B_1)P(B_1)}{P(\text{red})}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$= \frac{(3/4)(1/2)}{1/2} = 3/4$. (After seeing red, we lean 75% toward
+Box 1.)
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For events $A, B$ in a sample space with $P(A) > 0$:
+$$P(B \mid A) = \frac{P(A \cap B)}{P(A)}.$$
+
+**Multiplication rule:**
+$$P(A \cap B) = P(A) P(B \mid A) = P(B) P(A \mid B).$$
+
+$A$ and $B$ are **independent** iff $P(A \cap B) = P(A) P(B)$.
+Equivalently, $P(B \mid A) = P(B)$.
+
+**Law of total probability.** If $E_1, \ldots, E_n$ partition the
+sample space:
+$$P(A) = \sum_i P(A \mid E_i) P(E_i).$$
+
+**Bayes' theorem:**
+$$P(E_i \mid A) = \frac{P(A \mid E_i) P(E_i)}{\sum_j P(A \mid E_j) P(
+E_j)}.$$
+
+:::
+
+A verse:
+
+> *Conditional: ratio of joint to given;*
+> *Multiplication chains the joint by step.*
+> *Total probability sums conditioned alternatives;*
+> *Bayes flips the bar — denominator counts every alternative.*
+
+## Apply
+
+### Worked example
+
+> A factory has three machines $M_1, M_2, M_3$ producing 25%, 35%, 40%
+> of the daily output. Defect rates: 5%, 4%, 2%. A randomly chosen
+> defective item — what's the probability it came from $M_1$?
+
+A competent solver:
+
+1. Prior: $P(M_1) = 0.25, P(M_2) = 0.35, P(M_3) = 0.40$.
+2. Likelihoods: $P(D \mid M_1) = 0.05$, etc.
+3. $P(D) = 0.05 \cdot 0.25 + 0.04 \cdot 0.35 + 0.02 \cdot 0.40 = 0.0125
+   + 0.014 + 0.008 = 0.0345$.
+4. Bayes: $P(M_1 \mid D) = (0.05 \cdot 0.25)/0.0345 = 0.0125/0.0345 =
+   25/69 \approx 0.362$.
+
+### Practice — Warm
+
+**W1.** Two coins. $A = $ first head, $B = $ both heads. $P(B \mid A)$?
+
+<details class="hint"><summary>Full solution</summary>
+$P(A \cap B) = 1/4, P(A) = 1/2$. $P(B \mid A) = 1/2$.
+</details>
+
+**W2.** Are events $A = $ even die roll, $B = $ roll $> 3$ independent?
+
+<details class="hint"><summary>Full solution</summary>
+$P(A) = 1/2, P(B) = 1/2, P(A \cap B) = P(\{4, 6\}) = 1/3$. $P(A)P(B) =
+1/4 \ne 1/3$. **Not independent.**
+</details>
+
+**W3.** A bag has 4 white, 6 black balls. Two drawn without
+replacement. Probability both white?
+
+<details class="hint"><summary>Full solution</summary>
+$(4/10)(3/9) = 12/90 = 2/15$.
+</details>
+
+### Practice — Working
+
+**P1.** Given $P(A) = 0.4, P(B) = 0.3, P(A \cap B) = 0.1$. Find
+$P(A \cup B), P(A \mid B), P(B \mid A)$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(A \cup B) = 0.4 + 0.3 - 0.1 = 0.6$.
+$P(A \mid B) = 0.1/0.3 = 1/3$.
+$P(B \mid A) = 0.1/0.4 = 1/4$.
+</details>
+
+**P2.** A test for a disease has 95% sensitivity ($P(+ \mid D) = 0.95$)
+and 90% specificity ($P(- \mid \text{no } D) = 0.90$). Disease
+prevalence: 1%. Find $P(D \mid +)$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(+) = 0.95 \cdot 0.01 + 0.10 \cdot 0.99 = 0.0095 + 0.099 = 0.1085$.
+$P(D \mid +) = 0.0095/0.1085 \approx 0.0876 \approx 8.76\%$.
+**Even with a 95% sensitive test, 91% of positives are false alarms!**
+This is a critical real-world fact.
+</details>
+
+**P3.** Three urns: U1 has 2W 3B, U2 has 3W 2B, U3 has 4W 1B. An urn is
+chosen uniformly; a ball is drawn. Given it's white, find $P(U_3 \mid
+W)$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(W \mid U_i) = 2/5, 3/5, 4/5$. $P(W) = (1/3)(2/5 + 3/5 + 4/5) =
+9/15 = 3/5$.
+$P(U_3 \mid W) = ((1/3)(4/5))/(3/5) = (4/15)/(3/5) = 4/9$.
+</details>
+
+### Practice — Stretch
+
+**S1.** A box has 3 cards: one with both faces red, one with both
+black, one red-and-black. A card is drawn and one face is shown — it's
+red. Find the probability the other face is also red.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Bayes among three cards.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $C_{RR}, C_{BB}, C_{RB}$ be the three cards. $P(\text{see red} \mid
+C_{RR}) = 1, \mid C_{BB}) = 0, \mid C_{RB}) = 1/2$.
+$P(\text{see red}) = (1)(1/3) + 0 + (1/2)(1/3) = 1/2$.
+$P(C_{RR} \mid \text{see red}) = (1)(1/3)/(1/2) = 2/3$.
+**$P(\text{other face red}) = 2/3$**, not the naive $1/2$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** If $A$ and $B$ are independent with $P(A) = 0.3,
+P(B) = 0.5$, then $P(A \cap B) =$ (a) 0.15 (b) 0.8 (c) 0.5 (d) 0.
+
+<details class="hint"><summary>Full solution</summary>
+**0.15.**
+</details>
+
+**1-mark MCQ #2.** $P(A \mid B) = 0$ implies (a) $A, B$ independent (b)
+$A \subseteq B$ (c) $A \cap B = \emptyset$ (d) $A = B$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(A \cap B) = 0$, so $A \cap B = \emptyset$ (assuming standard
+sample space). **(c).**
+</details>
+
+**Assertion–Reason.** *A:* If $A, B$ are independent, so are $A^c$ and
+$B$. *R:* $P(A^c \cap B) = P(B) - P(A \cap B)$.
+
+(a) Both true, R explains A. (b) Both true, R doesn't explain. (c) A
+true, R false. (d) A false.
+
+<details class="hint"><summary>Full solution</summary>
+$P(A^c \cap B) = P(B) - P(A \cap B) = P(B) - P(A)P(B) = P(B)(1 - P(A))
+= P(B) P(A^c)$. Independence preserved. R provides the algebraic step.
+**(a).**
+</details>
+
+**2-mark.** Two cards are drawn without replacement from a deck. Find
+$P(\text{both kings})$.
+
+<details class="hint"><summary>Full solution</summary>
+$(4/52)(3/51) = 12/2652 = 1/221$.
+</details>
+
+**2-mark.** $P(A) = 1/3, P(B) = 1/4, P(A \cup B) = 1/2$. Find $P(A \mid
+B)$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(A \cap B) = 1/3 + 1/4 - 1/2 = 1/12$. $P(A \mid B) = (1/12)/(1/4) =
+1/3$.
+</details>
+
+**3-mark.** A speaks truth in 60% of cases; B in 75%. They state the
+same fact. What's the probability they are both telling the truth,
+given that they agree?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Agree means: both truthful or both lying.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{both truthful}) = 0.6 \cdot 0.75 = 0.45$.
+$P(\text{both lying}) = 0.4 \cdot 0.25 = 0.10$.
+$P(\text{agree}) = 0.45 + 0.10 = 0.55$ (assuming when they agree they
+either both tell the truth or both lie about the *same* fact).
+$P(\text{both truthful} \mid \text{agree}) = 0.45/0.55 = 9/11$.
+</details>
+
+**3-mark.** Probability of an event $A$ in a single trial is $1/3$. In
+3 independent trials, find probability that $A$ occurs at least once.
+
+<details class="hint"><summary>Full solution</summary>
+$P(\text{not } A) = 2/3$ each trial. $P(\text{never}) = (2/3)^3 =
+8/27$. $P(\text{at least once}) = 1 - 8/27 = 19/27$.
+</details>
+
+**5-mark long answer.** Bag I has 4 white, 6 red. Bag II has 7 white, 3
+red. A bag is chosen at random; two balls are drawn without
+replacement; both are white. Find the probability the chosen bag was
+Bag I.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(WW \mid I) = (4/10)(3/9) = 12/90 = 2/15$.
+$P(WW \mid II) = (7/10)(6/9) = 42/90 = 7/15$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(WW) = (1/2)(2/15) + (1/2)(7/15) = 9/30 = 3/10$.
+$P(I \mid WW) = ((1/2)(2/15))/(3/10) = (1/15)/(3/10) = 10/45 = 2/9$.
+</details>
+
+**6-mark Case Study.** *Spam filter.*
+
+A spam filter is trained on emails. Prior: 30% of incoming mail is
+spam. The word "lottery" appears in 60% of spam, 1% of legitimate.
+
+(i) Find $P(\text{contains lottery})$. (2 marks)
+(ii) Find $P(\text{spam} \mid \text{contains lottery})$. (3 marks)
+(iii) If you require 95% probability of spam to filter, would this
+single word suffice? (1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $P(L) = 0.6 \cdot 0.3 + 0.01 \cdot 0.7 = 0.18 + 0.007 = 0.187$.
+**(ii)** $P(S \mid L) = 0.18/0.187 = 180/187 \approx 0.9626$.
+**(iii)** 96.26% > 95%, so yes — this single word would suffice for
+the 95% threshold. (Real spam filters combine many words via naïve
+Bayes.)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 13.1, 13.2, 13.3.
+**Previous-year pointer:** CBSE 2023 Set 1 Q34 (5-mark Bayes); CBSE
+2022 Q35.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$P(A \mid B) = P(B \mid A)$."** Almost never. The doctor's "test
+   sensitivity" is *not* the patient's "probability of disease".
+2. **"Independent = mutually exclusive."** Opposite, in fact.
+   Mutually exclusive means $P(A \cap B) = 0$; independent means $P(A
+   \cap B) = P(A)P(B)$. Mutually exclusive non-zero events are *not*
+   independent.
+3. **"Forgetting that base rate matters."** P2 above is the canonical
+   warning: low prior + imperfect test = many false positives.
+:::
+
+### Self-Assessment
+
+1. Could you write down Bayes' theorem from memory and apply it to a
+   2-event setup in 3 minutes?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you explain why a positive medical test doesn't mean disease?
+
+- **3 yes:** move on.
+- **2 yes:** redo the spam filter case study.
+- **0–1 yes:** redo P2 with fresh prevalence numbers.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse11.probability`](../../tier-cbse-11-class-11/14-probability/index.qmd)
+  — sample spaces, events, axioms.
+
+### What this unlocks
+
+- [`cbse12.random-variables-distributions`](../13b-random-variables-distributions/index.qmd)
+  — distributions on conditional models.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 13** (NCERT 2023). Sections 13.1–13.5.
+- **Sister synthesis lessons:**
+  [`t3.conditional-probability`](../../tier-3-algebra2-geometry-trig/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Naïve Bayes classifiers, Bayesian networks, and the entire
+field of probabilistic machine learning derive from the multiplication
+rule and Bayes' theorem.
+:::
+
+::: {.applied-callout}
+**Encryption / security.** Conditional probability bounds the leakage
+of secret keys given side-channel observations. Bayes-optimal
+distinguishers form the limit of cryptanalytic strength.
+:::
+
+::: {.applied-callout}
+**Research / medicine.** Diagnostic reasoning, A/B testing, and any
+"updating beliefs from data" workflow rests on Bayes.
+:::
+
+::: {.applied-callout}
+**Databases.** Query optimisers maintain Bayesian beliefs about row
+counts; sample-then-update is a Bayes step.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained ("Bayes as updating"), 3Blue1Brown
+  ("medical test paradox" video), Bhāskara (verse), AoPS (graded
+  practice).
+:::

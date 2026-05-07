@@ -1,0 +1,496 @@
+---
+title: "Ch 5 — Introduction to Euclid's Geometry"
+subtitle: "Five postulates, a few axioms, and 2300 years of consequences"
+lesson-id: "cbse9.euclids-geometry"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 5
+ncert-chapter-title: "Introduction to Euclid's Geometry"
+board-exam: false
+prerequisites: ["t1.shapes-angles"]
+unlocks: ["cbse9.lines-and-angles", "cbse9.triangles", "cbse9.quadrilaterals", "cbse9.circles"]
+applied-domains: ["research"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Do you know what a *line*, a *line segment*, and a *ray* look like?
+   *(If no, revisit
+   [t1.shapes-angles](../../tier-1-foundations/12-shapes-angles/index.qmd).)*
+2. Can you measure an angle with a protractor?
+3. Have you ever drawn a triangle and added up its angles?
+
+Three yes? Read on.
+:::
+
+## Touch
+
+Take a sheet of paper and a ruler. Mark two dots, $A$ and $B$. Now lay
+your ruler against them and draw a straight line through both.
+
+Try a different angle of the ruler. You can't keep both dots on the line
+unless your ruler crosses *exactly* through the same path as before. Two
+dots fix one straight line — no more, no fewer.
+
+```{ojs}
+viewof ax = Inputs.range([20, 280], {value: 60, step: 5, label: "A.x"})
+```
+
+```{ojs}
+viewof ay = Inputs.range([20, 220], {value: 180, step: 5, label: "A.y"})
+```
+
+```{ojs}
+viewof bx = Inputs.range([20, 280], {value: 240, step: 5, label: "B.x"})
+```
+
+```{ojs}
+viewof by_ = Inputs.range([20, 220], {value: 60, step: 5, label: "B.y"})
+```
+
+```{ojs}
+{
+  // extend the segment to a long straight line
+  const dx = bx - ax, dy = by_ - ay;
+  const len = Math.hypot(dx, dy) + 1e-9;
+  const ex = dx / len, ey = dy / len;
+  const x1 = ax - ex * 400, y1 = ay - ey * 400;
+  const x2 = bx + ex * 400, y2 = by_ + ey * 400;
+  return html`<svg width="320" height="240" style="border:1px solid #ccc">
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#888" stroke-dasharray="3,3"/>
+    <circle cx="${ax}" cy="${ay}" r="5" fill="#c33"/>
+    <circle cx="${bx}" cy="${by_}" r="5" fill="#33c"/>
+    <text x="${ax + 8}" y="${ay - 8}" font-size="13">A</text>
+    <text x="${bx + 8}" y="${by_ - 8}" font-size="13">B</text>
+  </svg>`;
+}
+```
+
+Move $A$ or $B$. The dashed straight line through both moves with them.
+There is **only one** such line, no matter where the points sit.
+
+## Wonder
+
+1. Why do two dots fix exactly one straight line? Could they fix more
+   than one? Could they fix none?
+2. If you drop a third dot $C$ on the same line, do all three dots also
+   fix that line — or could they tell us something new?
+3. A geometry book starts with words like "point", "line", "plane". Can
+   you actually *define* what a point is, without using another geometry
+   word?
+4. The first proof in *Elements* shows you can construct an equilateral
+   triangle with only a straight edge and a compass. Why might
+   mathematicians have begun there?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q3 is the deepest. Some words have to stay **undefined** — accepted from
+direct sensory experience — or every definition would chase its tail
+forever. Q4 hints at why we lay down **postulates** before any theorem.
+:::
+
+## Discover
+
+### Problem 1
+
+Mark two distinct points on a sheet. With a ruler, draw the unique line
+through them. With a different ruler placement, try again. What is the
+result?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two distinct points determine — how many — straight lines?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Exactly one.** No matter how you orient your ruler, if both points lie
+on it, the line drawn is the same. **Postulate (paraphrasing Euclid):
+Given two distinct points, there is a unique line passing through them.**
+</details>
+
+### Problem 2
+
+Draw a line and pick a point $P$ off the line. With your ruler and
+square, try to draw a line through $P$ parallel to the first. How many
+such parallels exist?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A line "parallel to" another never meets it. Tilt your second ruler
+slightly. Does it still feel parallel?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Exactly one** parallel through $P$. This is **Playfair's axiom**, an
+equivalent way to state Euclid's fifth (parallel) postulate.
+</details>
+
+### Problem 3
+
+Two segments are each $7$ cm long. A third segment is also $7$ cm long.
+Are the first two equal to each other?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Things equal to the same thing are…"
+</details>
+<details class="hint"><summary>Full solution</summary>
+Yes, both equal $7$ cm so they equal each other. **Axiom (Common
+Notion 1): Things equal to the same thing are equal to one another.**
+This is one of Euclid's "common notions" — true of any equal quantities,
+not just geometric ones.
+</details>
+
+### Problem 4
+
+A segment $AB$ has length $10$ cm. A segment $CD$ has length $4$ cm. We
+add a $4$-cm segment to $AB$ and a $4$-cm segment to $CD$. What can we
+say about the new total lengths?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$10 \ne 4$. Add the same thing to both. Are the results equal?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AB + 4 = 14$, $CD + 4 = 8$. Still unequal — and unequal by the same
+amount, $10 - 4 = 14 - 8 = 6$. **(Common Notion 2):** *If equals are added
+to equals, the wholes are equal.* (We did the **non-equal** version: if
+the same quantity is added to two unequal quantities, the difference is
+preserved.)
+</details>
+
+### Problem 5
+
+Construct an equilateral triangle on segment $AB$ using only a straight
+edge and a compass. (This is Euclid's Proposition I.1.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Open your compass to length $AB$. Draw two arcs.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+With centre $A$, radius $AB$, draw an arc above the segment. With centre
+$B$, radius $AB$, draw a second arc. Where they meet is the third vertex
+$C$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. Draw circle with centre $A$, radius $AB$. | Postulate 3 (any segment can be a radius). |
+| 2. Draw circle with centre $B$, radius $BA$. | Postulate 3. |
+| 3. The two circles meet at a point $C$ above $AB$. | (Euclid took this for granted; modern geometry adds an axiom for it.) |
+| 4. Join $AC$ and $BC$. | Postulate 1 (two points determine a line). |
+| 5. $AC = AB$ (radii of circle 1). | Definition of circle. |
+| 6. $BC = AB$ (radii of circle 2). | Definition of circle. |
+| 7. $AC = BC$. | Common Notion 1: things equal to the same thing are equal. |
+| 8. Hence $\triangle ABC$ has $AB = BC = CA$ — equilateral. | $\blacksquare$ |
+
+This is the very first theorem in *Elements*. Notice it uses *one*
+postulate (radii), one common notion, and produces a fully justified
+construction. That is the rhythm of Euclidean proof.
+</details>
+
+You discovered: a few self-evident statements (postulates and common
+notions) anchor everything. From them, by chained reasoning, every other
+geometric fact follows.
+
+## Name
+
+::: {.lesson-beat}
+
+A **postulate** (Euclid's word) is a geometrical statement accepted
+without proof. Euclid's five postulates:
+
+1. A straight line can be drawn from any one point to any other point.
+2. A finite straight line can be extended indefinitely.
+3. A circle can be drawn with any centre and any radius.
+4. All right angles are equal to one another.
+5. (Parallel postulate, Playfair's form) Through a point not on a given
+   line, exactly one line parallel to the given line can be drawn.
+
+A **common notion** (or axiom) is a general logical principle. The most
+used:
+
+- Things equal to the same thing are equal to one another.
+- If equals are added to equals, the wholes are equal.
+- If equals are subtracted from equals, the remainders are equal.
+- The whole is greater than the part.
+- Things that coincide with one another are equal.
+
+A **theorem** is a statement *proved* from postulates, common notions,
+and previously proved theorems.
+
+A **proof** is a finite chain of statements, each justified, ending in
+the desired theorem. A clean proof is a two-column "Statement | Reason"
+table.
+
+:::
+
+A short verse:
+
+> *Five postulates Euclid laid as bricks;*
+> *Common notions stitched them with logic.*
+> *Every theorem since — every dome, every map —*
+> *Stands on those few un-proven facts.*
+
+## Apply
+
+### Worked example
+
+> Prove: If $A$, $B$, $C$ are three points on a line such that $B$ lies
+> between $A$ and $C$, and if a point $M$ is the midpoint of segment
+> $AC$, and another point $N$ is the midpoint of segment $AB$, prove
+> that $AM > AN$.
+
+A competent solver thinks:
+
+1. $M$ is the midpoint of $AC$, so $AM = \tfrac{1}{2} AC$.
+2. $N$ is the midpoint of $AB$, so $AN = \tfrac{1}{2} AB$.
+3. Since $B$ lies between $A$ and $C$, $AB$ is *part of* $AC$, so $AC > AB$
+   (Common notion: the whole is greater than the part).
+4. Halving both sides preserves the inequality:
+   $\tfrac{1}{2} AC > \tfrac{1}{2} AB$, i.e. $AM > AN$. $\blacksquare$
+
+### Practice — Warm
+
+**W1.** Which of Euclid's postulates says you can extend any line
+segment as far as you wish?
+
+<details class="hint"><summary>Full solution</summary>
+**Postulate 2.**
+</details>
+
+**W2.** Two angles are right angles. What can you say about them?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Postulate 4.
+</details>
+<details class="hint"><summary>Full solution</summary>
+They are equal — by Postulate 4, *all right angles are equal to one
+another*.
+</details>
+
+**W3.** If $AB = CD$ and $CD = EF$, what can you conclude about $AB$
+and $EF$?
+
+<details class="hint"><summary>Full solution</summary>
+$AB = EF$ — by Common Notion 1 (things equal to the same thing are equal
+to one another).
+</details>
+
+### Practice — Working
+
+**P1.** Prove that two distinct lines cannot have more than one point in
+common.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose for contradiction they did share two points $P$ and $Q$. What
+does Postulate 1 say?
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. Suppose two distinct lines $\ell_1$ and $\ell_2$ share two points $P$ and $Q$. | Assumption (for contradiction). |
+| 2. Through $P$ and $Q$ there is a unique line. | Postulate 1. |
+| 3. So $\ell_1 = \ell_2$. | From 2. |
+| 4. But this contradicts "$\ell_1$ and $\ell_2$ are distinct". | — |
+| 5. Therefore two distinct lines share at most one point. | $\blacksquare$ |
+
+</details>
+
+**P2.** $C$ is the midpoint of segment $AB$, and $D$ is the midpoint of
+$AC$. If $AB = 12$ cm, find $AD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cut $AB$ in half, then cut that half again.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AC = \tfrac{1}{2}(12) = 6$. $AD = \tfrac{1}{2}(AC) = 3$. **3 cm.**
+</details>
+
+**P3.** $AB = AC$ and $AC = AD$. Show that $AB = AD$ and identify the
+common notion you used.
+
+<details class="hint"><summary>Full solution</summary>
+$AB = AC$ and $AC = AD$. So both $AB$ and $AD$ equal $AC$. By Common
+Notion 1, $AB = AD$. $\blacksquare$
+</details>
+
+### Practice — Stretch
+
+**S1.** $X$ and $Y$ are two distinct points, and $\ell$ is the unique
+line through them. Suppose another line $m$ also passes through both $X$
+and $Y$. Prove that $m = \ell$. Quote the postulate you use.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The phrase "the unique line" is doing a lot of work here.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. By Postulate 1, through $X$ and $Y$ there exists exactly one line. | Postulate 1. |
+| 2. $\ell$ passes through $X$ and $Y$. | Given. |
+| 3. $m$ passes through $X$ and $Y$. | Given. |
+| 4. By the uniqueness from step 1, $m$ and $\ell$ are the same line. | $\blacksquare$ |
+
+</details>
+
+**S2.** A point $P$ is at distance $3$ from line $\ell$. State (without
+proof) how many lines through $P$ are parallel to $\ell$, and which
+postulate you used.
+
+<details class="hint"><summary>Full solution</summary>
+**Exactly one**, by Postulate 5 (in Playfair's form). The fifth
+postulate is the most subtle of the five, and dropping it leads to
+**non-Euclidean geometries** — the geometry of curved space, used by
+Einstein in general relativity.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** "Things which are equal to the same thing are
+equal to one another" is:
+(a) a postulate (b) a theorem (c) a common notion (d) a definition.
+
+<details class="hint"><summary>Full solution</summary>
+**(c) a common notion** (also called an axiom). It is a general logical
+principle, not a geometric postulate.
+</details>
+
+**2-mark (short answer).** State Euclid's first postulate. Use it to
+explain why two points determine a unique straight line.
+
+<details class="hint"><summary>Full solution</summary>
+**Postulate 1:** A straight line can be drawn from any one point to any
+other point. The construction shows existence; the *uniqueness* is
+implied by the postulate's modern phrasing — exactly one straight line
+passes through two distinct points.
+</details>
+
+**3-mark (short answer II).** If $A$, $B$, $C$ are three points on a
+line and $AB = BC$, prove that $B$ is the midpoint of $AC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The midpoint divides a segment into two equal parts. State this
+explicitly.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $A$, $B$, $C$ are collinear with $B$ between $A$ and $C$. | Given. |
+| 2. $AB = BC$. | Given. |
+| 3. So $B$ divides $AC$ into two equal parts. | From 2 and the meaning of "between". |
+| 4. By definition, $B$ is the midpoint of $AC$. | $\blacksquare$ |
+
+</details>
+
+**5-mark (long answer).** Prove Proposition I.1 of Euclid's *Elements*:
+Given a segment $AB$, construct an equilateral triangle on it. Write the
+proof as a two-column table.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two arcs from $A$ and $B$ with radius $AB$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+See Discover Problem 5 above. Reproduce the seven-row table verbatim,
+citing Postulate 3 (radii), Postulate 1 (joining points), Common Notion 1
+(transitivity of equality), and the definition of a circle.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 5, Problem 5.1
+(identifying postulates vs axioms, similar to 1-mark). **Previous-year
+pointer:** CBSE Class 9 sample paper "state Euclid's postulates and
+prove a midpoint claim" (similar to 3-mark and 5-mark).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Postulate and axiom mean the same thing."** Modern usage tends to
+   merge them, but Euclid distinguished: *postulates* are geometric
+   (about points, lines, circles), *common notions* (axioms) are
+   general logical principles.
+2. **"You can prove the parallel postulate."** Two thousand years of
+   trying showed you cannot — it is independent of the others. Dropping
+   or replacing it gives **non-Euclidean** geometries, which describe
+   the actual large-scale structure of the universe.
+3. **"A definition of 'point' is just 'a dot'."** Not quite — a point
+   has no size, only a position. Even Euclid said "a point is that which
+   has no part". Some basic terms are accepted from intuition; that is
+   what an *undefined term* means.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state Euclid's five postulates from memory and explain the
+   role of common notions?
+2. Did you write each line of the I.1 construction with a justification
+   beside it?
+3. Could you spot when a step in a proof needs a postulate citation
+   rather than a "by inspection"?
+
+- **3 yes:** move on to **Lines and Angles**.
+- **2 yes:** redo S1 and S2 — write every reason.
+- **0–1 yes:** re-read *Discover* Problem 5 and *Apply* worked example.
+  Proof is a habit; it builds slowly.
+
+## Connect
+
+### Prerequisites used
+
+- [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd)
+  — naming lines, segments, rays, angles.
+
+### What this unlocks
+
+- [`cbse9.lines-and-angles`](../06-lines-and-angles/index.qmd) — the
+  first major theorem-bundle to prove from these postulates.
+- [`cbse9.triangles`](../07-triangles/index.qmd),
+  [`cbse9.quadrilaterals`](../08-quadrilaterals/index.qmd), and
+  [`cbse9.circles`](../09-circles/index.qmd) — every proof in those
+  chapters is grounded here.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 5 — Introduction to Euclid's Geometry** (NCERT 2023
+  rationalised syllabus). Covers Sections 5.1–5.2: definitions,
+  postulates, axioms.
+- **Sister synthesis lesson** — there is no direct synthesis lesson for
+  Euclid's postulates as such; the synthesis curriculum treats geometry
+  via [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd)
+  at a more concrete level. Class 9 is the first year axiomatic geometry
+  appears.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** The axiomatic method — agree on starting truths, derive
+all else by logic — is the spine of every formal subject. Hilbert
+re-axiomatised geometry in 1899 to remove gaps Euclid left. Modern proof
+assistants (Lean, Coq, Isabelle) verify mathematical proofs the same way
+Euclid did, just with computers checking each "Reason" column.
+:::
+
+::: {.applied-callout}
+**Curved space.** When Einstein replaced Euclid's fifth postulate with a
+*curved* notion of "straight line", he produced general relativity. GPS
+satellites apply the resulting corrections every second — without them,
+your phone's position would drift kilometres per day.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Kiselev (proofs in two-column form, citing
+  one postulate or axiom per step), Euclid himself (Proposition I.1
+  reproduced as the climax of *Discover*), Hilbert (the modern phrasing
+  of "exactly one line through two points").
+:::

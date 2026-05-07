@@ -1,0 +1,373 @@
+---
+title: "Ch 10a — Vector Algebra"
+subtitle: "Vectors as arrows, as triples — and the algebra that ties them together"
+lesson-id: "cbse12.vector-algebra"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 10
+ncert-chapter-title: "Vector Algebra"
+board-exam: true
+prerequisites: ["cbse11.three-d-geometry-intro"]
+unlocks: ["cbse12.dot-cross-product-applications", "cbse12.lines-in-3d"]
+applied-domains: ["game-dev", "ai-ml", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Comfortable with $(x, y, z)$ coordinates in 3D?
+2. Can you compute the distance between two points in 3D?
+3. Have you done [Class 11 · Ch 11 — 3D geometry intro](../../tier-cbse-11-class-11/11-three-d-geometry-intro/index.qmd)?
+:::
+
+## Touch
+
+A force pushes a box. The push has *magnitude* (how hard) and
+*direction* (which way). A pure number can't express both. So we need
+**vectors**.
+
+::: {.lesson-beat}
+
+A vector $\vec a = a_1 \hat\imath + a_2 \hat\jmath + a_3 \hat k$ — three
+numbers, in 3D — encodes a directed quantity. We picture it as an
+arrow from one point to another.
+
+| Concept | Notation |
+|:-:|:-:|
+| Vector | $\vec a, \vec b$ |
+| Magnitude | $|\vec a| = \sqrt{a_1^2 + a_2^2 + a_3^2}$ |
+| Unit vector | $\hat a = \vec a / |\vec a|$ |
+| Position vector of $P = (x, y, z)$ | $\vec{OP} = x\hat\imath + y
+\hat\jmath + z\hat k$ |
+
+:::
+
+Two vectors *add* by attaching tail-to-tip — equivalently, by adding
+components: $(a_1, a_2, a_3) + (b_1, b_2, b_3) = (a_1+b_1, a_2+b_2,
+a_3+b_3)$.
+
+This lesson covers vector arithmetic — addition, scalar multiplication,
+position vectors, direction cosines, and unit vectors. Dot and cross
+products come next.
+
+## Wonder
+
+1. If two vectors point in the same direction, what does $\vec a +
+   \vec b$ look like?
+2. The vector from $A$ to $B$ is $\vec{OB} - \vec{OA}$. Why?
+3. A unit vector has magnitude 1. Why divide by $|\vec a|$ to get one?
+4. Direction cosines $(l, m, n)$ satisfy $l^2 + m^2 + n^2 = 1$. Why
+   exactly that constraint?
+
+## Discover
+
+### Problem 1
+
+Find the magnitude of $\vec a = 2\hat\imath - 3\hat\jmath + 6\hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$|\vec a| = \sqrt{4 + 9 + 36} = \sqrt{49} = 7$.
+</details>
+
+### Problem 2
+
+Find the unit vector in the direction of $\vec a$ from Problem 1.
+
+<details class="hint"><summary>Full solution</summary>
+$\hat a = \vec a / 7 = (2\hat\imath - 3\hat\jmath + 6\hat k)/7$.
+</details>
+
+### Problem 3
+
+If $\vec a = \hat\imath + 2\hat\jmath$ and $\vec b = -\hat\imath +
+3\hat\jmath$, find $2\vec a - \vec b$.
+
+<details class="hint"><summary>Full solution</summary>
+$2\vec a = 2\hat\imath + 4\hat\jmath$. $2\vec a - \vec b = (2 - (-1))
+\hat\imath + (4 - 3)\hat\jmath = 3\hat\imath + \hat\jmath$.
+</details>
+
+### Problem 4
+
+$P = (1, 2, 3),\ Q = (4, 6, 8)$. Find $\vec{PQ}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec{PQ} = \vec{OQ} - \vec{OP} = 3\hat\imath + 4\hat\jmath + 5\hat k$.
+$|\vec{PQ}| = \sqrt{9 + 16 + 25} = \sqrt{50} = 5\sqrt 2$.
+</details>
+
+### Problem 5
+
+Find direction cosines of $\vec a = \hat\imath + \hat\jmath + \hat k$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direction cosines $(l, m, n) = (a_1, a_2, a_3)/|\vec a|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|\vec a| = \sqrt 3$. $(l, m, n) = (1/\sqrt 3, 1/\sqrt 3, 1/\sqrt 3)$.
+$l^2 + m^2 + n^2 = 1$. ✓
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **vector** in 3D is $\vec a = a_1 \hat\imath + a_2 \hat\jmath + a_3
+\hat k$, where $\hat\imath, \hat\jmath, \hat k$ are unit vectors along
+the axes.
+
+- **Magnitude:** $|\vec a| = \sqrt{a_1^2 + a_2^2 + a_3^2}$.
+- **Unit vector:** $\hat a = \vec a / |\vec a|$.
+- **Position vector** of point $P = (x, y, z)$: $\vec{OP} = x\hat\imath
+  + y\hat\jmath + z\hat k$.
+- **Vector from $A$ to $B$:** $\vec{AB} = \vec{OB} - \vec{OA}$.
+- **Direction cosines** $(l, m, n)$: cosines of angles with the three
+  axes; $(l, m, n) = (a_1, a_2, a_3)/|\vec a|$. They satisfy $l^2 + m^2
+  + n^2 = 1$.
+- **Direction ratios** $(a_1, a_2, a_3)$: any scalar multiple of $(l,
+  m, n)$.
+
+**Section formula.** If $\vec r$ divides the segment from $\vec a$ to
+$\vec b$ in ratio $m : n$ (internal), then
+$$\vec r = \frac{m\vec b + n\vec a}{m + n}.$$
+
+:::
+
+A verse:
+
+> *Three components, one arrow — that's a vector;*
+> *Magnitude under root, direction by division — these are inspectors.*
+> *Position $\vec{OP}$ from origin to point;*
+> *$\vec{AB} = \vec{OB} - \vec{OA}$ — never disjoint.*
+
+## Apply
+
+### Worked example
+
+> Find the position vector of the point dividing $A(1, 2, 3)$ and $B(4,
+> 5, 6)$ in ratio $2:3$ internally.
+
+A competent solver:
+
+1. $\vec a = \hat\imath + 2\hat\jmath + 3\hat k$, $\vec b = 4\hat\imath
+   + 5\hat\jmath + 6\hat k$.
+2. $\vec r = \frac{2\vec b + 3\vec a}{2 + 3} = \frac{2\vec b + 3\vec
+   a}{5}$.
+3. Components: $((2\cdot4 + 3\cdot1)/5, (2\cdot5 + 3\cdot2)/5,
+   (2\cdot6 + 3\cdot3)/5) = (11/5, 16/5, 21/5)$.
+
+### Practice — Warm
+
+**W1.** Magnitude of $3\hat\imath - 4\hat\jmath$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{9 + 16} = 5$.
+</details>
+
+**W2.** Unit vector parallel to $\hat\imath + \hat\jmath$.
+
+<details class="hint"><summary>Full solution</summary>
+$(\hat\imath + \hat\jmath)/\sqrt 2$.
+</details>
+
+**W3.** $\vec a = 2\hat\imath + \hat\jmath, \vec b = \hat\imath -
+\hat\jmath$. Find $\vec a + 3\vec b$.
+
+<details class="hint"><summary>Full solution</summary>
+$5\hat\imath - 2\hat\jmath$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the unit vector along $\vec{AB}$ where $A = (1, 0, 1), B =
+(3, 4, 5)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec{AB} = 2\hat\imath + 4\hat\jmath + 4\hat k$. $|\vec{AB}| =
+\sqrt{4 + 16 + 16} = 6$. $\hat{AB} = (\hat\imath + 2\hat\jmath + 2\hat
+k)/3$.
+</details>
+
+**P2.** Direction cosines of the line joining $(1, -1, 2)$ and $(3, 2,
+1)$.
+
+<details class="hint"><summary>Full solution</summary>
+DR = $(2, 3, -1)$. Magnitude $\sqrt{4 + 9 + 1} = \sqrt{14}$.
+DC = $(2/\sqrt{14}, 3/\sqrt{14}, -1/\sqrt{14})$.
+</details>
+
+**P3.** Show that the points $(1, 2, 3), (-2, 3, 5), (7, 0, -1)$ are
+collinear.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare direction ratios of $\vec{AB}$ and $\vec{AC}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec{AB} = (-3, 1, 2)$. $\vec{AC} = (6, -2, -4) = -2 \vec{AB}$.
+Parallel and share point $A$, so collinear. ✓
+</details>
+
+### Practice — Stretch
+
+**S1.** Find $\lambda$ such that $\vec a = 2\hat\imath + \lambda
+\hat\jmath + \hat k$ has magnitude $\sqrt{14}$.
+
+<details class="hint"><summary>Full solution</summary>
+$4 + \lambda^2 + 1 = 14 \Rightarrow \lambda^2 = 9 \Rightarrow \lambda =
+\pm 3$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** Magnitude of $\hat\imath - \hat\jmath + \hat k$ is
+(a) 1 (b) $\sqrt 2$ (c) $\sqrt 3$ (d) 3.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{1+1+1} = \sqrt 3$. **(c).**
+</details>
+
+**1-mark MCQ #2.** If $\hat a$ is a unit vector along $\vec a = 3
+\hat\imath + 4\hat\jmath$, then $\hat a =$ (a) $(3, 4, 0)$ (b) $(3/5,
+4/5, 0)$ (c) $(3/5, 4/5)$ (d) $(1, 1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$|\vec a| = 5$. **(b).**
+</details>
+
+**2-mark.** If $A = (1, 2, 3), B = (4, 5, 7)$, find $|\vec{AB}|$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec{AB} = (3, 3, 4)$. $|\vec{AB}| = \sqrt{9 + 9 + 16} = \sqrt{34}$.
+</details>
+
+**2-mark.** Find $\vec a$ if it has DR proportional to $1, 2, 3$ and
+magnitude $\sqrt{14}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec a = (1, 2, 3)$. $|\vec a| = \sqrt{14}$. ✓
+</details>
+
+**3-mark.** If $\vec a = 2\hat\imath + \hat\jmath + 2\hat k, \vec b =
+4\hat\imath - \hat\jmath + 3\hat k$, find a unit vector parallel to
+$\vec a + \vec b$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec a + \vec b = 6\hat\imath + 0\hat\jmath + 5\hat k$. $|.| = \sqrt{61}$.
+$\hat{u} = (6, 0, 5)/\sqrt{61}$.
+</details>
+
+**3-mark.** Find the position vector of the midpoint of segment joining
+$\vec a = 2\hat\imath - \hat\jmath$ and $\vec b = 4\hat\imath + 3
+\hat\jmath - 2\hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$(\vec a + \vec b)/2 = 3\hat\imath + \hat\jmath - \hat k$.
+</details>
+
+**5-mark long answer.** ABCD is a parallelogram with $A = (1, 2, 3), B
+= (3, 5, 7), C = (5, 7, 9)$. Find position vector of $D$, and verify
+$\vec{AB} = \vec{DC}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+In a parallelogram, diagonals bisect each other; or $\vec{AD} =
+\vec{BC}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec{BC} = (2, 2, 2)$. $D = A + \vec{BC} = (1, 2, 3) + (2, 2, 2) = (3,
+4, 5)$.
+$\vec{AB} = (2, 3, 4)$. $\vec{DC} = C - D = (2, 3, 4)$. ✓
+</details>
+
+**6-mark Case Study.** *Drone navigating a building.*
+
+A drone is at position $\vec p = 5\hat\imath + 2\hat\jmath + 8\hat k$
+(metres) and needs to fly to $\vec q = 9\hat\imath - \hat\jmath + 4\hat
+k$.
+
+(i) Compute the displacement vector $\vec{pq}$. (1 mark)
+(ii) Find the distance to fly. (1 mark)
+(iii) Compute the unit vector along $\vec{pq}$. (2 marks)
+(iv) The drone's max speed is 5 m/s. How long does the flight take?
+(2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\vec{pq} = (4, -3, -4)$.
+**(ii)** $|\vec{pq}| = \sqrt{16 + 9 + 16} = \sqrt{41} \approx 6.40$ m.
+**(iii)** $\hat u = (4, -3, -4)/\sqrt{41}$.
+**(iv)** Time $= \sqrt{41}/5 \approx 1.28$ s.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 10.1, 10.2.
+**Previous-year pointer:** CBSE 2023 Set 2 Q11 (1-mark unit vector);
+CBSE 2022 Q19.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\vec{AB} = \vec{BA}$."** They are *opposite* — same magnitude,
+   reversed direction.
+2. **"Direction cosines vs. ratios."** DC = unit vector components; DR
+   = any scalar multiple. DC are unique up to overall sign; DR are not.
+3. **"Adding magnitudes."** $|\vec a + \vec b| \ne |\vec a| + |\vec
+   b|$ in general — the triangle inequality is what holds.
+:::
+
+### Self-Assessment
+
+1. Could you compute magnitude, unit vector, and DC of a fresh vector
+   in 2 minutes?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you set up a section-formula problem from a word description?
+
+- **3 yes:** move on.
+- **2 yes:** redo the parallelogram problem.
+- **0–1 yes:** revisit Class 11 3D geometry intro.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse11.three-d-geometry-intro`](../../tier-cbse-11-class-11/11-three-d-geometry-intro/index.qmd)
+  — coordinates and distances.
+
+### What this unlocks
+
+- [`cbse12.dot-cross-product-applications`](../10b-dot-cross-product-applications/index.qmd)
+- [`cbse12.lines-in-3d`](../11a-lines-in-3d/index.qmd)
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 10** (NCERT 2023). Sections 10.1–10.4.
+- **Sister synthesis lesson:**
+  [`t4.vectors-2d-3d`](../../tier-4-precalc-calculus/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every position, velocity, and force in a 3D game
+is a vector. Engines like Unity and Unreal expose `Vector3` as a
+fundamental type.
+:::
+
+::: {.applied-callout}
+**AI/ML.** Word and image embeddings are high-dimensional vectors;
+"semantic similarity" reduces to vector-space geometry.
+:::
+
+::: {.applied-callout}
+**Research.** Forces, fields, and momenta are vectors. Quantum states
+in finite-dim Hilbert spaces are complex vectors.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown ("vectors as arrows"), Bhāskara (verse),
+  Gelfand (problem-first).
+:::

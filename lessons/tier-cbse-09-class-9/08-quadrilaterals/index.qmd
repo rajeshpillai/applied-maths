@@ -1,0 +1,526 @@
+---
+title: "Ch 8 — Quadrilaterals"
+subtitle: "Parallelograms, the midpoint theorem, and the four-cornered family"
+lesson-id: "cbse9.quadrilaterals"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 8
+ncert-chapter-title: "Quadrilaterals"
+board-exam: false
+prerequisites: ["cbse8.understanding-quadrilaterals", "cbse9.triangles"]
+unlocks: ["cbse9.circles", "cbse10.triangles-similarity"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you recognise a square, rectangle, rhombus, parallelogram, and
+   trapezium? *(If no, revisit
+   [cbse8.understanding-quadrilaterals](../../tier-cbse-08-class-8/03-understanding-quadrilaterals/index.qmd).)*
+2. Can you write a proof using SSS, SAS, ASA, AAS? *(If no, revisit
+   [cbse9.triangles](../07-triangles/index.qmd).)*
+3. Can you state that the angles of a triangle sum to $180^\circ$?
+
+Three yes? Read on.
+:::
+
+## Touch
+
+Take four straws or pencils. Make them into a four-sided closed figure
+with the four corners pinned but able to rotate (think of a hinged
+parallelogram-toy). Push gently on a corner. The shape **shears**: it
+goes from rectangle to leaning parallelogram, but the opposite sides
+stay parallel.
+
+```{ojs}
+viewof shear = Inputs.range([-50, 50], {value: 20, step: 1, label: "shear (px)"})
+```
+
+```{ojs}
+{
+  const w = 180, h = 90, ox = 60, oy = 60;
+  const x1 = ox + shear, y1 = oy;
+  const x2 = ox + w + shear, y2 = oy;
+  const x3 = ox + w, y3 = oy + h;
+  const x4 = ox, y4 = oy + h;
+  return html`<svg width="320" height="200" style="border:1px solid #ccc">
+    <polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3} ${x4},${y4}"
+             fill="rgba(180,200,220,0.4)" stroke="#333" stroke-width="2"/>
+    <text x="${x1-12}" y="${y1-6}" font-size="13">A</text>
+    <text x="${x2+4}" y="${y2-6}" font-size="13">B</text>
+    <text x="${x3+4}" y="${y3+14}" font-size="13">C</text>
+    <text x="${x4-14}" y="${y4+14}" font-size="13">D</text>
+  </svg>`;
+}
+```
+
+Drag the slider. Top side $AB$ stays parallel to bottom $DC$, and the
+two slanted sides $AD$ and $BC$ stay parallel too. That's a
+**parallelogram**. The two diagonals (you can imagine them) always cross
+at the same midpoint, even as you shear.
+
+## Wonder
+
+1. The opposite sides of a parallelogram look equal as you shear. Are
+   they actually equal — for any tilt?
+2. Mark the centre $O$ of the parallelogram. Do the two diagonals always
+   pass through $O$? Do they cut each other in half?
+3. The square, the rhombus, and the rectangle all look like
+   parallelograms in disguise. Are they?
+4. Take any four-cornered figure (not necessarily nice) and join the
+   midpoints of its four sides in order. What do you see?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q4 is a stunning observation that we will name as the **midpoint
+theorem** (and its quadrilateral consequence, **Varignon's theorem** —
+the midpoints always form a parallelogram).
+:::
+
+## Discover
+
+### Problem 1 (Angle sum)
+
+The diagonals of a quadrilateral $ABCD$ are drawn, splitting it into two
+triangles, $\triangle ABC$ and $\triangle ACD$. Use the triangle
+angle-sum theorem to prove that the four angles of $ABCD$ sum to
+$360^\circ$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each triangle contributes $180^\circ$. The two triangles share a
+diagonal but split the four corners cleanly.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. Diagonal $AC$ splits $ABCD$ into $\triangle ABC$ and $\triangle ACD$. | Construction. |
+| 2. $\angle BAC + \angle ABC + \angle BCA = 180^\circ$. | Triangle angle sum. |
+| 3. $\angle CAD + \angle ACD + \angle ADC = 180^\circ$. | Triangle angle sum. |
+| 4. Adding: $(\angle BAC + \angle CAD) + \angle ABC + (\angle BCA + \angle ACD) + \angle ADC = 360^\circ$. |  |
+| 5. The grouped sums are $\angle A$ and $\angle C$ of the quadrilateral. So $\angle A + \angle B + \angle C + \angle D = 360^\circ$. | $\blacksquare$ |
+
+</details>
+
+### Problem 2 (Opposite sides of a parallelogram)
+
+In parallelogram $ABCD$, draw diagonal $AC$. Show $\triangle ABC \cong
+\triangle CDA$, then deduce $AB = DC$ and $BC = AD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two pairs of parallel sides give two pairs of alternate-interior
+angles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $AB \parallel DC$ (parallelogram). | Definition. |
+| 2. $\angle BAC = \angle DCA$. | Alternate interior, transversal $AC$. |
+| 3. $AD \parallel BC$ (parallelogram). | Definition. |
+| 4. $\angle BCA = \angle DAC$. | Alternate interior, transversal $AC$. |
+| 5. $AC = AC$. | Common. |
+| 6. $\triangle ABC \cong \triangle CDA$. | ASA. |
+| 7. $AB = CD$ and $BC = AD$. | CPCT. $\blacksquare$ |
+
+**Opposite sides of a parallelogram are equal.**
+</details>
+
+### Problem 3 (Diagonals bisect each other)
+
+In parallelogram $ABCD$, the diagonals $AC$ and $BD$ meet at $O$. Prove
+$O$ bisects each diagonal.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare $\triangle AOB$ and $\triangle COD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $AB = CD$. | Opposite sides of parallelogram. |
+| 2. $\angle OAB = \angle OCD$. | Alternate interior, $AB \parallel DC$ with transversal $AC$. |
+| 3. $\angle OBA = \angle ODC$. | Alternate interior, $AB \parallel DC$ with transversal $BD$. |
+| 4. $\triangle AOB \cong \triangle COD$. | ASA. |
+| 5. $OA = OC$ and $OB = OD$. | CPCT. $\blacksquare$ |
+
+</details>
+
+### Problem 4 (Converse: a test for a parallelogram)
+
+In quadrilateral $ABCD$, both pairs of opposite sides are equal:
+$AB = DC$ and $AD = BC$. Prove $ABCD$ is a parallelogram.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw diagonal $AC$ and use SSS.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $AB = CD$, $AD = BC$. | Given. |
+| 2. $AC = AC$. | Common. |
+| 3. $\triangle ABC \cong \triangle CDA$. | SSS. |
+| 4. $\angle BAC = \angle DCA$. | CPCT. |
+| 5. So $AB \parallel DC$. | Alternate interior angles equal $\Rightarrow$ lines parallel. |
+| 6. Similarly, $\angle BCA = \angle DAC$, so $BC \parallel AD$. | (CPCT and alternate-interior converse.) |
+| 7. Both pairs parallel — $ABCD$ is a parallelogram. | $\blacksquare$ |
+
+</details>
+
+### Problem 5 (Midpoint theorem)
+
+In $\triangle ABC$, $D$ is the midpoint of $AB$ and $E$ is the midpoint
+of $AC$. Prove that $DE \parallel BC$ and $DE = \tfrac{1}{2} BC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Extend $DE$ to a point $F$ such that $DE = EF$. Connect $CF$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Show $\triangle AED \cong \triangle CEF$ (SAS). Conclude $CF = AD = DB$
+and $CF \parallel AB$. Hence $DBCF$ is a parallelogram.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. Extend $DE$ to $F$ with $DE = EF$. | Construction. |
+| 2. In $\triangle AED$ and $\triangle CEF$: $AE = CE$ (given), $\angle AED = \angle CEF$ (vert. opp.), $DE = EF$ (construction). | |
+| 3. $\triangle AED \cong \triangle CEF$. | SAS. |
+| 4. $AD = CF$ and $\angle DAE = \angle FCE$. | CPCT. |
+| 5. $AD = DB$ (since $D$ is midpoint of $AB$). So $CF = DB$. | |
+| 6. From 4, $AD \parallel CF$, i.e. $AB \parallel CF$. | Alternate interior angles equal. |
+| 7. $DBCF$ has one pair of opposite sides ($DB$ and $CF$) both equal and parallel. So $DBCF$ is a parallelogram. | (Test for parallelogram.) |
+| 8. So $DF \parallel BC$ and $DF = BC$. | Opposite sides of parallelogram. |
+| 9. $DE = \tfrac{1}{2} DF = \tfrac{1}{2} BC$, and $DE \parallel BC$. | $\blacksquare$ |
+
+**The line joining the midpoints of two sides of a triangle is parallel
+to the third side and half its length.**
+</details>
+
+You discovered: the four angles of any quadrilateral sum to $360^\circ$;
+in a parallelogram, opposite sides are equal, opposite angles are equal,
+and the diagonals bisect each other; conversely, any of these is enough
+to identify a parallelogram; and the midpoint theorem reaches further
+into any triangle.
+
+## Name
+
+::: {.lesson-beat}
+
+A **quadrilateral** is a closed figure with four sides. Its four
+interior angles sum to $360^\circ$.
+
+A **parallelogram** is a quadrilateral with both pairs of opposite sides
+parallel. The following are equivalent (any one of them implies the
+others):
+
+1. Both pairs of opposite sides are parallel.
+2. Both pairs of opposite sides are equal.
+3. Both pairs of opposite angles are equal.
+4. The diagonals bisect each other.
+5. One pair of opposite sides is both equal *and* parallel.
+
+Special parallelograms:
+
+- **Rectangle** — parallelogram with one right angle (hence all four).
+- **Rhombus** — parallelogram with adjacent sides equal (hence all four).
+- **Square** — both rectangle and rhombus.
+
+A **trapezium** is a quadrilateral with one pair of parallel sides.
+
+**Midpoint theorem.** The line joining the midpoints of two sides of a
+triangle is parallel to the third side and half as long.
+
+**Converse of the midpoint theorem.** A line drawn through the midpoint
+of one side of a triangle, parallel to another side, bisects the third
+side.
+
+:::
+
+A short verse:
+
+> *Four corners total a turn, no matter the shape.*
+> *Parallel pairs make sides equal, angles equal,*
+> *Diagonals halve each other through one centre.*
+> *Bisect two sides — the join is half the third, and parallel.*
+
+## Apply
+
+### Worked example
+
+> In parallelogram $ABCD$, $E$ is the midpoint of side $BC$. The line
+> through $E$ parallel to $AB$ meets $AD$ at $F$. Prove $F$ is the
+> midpoint of $AD$.
+
+A competent solver:
+
+1. Draw the figure. $ABCD$ is a parallelogram, so $AB \parallel CD$ and
+   $AB = CD$. $E$ is the midpoint of $BC$.
+2. **Construct the diagonal** $BD$. Look at $\triangle BCD$: $E$ is the
+   midpoint of $BC$. The line through $E$ parallel to $CD$ (and hence
+   parallel to $AB$) crosses $BD$ at its midpoint, by the converse of
+   the midpoint theorem. Call that midpoint $M$.
+3. In $\triangle ABD$: $M$ is the midpoint of $BD$. The line through $M$
+   parallel to $AB$ crosses $AD$ at its midpoint, by the converse of
+   the midpoint theorem. That intersection is $F$.
+4. So $F$ bisects $AD$. $\blacksquare$
+
+### Practice — Warm
+
+**W1.** The angles of a quadrilateral are $x$, $2x$, $3x$, $4x$. Find
+each.
+
+<details class="hint"><summary>Full solution</summary>
+$10x = 360^\circ \Rightarrow x = 36^\circ$. Angles: $36^\circ, 72^\circ,
+108^\circ, 144^\circ$.
+</details>
+
+**W2.** A parallelogram has one angle $70^\circ$. Find the other three.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Opposite angles equal; consecutive angles supplementary.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two angles are $70^\circ$ and two are $110^\circ$.
+</details>
+
+**W3.** Sides of a parallelogram are in the ratio $3:4$ and the
+perimeter is $42$. Find the sides.
+
+<details class="hint"><summary>Full solution</summary>
+$2(3k + 4k) = 42 \Rightarrow 14k = 42 \Rightarrow k = 3$. Sides $9$
+and $12$.
+</details>
+
+### Practice — Working
+
+**P1.** In parallelogram $ABCD$, $\angle A = (3x)^\circ$ and
+$\angle B = (2x + 25)^\circ$. Find $\angle A$ and $\angle C$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Adjacent angles of a parallelogram are supplementary.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x + 2x + 25 = 180 \Rightarrow 5x = 155 \Rightarrow x = 31$.
+$\angle A = 93^\circ$. $\angle C = \angle A = 93^\circ$.
+</details>
+
+**P2.** Show that the diagonals of a rhombus are perpendicular to each
+other.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A rhombus is a parallelogram with all sides equal. Diagonals already
+bisect each other; use SSS or SAS on the four small triangles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $ABCD$ rhombus, diagonals meet at $O$. | Given. |
+| 2. $OA = OC$, $OB = OD$. | Diagonals of parallelogram bisect each other. |
+| 3. $AB = AD$. | All sides of rhombus equal. |
+| 4. In $\triangle OAB$ and $\triangle OAD$: $OA = OA$, $OB = OD$, $AB = AD$. | |
+| 5. $\triangle OAB \cong \triangle OAD$. | SSS. |
+| 6. $\angle AOB = \angle AOD$. | CPCT. |
+| 7. $\angle AOB + \angle AOD = 180^\circ$. | Linear pair. |
+| 8. So $\angle AOB = 90^\circ$. | $\blacksquare$ |
+
+</details>
+
+**P3.** $ABCD$ is a quadrilateral. $P, Q, R, S$ are midpoints of
+$AB, BC, CD, DA$ respectively. Prove $PQRS$ is a parallelogram.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw diagonal $AC$ of $ABCD$. Use the midpoint theorem on $\triangle ABC$
+and on $\triangle ACD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. In $\triangle ABC$, $P, Q$ are midpoints of $AB, BC$. | Given. |
+| 2. $PQ \parallel AC$ and $PQ = \tfrac{1}{2} AC$. | Midpoint theorem. |
+| 3. In $\triangle ACD$, $S, R$ are midpoints of $AD, CD$. | Given. |
+| 4. $SR \parallel AC$ and $SR = \tfrac{1}{2} AC$. | Midpoint theorem. |
+| 5. So $PQ \parallel SR$ and $PQ = SR$. | From 2, 4. |
+| 6. $PQRS$ is a parallelogram. | One pair of opposite sides equal and parallel. $\blacksquare$ |
+
+**This is Varignon's theorem.**
+</details>
+
+### Practice — Stretch
+
+**S1.** In a parallelogram $ABCD$, $E$ and $F$ are midpoints of $AB$ and
+$CD$. Prove that $AECF$ is a parallelogram.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$AE$ and $CF$ are halves of $AB$ and $CD$. Use the test "one pair of
+opposite sides equal and parallel".
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AE = \tfrac{1}{2} AB$, $CF = \tfrac{1}{2} CD$, and $AB = CD$ (parallelogram).
+So $AE = CF$. Also $AE \parallel CF$ since both lie along $AB$ and $CD$
+which are parallel. One pair of opposite sides equal and parallel ⟹
+$AECF$ is a parallelogram. $\blacksquare$
+</details>
+
+**S2.** Show that the angle bisectors of a parallelogram form a
+rectangle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Adjacent angles of a parallelogram are supplementary, so half of each
+sum to $90^\circ$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Look at the angle made by two adjacent bisectors at the corner where
+they meet inside the parallelogram.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let bisectors of $\angle A$ and $\angle B$ meet at $P$ inside the
+parallelogram. In $\triangle APB$,
+$\angle PAB + \angle PBA = \tfrac{1}{2}(\angle A + \angle B) =
+\tfrac{1}{2}(180^\circ) = 90^\circ$.
+So $\angle APB = 90^\circ$. The same argument at every corner shows the
+quadrilateral formed by the four bisectors has four right angles —
+hence a rectangle. $\blacksquare$
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** A quadrilateral whose diagonals bisect each
+other at right angles is:
+(a) parallelogram (b) rectangle (c) rhombus (d) trapezium.
+
+<details class="hint"><summary>Full solution</summary>
+**(c) rhombus.** Diagonals of a rhombus bisect at right angles. (A
+square also fits, but rhombus is the most general such answer.)
+</details>
+
+**2-mark (short answer).** In a parallelogram $ABCD$, $\angle A = 65^\circ$.
+Find $\angle B, \angle C, \angle D$.
+
+<details class="hint"><summary>Full solution</summary>
+$\angle B = 180 - 65 = 115^\circ$. $\angle C = 65^\circ$. $\angle D =
+115^\circ$.
+</details>
+
+**3-mark (short answer II).** $ABCD$ is a parallelogram. Prove that
+the diagonal $AC$ divides it into two congruent triangles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is Discover Problem 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Reproduce the four-row two-column proof of Discover Problem 2 with ASA.
+$\blacksquare$
+</details>
+
+**5-mark (long answer).** Prove the **midpoint theorem**: in
+$\triangle ABC$, the line joining the midpoints of $AB$ and $AC$ is
+parallel to $BC$ and half its length.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reproduce Discover Problem 5.
+</details>
+<details class="hint"><summary>Full solution</summary>
+See Discover Problem 5 above. Construct $F$ on the extension of $DE$
+with $DE = EF$. Show $\triangle AED \cong \triangle CEF$ by SAS, deduce
+$DBCF$ is a parallelogram, and conclude $DE = \tfrac{1}{2} BC$ and
+$DE \parallel BC$. $\blacksquare$
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 8, Problem 8.4
+(midpoints of a quadrilateral form a parallelogram, similar to P3).
+**Previous-year pointer:** CBSE Class 9 sample paper "prove midpoint
+theorem" (similar to 5-mark above).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"All parallelograms are rectangles."** No — only those with right
+   angles. Rectangles, rhombi, and squares are *special* parallelograms.
+2. **"A trapezium has both pairs of opposite sides parallel."** That
+   would make it a parallelogram. A trapezium has *exactly one* pair
+   parallel. (American usage flips this term — "trapezoid" — but the
+   NCERT convention follows British: trapezium = one pair parallel.)
+3. **"The midpoint theorem requires the triangle to be right-angled."**
+   It works for **every** triangle.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you prove "diagonals of a parallelogram bisect each other"
+   without notes?
+2. Did you solve W1–P3 with at most one hint each?
+3. Could you state the midpoint theorem and use it on a fresh problem
+   without prompting?
+
+- **3 yes:** move on to **Circles**.
+- **2 yes:** redo S1 and S2.
+- **0–1 yes:** re-read *Discover* 2 and 5 — they are the proof spine
+  of this chapter.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse8.understanding-quadrilaterals`](../../tier-cbse-08-class-8/03-understanding-quadrilaterals/index.qmd)
+  — naming, identifying, classifying quadrilaterals.
+- [`cbse9.triangles`](../07-triangles/index.qmd) — congruence rules,
+  CPCT, isosceles theorem.
+
+### What this unlocks
+
+- [`cbse9.circles`](../09-circles/index.qmd) — cyclic-quadrilateral
+  results lean directly on the parallelogram and angle-sum work here.
+- [`cbse10.triangles-similarity`](../../tier-cbse-10-class-10/06-triangles-similarity/index.qmd)
+  — proportionality theorem (basic proportionality / Thales) is the
+  midpoint theorem rescaled.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 8 — Quadrilaterals** (NCERT 2023 rationalised
+  syllabus). Covers Sections 8.1–8.2: properties of parallelograms,
+  midpoint theorem.
+- **Sister synthesis lesson** (different angle):
+  [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd)
+  introduces the family at a concrete level. The proofs are this
+  chapter's contribution.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** A 2D physics engine treats a flat object as a
+quadrilateral. Detecting whether two parallelograms overlap (used for
+hitboxes, dragging, snap-to-grid) reduces to the diagonal-bisection
+property — find the centre, check rotations.
+:::
+
+::: {.applied-callout}
+**Research.** Varignon's theorem (P3) — that the midpoints of any
+quadrilateral form a parallelogram — is the start of *affine geometry*,
+the geometry that survives when you forget about distance and angle but
+keep parallelism. CAD systems and computer graphics rely on the
+distinction.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Kiselev (proof discipline), AoPS (Varignon's
+  theorem as P3), Russian problem-first (Discover sequence builds the
+  parallelogram facts in dependency order).
+:::

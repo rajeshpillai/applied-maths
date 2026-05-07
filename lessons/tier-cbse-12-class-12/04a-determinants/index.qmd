@@ -1,0 +1,444 @@
+---
+title: "Ch 4a — Determinants"
+subtitle: "One number from a square matrix — and what it tells you"
+lesson-id: "cbse12.determinants"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 4
+ncert-chapter-title: "Determinants"
+board-exam: true
+prerequisites: ["cbse12.matrix-operations"]
+unlocks: ["cbse12.matrix-inverse-cramers"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Ch 3b — Matrix Operations](../03b-matrix-operations/index.qmd)?
+2. Comfortable computing $2\times2$ and $3\times3$ matrix products?
+3. Do you know the area formula for a parallelogram?
+:::
+
+## Touch
+
+Two vectors $\vec{u} = (3, 1)$ and $\vec{v} = (1, 2)$ start from the
+origin. Together they span a parallelogram.
+
+::: {.lesson-beat}
+
+The parallelogram has corners $O = (0,0), \vec{u} = (3,1), \vec{u}+\vec{v}
+= (4,3), \vec{v} = (1,2)$. Sketch it on graph paper if you can.
+
+:::
+
+You can compute its area in two ways:
+
+**Way 1 (geometry):** signed area $= u_1 v_2 - u_2 v_1 = 3\cdot2 -
+1\cdot1 = 5$.
+
+**Way 2 (formula):** Form the matrix $\begin{pmatrix} 3 & 1 \\ 1 & 2
+\end{pmatrix}$ — vectors as columns. Its **determinant** is $3\cdot2 -
+1\cdot1 = 5$.
+
+Same number. The determinant of a $2\times2$ matrix is the **signed
+area** of the parallelogram its columns span (positive if the columns
+are oriented counter-clockwise, negative otherwise).
+
+For a $3\times3$ matrix, the determinant is the **signed volume** of
+the parallelepiped its columns span. For an $n\times n$ matrix, signed
+$n$-dimensional volume.
+
+That picture is the lesson. The formula is just a careful way to
+compute the number.
+
+## Wonder
+
+1. What if $\vec u$ and $\vec v$ are parallel — what's the area? What
+   does the determinant become?
+2. Swap the two columns. Does the area change sign?
+3. Multiply one column by 2. Does the area double?
+4. Add a multiple of one column to the other. What happens to the area?
+
+## Discover
+
+### Problem 1
+
+Compute $\begin{vmatrix} 4 & 2 \\ 1 & 3 \end{vmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For $\begin{pmatrix} a & b \\ c & d \end{pmatrix}$, determinant is $ad
+- bc$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4\cdot3 - 2\cdot1 = 10$.
+</details>
+
+### Problem 2
+
+Compute $\begin{vmatrix} 2 & 4 \\ 3 & 6 \end{vmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the rows. Are they related?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2\cdot6 - 4\cdot3 = 0$. **Row 2 is $1.5\times$ row 1** — they're
+proportional. Determinant is zero exactly when rows (or columns) are
+linearly dependent.
+</details>
+
+### Problem 3
+
+Compute $\begin{vmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 10
+\end{vmatrix}$ by expansion along the first row.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\det = a_{11} M_{11} - a_{12} M_{12} + a_{13} M_{13}$, where $M_{ij}$
+is the $2\times2$ determinant after deleting row $i$, column $j$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$M_{11} = \begin{vmatrix} 5 & 6 \\ 8 & 10 \end{vmatrix} = 50 - 48 = 2$.
+$M_{12} = \begin{vmatrix} 4 & 6 \\ 7 & 10 \end{vmatrix} = 40 - 42 = -2$.
+$M_{13} = \begin{vmatrix} 4 & 5 \\ 7 & 8 \end{vmatrix} = 32 - 35 = -3$.
+$\det = 1\cdot2 - 2\cdot(-2) + 3\cdot(-3) = 2 + 4 - 9 = -3$.
+</details>
+
+### Problem 4
+
+Compute $\begin{vmatrix} 5 & 0 & 0 \\ 7 & 3 & 0 \\ 9 & 8 & 2
+\end{vmatrix}$ — a lower-triangular matrix.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand along the *first row* — many zeros.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\det = 5 \cdot \begin{vmatrix} 3 & 0 \\ 8 & 2 \end{vmatrix} - 0 + 0 =
+5 \cdot 6 = 30$. **Determinant of a triangular matrix is the product of
+the diagonal.**
+</details>
+
+### Problem 5
+
+Without computing all three, decide which is zero and why:
+(a) $\begin{vmatrix} 1 & 2 & 3 \\ 0 & 0 & 0 \\ 4 & 5 & 6 \end{vmatrix}$
+(b) $\begin{vmatrix} 1 & 2 & 3 \\ 1 & 2 & 3 \\ 7 & 8 & 9 \end{vmatrix}$
+(c) $\begin{vmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{vmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+**(a) zero** — a row of zeros. **(b) zero** — two equal rows.
+**(c)** $= 1$ — diagonal product. Identity matrix has $\det = 1$.
+</details>
+
+You've now expanded along rows, used triangular structure, and seen
+that a zero row or a repeated row kills the determinant.
+
+## Name
+
+::: {.lesson-beat}
+
+For a square matrix $A = [a_{ij}]_{n \times n}$, the **determinant**
+$|A| = \det(A)$ is defined recursively. For $n = 1$, $|[a]| = a$. For
+larger $n$, the **expansion along row $i$** is
+$$\det(A) = \sum_{j=1}^{n} (-1)^{i+j} a_{ij} M_{ij},$$
+where $M_{ij}$ is the **minor** — the determinant of the
+$(n-1)\times(n-1)$ matrix obtained by deleting row $i$, column $j$.
+The signed minor $C_{ij} = (-1)^{i+j} M_{ij}$ is the **cofactor**.
+
+**Key properties** (square $A, B$):
+
+- $|A^T| = |A|$.
+- Swap two rows (or columns): $|A|$ flips sign.
+- Multiply one row by $k$: $|A|$ multiplies by $k$.
+- Two equal rows (or columns): $|A| = 0$.
+- Add a multiple of one row to another: $|A|$ unchanged.
+- $|AB| = |A|\cdot|B|$.
+- $|kA| = k^n |A|$ for $n\times n$ matrices.
+
+A matrix is **singular** if $|A| = 0$, **non-singular** otherwise.
+
+:::
+
+A verse:
+
+> *Cofactors signed in checkerboard pattern;*
+> *Expand by any row, the answer's the same.*
+> *Equal rows? Zero. Triangular? Diagonal product.*
+> *Singular = no inverse — that's the determinant's name.*
+
+## Apply
+
+### Worked example
+
+> Find $|A|$ for $A = \begin{pmatrix} 1 & -1 & 2 \\ 3 & 0 & 1 \\ 2 & 4 &
+> 5 \end{pmatrix}$, expanding along column 2.
+
+A competent solver thinks:
+
+1. Column 2 entries: $-1, 0, 4$. The $0$ kills one term.
+2. Cofactor signs: $-, +, -$ (column 2 of the checkerboard).
+3. $|A| = (-1)\cdot(-1)\cdot M_{12} + 0 + 4\cdot(-1)\cdot M_{32}$.
+4. $M_{12} = \begin{vmatrix} 3 & 1 \\ 2 & 5 \end{vmatrix} = 13$.
+   $M_{32} = \begin{vmatrix} 1 & 2 \\ 3 & 1 \end{vmatrix} = -5$.
+5. $|A| = 1 \cdot 13 + (-4)\cdot(-5) = 13 + 20 = 33$.
+
+### Practice — Warm
+
+**W1.** $\begin{vmatrix} 7 & 2 \\ 5 & 3 \end{vmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$21 - 10 = 11$.
+</details>
+
+**W2.** $\begin{vmatrix} \cos\theta & -\sin\theta \\ \sin\theta &
+\cos\theta \end{vmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos^2\theta + \sin^2\theta = 1$. (Rotation matrix has determinant 1
+— it preserves area.)
+</details>
+
+**W3.** Expand along the first column:
+$\begin{vmatrix} 2 & 3 & 1 \\ 0 & 4 & -1 \\ 0 & 0 & 5 \end{vmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+Triangular: $2\cdot4\cdot5 = 40$.
+</details>
+
+### Practice — Working
+
+**P1.** Find $x$ if $\begin{vmatrix} x & 2 \\ 18 & x \end{vmatrix} =
+\begin{vmatrix} 6 & 2 \\ 18 & 6 \end{vmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute both determinants.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS $= x^2 - 36$. RHS $= 36 - 36 = 0$. So $x^2 = 36 \Rightarrow x = \pm
+6$.
+</details>
+
+**P2.** Show that $\begin{vmatrix} 1 & a & a^2 \\ 1 & b & b^2 \\ 1 & c &
+c^2 \end{vmatrix} = (b-a)(c-a)(c-b)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply $R_2 \to R_2 - R_1$ and $R_3 \to R_3 - R_1$. Then expand.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\begin{vmatrix} 1 & a & a^2 \\ 0 & b-a & b^2-a^2 \\ 0 & c-a & c^2-a^2
+\end{vmatrix}$. Factor $b-a, c-a$ from rows 2, 3:
+$(b-a)(c-a)\begin{vmatrix} 1 & a & a^2 \\ 0 & 1 & b+a \\ 0 & 1 & c+a
+\end{vmatrix}$. Expand: $(b-a)(c-a)\cdot1\cdot((c+a)-(b+a)) =
+(b-a)(c-a)(c-b)$. ✓ This is the **Vandermonde determinant**.
+</details>
+
+**P3.** Find $|3A|$ if $|A| = 4$ and $A$ is $3\times3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|kA| = k^n|A|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|3A| = 3^3 \cdot 4 = 108$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Without expansion, prove $\begin{vmatrix} 1 & 1 & 1 \\ a & b & c
+\\ a^3 & b^3 & c^3 \end{vmatrix} = (a-b)(b-c)(c-a)(a+b+c)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use column operations $C_2 \to C_2 - C_1$ and $C_3 \to C_3 - C_1$;
+factor; expand.
+</details>
+<details class="hint"><summary>Full solution</summary>
+After $C_2 \to C_2 - C_1, C_3 \to C_3 - C_1$:
+$\begin{vmatrix} 1 & 0 & 0 \\ a & b-a & c-a \\ a^3 & b^3-a^3 & c^3-a^3
+\end{vmatrix}$. Expand along row 1:
+$= (b-a)(c^3 - a^3) - (c-a)(b^3 - a^3)$
+$= (b-a)(c-a)(c^2+ca+a^2) - (c-a)(b-a)(b^2+ba+a^2)$
+$= (b-a)(c-a)(c-b)(c+b+a)$
+$= (a-b)(b-c)(c-a)(a+b+c)$ after sign rearrangement. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $\begin{vmatrix} \cos15° & \sin15° \\ \sin75° &
+\cos75° \end{vmatrix} = $ (a) 0 (b) 1 (c) $\cos60°$ (d) $\sin60°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin75° = \cos15°$, $\cos75° = \sin15°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos15° \cos75° - \sin15° \sin75° = \cos15°\sin15° - \sin15°\cos15° =
+0$. **(a) 0.**
+</details>
+
+**1-mark MCQ #2.** If $|A| = 5$ and $A$ is $3\times3$, then $|2A^T| =$
+(a) 10 (b) 40 (c) 80 (d) 25.
+
+<details class="hint"><summary>Full solution</summary>
+$|2A^T| = 2^3 |A^T| = 8\cdot5 = 40$. **(b).**
+</details>
+
+**Assertion–Reason.** *Assertion (A):* If two rows of a $3\times3$
+matrix are identical, $|A| = 0$. *Reason (R):* The determinant changes
+sign under row swap; equal rows force $|A| = -|A|$.
+
+(a) Both A and R true; R correct explanation. (b) Both true; R not
+correct explanation. (c) A true, R false. (d) A false.
+
+<details class="hint"><summary>Full solution</summary>
+Both true; R is exactly the reason. **(a).**
+</details>
+
+**2-mark.** Find values of $x$ for which $\begin{vmatrix} 3 & x \\ x & 1
+\end{vmatrix} = \begin{vmatrix} 3 & 2 \\ 4 & 1 \end{vmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 - x^2 = 3 - 8 = -5 \Rightarrow x^2 = 8 \Rightarrow x = \pm 2\sqrt{2}$.
+</details>
+
+**3-mark.** Show that $\begin{vmatrix} a-b-c & 2a & 2a \\ 2b & b-c-a &
+2b \\ 2c & 2c & c-a-b \end{vmatrix} = (a+b+c)^3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$R_1 \to R_1 + R_2 + R_3$. Each entry of the new $R_1$ becomes $a+b+c$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+After $R_1 \to R_1 + R_2 + R_3$: each new $R_1$ entry equals $a + b +
+c$. Factor out $a+b+c$:
+$(a+b+c) \begin{vmatrix} 1 & 1 & 1 \\ 2b & b-c-a & 2b \\ 2c & 2c &
+c-a-b \end{vmatrix}$.
+Now $C_2 \to C_2 - C_1$ and $C_3 \to C_3 - C_1$:
+$(a+b+c)\begin{vmatrix} 1 & 0 & 0 \\ 2b & -b-c-a & 0 \\ 2c & 0 &
+-a-b-c \end{vmatrix}$.
+Triangular: $= (a+b+c) \cdot 1 \cdot (-(a+b+c)) \cdot (-(a+b+c)) =
+(a+b+c)^3$. ✓
+</details>
+
+**3-mark.** Find the area of the triangle with vertices $(2, 7), (1, 1),
+(10, 8)$ using determinants.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Area $= \frac{1}{2}|D|$ where $D = \begin{vmatrix} x_1 & y_1 & 1 \\ x_2
+& y_2 & 1 \\ x_3 & y_3 & 1 \end{vmatrix}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = \begin{vmatrix} 2 & 7 & 1 \\ 1 & 1 & 1 \\ 10 & 8 & 1 \end{vmatrix}
+= 2(1-8) - 7(1-10) + 1(8-10) = -14 + 63 - 2 = 47$.
+Area $= 47/2 = 23.5$ sq units.
+</details>
+
+**5-mark long answer.** Using properties of determinants, show
+$\begin{vmatrix} x+a & b & c \\ a & x+b & c \\ a & b & x+c \end{vmatrix}
+= x^2(x + a + b + c)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$C_1 \to C_1 + C_2 + C_3$. Each entry of $C_1$ becomes $x + a + b + c$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$C_1 \to C_1 + C_2 + C_3$:
+$(x+a+b+c)\begin{vmatrix} 1 & b & c \\ 1 & x+b & c \\ 1 & b & x+c
+\end{vmatrix}$.
+$R_2 \to R_2 - R_1, R_3 \to R_3 - R_1$:
+$(x+a+b+c)\begin{vmatrix} 1 & b & c \\ 0 & x & 0 \\ 0 & 0 & x
+\end{vmatrix}$.
+Triangular: $(x+a+b+c)\cdot 1\cdot x \cdot x = x^2(x+a+b+c)$. ✓
+</details>
+
+**6-mark Case Study.** *Land area from GPS coordinates.*
+
+A surveyor records three corners of a triangular plot at coordinates
+$A = (1, 5), B = (3, -1), C = (6, 4)$ (in some unit-grid).
+
+(i) Use the determinant formula to compute the plot's area. (3 marks)
+(ii) The next year, all three points have shifted by $(+2, +3)$ due to
+re-surveying. Show that the area is unchanged. (1 mark)
+(iii) If the same shape is scaled up by a factor of 4 (every coordinate
+multiplied by 4), what is the new area, and how does the determinant
+formula confirm it? (2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $D = \begin{vmatrix} 1 & 5 & 1 \\ 3 & -1 & 1 \\ 6 & 4 & 1
+\end{vmatrix} = 1(-1-4) - 5(3-6) + 1(12+6) = -5 + 15 + 18 = 28$. Area
+$= 14$.
+**(ii)** Adding a constant to all three pairs of coordinates corresponds
+to translating; you can verify the determinant remains 28 by computing.
+Geometrically, translation preserves area.
+**(iii)** Scaling each coordinate by 4 multiplies each row's first two
+entries by 4. The determinant scales by $4^2 = 16$ (because it's a 2D
+area; one factor of 4 from $x$, one from $y$). New area $= 14\cdot16 =
+224$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 4.1, 4.2 — properties Q4–10.
+**Previous-year pointer:** CBSE 2023 Set 3 Q26 (similar to 5-mark);
+CBSE 2022 Q2 (similar to MCQ #2).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$|A + B| = |A| + |B|$."** False, almost always. Determinant is
+   not linear in the matrix as a whole — only in each *row* separately.
+2. **"$|kA| = k|A|$."** Only when $A$ is $1 \times 1$. For $n \times n$,
+   $|kA| = k^n|A|$.
+3. **"Row swap = same determinant."** No — row swap *flips the sign*. A
+   common error in long determinant calculations.
+:::
+
+### Self-Assessment
+
+1. Could you compute a $3\times3$ determinant by row reduction in five
+   minutes?
+2. Did you solve at least 5 board-pattern items unaided?
+3. Can you state when a matrix is singular and what that means
+   geometrically?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark long-answer problem.
+- **0–1 yes:** re-read *Discover* with paper.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.matrix-operations`](../03b-matrix-operations/index.qmd) —
+  matrix arithmetic.
+
+### What this unlocks
+
+- [`cbse12.matrix-inverse-cramers`](../04b-matrix-inverse-cramers/index.qmd)
+  — inverse uses the determinant.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 4 — Determinants** (NCERT 2023 rationalised).
+  Sections 4.1–4.4.
+- **Sister synthesis lesson:** [`t5.matrices`](../../tier-5-undergrad-core/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** The determinant of a covariance matrix appears in the
+multivariate normal density. Log-determinants are used in variational
+inference and normalising flows. A near-zero determinant warns of
+collinear features.
+:::
+
+::: {.applied-callout}
+**Research / engineering.** Jacobian determinants govern the change-of-
+variables formula in multiple integrals. Stability analyses of physical
+systems hinge on the sign of a determinant.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown ("the determinant is the area scaling
+  factor"), Bhāskara (verse), Gelfand (problem-first).
+:::

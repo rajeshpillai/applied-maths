@@ -1,0 +1,511 @@
+---
+title: "Ch 6 — Triangles (Similarity)"
+subtitle: "Same shape, different size — and the algebra that proves it"
+lesson-id: "cbse10.triangles-similarity"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 6
+ncert-chapter-title: "Triangles"
+board-exam: true
+prerequisites: [cbse9.triangles, t1.ratio-proportion]
+unlocks: [cbse10.trigonometry-intro, cbse10.coordinate-geometry, cbse11.straight-lines]
+applied-domains: [game-dev, research]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state when two triangles are *congruent*? See
+   [`cbse9.triangles`](../../tier-cbse-09-class-9/07-triangles/index.qmd).
+2. Can you simplify $\dfrac{12}{18}$ to $\dfrac{2}{3}$? See
+   [`t1.ratio-proportion`](../../tier-1-foundations/09-ratio-proportion/index.qmd).
+3. Do you know the angle-sum property of a triangle ($180°$)?
+4. Can you read off a ratio from a diagram (e.g. "AB : BC = 3 : 2")?
+
+Three yeses and you are ready.
+:::
+
+## Touch
+
+Take a printed photograph and a postage-stamp-sized version of the same
+photograph. Lay them side by side. Pick **any** two corresponding points on
+each — say, two corners of the same building. Measure the distance between
+those points on each photograph.
+
+Repeat for another pair of corresponding points. Compute the ratios.
+
+```{ojs}
+viewof scale = Inputs.range([0.4, 2.5], {value: 1.6, step: 0.1, label: "Scale factor"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 280;
+  const pts = [[40, 200], [120, 80], [180, 220]]; // small triangle
+  const ptsBig = pts.map(([x, y]) => [w / 2 + (x - 110) * scale, h / 2 + (y - 150) * scale]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  function drawTri(P, color) {
+    const path = `M${P[0][0]},${P[0][1]} L${P[1][0]},${P[1][1]} L${P[2][0]},${P[2][1]} Z`;
+    svg.append("path").attr("d", path).attr("fill", "none").attr("stroke", color)
+      .attr("stroke-width", 2);
+    P.forEach((pt, i) => {
+      svg.append("circle").attr("cx", pt[0]).attr("cy", pt[1]).attr("r", 3).attr("fill", color);
+    });
+  }
+  drawTri(pts, "#26a");
+  drawTri(ptsBig, "#c33");
+  // measure side AB on each
+  const dist = (P, Q) => Math.hypot(P[0] - Q[0], P[1] - Q[1]);
+  const ab1 = dist(pts[0], pts[1]);
+  const ab2 = dist(ptsBig[0], ptsBig[1]);
+  const bc1 = dist(pts[1], pts[2]);
+  const bc2 = dist(ptsBig[1], ptsBig[2]);
+  svg.append("text").attr("x", 10).attr("y", 14).attr("font-size", 12)
+    .text(`AB ratio: ${(ab2 / ab1).toFixed(2)},   BC ratio: ${(bc2 / bc1).toFixed(2)}`);
+  return svg.node();
+}
+```
+
+The two ratios should be **the same number** — the scale factor. Drag and
+confirm.
+
+## Wonder
+
+1. The two triangles in the widget have the same *shape* but different
+   *size*. What about the angles — are they equal? Why?
+2. If you saw a triangle from far away (small) and the same triangle close
+   up (big), how could you tell if they are "the same" triangle?
+3. Suppose you cut a triangle into a tiny one inside (with a line parallel
+   to one side). Does the small triangle have the same angles as the big
+   one?
+4. If two triangles have the **same angles**, must their sides be in the
+   same ratio?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Yes, all three angles match. (2) Equal angles + ratio of sides
+constant. (3) Yes — that is the Basic Proportionality Theorem (BPT). (4)
+Yes — the AA criterion.
+:::
+
+## Discover
+
+### Problem 1 — A line parallel to a side
+In $\triangle ABC$, a line through a point $D$ on $AB$ is drawn parallel to
+$BC$, meeting $AC$ at $E$. If $AD = 2, DB = 3$, and $AE = 4$, find $EC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The Basic Proportionality Theorem says $\dfrac{AD}{DB} = \dfrac{AE}{EC}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2}{3} = \dfrac{4}{EC} \Rightarrow EC = 6$.
+</details>
+
+### Problem 2 — Why does BPT work?
+Sketch $\triangle ABC$ with $DE \parallel BC$. Why are $\triangle ADE$ and
+$\triangle ABC$ "the same shape"?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+List the angles of each. Use the fact that $DE \parallel BC$ and $AB$ is a
+transversal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle A$ is common. $\angle ADE = \angle ABC$ (corresponding angles, $DE
+\parallel BC$ and $AB$ transversal). So all three angles match. The
+triangles have **the same angles** — they are the same shape, just at
+different scale.
+</details>
+
+### Problem 3 — AA criterion
+$\triangle ABC$ has $\angle A = 50°, \angle B = 70°$. $\triangle DEF$ has
+$\angle D = 50°, \angle E = 70°$. Without measuring, must $\triangle ABC$
+and $\triangle DEF$ be the same shape?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What is the third angle of each?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Both have $\angle C = \angle F = 60°$ (angle sum). All three angles match,
+so the two triangles are the same shape — **they are similar**. Just two
+matching angles is enough; the third comes free.
+</details>
+
+### Problem 4 — Ratio of sides
+In two similar triangles, $\triangle ABC \sim \triangle DEF$, with
+$AB = 4, DE = 6$. If $BC = 5$, what is $EF$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The scale factor is the same on every pair of corresponding sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Scale factor $= 6/4 = 3/2$. So $EF = 5 \cdot 3/2 = 7.5$.
+</details>
+
+### Problem 5 — Ratio of areas
+For the same triangles in Problem 4, what is the ratio of their **areas**?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If sides scale by $k$, what does that do to the *area*?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Area is a 2D quantity. Each side scales by $k$ → area scales by $k^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\text{area of } \triangle DEF}{\text{area of } \triangle ABC} =
+\left(\dfrac{3}{2}\right)^2 = \dfrac{9}{4}$.
+</details>
+
+### Problem 6 — Pythagoras as a similarity argument
+A right triangle has legs $a, b$ and hypotenuse $c$. Drop a perpendicular
+from the right-angle vertex to the hypotenuse. You get *three* right
+triangles. Argue why each smaller triangle is **similar** to the big one.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each small triangle shares one acute angle with the big triangle. Plus the
+right angle. AA criterion.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let the perpendicular hit the hypotenuse at $D$, splitting it into segments
+$p$ (next to $a$) and $q$ (next to $b$). The two small triangles are similar
+to the big one (each shares one acute angle and a right angle).
+By similarity: $\dfrac{a}{c} = \dfrac{p}{a}$ and $\dfrac{b}{c} = \dfrac{q}
+{b}$. So $a^2 = pc$ and $b^2 = qc$. Add:
+$a^2 + b^2 = c(p + q) = c \cdot c = c^2$.
+That is the **Pythagorean Theorem**, proved by similarity. (Euclid VI.31.)
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+Two triangles are **similar** (written $\triangle ABC \sim \triangle DEF$)
+if their corresponding angles are equal **and** their corresponding sides
+are in the same ratio. Either condition implies the other.
+
+**Criteria for similarity:**
+
+- **AA (Angle-Angle):** Two pairs of equal angles ⟹ similar (third comes free).
+- **SAS (Side-Angle-Side):** Two pairs of sides proportional, included
+  angles equal ⟹ similar.
+- **SSS (Side-Side-Side):** Three pairs of sides proportional ⟹ similar.
+
+**Basic Proportionality Theorem (BPT, also Thales' theorem).** A line
+parallel to one side of a triangle, intersecting the other two sides in
+distinct points, divides those sides in the same ratio.
+
+**Areas of similar triangles.** If $\triangle ABC \sim \triangle DEF$ with
+ratio of sides $k$, then
+$$\dfrac{\text{area}(\triangle ABC)}{\text{area}(\triangle DEF)} =
+k^2.$$
+
+:::
+
+A verse:
+
+> *Equal angles, sides in step — that's similar in a flash.*
+> *Two angles match? The third's the same — it's free, no cash.*
+> *Lengths grow by k, the area by k-squared makes its mark.*
+> *Parallel lines on a triangle? Equal cuts, that's the trademark.*
+
+## Apply
+
+### Worked example
+
+> In $\triangle ABC$, $D$ and $E$ are points on $AB$ and $AC$ respectively
+> such that $DE \parallel BC$. If $AD = 6 \text{ cm}, DB = 9 \text{ cm}$,
+> and $AE = 8 \text{ cm}$, find $AC$.
+
+By BPT (since $DE \parallel BC$):
+$\dfrac{AD}{DB} = \dfrac{AE}{EC}$, so $\dfrac{6}{9} = \dfrac{8}{EC}$, giving
+$EC = 12 \text{ cm}$.
+
+Therefore $AC = AE + EC = 8 + 12 = \mathbf{20 \text{ cm}}$.
+
+### Practice — Warm
+
+**W1.** State the AA similarity criterion.
+
+<details class="hint"><summary>Full solution</summary>
+If two angles of one triangle equal two angles of another, the triangles
+are similar.
+</details>
+
+**W2.** $\triangle ABC \sim \triangle DEF$ with $AB = 5, DE = 7$. Ratio of
+their areas?
+
+<details class="hint"><summary>Full solution</summary>
+$(5/7)^2 = 25/49$.
+</details>
+
+**W3.** In $\triangle ABC$, $DE \parallel BC$ with $D$ on $AB, E$ on $AC$,
+$AD = 4, DB = 6, EC = 9$. Find $AE$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{AD}{DB} = \dfrac{AE}{EC} \Rightarrow \dfrac{4}{6} = \dfrac{AE}{9}
+\Rightarrow AE = 6$.
+</details>
+
+### Practice — Working
+
+**P1.** Two poles of heights $6 \text{ m}$ and $11 \text{ m}$ stand on
+level ground. The distance between their feet is $12 \text{ m}$. Find the
+distance between their tops.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Right triangle: horizontal leg $12$, vertical leg $11 - 6 = 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By Pythagoras: $\sqrt{12^2 + 5^2} = \sqrt{169} = 13 \text{ m}$.
+</details>
+
+**P2.** A vertical pole of length $6 \text{ m}$ casts a shadow of $4 \text{
+m}$ on the ground. At the same time, a tower casts a shadow of $28 \text{
+m}$. Find the height of the tower.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pole/shadow and tower/shadow form similar right triangles (sun's rays are
+parallel).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{6}{4} = \dfrac{H}{28} \Rightarrow H = 42 \text{ m}$.
+</details>
+
+**P3.** In $\triangle ABC$, $\angle B = 90°$. $D$ is on $AC$ such that $BD
+\perp AC$. If $AD = 4, DC = 9$, find $BD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The geometric-mean / altitude-on-hypotenuse fact: $BD^2 = AD \cdot DC$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$BD^2 = 4 \cdot 9 = 36 \Rightarrow BD = 6$.
+</details>
+
+### Practice — Stretch
+
+**S1.** In a trapezium $ABCD$ with $AB \parallel DC$, the diagonals $AC$
+and $BD$ intersect at $O$. Prove that $\dfrac{OA}{OC} = \dfrac{OB}{OD}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look for similar triangles formed by the diagonals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle AOB \sim \triangle COD$ by AA: $\angle AOB = \angle COD$
+(vertically opposite); $\angle OAB = \angle OCD$ (alternate angles, $AB
+\parallel DC$). By similarity, $\dfrac{OA}{OC} = \dfrac{OB}{OD}$
+(corresponding sides).
+</details>
+
+**S2.** In $\triangle ABC$, $D$ is the midpoint of $BC$. From $D$ a line is
+drawn parallel to $AB$, meeting $AC$ at $E$. Show that $E$ is the midpoint
+of $AC$, and that $DE = \frac{1}{2}AB$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply BPT in $\triangle ABC$ with the line $DE$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By BPT, $\dfrac{CD}{DB} = \dfrac{CE}{EA}$. But $CD = DB$ (D is midpoint), so
+$CE = EA$ — $E$ is the midpoint of $AC$. For the length: $\triangle CDE
+\sim \triangle CBA$ with ratio $1/2$, so $DE = \frac{1}{2}AB$. (This is the
+**Midpoint Theorem**.)
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** $\triangle ABC \sim \triangle PQR$ with $AB/PQ =
+3/4$. Then area ($\triangle ABC$) / area ($\triangle PQR$) is:
+(a) $3/4$  (b) $9/16$  (c) $4/3$  (d) $16/9$.
+
+<details class="hint"><summary>Full solution</summary>
+$(3/4)^2 = 9/16$. **(b).**
+</details>
+
+**Q2 (1 mark — assertion-reason).** Assertion (A): If two triangles are
+similar, their perimeters are in the same ratio as their corresponding
+sides. Reason (R): The ratio of areas of two similar triangles is the
+square of the ratio of corresponding sides.
+
+<details class="hint"><summary>Full solution</summary>
+A is true (perimeters scale linearly). R is true. R does **not** explain A
+— area is a different fact. Correct mark: A and R both true, but R is not
+the reason for A.
+</details>
+
+**Q3 (2 marks).** In $\triangle ABC$, $DE \parallel BC$. If $AD = x, DB = x
+- 2, AE = x + 2, EC = x - 1$, find $x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+BPT: $\dfrac{x}{x - 2} = \dfrac{x + 2}{x - 1}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Cross-multiply: $x(x - 1) = (x + 2)(x - 2)$, i.e. $x^2 - x = x^2 - 4
+\Rightarrow x = 4$.
+</details>
+
+**Q4 (2 marks).** State and prove that the ratio of the areas of two
+similar triangles is equal to the square of the ratio of their
+corresponding sides. (For two specific triangles you may use a sketch.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Standard NCERT theorem. Use the formula $\frac{1}{2}$ base × height on each.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\triangle ABC \sim \triangle PQR$ with corresponding sides in ratio
+$k$. Drop altitudes $AM$ (from $A$ on $BC$) and $PN$ (from $P$ on $QR$).
+Then $\triangle ABM \sim \triangle PQN$ (AA — both have right angle at $M,
+N$ and $\angle B = \angle Q$), so $AM / PN = AB/PQ = k$. Also
+$BC/QR = k$. Therefore
+$$\dfrac{\text{ar}(\triangle ABC)}{\text{ar}(\triangle PQR)} =
+\dfrac{\frac{1}{2}BC \cdot AM}{\frac{1}{2}QR \cdot PN} = k \cdot k = k^2.
+\square$$
+</details>
+
+**Q5 (3 marks).** In a $\triangle ABC$, right-angled at $B$, $BD \perp AC$
+with $AB = 12, BC = 5$. Find $BD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$AC = ?$ first, by Pythagoras. Then use area = $\frac{1}{2}AB \cdot BC =
+\frac{1}{2}AC \cdot BD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AC = \sqrt{144 + 25} = 13$. Area = $\frac{1}{2} \cdot 12 \cdot 5 = 30$.
+Also area $= \frac{1}{2} \cdot 13 \cdot BD$, so $BD = \dfrac{60}{13}$.
+</details>
+
+**Q6 (3 marks).** In $\triangle ABC$, $D$ and $E$ are on $AB$ and $AC$
+respectively, such that $DE \parallel BC$ and $\dfrac{AD}{DB} = \dfrac{2}
+{3}$. If $\text{ar}(\triangle ABC) = 50 \text{ cm}^2$, find ar($\triangle
+ADE$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle ADE \sim \triangle ABC$. Find the ratio of sides first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{AD}{AB} = \dfrac{2}{2 + 3} = \dfrac{2}{5}$. Area ratio = $(2/5)^2 =
+4/25$. So ar($\triangle ADE$) = $\dfrac{4}{25} \cdot 50 = 8 \text{ cm}^2$.
+</details>
+
+**Q7 (5 marks — long answer).** State and prove the **Basic Proportionality
+Theorem** (BPT). Use it to prove that if a line divides any two sides of a
+triangle in the same ratio, then the line must be parallel to the third
+side (the converse).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Forward: drop perpendiculars from $D, E$ to $BC$ for the area-ratio proof.
+Converse: assume the ratio-equality; show the line *is* parallel by
+contradiction (or by uniqueness).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Forward (BPT).** In $\triangle ABC$, let $DE \parallel BC$ with $D$ on
+$AB$, $E$ on $AC$. Drop perpendiculars from $D$ to $BC$ at $M$ and from $E$
+to $BC$ at $N$. Then ar($\triangle ADE$) shares an altitude with $\triangle
+DBE$ (from $E$, common vertex). So
+$$\dfrac{\text{ar}(\triangle ADE)}{\text{ar}(\triangle DBE)} = \dfrac{AD}
+{DB}.$$
+Similarly with vertex $D$:
+$$\dfrac{\text{ar}(\triangle ADE)}{\text{ar}(\triangle DEC)} = \dfrac{AE}
+{EC}.$$
+But $\triangle DBE$ and $\triangle DEC$ have the **same** base $DE$ and
+**equal heights** (because $DE \parallel BC$), so they have equal area.
+Hence $\dfrac{AD}{DB} = \dfrac{AE}{EC}$. $\square$
+
+**Converse.** Suppose a line through $D$ on $AB$ meets $AC$ at $E$ with
+$\dfrac{AD}{DB} = \dfrac{AE}{EC}$. Draw $DE'$ parallel to $BC$ from $D$,
+meeting $AC$ at $E'$. By BPT, $\dfrac{AD}{DB} = \dfrac{AE'}{E'C}$. So
+$\dfrac{AE}{EC} = \dfrac{AE'}{E'C}$, which forces $E = E'$. Hence $DE
+\parallel BC$. $\square$
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 6.3 Q1–Q12 are direct
+similarity-criterion applications like Q3; Exemplar 6.4 Q1–Q12 are full
+proofs like Q7.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q31 is essentially Q7 (BPT
+proof). CBSE 2023 Standard, Q35 mirrors Q6.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Similar means same size."** No — similar means same *shape*. Same
+   size with same shape is *congruent*. Congruent ⟹ similar; similar ⟹
+   congruent only if the scale factor is $1$.
+2. **"BPT needs the line to bisect."** No — BPT works for *any* line
+   parallel to a side. It divides the other two sides in the *same* ratio
+   (whatever that ratio is).
+3. **"Area ratio equals side ratio."** No — area ratio equals *square* of
+   side ratio. A common board mistake worth ₹2-3.
+:::
+
+### Self-Assessment
+
+1. Could you state and prove BPT cleanly, without notes?
+2. Did Q5 and Q6 fall out cleanly with at most one hint?
+3. Could you spot a similarity argument inside an unfamiliar diagram (the
+   Pythagoras-by-similarity in *Discover, Problem 6*)?
+
+- **3 yes:** move on.
+- **2 yes:** redo Q4 and Q7. They are full proofs; the board paper is
+  unforgiving on these.
+- **0–1 yes:** the area-ratio proof in *Discover, Problem 5* and
+  *Q4/Q7* is the load-bearing skill. Re-walk it.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.triangles`](../../tier-cbse-09-class-9/07-triangles/index.qmd) —
+  congruence criteria.
+- [`t1.ratio-proportion`](../../tier-1-foundations/09-ratio-proportion/index.qmd) —
+  ratios as numerical objects.
+
+### What this unlocks
+
+- [`cbse10.trigonometry-intro`](../08a-trigonometry-intro/index.qmd) —
+  trigonometric ratios are exactly the side-ratios of similar right
+  triangles.
+- [`cbse10.coordinate-geometry`](../07-coordinate-geometry/index.qmd) —
+  the section formula uses similar-triangle reasoning.
+- [`cbse11.straight-lines`](../../tier-cbse-11-class-11/09-straight-lines/index.qmd).
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 6 — Triangles** (NCERT 2023 rationalised
+  syllabus). Covers Sections 6.1–6.4: similarity criteria, BPT and
+  converse, areas of similar triangles. (Sections 6.5/6.6 on Pythagoras
+  and its converse were rationalised out, but the *similarity-based*
+  proof in Discover Problem 6 is now the canonical route.)
+- **Sister synthesis lessons:**
+  - [`t2.similarity-scale`](../../tier-2-prealgebra/13-similarity-scale/index.qmd) —
+    similarity from scratch.
+  - [`t2.pythagorean-theorem`](../../tier-2-prealgebra/10-pythagorean-theorem/index.qmd) —
+    the Pythagorean theorem in isolation.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every 3D engine renders distant objects as
+*similar* (smaller) copies of nearer objects — the projection
+mathematics is exactly the similarity scaling you've practised.
+:::
+
+::: {.applied-callout}
+**Research.** Self-similarity (fractals — Mandelbrot, Sierpiński) is the
+deeper version of "same shape at every scale". The similarity tools you
+built in this chapter are the entry to fractal geometry.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (proof exposition for BPT and the area
+  theorem); Russian school (problem-first); Bhāskara (compact *Name*).
+- **Source notes:** the BPT proof in Q7 is the standard NCERT proof;
+  Discover Problem 6 follows Euclid VI.31.
+:::

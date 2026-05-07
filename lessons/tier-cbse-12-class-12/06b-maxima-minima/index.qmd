@@ -1,0 +1,414 @@
+---
+title: "Ch 6b — Maxima and Minima"
+subtitle: "First derivative test, second derivative test, real-world optimisation"
+lesson-id: "cbse12.maxima-minima"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 6
+ncert-chapter-title: "Application of Derivatives"
+board-exam: true
+prerequisites: ["cbse12.tangents-normals-rates"]
+unlocks: ["cbse12.indefinite-integrals"]
+applied-domains: ["ai-ml", "game-dev", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you find $f'(x)$ and solve $f'(x) = 0$?
+2. Can you compute $f''(x)$?
+3. Have you done [Ch 6a](../06a-tangents-normals-rates/index.qmd)?
+:::
+
+## Touch
+
+You have $20$ m of fencing and want to enclose a rectangular garden of
+**maximum area**. Let one side be $x$. The opposite side is $x$, and
+the other two sides total $20 - 2x$, so each is $10 - x$.
+
+::: {.lesson-beat}
+
+Area $A(x) = x(10 - x) = 10x - x^2$, with $0 < x < 10$.
+
+| $x$ | 1 | 3 | 5 | 7 | 9 |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $A$ | 9 | 21 | 25 | 21 | 9 |
+
+:::
+
+The table peaks at $x = 5$. Calculus confirms it: $A'(x) = 10 - 2x = 0
+\Rightarrow x = 5$. $A''(x) = -2 < 0$, so the critical point is a
+**maximum**.
+
+The garden of maximum area is a **square** of side 5 (area 25 m²).
+
+That's the whole lesson: find $f'(x) = 0$, then check the sign of
+$f''$ (or sign change of $f'$) to classify as max or min.
+
+## Wonder
+
+1. Could a function have a max but no value where $f' = 0$? (Hint:
+   endpoints, corners.)
+2. If $f''(c) = 0$ at a critical point, is it max, min, or neither?
+3. Why does the maximum-area rectangle from a fixed perimeter turn out
+   to be a square?
+
+## Discover
+
+### Problem 1
+
+Find the critical points of $f(x) = x^3 - 3x^2 - 9x + 5$.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 3x^2 - 6x - 9 = 3(x-3)(x+1) = 0 \Rightarrow x = 3, -1$.
+</details>
+
+### Problem 2
+
+Use the first-derivative test to classify the critical points in
+Problem 1.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Test sign of $f'$ on intervals $(-\infty, -1), (-1, 3), (3, \infty)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f'$ is $+, -, +$ on the three intervals. $x = -1$: sign changes $+
+\to -$, so **local max**. $x = 3$: sign changes $- \to +$, **local
+min**.
+</details>
+
+### Problem 3
+
+Apply the second-derivative test to the same function.
+
+<details class="hint"><summary>Full solution</summary>
+$f''(x) = 6x - 6$. $f''(-1) = -12 < 0$ ⇒ max. $f''(3) = 12 > 0$ ⇒ min. ✓
+</details>
+
+### Problem 4
+
+Find the absolute max and min of $f(x) = x^3 - 6x^2 + 9x + 1$ on $[0,
+5]$.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 3x^2 - 12x + 9 = 3(x-1)(x-3) = 0 \Rightarrow x = 1, 3$.
+Evaluate: $f(0) = 1, f(1) = 5, f(3) = 1, f(5) = 21$.
+**Absolute max: $21$ at $x = 5$. Absolute min: $1$ at $x = 0$ and $x =
+3$.**
+</details>
+
+### Problem 5
+
+Two positive numbers add to 16. Find the maximum value of their product.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let one be $x$, the other $16 - x$. Maximise $P = x(16 - x)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P' = 16 - 2x = 0 \Rightarrow x = 8$. $P'' = -2 < 0$ ⇒ max.
+**Maximum product is $8 \cdot 8 = 64$.** (AM-GM gives the same answer.)
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A point $x = c$ is **critical** for $f$ iff $f'(c) = 0$ or $f'(c)$
+DNE. Maxima and minima of differentiable $f$ on an *open* interval
+occur only at critical points.
+
+**First-derivative test.** At a critical point $c$:
+
+- $f'$ changes $+ \to -$ at $c$: **local max**.
+- $f'$ changes $- \to +$ at $c$: **local min**.
+- No sign change: **neither**.
+
+**Second-derivative test** (when $f''$ exists):
+
+- $f''(c) > 0$: **local min**.
+- $f''(c) < 0$: **local max**.
+- $f''(c) = 0$: inconclusive — fall back to first-derivative test.
+
+**Absolute extrema on $[a, b]$.** Compare $f$ at every critical point
+inside $(a, b)$ and at endpoints $a, b$.
+
+:::
+
+A verse:
+
+> *Set $f'$ to zero — the candidates appear;*
+> *Sign change of $f'$ tells max from min — that's clear.*
+> *Or check $f''$: positive cup — minimum;*
+> *Negative cap — maximum; zero — your test's undone.*
+
+## Apply
+
+### Worked example
+
+> An open box is to be made from a 24 cm × 9 cm sheet by cutting equal
+> squares of side $x$ from each corner and folding up the flaps. Find
+> $x$ that maximises volume.
+
+A competent solver:
+
+1. After folding: length $24 - 2x$, width $9 - 2x$, height $x$.
+2. $V(x) = x(24 - 2x)(9 - 2x) = x(216 - 66x + 4x^2) = 4x^3 - 66x^2 +
+   216x$, for $0 < x < 9/2$.
+3. $V'(x) = 12x^2 - 132x + 216 = 12(x^2 - 11x + 18) = 12(x - 2)(x - 9)$.
+4. Critical points: $x = 2, 9$. Only $x = 2$ is in domain.
+5. $V''(x) = 24x - 132$. $V''(2) = -84 < 0$ ⇒ max.
+6. $V_{\max} = V(2) = 2 \cdot 20 \cdot 5 = 200$ cm³.
+
+### Practice — Warm
+
+**W1.** Find local extrema of $f(x) = x^2 - 4x + 7$.
+
+<details class="hint"><summary>Full solution</summary>
+$f' = 2x - 4 = 0 \Rightarrow x = 2$. $f'' = 2 > 0$, so local min.
+Value: $f(2) = 3$.
+</details>
+
+**W2.** Absolute max/min of $f(x) = \sin x + \cos x$ on $[0, \pi/2]$.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = \cos x - \sin x = 0 \Rightarrow x = \pi/4$.
+$f(0) = 1, f(\pi/4) = \sqrt{2}, f(\pi/2) = 1$.
+**Max $\sqrt{2}$ at $\pi/4$, min $1$ at endpoints.**
+</details>
+
+**W3.** Show $f(x) = x^3$ has no local extremum.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 3x^2 = 0$ at $x = 0$. $f''(0) = 0$ — inconclusive. Use
+first-derivative test: $f'$ is $\ge 0$ everywhere, no sign change.
+**No extremum.**
+</details>
+
+### Practice — Working
+
+**P1.** Find two positive numbers whose sum is 24 and whose product is
+maximum.
+
+<details class="hint"><summary>Full solution</summary>
+Let them be $x, 24 - x$. $P(x) = x(24 - x)$. $P' = 24 - 2x = 0
+\Rightarrow x = 12$. $P_{\max} = 144$. **Numbers are $12, 12$.**
+</details>
+
+**P2.** A rectangle is inscribed in a semicircle of radius $r$ with one
+side on the diameter. Find dimensions of the rectangle of maximum
+area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Place semicircle as $x^2 + y^2 = r^2$, $y \ge 0$. Rectangle has corners
+$(\pm x, 0), (\pm x, y)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Area $A = 2xy = 2x\sqrt{r^2 - x^2}$. Square: $A^2 = 4x^2(r^2 - x^2)$.
+Maximise $A^2$: $\frac{d}{dx}[4x^2(r^2 - x^2)] = 4(2x \cdot r^2 -
+4x^3) = 0 \Rightarrow 2r^2 = 4x^2 \Rightarrow x = r/\sqrt{2}$. Then $y
+= r/\sqrt{2}$.
+**Width $r\sqrt{2}$, height $r/\sqrt{2}$, area $r^2$.**
+</details>
+
+**P3.** Find the point on $y = x^2$ closest to $(3, 0)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distance squared: $D^2 = (x - 3)^2 + x^4$. Differentiate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{d(D^2)}{dx} = 2(x - 3) + 4x^3 = 0 \Rightarrow 2x^3 + x - 3 = 0$.
+Try $x = 1$: $2 + 1 - 3 = 0$ ✓. So $x = 1$, point $(1, 1)$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that of all rectangles with given perimeter $P$, the
+square has the largest area; and of all rectangles with given area $A$,
+the square has the smallest perimeter.
+
+<details class="hint"><summary>Full solution</summary>
+Sides $x, P/2 - x$. $A(x) = x(P/2 - x)$. $A' = P/2 - 2x = 0 \Rightarrow
+x = P/4$. Square. ✓
+For fixed area: sides $x, A/x$. Perimeter $2(x + A/x)$. Differentiate:
+$2(1 - A/x^2) = 0 \Rightarrow x = \sqrt{A}$. Square again. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** Local max of $f(x) = -x^2 + 4x$ is at $x =$ (a) 0
+(b) 2 (c) 4 (d) -2.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = -2x + 4 = 0 \Rightarrow x = 2$. **(b).**
+</details>
+
+**1-mark MCQ #2.** $f(x) = x \log x$ on $(0, \infty)$ has (a) only max
+(b) only min (c) both (d) neither.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = \log x + 1 = 0 \Rightarrow x = 1/e$. $f''(x) = 1/x > 0$ ⇒ min.
+**(b).**
+</details>
+
+**2-mark.** Find the maximum value of $f(x) = 12x - x^3$ on $[-1, 3]$.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 12 - 3x^2 = 0 \Rightarrow x = \pm 2$. $x = 2 \in [-1, 3]$.
+$f(-1) = -11, f(2) = 16, f(3) = 9$. **Max 16 at $x = 2$.**
+</details>
+
+**2-mark.** A wire of length 28 cm is bent into a square + circle. Show
+that the side and radius giving minimum total area are in ratio 2:1
+when the square wire $= 4r$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Length of square's wire $= 4s$, of circle's $= 2\pi r$. $4s + 2\pi r =
+28$. Minimise $A = s^2 + \pi r^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+From constraint $s = 7 - \pi r/2$. $A = (7 - \pi r/2)^2 + \pi r^2$.
+Differentiate: $2(7 - \pi r/2)(-\pi/2) + 2\pi r = 0 \Rightarrow$ solve
+for $r$.
+$-\pi(7 - \pi r/2) + 2\pi r = 0 \Rightarrow -7 + \pi r/2 + 2r = 0
+\Rightarrow r(\pi/2 + 2) = 7 \Rightarrow r = 14/(\pi + 4)$.
+Then $s = 28/(\pi + 4)$. Ratio $s/r = 2$. ✓
+</details>
+
+**3-mark.** A cylindrical tank of radius $r$ and height $h$ holds $V$
+litres. Find the dimensions that minimise surface area for given $V$.
+
+<details class="hint"><summary>Full solution</summary>
+$V = \pi r^2 h$, $S = 2\pi r^2 + 2\pi r h$. Eliminate $h = V/(\pi r^2)$:
+$S(r) = 2\pi r^2 + 2V/r$. $S'(r) = 4\pi r - 2V/r^2 = 0 \Rightarrow
+r^3 = V/(2\pi)$. Then $h = V/(\pi r^2) = 2r$. **Height equals
+diameter.**
+</details>
+
+**3-mark.** Find local extrema of $f(x) = x^4 - 8x^3 + 22x^2 - 24x + 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$f'(x) = 4x^3 - 24x^2 + 44x - 24 = 4(x - 1)(x - 2)(x - 3)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Critical: $x = 1, 2, 3$. $f''(x) = 12x^2 - 48x + 44$. $f''(1) = 8 > 0$
+min. $f''(2) = -4 < 0$ max. $f''(3) = 8 > 0$ min.
+$f(1) = -8, f(2) = -7, f(3) = -8$.
+**Local min at $x = 1, 3$ (value $-8$); local max at $x = 2$ (value
+$-7$).**
+</details>
+
+**5-mark long answer.** A right-circular cone of maximum volume is
+inscribed in a sphere of radius $R$. Show that the height of the cone
+is $4R/3$ and find the maximum volume.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let cone height $h$, base radius $r$. Cone-base center is at distance
+$h - R$ below the sphere center. So $r^2 = R^2 - (h - R)^2 = h(2R -
+h)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = \frac{1}{3}\pi r^2 h = \frac{\pi}{3} h \cdot h(2R - h) =
+\frac{\pi}{3}(2Rh^2 - h^3)$.
+$V'(h) = \frac{\pi}{3}(4Rh - 3h^2) = \frac{\pi h}{3}(4R - 3h) = 0
+\Rightarrow h = 4R/3$ (other root $h = 0$ trivial).
+$V''(h) = \frac{\pi}{3}(4R - 6h)$. At $h = 4R/3$: $V'' = \frac{\pi}{3}(
+4R - 8R) < 0$ ⇒ max.
+$V_{\max} = \frac{\pi}{3} \cdot \frac{4R}{3} \cdot \frac{4R}{3} \cdot
+\frac{2R}{3} = \frac{32\pi R^3}{81}$.
+</details>
+
+**6-mark Case Study.** *Maximising profit on a stall.*
+
+A street vendor sells $x$ samosas at price $p(x) = 30 - x/10$ rupees
+each. Cost of producing $x$ samosas is $C(x) = 100 + 5x$ rupees.
+
+(i) Express revenue $R(x)$ and profit $\Pi(x)$ as functions of $x$.
+(2 marks)
+(ii) Find the value of $x$ that maximises profit. (3 marks)
+(iii) What is the maximum profit, and is it a true max (use $\Pi''$)?
+(1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $R(x) = x(30 - x/10) = 30x - x^2/10$. $\Pi(x) = R - C = 30x -
+x^2/10 - 100 - 5x = 25x - x^2/10 - 100$.
+**(ii)** $\Pi'(x) = 25 - x/5 = 0 \Rightarrow x = 125$ samosas.
+**(iii)** $\Pi(125) = 25 \cdot 125 - 125^2/10 - 100 = 3125 - 1562.5 -
+100 = ₹1462.5$. $\Pi''(x) = -1/5 < 0$ ⇒ max. ✓
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 6.5, 6.6.
+**Previous-year pointer:** CBSE 2023 Set 1 Q33 (5-mark cone in sphere);
+CBSE 2022 Q35.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Critical point = maximum or minimum."** Not always — could be a
+   saddle/inflection (e.g. $f(x) = x^3$ at 0).
+2. **"Max on $[a, b]$ must be at a critical point."** Could also be at
+   an endpoint. Always check $f(a), f(b)$.
+3. **"$f''(c) = 0$ means $c$ is not an extremum."** Wrong — $f''(c) =
+   0$ is *inconclusive*; you must use the first-derivative test.
+:::
+
+### Self-Assessment
+
+1. Could you set up and solve a fencing or box-volume optimisation in
+   under 10 minutes?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you choose between first- and second-derivative tests
+   appropriately?
+
+- **3 yes:** move on.
+- **2 yes:** redo the cone-in-sphere problem.
+- **0–1 yes:** practice 5 box-volume problems with fresh dimensions.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.tangents-normals-rates`](../06a-tangents-normals-rates/index.qmd)
+  — the derivative as slope, increasing/decreasing.
+
+### What this unlocks
+
+- [`cbse12.indefinite-integrals`](../07a-indefinite-integrals/index.qmd)
+  — calculus pivots from $\frac{d}{dx}$ to $\int$.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 6** (NCERT 2023). Sections 6.4–6.5.
+- **Sister synthesis lessons:**
+  [`t4.optimization`](../../tier-4-precalc-calculus/06-optimization/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Training a neural network *is* minimising a loss function.
+Gradient descent finds critical points; second-order methods use the
+Hessian (the matrix analogue of $f''$).
+:::
+
+::: {.applied-callout}
+**Game development.** AI agents pick actions to maximise a reward
+function. The Bellman equation embeds an $\arg\max$ over choices.
+:::
+
+::: {.applied-callout}
+**Research.** Lagrangian mechanics: physical paths are critical points
+of an action functional. The whole calculus of variations is
+multi-variable maxima/minima.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Gelfand (problem-first), Bhāskara (verse), Khan
+  Academy (mastery sequence on optimisation).
+:::

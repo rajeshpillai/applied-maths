@@ -1,0 +1,536 @@
+---
+title: "Ch 7 — Triangles (Congruence and Properties)"
+subtitle: "SSS, SAS, ASA, AAS, RHS — the laws of identical triangles"
+lesson-id: "cbse9.triangles"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 7
+ncert-chapter-title: "Triangles"
+board-exam: false
+prerequisites: ["cbse9.lines-and-angles", "t1.shapes-angles"]
+unlocks: ["cbse9.quadrilaterals", "cbse9.herons-formula", "cbse10.triangles-similarity"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you state the angle-sum theorem of a triangle? *(If no, revisit
+   [cbse9.lines-and-angles](../06-lines-and-angles/index.qmd).)*
+2. Can you write a two-column proof?
+3. Can you recognise an isosceles triangle (two sides equal)?
+4. Do you know what perpendicular means? *(If no, revisit
+   [t1.shapes-angles](../../tier-1-foundations/12-shapes-angles/index.qmd).)*
+
+Three or four yes? Read on.
+:::
+
+## Touch
+
+Cut three strips of cardboard: 6 cm, 8 cm, 10 cm. Form a triangle by
+joining them at their endpoints. Now have a partner cut a second set of
+three strips with the same lengths. Form a triangle on the other side of
+the table.
+
+Lift one triangle and place it on the other. They overlap exactly —
+even if you flip one over.
+
+```{ojs}
+viewof a = Inputs.range([2, 10], {value: 6, step: 1, label: "side a"})
+```
+
+```{ojs}
+viewof b = Inputs.range([2, 10], {value: 8, step: 1, label: "side b"})
+```
+
+```{ojs}
+viewof angC = Inputs.range([20, 160], {value: 90, step: 5, label: "angle C (°)"})
+```
+
+```{ojs}
+{
+  // Construct triangle by SAS: sides a, b with included angle C
+  const θ = (angC * Math.PI) / 180;
+  const c2 = a*a + b*b - 2*a*b*Math.cos(θ);
+  const c = Math.sqrt(c2);
+  const A = (Math.acos((b*b + c2 - a*a)/(2*b*c)) * 180/Math.PI);
+  const B = 180 - angC - A;
+  return html`<div style="font-family: monospace; font-size: 1rem; padding: 0.4rem 0;">
+    Two sides ${a} and ${b}, included angle ${angC}° → third side ≈ ${c.toFixed(3)}<br/>
+    Other two angles ≈ ${A.toFixed(1)}° and ${B.toFixed(1)}°<br/>
+    <span style="color:#080">Same three inputs always give the same triangle.</span>
+  </div>`;
+}
+```
+
+Drag the sliders. The same three inputs **fix one triangle**. Two
+triangles built from the same recipe are guaranteed identical.
+
+## Wonder
+
+1. If two triangles share *just one* equal side, are they identical?
+   What if they share *two* equal sides?
+2. To uniquely build a triangle, how many measurements do you need —
+   three? more? Which three?
+3. Could you have two *different* triangles with the same three angles?
+   With the same three sides?
+4. Why does the carpenter's rule "diagonals brace a square" work — why
+   does adding a diagonal to a four-sided frame stop it from wobbling?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q3 hides the difference between **congruence** (identical) and
+**similarity** (same shape, different size). This year is congruence;
+similarity comes next year.
+:::
+
+## Discover
+
+### Problem 1 (SSS)
+
+You and a friend each draw a triangle with sides $5, 7, 8$. Without
+seeing each other's drawings, would you trust that the two triangles are
+identical (after possibly flipping)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+There is only one way to fit three given sides together (up to a flip).
+Try with strips of paper.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes.** Three sides — and nothing else — uniquely determine a triangle
+up to flipping. This is the **SSS** congruence rule.
+</details>
+
+### Problem 2 (SAS)
+
+A bridge truss is built with two diagonal members of $3$ m and $4$ m,
+meeting at a $60^\circ$ angle. A second truss is built the same way. Are
+both trusses interchangeable parts?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two sides and the angle between them — does that pin down the third
+side?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes**, by **SAS** (side–angle–side). Two sides and the included angle
+fix the triangle uniquely.
+</details>
+
+### Problem 3 (ASA)
+
+A surveyor measures an angle from one bank of a river ($60^\circ$),
+walks $50$ m along the bank, and measures a second angle from there
+($45^\circ$). Can he reconstruct the river-crossing triangle without
+ever crossing the river?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two angles plus the side between them.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes**, by **ASA** (angle–side–angle). Two angles and the included
+side fix the triangle uniquely. (And once two angles are known, the
+third is forced by the angle-sum theorem.)
+</details>
+
+### Problem 4 (Isosceles theorem)
+
+In $\triangle ABC$, $AB = AC$. Drop the bisector $AD$ from $A$ onto $BC$
+(so $\angle BAD = \angle CAD$). Prove $\triangle ABD \cong \triangle ACD$,
+and deduce $\angle B = \angle C$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare $\triangle ABD$ and $\triangle ACD$. Which sides and angles
+match?
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $AB = AC$. | Given. |
+| 2. $\angle BAD = \angle CAD$. | $AD$ is the bisector. |
+| 3. $AD = AD$. | Common side. |
+| 4. $\triangle ABD \cong \triangle ACD$. | SAS, from 1, 2, 3. |
+| 5. $\angle B = \angle C$. | Corresponding parts of congruent triangles (CPCT). $\blacksquare$ |
+
+**The angles opposite equal sides of a triangle are equal.**
+</details>
+
+### Problem 5 (Converse)
+
+Now suppose only that $\angle B = \angle C$ in $\triangle ABC$. Use ASA
+with the bisector to prove $AB = AC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Drop the bisector $AD$ as before. Try ASA on $\triangle ABD$ and
+$\triangle ACD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $\angle B = \angle C$. | Given. |
+| 2. $\angle BAD = \angle CAD$. | $AD$ is the angle bisector. |
+| 3. $AD = AD$. | Common. |
+| 4. $\triangle ABD \cong \triangle ACD$. | ASA. |
+| 5. $AB = AC$. | CPCT. $\blacksquare$ |
+
+**The sides opposite equal angles are equal** (converse).
+</details>
+
+### Problem 6 (RHS)
+
+Two right triangles have hypotenuse $13$ cm and one leg $5$ cm. Are they
+congruent?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You can't use SSA in general — it's the one rule that fails (the "AAS"
+imitator). But for *right triangles*, the right angle helps.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes**, by **RHS** (right angle, hypotenuse, side). The third side is
+forced by Pythagoras: $\sqrt{13^2 - 5^2} = 12$. So both triangles have
+sides $5, 12, 13$ and hence are congruent by SSS.
+</details>
+
+You discovered: SSS, SAS, ASA, AAS, RHS — five rules, each pinning down
+a unique triangle from a small set of measurements. CPCT lets you read
+off any unknown part once you have a congruence.
+
+## Name
+
+::: {.lesson-beat}
+
+Two triangles are **congruent** (notation $\triangle ABC \cong
+\triangle DEF$) if all corresponding sides and corresponding angles are
+equal. The five tests for congruence:
+
+- **SSS** — three sides equal.
+- **SAS** — two sides and the **included angle** equal.
+- **ASA** — two angles and the **included side** equal.
+- **AAS** — two angles and any non-included side equal (follows from
+  ASA, because the third angle is forced).
+- **RHS** — for right triangles only: hypotenuse and one other side
+  equal.
+
+Once two triangles are congruent, **CPCT** (corresponding parts of
+congruent triangles) is the rule that lets you conclude any *other*
+side or angle is equal.
+
+**Isosceles triangle theorem (and converse).** In a triangle, two sides
+are equal **if and only if** their opposite angles are equal.
+
+**Triangle inequality.** The sum of any two sides of a triangle is
+greater than the third side.
+
+:::
+
+A short verse:
+
+> *Three sides, or two-and-included, or angle-side-angle —*
+> *Each is a recipe; the triangle obeys it once.*
+> *Right-angled? Then hypotenuse-and-side suffice.*
+> *Equal sides? Equal angles. Each implies the other.*
+
+## Apply
+
+### Worked example
+
+> In $\triangle PQR$, $PQ = PR$. The bisector of $\angle P$ meets $QR$
+> at $M$. Prove $PM \perp QR$ and that $M$ is the midpoint of $QR$.
+
+A competent solver:
+
+1. **Compare** $\triangle PQM$ and $\triangle PRM$.
+2. $PQ = PR$ (given), $\angle QPM = \angle RPM$ (bisector definition),
+   $PM = PM$ (common). So **SAS** ⟹ $\triangle PQM \cong \triangle PRM$.
+3. **CPCT** gives $QM = RM$ (so $M$ is midpoint) and $\angle PMQ =
+   \angle PMR$.
+4. The two angles at $M$ are also a linear pair (they sit on $QR$), so
+   $\angle PMQ + \angle PMR = 180^\circ$. With both equal,
+   $\angle PMQ = 90^\circ$, hence $PM \perp QR$.
+
+**Conclusion:** $PM$ is both the perpendicular and the median from $P$.
+$\blacksquare$
+
+### Practice — Warm
+
+**W1.** State which congruence rule (SSS / SAS / ASA / AAS / RHS) is
+suggested by each of these descriptions.
+
+(a) "Two sides and the angle between them are equal."
+
+(b) "Two angles and a corresponding side are equal."
+
+(c) "Two right triangles share hypotenuse and a leg."
+
+<details class="hint"><summary>Full solution</summary>
+(a) SAS. (b) AAS or ASA depending on which side. (c) RHS.
+</details>
+
+**W2.** In $\triangle ABC$, $AB = AC$ and $\angle A = 40^\circ$. Find
+$\angle B$ and $\angle C$.
+
+<details class="hint"><summary>Full solution</summary>
+$\angle B = \angle C$. $40 + 2x = 180 \Rightarrow x = 70^\circ$. So
+$\angle B = \angle C = 70^\circ$.
+</details>
+
+**W3.** Sides of a triangle are $4, 5, 9$. Possible?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangle inequality: each pair sums to more than the third side.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4 + 5 = 9$ — equal, not greater. So the "triangle" collapses to a
+line. **Not a valid triangle.**
+</details>
+
+### Practice — Working
+
+**P1.** $AB$ and $CD$ are two segments bisecting each other at $O$.
+Prove $\triangle AOC \cong \triangle BOD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$AO = OB$, $CO = OD$ (bisecting). Where is the angle?
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $AO = OB$. | $AB$ bisected at $O$. |
+| 2. $CO = OD$. | $CD$ bisected at $O$. |
+| 3. $\angle AOC = \angle BOD$. | Vertically opposite angles. |
+| 4. $\triangle AOC \cong \triangle BOD$. | SAS. $\blacksquare$ |
+
+</details>
+
+**P2.** In $\triangle ABC$, $AB = AC$. Two points $D$ on $AB$ and $E$ on
+$AC$ are chosen so $AD = AE$. Prove $BE = CD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at $\triangle ABE$ and $\triangle ACD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $AB = AC$. | Given. |
+| 2. $AE = AD$. | Given. |
+| 3. $\angle A = \angle A$. | Common. |
+| 4. $\triangle ABE \cong \triangle ACD$. | SAS. |
+| 5. $BE = CD$. | CPCT. $\blacksquare$ |
+
+</details>
+
+**P3.** $AD$ is a median of $\triangle ABC$ (so $D$ is the midpoint of
+$BC$). $AD$ is *extended* to a point $E$ such that $DE = AD$. Prove
+$\triangle ADB \cong \triangle EDC$, and conclude that $AB = EC$ and
+$AB \parallel EC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two segments meet at $D$; what kind of angles form there?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+You have one pair of equal sides ($DB = DC$, $AD = DE$). You need an
+angle *between* those sides — vertically opposite angles at $D$. SAS.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+In $\triangle ADB$ and $\triangle EDC$:
+
+| Statement | Reason |
+|:--|:--|
+| 1. $AD = ED$. | Given (E is on the extension of $AD$ with $DE = AD$). |
+| 2. $BD = DC$. | $D$ is the midpoint of $BC$ ($AD$ is a median). |
+| 3. $\angle ADB = \angle EDC$. | Vertically opposite angles at $D$. |
+| 4. $\triangle ADB \cong \triangle EDC$. | **SAS** (steps 1, 3, 2). |
+| 5. $AB = EC$. | CPCT. |
+| 6. $\angle DAB = \angle DEC$. | CPCT. |
+| 7. $AB \parallel EC$. | Step 6: alternate interior angles equal $\Rightarrow$ lines parallel (transversal $AE$). $\blacksquare$ |
+
+This is a classic NCERT result — it tells you that doubling a median
+produces a parallelogram $ABEC$. We come back to it in
+**[Lesson 8: Quadrilaterals](../08-quadrilaterals/index.qmd)**.
+</details>
+
+### Practice — Stretch
+
+**S1.** In $\triangle ABC$, the bisector of $\angle A$ meets $BC$ at $D$.
+If $AB = AC$, prove $D$ is the midpoint of $BC$ and $AD \perp BC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is the worked example, generalised. Use SAS on $\triangle ABD$ and
+$\triangle ACD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Mirror the worked example exactly. SAS gives the congruence; CPCT gives
+$BD = DC$ (midpoint) and $\angle ADB = \angle ADC$, which together with
+the linear pair forces both to be $90^\circ$. $\blacksquare$
+</details>
+
+**S2.** Show that the perpendicular from any vertex of an equilateral
+triangle to the opposite side bisects that side.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Equilateral is "extra-isosceles". Use RHS.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Drop $AD \perp BC$. In right triangles $\triangle ABD$ and
+$\triangle ACD$: $AB = AC$ (equilateral), $AD = AD$ (common),
+$\angle ADB = \angle ADC = 90^\circ$. So $\triangle ABD \cong
+\triangle ACD$ by **RHS**. CPCT gives $BD = DC$. $\blacksquare$
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** In $\triangle ABC$, if $\angle A = \angle B$,
+which sides are equal?
+(a) $AB = BC$ (b) $BC = CA$ (c) $CA = AB$ (d) all three.
+
+<details class="hint"><summary>Full solution</summary>
+**(b) $BC = CA$** — the sides opposite equal angles are equal. Side $BC$
+is opposite $A$; side $CA$ is opposite $B$.
+</details>
+
+**2-mark (short answer).** Two sides of a triangle are $7$ cm and $9$
+cm. Between which two integer values must the third side lie?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangle inequality: third side $<$ sum, $>$ difference.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|7 - 9| < x < 7 + 9$, so $2 < x < 16$. Integer values: $3, 4, \ldots,
+15$.
+</details>
+
+**3-mark (short answer II).** $ABCD$ is a quadrilateral in which
+$AB = AD$ and $CB = CD$. Prove that $AC$ bisects both $\angle A$ and
+$\angle C$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare $\triangle ABC$ and $\triangle ADC$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $AB = AD$. | Given. |
+| 2. $CB = CD$. | Given. |
+| 3. $AC = AC$. | Common. |
+| 4. $\triangle ABC \cong \triangle ADC$. | SSS. |
+| 5. $\angle BAC = \angle DAC$ and $\angle BCA = \angle DCA$. | CPCT. |
+| 6. So $AC$ bisects $\angle A$ and $\angle C$. | $\blacksquare$ |
+
+</details>
+
+**5-mark (long answer).** Prove the **isosceles triangle theorem**: in
+$\triangle ABC$, if $AB = AC$, then $\angle B = \angle C$. Use a clear
+figure and a two-column proof.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Drop the bisector from $A$. Prove the two halves congruent by SAS.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Reproduce Discover Problem 4. **Construction:** angle bisector from $A$
+meets $BC$ at $D$. **Compare** $\triangle ABD$ and $\triangle ACD$:
+$AB = AC$ (given), $\angle BAD = \angle CAD$ (bisector), $AD = AD$
+(common). By SAS, $\triangle ABD \cong \triangle ACD$. By CPCT,
+$\angle B = \angle C$. $\blacksquare$
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 7, Problem 7.2
+(SAS recognition, similar to W1). **Previous-year pointer:** CBSE Class
+9 sample paper "prove $AC$ bisects in a kite" (similar to 3-mark).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"SSA is also a congruence rule."** No — two sides and a
+   *non-included* angle can describe two different triangles (the
+   "ambiguous case"). Only when the angle is right (RHS) does it work.
+2. **"AAA proves congruence."** No — three equal angles only force
+   *similarity* (same shape), not congruence (same size). A small
+   equilateral triangle and a large one share AAA but are different
+   sizes.
+3. **"CPCT can be used before proving congruence."** It cannot. CPCT is
+   a *consequence* of congruence; you must establish the congruence
+   first, then quote CPCT to extract a side or angle equality.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you list the five congruence rules and explain why SSA is not
+   among them?
+2. Did you write each two-column proof yourself, with reasons in the
+   right column, before peeking?
+3. Could you tackle a fresh "two sides + bisector" or "median +
+   midpoint" problem and find the right congruence rule on the first
+   try?
+
+- **3 yes:** move on to **Quadrilaterals**.
+- **2 yes:** redo S1 and S2 fresh.
+- **0–1 yes:** re-read *Discover* 1–6. The five rules are a small
+  vocabulary that takes a week to internalise.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.lines-and-angles`](../06-lines-and-angles/index.qmd) —
+  vertically opposite angles, parallel-line pairs, triangle angle-sum.
+- [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd)
+  — naming triangles, types (isosceles, equilateral, right).
+
+### What this unlocks
+
+- [`cbse9.quadrilaterals`](../08-quadrilaterals/index.qmd) — almost
+  every parallelogram proof reduces to triangle congruence.
+- [`cbse9.herons-formula`](../10-herons-formula/index.qmd) — area of a
+  triangle when only sides are known.
+- [`cbse10.triangles-similarity`](../../tier-cbse-10-class-10/06-triangles-similarity/index.qmd)
+  — same shape, possibly different size.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 7 — Triangles** (NCERT 2023 rationalised syllabus).
+  Covers Sections 7.1–7.4: congruence criteria, properties of
+  triangles, inequalities.
+- **Sister synthesis lesson** (different angle):
+  [`t2.pythagorean-theorem`](../../tier-2-algebra1/16-pythagorean-theorem/index.qmd)
+  treats the right-triangle special case from a coordinate angle. The
+  congruence story is the new contribution here.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Mesh deformation in 3D engines preserves triangle
+*topology* (which vertices are connected) but changes *geometry*. When a
+3D character moves, the rig sends each triangle to a congruent copy in a
+new position — that's why characters don't suddenly grow extra limbs.
+:::
+
+::: {.applied-callout}
+**Research.** The congruence axioms became one of Hilbert's groups in
+his 1899 axiomatisation. They survive almost unchanged into modern
+Tarski-style geometry, the version most amenable to automated theorem
+provers.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Kiselev (proof discipline), AoPS
+  (graduated stretch), Russian problem-first (six Discover problems
+  unfold the five rules + the isosceles theorem before naming them).
+:::

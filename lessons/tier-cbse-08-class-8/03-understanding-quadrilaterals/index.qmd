@@ -1,0 +1,470 @@
+---
+title: "Ch 3 — Understanding Quadrilaterals"
+subtitle: "Four sides, one closed shape — and a whole family of names"
+lesson-id: "cbse8.understanding-quadrilaterals"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 3
+ncert-chapter-title: "Understanding Quadrilaterals"
+board-exam: false
+prerequisites: ["t1.shapes-angles"]
+unlocks: ["cbse8.mensuration", "cbse9.quadrilaterals", "cbse9.triangles"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you tell a triangle from a quadrilateral on sight?
+2. Do you remember that the angles of a triangle add up to $180^\circ$?
+   If not, revisit
+   **[Shapes and Angles](../../tier-1-foundations/12-shapes-angles/index.qmd)**.
+3. Can you measure an angle with a protractor?
+4. Do you know what *parallel lines* means — lines that never meet?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Cut four sticks from a sheet of stiff paper or use four pencils. Lay
+them on a table, end to end, so they form a closed loop with four
+corners. (Tape the corners loosely if you can — pinholes work.)
+
+Push gently on one corner. Watch what happens. Push on the opposite
+corner. Watch again.
+
+```{ojs}
+viewof angle = Inputs.range([20, 160], {value: 90, step: 1, label: "Bottom-left angle (degrees)"})
+viewof side = Inputs.range([60, 180], {value: 120, step: 5, label: "Slant length"})
+```
+
+```{ojs}
+{
+  const a = (angle * Math.PI) / 180;
+  const b = side;
+  const w = 200;
+  const x1 = 50, y1 = 200;
+  const x2 = x1 + w, y2 = y1;
+  const x3 = x2 + b * Math.cos(Math.PI - a), y3 = y2 - b * Math.sin(a);
+  const x4 = x1 + b * Math.cos(a), y4 = y1 - b * Math.sin(a);
+  const angles = [a, Math.PI - a, a, Math.PI - a].map(r => Math.round((r * 180 / Math.PI) * 10) / 10);
+  const sum = angles.reduce((s,x)=>s+x,0);
+  return html`<svg width="380" height="240" style="background:#fafafa;border:1px solid #ddd;">
+    <polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3} ${x4},${y4}"
+      fill="#bde0fe" stroke="#1d4ed8" stroke-width="2"/>
+    <text x="190" y="225" text-anchor="middle" font-family="system-ui" font-size="13" fill="#444">
+      angle sum &asymp; ${sum.toFixed(1)}&deg;
+    </text>
+  </svg>`;
+}
+```
+
+Move both sliders. The shape changes — it becomes a tall slanted box,
+then a squashed one — but watch the angle sum at the bottom. Does
+*anything* about it stay constant?
+
+## Wonder
+
+Sit with these.
+
+1. As you slid the corner, the four angles each changed. Did their
+   *sum* change?
+2. Two opposite sides of your loop look parallel. Does the loop *have*
+   to have parallel sides for the corners to form?
+3. If two adjacent sides are equal in length, what does the shape start
+   to look like?
+4. Could a four-sided closed shape have a *reflex* angle (more than
+   $180^\circ$) at one corner?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+The angle sum stays at $360^\circ$ no matter how you push. The chapter
+is built around that fact, plus a tree of special quadrilaterals — each
+defined by which sides or angles are made equal or parallel.
+:::
+
+## Discover
+
+### Problem 1 — Cut a square along a diagonal
+
+Take a paper square and cut it along one diagonal. You now have two
+triangles. What can you say about each of them?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Are the triangles right-angled? Are they identical?
+</details>
+<details class="hint"><summary>Full solution</summary>
+The cut goes corner to corner, so each triangle has the right-angle
+corner of the square. The two legs are equal (sides of the square). The
+two triangles are **congruent right isoceles triangles**. Each has
+angles $90^\circ, 45^\circ, 45^\circ$.
+
+The angles of the *square* split as: at the cut corners, $90^\circ =
+45^\circ + 45^\circ$. At the uncut corners, the $90^\circ$ stays
+intact. Sum: $90 + 45 + 45 + 90 + 45 + 45 = 360^\circ$.
+</details>
+
+### Problem 2 — Cut any quadrilateral
+
+Now do it again with a *random* (non-square) four-sided paper shape.
+Cut along one diagonal. You get two triangles. What is the sum of *all*
+the angles in those two triangles?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each triangle's angles add to $180^\circ$. There are two of them.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$2 \times 180^\circ = 360^\circ$. Now: those six triangle-angles
+together account for the four corners of the original quadrilateral —
+each quadrilateral corner is split into two pieces (or stays whole) by
+the diagonal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two triangles together have $2 \times 180 = 360^\circ$ of angle. When
+you reassemble into the quadrilateral, those angles regroup into the
+four corner angles. So the **angle sum of any quadrilateral is
+$360^\circ$**.
+</details>
+
+### Problem 3 — A missing angle
+
+A quadrilateral has angles $80^\circ$, $90^\circ$, $110^\circ$, and a
+fourth that you don't know. Find the fourth angle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the fact you just proved.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$80 + 90 + 110 + x = 360 \Rightarrow x = 80^\circ$.
+</details>
+
+### Problem 4 — Spot the parallelogram property
+
+Draw a parallelogram (a four-sided shape with both pairs of opposite
+sides parallel). Measure both pairs of opposite *sides*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You don't need to measure to predict.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Opposite sides of a parallelogram are **equal in length** as well as
+parallel. (Reason: drawing a diagonal makes two congruent triangles by
+ASA — alternate interior angles plus the shared diagonal.)
+</details>
+
+### Problem 5 — Diagonals of a rhombus
+
+A rhombus has all four sides equal. Draw both diagonals. What do you
+notice about them where they cross?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the angle they make. And the lengths from the crossing point to
+the corners.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The diagonals of a rhombus **cross at right angles** and **bisect each
+other**. (Each diagonal divides the rhombus into two congruent triangles
+which are mirror images.)
+</details>
+
+### Problem 6 — Exterior angles
+
+You walk around a closed quadrilateral path, turning at each corner.
+You return to your start. Through what total angle have you turned?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Walking around any closed shape and ending up where you started, facing
+the same way, your total turn is one full circle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$360^\circ$. The sum of the *exterior* angles of any convex polygon —
+not just a quadrilateral — is $360^\circ$.
+</details>
+
+You have just discovered the angle sum, the parallelogram side property,
+the rhombus diagonal property, and the exterior-angle fact — the four
+load-bearing facts of the chapter.
+
+## Name
+
+::: {.lesson-beat}
+
+A **quadrilateral** is a closed plane figure bounded by four line
+segments.
+
+**Angle-sum property:** the four interior angles of any quadrilateral
+add to $360^\circ$.
+
+**Family tree** (each name adds one more constraint):
+
+- **Trapezium** — at least one pair of parallel sides.
+- **Parallelogram** — both pairs of opposite sides parallel; opposite
+  sides equal; opposite angles equal; diagonals bisect each other.
+- **Rectangle** — parallelogram + all angles $90^\circ$; diagonals
+  equal.
+- **Rhombus** — parallelogram + all sides equal; diagonals perpendicular
+  and bisect each other.
+- **Square** — rectangle + rhombus; all of the above at once.
+- **Kite** — two pairs of adjacent sides equal; one diagonal bisects
+  the other at $90^\circ$.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Four-sided closed — three-sixty in all;*
+> *Both pairs parallel, sides match, angles match, diagonals halve.*
+> *Square the prince of the family — every property at once;*
+> *Rhombus the dancer — perpendicular cross at the heart.*
+
+## Apply
+
+### Worked example
+
+> In a parallelogram $ABCD$, $\angle A = 70^\circ$. Find the other
+> three angles.
+
+Competent solver's path:
+
+1. Opposite angles of a parallelogram are equal: $\angle C = \angle A =
+   70^\circ$.
+2. Adjacent angles are supplementary (they sit on the same side of a
+   transversal cutting two parallel lines): $\angle B = 180 - 70 =
+   110^\circ$.
+3. By the same rule, $\angle D = 110^\circ$.
+
+Check: $70 + 110 + 70 + 110 = 360^\circ$. ✓
+
+### Practice — Warm
+
+**W1.** Three angles of a quadrilateral are $60^\circ, 70^\circ, 130^\circ$.
+Find the fourth.
+
+<details class="hint"><summary>Full solution</summary>
+$60 + 70 + 130 + x = 360 \Rightarrow x = 100^\circ$.
+</details>
+
+**W2.** True or false: every square is a rectangle.
+
+<details class="hint"><summary>Full solution</summary>
+**True.** A rectangle requires four right angles; a square has them
+plus equal sides. Every square satisfies the rectangle definition.
+</details>
+
+**W3.** True or false: every rhombus is a square.
+
+<details class="hint"><summary>Full solution</summary>
+**False.** A rhombus needs only equal sides; its angles need not be
+$90^\circ$. A square is a rhombus, but not every rhombus is a square.
+</details>
+
+### Practice — Working
+
+**P1.** In a parallelogram $PQRS$, $\angle P = 3\angle Q$. Find all four
+angles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Adjacent angles of a parallelogram sum to $180^\circ$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle P + \angle Q = 180$ and $\angle P = 3\angle Q$.
+$3\angle Q + \angle Q = 180 \Rightarrow \angle Q = 45^\circ$,
+$\angle P = 135^\circ$. Opposite angles equal: $\angle R = 45^\circ$,
+$\angle S = 135^\circ$.
+</details>
+
+**P2.** A rhombus has a diagonal of length $24$ cm and the other of
+length $10$ cm. Find the side length.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The diagonals bisect at right angles. Each side is the hypotenuse of a
+right triangle with half-diagonals as legs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Half-diagonals: $12$ cm and $5$ cm. Side $= \sqrt{12^2 + 5^2} = \sqrt{144
++ 25} = \sqrt{169} = 13$ cm.
+</details>
+
+**P3.** The exterior angle at one vertex of a regular hexagon is what?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum of exterior angles is $360^\circ$, divided equally among 6 corners.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$360 / 6 = 60^\circ$.
+</details>
+
+### Practice — Stretch
+
+**S1.** In quadrilateral $ABCD$, $\angle A : \angle B : \angle C :
+\angle D = 1 : 2 : 3 : 4$. Find each angle and identify any pair of
+parallel sides if you can.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total $= 1+2+3+4 = 10$ parts. Total angle $= 360^\circ$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each part $= 36^\circ$. Angles: $36^\circ, 72^\circ, 108^\circ, 144^\circ$.
+
+Adjacent pairs: $\angle A + \angle B = 108$, $\angle B + \angle C =
+180^\circ$, $\angle C + \angle D = 252$, $\angle D + \angle A = 180^\circ$.
+
+Two adjacent sums equal $180^\circ$: that means $BC \parallel AD$
+(co-interior angles supplementary). It is a **trapezium**.
+</details>
+
+**S2.** A kite has two pairs of consecutive equal sides $AB = AD = 5$
+cm and $CB = CD = 12$ cm, with $\angle B = \angle D = 90^\circ$. Find
+the length of diagonal $AC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangle $ABC$ is right-angled at $B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AC = \sqrt{AB^2 + BC^2} = \sqrt{25 + 144} = \sqrt{169} = 13$ cm.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** Sum of the interior angles of a polygon with 7
+sides is
+(a) $720^\circ$ (b) $900^\circ$ (c) $1080^\circ$ (d) $540^\circ$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Formula: $(n-2) \times 180^\circ$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(7-2) \times 180 = 5 \times 180 = 900^\circ$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Two adjacent angles of a parallelogram are in
+the ratio $2:3$. Find each angle of the parallelogram.
+
+<details class="hint"><summary>Full solution</summary>
+Adjacent angles sum to $180^\circ$. Parts: $2+3 = 5$. Each part
+$= 36^\circ$. Angles: $72^\circ, 108^\circ, 72^\circ, 108^\circ$.
+</details>
+
+**3-mark (short answer II).** $ABCD$ is a parallelogram. The bisectors
+of $\angle A$ and $\angle B$ meet at $P$. Show that $\angle APB =
+90^\circ$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle A + \angle B = 180^\circ$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+In triangle $APB$: $\angle PAB = \tfrac{1}{2}\angle A$ and $\angle PBA =
+\tfrac{1}{2}\angle B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle PAB + \angle PBA = \tfrac{1}{2}(\angle A + \angle B) =
+\tfrac{1}{2}(180^\circ) = 90^\circ$.
+
+In triangle $APB$, angles sum to $180^\circ$:
+$\angle APB = 180^\circ - 90^\circ = 90^\circ$. ✓
+</details>
+
+**4-mark (long answer).** $ABCD$ is a quadrilateral with $\angle A =
+100^\circ, \angle B = 80^\circ, \angle C = 100^\circ$. (i) Find $\angle
+D$. (ii) Show that $AB \parallel DC$. (iii) What special quadrilateral
+is $ABCD$ at minimum?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the angle sum, then look for supplementary co-interior pairs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\angle D = 360 - (100 + 80 + 100) = 80^\circ$.
+
+**(ii)** Consider sides $AB$ and $DC$ with transversal $BC$. The
+co-interior angles are $\angle B = 80^\circ$ and $\angle C = 100^\circ$,
+summing to $180^\circ$. So $AB \parallel DC$.
+
+**(iii)** Consider sides $AD$ and $BC$ with transversal $AB$.
+Co-interior angles $\angle A + \angle B = 180^\circ$ as well. So $AD
+\parallel BC$.
+
+Both pairs of opposite sides are parallel — $ABCD$ is at minimum a
+**parallelogram**.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 3.4 (angle bisectors in a
+parallelogram) is a near-twin of the 3-mark item.
+**Previous-year pointer:** CBSE 2018 Set 1, Q11 ("if three angles of a
+quadrilateral are given...") matches the 4-mark item closely.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A square is not a rectangle."** It is. The hierarchy is inclusive
+   — every square satisfies the rectangle definition (four right
+   angles).
+2. **"All quadrilaterals with equal diagonals are rectangles."** No.
+   An isoceles trapezium also has equal diagonals. The full criterion
+   for a rectangle is *parallelogram with one right angle* (or
+   *parallelogram with equal diagonals*).
+3. **"Diagonals of a kite bisect each other."** Only one of them gets
+   bisected (by the axis of symmetry). The other does the bisecting.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you draw the family tree of quadrilaterals from memory and say
+   what extra constraint each name adds?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   *Practice* problems without peeking past Hint 1?
+3. Given a quadrilateral with three known angles or two known sides,
+   can you immediately spot which property to invoke?
+
+- **3 yes:** move on to **[Data Handling](../04-data-handling/index.qmd)**.
+- **2 yes:** redo *Stretch S1* and the 4-mark board item, then move on.
+- **0–1 yes:** rebuild from *Discover*. The angle-sum proof in
+  Problem 2 is the foundation of everything else.
+
+## Connect
+
+### Prerequisites used
+
+- **[Shapes and Angles](../../tier-1-foundations/12-shapes-angles/index.qmd)** — angles, parallel lines, the $180^\circ$ sum in a triangle.
+
+### What this unlocks
+
+- **[Mensuration](../09-mensuration/index.qmd)** — areas of trapezia, parallelograms, rhombi.
+- **[Class 9 — Quadrilaterals](../../tier-cbse-09-class-9/08-quadrilaterals/index.qmd)** — proves the side and diagonal properties rigorously.
+- **[Class 9 — Triangles](../../tier-cbse-09-class-9/07-triangles/index.qmd)** — congruence rules underpin the parallelogram proofs.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 3 — Understanding Quadrilaterals** (NCERT 2023
+  rationalised syllabus). Covers Sections 3.1–3.4: polygon angle sums,
+  the family tree, properties of parallelograms.
+- **Sister synthesis lesson** (different pedagogical angle): no direct
+  synthesis lesson at this level; the closest non-CBSE treatment of the
+  same material lives in tier 3 geometry, but it assumes a fuller proof
+  background. Stay with this chapter and the NCERT textbook.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every flat surface in a 2D game — platforms,
+tile maps, UI panels — is a rectangle or quadrilateral mesh.
+Collision detection between rotated rectangles uses the diagonal and
+side properties of this chapter.
+:::
+
+::: {.applied-callout}
+**Research.** Tessellations of the plane by quadrilaterals are at the
+heart of finite-element methods, the numerical workhorse for solving
+partial differential equations. The mesh quality is judged by how
+close each cell is to a square — the prince of the family.
+:::

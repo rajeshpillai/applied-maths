@@ -1,0 +1,394 @@
+---
+title: "Ch 5b — Differentiability and Differentiation Rules"
+subtitle: "Chain rule, implicit, logarithmic, parametric — all the workhorses"
+lesson-id: "cbse12.differentiability-and-rules"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 5
+ncert-chapter-title: "Continuity and Differentiability"
+board-exam: true
+prerequisites: ["cbse12.continuity", "cbse11.derivatives-intro"]
+unlocks: ["cbse12.tangents-normals-rates", "cbse12.indefinite-integrals"]
+applied-domains: ["ai-ml", "research", "game-dev"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute $\dfrac{d}{dx}(x^n)$, $\dfrac{d}{dx}\sin x$, etc.?
+2. Comfortable with the product rule and quotient rule?
+3. Have you done [Ch 5a — Continuity](../05a-continuity/index.qmd)?
+:::
+
+## Touch
+
+A car's position $s(t) = t^2$ at time $t$. Its velocity at $t = 3$ is
+$s'(3) = 6$. You learnt this last year.
+
+::: {.lesson-beat}
+
+Now imagine the car's position depends on a *control* $u$, which itself
+depends on time: $s = u^2$ and $u = 5t$. Velocity is $\frac{ds}{dt}$.
+
+Compute it directly: $s = (5t)^2 = 25t^2$, so $s'(t) = 50t$.
+
+Compute it via the chain: $\frac{ds}{dt} = \frac{ds}{du} \cdot
+\frac{du}{dt} = 2u \cdot 5 = 2(5t) \cdot 5 = 50t$. Same.
+
+:::
+
+The shortcut — the **chain rule** — saves you from re-expanding every
+composition by hand.
+
+This lesson covers the four heavy techniques you need on the paper:
+
+1. **Chain rule** for compositions.
+2. **Implicit differentiation** for relations like $x^2 + y^2 = 25$.
+3. **Logarithmic differentiation** for messy products and powers.
+4. **Parametric differentiation** when $x = f(t), y = g(t)$.
+
+## Wonder
+
+1. Why must the chain rule give the same answer as expanding by hand?
+2. Could implicit differentiation work for $y$ defined only locally —
+   e.g. the upper half of a circle?
+3. For $y = x^x$, neither the power rule nor the exponential rule
+   applies directly. Why?
+
+## Discover
+
+### Problem 1
+
+Let $y = (3x + 1)^5$. Find $\dfrac{dy}{dx}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Outer function: $u^5$. Inner: $u = 3x + 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{dy}{dx} = 5(3x+1)^4 \cdot 3 = 15(3x+1)^4$.
+</details>
+
+### Problem 2
+
+Differentiate $y = \sin(x^2)$ with respect to $x$.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{dy}{dx} = \cos(x^2) \cdot 2x = 2x \cos(x^2)$.
+</details>
+
+### Problem 3
+
+Find $\dfrac{dy}{dx}$ if $x^2 + y^2 = 25$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Differentiate both sides w.r.t. $x$. Treat $y$ as a function of $x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2x + 2y \frac{dy}{dx} = 0 \Rightarrow \frac{dy}{dx} = -x/y$.
+</details>
+
+### Problem 4
+
+For $y = x^x$, find $\dfrac{dy}{dx}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $\log$ of both sides first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\log y = x \log x$. Differentiate: $\frac{1}{y}\frac{dy}{dx} = \log x
++ 1 \Rightarrow \frac{dy}{dx} = x^x(\log x + 1)$.
+</details>
+
+### Problem 5
+
+Find $\dfrac{dy}{dx}$ if $x = a\cos t,\ y = a\sin t$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\frac{dy}{dx} = \dfrac{dy/dt}{dx/dt}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{dx}{dt} = -a\sin t,\ \frac{dy}{dt} = a\cos t$. Ratio: $-\cot t$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A function $f$ is **differentiable at $a$** iff
+$$\lim_{h \to 0} \frac{f(a + h) - f(a)}{h}$$
+exists. Differentiability $\Rightarrow$ continuity (not the reverse).
+
+**Standard derivatives** (memorise):
+
+$\frac{d}{dx}\sin^{-1}x = \frac{1}{\sqrt{1-x^2}}$,
+$\frac{d}{dx}\cos^{-1}x = -\frac{1}{\sqrt{1-x^2}}$,
+$\frac{d}{dx}\tan^{-1}x = \frac{1}{1+x^2}$,
+$\frac{d}{dx}e^x = e^x$,
+$\frac{d}{dx}\log x = \frac{1}{x}$.
+
+**Chain rule.** If $y = f(u),\ u = g(x)$, then
+$\dfrac{dy}{dx} = \dfrac{dy}{du}\cdot\dfrac{du}{dx}$.
+
+**Implicit differentiation.** Differentiate both sides of an equation
+in $x, y$ w.r.t. $x$, treating $y$ as a function of $x$.
+
+**Logarithmic differentiation.** For $y = f(x)^{g(x)}$, take $\log$
+first.
+
+**Parametric differentiation.** If $x = f(t),\ y = g(t)$, then
+$\dfrac{dy}{dx} = \dfrac{dy/dt}{dx/dt}$.
+
+:::
+
+A verse:
+
+> *Chain — outer derivative, then the inner;*
+> *Implicit — differentiate both sides, $y'$ left over.*
+> *Logarithm tames products and powers in disguise;*
+> *Parameter $t$ as the puppeteer — divide the two streams.*
+
+## Apply
+
+### Worked example
+
+> Find $\dfrac{dy}{dx}$ at $x = 1$ if $y = \sqrt{1 + \log x}$.
+
+A competent solver:
+
+1. Outer: $u^{1/2}$. Inner: $u = 1 + \log x$.
+2. $\frac{dy}{du} = \frac{1}{2\sqrt{u}}$. $\frac{du}{dx} = 1/x$.
+3. $\frac{dy}{dx} = \frac{1}{2\sqrt{1 + \log x}} \cdot \frac{1}{x}$.
+4. At $x = 1$: $\log 1 = 0$, so $= \frac{1}{2 \cdot 1 \cdot 1} = 1/2$.
+
+### Practice — Warm
+
+**W1.** $y = \cos(\sqrt{x})$. Find $y'$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' = -\sin(\sqrt{x}) \cdot \frac{1}{2\sqrt{x}}$.
+</details>
+
+**W2.** $y = \tan^{-1}(2x)$. Find $y'$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' = \frac{1}{1 + 4x^2} \cdot 2 = \frac{2}{1 + 4x^2}$.
+</details>
+
+**W3.** Find $\frac{dy}{dx}$ if $x^2 - y^2 = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$2x - 2y\frac{dy}{dx} = 0 \Rightarrow \frac{dy}{dx} = x/y$.
+</details>
+
+### Practice — Working
+
+**P1.** $y = (\sin x)^x$. Find $y'$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Logarithmic differentiation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\log y = x \log(\sin x)$. $\frac{y'}{y} = \log(\sin x) + x \cdot
+\frac{\cos x}{\sin x}$. So $y' = (\sin x)^x [\log(\sin x) + x \cot x]$.
+</details>
+
+**P2.** $x = a(t - \sin t),\ y = a(1 - \cos t)$ (cycloid). Find
+$\frac{dy}{dx}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{dx}{dt} = a(1 - \cos t)$. $\frac{dy}{dt} = a\sin t$.
+$\frac{dy}{dx} = \frac{\sin t}{1 - \cos t} = \cot(t/2)$ (using
+half-angle).
+</details>
+
+**P3.** If $y = e^{x \cos x}$, find $y'$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' = e^{x \cos x}(\cos x - x \sin x)$ (chain rule, with product rule
+inside).
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the function $f(x) = |x|$ is continuous at $0$ but
+not differentiable there.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $\lim_{h\to0^+}\frac{|h|}{h}$ and $\lim_{h\to0^-}\frac{|h|}{h}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Continuity: shown last lesson. Differentiability at 0: RHS difference
+quotient is $1$, LHS is $-1$. They disagree, so derivative DNE.
+**Continuous, not differentiable.** This is the canonical example of
+the implication going one way only.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $\frac{d}{dx}(\sin^{-1}(2x\sqrt{1-x^2})) =$
+(a) $\frac{2}{\sqrt{1-x^2}}$ (b) $\frac{1}{\sqrt{1-x^2}}$
+(c) $\frac{2}{1+x^2}$ (d) $-\frac{2}{\sqrt{1-x^2}}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin^{-1}(2x\sqrt{1-x^2}) = 2\sin^{-1} x$ for $|x| \le 1/\sqrt{2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Differentiate $2\sin^{-1}x$: **(a) $\frac{2}{\sqrt{1-x^2}}$.**
+</details>
+
+**1-mark MCQ #2.** If $y = a^x$, then $\frac{dy}{dx} =$ (a) $a^x$
+(b) $x a^{x-1}$ (c) $a^x \log a$ (d) $a^x / \log a$.
+
+<details class="hint"><summary>Full solution</summary>
+**(c) $a^x \log a$.**
+</details>
+
+**2-mark.** $y = \log(\log x)$. Find $\frac{dy}{dx}$.
+
+<details class="hint"><summary>Full solution</summary>
+Chain: $\frac{1}{\log x} \cdot \frac{1}{x} = \frac{1}{x \log x}$.
+</details>
+
+**2-mark.** $x^y \cdot y^x = 1$. Find $\frac{dy}{dx}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take log: $y \log x + x \log y = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Differentiate: $y' \log x + y/x + \log y + x \cdot y'/y = 0$.
+$y'(\log x + x/y) = -(y/x + \log y)$.
+$y' = -\frac{y/x + \log y}{\log x + x/y} = -\frac{y(y/x + \log y)}{y
+\log x + x}$.
+</details>
+
+**3-mark.** Differentiate $\sin^{-1}\left(\frac{2x}{1 + x^2}\right)$
+with respect to $x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $x = \tan\theta$. Then the argument becomes $\sin 2\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $x = \tan\theta$. $\frac{2x}{1+x^2} = \sin 2\theta$. So
+$\sin^{-1}(\cdot) = 2\theta = 2\tan^{-1} x$ (for $|x| \le 1$).
+Derivative: $\frac{2}{1+x^2}$.
+</details>
+
+**3-mark.** $x = a\cos^3 t,\ y = a\sin^3 t$. Find $\frac{dy}{dx}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{dx}{dt} = -3a\cos^2 t \sin t$. $\frac{dy}{dt} = 3a\sin^2 t \cos
+t$. Ratio: $-\tan t$.
+</details>
+
+**5-mark long answer.** If $y = (\tan^{-1}x)^2$, prove $(1 + x^2)^2 y'' +
+2x(1 + x^2)y' = 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $y'$ first; multiply both sides by something to clear $1/(1+x^2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$y' = 2\tan^{-1}x \cdot \frac{1}{1+x^2}$, so $(1+x^2)y' = 2\tan^{-1}x$.
+Differentiate: $2x \cdot y' + (1+x^2) y'' = \frac{2}{1+x^2}$.
+Multiply through by $(1+x^2)$: $2x(1+x^2)y' + (1+x^2)^2 y'' = 2$. ✓
+</details>
+
+**6-mark Case Study.** *A bouncing ball.*
+
+A ball is dropped, and its height (m) above the ground is $h(t) =
+\begin{cases} 5 - 5t^2 & 0 \le t \le 1 \\ 5(t-1)^2 & 1 < t \le 2
+\end{cases}$ for $t$ in seconds.
+
+(i) Is $h$ continuous at $t = 1$? (1 mark)
+(ii) Is $h$ differentiable at $t = 1$? Justify. (2 marks)
+(iii) Compute $h'(t)$ on each branch and interpret what changes
+physically at $t = 1$. (3 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** LHS: $5 - 5 = 0$. RHS: $0$. ✓ continuous.
+**(ii)** LHS derivative: $-10t |_{t=1} = -10$ (downward velocity).
+RHS derivative: $10(t-1)|_{t=1} = 0$. They disagree — **not
+differentiable** at $t = 1$.
+**(iii)** Branch 1: $h'(t) = -10t$, increasing in magnitude — falling
+faster. Branch 2: $h'(t) = 10(t-1)$, starts at 0 — *the bounce*.
+The kink is the bounce; impact reverses velocity instantaneously,
+hence the corner.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 5.2–5.7.
+**Previous-year pointer:** CBSE 2023 Set 1 Q24 (3-mark inverse trig);
+CBSE 2022 Q34 (5-mark proof).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Continuous = differentiable."** No. $|x|$ at $0$ is the
+   counterexample.
+2. **"Chain rule = product rule."** Different. Chain rule for
+   compositions, product for products.
+3. **"Implicit differentiation only works for circles."** Works for any
+   relation $F(x,y) = 0$ where $y$ is locally a function of $x$.
+:::
+
+### Self-Assessment
+
+1. Could you list the four techniques (chain, implicit, log, parametric)
+   and one example of each?
+2. Did you solve at least 5 of 7 board items unaided?
+3. Can you spot which technique a problem demands within 30 seconds?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark problem.
+- **0–1 yes:** practice basic chain rule on 10 fresh examples.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.continuity`](../05a-continuity/index.qmd) — differentiable
+  $\Rightarrow$ continuous.
+- [`cbse11.derivatives-intro`](../../tier-cbse-11-class-11/12b-derivatives-intro/index.qmd)
+  — basic rules.
+
+### What this unlocks
+
+- [`cbse12.tangents-normals-rates`](../06a-tangents-normals-rates/index.qmd)
+- [`cbse12.indefinite-integrals`](../07a-indefinite-integrals/index.qmd)
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 5** (NCERT 2023). Sections 5.2–5.8.
+- **Sister synthesis lessons:**
+  [`t4.differentiation-rules`](../../tier-4-precalc-calculus/index.qmd),
+  [`t4.derivatives-trig-exp-log`](../../tier-4-precalc-calculus/05-derivatives-trig-exp-log/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Backpropagation *is* the chain rule applied repeatedly
+through a deep network. Implicit differentiation appears in implicit
+deep-learning layers (Deep Equilibrium Models).
+:::
+
+::: {.applied-callout}
+**Game development.** Camera follow-cams use parametric paths $\vec
+r(t)$ and need $\vec r'(t)$ for tangent direction.
+:::
+
+::: {.applied-callout}
+**Research.** Implicit differentiation handles thermodynamic relations
+where state variables are interlocked. Logarithmic differentiation
+appears in elasticity in economics.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown ("chain rule = function-of-a-function"),
+  Bhāskara (verse), Gelfand (problem-first), AoPS (graded practice).
+:::

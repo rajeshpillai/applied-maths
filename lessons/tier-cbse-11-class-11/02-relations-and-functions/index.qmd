@@ -1,0 +1,502 @@
+---
+title: "Ch 2 — Relations and Functions"
+subtitle: "Pairs of inputs and outputs — the spine of every formula you will ever meet"
+lesson-id: "cbse11.relations-and-functions"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 2
+ncert-chapter-title: "Relations and Functions"
+board-exam: false
+prerequisites: ["cbse11.sets", "t2.functions-as-machines"]
+unlocks: ["cbse11.trig-functions", "cbse11.limits", "cbse12.relations-functions-types"]
+applied-domains: ["ai-ml", "databases", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you write down a set in roster form without hesitating?
+2. Do you know what an **ordered pair** $(a, b)$ is, and why $(1,2) \ne (2,1)$?
+3. Can you graph $y = 2x + 1$ on paper from memory?
+4. Have you ever said "f of x" out loud and meant it?
+
+If three of these were a confident yes, read on. If sets feel shaky,
+revisit **[Sets](../01-sets/index.qmd)** first.
+:::
+
+## Touch
+
+Hold up your left hand. Hold up your right hand. Now point your left
+index finger at one of your right-hand fingers. You have just made an
+**ordered pair** — (left index, right ring, say). The order matters: the
+left finger is doing the pointing, the right finger is being pointed at.
+
+A **relation** is a rule that decides which pointings are allowed.
+
+The widget below shows two small sets $A$ and $B$. Toggle the rule and
+watch which arrows light up. Each arrow is one ordered pair.
+
+```{ojs}
+viewof rule = Inputs.select(["a < b", "a + b is even", "a divides b", "a equals b"], {label: "Relation rule"})
+```
+
+```{ojs}
+{
+  const A = [1, 2, 3, 4];
+  const B = [1, 2, 3, 4, 5, 6];
+  const test = {
+    "a < b": (a, b) => a < b,
+    "a + b is even": (a, b) => (a + b) % 2 === 0,
+    "a divides b": (a, b) => b % a === 0,
+    "a equals b": (a, b) => a === b
+  }[rule];
+  const pairs = [];
+  for (const a of A) for (const b of B) if (test(a, b)) pairs.push(`(${a},${b})`);
+  return html`<div style="font-family:system-ui;line-height:1.6;">
+    <div><b>A =</b> {1,2,3,4}, <b>B =</b> {1,2,3,4,5,6}</div>
+    <div><b>Relation R = {(a,b) :</b> ${rule} <b>} =</b></div>
+    <div style="margin-left:1em;">{${pairs.join(", ")}}</div>
+    <div style="margin-top:0.5em;color:#666;">
+      ${pairs.length} ordered pairs out of ${A.length * B.length} possible.
+    </div>
+  </div>`;
+}
+```
+
+Try every rule. Every rule is a relation. A **function** will be a
+particularly nice kind of relation — *every input has exactly one
+output*.
+
+## Wonder
+
+Sit with these.
+
+1. If $A$ has $3$ elements and $B$ has $4$, how many ordered pairs are
+   there in $A \times B$? How many *relations* from $A$ to $B$?
+2. Look at the rule "$a$ divides $b$". From the input $a = 2$, how many
+   different outputs are allowed? Is this a function?
+3. Two students draw graphs of "$y$ is the square root of $x$". One
+   draws only the upper half of a parabola lying on its side; the other
+   draws both halves. Which (if either) is correct, and why?
+4. Could a graph that fails the *vertical line test* still be a useful
+   relation?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+(2) gives the diagnostic for "function": a single input that maps to
+two outputs is not a function. (3) is the reason $\sqrt{x}$ has to be
+defined as the *non-negative* root — to keep it a function.
+:::
+
+## Discover
+
+### Problem 1 — Cartesian product
+
+Let $A = \{1, 2\}$, $B = \{x, y, z\}$. Write out $A \times B$ and
+$B \times A$. Are they equal?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$A \times B$ contains every pair $(a, b)$ with $a \in A$, $b \in B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A \times B = \{(1,x),(1,y),(1,z),(2,x),(2,y),(2,z)\}$ — six pairs.
+
+$B \times A = \{(x,1),(x,2),(y,1),(y,2),(z,1),(z,2)\}$ — six pairs.
+
+They have the same *number* of elements but are **not equal**:
+$(1,x) \ne (x,1)$. Order matters in the pair, so the product depends on
+which set is "first".
+</details>
+
+### Problem 2 — Domain and range of a relation
+
+Let $R = \{(1, 4), (2, 5), (3, 6), (1, 7)\}$ be a relation from $A$ to
+$B$. What is the domain of $R$? What is the range?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Domain = the set of all *first* coordinates that appear. Range = the
+set of all *second* coordinates that appear.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Domain $= \{1, 2, 3\}$ (note: $1$ appears twice, listed once in the
+domain).
+
+Range $= \{4, 5, 6, 7\}$.
+</details>
+
+### Problem 3 — Function vs relation
+
+Which of these are functions $f : \{1,2,3\} \to \{a,b,c\}$?
+
+(i) $\{(1,a),(2,b),(3,c)\}$
+(ii) $\{(1,a),(2,a),(3,a)\}$
+(iii) $\{(1,a),(1,b),(2,c),(3,a)\}$
+(iv) $\{(1,a),(2,b)\}$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A function from $A$ to $B$ assigns *exactly one* element of $B$ to each
+element of $A$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- (i) Function. Every input mapped, each to one output.
+- (ii) Function. All inputs map to the same output — that's allowed.
+- (iii) **Not a function**: input $1$ maps to two outputs.
+- (iv) **Not a function**: input $3$ has no output.
+</details>
+
+### Problem 4 — Linear function
+
+Let $f(x) = 2x - 3$. Compute $f(0)$, $f(5)$, $f(-2)$. For what $x$ is
+$f(x) = 7$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For the last part, set $2x - 3 = 7$ and solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f(0) = -3$, $f(5) = 7$, $f(-2) = -7$.
+
+$2x - 3 = 7 \Rightarrow x = 5$.
+</details>
+
+### Problem 5 — Domain from a formula
+
+What is the largest subset of $\mathbb{R}$ on which $f(x) = \sqrt{x - 2}$
+makes sense?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The square root requires its argument to be non-negative.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Need $x - 2 \ge 0$, i.e. $x \ge 2$. Domain $= [2, \infty)$.
+</details>
+
+### Problem 6 — Range of a quadratic
+
+What is the range of $f(x) = x^2$ for $x \in \mathbb{R}$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Squares are never negative.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 \ge 0$ always, and every non-negative real $y$ equals $(\sqrt{y})^2$.
+So range $= [0, \infty)$.
+</details>
+
+You have just used **ordered pairs**, **Cartesian products**,
+**relations**, **domain**, **range**, **functions**, and the **vertical
+line test** (implicitly, in Problem 3). Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+The **Cartesian product** of sets $A$ and $B$ is
+$$A \times B = \{(a, b) : a \in A,\ b \in B\}.$$
+
+A **relation** $R$ from $A$ to $B$ is any subset $R \subseteq A \times B$.
+
+A **function** $f : A \to B$ is a relation in which **every** $a \in A$
+appears as the first coordinate of **exactly one** pair. We write
+$f(a) = b$ for the unique $b$ paired with $a$.
+
+- The **domain** is $A$ (all permitted inputs).
+- The **codomain** is $B$ (the set the outputs live in).
+- The **range** is $\{f(a) : a \in A\} \subseteq B$ (the outputs actually
+  hit).
+
+**Standard real functions** (graphs you must know):
+
+| $f(x)$ | Domain | Range |
+|:--|:--|:--|
+| $x$ (identity) | $\mathbb{R}$ | $\mathbb{R}$ |
+| $|x|$ | $\mathbb{R}$ | $[0, \infty)$ |
+| $x^2$ | $\mathbb{R}$ | $[0, \infty)$ |
+| $\sqrt{x}$ | $[0, \infty)$ | $[0, \infty)$ |
+| $1/x$ | $\mathbb{R}\setminus\{0\}$ | $\mathbb{R}\setminus\{0\}$ |
+| $[x]$ (greatest integer) | $\mathbb{R}$ | $\mathbb{Z}$ |
+
+:::
+
+A short verse:
+
+> *Every input — exactly one output;*
+> *No input loose, no input split.*
+> *Where the formula refuses to land,*
+> *That point lies outside the function's gift.*
+
+## Apply
+
+### Worked example
+
+> Find the domain and range of $f(x) = \dfrac{1}{\sqrt{4 - x^2}}$.
+
+How a competent solver thinks:
+
+1. Two restrictions: the radicand must be $\ge 0$, and the denominator
+   must not be $0$. Combined: $4 - x^2 > 0$.
+2. $4 - x^2 > 0 \Leftrightarrow x^2 < 4 \Leftrightarrow -2 < x < 2$.
+3. **Domain** $= (-2, 2)$.
+4. As $x$ ranges over $(-2, 2)$, $4 - x^2$ ranges over $(0, 4]$. So
+   $\sqrt{4-x^2}$ ranges over $(0, 2]$, and $\dfrac{1}{\sqrt{4-x^2}}$
+   ranges over $[1/2, \infty)$.
+5. **Range** $= [1/2, \infty)$.
+
+### Practice — Warm
+
+**W1.** If $f(x) = x^2 + 1$, compute $f(-1)$, $f(0)$, $f(3)$.
+
+<details class="hint"><summary>Full solution</summary>
+$f(-1) = 2$, $f(0) = 1$, $f(3) = 10$.
+</details>
+
+**W2.** Find domain of $f(x) = \dfrac{1}{x - 5}$.
+
+<details class="hint"><summary>Full solution</summary>
+$x \ne 5$. Domain $= \mathbb{R} \setminus \{5\}$.
+</details>
+
+**W3.** If $A = \{a, b\}$ and $B = \{1, 2, 3\}$, how many *relations* are
+there from $A$ to $B$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$A \times B$ has $|A| \cdot |B|$ pairs. A relation is *any* subset.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|A \times B| = 6$. Number of subsets = $2^6 = 64$ relations.
+</details>
+
+### Practice — Working
+
+**P1.** Let $f(x) = \dfrac{x^2 - 1}{x - 1}$. What is the largest domain?
+Simplify $f$ on this domain.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Denominator zero is forbidden. Then factor the numerator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Need $x \ne 1$. Then $f(x) = \dfrac{(x-1)(x+1)}{x-1} = x + 1$.
+
+Domain $= \mathbb{R} \setminus \{1\}$. The graph is the line $y = x+1$
+with a hole at $(1, 2)$.
+</details>
+
+**P2.** Find the range of $f(x) = |x - 3|$ for $x \in \mathbb{R}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|y| \ge 0$ always.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|x - 3| \ge 0$ for all $x$, with equality at $x = 3$. Range $= [0, \infty)$.
+</details>
+
+**P3.** A function $f : \mathbb{R} \to \mathbb{R}$ is given by
+$f(x) = 3x + 5$. Find $x$ such that $f(x) = 2x + 11$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set the two expressions equal and solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x + 5 = 2x + 11 \Rightarrow x = 6$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Let $f(x) = \dfrac{x}{1 + x^2}$. Show that the range is
+$\left[-\tfrac{1}{2}, \tfrac{1}{2}\right]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $y = \dfrac{x}{1+x^2}$ and solve for $x$ in terms of $y$. The
+condition for real $x$ gives the range.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Cross-multiplying: $yx^2 - x + y = 0$. For real $x$, the discriminant
+must be $\ge 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$y(1+x^2) = x \Rightarrow yx^2 - x + y = 0$.
+
+If $y = 0$, then $x = 0$ — fine. If $y \ne 0$, this is a quadratic in
+$x$ with discriminant $1 - 4y^2 \ge 0$, giving $y^2 \le 1/4$, i.e.
+$-\tfrac{1}{2} \le y \le \tfrac{1}{2}$.
+
+Both endpoints are attained at $x = \pm 1$. Range $= [-\tfrac{1}{2},
+\tfrac{1}{2}]$.
+</details>
+
+**S2.** Find $a, b \in \mathbb{R}$ such that $f(x) = ax + b$ satisfies
+$f(1) = 4$ and $f(3) = 10$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two equations in two unknowns.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a + b = 4$, $3a + b = 10$. Subtract: $2a = 6$, so $a = 3$, $b = 1$.
+
+$f(x) = 3x + 1$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** If $f(x) = 2x + 1$ and $f(a) = 7$, then $a$ is
+(a) $2$ (b) $3$ (c) $4$ (d) $7$.
+
+<details class="hint"><summary>Full solution</summary>
+$2a + 1 = 7 \Rightarrow a = 3$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Find the domain of
+$f(x) = \sqrt{9 - x^2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$9 - x^2 \ge 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 \le 9 \Leftrightarrow -3 \le x \le 3$. Domain $= [-3, 3]$.
+</details>
+
+**3-mark (short answer II).** Let $A = \{1, 2, 3\}$ and $B = \{4, 5\}$.
+Write $A \times B$ and the relation $R = \{(a, b) \in A \times B :
+a + b \le 6\}$ in roster form.
+
+<details class="hint"><summary>Full solution</summary>
+$A \times B = \{(1,4),(1,5),(2,4),(2,5),(3,4),(3,5)\}$.
+
+$R$: pairs with sum $\le 6$:
+$(1,4), (1,5), (2,4)$. So $R = \{(1,4),(1,5),(2,4)\}$.
+</details>
+
+**5-mark (long answer).** Let $f(x) = \dfrac{x^2 + 2x + 1}{x^2 - 1}$.
+
+(i) Find the largest domain.
+(ii) Simplify $f$ on this domain.
+(iii) Sketch the graph.
+(iv) State the range.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor numerator and denominator. Cancel where allowed, but track the
+forbidden $x$ values.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numerator $(x+1)^2$, denominator $(x-1)(x+1)$. Need $x \ne \pm 1$.
+
+(i) Domain $= \mathbb{R} \setminus \{-1, 1\}$.
+
+(ii) For $x \ne -1$, $f(x) = \dfrac{(x+1)^2}{(x-1)(x+1)} = \dfrac{x+1}{x-1}$.
+Still $x \ne 1$.
+
+(iii) Graph of $y = \dfrac{x+1}{x-1} = 1 + \dfrac{2}{x-1}$: hyperbola
+shifted to vertex at $(1, 1)$ with vertical asymptote $x = 1$ and
+horizontal asymptote $y = 1$. There's a *hole* at $x = -1$ (value
+$0$ there but excluded).
+
+(iv) Range: solve $y = \dfrac{x+1}{x-1}$ for $x$:
+$y(x-1) = x+1 \Rightarrow x(y-1) = y+1 \Rightarrow x = \dfrac{y+1}{y-1}$.
+This requires $y \ne 1$. Also the hole at $x = -1$ excludes $y = 0$.
+
+Range $= \mathbb{R} \setminus \{0, 1\}$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 2 Q "Find domain and range of
+real-valued function" is the direct ancestor of P2 and the 2-mark item.
+**JEE pointer:** range-via-discriminant (Stretch S1) is a Main-level
+classic. Practice it.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Codomain and range are the same."** They are not. Codomain is the
+   *declared* output set ($B$). Range is the set of values $f$ actually
+   *hits*. Range $\subseteq$ codomain, often strictly.
+2. **"$\sqrt{x}$ has two values, $+$ and $-$."** Not as a function. The
+   symbol $\sqrt{x}$ denotes the *non-negative* root only. Otherwise it
+   would not be a function.
+3. **"Every relation is a function."** No. Relations are arbitrary
+   subsets of $A \times B$. Functions are the special ones where each
+   input maps to exactly one output.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain why "$y^2 = x$" is not a function (of $x$) without
+   notes?
+2. Did you find domain and range without re-reading the table at least
+   five times during practice?
+3. Can you spot the hidden domain restrictions in any rational or radical
+   expression?
+
+- **3 yes:** move on to **[Trigonometric Functions](../03a-trig-functions/index.qmd)**.
+- **2 yes:** redo Stretch S1 and the 5-mark item.
+- **0–1 yes:** redo *Discover*. Functions are the language of every
+  remaining chapter — fluency now pays off all year.
+
+## Connect
+
+### Prerequisites used
+
+- **[Sets](../01-sets/index.qmd)** — relations and functions are subsets
+  of $A \times B$.
+- **[Functions as Machines](../../tier-2-prealgebra/functions-as-machines/index.qmd)** —
+  the input-out-with-one-output picture, formalised here.
+
+### What this unlocks
+
+- **[Trigonometric Functions](../03a-trig-functions/index.qmd)** — the
+  six trig functions, defined on $\mathbb{R}$.
+- **[Limits](../12a-limits/index.qmd)** — limits of *functions* near a
+  point.
+- **[Class 12 — Relations & Functions](../../tier-cbse-12-class-12/01-relations-functions-types/index.qmd)** —
+  one-one, onto, bijective, inverse functions.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 2 — Relations and Functions** (NCERT 2023
+  rationalised). Sections 2.1–2.5: Cartesian product, relations, domain
+  and range, functions, real functions, algebra of real functions.
+- **Sister synthesis lessons:**
+  [`t2.functions-as-machines`](../../tier-2-prealgebra/functions-as-machines/index.qmd)
+  and
+  [`t2.linear-functions-graphs`](../../tier-2-prealgebra/linear-functions-graphs/index.qmd)
+  give an intuition-first treatment.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** A neural network is a function $f : \mathbb{R}^n \to
+\mathbb{R}^m$, the composition of millions of simple functions. Every
+"forward pass" is just function evaluation. Training adjusts the weights
+so $f$ matches a target relation drawn from data.
+:::
+
+::: {.applied-callout}
+**Databases.** A *foreign key* in SQL is a relation between two tables.
+A primary key plus a foreign key create a **functional** relation —
+exactly one row in the parent table per row in the child. The integrity
+constraints of a relational database are *exactly* the conditions for a
+relation to be a function.
+:::
+
+::: {.applied-callout}
+**Research.** "Function" is the central object of analysis, the source
+of every named theorem from intermediate-value to spectral. Class 11's
+modest definition is the seed.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: 3Blue1Brown (functions as transformations), Better
+Explained (Aha framing: a function is a *promise* of one output per
+input), Russian school (Discover sequence forces the function vs
+relation distinction), Bhāskara (verse summarises the
+exactly-one-output rule).
+:::

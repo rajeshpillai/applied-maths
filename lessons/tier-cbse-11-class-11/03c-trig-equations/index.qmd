@@ -1,0 +1,482 @@
+---
+title: "Ch 3c — Trigonometric Equations"
+subtitle: "When the equation is sin x = something — and there are infinitely many answers"
+lesson-id: "cbse11.trig-equations"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 3
+ncert-chapter-title: "Trigonometric Functions"
+board-exam: false
+prerequisites: ["cbse11.trig-identities-compound-angles"]
+unlocks: ["cbse12.relations-functions-types", "cbse12.continuity"]
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you state $\sin\theta$ for the standard angles in any quadrant?
+2. Do you remember $\sin$ has period $2\pi$ and $\tan$ has period $\pi$?
+3. Are you fluent with compound-angle identities from Lesson 3b?
+4. Can you sketch $y = \sin x$ on $[0, 2\pi]$?
+
+Three yeses — read on. Otherwise revisit
+**[Trigonometric Functions](../03a-trig-functions/index.qmd)** and
+**[Compound Angles](../03b-trig-identities-compound-angles/index.qmd)**.
+:::
+
+## Touch
+
+Draw the graph of $y = \sin x$ on the board, from $-2\pi$ to $2\pi$.
+Now draw the horizontal line $y = 1/2$. **Count** the points where they
+meet. There are four — and if you extended the picture left and right,
+there would be infinitely many.
+
+A trigonometric equation $\sin x = c$ doesn't have *one* answer. It has
+a whole family — and the family has a clean pattern.
+
+The widget below sweeps the value of $c$ and plots all solutions in
+$[0, 2\pi)$.
+
+```{ojs}
+viewof cVal = Inputs.range([-1, 1], {value: 0.5, step: 0.01, label: "c (RHS of sin x = c)"})
+```
+
+```{ojs}
+{
+  // sin x = c on [0, 2pi)
+  const c = cVal;
+  if (Math.abs(c) > 1) return html`<div>No real solutions (|c| > 1).</div>`;
+  const principal = Math.asin(c);   // in [-pi/2, pi/2]
+  let s1, s2;
+  if (principal >= 0) { s1 = principal; s2 = Math.PI - principal; }
+  else { s1 = Math.PI - principal; s2 = 2 * Math.PI + principal; }
+  const fmt = x => `${x.toFixed(4)} (${(x * 180 / Math.PI).toFixed(2)}°)`;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>sin x = ${c.toFixed(2)}</b></div>
+    <div>Solutions in [0, 2π): ${fmt(s1)} and ${fmt(s2)}</div>
+    <div style="margin-top:0.4em;color:#666;">
+      All real solutions: x = (above) ± 2πk for any integer k.
+      Or equivalently: x = nπ + (-1)ⁿ · principal, n ∈ ℤ.
+    </div>
+  </div>`;
+}
+```
+
+Drag $c$. The two solutions move in lockstep. When $c = 1$ they merge;
+when $|c| > 1$ they vanish.
+
+## Wonder
+
+Sit with these.
+
+1. If $\sin x = 0$, where does $x$ live? List the answers between $-2\pi$
+   and $2\pi$.
+2. The equation $\sin x = 1/2$ has two solutions in $[0, 2\pi)$. The
+   equation $\cos x = 1/2$ also has two. Are the *patterns* the same?
+3. $\tan x = 1$ has only *one* solution in $[0, 2\pi)$ in some sense —
+   but two in $[0, 2\pi)$. Why the discrepancy?
+4. If $\sin x = \sin y$, does $x = y$ necessarily?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) is the reason cosine and sine have *different* general-solution
+formulas. (3) is why $\tan$ has period $\pi$, half of sine's period.
+(4) explodes into the most common error in this chapter.
+:::
+
+## Discover
+
+### Problem 1 — sin x = 0
+
+List all $x \in \mathbb{R}$ with $\sin x = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin$ vanishes at $0, \pi, 2\pi, -\pi, -2\pi, \ldots$
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin x = 0 \Leftrightarrow x = n\pi,\ n \in \mathbb{Z}$.
+</details>
+
+### Problem 2 — cos x = 0
+
+List all $x \in \mathbb{R}$ with $\cos x = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos$ vanishes at $\pi/2, 3\pi/2, -\pi/2, \ldots$
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos x = 0 \Leftrightarrow x = (2n+1)\dfrac{\pi}{2},\ n \in \mathbb{Z}$.
+
+Equivalently $x = \dfrac{\pi}{2} + n\pi$.
+</details>
+
+### Problem 3 — tan x = 0
+
+List all $x \in \mathbb{R}$ with $\tan x = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan x = \sin x / \cos x = 0$ requires $\sin x = 0$ (and $\cos x \ne 0$).
+So $x = n\pi$, same as $\sin x = 0$.
+</details>
+
+### Problem 4 — sin x = 1/2 in [0, 2π)
+
+Find all solutions of $\sin x = 1/2$ on $[0, 2\pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sine is positive in Q I and Q II.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = \pi/6$ (Q I) and $x = \pi - \pi/6 = 5\pi/6$ (Q II).
+</details>
+
+### Problem 5 — General solution of sin
+
+Generalise: if $\sin x = \sin\alpha$, what are *all* solutions?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Both $\alpha$ and $\pi - \alpha$ have the same sine. Add multiples of
+$2\pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = n\pi + (-1)^n \alpha,\ n \in \mathbb{Z}$.
+
+(For even $n$: $x = 2k\pi + \alpha$; for odd $n$: $x = (2k+1)\pi - \alpha$.
+Both branches are captured by the $(-1)^n$ formula.)
+</details>
+
+### Problem 6 — General solutions for cos and tan
+
+State the general solutions of $\cos x = \cos\alpha$ and
+$\tan x = \tan\alpha$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cosine: pairs $\alpha$ and $-\alpha$ have the same cosine. Period $2\pi$.
+
+Tangent: just one shape per period $\pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos x = \cos\alpha \Leftrightarrow x = 2n\pi \pm \alpha,\ n \in \mathbb{Z}$.
+
+$\tan x = \tan\alpha \Leftrightarrow x = n\pi + \alpha,\ n \in \mathbb{Z}$.
+</details>
+
+### Problem 7 — Quadratic in sin
+
+Solve $2\sin^2 x - 3\sin x + 1 = 0$ for $x \in [0, 2\pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $u = \sin x$. Solve the quadratic in $u$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2u^2 - 3u + 1 = (2u - 1)(u - 1) = 0$, so $\sin x = 1/2$ or $\sin x = 1$.
+
+$\sin x = 1/2$: $x = \pi/6$ or $5\pi/6$.
+
+$\sin x = 1$: $x = \pi/2$.
+
+**All:** $\{\pi/6,\ \pi/2,\ 5\pi/6\}$.
+</details>
+
+You have just used **principal values**, **general solutions**, and the
+**quadratic-in-trig substitution** trick. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+The **general solutions** of the basic equations:
+
+$$\sin x = \sin\alpha \iff x = n\pi + (-1)^n \alpha,\quad n \in \mathbb{Z}.$$
+
+$$\cos x = \cos\alpha \iff x = 2n\pi \pm \alpha,\quad n \in \mathbb{Z}.$$
+
+$$\tan x = \tan\alpha \iff x = n\pi + \alpha,\quad n \in \mathbb{Z}.$$
+
+**Reduction strategy** for any trigonometric equation:
+
+1. Use identities to express everything in one trig function.
+2. Reduce to one of the three basic forms.
+3. Apply the matching general-solution formula.
+4. Trim to the requested interval if asked.
+
+:::
+
+A short verse:
+
+> *Sine repeats with a twist of $(-1)^n$;*
+> *Cosine swings $\pm$ around two-pi-n.*
+> *Tangent is simpler — one pattern per pi —*
+> *The chapter is three formulas. Memorise them. That's why.*
+
+## Apply
+
+### Worked example
+
+> Solve $2\cos^2 x + 3\sin x = 0$ on $[0, 2\pi)$.
+
+How a competent solver thinks:
+
+1. Convert everything to $\sin x$ using $\cos^2 x = 1 - \sin^2 x$:
+   $2(1 - \sin^2 x) + 3\sin x = 0$.
+2. Rearrange: $2\sin^2 x - 3\sin x - 2 = 0$.
+3. Quadratic in $u = \sin x$: $(2u + 1)(u - 2) = 0$, so $u = -1/2$ or
+   $u = 2$.
+4. $\sin x = 2$: impossible.
+5. $\sin x = -1/2$: $x$ in Q III or Q IV. Reference angle $\pi/6$.
+   $x = \pi + \pi/6 = 7\pi/6$, or $x = 2\pi - \pi/6 = 11\pi/6$.
+
+**Answer:** $x \in \{7\pi/6,\ 11\pi/6\}$.
+
+### Practice — Warm
+
+**W1.** General solution of $\cos x = -1/2$.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos x = \cos(2\pi/3)$, so $x = 2n\pi \pm 2\pi/3$.
+</details>
+
+**W2.** General solution of $\tan x = -1$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan x = \tan(-\pi/4)$, so $x = n\pi - \pi/4$.
+</details>
+
+**W3.** Solve $\sin 2x = 0$ for $x \in [0, 2\pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin 2x = 0 \Rightarrow 2x = n\pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = n\pi/2$. In $[0, 2\pi)$: $\{0,\ \pi/2,\ \pi,\ 3\pi/2\}$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $\cos 2x + 3\cos x + 2 = 0$ for $x \in [0, 2\pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos 2x = 2\cos^2 x - 1$. Substitute and quadratic-solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2\cos^2 x - 1 + 3\cos x + 2 = 0 \Rightarrow 2\cos^2 x + 3\cos x + 1 = 0$.
+
+Let $u = \cos x$: $(2u + 1)(u + 1) = 0$, so $u = -1/2$ or $u = -1$.
+
+$\cos x = -1/2$: $x = 2\pi/3$ or $4\pi/3$.
+
+$\cos x = -1$: $x = \pi$.
+
+**All:** $\{2\pi/3,\ \pi,\ 4\pi/3\}$.
+</details>
+
+**P2.** Solve $\tan x + \cot x = 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cot x = 1/\tan x$. Multiply through by $\tan x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tan^2 x + 1 = 2\tan x \Rightarrow (\tan x - 1)^2 = 0 \Rightarrow
+\tan x = 1$.
+
+General solution: $x = n\pi + \pi/4$.
+</details>
+
+**P3.** Solve $\sin x + \sin 3x = 0$ for $x \in [0, 2\pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum-to-product: $\sin x + \sin 3x = 2\sin 2x \cos x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2\sin 2x \cos x = 0 \Rightarrow \sin 2x = 0$ or $\cos x = 0$.
+
+$\sin 2x = 0$: $x = 0, \pi/2, \pi, 3\pi/2$.
+
+$\cos x = 0$: $x = \pi/2, 3\pi/2$ (already in the list).
+
+**All:** $\{0,\ \pi/2,\ \pi,\ 3\pi/2\}$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve $\sin x + \cos x = 1$ for $x \in [0, 2\pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide by $\sqrt{2}$ and use $\sin(x + \pi/4) = \sin x \cos(\pi/4) + \cos x \sin(\pi/4)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{\sqrt{2}}\sin x + \dfrac{1}{\sqrt{2}}\cos x = \dfrac{1}{\sqrt{2}}$,
+
+i.e. $\sin(x + \pi/4) = 1/\sqrt{2}$.
+
+So $x + \pi/4 = n\pi + (-1)^n \pi/4$. Try $n = 0$: $x = 0$. Try $n = 1$:
+$x + \pi/4 = \pi - \pi/4$, so $x = \pi/2$.
+
+In $[0, 2\pi)$: $\{0,\ \pi/2\}$.
+</details>
+
+**S2.** Solve $\cos 3x + \cos 2x = \sin\dfrac{3x}{2} + \sin\dfrac{x}{2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum-to-product on each side. Then equate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS: $\cos 3x + \cos 2x = 2 \cos\dfrac{5x}{2} \cos\dfrac{x}{2}$.
+
+RHS: $\sin\dfrac{3x}{2} + \sin\dfrac{x}{2} = 2\sin x \cos\dfrac{x}{2}$.
+
+Equation: $2\cos(x/2)[\cos(5x/2) - \sin x] = 0$.
+
+Case A: $\cos(x/2) = 0 \Rightarrow x/2 = \pi/2 + n\pi \Rightarrow x = (2n+1)\pi$.
+
+Case B: $\cos(5x/2) = \sin x = \cos(\pi/2 - x)$.
+$5x/2 = 2k\pi \pm (\pi/2 - x)$.
+
+Plus sign: $5x/2 + x = 2k\pi + \pi/2 \Rightarrow 7x/2 = 2k\pi + \pi/2
+\Rightarrow x = (4k+1)\pi/7$.
+
+Minus sign: $5x/2 - x = 2k\pi - \pi/2 \Rightarrow 3x/2 = 2k\pi - \pi/2
+\Rightarrow x = (4k-1)\pi/3$.
+
+(Combine and de-duplicate as needed.)
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** General solution of $\sin x = -1$ is
+(a) $x = n\pi$ (b) $x = (2n+1)\pi/2$ (c) $x = 2n\pi - \pi/2$ (d) $x = n\pi + \pi/2$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sin x = -1$ at $x = -\pi/2$ plus full periods. So
+$x = 2n\pi - \pi/2$. **Answer: (c).**
+</details>
+
+**2-mark (short answer).** Find general solution of $\cos 2x = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$2x = (2n+1)\pi/2 \Rightarrow x = (2n+1)\pi/4$.
+</details>
+
+**3-mark (short answer II).** Solve $\sin x + \sin 5x = \sin 3x$ on
+$[0, 2\pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin x + \sin 5x = 2\sin 3x \cos 2x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 \sin 3x \cos 2x = \sin 3x$, i.e. $\sin 3x (2\cos 2x - 1) = 0$.
+
+Case A: $\sin 3x = 0 \Rightarrow 3x = n\pi \Rightarrow x \in \{0, \pi/3, 2\pi/3, \pi, 4\pi/3, 5\pi/3\}$ on $[0, 2\pi)$.
+
+Case B: $\cos 2x = 1/2 \Rightarrow 2x = \pm\pi/3 + 2n\pi \Rightarrow
+x \in \{\pi/6, 5\pi/6, 7\pi/6, 11\pi/6\}$ on $[0, 2\pi)$.
+
+**All ten values:** $\{0, \pi/6, \pi/3, 2\pi/3, 5\pi/6, \pi, 7\pi/6, 4\pi/3, 5\pi/3, 11\pi/6\}$.
+</details>
+
+**5-mark (long answer).** (i) Find the general solution of
+$\sqrt{3}\cos x + \sin x = 1$.
+(ii) List all solutions in $[0, 2\pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide by $2$ and recognise $\cos(x - \pi/6)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\dfrac{\sqrt{3}}{2}\cos x + \dfrac{1}{2}\sin x = \dfrac{1}{2}$,
+
+i.e. $\cos(x - \pi/3) = \dfrac{1}{2}$ (using $\cos\pi/3 = 1/2$,
+$\sin\pi/3 = \sqrt{3}/2$).
+
+So $x - \pi/3 = 2n\pi \pm \pi/3$, giving
+
+$x = 2n\pi$ or $x = 2n\pi + 2\pi/3$.
+
+**(ii)** In $[0, 2\pi)$: $\{0,\ 2\pi/3\}$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 3 LA "$\cos 3x + \cos 2x = …$"
+mirrors Stretch S2.
+**JEE pointer:** the linear-combination trick (Stretch S1, 5-mark) is
+JEE Main standard — practice rewriting $a\cos x + b\sin x = c$.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sin x = \sin y \Rightarrow x = y$."** No. The general
+   solution has the $(-1)^n$ term precisely because *both* $\alpha$ and
+   $\pi - \alpha$ have the same sine.
+2. **"Squaring is harmless."** Squaring an equation can introduce
+   extraneous roots. Always check candidates against the original.
+3. **"I can divide by $\sin x$ freely."** Only if $\sin x \ne 0$. Dividing
+   away $\sin x$ may discard the solutions where $\sin x = 0$.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you write the three general-solution formulas from memory?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you spot when an equation needs sum-to-product vs a quadratic
+   substitution?
+
+- **3 yes:** move on to **[Complex Numbers](../04-complex-numbers/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** redo *Discover*. Equations are won by pattern recognition
+  — drill the canonical reductions until they're automatic.
+
+## Connect
+
+### Prerequisites used
+
+- **[Compound Angle Identities](../03b-trig-identities-compound-angles/index.qmd)** —
+  sum-to-product and double-angle formulas reduce many equations to the
+  basic three.
+
+### What this unlocks
+
+- **[Class 12 — Continuity & Differentiability](../../tier-cbse-12-class-12/04-continuity/index.qmd)** —
+  zeros of trig functions reappear when finding critical points.
+- **[Inverse Trigonometric Functions](../../tier-cbse-12-class-12/02-inverse-trigonometric-functions/index.qmd)**.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 3 — Trigonometric Functions** (NCERT 2023
+  rationalised). Section 3.5: trigonometric equations and their general
+  solutions.
+- **Sister synthesis lesson:**
+  [`t3.solving-trig-equations`](../../tier-3-algebra2-geometry-trig/solving-trig-equations/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Aiming an arrow at a moving target requires
+solving $\sin\theta = \dfrac{v_y}{v}$ for the launch angle. Two
+solutions: a low arc and a high arc. The general-solution formula tells
+you both at once.
+:::
+
+::: {.applied-callout}
+**Research.** Eigenvalues of rotation matrices land on the unit circle.
+Finding eigenvalues of structured matrices reduces to trigonometric
+equations — a setting where the pattern $(-1)^n$ explains why
+discrete-spectrum systems repeat.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: Russian school (Discover problems force the three families
+to crystallise), Bhāskara (verse summarises the three formulas),
+Better Explained ("the equation has a *family* of answers" framing).
+:::

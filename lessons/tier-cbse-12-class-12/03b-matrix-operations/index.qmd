@@ -1,0 +1,469 @@
+---
+title: "Ch 3b — Matrix Operations and Transpose"
+subtitle: "Add, scalar-multiply, multiply, transpose — and watch what survives"
+lesson-id: "cbse12.matrix-operations"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 3
+ncert-chapter-title: "Matrices"
+board-exam: true
+prerequisites: ["cbse12.matrices-intro"]
+unlocks: ["cbse12.determinants", "cbse12.matrix-inverse-cramers"]
+applied-domains: ["ai-ml", "game-dev", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Ch 3a — Matrices Intro](../03a-matrices-intro/index.qmd)?
+2. Can you read $a_{ij}$ off a matrix?
+3. Comfortable with summation $\sum$ from Class 11?
+:::
+
+## Touch
+
+You and a friend run two tea-stalls. Last week's sales:
+
+::: {.lesson-beat}
+
+**Stall A**
+
+| | Mon | Tue | Wed |
+|:-:|:-:|:-:|:-:|
+| Tea | 30 | 25 | 28 |
+| Coffee | 12 | 18 | 14 |
+
+**Stall B**
+
+| | Mon | Tue | Wed |
+|:-:|:-:|:-:|:-:|
+| Tea | 22 | 30 | 26 |
+| Coffee | 15 | 10 | 12 |
+
+:::
+
+You merge the two stalls' books for total weekly sales:
+$$
+\begin{pmatrix} 30 & 25 & 28 \\ 12 & 18 & 14 \end{pmatrix} +
+\begin{pmatrix} 22 & 30 & 26 \\ 15 & 10 & 12 \end{pmatrix} =
+\begin{pmatrix} 52 & 55 & 54 \\ 27 & 28 & 26 \end{pmatrix}.
+$$
+
+That's matrix **addition**. You add entry-by-entry.
+
+Tea costs ₹15, Coffee ₹25. To get the daily revenue at Stall A, multiply
+each row by its price and sum down columns. The cleanest way to write
+that is matrix **multiplication**:
+$$
+\begin{pmatrix} 15 & 25 \end{pmatrix}
+\begin{pmatrix} 30 & 25 & 28 \\ 12 & 18 & 14 \end{pmatrix}
+= \begin{pmatrix} 750 & 825 & 770 \end{pmatrix}.
+$$
+
+Three numbers — Mon, Tue, Wed revenue. Multiplication is *not*
+entry-by-entry. It is row-meets-column, sum-the-products.
+
+Now flip the daily-sales matrix on its diagonal:
+$$
+\begin{pmatrix} 30 & 25 & 28 \\ 12 & 18 & 14 \end{pmatrix}^T =
+\begin{pmatrix} 30 & 12 \\ 25 & 18 \\ 28 & 14 \end{pmatrix}.
+$$
+
+Rows became columns. That's **transpose**.
+
+These three operations — add, multiply, transpose — are the lesson.
+
+## Wonder
+
+1. Can you add a $2 \times 3$ matrix to a $3 \times 2$ matrix? Why or
+   why not?
+2. When you multiply two matrices, why must the *inner* dimensions match?
+3. Try transposing the price row $\begin{pmatrix} 15 & 25
+   \end{pmatrix}$ and multiplying differently — does the answer change?
+4. If you transpose, then transpose again, what do you get?
+
+## Discover
+
+### Problem 1
+
+Compute $\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} +
+\begin{pmatrix} 5 & 6 \\ 7 & 8 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$$\begin{pmatrix} 6 & 8 \\ 10 & 12 \end{pmatrix}.$$
+Entry-by-entry.
+</details>
+
+### Problem 2
+
+Compute $3 \cdot \begin{pmatrix} 1 & 2 \\ -1 & 0 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+Multiply every entry by 3:
+$$\begin{pmatrix} 3 & 6 \\ -3 & 0 \end{pmatrix}.$$
+</details>
+
+### Problem 3
+
+Compute $\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}
+\begin{pmatrix} 5 & 6 \\ 7 & 8 \end{pmatrix}$. Use *row of left meets
+column of right*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Entry $(1,1)$: row 1 of left $\cdot$ column 1 of right $= 1\cdot 5 +
+2\cdot 7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1,1) = 1\cdot5 + 2\cdot7 = 19$. $(1,2) = 1\cdot6 + 2\cdot8 = 22$.
+$(2,1) = 3\cdot5 + 4\cdot7 = 43$. $(2,2) = 3\cdot6 + 4\cdot8 = 50$.
+$$\begin{pmatrix} 19 & 22 \\ 43 & 50 \end{pmatrix}.$$
+</details>
+
+### Problem 4
+
+Now compute $\begin{pmatrix} 5 & 6 \\ 7 & 8 \end{pmatrix}
+\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$. Compare to Problem 3.
+
+<details class="hint"><summary>Full solution</summary>
+$(1,1) = 5+18 = 23$. $(1,2) = 10+24 = 34$. $(2,1) = 7+24 = 31$. $(2,2)
+= 14+32 = 46$.
+$$\begin{pmatrix} 23 & 34 \\ 31 & 46 \end{pmatrix}.$$
+**Different from Problem 3.** Matrix multiplication is **not
+commutative**: $AB \ne BA$ in general.
+</details>
+
+### Problem 5
+
+Let $A = \begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{pmatrix}$. Write
+$A^T$ and check that $(A^T)^T = A$.
+
+<details class="hint"><summary>Full solution</summary>
+$$A^T = \begin{pmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{pmatrix}.$$
+Transpose again: rows of $A^T$ become columns; we get back $A$. ✓
+</details>
+
+### Problem 6
+
+Let $A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$, $B =
+\begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$. Compute $(AB)^T$ and
+$B^T A^T$.
+
+<details class="hint"><summary>Full solution</summary>
+$AB = \begin{pmatrix} 2 & 1 \\ 4 & 3 \end{pmatrix}$. $(AB)^T =
+\begin{pmatrix} 2 & 4 \\ 1 & 3 \end{pmatrix}$.
+$B^T = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$, $A^T =
+\begin{pmatrix} 1 & 3 \\ 2 & 4 \end{pmatrix}$. $B^T A^T = \begin{pmatrix}
+2 & 4 \\ 1 & 3 \end{pmatrix}$. **They match.** That is, $(AB)^T = B^T
+A^T$ — note the swap.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For matrices $A, B$ of compatible orders and scalar $k$:
+
+- **Addition:** $(A + B)_{ij} = a_{ij} + b_{ij}$. Requires same order.
+- **Scalar multiplication:** $(kA)_{ij} = k\cdot a_{ij}$.
+- **Matrix multiplication:** if $A$ is $m \times p$ and $B$ is $p \times
+  n$, then $AB$ is $m \times n$ with $(AB)_{ij} = \sum_{k=1}^{p} a_{ik}\,
+  b_{kj}$.
+- **Transpose:** $A^T$ has $(A^T)_{ij} = a_{ji}$.
+
+A matrix is **symmetric** if $A^T = A$, **skew-symmetric** if $A^T = -A$.
+
+Algebra:
+- $(A+B)^T = A^T + B^T$
+- $(kA)^T = k\,A^T$
+- $(AB)^T = B^T A^T$
+- $(A^T)^T = A$
+
+Matrix multiplication is associative and distributive but **not
+commutative**.
+
+:::
+
+A verse:
+
+> *Add by entry, scale by entry — straight;*
+> *Multiply: row meets column, accumulate.*
+> *Transpose flips the indices in pair;*
+> *$(AB)^T$ swaps to $B^T A^T$ — beware.*
+
+## Apply
+
+### Worked example
+
+> Let $A = \begin{pmatrix} 2 & 3 \\ 1 & -1 \end{pmatrix}$. Find $A^2 -
+> 3A + 2I$.
+
+A competent solver thinks:
+
+1. $A^2 = AA = \begin{pmatrix} 4+3 & 6-3 \\ 2-1 & 3+1 \end{pmatrix} =
+   \begin{pmatrix} 7 & 3 \\ 1 & 4 \end{pmatrix}$.
+2. $3A = \begin{pmatrix} 6 & 9 \\ 3 & -3 \end{pmatrix}$.
+3. $2I = \begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix}$.
+4. $A^2 - 3A + 2I = \begin{pmatrix} 7-6+2 & 3-9+0 \\ 1-3+0 & 4+3+2
+   \end{pmatrix} = \begin{pmatrix} 3 & -6 \\ -2 & 9 \end{pmatrix}$.
+
+### Practice — Warm
+
+**W1.** Let $A = \begin{pmatrix} 1 & 2 \\ -1 & 3 \end{pmatrix}$. Compute
+$2A + A^T$.
+
+<details class="hint"><summary>Full solution</summary>
+$2A = \begin{pmatrix} 2 & 4 \\ -2 & 6 \end{pmatrix}$, $A^T =
+\begin{pmatrix} 1 & -1 \\ 2 & 3 \end{pmatrix}$.
+Sum $= \begin{pmatrix} 3 & 3 \\ 0 & 9 \end{pmatrix}$.
+</details>
+
+**W2.** Compute $\begin{pmatrix} 1 & -1 \\ 2 & 3 \end{pmatrix}
+\begin{pmatrix} 2 \\ 1 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+Inner dims: $2 \times 2$ times $2 \times 1$ → $2 \times 1$.
+Entry 1: $1\cdot2 + (-1)\cdot1 = 1$. Entry 2: $2\cdot2 + 3\cdot1 = 7$.
+$$\begin{pmatrix} 1 \\ 7 \end{pmatrix}.$$
+</details>
+
+**W3.** Show that $A = \begin{pmatrix} 1 & -2 \\ -2 & 3 \end{pmatrix}$
+is symmetric, and $B = \begin{pmatrix} 0 & 5 \\ -5 & 0 \end{pmatrix}$
+is skew-symmetric.
+
+<details class="hint"><summary>Full solution</summary>
+$A^T = \begin{pmatrix} 1 & -2 \\ -2 & 3 \end{pmatrix} = A$ ✓.
+$B^T = \begin{pmatrix} 0 & -5 \\ 5 & 0 \end{pmatrix} = -B$ ✓.
+</details>
+
+### Practice — Working
+
+**P1.** If $A = \begin{pmatrix} 3 & 1 \\ 7 & 5 \end{pmatrix}$, find
+$\lambda, \mu$ such that $A^2 = \lambda A + \mu I$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $A^2$ first. Match the four entries to $\lambda A + \mu I$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A^2 = \begin{pmatrix} 16 & 8 \\ 56 & 32 \end{pmatrix}$.
+$\lambda A + \mu I = \begin{pmatrix} 3\lambda + \mu & \lambda \\
+7\lambda & 5\lambda + \mu \end{pmatrix}$.
+Match $(1,2)$: $\lambda = 8$. Match $(2,1)$: $7\cdot8 = 56$ ✓. Match
+$(1,1)$: $24 + \mu = 16 \Rightarrow \mu = -8$. Check $(2,2)$:
+$40 - 8 = 32$ ✓. **$\lambda = 8, \mu = -8$.**
+</details>
+
+**P2.** Show every square matrix can be expressed as the sum of a
+symmetric and a skew-symmetric matrix.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try $A = \frac{A + A^T}{2} + \frac{A - A^T}{2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $P = \frac{A + A^T}{2}, Q = \frac{A - A^T}{2}$. Then $P^T = P$
+(symmetric) and $Q^T = -Q$ (skew). $P + Q = A$. ✓
+</details>
+
+**P3.** Verify $(AB)^T = B^T A^T$ for $A = \begin{pmatrix} 1 & 2 \\ 0 & 1
+\end{pmatrix}, B = \begin{pmatrix} 1 & 0 \\ 1 & 1 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$AB = \begin{pmatrix} 3 & 2 \\ 1 & 1 \end{pmatrix}$, $(AB)^T =
+\begin{pmatrix} 3 & 1 \\ 2 & 1 \end{pmatrix}$.
+$B^T = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$, $A^T =
+\begin{pmatrix} 1 & 0 \\ 2 & 1 \end{pmatrix}$. $B^T A^T = \begin{pmatrix}
+3 & 1 \\ 2 & 1 \end{pmatrix}$ ✓.
+</details>
+
+### Practice — Stretch
+
+**S1.** If $A = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta &
+\cos\theta \end{pmatrix}$, show $A^n = \begin{pmatrix} \cos n\theta &
+-\sin n\theta \\ \sin n\theta & \cos n\theta \end{pmatrix}$ for all
+positive integers $n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Induction: check $n = 1$, then assume for $n$ and prove for $n+1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Base $n=1$:** trivial. **Step:** $A^{n+1} = A^n \cdot A$. Multiply
+using angle-addition: $\cos(n\theta)\cos\theta - \sin(n\theta)
+\sin\theta = \cos((n+1)\theta)$, etc. By induction the formula holds.
+$A$ is the **2D rotation matrix** by $\theta$; $A^n$ rotates by
+$n\theta$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** If $A$ is $3\times2$ and $B$ is $2\times4$, then $AB$
+has order (a) $3\times4$ (b) $4\times3$ (c) $2\times2$ (d) undefined.
+
+<details class="hint"><summary>Full solution</summary>
+Inner dims match. **(a) $3\times4$.**
+</details>
+
+**1-mark MCQ #2.** If $A$ is symmetric, then $A^T$ is (a) skew-symmetric
+(b) zero (c) symmetric (d) identity.
+
+<details class="hint"><summary>Full solution</summary>
+$A^T = A$, which is symmetric. **(c).**
+</details>
+
+**2-mark.** If $A = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}$, find
+$A^2$ and $A^3$.
+
+<details class="hint"><summary>Full solution</summary>
+$A^2 = \begin{pmatrix} 0 & 0 \\ 0 & 0 \end{pmatrix} = O$. So $A^3 = O$.
+$A$ is **nilpotent**.
+</details>
+
+**2-mark.** Find $X$ if $X + \begin{pmatrix} 2 & 3 \\ -1 & 4
+\end{pmatrix} = \begin{pmatrix} 5 & 0 \\ 1 & 7 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$X = \begin{pmatrix} 5-2 & 0-3 \\ 1+1 & 7-4 \end{pmatrix} =
+\begin{pmatrix} 3 & -3 \\ 2 & 3 \end{pmatrix}$.
+</details>
+
+**3-mark.** If $A$ and $B$ are symmetric matrices of the same order,
+prove $AB - BA$ is skew-symmetric.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take the transpose of $AB - BA$ and use $(XY)^T = Y^T X^T$ together
+with $A^T = A, B^T = B$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(AB - BA)^T = (AB)^T - (BA)^T = B^T A^T - A^T B^T = BA - AB = -(AB -
+BA)$. So $AB - BA$ is skew-symmetric. ✓
+</details>
+
+**3-mark.** Express $A = \begin{pmatrix} 6 & -2 \\ 4 & 0 \end{pmatrix}$
+as the sum of a symmetric and a skew-symmetric matrix.
+
+<details class="hint"><summary>Full solution</summary>
+$P = \frac{1}{2}(A + A^T) = \frac{1}{2}\begin{pmatrix} 12 & 2 \\ 2 & 0
+\end{pmatrix} = \begin{pmatrix} 6 & 1 \\ 1 & 0 \end{pmatrix}$.
+$Q = \frac{1}{2}(A - A^T) = \begin{pmatrix} 0 & -3 \\ 3 & 0
+\end{pmatrix}$. $A = P + Q$. ✓
+</details>
+
+**5-mark long answer.** Find a matrix $A$ such that
+$A \begin{pmatrix} 1 & -2 & 3 \end{pmatrix} = \begin{pmatrix} -2 & 4 &
+-6 \\ 1 & -2 & 3 \\ 4 & -8 & 12 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Right side has order $3 \times 3$. Left has the row $1\times3$. So $A$
+must be $3 \times 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A$ is $3 \times 1$, say $A = \begin{pmatrix} a \\ b \\ c \end{pmatrix}$.
+Then $A \begin{pmatrix} 1 & -2 & 3 \end{pmatrix} = \begin{pmatrix} a &
+-2a & 3a \\ b & -2b & 3b \\ c & -2c & 3c \end{pmatrix}$. Match: $a = -2,
+b = 1, c = 4$. So $A = \begin{pmatrix} -2 \\ 1 \\ 4 \end{pmatrix}$.
+</details>
+
+**6-mark Case Study.** *A daily revenue model.*
+
+A factory produces three products P, Q, R. Quantities (units) made on
+two days are
+$$
+M = \begin{pmatrix} 50 & 40 & 60 \\ 60 & 55 & 70 \end{pmatrix},
+$$
+where rows are days. Selling prices per unit (₹) for P, Q, R are 100, 150,
+200 respectively.
+
+(i) Write the price column matrix $P$. (1 mark)
+(ii) Compute $M \cdot P$ and interpret the result. (3 marks)
+(iii) If a 10% sales tax is added on day 2 only, what is the
+post-tax revenue on day 2? (2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $P = \begin{pmatrix} 100 \\ 150 \\ 200 \end{pmatrix}$.
+**(ii)** $MP = \begin{pmatrix} 5000 + 6000 + 12000 \\ 6000 + 8250 +
+14000 \end{pmatrix} = \begin{pmatrix} 23000 \\ 28250 \end{pmatrix}$.
+Day 1 revenue ₹23000, Day 2 revenue ₹28250.
+**(iii)** Day 2 post-tax: $28250 \times 1.10 = ₹31075$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 3.2, Q4, 7, 12, 18.
+**Previous-year pointer:** CBSE 2023 Set 1 Q22 (3-mark symmetry); CBSE
+2022 Q23 (5-mark sum decomposition).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$AB = BA$ for all matrices."** Almost never. Matrix multiplication
+   is non-commutative; many proofs hinge on remembering this.
+2. **"$(AB)^T = A^T B^T$."** Wrong. The correct identity is $(AB)^T =
+   B^T A^T$ — order swaps.
+3. **"You can multiply any two matrices."** Only when the inner
+   dimensions match: $m\times p$ times $p\times n$. Otherwise the
+   product is undefined.
+:::
+
+### Self-Assessment
+
+1. Could you compute $A^2 - 3A + 2I$ for a fresh $2\times2$ $A$ in five
+   minutes?
+2. Did you solve at least 5 of 7 board-pattern items unaided?
+3. Can you decompose any square matrix into symmetric + skew-symmetric
+   parts in 30 seconds?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark long-answer problem.
+- **0–1 yes:** re-read *Discover* problems 3–6 with paper.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.matrices-intro`](../03a-matrices-intro/index.qmd) — order,
+  entries, special types.
+
+### What this unlocks
+
+- [`cbse12.determinants`](../04a-determinants/index.qmd) — only square
+  matrices have a determinant.
+- [`cbse12.matrix-inverse-cramers`](../04b-matrix-inverse-cramers/index.qmd)
+  — inverses use multiplication and the identity matrix.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 3 — Matrices** (NCERT 2023 rationalised). Sections
+  3.3–3.6.
+- **Sister synthesis lesson:** [`t5.matrices`](../../tier-5-undergrad-core/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** A linear layer $y = Wx + b$ is matrix-vector multiplication
+plus a vector. Backpropagation differentiates a chain of these. The
+non-commutativity is why "transformer" multiplications matter in
+order.
+:::
+
+::: {.applied-callout}
+**Game development.** Composing two transforms (rotate then translate)
+multiplies their matrices in order — and reversing the order rotates
+about a different point. The non-commutativity *is* the design
+constraint.
+:::
+
+::: {.applied-callout}
+**Research.** Symmetric matrices represent quadratic forms,
+covariances, Hessians; skew-symmetric matrices represent
+infinitesimal rotations and angular velocities. The decomposition
+$A = P + Q$ is foundational across physics and statistics.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown (multiplication as composition),
+  Bhāskara (verse), Gelfand (problem-first sequence).
+:::

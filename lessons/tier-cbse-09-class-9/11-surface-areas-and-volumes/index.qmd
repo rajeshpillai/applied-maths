@@ -1,0 +1,480 @@
+---
+title: "Ch 11 — Surface Areas and Volumes"
+subtitle: "Cuboid, cylinder, cone, sphere, hemisphere — flat nets that fold up"
+lesson-id: "cbse9.surface-areas-and-volumes"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 11
+ncert-chapter-title: "Surface Areas and Volumes"
+board-exam: false
+prerequisites: ["t1.area-perimeter-volume", "cbse8.mensuration"]
+unlocks: ["cbse10.surface-areas-and-volumes"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute the area of a rectangle and a circle?
+   *(If no, revisit
+   [t1.area-perimeter-volume](../../tier-1-foundations/13-area-perimeter-volume/index.qmd).)*
+2. Can you compute the volume of a cuboid? *(If no, revisit
+   [cbse8.mensuration](../../tier-cbse-08-class-8/09-mensuration/index.qmd).)*
+3. Do you know that the area of a circle is $\pi r^2$ and circumference
+   is $2 \pi r$?
+4. Can you simplify $\pi \approx \tfrac{22}{7}$ when needed?
+
+Three or four yes? Read on.
+:::
+
+## Touch
+
+Take a cereal-box flap. Open it flat — you see a rectangular *net*.
+Close it again — it folds into a cuboid. The **area** of the net is the
+**total surface area** of the cuboid. The **volume** is what fills it
+when you pour rice in.
+
+Now imagine unrolling a tin can. The curved side flattens into a
+rectangle whose width equals the can's height and whose length equals
+the can's circumference $2 \pi r$. The two circular caps are obvious.
+
+```{ojs}
+viewof shapeChoice = Inputs.select(["cuboid", "cylinder", "cone", "sphere"], {value: "cylinder", label: "shape"})
+```
+
+```{ojs}
+viewof rOrL = Inputs.range([1, 10], {value: 4, step: 1, label: "r or l (cm)"})
+```
+
+```{ojs}
+viewof hOrW = Inputs.range([1, 10], {value: 6, step: 1, label: "h or w (cm)"})
+```
+
+```{ojs}
+{
+  const PI = Math.PI;
+  let lines = [];
+  if (shapeChoice === "cuboid") {
+    const l = rOrL, b = hOrW, h = 5;
+    const v = l*b*h;
+    const tsa = 2*(l*b + b*h + l*h);
+    lines.push(`Cuboid l=${l}, b=${b}, h=${h}`);
+    lines.push(`Volume = lbh = ${v} cm³`);
+    lines.push(`TSA = 2(lb + bh + lh) = ${tsa} cm²`);
+  } else if (shapeChoice === "cylinder") {
+    const r = rOrL, h = hOrW;
+    const v = PI*r*r*h;
+    const tsa = 2*PI*r*(r + h);
+    lines.push(`Cylinder r=${r}, h=${h}`);
+    lines.push(`Volume = πr²h ≈ ${v.toFixed(2)} cm³`);
+    lines.push(`TSA = 2πr(r + h) ≈ ${tsa.toFixed(2)} cm²`);
+  } else if (shapeChoice === "cone") {
+    const r = rOrL, h = hOrW;
+    const l = Math.sqrt(r*r + h*h);
+    const v = (1/3)*PI*r*r*h;
+    const tsa = PI*r*(r + l);
+    lines.push(`Cone r=${r}, h=${h}, slant l=${l.toFixed(2)}`);
+    lines.push(`Volume = (1/3)πr²h ≈ ${v.toFixed(2)} cm³`);
+    lines.push(`TSA = πr(r + l) ≈ ${tsa.toFixed(2)} cm²`);
+  } else {
+    const r = rOrL;
+    const v = (4/3)*PI*r*r*r;
+    const sa = 4*PI*r*r;
+    lines.push(`Sphere r=${r}`);
+    lines.push(`Volume = (4/3)πr³ ≈ ${v.toFixed(2)} cm³`);
+    lines.push(`Surface = 4πr² ≈ ${sa.toFixed(2)} cm²`);
+  }
+  return html`<div style="font-family: monospace; font-size: 1rem; padding: 0.4rem 0;">
+    ${lines.map(l => html`<div>${l}</div>`)}
+  </div>`;
+}
+```
+
+Pick a shape and adjust $r$ and $h$. Surface area = the net's area.
+Volume = how much it holds. Watch how each formula scales.
+
+## Wonder
+
+1. Two cuboids of equal volume can have very different surface areas.
+   Could you describe a "tall thin" one and a "short fat" one with the
+   same volume?
+2. Why is the volume of a cone exactly *one third* the volume of a
+   cylinder with the same base and height?
+3. The surface area of a sphere is $4 \pi r^2$ — exactly four times the
+   area of its great circle. Is that an accident, or does it tell you
+   something?
+4. If you double the radius of a sphere, by what factor does its volume
+   change?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q4 is a scaling question — volume scales as the *cube* of the radius.
+Q2 we won't prove rigorously yet, but you can see it: pour cone-fulls
+of water into a cylinder of the same base and height; you'll need
+exactly three.
+:::
+
+## Discover
+
+### Problem 1 (Cuboid)
+
+A box has length $10$ cm, breadth $8$ cm, height $6$ cm. Compute its
+volume and total surface area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$V = lbh$. $\text{TSA} = 2(lb + bh + lh)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = 10 \cdot 8 \cdot 6 = 480$ cm³.
+$\text{TSA} = 2(80 + 48 + 60) = 2 \cdot 188 = 376$ cm².
+</details>
+
+### Problem 2 (Cylinder)
+
+A cylindrical drum has radius $7$ cm and height $20$ cm. Find the
+curved surface area, total surface area, and volume. Use $\pi =
+\tfrac{22}{7}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+CSA $= 2 \pi r h$. TSA $= 2\pi r(r + h)$. $V = \pi r^2 h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+CSA $= 2 \cdot \tfrac{22}{7} \cdot 7 \cdot 20 = 880$ cm².
+TSA $= 2 \cdot \tfrac{22}{7} \cdot 7 \cdot 27 = 1188$ cm².
+$V = \tfrac{22}{7} \cdot 49 \cdot 20 = 3080$ cm³.
+</details>
+
+### Problem 3 (Cone)
+
+A cone has radius $r = 6$ cm and height $h = 8$ cm. Find slant height
+$l$, then volume and total surface area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$l = \sqrt{r^2 + h^2}$. $V = \tfrac{1}{3} \pi r^2 h$. TSA $= \pi r(r +
+l)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$l = \sqrt{36 + 64} = 10$ cm. $V = \tfrac{1}{3} \pi (36)(8) = 96 \pi
+\approx 301.6$ cm³. TSA $= \pi \cdot 6 \cdot 16 = 96 \pi \approx
+301.6$ cm².
+</details>
+
+### Problem 4 (Sphere)
+
+A spherical ball has radius $5$ cm. Find its surface area and volume.
+Use $\pi \approx 3.14$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+SA $= 4 \pi r^2$. $V = \tfrac{4}{3} \pi r^3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+SA $= 4 \pi \cdot 25 = 100 \pi \approx 314$ cm².
+$V = \tfrac{4}{3} \pi \cdot 125 = \tfrac{500 \pi}{3} \approx 523.3$ cm³.
+</details>
+
+### Problem 5 (Hemisphere)
+
+A solid hemisphere has radius $7$ cm. Find its **total** surface area
+(the curved hemisphere plus the flat circular base) and volume.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Curved surface of hemisphere $= 2 \pi r^2$. Add the flat circle
+$\pi r^2$. Volume $= \tfrac{2}{3} \pi r^3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+TSA $= 2 \pi r^2 + \pi r^2 = 3 \pi r^2 = 3 \cdot \tfrac{22}{7} \cdot 49
+= 462$ cm². Volume $= \tfrac{2}{3} \cdot \tfrac{22}{7} \cdot 343 =
+\tfrac{2156 \cdot 343}{21}$… let's simplify: $\tfrac{2}{3} \cdot \pi
+\cdot 343 = \tfrac{686}{3} \pi \approx 718.4$ cm³.
+</details>
+
+### Problem 6 (Conversion / pouring)
+
+A cylinder of radius $6$ cm and height $14$ cm is full of water. The
+water is poured into a hemispherical bowl. What must the bowl's radius
+be so that the water exactly fills it?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volumes equal: $\pi r^2 h = \tfrac{2}{3} \pi R^3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi (36)(14) = \tfrac{2}{3} \pi R^3 \Rightarrow R^3 = \tfrac{3 \cdot
+36 \cdot 14}{2} = 756 \Rightarrow R = \sqrt[3]{756} \approx 9.1$ cm.
+</details>
+
+You discovered: each shape has a flat-net way of seeing its surface area
+and a multiplicative way of seeing its volume; conversion problems
+(pouring water from one shape to another) are just volume-equation
+problems.
+
+## Name
+
+::: {.lesson-beat}
+
+| Shape | Volume | Curved SA | Total SA |
+|:--|:--|:--|:--|
+| Cuboid (l, b, h) | $lbh$ | — | $2(lb + bh + lh)$ |
+| Cube (a) | $a^3$ | — | $6a^2$ |
+| Cylinder (r, h) | $\pi r^2 h$ | $2 \pi r h$ | $2 \pi r (r + h)$ |
+| Cone (r, h, slant l) | $\tfrac{1}{3} \pi r^2 h$ | $\pi r l$ | $\pi r (r + l)$ |
+| Sphere (r) | $\tfrac{4}{3} \pi r^3$ | $4 \pi r^2$ | $4 \pi r^2$ |
+| Hemisphere (r) | $\tfrac{2}{3} \pi r^3$ | $2 \pi r^2$ | $3 \pi r^2$ |
+
+For the cone, $l = \sqrt{r^2 + h^2}$ (Pythagorean slant height).
+
+When converting between shapes (melting, pouring, recasting), the
+**volume is conserved**, not the surface area.
+
+:::
+
+A short verse:
+
+> *Cuboid: l-b-h, sum the rectangles by twos.*
+> *Cylinder: a wrapped rectangle and two circles.*
+> *Cone: a third of cylinder; slant is hypotenuse.*
+> *Sphere: four pi r squared, four-thirds pi r cubed.*
+
+## Apply
+
+### Worked example
+
+> A solid metal cylinder of radius $6$ cm and height $32$ cm is melted
+> down and recast into spheres of radius $4$ cm. How many spheres can
+> be made?
+
+A competent solver:
+
+1. **Volume of cylinder** = $\pi (6)^2 (32) = 1152 \pi$ cm³.
+2. **Volume of one sphere** = $\tfrac{4}{3} \pi (4)^3 = \tfrac{256 \pi}{3}$
+   cm³.
+3. **Number of spheres** = $\dfrac{1152 \pi}{256 \pi / 3} = \dfrac{1152 \cdot 3}{256}
+   = \dfrac{3456}{256} = 13.5$.
+4. Since you can't make half a sphere from melted metal (well, you can,
+   but it's not a sphere), the most full spheres = **13**.
+
+**Answer:** $13$ complete spheres, with metal left over.
+
+### Practice — Warm
+
+**W1.** A cube has edge $5$ cm. Find its volume and surface area.
+
+<details class="hint"><summary>Full solution</summary>
+$V = 125$ cm³. SA $= 150$ cm².
+</details>
+
+**W2.** A cylinder has radius $14$ cm and height $10$ cm. Find its
+volume. Use $\pi = \tfrac{22}{7}$.
+
+<details class="hint"><summary>Full solution</summary>
+$V = \tfrac{22}{7} \cdot 196 \cdot 10 = 6160$ cm³.
+</details>
+
+**W3.** A sphere has surface area $616$ cm². Find its radius. Use
+$\pi = \tfrac{22}{7}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$4 \pi r^2 = 616$. Solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$r^2 = \tfrac{616}{4 \pi} = \tfrac{616 \cdot 7}{4 \cdot 22} =
+\tfrac{4312}{88} = 49$. So $r = 7$ cm.
+</details>
+
+### Practice — Working
+
+**P1.** A conical tent has base radius $7$ m and slant height $25$ m.
+How much canvas is needed (curved surface only)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+CSA of cone = $\pi r l$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi r l = \tfrac{22}{7} \cdot 7 \cdot 25 = 550$ m².
+</details>
+
+**P2.** A rectangular box has length $20$ cm, breadth $15$ cm, and
+height $10$ cm. How many small cubes of edge $5$ cm fit inside?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume divided by volume — but check that the cubes tile.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{20 \cdot 15 \cdot 10}{125} = \tfrac{3000}{125} = 24$. And
+$20, 15, 10$ are all divisible by $5$, so they tile cleanly. **24
+cubes.**
+</details>
+
+**P3.** A hemispherical bowl has inner radius $14$ cm. How much water
+in litres can it hold (1 litre $= 1000$ cm³)?
+
+<details class="hint"><summary>Full solution</summary>
+$V = \tfrac{2}{3} \pi r^3 = \tfrac{2}{3} \cdot \tfrac{22}{7} \cdot 14^3
+= \tfrac{2}{3} \cdot \tfrac{22}{7} \cdot 2744$. Simplify:
+$\tfrac{2 \cdot 22 \cdot 2744}{21} = \tfrac{120736}{21} \approx
+5749.3$ cm³ $\approx$ **5.75 litres**.
+</details>
+
+### Practice — Stretch
+
+**S1.** A right circular cylinder is just enclosing a sphere of
+radius $r$ (i.e. the sphere's diameter is the cylinder's height *and*
+the cylinder's diameter). Show that the surface area of the sphere
+equals the curved surface area of the cylinder.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cylinder height $= 2r$. CSA $= 2 \pi r (2r)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+CSA of cylinder $= 2 \pi r \cdot 2r = 4 \pi r^2$. SA of sphere $=
+4 \pi r^2$. **Equal.** This is a famous identity discovered by
+Archimedes — he was so proud of it that he asked for it to be carved
+on his tomb.
+</details>
+
+**S2.** A toy is made of a hemisphere on top and a cone underneath,
+each with radius $7$ cm. The total height of the toy is $31$ cm. Find
+its total surface area (the part you can paint).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cone height $= 31 - 7 = 24$ cm. Slant height $= \sqrt{7^2 + 24^2} = 25$.
+The painted surface is the cone's curved surface plus the hemisphere's
+curved surface (the flat circle is hidden where they join).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{SA} = \pi r l + 2 \pi r^2 = \tfrac{22}{7} \cdot 7 \cdot 25 +
+2 \cdot \tfrac{22}{7} \cdot 49 = 550 + 308 = 858$ cm².
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The total surface area of a cube of edge $a$
+is:
+(a) $a^3$ (b) $a^2$ (c) $4a^2$ (d) $6a^2$.
+
+<details class="hint"><summary>Full solution</summary>
+**(d) $6a^2$.**
+</details>
+
+**2-mark (short answer).** Find the volume of a cylinder whose base
+radius is $3.5$ cm and height $10$ cm. Use $\pi = \tfrac{22}{7}$.
+
+<details class="hint"><summary>Full solution</summary>
+$V = \tfrac{22}{7} \cdot 12.25 \cdot 10 = \tfrac{2695}{7} = 385$ cm³.
+</details>
+
+**3-mark (short answer II).** A solid cylinder of radius $4$ cm and
+height $30$ cm is melted and recast into a single solid cone of base
+radius $5$ cm. Find the height of the cone.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volumes equal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi (16)(30) = \tfrac{1}{3} \pi (25) h \Rightarrow 480 = \tfrac{25
+h}{3} \Rightarrow h = \tfrac{1440}{25} = 57.6$ cm.
+</details>
+
+**5-mark (long answer).** A cylindrical pipe has external diameter $10$
+cm, internal diameter $8$ cm, and length $7$ m. The pipe is made of
+metal weighing $9.5$ g/cm³. Find the mass of the pipe in kilograms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume of the metal shell = (outer volume) − (inner volume). Convert
+length to cm.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$V = \pi (R^2 - r^2) h$ with $R = 5, r = 4, h = 700$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = \pi (25 - 16) (700) = 6300 \pi$ cm³ $= 6300 \cdot \tfrac{22}{7}
+= 19800$ cm³.
+Mass $= 19800 \cdot 9.5 = 188100$ g $= 188.1$ kg.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 11, Problem 11.5
+(melting and recasting, similar to 3-mark). **Previous-year pointer:**
+CBSE Class 9 sample paper "find mass of cylindrical pipe" (similar to
+5-mark).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Surface area of a sphere is $\pi r^2$."** That's the area of a
+   *flat circle* of the same radius. Sphere SA is **four times** that:
+   $4 \pi r^2$.
+2. **"Slant height of a cone is the same as its height."** Almost
+   never. Slant $l = \sqrt{r^2 + h^2}$; only when $r = 0$ (a flat
+   needle) do they coincide.
+3. **"You can sum surface areas when joining two shapes."** No — you
+   *subtract* the area where the two meet, because that face is hidden
+   inside the joined object.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state every formula in the *Name* table without notes?
+2. Did you solve W1–P3 with at most one hint each?
+3. Could you do a fresh "melt and recast" problem and conserve volume
+   correctly?
+
+- **3 yes:** move on to **Statistics**.
+- **2 yes:** redo S1 and S2.
+- **0–1 yes:** re-read *Discover* 6 (volume conservation) and the
+  *Name* table — these need rewriting from memory.
+
+## Connect
+
+### Prerequisites used
+
+- [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)
+  — area and volume meaning.
+- [`cbse8.mensuration`](../../tier-cbse-08-class-8/09-mensuration/index.qmd)
+  — formulas for cuboid and cylinder; surface and volume.
+
+### What this unlocks
+
+- [`cbse10.surface-areas-and-volumes`](../../tier-cbse-10-class-10/13-surface-areas-and-volumes/index.qmd)
+  — combinations of solids, frustum of a cone.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 11 — Surface Areas and Volumes** (NCERT 2023
+  rationalised syllabus). Covers Sections 11.1–11.4: cylinders, cones,
+  spheres, hemispheres.
+- **Sister synthesis lesson** (different angle):
+  [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)
+  presents the cuboid and cylinder; the cone-and-sphere additions are
+  this chapter's contribution.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Bounding spheres and bounding cylinders are the
+fastest-to-test collision shapes. The volume formulas you just learned
+control physics simulation costs in every modern engine.
+:::
+
+::: {.applied-callout}
+**Research.** Archimedes' identity from S1 — sphere SA $=$ cylinder CSA
+when one inscribes the other — was rediscovered by integral calculus
+(volume of revolution). It is the cleanest "Aha!" of classical solid
+geometry, predating calculus by 1900 years.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (cereal-box net Touch),
+  Archimedes (S1), Bhāskara-style table for the *Name* beat.
+:::

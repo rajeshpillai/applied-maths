@@ -1,0 +1,459 @@
+---
+title: "Ch 5 — Squares and Square Roots"
+subtitle: "Tile a square — count its sides"
+lesson-id: "cbse8.squares-and-square-roots"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 5
+ncert-chapter-title: "Squares and Square Roots"
+board-exam: false
+prerequisites: ["t1.multiply-as-area", "t1.divisibility-primes"]
+unlocks: ["cbse8.cubes-and-cube-roots", "cbse9.number-systems", "cbse10.real-numbers"]
+applied-domains: ["research", "encryption"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute $7 \times 7$ in your head? If not, revisit
+   **[Multiplication as Area](../../tier-1-foundations/05-multiply-as-area/index.qmd)**.
+2. Do you know what a *prime number* is, and can you list the primes up
+   to $20$? If not, revisit
+   **[Divisibility and Primes](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)**.
+3. Can you write $36$ as a product of primes?
+4. Have you ever drawn a square grid?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Take a sheet of squared graph paper, or imagine one. Colour in a $1
+\times 1$ square. Now a $2 \times 2$. Now a $3 \times 3$. Count the
+unit squares in each.
+
+If no graph paper, the slider below builds them for you.
+
+```{ojs}
+viewof n = Inputs.range([1, 12], {value: 5, step: 1, label: "Side length n"})
+```
+
+```{ojs}
+{
+  const cells = [];
+  const sz = 22;
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++)
+      cells.push(`<rect x="${j*sz}" y="${i*sz}" width="${sz-2}" height="${sz-2}" fill="#bde0fe" stroke="#1d4ed8"/>`);
+  return html`<div style="font-family:system-ui;">
+    <svg width="${n*sz+2}" height="${n*sz+2}">${cells.join("")}</svg>
+    <div style="margin-top:0.4rem;color:#444;">
+      side length <b>${n}</b> &nbsp; - &nbsp; total cells <b>${n*n}</b>
+    </div>
+  </div>`;
+}
+```
+
+Slide $n$ from $1$ up to $12$. Watch the cell count: $1, 4, 9, 16, 25,
+36, \ldots$ Now play the game in reverse: if I tell you a square has
+$49$ cells, what was its side?
+
+## Wonder
+
+Sit with these.
+
+1. The numbers $1, 4, 9, 16, 25, \ldots$ have a pattern. Can you
+   describe it without using the word "square"?
+2. Look at consecutive differences: $4-1 = 3$, $9-4 = 5$, $16-9 = 7$,
+   $25-16 = 9$. What sequence is that?
+3. What kind of number could the side of a $50$-cell square be?
+4. Could you tile a square with exactly $1{,}000$ unit cells?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+The differences $3, 5, 7, 9$ are the consecutive odd numbers. So
+$1 + 3 + 5 + 7 = 16 = 4^2$. The first $n$ odd numbers always sum to
+$n^2$ — a beautiful fact you can prove with pictures.
+
+A $1{,}000$-cell square cannot exist with a whole-number side, because
+$\sqrt{1000}$ is not a whole number. Some numbers are *perfect
+squares*; most are not.
+:::
+
+## Discover
+
+### Problem 1 — Recognise perfect squares
+
+Which of these are perfect squares (the area of a square with
+whole-number side)? $25, \ 30, \ 49, \ 50, \ 64, \ 100$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try to find a whole number $n$ with $n^2$ equal to each.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$25 = 5^2$, $49 = 7^2$, $64 = 8^2$, $100 = 10^2$ — perfect squares.
+$30$ and $50$ are not (no whole $n$ with $n^2 = 30$ or $50$).
+</details>
+
+### Problem 2 — Square via prime factors
+
+Use prime factorisation to decide whether $144$ is a perfect square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor $144$ all the way to primes.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$144 = 2^4 \times 3^2$. For the number to be a perfect square, every
+prime power must be even. Are they?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$144 = 2^4 \cdot 3^2$. Both exponents are even. So $144 = (2^2 \cdot 3)^2
+= 12^2$ — yes, a perfect square. $\sqrt{144} = 12$.
+</details>
+
+### Problem 3 — A non-square
+
+Is $72$ a perfect square? If not, what is the smallest whole number you
+can multiply $72$ by to get a perfect square?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor $72$. Look for any prime that appears an *odd* number of times.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$72 = 2^3 \cdot 3^2$. The $2$'s exponent is odd; multiply by one more
+$2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$72 \times 2 = 144 = 12^2$. Smallest multiplier is $\boxed{2}$, giving
+$144$.
+</details>
+
+### Problem 4 — Long division for $\sqrt{1369}$
+
+Use the long-division method (or any method you know) to find
+$\sqrt{1369}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pair the digits from the right: $\overline{13}\,\overline{69}$. Find the
+largest integer $a$ with $a^2 \leq 13$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$3^2 = 9 \leq 13$. Bring down $69$. Form $469$. Find the largest digit
+$b$ with $(60 + b) \cdot b \leq 469$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- Pair: $\overline{13}\,\overline{69}$.
+- $3^2 = 9$; remainder $13 - 9 = 4$. Bring down $69 \to 469$.
+- Double the answer-so-far: $6$. Try $b$: $67 \times 7 = 469$. Match.
+- $\sqrt{1369} = 37$.
+
+Verify: $37^2 = 1369$. ✓
+</details>
+
+### Problem 5 — A non-perfect square
+
+Estimate $\sqrt{50}$ to one decimal place, without a calculator.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$7^2 = 49$ and $8^2 = 64$. So $\sqrt{50}$ is between $7$ and $8$, much
+closer to $7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7^2 = 49$, just $1$ short of $50$. Try $7.1$: $7.1^2 = 50.41$. So
+$\sqrt{50} \approx 7.07$. To one decimal: $\sqrt{50} \approx 7.1$.
+
+(Many numbers do not have a tidy square-root expression — they are
+*irrational*. We meet that idea fully in Class 9.)
+</details>
+
+### Problem 6 — Sum of odd numbers
+
+Without computing, write down $1 + 3 + 5 + 7 + 9 + 11 + 13$ as a square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Count the terms.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Seven consecutive odd numbers, so the sum is $7^2 = 49$.
+</details>
+
+You have just used four tools — visual tile counting, prime
+factorisation, long division, and the sum-of-odd-numbers identity — to
+work with squares.
+
+## Name
+
+::: {.lesson-beat}
+
+A **perfect square** is a whole number of the form $n^2$ where $n$ is a
+whole number.
+
+The **square root** of $a \geq 0$ is the non-negative number $b$ with
+$b^2 = a$, written $\sqrt{a}$.
+
+**Test by primes:** a positive integer is a perfect square if and only
+if every prime in its factorisation appears an *even* number of times.
+
+**Sum-of-odds identity:** $1 + 3 + 5 + \cdots + (2n-1) = n^2$.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Even powers in primes — a perfect square stands;*
+> *Odd one peeking — the form falls short.*
+> *Pair the digits from right, division step descends —*
+> *The root emerges as the column count.*
+
+Two extra patterns worth remembering:
+
+- **Last-digit shortcut.** A perfect square ends in $0, 1, 4, 5, 6,$
+  or $9$. So $58, 73, 92, 100002$ — three of them are *not* perfect
+  squares immediately by last digit.
+- **Pythagorean triples.** $3^2 + 4^2 = 5^2$, $5^2 + 12^2 = 13^2$,
+  $8^2 + 15^2 = 17^2$. These pop up everywhere from tile-laying to
+  encryption.
+
+## Apply
+
+### Worked example
+
+> Find the smallest whole number by which $1{,}008$ must be divided so
+> that the quotient is a perfect square. Then find the square root of
+> the quotient.
+
+Competent solver's path:
+
+1. Prime-factorise: $1008 = 2^4 \cdot 3^2 \cdot 7$.
+2. The odd one out is $7$ (appears once). Divide by $7$:
+   $1008 / 7 = 144 = 2^4 \cdot 3^2$.
+3. $\sqrt{144} = 12$.
+
+**Answer: divide by 7; root of quotient is 12.**
+
+### Practice — Warm
+
+**W1.** Compute $\sqrt{225}$.
+
+<details class="hint"><summary>Full solution</summary>
+$15^2 = 225$. So $\sqrt{225} = 15$.
+</details>
+
+**W2.** Without computing, say which of these end in a digit that no
+perfect square can end in: $48, \ 73, \ 100, \ 327, \ 81$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Squares end only in 0, 1, 4, 5, 6, 9.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$48$ (ends in 8), $73$ (ends in 3), $327$ (ends in 7) — none of these
+can be perfect squares.
+</details>
+
+**W3.** Write the prime factorisation of $400$ and use it to compute
+$\sqrt{400}$.
+
+<details class="hint"><summary>Full solution</summary>
+$400 = 2^4 \cdot 5^2$. So $\sqrt{400} = 2^2 \cdot 5 = 20$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the smallest number to multiply $252$ by so the result is a
+perfect square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor $252 = 2^2 \cdot 3^2 \cdot 7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The exponent of $7$ is odd. Multiply by $7$: $252 \times 7 = 1764 =
+42^2$. Smallest multiplier: **7**.
+</details>
+
+**P2.** Use the long-division method to find $\sqrt{2025}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pair: $\overline{20}\,\overline{25}$. Largest $a$ with $a^2 \leq 20$ is
+$4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $4^2 = 16$. Remainder $4$. Bring $25 \to 425$.
+- Double $4 \to 8$. Try $b$: $85 \times 5 = 425$. Match.
+- $\sqrt{2025} = 45$.
+</details>
+
+**P3.** A square hall has area $784\,\text{m}^2$. What is its side
+length?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Side $= \sqrt{\text{area}}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{784} = 28$ m. (Check by $784 = 2^4 \cdot 7^2$, so root $= 4 \cdot 7 = 28$.)
+</details>
+
+### Practice — Stretch
+
+**S1.** Find the smallest whole $k$ such that $1000 + k$ is a perfect
+square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$31^2 = 961$, $32^2 = 1024$. Which is the next perfect square after
+$1000$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$32^2 = 1024$. So $k = 24$.
+</details>
+
+**S2.** A gardener has $2401$ saplings. He wants to arrange them in a
+perfect square pattern (rows = columns). How many in each row, and how
+many rows? Solve using prime factorisation.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sqrt{2401} = ?$. Factor $2401$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2401 = 7^4$. So $\sqrt{2401} = 7^2 = 49$. Arrangement: $\boxed{49
+\times 49}$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** Which of these is *not* a perfect square?
+(a) $169$ (b) $196$ (c) $225$ (d) $200$.
+
+<details class="hint"><summary>Full solution</summary>
+$169 = 13^2$, $196 = 14^2$, $225 = 15^2$. $200$ is between $14^2 = 196$
+and $15^2 = 225$ — not a perfect square. **Answer: (d).**
+</details>
+
+**2-mark (short answer).** Find the square root of $7744$ by prime
+factorisation.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$7744 / 2 = 3872 / 2 = 1936$. Continue.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7744 = 2^6 \cdot 11^2$. $\sqrt{7744} = 2^3 \cdot 11 = 88$.
+
+Check: $88 \times 88 = 88 \times 88 = 7744$. ✓
+</details>
+
+**3-mark (short answer II).** Find the smallest 4-digit perfect square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+4-digit numbers start at 1000. We need the smallest $n^2 \geq 1000$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{1000} \approx 31.6$. So $n = 32$ is the smallest integer with
+$n^2 \geq 1000$. $32^2 = 1024$.
+
+**Smallest 4-digit perfect square: $1024$.**
+</details>
+
+**5-mark (long answer).** (i) Find the least number that must be added
+to $5607$ to make it a perfect square. (ii) Hence find the square root
+of the resulting number. (iii) Find the least number that must be
+*subtracted* from $5607$ to make it a perfect square, and the square
+root of that number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$74^2 = 5476$, $75^2 = 5625$, $76^2 = 5776$. Locate $5607$ between
+consecutive squares.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+For (i)/(ii) use the *next* perfect square; for (iii) use the *previous*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$74^2 = 5476$, $75^2 = 5625$. So $5607$ sits between $5476$ and $5625$.
+
+**(i)** Add: $5625 - 5607 = 18$.
+
+**(ii)** $\sqrt{5625} = 75$.
+
+**(iii)** Subtract: $5607 - 5476 = 131$. $\sqrt{5476} = 74$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 5.7 (least number to add
+or subtract for a perfect square) is a near-twin of the 5-mark item.
+**Previous-year pointer:** CBSE 2020 Set 1, Q14 ("smallest multiplier
+to make a perfect square") matches *Working P1* exactly.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sqrt{16} = \pm 4$."** By convention $\sqrt{16}$ denotes only
+   the non-negative root, $4$. Both $4$ and $-4$ square to $16$, but
+   the symbol $\sqrt{\cdot}$ picks the non-negative one.
+2. **"Every number has a tidy square root."** No. Most do not.
+   $\sqrt{2}, \sqrt{3}, \sqrt{50}$ are *irrational* — they cannot be
+   written as $\tfrac{p}{q}$. We will see this rigorously in Class 9.
+3. **"To check if $n$ is a perfect square, just look at its last
+   digit."** The last-digit test only *rules out* — a number ending in
+   $1$ might or might not be a perfect square (e.g., $21$ isn't).
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain to a friend, without notes, *why* the prime
+   factor test works?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   *Practice* problems without peeking past Hint 1?
+3. Given a five-digit number, can you find its square root by long
+   division without panicking?
+
+- **3 yes:** move on to **[Cubes and Cube Roots](../06-cubes-and-cube-roots/index.qmd)**.
+- **2 yes:** redo *Working P2* and the 5-mark board item, then move on.
+- **0–1 yes:** rebuild from *Discover Problem 4*. Long division is the
+  technique most learners stumble on first.
+
+## Connect
+
+### Prerequisites used
+
+- **[Multiplication as Area](../../tier-1-foundations/05-multiply-as-area/index.qmd)** — visualising $n^2$ as the area of an $n \times n$ square.
+- **[Divisibility and Primes](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)** — prime factorisation as the test.
+
+### What this unlocks
+
+- **[Cubes and Cube Roots](../06-cubes-and-cube-roots/index.qmd)** — same idea, one dimension up.
+- **[Class 9 — Number Systems](../../tier-cbse-09-class-9/01-number-systems/index.qmd)** — irrationals enter formally; $\sqrt{2}$ is shown to be irrational.
+- **[Class 10 — Real Numbers](../../tier-cbse-10-class-10/01-real-numbers/index.qmd)** — fundamental theorem of arithmetic, formalising the prime-factor test.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 5 — Squares and Square Roots** (NCERT 2023
+  rationalised syllabus). Covers Sections 5.1–5.4: properties of
+  squares, square roots by prime factorisation and long division, and
+  Pythagorean triples.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t2.square-roots-irrationals`](../../tier-2-prealgebra/09-square-roots-irrationals/index.qmd)
+  goes deeper into irrationality; this chapter focuses on computational
+  technique.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** The Pythagorean theorem ($a^2 + b^2 = c^2$) is the seed
+of every distance computation in mathematics. Once you trust square
+roots, you have unlocked Euclidean geometry, complex numbers, and
+quantum mechanics.
+:::
+
+::: {.applied-callout}
+**Encryption.** RSA encryption rests on the difficulty of factoring a
+large integer that is a product of two primes — essentially the
+*reverse* of the prime-factor test you just used to compute square
+roots. The asymmetry between multiplication (easy) and factoring (hard)
+is the whole reason internet payments work.
+:::

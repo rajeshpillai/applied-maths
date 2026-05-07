@@ -1,0 +1,495 @@
+---
+title: "Ch 7 — Coordinate Geometry"
+subtitle: "Pythagoras between two pairs of numbers, and a midpoint that needs no measurement"
+lesson-id: "cbse10.coordinate-geometry"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 7
+ncert-chapter-title: "Coordinate Geometry"
+board-exam: true
+prerequisites: [cbse9.coordinate-geometry, t2.pythagorean-theorem]
+unlocks: [cbse11.straight-lines, cbse11.conic-sections, cbse10.trigonometry-intro]
+applied-domains: [game-dev, ai-ml, research]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you plot the point $(3, -2)$ on graph paper?
+2. Can you state and use the Pythagorean theorem? See
+   [`t2.pythagorean-theorem`](../../tier-2-prealgebra/10-pythagorean-theorem/index.qmd).
+3. Do you know what an "x-axis" and "y-axis" are? See
+   [`cbse9.coordinate-geometry`](../../tier-cbse-09-class-9/03-coordinate-geometry/index.qmd).
+4. Can you simplify $\sqrt{50}$ to $5\sqrt{2}$?
+
+Three yeses, you are ready.
+:::
+
+## Touch
+
+Two friends are at points $A = (1, 2)$ and $B = (5, 5)$ on a flat field. Use
+the widget — drag $B$ — and watch how the **distance** between them changes.
+
+```{ojs}
+viewof bx = Inputs.range([-5, 9], {value: 5, step: 1, label: "B's x"})
+```
+
+```{ojs}
+viewof by = Inputs.range([-5, 9], {value: 5, step: 1, label: "B's y"})
+```
+
+```{ojs}
+{
+  const w = 380, h = 320, padX = 30, padY = 20;
+  const xS = d3.scaleLinear().domain([-6, 10]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-6, 10]).range([h - padY, padY]);
+  const A = [1, 2], B = [bx, by];
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  // grid
+  for (let i = -6; i <= 10; i++) {
+    svg.append("line").attr("x1", xS(i)).attr("x2", xS(i))
+      .attr("y1", yS(-6)).attr("y2", yS(10)).attr("stroke", "#eee");
+    svg.append("line").attr("y1", yS(i)).attr("y2", yS(i))
+      .attr("x1", xS(-6)).attr("x2", xS(10)).attr("stroke", "#eee");
+  }
+  svg.append("line").attr("x1", xS(-6)).attr("x2", xS(10))
+    .attr("y1", yS(0)).attr("y2", yS(0)).attr("stroke", "#888");
+  svg.append("line").attr("y1", yS(-6)).attr("y2", yS(10))
+    .attr("x1", xS(0)).attr("x2", xS(0)).attr("stroke", "#888");
+  // right triangle
+  svg.append("line").attr("x1", xS(A[0])).attr("y1", yS(A[1]))
+    .attr("x2", xS(B[0])).attr("y2", yS(A[1])).attr("stroke", "#26a")
+    .attr("stroke-dasharray", "3,3");
+  svg.append("line").attr("x1", xS(B[0])).attr("y1", yS(A[1]))
+    .attr("x2", xS(B[0])).attr("y2", yS(B[1])).attr("stroke", "#26a")
+    .attr("stroke-dasharray", "3,3");
+  svg.append("line").attr("x1", xS(A[0])).attr("y1", yS(A[1]))
+    .attr("x2", xS(B[0])).attr("y2", yS(B[1])).attr("stroke", "#c33")
+    .attr("stroke-width", 2);
+  // points
+  for (const [P, name] of [[A, "A"], [B, "B"]]) {
+    svg.append("circle").attr("cx", xS(P[0])).attr("cy", yS(P[1]))
+      .attr("r", 4).attr("fill", "#333");
+    svg.append("text").attr("x", xS(P[0]) + 6).attr("y", yS(P[1]) - 6)
+      .attr("font-size", 12).text(`${name}(${P[0]}, ${P[1]})`);
+  }
+  const dx = B[0] - A[0], dy = B[1] - A[1];
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  svg.append("text").attr("x", padX).attr("y", h - 6).attr("font-size", 13)
+    .text(`Δx = ${dx},  Δy = ${dy},  distance = √(${dx*dx} + ${dy*dy}) = ${dist.toFixed(3)}`);
+  return svg.node();
+}
+```
+
+The dashed lines show the horizontal and vertical "legs" of a right
+triangle whose hypotenuse is $AB$. The horizontal leg has length $|x_2
+- x_1|$, the vertical leg $|y_2 - y_1|$.
+
+## Wonder
+
+1. The widget draws a right triangle every time. Why?
+2. If you had a way to compute *the third side* of a right triangle from
+   the other two — would that give you the distance?
+3. Halfway between $A$ and $B$ — what point is that, exactly? Try a few
+   placements of $B$.
+4. Could you compute the distance if both points had the same x-coordinate
+   (a vertical line)?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) Yes — Pythagoras is the whole game. (3) The midpoint coordinates are
+the *averages* of the endpoint coordinates. (4) Yes — distance is just
+$|y_2 - y_1|$.
+:::
+
+## Discover
+
+### Problem 1 — Distance via Pythagoras
+Find the distance between $A(1, 2)$ and $B(4, 6)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Horizontal leg = $4 - 1 = 3$. Vertical leg = $6 - 2 = 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$d = \sqrt{3^2 + 4^2} = \sqrt{25} = 5$.
+</details>
+
+### Problem 2 — General formula
+Derive a formula for the distance between $P(x_1, y_1)$ and $Q(x_2, y_2)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Horizontal leg = $x_2 - x_1$ (or its absolute value). Vertical leg =
+$y_2 - y_1$. Apply Pythagoras.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}.$$
+</details>
+
+### Problem 3 — Midpoint
+Find the midpoint of $A(2, 3)$ and $B(8, 11)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The midpoint splits both legs in half. So both coordinates are averages.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$M = \left(\dfrac{2 + 8}{2}, \dfrac{3 + 11}{2}\right) = (5, 7)$.
+</details>
+
+### Problem 4 — Section formula (1:2)
+A point $P$ divides the segment $AB$ in the ratio $1 : 2$ (so $AP : PB =
+1 : 2$). With $A = (3, 4), B = (9, 16)$, find $P$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P$ is one-third of the way from $A$ to $B$ (because $AP = \frac{1}{3}AB$).
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$P_x = A_x + \frac{1}{3}(B_x - A_x) = \frac{2A_x + B_x}{3}$? Check: with
+ratio $m : n = 1 : 2$, $P = \dfrac{m B + n A}{m + n}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P_x = \dfrac{1 \cdot 9 + 2 \cdot 3}{1 + 2} = \dfrac{9 + 6}{3} = 5$.
+$P_y = \dfrac{1 \cdot 16 + 2 \cdot 4}{3} = \dfrac{24}{3} = 8$.
+**$P = (5, 8)$.** Verify: $AP = \sqrt{(5-3)^2 + (8-4)^2} = \sqrt{20}$;
+$PB = \sqrt{16 + 64} = \sqrt{80} = 2\sqrt{20}$. Ratio = $1 : 2$. ✓
+</details>
+
+### Problem 5 — Section formula (general)
+For any $A(x_1, y_1), B(x_2, y_2)$ and ratio $m : n$, derive the formula for
+the dividing point.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mimic Problem 4. The dividing point splits each leg of the right triangle
+in the same ratio.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$P = \left(\dfrac{m x_2 + n x_1}{m + n}, \dfrac{m y_2 + n y_1}{m + n}
+\right).$$
+The midpoint formula is the special case $m = n = 1$.
+</details>
+
+### Problem 6 — Collinearity check
+Check whether $A(1, 1), B(4, 4), C(7, 7)$ are collinear.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If collinear, $AB + BC = AC$ (one of the three pairs).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AB = \sqrt{9 + 9} = 3\sqrt{2}$. $BC = 3\sqrt{2}$. $AC = 6\sqrt{2}$.
+$AB + BC = 6\sqrt{2} = AC$. **Yes — collinear.**
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Distance formula.** The distance between $P(x_1, y_1)$ and $Q(x_2, y_2)$
+is
+$$PQ = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}.$$
+
+**Section formula.** The point $P$ that divides the segment $AB$ in the
+ratio $m : n$ (with $A = (x_1, y_1), B = (x_2, y_2)$, and $P$ between $A$
+and $B$ — *internal* division) is
+$$P = \left(\dfrac{m x_2 + n x_1}{m + n}, \dfrac{m y_2 + n y_1}{m + n}
+\right).$$
+
+**Midpoint** is the special case $m = n = 1$:
+$$M = \left(\dfrac{x_1 + x_2}{2}, \dfrac{y_1 + y_2}{2}\right).$$
+
+:::
+
+A verse:
+
+> *Subtract, then square, then square, then add — under the root they go.*
+> *Distance falls out, true and clean — Pythagoras on show.*
+> *Cut a segment m to n? Cross-multiply each end —*
+> *m times far plus n times near, divide by m plus n.*
+
+## Apply
+
+### Worked example
+
+> Find the coordinates of the point $P$ that divides the segment from
+> $A(-1, 7)$ to $B(4, -3)$ in the ratio $2 : 3$.
+
+$m = 2, n = 3$.
+$P_x = \dfrac{2(4) + 3(-1)}{5} = \dfrac{8 - 3}{5} = 1.$
+$P_y = \dfrac{2(-3) + 3(7)}{5} = \dfrac{-6 + 21}{5} = 3.$
+
+**$P = (1, 3)$.**
+
+### Practice — Warm
+
+**W1.** Distance between $(3, 0)$ and $(0, 4)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{9 + 16} = 5$.
+</details>
+
+**W2.** Midpoint of $(-2, 5)$ and $(8, -1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\left(\dfrac{-2 + 8}{2}, \dfrac{5 - 1}{2}\right) = (3, 2)$.
+</details>
+
+**W3.** Distance between origin and $(7, -24)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{49 + 576} = \sqrt{625} = 25$.
+</details>
+
+### Practice — Working
+
+**P1.** Show that the points $A(1, 7), B(4, 2), C(-1, -1), D(-4, 4)$ are
+the vertices of a square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute all four sides and the two diagonals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AB = \sqrt{9 + 25} = \sqrt{34}$.
+$BC = \sqrt{25 + 9} = \sqrt{34}$.
+$CD = \sqrt{9 + 25} = \sqrt{34}$.
+$DA = \sqrt{25 + 9} = \sqrt{34}$. All sides equal.
+Diagonals: $AC = \sqrt{4 + 64} = \sqrt{68}$. $BD = \sqrt{64 + 4} = \sqrt{68}$.
+Equal. So it's a rhombus with equal diagonals — a **square**. ✓
+</details>
+
+**P2.** Find $k$ so that $(k, 2)$ is equidistant from $(3, 4)$ and $(-3, 7)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$d_1^2 = d_2^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(k - 3)^2 + (2 - 4)^2 = (k + 3)^2 + (2 - 7)^2$
+$\Rightarrow k^2 - 6k + 9 + 4 = k^2 + 6k + 9 + 25$
+$\Rightarrow -12k = 21 \Rightarrow k = -\dfrac{7}{4}$.
+</details>
+
+**P3.** Find the ratio in which the point $(-3, p)$ divides the segment
+from $A(-5, -4)$ to $B(-2, 3)$. Hence find $p$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use section formula on the x-coordinate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let ratio $m : n$. $-3 = \dfrac{-2m - 5n}{m + n} \Rightarrow -3m - 3n =
+-2m - 5n \Rightarrow m = 2n$. Ratio $2 : 1$.
+$p = \dfrac{2(3) + 1(-4)}{3} = \dfrac{2}{3}$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Find the area of the triangle with vertices $A(2, 3), B(-1, 0),
+C(2, -4)$ using the formula
+$\text{Area} = \frac{1}{2}|x_1(y_2 - y_3) + x_2(y_3 - y_1) + x_3(y_1 - y_2)|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plug in carefully. Watch signs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{1}{2}|2(0 - (-4)) + (-1)((-4) - 3) + 2(3 - 0)|$
+$= \frac{1}{2}|2 \cdot 4 + (-1)(-7) + 2 \cdot 3|$
+$= \frac{1}{2}|8 + 7 + 6| = \frac{21}{2}$ sq units.
+
+(Note: the area-of-triangle formula was retained in the rationalised
+syllabus despite some early confusion. It's a standard 3-marker.)
+</details>
+
+**S2.** Find the centroid of the triangle with vertices $A(1, 4), B(-2, -1),
+C(7, 3)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The centroid is at the average of the three vertex coordinates.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$G = \left(\dfrac{1 - 2 + 7}{3}, \dfrac{4 - 1 + 3}{3}\right) = (2, 2)$.
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** Distance between $(0, 0)$ and $(a \cos\theta,
+a \sin\theta)$ is:
+(a) $a$ (b) $a^2$ (c) $\sqrt{a}$ (d) None.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{a^2 \cos^2\theta + a^2 \sin^2\theta} = \sqrt{a^2(\cos^2\theta +
+\sin^2\theta)} = \sqrt{a^2} = |a|$. **(a) $a$** (assuming $a > 0$).
+</details>
+
+**Q2 (1 mark — fill-in).** The midpoint of the segment joining $(-3, 5)$
+and $(7, -1)$ is ____.
+
+<details class="hint"><summary>Full solution</summary>
+$\left(\dfrac{-3 + 7}{2}, \dfrac{5 - 1}{2}\right) = (2, 2)$.
+</details>
+
+**Q3 (2 marks).** Find the value of $y$ for which the distance between the
+points $P(2, -3)$ and $Q(10, y)$ is $10$ units.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sqrt{64 + (y + 3)^2} = 10$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(y + 3)^2 = 36 \Rightarrow y + 3 = \pm 6 \Rightarrow y = 3$ or
+$y = -9$.
+</details>
+
+**Q4 (2 marks).** If the point $P(x, y)$ is equidistant from $A(5, 1)$ and
+$B(-1, 5)$, prove that $3x = 2y$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$PA = PB \Rightarrow PA^2 = PB^2$. Expand.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 5)^2 + (y - 1)^2 = (x + 1)^2 + (y - 5)^2$.
+Expand: $x^2 - 10x + 25 + y^2 - 2y + 1 = x^2 + 2x + 1 + y^2 - 10y + 25$.
+Simplify: $-10x - 2y = 2x - 10y \Rightarrow 8y = 12x \Rightarrow 3x = 2y$.
+$\square$
+</details>
+
+**Q5 (3 marks).** Find the ratio in which the line segment joining
+$A(-2, -3)$ and $B(3, 7)$ is divided by the y-axis. Find the y-coordinate
+of the dividing point.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The y-axis has $x = 0$. Use the section formula's x-coordinate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0 = \dfrac{3m - 2n}{m + n} \Rightarrow 3m = 2n \Rightarrow m : n = 2 : 3$.
+$y = \dfrac{2 \cdot 7 + 3 \cdot (-3)}{5} = \dfrac{14 - 9}{5} = 1$.
+**Ratio $2 : 3$, dividing point $(0, 1)$.**
+</details>
+
+**Q6 (3 marks).** Show that the points $A(7, 10), B(-2, 5), C(3, -4)$ are
+the vertices of an isosceles right triangle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the three sides. Then check Pythagoras.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AB = \sqrt{81 + 25} = \sqrt{106}$.
+$BC = \sqrt{25 + 81} = \sqrt{106}$.
+$AC = \sqrt{16 + 196} = \sqrt{212}$.
+$AB = BC$ — isosceles. $AB^2 + BC^2 = 106 + 106 = 212 = AC^2$ — right
+angle at $B$. **Isosceles right triangle.** $\square$
+</details>
+
+**Q7 (5 marks — long answer).** The line segment joining $A(2, -2)$ and
+$B(3, 7)$ is divided by a point $P$ such that $\dfrac{AP}{PB} = \dfrac{2}
+{3}$. Find: (a) the coordinates of $P$; (b) whether $P$ lies on the line
+$2x + y - 4 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Section formula with $m : n = 2 : 3$. Then plug into the line equation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** $P_x = \dfrac{2(3) + 3(2)}{5} = \dfrac{12}{5}$,
+$P_y = \dfrac{2(7) + 3(-2)}{5} = \dfrac{8}{5}$.
+$P = \left(\dfrac{12}{5}, \dfrac{8}{5}\right)$.
+
+**(b)** Check: $2 \cdot \dfrac{12}{5} + \dfrac{8}{5} - 4 = \dfrac{24}{5} +
+\dfrac{8}{5} - \dfrac{20}{5} = \dfrac{12}{5} \ne 0$.
+So **$P$ does not lie on the line**.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 7.3 Q1–Q12 are direct
+distance/midpoint applications like Q3–Q4; Exemplar 7.4 Q1–Q12 are
+section-formula problems like Q5–Q7.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q26 mirrors Q5 (section
+formula on an axis). CBSE 2023 Standard, Q34 mirrors Q7.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$d = (x_2 - x_1) + (y_2 - y_1)$."** No — that gives a *signed* sum,
+   not a length. Square, add, then root. (Even more dangerous: forgetting
+   to square — losing the negative-sign safety.)
+2. **"Section formula: $\dfrac{n x_2 + m x_1}{m + n}$ vs $\dfrac{m x_2 +
+   n x_1}{m + n}$."** It's $\dfrac{m x_2 + n x_1}{m + n}$ — *the
+   coefficients cross over*. Memorise: with ratio $m : n$, the point
+   leans towards $B$ when $m$ is larger.
+3. **"The y-axis has $y = 0$."** No — the **y-axis** has $x = 0$ (every
+   point on it has zero x-coordinate). The **x-axis** has $y = 0$.
+:::
+
+### Self-Assessment
+
+1. Could you derive both the distance and section formulas from
+   Pythagoras and similar triangles, without notes?
+2. Did Q5 and Q7 fall out cleanly with at most one hint?
+3. Can you spot when a problem is asking for "ratio in which X divides
+   Y" and translate it to a section-formula equation?
+
+- **3 yes:** move on.
+- **2 yes:** redo Q4 and Q7.
+- **0–1 yes:** practise the *Discover* problems again. Coordinate
+  geometry is mostly bookkeeping — once you trust the formulas it
+  becomes mechanical.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.coordinate-geometry`](../../tier-cbse-09-class-9/03-coordinate-geometry/index.qmd) —
+  axes, coordinates, plotting points.
+- [`t2.pythagorean-theorem`](../../tier-2-prealgebra/10-pythagorean-theorem/index.qmd) —
+  the engine of the distance formula.
+
+### What this unlocks
+
+- [`cbse11.straight-lines`](../../tier-cbse-11-class-11/09-straight-lines/index.qmd) —
+  slope, equation forms.
+- [`cbse11.conic-sections`](../../tier-cbse-11-class-11/10a-conic-sections-circle-parabola/index.qmd) —
+  circles, ellipses, parabolas, hyperbolas as loci.
+- [`cbse10.trigonometry-intro`](../08a-trigonometry-intro/index.qmd) —
+  the unit-circle viewpoint uses these formulas.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 7 — Coordinate Geometry** (NCERT 2023 rationalised
+  syllabus). Covers Sections 7.1–7.2: distance and section formula. (The
+  area-of-a-triangle topic, Section 7.3, was retained in the
+  rationalised text and remains examinable.)
+- **Sister synthesis lesson:**
+  [`t2.coordinate-plane`](../../tier-2-prealgebra/04-coordinate-plane/index.qmd) —
+  coordinate plane from scratch.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every collision check ("did the bullet hit the
+target?") is a distance comparison in 2D or 3D. Every "spawn the enemy
+halfway between two waypoints" is a midpoint computation.
+:::
+
+::: {.applied-callout}
+**AI/ML.** k-nearest-neighbour, k-means clustering, and almost every
+geometric ML algorithm rest on the distance formula generalised to $n$
+dimensions. Same Pythagoras, more terms under the root.
+:::
+
+::: {.applied-callout}
+**Research.** Coordinate geometry — René Descartes, 1637 — was the
+breakthrough that made geometry algebraic. Almost every modern
+mathematical structure (manifolds, vector spaces, fibre bundles) is a
+descendant of this idea: *put coordinates on geometry*.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown (the *Touch* widget builds the visual
+  Pythagoras intuition); Russian school (problem-first); Bhāskara
+  (compact *Name* + verse).
+- **Source notes:** Q4 and Q7 follow standard CBSE 2020/2023 patterns.
+  The area formula in S1 is the determinant form widely tested.
+:::

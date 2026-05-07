@@ -1,0 +1,620 @@
+---
+title: "Ch 13 — Statistics (Mean, Median, Mode of Grouped Data)"
+subtitle: "Three averages, three personalities — and a board paper that loves all three"
+lesson-id: "cbse10.statistics"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 13
+ncert-chapter-title: "Statistics"
+board-exam: true
+prerequisites: [cbse9.statistics]
+unlocks: [cbse11.statistics, cbse12.probability-distributions]
+applied-domains: [ai-ml, databases, research]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute the mean of 5 numbers, like $\dfrac{2 + 4 + 4 + 7 + 8}
+   {5}$? See [`cbse9.statistics`](../../tier-cbse-09-class-9/12-statistics/index.qmd).
+2. Do you know what a *frequency* is — how many times a value repeats?
+3. Can you read a *frequency table* — class intervals like
+   $0{-}10, 10{-}20, 20{-}30$ and the count in each?
+4. Can you compute a midpoint of an interval like $30{-}40$?
+
+Three yeses and you are ready.
+:::
+
+## Touch
+
+A class of 30 students; their marks (out of 50) on a test are listed.
+Imagine all 30 marks. The questions a teacher asks:
+
+- "What is the *typical* mark?" → **Mean**.
+- "What is the *middle* mark — half above, half below?" → **Median**.
+- "Which mark *appears most often*?" → **Mode**.
+
+Drag the slider — generate a class — see all three.
+
+```{ojs}
+viewof seed = Inputs.range([1, 20], {value: 4, step: 1, label: "Random class (seed)"})
+```
+
+```{ojs}
+{
+  // simple deterministic pseudo-random
+  function rng(s) { let x = s; return () => { x = (x * 9301 + 49297) % 233280; return x / 233280; }; }
+  const r = rng(seed);
+  const marks = [];
+  for (let i = 0; i < 30; i++) {
+    marks.push(Math.floor(r() * 50) + 1);
+  }
+  marks.sort((a, b) => a - b);
+  const mean = marks.reduce((s, m) => s + m, 0) / 30;
+  const median = (marks[14] + marks[15]) / 2;
+  const counts = {};
+  for (const m of marks) counts[m] = (counts[m] || 0) + 1;
+  let mode, modeC = 0;
+  for (const k in counts) if (counts[k] > modeC) { modeC = counts[k]; mode = k; }
+  return html`<pre style="font-size: 12px; font-family: ui-monospace, monospace;">
+Sorted marks: ${marks.join(", ")}
+
+Mean    = sum / n  = ${mean.toFixed(2)}
+Median  = avg of 15th and 16th = ${median.toFixed(2)}
+Mode    = most-frequent value  = ${mode} (appears ${modeC} times)
+</pre>`;
+}
+```
+
+The three numbers are **rarely all the same**. They tell different
+stories about the same data.
+
+## Wonder
+
+1. If everyone in the class scored exactly the same mark, what would the
+   mean, median, and mode each be?
+2. If one student scores 50 and the rest score 5, which "average" is
+   pulled most by that one outlier?
+3. Class 10 statistics deals with *grouped data* — marks reported as
+   "$0{-}10$: 4 students, $10{-}20$: 7 students, ..." rather than 30
+   individual numbers. Can you still compute mean, median, mode? How?
+4. The mean uses *every* number; the median uses only the middle one (or
+   two); the mode uses only the count. Why does this matter?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) All three equal that common value. (2) The mean is most affected by
+outliers; the median is the most robust. (3) Yes — using interval
+midpoints and a few formulas. (4) Different applications need different
+"averages": income statistics use median (outliers); shoe stocking uses
+mode (most-frequent size).
+:::
+
+## Discover
+
+### Problem 1 — Mean of grouped data (direct method)
+A frequency table:
+
+| Class | $0{-}10$ | $10{-}20$ | $20{-}30$ | $30{-}40$ | $40{-}50$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| Frequency $f_i$ | 5 | 8 | 15 | 16 | 6 |
+
+Compute the mean using the **direct method**: $\bar{x} = \dfrac{\sum f_i
+x_i}{\sum f_i}$, where $x_i$ is the class midpoint.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Midpoints: 5, 15, 25, 35, 45. Multiply each by its frequency and sum.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum f_i = 50$. $\sum f_i x_i = 5 \cdot 5 + 8 \cdot 15 + 15 \cdot 25 +
+16 \cdot 35 + 6 \cdot 45 = 25 + 120 + 375 + 560 + 270 = 1350$.
+Mean = $1350 / 50 = \mathbf{27}$.
+</details>
+
+### Problem 2 — Median of grouped data
+For the same table, find the median.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Median formula: $\text{median} = L + \left(\dfrac{n/2 - cf}{f}\right) h$,
+where $L$ = lower class boundary of median class, $cf$ = cumulative
+frequency before, $f$ = frequency of median class, $h$ = class width,
+$n$ = total.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$n/2 = 25$. Cumulative frequencies: 5, 13, 28, 44, 50. The 25th item is
+in the class $20{-}30$ (cf 28 first exceeds 25). $L = 20, cf = 13, f = 15,
+h = 10$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Median = $20 + \dfrac{25 - 13}{15} \cdot 10 = 20 + \dfrac{12}{15} \cdot 10
+= 20 + 8 = \mathbf{28}$.
+</details>
+
+### Problem 3 — Mode of grouped data
+For the same table, find the mode.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mode formula: $\text{mode} = L + \dfrac{f_1 - f_0}{2 f_1 - f_0 - f_2}
+\cdot h$, where $f_1$ = frequency of modal class (the class with highest
+frequency), $f_0$ = frequency of the class before, $f_2$ = of the class
+after.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Modal class: $30{-}40$ (frequency 16). $L = 30, f_0 = 15, f_1 = 16, f_2 =
+6, h = 10$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Mode = $30 + \dfrac{16 - 15}{32 - 15 - 6} \cdot 10 = 30 + \dfrac{1}{11}
+\cdot 10 = 30 + 0.91 \approx \mathbf{30.91}$.
+</details>
+
+### Problem 4 — Empirical relationship
+Compare the three averages from Problems 1–3. Mean = 27, Median = 28, Mode
+$\approx 30.91$. Is there a relationship?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The empirical relation: $\text{Mode} \approx 3 \cdot \text{Median} - 2
+\cdot \text{Mean}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 \cdot 28 - 2 \cdot 27 = 84 - 54 = 30$. Close to our computed $30.91$.
+The empirical relation holds approximately for moderately skewed
+distributions.
+</details>
+
+### Problem 5 — When direct mean is messy
+A new table:
+
+| Class | $100{-}120$ | $120{-}140$ | $140{-}160$ | $160{-}180$ | $180{-}200$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $f_i$ | 12 | 14 | 8 | 6 | 10 |
+
+Compute the mean using the **assumed-mean method** (also called the
+shortcut): pick an assumed mean $a$ in the middle of the data, compute
+$d_i = x_i - a$, then $\bar{x} = a + \dfrac{\sum f_i d_i}{\sum f_i}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $a = 150$ (the middle midpoint). $x_i$: 110, 130, 150, 170, 190.
+$d_i$: $-40, -20, 0, 20, 40$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum f_i = 50$. $\sum f_i d_i = 12 \cdot (-40) + 14 \cdot (-20) + 8 \cdot
+0 + 6 \cdot 20 + 10 \cdot 40 = -480 - 280 + 0 + 120 + 400 = -240$.
+Mean = $150 + (-240/50) = 150 - 4.8 = \mathbf{145.2}$.
+</details>
+
+### Problem 6 — Step-deviation method
+For the same table, use the **step-deviation method**: $u_i = (x_i - a)/h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$h = 20$. $u_i$ = $-2, -1, 0, 1, 2$. Mean = $a + h \cdot \dfrac{\sum f_i u_i}
+{\sum f_i}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum f_i u_i = 12(-2) + 14(-1) + 0 + 6(1) + 10(2) = -24 - 14 + 6 + 20 =
+-12$. Mean = $150 + 20 \cdot (-12)/50 = 150 - 4.8 = \mathbf{145.2}$.
+Same answer, fewer arithmetic mistakes.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+For grouped data with classes of equal width $h$, midpoints $x_i$, and
+frequencies $f_i$ (with $n = \sum f_i$):
+
+**Mean** (three equivalent methods):
+
+- **Direct:** $\bar{x} = \dfrac{\sum f_i x_i}{n}$.
+- **Assumed-mean:** $\bar{x} = a + \dfrac{\sum f_i d_i}{n}$, where $d_i =
+  x_i - a$ and $a$ is any chosen value.
+- **Step-deviation:** $\bar{x} = a + h \cdot \dfrac{\sum f_i u_i}{n}$,
+  where $u_i = (x_i - a)/h$.
+
+**Median:** find the class whose cumulative frequency first reaches $n/2$
+(the **median class**). Then
+$$\text{Median} = L + \dfrac{n/2 - cf}{f} \cdot h,$$
+where $L$ = lower boundary of median class, $cf$ = cumulative frequency
+before this class, $f$ = frequency of this class, $h$ = class width.
+
+**Mode:** find the class with maximum frequency (the **modal class**).
+$$\text{Mode} = L + \dfrac{f_1 - f_0}{2 f_1 - f_0 - f_2} \cdot h,$$
+where $f_1$ = frequency of modal class, $f_0$ = of preceding class, $f_2$
+= of succeeding class.
+
+**Empirical relation:** $\text{Mode} \approx 3 \cdot \text{Median} - 2
+\cdot \text{Mean}$.
+
+:::
+
+A verse:
+
+> *Three averages: mean, median, mode — three different ways to find the heart.*
+> *Mean takes everyone; median picks the middle; mode chooses the most-
+> repeated part.*
+> *For grouped data, find the right class first — then the formula does the rest.*
+> *Empirically: mode is three medians minus twice the mean — a useful test.*
+
+## Apply
+
+### Worked example
+
+> Find the mean, median, and mode of the following data using each
+> appropriate method.
+
+| Class | $0{-}5$ | $5{-}10$ | $10{-}15$ | $15{-}20$ | $20{-}25$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $f_i$ | 6 | 12 | 18 | 14 | 10 |
+
+$n = 60$.
+
+**Mean (step-deviation, $a = 12.5, h = 5$):**
+$x_i$: 2.5, 7.5, 12.5, 17.5, 22.5. $u_i$: $-2, -1, 0, 1, 2$.
+$\sum f_i u_i = -12 - 12 + 0 + 14 + 20 = 10$.
+$\bar{x} = 12.5 + 5 \cdot \dfrac{10}{60} = 12.5 + 0.83 = 13.33$.
+
+**Median:** $n/2 = 30$. Cumulative: 6, 18, 36, 50, 60. Median class:
+$10{-}15$ (cf 36 first ≥ 30). $L = 10, cf = 18, f = 18, h = 5$.
+Median = $10 + \dfrac{30 - 18}{18} \cdot 5 = 10 + \dfrac{60}{18} = 10 +
+3.33 = 13.33$.
+
+**Mode:** Modal class $10{-}15$ ($f_1 = 18$). $f_0 = 12, f_2 = 14$.
+Mode = $10 + \dfrac{18 - 12}{36 - 12 - 14} \cdot 5 = 10 + \dfrac{6 \cdot
+5}{10} = 13$.
+
+So $\bar{x} = 13.33, \text{Median} = 13.33, \text{Mode} = 13$. The
+empirical relation: $3(13.33) - 2(13.33) = 13.33$ ≈ $13$. ✓
+
+### Practice — Warm
+
+**W1.** Compute the mean of 10, 20, 30, 40, 50.
+
+<details class="hint"><summary>Full solution</summary>
+$150/5 = 30$.
+</details>
+
+**W2.** A frequency table has cumulative frequencies 5, 12, 28, 40, 50.
+What is the total number of items?
+
+<details class="hint"><summary>Full solution</summary>
+The total = the last cumulative frequency = 50.
+</details>
+
+**W3.** The modal class of a distribution is $20{-}30$. What is the lower
+boundary $L$?
+
+<details class="hint"><summary>Full solution</summary>
+$L = 20$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the mean of the following:
+
+| Class | $0{-}20$ | $20{-}40$ | $40{-}60$ | $60{-}80$ | $80{-}100$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $f_i$ | 7 | 8 | 12 | 10 | 8 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use step-deviation, $a = 50, h = 20$. $u_i$: $-2, -1, 0, 1, 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$n = 45$. $\sum f_i u_i = -14 - 8 + 0 + 10 + 16 = 4$.
+$\bar{x} = 50 + 20 \cdot 4/45 = 50 + 1.78 \approx 51.78$.
+</details>
+
+**P2.** The following data gives the marks scored by 100 students. Find
+the median.
+
+| Marks | $0{-}10$ | $10{-}20$ | $20{-}30$ | $30{-}40$ | $40{-}50$ | $50{-}60$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| $f_i$ | 5 | 12 | 25 | 30 | 18 | 10 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$n/2 = 50$. Cumulative: 5, 17, 42, 72, 90, 100. Median class: $30{-}40$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$L = 30, cf = 42, f = 30, h = 10$.
+Median = $30 + \dfrac{50 - 42}{30} \cdot 10 = 30 + \dfrac{80}{30} = 30 +
+2.67 \approx 32.67$.
+</details>
+
+**P3.** Find the mode of the following:
+
+| Age | $0{-}10$ | $10{-}20$ | $20{-}30$ | $30{-}40$ | $40{-}50$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| Number | 6 | 11 | 21 | 23 | 14 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Modal class: $30{-}40$ (frequency 23).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$L = 30, f_0 = 21, f_1 = 23, f_2 = 14, h = 10$.
+Mode = $30 + \dfrac{23 - 21}{46 - 21 - 14} \cdot 10 = 30 + \dfrac{2 \cdot
+10}{11} = 30 + 1.82 \approx 31.82$.
+</details>
+
+### Practice — Stretch
+
+**S1.** The mean of the following data is $25.4$. Find the missing
+frequency $p$.
+
+| Class | $0{-}10$ | $10{-}20$ | $20{-}30$ | $30{-}40$ | $40{-}50$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $f_i$ | 4 | $p$ | 7 | 5 | 4 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direct method: $\bar{x} = \sum f_i x_i / \sum f_i$. Solve for $p$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x_i$: 5, 15, 25, 35, 45. $\sum f_i = 20 + p$. $\sum f_i x_i = 20 + 15p +
+175 + 175 + 180 = 550 + 15p$.
+$25.4 = \dfrac{550 + 15p}{20 + p}$.
+$25.4(20 + p) = 550 + 15p \Rightarrow 508 + 25.4p = 550 + 15p \Rightarrow
+10.4p = 42 \Rightarrow p \approx 4.04$. Round to $p = 4$.
+</details>
+
+**S2.** If the mean of the following frequency distribution is $18$,
+find the missing frequency $f$:
+
+| Class | $11{-}13$ | $13{-}15$ | $15{-}17$ | $17{-}19$ | $19{-}21$ | $21{-}23$ | $23{-}25$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| $f_i$ | 7 | 6 | 9 | 13 | $f$ | 5 | 4 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Class marks $x_i$ are the midpoints: $12, 14, 16, 18, 20, 22, 24$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Set $\overline{x} = \dfrac{\sum f_i x_i}{\sum f_i}$ equal to $18$, then
+solve for $f$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x_i$: $12, 14, 16, 18, 20, 22, 24$.
+
+$\sum f_i x_i = 7(12) + 6(14) + 9(16) + 13(18) + f(20) + 5(22) + 4(24)$
+$= 84 + 84 + 144 + 234 + 20f + 110 + 96 = 752 + 20f$.
+
+$\sum f_i = 7 + 6 + 9 + 13 + f + 5 + 4 = 44 + f$.
+
+Mean $= 18$:
+$$
+18 \;=\; \dfrac{752 + 20f}{44 + f}
+\;\Rightarrow\; 18(44 + f) = 752 + 20f
+\;\Rightarrow\; 792 + 18f = 752 + 20f
+\;\Rightarrow\; 2f = 40
+\;\Rightarrow\; f = 20.
+$$
+
+**Answer:** $f = 20$.
+
+**Sanity check.** With $f = 20$, $\sum f_i = 64$ and $\sum f_i x_i =
+752 + 400 = 1152$, so mean $= 1152 / 64 = 18$. ✓
+
+This is essentially NCERT Ex 13.1 Q2 (rationalised syllabus). The board
+will only give you problems whose answer is a positive integer.
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** The mean of the first 10 natural numbers is:
+(a) $5$ (b) $5.5$ (c) $6$ (d) $4.5$.
+
+<details class="hint"><summary>Full solution</summary>
+$(1+2+\ldots+10)/10 = 55/10 = 5.5$. **(b).**
+</details>
+
+**Q2 (1 mark — fill-in).** If the empirical relation
+$\text{Mode} = 3\,\text{Median} - 2\,\text{Mean}$ gives Mode = $20$ and
+Mean = $14$, then Median = ____.
+
+<details class="hint"><summary>Full solution</summary>
+$20 = 3M - 28 \Rightarrow M = 16$.
+</details>
+
+**Q3 (2 marks).** Find the mean of the following:
+
+| Class | $10{-}20$ | $20{-}30$ | $30{-}40$ | $40{-}50$ |
+|:-:|:-:|:-:|:-:|:-:|
+| $f_i$ | 4 | 6 | 8 | 2 |
+
+<details class="hint"><summary>Full solution</summary>
+$x_i$: 15, 25, 35, 45. Direct: $\sum f_i x_i = 60 + 150 + 280 + 90 = 580$.
+$n = 20$. Mean = $29$.
+</details>
+
+**Q4 (2 marks).** A class has 50 students. The cumulative-frequency table:
+
+| Class | $0{-}10$ | $10{-}20$ | $20{-}30$ | $30{-}40$ | $40{-}50$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| cf | 5 | 12 | 25 | 40 | 50 |
+
+Find the median.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$n/2 = 25$. Cf reaches 25 at the end of class $20{-}30$ — borderline. Use
+the next class boundary as a tiebreaker.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The median class is the one where cf *first equals or exceeds* $n/2$. Here
+cf = 25 at the end of $20{-}30$; the 25th item is the last of that class.
+$L = 20, cf$(before) $= 12, f$(class) $= 13, h = 10$.
+Median = $20 + \dfrac{25 - 12}{13} \cdot 10 = 20 + 10 = 30$.
+</details>
+
+**Q5 (3 marks).** The following table gives the daily wages of 50
+employees. Find the mean using the step-deviation method.
+
+| Wages (₹) | $100{-}120$ | $120{-}140$ | $140{-}160$ | $160{-}180$ | $180{-}200$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| Number | 12 | 14 | 8 | 6 | 10 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a = 150, h = 20$. $u_i$ = $-2, -1, 0, 1, 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum f_i u_i = 12(-2) + 14(-1) + 8(0) + 6(1) + 10(2) = -24 - 14 + 0 + 6 +
+20 = -12$.
+Mean = $150 + 20 \cdot (-12)/50 = 150 - 4.8 = \mathbf{₹145.20}$.
+</details>
+
+**Q6 (3 marks).** The mode of the following data is $36$. Find $x$:
+
+| Class | $0{-}10$ | $10{-}20$ | $20{-}30$ | $30{-}40$ | $40{-}50$ | $50{-}60$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| $f_i$ | 3 | 5 | 4 | $x$ | 6 | 3 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mode $= 36$ lies in the class $30{-}40$, so the modal class is $30{-}40$.
+That gives $L = 30, f_0 = 4, f_1 = x, f_2 = 6, h = 10$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Use $\;\text{Mode} = L + \dfrac{f_1 - f_0}{2 f_1 - f_0 - f_2} \cdot h\;$
+and substitute.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$
+36 \;=\; 30 + \dfrac{x - 4}{2x - 4 - 6} \cdot 10
+\;\Rightarrow\; 6 \;=\; \dfrac{10(x - 4)}{2x - 10}.
+$$
+$$
+6(2x - 10) \;=\; 10(x - 4)
+\;\Rightarrow\; 12x - 60 \;=\; 10x - 40
+\;\Rightarrow\; 2x \;=\; 20
+\;\Rightarrow\; x \;=\; 10.
+$$
+
+**Sanity check.** $f_1 = 10 > f_0 = 4$ and $f_1 = 10 > f_2 = 6$, so
+$30{-}40$ really is the modal class. ✓
+
+**Answer:** $x = 10$.
+</details>
+
+**Q7 (5 marks — long answer).** The frequency distribution of the marks
+of 100 students is below. Find the mean, median, and mode. Verify the
+empirical relation.
+
+| Marks | $0{-}10$ | $10{-}20$ | $20{-}30$ | $30{-}40$ | $40{-}50$ | $50{-}60$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Frequency | 5 | 10 | 18 | 30 | 22 | 15 |
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Step-deviation for mean. Cumulative frequencies for median. Modal class
+$30{-}40$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Mean (step-deviation, $a = 35, h = 10$):**
+$x_i$: 5, 15, 25, 35, 45, 55. $u_i$: $-3, -2, -1, 0, 1, 2$.
+$\sum f_i u_i = -15 - 20 - 18 + 0 + 22 + 30 = -1$.
+$\bar{x} = 35 + 10 \cdot (-1)/100 = 35 - 0.1 = \mathbf{34.9}$.
+
+**Median:** $n/2 = 50$. Cumulative: 5, 15, 33, 63, 85, 100. Median class:
+$30{-}40$ (cf 63 first ≥ 50). $L = 30, cf = 33, f = 30, h = 10$.
+Median = $30 + \dfrac{50 - 33}{30} \cdot 10 = 30 + \dfrac{170}{30} = 30 +
+5.67 = \mathbf{35.67}$.
+
+**Mode:** Modal class $30{-}40$ ($f_1 = 30$). $f_0 = 18, f_2 = 22, L = 30,
+h = 10$.
+Mode = $30 + \dfrac{30 - 18}{60 - 18 - 22} \cdot 10 = 30 + \dfrac{12 \cdot
+10}{20} = 30 + 6 = \mathbf{36}$.
+
+**Empirical check:** $3 \cdot 35.67 - 2 \cdot 34.9 = 107.01 - 69.8 = 37.21$
+≈ $36$. ✓ (Approximate equality is the rule, not exact.)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 13.3 Q1–Q12 are direct
+mean/median/mode applications like Q3–Q5; Exemplar 13.4 Q1–Q12 are full
+three-average problems like Q7.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q35 mirrors Q7 (all three
+averages on one table). CBSE 2023 Standard, Q34 mirrors Q5.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$x_i$ is the upper class limit."** No — $x_i$ is the **midpoint** of
+   the class. For $20{-}30$, $x_i = 25$.
+2. **"Median = $L + (n/2 - cf)/f \cdot h$ uses the cf of the median
+   class."** No — $cf$ in the formula is the **cumulative frequency
+   *before*** the median class.
+3. **"Mode is just the most frequent value."** For *ungrouped* data, yes.
+   For *grouped* data, the formula gives a value *within* the modal class
+   that approximates the location; it can lie anywhere in $(L, L + h)$.
+:::
+
+### Self-Assessment
+
+1. Could you state and apply the three formulas (mean, median, mode for
+   grouped data) without notes?
+2. Did Q5 and Q7 fall out cleanly with at most one hint?
+3. Could you spot which method (direct vs assumed-mean vs step-deviation)
+   minimises arithmetic for a given table?
+
+- **3 yes:** move on.
+- **2 yes:** redo Q7. The board paper picks one "all three averages"
+  problem nearly every year.
+- **0–1 yes:** the table-handling drill matters more than insight here.
+  Re-walk *Discover, Problems 1–3*.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.statistics`](../../tier-cbse-09-class-9/12-statistics/index.qmd) —
+  ungrouped mean and basic frequency tables.
+
+### What this unlocks
+
+- [`cbse11.statistics`](../../tier-cbse-11-class-11/13-statistics/index.qmd) —
+  measures of dispersion (variance, standard deviation).
+- [`cbse12.probability-distributions`](../../tier-cbse-12-class-12/13a-conditional-probability-bayes/index.qmd).
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 13 — Statistics** (NCERT 2023 rationalised
+  syllabus). Covers Sections 13.1–13.3: mean, median, mode of grouped
+  data. (Section 13.4 — graphical representation of cumulative frequency
+  via ogive — was retained but slightly reduced.)
+- **Sister synthesis lessons:**
+  - [`t1.data-and-average`](../../tier-1-foundations/14-data-and-average/index.qmd) —
+    averages from scratch.
+  - [`t3.discrete-distributions`](../../tier-3-algebra2-geometry-trig/15-discrete-distributions/index.qmd) —
+    distributions and their summaries.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Loss minimisation in machine learning is *exactly* a
+weighted-average problem. The mean of grouped data formula
+$\sum f_i x_i / \sum f_i$ is the formal ancestor of the expected-value
+formula $\sum p_i x_i$ in probability.
+:::
+
+::: {.applied-callout}
+**Databases.** SQL's `AVG()`, `PERCENTILE_CONT()`, and `MODE()` are
+machine-scale versions of the formulas you've practised. Every
+data-warehouse report begins with these three numbers.
+:::
+
+::: {.applied-callout}
+**Research.** The choice between mean and median has political weight:
+"average income" computed as mean is misleading in skewed
+distributions; computed as median, it tells the truth about the typical
+person. Statistics is where mathematics meets policy.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Bhāskara (formula list); Russian school (problem-
+  first); NRICH (the "three averages tell different stories" framing in
+  *Touch* and *Wonder*).
+- **Source notes:** Q5 (wages step-deviation) and Q7 (full
+  three-average problem) are NCERT Examples 13.4 and 13.7 archetypes.
+:::

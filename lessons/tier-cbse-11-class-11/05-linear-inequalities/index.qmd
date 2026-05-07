@@ -1,0 +1,458 @@
+---
+title: "Ch 5 — Linear Inequalities"
+subtitle: "When the answer is not a number but a range — and how to draw it"
+lesson-id: "cbse11.linear-inequalities"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 5
+ncert-chapter-title: "Linear Inequalities"
+board-exam: false
+prerequisites: ["cbse10.pair-linear-equations", "t2.linear-inequalities"]
+unlocks: ["cbse12.linear-programming"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you solve $3x + 5 = 14$ in your head?
+2. Do you remember that adding the same number to both sides of an
+   equation preserves the equation?
+3. Have you ever drawn the graph of $y = 2x + 1$?
+4. Do the symbols $<,\ \le,\ >,\ \ge$ feel routine to you?
+
+Three confident yeses — read on.
+:::
+
+## Touch
+
+You have a budget of $\overline{\rule{1em}{0pt}}500$ to spend at a stationery
+shop. Pens cost $\overline{\rule{1em}{0pt}}30$ each, notebooks
+$\overline{\rule{1em}{0pt}}80$ each. Let $x$ be the number of pens and $y$
+the number of notebooks.
+
+How much can you spend? *At most* $500$. The constraint is not "exactly
+500" — that would be an equation. It is *at most*:
+$$30x + 80y \le 500.$$
+
+The plot below shows the **feasible region** — every $(x, y)$ that
+respects the budget. Drag $x$; watch the maximum $y$.
+
+```{ojs}
+viewof xPens = Inputs.range([0, 17], {value: 5, step: 1, label: "x = pens"})
+```
+
+```{ojs}
+{
+  const x = xPens;
+  const yMax = Math.floor((500 - 30 * x) / 80);
+  const cost = 30 * x + 80 * yMax;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div>With <b>${x} pens</b> at ₹30 each (₹${30 * x} spent), the
+      most notebooks you can afford at ₹80 each is <b>${yMax}</b>.</div>
+    <div>Total spent: <b>₹${cost}</b> (budget ₹500).</div>
+    <div style="margin-top:0.4em;color:#666;">
+      The pair (${x}, ${yMax}) is on the boundary 30x + 80y ≤ 500. Every
+      pair below this line is also feasible.
+    </div>
+  </div>`;
+}
+```
+
+The set of all feasible $(x, y)$ is a **half-plane**, bounded by a line.
+This is the chapter.
+
+## Wonder
+
+Sit with these.
+
+1. Solving $3x > 6$ — when can you "divide both sides by 3"? Is there a
+   side-effect of dividing by a *negative* number?
+2. The single inequality $x \ge 0$ describes which half of the line?
+3. If you have *two* inequalities, $x \ge 0$ and $y \ge 0$, what does
+   their *intersection* look like in the plane?
+4. Do the equality cases ($\le$ vs $<$) matter for the picture? Why
+   does it become a *dashed* line for strict inequalities?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+The dangerous step is multiplying or dividing by a *negative* — the
+inequality flips. Forgetting this is the single most common error in
+the chapter.
+:::
+
+## Discover
+
+### Problem 1 — Solve a one-variable inequality
+
+Solve $4x - 3 < 17$ for $x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Treat it like an equation, but keep the inequality sign.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4x < 20 \Rightarrow x < 5$.
+
+Solution set: $(-\infty, 5)$. On the number line: open circle at 5, arrow
+to the left.
+</details>
+
+### Problem 2 — Negative coefficient
+
+Solve $-2x + 5 > 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$-2x > -4$. Now divide by $-2$ — and remember to flip the inequality.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-2x > -4 \Rightarrow x < 2$ (dividing by $-2$ flips $>$ to $<$).
+</details>
+
+### Problem 3 — Combined inequality
+
+Solve $-3 \le 2x + 1 < 7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract 1 from all three parts; then divide by 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-4 \le 2x < 6 \Rightarrow -2 \le x < 3$.
+
+Solution set $[-2, 3)$.
+</details>
+
+### Problem 4 — Graph in the plane
+
+Sketch the half-plane $y \ge 2x - 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw the line $y = 2x - 1$ first. Decide which side of the line satisfies
+the inequality by testing a sample point (e.g. the origin).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Line passes through $(0, -1)$ and $(1, 1)$. Test $(0, 0)$:
+$0 \ge -1$? Yes. So $(0, 0)$ is in the solution. Shade the side above
+the line. Boundary is *solid* because $\ge$ includes equality.
+</details>
+
+### Problem 5 — System of inequalities
+
+Sketch the region defined by $x + y \le 4,\ x \ge 0,\ y \ge 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x \ge 0$ and $y \ge 0$ keep you in the first quadrant. Then bound from
+above by $x + y = 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+A triangle with vertices $(0,0), (4, 0), (0, 4)$, including the
+boundary.
+</details>
+
+### Problem 6 — A word problem
+
+A factory produces two products: each unit of $A$ uses $2$ kg of raw
+material; each unit of $B$ uses $3$ kg. The factory has $24$ kg of raw
+material. Write the constraint.
+
+<details class="hint"><summary>Full solution</summary>
+$2x + 3y \le 24$, plus $x \ge 0$, $y \ge 0$ (you can't produce negative
+units).
+</details>
+
+You have just used **flipping the sign on negative multiplication**,
+**combined inequalities**, **half-plane graphs**, and the **boundary
+line solid/dashed convention**. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+A **linear inequality** in one variable has the form
+$$ax + b \,\square\, 0 \quad \text{where } \square \in \{<, \le, >, \ge\}.$$
+
+Operating rules (carry the inequality through unchanged, **except** rule 4):
+
+1. Add or subtract the same value on both sides — sign unchanged.
+2. Multiply or divide both sides by a *positive* number — sign unchanged.
+3. Multiply or divide both sides by a *negative* number — **flip** the
+   inequality sign.
+4. The same applies in two variables: $ax + by \,\square\, c$.
+
+**Geometric picture:**
+
+| Inequality | Picture in $\mathbb{R}^2$ |
+|:--|:--|
+| $ax + by \le c$ | half-plane below/left of the line $ax+by = c$, **solid** boundary |
+| $ax + by < c$ | same half-plane, **dashed** boundary |
+| $ax + by \ge c$ | other half-plane, solid boundary |
+| $ax + by > c$ | other half-plane, dashed boundary |
+
+A **system of linear inequalities** has the **intersection** of the
+half-planes as its solution. This region is always convex and is the
+seed of *linear programming* (Class 12).
+
+:::
+
+A short verse:
+
+> *Add and subtract — the sign holds true;*
+> *Multiply by minus — the sign turns askew.*
+> *Draw a line, pick a side, shade and seal —*
+> *Strict gets a dash, weak gets the deal.*
+
+## Apply
+
+### Worked example
+
+> Solve and graph: $\dfrac{2x - 3}{4} + 9 \ge 3 + \dfrac{4x}{3}$.
+
+How a competent solver thinks:
+
+1. Multiply both sides by $12$ (LCM of denominators) to clear fractions:
+   $3(2x - 3) + 108 \ge 36 + 16x$.
+2. Expand: $6x - 9 + 108 \ge 36 + 16x$.
+3. Simplify: $6x + 99 \ge 36 + 16x$, i.e. $63 \ge 10x$, i.e. $x \le 6.3$.
+
+**Solution set:** $(-\infty, 6.3]$. On the number line: closed circle at
+6.3, arrow to the left.
+
+### Practice — Warm
+
+**W1.** Solve $5x + 3 > 18$.
+
+<details class="hint"><summary>Full solution</summary>
+$5x > 15 \Rightarrow x > 3$.
+</details>
+
+**W2.** Solve $-4x + 1 \le 9$.
+
+<details class="hint"><summary>Full solution</summary>
+$-4x \le 8 \Rightarrow x \ge -2$ (sign flipped).
+</details>
+
+**W3.** Solve $\dfrac{x}{2} - 1 < 3$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{x}{2} < 4 \Rightarrow x < 8$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $\dfrac{3(x - 1)}{2} \le \dfrac{2(x + 3)}{3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both sides by 6 to clear fractions.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$9(x - 1) \le 4(x + 3) \Rightarrow 9x - 9 \le 4x + 12 \Rightarrow
+5x \le 21 \Rightarrow x \le 21/5$.
+</details>
+
+**P2.** Solve the system: $2x + y \le 6,\ x + 2y \le 6,\ x \ge 0,\ y \ge 0$.
+Sketch.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find intersection of the two slanted lines: $2x + y = 6$ and $x + 2y = 6$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Intersection: subtract — $(2x + y) - (x + 2y) = 0$ gives $x = y$. Sub
+into either: $3x = 6$, so $x = y = 2$.
+
+Vertices of the region: $(0, 0), (3, 0), (2, 2), (0, 3)$ — a
+quadrilateral.
+</details>
+
+**P3.** A man wants to cut three lengths from a $91$-cm board. The
+second is to be $3$ cm longer than the first; the third is to be twice
+as long as the first. What are the possible lengths of the first piece?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let first $= x$. Second $= x + 3$. Third $= 2x$. Total $\le 91$. Also
+$x > 0$ and the third must be at least 5 cm longer than the second.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + (x+3) + 2x \le 91 \Rightarrow 4x + 3 \le 91 \Rightarrow x \le 22$.
+
+Also $2x \ge (x+3) + 5 \Rightarrow x \ge 8$.
+
+**Answer:** $8 \le x \le 22$ (cm).
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve $|x - 2| < 3$ and $|2x + 5| \ge 1$ simultaneously.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|y| < c \Leftrightarrow -c < y < c$. $|y| \ge c \Leftrightarrow y \le -c$
+or $y \ge c$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First: $-3 < x - 2 < 3 \Rightarrow -1 < x < 5$.
+
+Second: $2x + 5 \le -1$ or $2x + 5 \ge 1$, i.e. $x \le -3$ or $x \ge -2$.
+
+Intersection of $(-1, 5)$ with $\{x \le -3\} \cup \{x \ge -2\}$:
+$(-1, 5) \cap [-2, \infty) = (-1, 5)$. (The $x \le -3$ branch
+contributes nothing.)
+
+**Answer:** $-1 < x < 5$.
+</details>
+
+**S2.** Find the region in the plane satisfying:
+$x + 2y \le 8,\ 2x + y \le 8,\ x, y \ge 0$. Identify the vertices.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Intersect each pair of lines.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Intersection of slanted lines: $x + 2y = 8$, $2x + y = 8$. Subtract:
+$x - y = 0$, so $x = y = 8/3$.
+
+Vertices: $(0, 0)$, $(4, 0)$, $(8/3, 8/3)$, $(0, 4)$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The solution of $-x + 2 \le 0$ is
+(a) $x \le 2$ (b) $x \ge 2$ (c) $x < 2$ (d) $x > 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$-x \le -2 \Rightarrow x \ge 2$. **Answer: (b).**
+</details>
+
+**2-mark (short answer).** Solve and represent on a number line:
+$5x - 3 \ge 3x - 5$.
+
+<details class="hint"><summary>Full solution</summary>
+$2x \ge -2 \Rightarrow x \ge -1$. Closed circle at $-1$, arrow right.
+</details>
+
+**3-mark (short answer II).** Solve the system: $3x + 4y \le 60,\
+x + 3y \le 30,\ x, y \ge 0$. List the corner points.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The corners are intersections of pairs of boundary lines.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Slanted lines meet: $3x + 4y = 60$, $x + 3y = 30$. Multiply second by 3:
+$3x + 9y = 90$. Subtract: $5y = 30$, so $y = 6$, $x = 30 - 18 = 12$.
+
+Vertices: $(0, 0), (20, 0), (12, 6), (0, 10)$.
+</details>
+
+**5-mark (long answer).** A workshop produces tables and chairs. A table
+needs $2$ hours of carpentry and $1$ hour of finishing. A chair needs
+$1$ hour of carpentry and $3$ hours of finishing. The workshop has $40$
+hours of carpentry and $50$ hours of finishing per week. Write the
+inequalities and sketch the feasible region. Identify all corner points.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $x$ = tables, $y$ = chairs. Two resource constraints, plus
+non-negativity.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Constraints: $2x + y \le 40$, $x + 3y \le 50$, $x \ge 0$, $y \ge 0$.
+
+Boundary lines:
+
+$2x + y = 40$: passes through $(0, 40)$ and $(20, 0)$.
+
+$x + 3y = 50$: passes through $(0, 50/3)$ and $(50, 0)$.
+
+Their intersection: from $2x + y = 40$, $y = 40 - 2x$. Sub:
+$x + 3(40 - 2x) = 50 \Rightarrow x + 120 - 6x = 50 \Rightarrow -5x = -70
+\Rightarrow x = 14, y = 12$.
+
+**Corner points:** $(0, 0), (20, 0), (14, 12), (0, 50/3)$.
+
+The feasible region is a quadrilateral.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 5 LA "Solve graphically the
+system $2x + y \le 24$, etc." matches the 5-mark item.
+**Class 12 / JEE pointer:** this chapter is the foundation of **linear
+programming** in Class 12.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Multiplying both sides by anything keeps the inequality."** Wrong.
+   Multiplying by a *negative* flips the sign. Multiplying by a variable
+   of unknown sign is forbidden without case analysis.
+2. **"$\le$ and $<$ give the same picture."** They give the same shaded
+   region but a different boundary: $\le$ is solid, $<$ is dashed.
+   Boards mark this distinction.
+3. **"$|x| < c$ means $x < c$."** No. $|x| < c$ means $-c < x < c$ (for
+   $c > 0$). The absolute value translates into a *bounded* interval,
+   not a half-line.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you solve a one-variable inequality including a negative
+   coefficient without notes?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you sketch a system of two or three inequalities and identify the
+   corner points?
+
+- **3 yes:** move on to **[Permutations and Combinations](../06-permutations-combinations/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item — Class 12 LP depends
+  on this.
+- **0–1 yes:** sketch ten more two-inequality systems by hand.
+
+## Connect
+
+### Prerequisites used
+
+- **[Class 10 — Pair of Linear Equations](../../tier-cbse-10-class-10/03-pair-linear-equations/index.qmd)** —
+  the boundary lines are exactly two-variable linear equations.
+- **[Linear Inequalities (T2)](../../tier-2-prealgebra/linear-inequalities/index.qmd)** —
+  one-variable warm-up.
+
+### What this unlocks
+
+- **[Class 12 — Linear Programming](../../tier-cbse-12-class-12/12-linear-programming/index.qmd)** —
+  optimise a linear function over a feasible region built exactly as
+  this chapter teaches.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 5 — Linear Inequalities** (NCERT 2023
+  rationalised). Sections 5.1–5.4: algebraic and graphical solutions in
+  one and two variables; systems.
+- **Sister synthesis lesson:**
+  [`t2.linear-inequalities`](../../tier-2-prealgebra/linear-inequalities/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Support Vector Machines define a *separating half-plane*
+between two classes — exactly the picture of a linear inequality. The
+"margin" is the distance from data points to the boundary.
+:::
+
+::: {.applied-callout}
+**Research / Operations Research.** Every diet, transportation, and
+production-planning problem is a system of linear inequalities plus an
+objective. The simplex method (Dantzig, 1947) walks the corner points
+to find the optimum.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: NRICH (the budget word problem is a low-floor entry to the
+two-variable case), Russian school (Discover problems force the
+sign-flip rule before it is named), Bhāskara (verse).
+:::

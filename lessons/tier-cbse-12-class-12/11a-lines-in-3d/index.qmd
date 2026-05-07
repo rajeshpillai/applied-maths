@@ -1,0 +1,408 @@
+---
+title: "Ch 11a — Lines in 3D"
+subtitle: "Vector and Cartesian forms — and the angle and distance between lines"
+lesson-id: "cbse12.lines-in-3d"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 11
+ncert-chapter-title: "Three Dimensional Geometry"
+board-exam: true
+prerequisites: ["cbse12.vector-algebra"]
+unlocks: ["cbse12.planes-in-3d"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Ch 10a](../10a-vector-algebra/index.qmd)?
+2. Have you done [Ch 10b](../10b-dot-cross-product-applications/index.qmd)?
+3. Comfortable with direction ratios and direction cosines?
+:::
+
+## Touch
+
+A drone wants to fly along a straight path. It has a starting point and
+a direction. That's the entire description of a line.
+
+::: {.lesson-beat}
+
+**Vector form.** Line through $\vec a$ in direction $\vec b$:
+$$\vec r = \vec a + \lambda \vec b, \quad \lambda \in \mathbb{R}.$$
+
+**Cartesian form.** Line through $(x_1, y_1, z_1)$ with DR $(a, b, c)$:
+$$\frac{x - x_1}{a} = \frac{y - y_1}{b} = \frac{z - z_1}{c}.$$
+
+The two forms describe the same object. Vector form is cleaner for
+calculation; Cartesian is cleaner for plugging in coordinates.
+
+:::
+
+This lesson covers:
+- writing the equation of a line through two points or with a given
+  direction,
+- the angle between two lines,
+- the **shortest distance** between two non-intersecting (skew) lines.
+
+## Wonder
+
+1. The vector form has a parameter $\lambda$. What does $\lambda = 0$
+   correspond to? $\lambda = 1$?
+2. Two lines in 3D — what happens when they don't intersect *and*
+   aren't parallel?
+3. The angle between two lines is the angle between their direction
+   vectors. Why is the answer in $[0, \pi/2]$ rather than $[0, \pi]$?
+
+## Discover
+
+### Problem 1
+
+Find the vector equation of the line through $(1, 2, 3)$ in direction
+$2\hat\imath + \hat\jmath - \hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec r = (\hat\imath + 2\hat\jmath + 3\hat k) + \lambda(2\hat\imath +
+\hat\jmath - \hat k)$.
+</details>
+
+### Problem 2
+
+Convert the line in Problem 1 to Cartesian form.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{x - 1}{2} = \frac{y - 2}{1} = \frac{z - 3}{-1}$.
+</details>
+
+### Problem 3
+
+Find the equation of the line through $A(1, 0, 2)$ and $B(3, 4, 6)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direction vector $= \vec{AB}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec{AB} = (2, 4, 4)$. $\vec r = (1, 0, 2) + \lambda(2, 4, 4)$, or
+Cartesian $\frac{x - 1}{2} = \frac{y}{4} = \frac{z - 2}{4}$ which we
+can simplify to $\frac{x - 1}{1} = \frac{y}{2} = \frac{z - 2}{2}$.
+</details>
+
+### Problem 4
+
+Find the angle between $\vec r = (\hat\imath + 2\hat\jmath - \hat k) +
+\lambda(\hat\imath + 2\hat\jmath + 2\hat k)$ and $\vec r = (2\hat\imath
+- \hat\jmath) + \mu(2\hat\imath - \hat\jmath + 2\hat k)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos\theta = |\vec b_1 \cdot \vec b_2|/(|\vec b_1||\vec b_2|)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec b_1 = (1, 2, 2), \vec b_2 = (2, -1, 2)$. $\vec b_1 \cdot \vec b_2
+= 2 - 2 + 4 = 4$. $|\vec b_1| = 3, |\vec b_2| = 3$. $\cos\theta = 4/9$.
+$\theta = \cos^{-1}(4/9)$.
+</details>
+
+### Problem 5
+
+Show lines $L_1: \frac{x-1}{2} = \frac{y+1}{3} = \frac{z-1}{4}$ and
+$L_2: \frac{x-3}{4} = \frac{y-2}{6} = \frac{z}{8}$ are parallel.
+
+<details class="hint"><summary>Full solution</summary>
+DR of $L_1: (2, 3, 4)$. DR of $L_2: (4, 6, 8) = 2(2, 3, 4)$.
+Proportional ⇒ parallel. ✓
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Vector form** of a line through $\vec a$ in direction $\vec b$:
+$$\vec r = \vec a + \lambda \vec b.$$
+
+**Cartesian form** through $(x_1, y_1, z_1)$ with DR $(a, b, c)$:
+$$\frac{x - x_1}{a} = \frac{y - y_1}{b} = \frac{z - z_1}{c}.$$
+
+**Through two points** $\vec a_1, \vec a_2$:
+$$\vec r = \vec a_1 + \lambda(\vec a_2 - \vec a_1).$$
+
+**Angle between two lines** with directions $\vec b_1, \vec b_2$:
+$$\cos\theta = \frac{|\vec b_1 \cdot \vec b_2|}{|\vec b_1||\vec b_2|}.$$
+(Absolute value gives angle in $[0, \pi/2]$.)
+
+**Shortest distance between skew lines**
+$\vec r = \vec a_1 + \lambda \vec b_1$ and
+$\vec r = \vec a_2 + \mu \vec b_2$:
+$$d = \frac{|(\vec a_2 - \vec a_1) \cdot (\vec b_1 \times \vec b_2)|}{
+|\vec b_1 \times \vec b_2|}.$$
+
+For **parallel** lines: $d = \dfrac{|(\vec a_2 - \vec a_1) \times \vec
+b|}{|\vec b|}$.
+
+:::
+
+A verse:
+
+> *Point and direction — that's a line in two forms;*
+> *Vector clean, Cartesian explicit — both describe the norms.*
+> *Angle: dot the directions, magnitude divides;*
+> *Shortest skew distance — triple-product divides cross's magnitudes.*
+
+## Apply
+
+### Worked example
+
+> Find the shortest distance between the lines
+> $\vec r = (\hat\imath + 2\hat\jmath + \hat k) + \lambda(\hat\imath -
+> \hat\jmath + \hat k)$
+> and
+> $\vec r = (2\hat\imath - \hat\jmath - \hat k) + \mu(2\hat\imath +
+> \hat\jmath + 2\hat k)$.
+
+A competent solver:
+
+1. $\vec a_1 = (1, 2, 1), \vec b_1 = (1, -1, 1)$. $\vec a_2 = (2, -1,
+   -1), \vec b_2 = (2, 1, 2)$.
+2. $\vec a_2 - \vec a_1 = (1, -3, -2)$.
+3. $\vec b_1 \times \vec b_2 = \begin{vmatrix} \hat\imath & \hat\jmath
+   & \hat k \\ 1 & -1 & 1 \\ 2 & 1 & 2 \end{vmatrix} = \hat\imath(-2 -
+   1) - \hat\jmath(2 - 2) + \hat k(1 + 2) = (-3, 0, 3)$.
+4. $|\vec b_1 \times \vec b_2| = \sqrt{18} = 3\sqrt 2$.
+5. $(\vec a_2 - \vec a_1) \cdot (\vec b_1 \times \vec b_2) = 1\cdot(-3)
+   + (-3)\cdot0 + (-2)\cdot3 = -9$.
+6. $d = |-9|/(3\sqrt 2) = 3/\sqrt 2 = \frac{3\sqrt 2}{2}$.
+
+### Practice — Warm
+
+**W1.** Cartesian form of $\vec r = (\hat\imath - \hat\jmath) + \lambda
+(2\hat\imath + 3\hat\jmath - \hat k)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{x - 1}{2} = \frac{y + 1}{3} = \frac{z}{-1}$.
+</details>
+
+**W2.** Direction ratios of the line $\frac{x}{2} = \frac{y}{3} =
+\frac{z}{4}$.
+
+<details class="hint"><summary>Full solution</summary>
+$(2, 3, 4)$.
+</details>
+
+**W3.** Angle between lines with DR $(1, 1, 1)$ and $(1, -1, 0)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos\theta = |0|/(\sqrt 3 \cdot \sqrt 2) = 0 \Rightarrow \theta =
+\pi/2$. **Perpendicular.**
+</details>
+
+### Practice — Working
+
+**P1.** Find the equation of the line through $(2, -1, 4)$ parallel to
+$\frac{x}{1} = \frac{y - 2}{2} = \frac{z}{3}$.
+
+<details class="hint"><summary>Full solution</summary>
+DR same: $(1, 2, 3)$. Cartesian: $\frac{x - 2}{1} = \frac{y + 1}{2} =
+\frac{z - 4}{3}$.
+</details>
+
+**P2.** Show lines $\frac{x - 1}{2} = \frac{y - 2}{3} = \frac{z - 3}{4}$
+and $\frac{x - 4}{5} = \frac{y - 1}{2} = z$ are coplanar (i.e.
+intersect or parallel).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For two lines $\vec a_1 + \lambda \vec b_1$ and $\vec a_2 + \mu \vec b_2$:
+coplanar iff $(\vec a_2 - \vec a_1) \cdot (\vec b_1 \times \vec b_2) = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec a_2 - \vec a_1 = (3, -1, -3)$. $\vec b_1 = (2, 3, 4), \vec b_2 =
+(5, 2, 1)$.
+$\vec b_1 \times \vec b_2 = (3 - 8, 20 - 2, 4 - 15) = (-5, 18, -11)$.
+$(3, -1, -3) \cdot (-5, 18, -11) = -15 - 18 + 33 = 0$. ✓ Coplanar.
+</details>
+
+**P3.** Distance from $(1, 2, 3)$ to the line $\vec r = (\hat\imath +
+\hat\jmath) + \lambda(\hat\imath + \hat\jmath + \hat k)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $d = |(\vec a - \vec p) \times \vec b|/|\vec b|$, where $\vec p$ is
+the point and $\vec a$ on the line.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec a - \vec p = (0, -1, -3)$. $\vec b = (1, 1, 1)$.
+$(0, -1, -3) \times (1, 1, 1) = (-1 - (-3), -3 - 0, 0 - (-1)) = (2, -3,
+1)$. $|.| = \sqrt{14}$. $|\vec b| = \sqrt 3$. $d = \sqrt{14/3}$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Find the foot of perpendicular from $(1, 2, 3)$ to the line
+$\frac{x}{1} = \frac{y - 1}{2} = \frac{z - 2}{3}$.
+
+<details class="hint"><summary>Full solution</summary>
+General point on line: $(t, 1 + 2t, 2 + 3t)$. Vector from $(1, 2, 3)$
+to it: $(t - 1, 2t - 1, 3t - 1)$. Perpendicular to direction $(1, 2,
+3)$: $(t - 1) + 2(2t - 1) + 3(3t - 1) = 0 \Rightarrow 14t = 6
+\Rightarrow t = 3/7$.
+Foot: $(3/7, 1 + 6/7, 2 + 9/7) = (3/7, 13/7, 23/7)$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** DR of the line $\frac{x - 2}{3} = \frac{y + 1}{2} =
+\frac{z}{-1}$ are (a) $(2, -1, 0)$ (b) $(3, 2, -1)$ (c) $(2, 1, 0)$
+(d) $(3, -2, 1)$.
+
+<details class="hint"><summary>Full solution</summary>
+**(b) $(3, 2, -1)$.**
+</details>
+
+**1-mark MCQ #2.** Line through origin and $(2, -3, 4)$ in vector form
+is (a) $\vec r = \lambda(2, -3, 4)$ (b) $\vec r = (2, -3, 4) + \lambda
+\hat\imath$ (c) $\vec r = (2, -3, 4)$ (d) none.
+
+<details class="hint"><summary>Full solution</summary>
+**(a).**
+</details>
+
+**2-mark.** Find the vector equation of the line through $(1, 2, -4)$
+and parallel to vector $\hat\imath - 2\hat\jmath + \hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec r = (\hat\imath + 2\hat\jmath - 4\hat k) + \lambda(\hat\imath -
+2\hat\jmath + \hat k)$.
+</details>
+
+**2-mark.** Find the angle between $\frac{x - 1}{2} = \frac{y}{3} =
+\frac{z}{1}$ and $\frac{x}{1} = \frac{y - 1}{1} = \frac{z + 2}{1}$.
+
+<details class="hint"><summary>Full solution</summary>
+DR: $(2, 3, 1), (1, 1, 1)$. Dot $= 6$. Magnitudes $\sqrt{14}, \sqrt 3$.
+$\cos\theta = 6/\sqrt{42}$. $\theta = \cos^{-1}(6/\sqrt{42}) =
+\cos^{-1}(\sqrt{6/7})$.
+</details>
+
+**3-mark.** Find the shortest distance between $\vec r = \hat\imath +
+\hat\jmath + \lambda(2\hat\imath - \hat\jmath + \hat k)$ and $\vec r =
+2\hat\imath + \hat\jmath - \hat k + \mu(3\hat\imath - 5\hat\jmath +
+2\hat k)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec a_2 - \vec a_1 = (1, 0, -1)$. $\vec b_1 \times \vec b_2 = (-2 +
+5, 3 - 4, -10 + 3) = (3, -1, -7)$. Magnitude $\sqrt{59}$.
+Triple product: $3 + 0 + 7 = 10$. $d = 10/\sqrt{59}$.
+</details>
+
+**3-mark.** Find the foot of perpendicular from $(1, 2, 3)$ to line
+$\frac{x - 6}{3} = \frac{y - 7}{2} = \frac{z - 7}{-2}$.
+
+<details class="hint"><summary>Full solution</summary>
+General point: $(6 + 3t, 7 + 2t, 7 - 2t)$. Vector from $(1, 2, 3)$ to
+it: $(5 + 3t, 5 + 2t, 4 - 2t)$. Dot with $(3, 2, -2) = 0$:
+$3(5 + 3t) + 2(5 + 2t) - 2(4 - 2t) = 15 + 9t + 10 + 4t - 8 + 4t = 17 +
+17t = 0 \Rightarrow t = -1$.
+Foot: $(3, 5, 9)$.
+</details>
+
+**5-mark long answer.** Find the image of point $(1, 6, 3)$ in the line
+$\frac{x}{1} = \frac{y - 1}{2} = \frac{z - 2}{3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Foot of perpendicular first, then double the displacement.
+</details>
+<details class="hint"><summary>Full solution</summary>
+General point on line: $(t, 1 + 2t, 2 + 3t)$. Vector from $(1, 6, 3)$:
+$(t - 1, 2t - 5, 3t - 1)$. Dot with $(1, 2, 3) = 0$:
+$(t-1) + 2(2t - 5) + 3(3t - 1) = 14t - 14 = 0 \Rightarrow t = 1$.
+Foot $F = (1, 3, 5)$. Image $= 2F - P = 2(1, 3, 5) - (1, 6, 3) = (1, 0,
+7)$.
+</details>
+
+**6-mark Case Study.** *Two airplane flight paths.*
+
+Plane A flies along $\vec r = (2, 3, 5) + \lambda(1, 1, 0)$ km/min.
+Plane B flies along $\vec r = (1, 4, 7) + \mu(1, -1, 1)$ km/min.
+
+(i) Show the two paths are skew. (2 marks)
+(ii) Compute the shortest distance between them. (3 marks)
+(iii) Will they collide? (1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** Paths skew if not parallel and not intersecting. Directions
+$(1, 1, 0), (1, -1, 1)$ — not proportional, so not parallel.
+Triple product (next step) is nonzero, so non-intersecting → skew.
+**(ii)** $\vec a_2 - \vec a_1 = (-1, 1, 2)$. $\vec b_1 \times \vec b_2
+= (1, -1, -2)$. Magnitude $\sqrt 6$. Triple product: $-1 - 1 - 4 = -6$.
+$d = 6/\sqrt 6 = \sqrt 6$ km.
+**(iii)** Skew with positive shortest distance — they never collide
+geometrically. (Time-collision is a stricter check we don't need
+here.)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 11.1, 11.2.
+**Previous-year pointer:** CBSE 2023 Set 1 Q29 (5-mark image of point);
+CBSE 2022 Q24.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Skew lines must be parallel."** No — skew means *neither*
+   intersect *nor* parallel.
+2. **"Distance from point to line uses dot product."** It uses cross —
+   $|\vec{AP} \times \vec b|/|\vec b|$.
+3. **"Vector and Cartesian forms describe different lines."** Same
+   line, different notations.
+:::
+
+### Self-Assessment
+
+1. Could you write the equation of a line through two points in both
+   forms in 2 minutes?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you compute the shortest distance between skew lines without
+   peeking?
+
+- **3 yes:** move on.
+- **2 yes:** redo Stretch.
+- **0–1 yes:** memorise the shortest-distance formula.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.vector-algebra`](../10a-vector-algebra/index.qmd) — magnitudes
+  and operations.
+
+### What this unlocks
+
+- [`cbse12.planes-in-3d`](../11b-planes-in-3d/index.qmd).
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 11** (NCERT 2023). Sections 11.2–11.4.
+- **Sister synthesis lessons:**
+  [`t4.parametric-equations`](../../tier-4-precalc-calculus/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Ray casting from camera to screen pixel is a
+parametric line; intersection with scene geometry is the heart of
+rendering.
+:::
+
+::: {.applied-callout}
+**Research.** Robot manipulator arms move along parametric curves;
+trajectory planning chooses the parameter to minimise distance or
+time.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained ("line as point + direction"),
+  Bhāskara (verse), Gelfand (problem-first).
+:::

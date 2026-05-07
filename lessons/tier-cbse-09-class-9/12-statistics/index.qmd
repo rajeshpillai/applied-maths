@@ -1,0 +1,474 @@
+---
+title: "Ch 12 — Statistics"
+subtitle: "Frequency tables, histograms, and the three averages"
+lesson-id: "cbse9.statistics"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 12
+ncert-chapter-title: "Statistics"
+board-exam: false
+prerequisites: ["cbse8.data-handling", "t1.data-and-average"]
+unlocks: ["cbse10.statistics", "cbse10.probability"]
+applied-domains: ["ai-ml", "databases", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute the mean (average) of a list of numbers?
+   *(If no, revisit
+   [t1.data-and-average](../../tier-1-foundations/14-data-and-average/index.qmd).)*
+2. Can you read a bar graph? *(If no, revisit
+   [cbse8.data-handling](../../tier-cbse-08-class-8/04-data-handling/index.qmd).)*
+3. Can you order a list of numbers from smallest to largest?
+
+Three yes? Read on.
+:::
+
+## Touch
+
+Take a small dataset — say the heights (in cm) of $20$ students in your
+class:
+$$152, 148, 160, 155, 158, 150, 165, 153, 161, 149,$$
+$$157, 154, 159, 152, 162, 156, 151, 158, 160, 153.$$
+
+Group them into **classes** (intervals): $145$–$150$, $150$–$155$,
+$155$–$160$, $160$–$165$. Count how many fall in each class.
+
+```{ojs}
+viewof binWidth = Inputs.range([2, 10], {value: 5, step: 1, label: "bin width"})
+```
+
+```{ojs}
+{
+  const data = [152, 148, 160, 155, 158, 150, 165, 153, 161, 149,
+                157, 154, 159, 152, 162, 156, 151, 158, 160, 153];
+  const min = 145;
+  const bins = {};
+  for (const x of data) {
+    const k = Math.floor((x - min) / binWidth);
+    bins[k] = (bins[k] || 0) + 1;
+  }
+  const keys = Object.keys(bins).map(Number).sort((a, b) => a - b);
+  const rows = keys.map(k => {
+    const low = min + k * binWidth, high = low + binWidth;
+    return html`<tr><td>${low}–${high}</td><td>${bins[k]}</td><td>${"█".repeat(bins[k])}</td></tr>`;
+  });
+  return html`<table style="font-family: monospace; font-size: 0.95rem;">
+    <tr><th>class</th><th>freq</th><th></th></tr>
+    ${rows}
+  </table>`;
+}
+```
+
+Drag the bin width. The same data tells different stories at different
+resolutions. The bars on the right are a **histogram**.
+
+## Wonder
+
+1. The height $152$ appears twice in the list. The **mean** of the
+   list — the simple average — gives no special weight to repeated
+   values. Should it?
+2. If one student were $200$ cm tall (very rare), the mean would jump.
+   Would the **median** (middle value) jump as much?
+3. The heights cluster around $155$ cm. Is there a more "typical"
+   answer than the mean — say, "what value occurs most often"?
+4. Why did the histogram look different at bin width $2$ versus bin
+   width $10$?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q1, Q2, Q3 introduce the three "averages": **mean, median, mode**. Each
+captures a different sense of "typical". Each fails in a different way.
+:::
+
+## Discover
+
+### Problem 1 (Mean)
+
+Find the mean of $5, 7, 8, 9, 11$.
+
+<details class="hint"><summary>Full solution</summary>
+$\bar{x} = \tfrac{5 + 7 + 8 + 9 + 11}{5} = \tfrac{40}{5} = 8$.
+</details>
+
+### Problem 2 (Mean of frequency table)
+
+A class has the following marks distribution:
+
+| Marks | Frequency |
+|:-:|:-:|
+| 5 | 3 |
+| 6 | 5 |
+| 7 | 7 |
+| 8 | 4 |
+| 9 | 1 |
+
+Find the mean.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\bar{x} = \dfrac{\sum f_i x_i}{\sum f_i}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum f_i = 20$. $\sum f_i x_i = 5 \cdot 3 + 6 \cdot 5 + 7 \cdot 7 +
+8 \cdot 4 + 9 \cdot 1 = 15 + 30 + 49 + 32 + 9 = 135$.
+$\bar{x} = \tfrac{135}{20} = 6.75$.
+</details>
+
+### Problem 3 (Median)
+
+Find the median of $4, 6, 7, 9, 12, 14, 18$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Already sorted. There are $7$ values. Pick the middle one.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Middle index $= \tfrac{7+1}{2} = 4$. Fourth value $= 9$. **Median = 9.**
+</details>
+
+### Problem 4 (Median, even count)
+
+Find the median of $3, 5, 8, 11, 14, 16$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Even count: average the two middle values.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Six values. Middle two are 3rd and 4th: $8$ and $11$. Median $= \tfrac{8
++ 11}{2} = 9.5$.
+</details>
+
+### Problem 5 (Mode)
+
+Find the mode of $4, 5, 5, 6, 7, 5, 8, 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mode = the most frequent value.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5$ appears three times; every other value once. **Mode = 5.**
+</details>
+
+### Problem 6 (When the mean misleads)
+
+Five workers earn ₹$200$, ₹$220$, ₹$210$, ₹$230$, ₹$5000$ per day. The
+last is the manager. Find the mean and the median. Which "represents"
+the typical worker better?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mean is dragged by the $5000$. Median ignores it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Mean $= \tfrac{200 + 220 + 210 + 230 + 5000}{5} = \tfrac{5860}{5} = ₹1172$.
+Median (middle value of sorted list $200, 210, 220, 230, 5000$) $=
+₹220$. The median (₹220) better represents the typical worker; the mean
+(₹1172) is dragged up by the manager's salary. **Outliers pull the
+mean.**
+</details>
+
+You discovered: mean uses every value, median uses position only, mode
+counts repetition; tables of frequencies extend the mean naturally;
+real datasets often need more than one average to tell the truth.
+
+## Name
+
+::: {.lesson-beat}
+
+For a list of $n$ values $x_1, x_2, \ldots, x_n$:
+
+- **Mean** $\bar{x} = \dfrac{x_1 + x_2 + \cdots + x_n}{n} =
+  \dfrac{1}{n} \sum_{i=1}^{n} x_i$.
+
+For a frequency table with $k$ distinct values $x_i$ each occurring
+$f_i$ times:
+
+- **Mean** $\bar{x} = \dfrac{\sum_i f_i x_i}{\sum_i f_i}$.
+
+- **Median** = the middle value when the data is sorted (the average of
+  the two middles, if $n$ is even).
+
+- **Mode** = the value that occurs most often.
+
+A **frequency distribution** groups data into class intervals; a
+**histogram** is a bar chart of class intervals against frequency, with
+no gaps between bars (because the intervals are continuous). A
+**frequency polygon** joins the midpoints of the tops of the histogram
+bars.
+
+:::
+
+A short verse:
+
+> *Mean is the balance — every value pulls.*
+> *Median is the line — half on each side.*
+> *Mode is the peak — what occurs most.*
+> *Three averages, three lenses; pick the one that does not lie.*
+
+## Apply
+
+### Worked example
+
+> The marks of $30$ students in a test are grouped:
+>
+> | Marks | 10–20 | 20–30 | 30–40 | 40–50 |
+> | :-: | :-: | :-: | :-: | :-: |
+> | Students | 4 | 8 | 12 | 6 |
+>
+> Find the mean using the class midpoints.
+
+A competent solver:
+
+1. Class midpoints: $15, 25, 35, 45$.
+2. Compute $\sum f_i x_i$: $4(15) + 8(25) + 12(35) + 6(45) = 60 + 200 +
+   420 + 270 = 950$.
+3. $\sum f_i = 4 + 8 + 12 + 6 = 30$.
+4. $\bar{x} = \dfrac{950}{30} \approx 31.67$.
+
+**Answer:** mean $\approx 31.67$ marks. (This is the *direct method*;
+Class 10 will introduce assumed-mean and step-deviation methods.)
+
+### Practice — Warm
+
+**W1.** Find the mean of $12, 15, 18, 20, 25$.
+
+<details class="hint"><summary>Full solution</summary>
+$\bar{x} = \tfrac{90}{5} = 18$.
+</details>
+
+**W2.** Find the median of $4, 6, 9, 12, 15, 18, 21$.
+
+<details class="hint"><summary>Full solution</summary>
+Middle of 7 values: 4th $= 12$.
+</details>
+
+**W3.** Find the mode of $2, 3, 4, 4, 4, 5, 6, 6$.
+
+<details class="hint"><summary>Full solution</summary>
+$4$ occurs three times; nothing else more. **Mode $= 4$.**
+</details>
+
+### Practice — Working
+
+**P1.** The marks scored by $7$ students are $40, 50, 35, 60, 45, 50,
+55$. Find the mean, median, and mode.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sort first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sorted: $35, 40, 45, 50, 50, 55, 60$.
+Mean = $\tfrac{335}{7} \approx 47.86$.
+Median (middle of 7) = $50$. Mode = $50$.
+</details>
+
+**P2.** The mean of $10$ observations is $30$. If a new value $46$ is
+added, what is the new mean?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total before $= 10 \cdot 30 = 300$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+New total $= 300 + 46 = 346$. New count $= 11$. New mean $= \tfrac{346}{11}
+\approx 31.45$.
+</details>
+
+**P3.** The number of children in $20$ families:
+$0, 2, 1, 3, 2, 4, 1, 2, 3, 1, 0, 2, 1, 3, 2, 1, 2, 0, 1, 2$.
+Make a frequency table and find the mean number of children.
+
+<details class="hint"><summary>Full solution</summary>
+| children | freq |
+|:-:|:-:|
+| 0 | 3 |
+| 1 | 6 |
+| 2 | 7 |
+| 3 | 3 |
+| 4 | 1 |
+
+$\sum f x = 0 + 6 + 14 + 9 + 4 = 33$. $\sum f = 20$. Mean $= 1.65$
+children per family.
+</details>
+
+### Practice — Stretch
+
+**S1.** The mean of five numbers is $14$. If a sixth number is added,
+the mean becomes $15$. What is the sixth number?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Old total $= 70$. New total $= 90$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+New total $- $ old total $= 90 - 70 = 20$. **The sixth number is $20$.**
+</details>
+
+**S2.** A frequency distribution has classes of width $10$. The
+frequencies are $5, 8, 12, 7, 3$. Draw the histogram and the frequency
+polygon (in words: list each class midpoint and its frequency, then
+describe how to connect them).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Histogram bars touch (the variable is continuous). Frequency polygon
+connects midpoints of the top edges.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose the classes are $0$–$10, 10$–$20, 20$–$30, 30$–$40, 40$–$50$.
+Midpoints: $5, 15, 25, 35, 45$ with frequencies $5, 8, 12, 7, 3$. The
+**histogram** has five touching bars at heights $5, 8, 12, 7, 3$. The
+**frequency polygon** plots the points $(5, 5), (15, 8), (25, 12),
+(35, 7), (45, 3)$ — and to close the polygon, two more points at the
+midpoints just before and just after the data range, both at height $0$:
+$(-5, 0)$ and $(55, 0)$. Connect with straight line segments.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The mode of $1, 2, 3, 2, 4, 5, 2$ is:
+(a) $1$ (b) $2$ (c) $3$ (d) $5$.
+
+<details class="hint"><summary>Full solution</summary>
+$2$ occurs three times. **(b) $2$.**
+</details>
+
+**2-mark (short answer).** Find the median of $9, 12, 15, 18, 20, 25,
+30, 32, 36, 40$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Already sorted. Even count $= 10$: average the 5th and 6th.
+</details>
+<details class="hint"><summary>Full solution</summary>
+5th = $20$, 6th = $25$. Median = $\tfrac{20 + 25}{2} = 22.5$.
+</details>
+
+**3-mark (short answer II).** The mean of the marks of $5$ students is
+$28$. If the marks of one student are wrongly entered as $32$ instead
+of $20$, find the correct mean.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Old total = $5 \cdot 28 = 140$. Subtract the wrong, add the right.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Correct total = $140 - 32 + 20 = 128$. Correct mean $= \tfrac{128}{5}
+= 25.6$.
+</details>
+
+**4-mark (long answer).** The following table gives the daily wages of
+$50$ workers (₹):
+
+| Wages (₹) | 100–120 | 120–140 | 140–160 | 160–180 | 180–200 |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| Number | 12 | 14 | 8 | 6 | 10 |
+
+Find the mean wage using class midpoints.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Midpoints: $110, 130, 150, 170, 190$. Compute $\sum f_i x_i$ and
+$\sum f_i$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum f_i x_i = 12(110) + 14(130) + 8(150) + 6(170) + 10(190)
+= 1320 + 1820 + 1200 + 1020 + 1900 = 7260$.
+$\sum f_i = 50$. Mean = $\tfrac{7260}{50} = ₹145.20$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 12, Problem 12.4
+(mean of grouped data, similar to 4-mark). **Previous-year pointer:**
+CBSE Class 9 sample paper "compute mean from frequency distribution"
+(similar to 4-mark above).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Mean and average are different."** They mean the same thing in
+   the Class 9 context. (In more advanced statistics, "mean" can refer
+   to several specific kinds — arithmetic, geometric, harmonic.)
+2. **"Median is half of the mean."** Not at all. Median is the *middle
+   value*; mean is the *balance point*. They can be very different,
+   especially in skewed data (Discover Problem 6).
+3. **"Histograms are the same as bar charts."** Bar charts have gaps
+   and are for *categorical* data (cats, dogs, birds). Histograms have
+   no gaps and are for *continuous* data (heights, marks). The bar
+   widths in a histogram represent class intervals, not labels.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you compute mean, median, and mode for a fresh dataset
+   without notes?
+2. Did you solve W1–P3 with at most one hint each?
+3. Could you make a frequency table from raw data and compute the mean
+   from it?
+
+- **3 yes:** Class 9 is complete. Walk into Class 10 with confidence.
+- **2 yes:** redo S1 and S2.
+- **0–1 yes:** re-read *Discover* 2 and 6.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse8.data-handling`](../../tier-cbse-08-class-8/04-data-handling/index.qmd)
+  — bar graphs, pictographs.
+- [`t1.data-and-average`](../../tier-1-foundations/14-data-and-average/index.qmd)
+  — basic mean.
+
+### What this unlocks
+
+- [`cbse10.statistics`](../../tier-cbse-10-class-10/14-statistics/index.qmd)
+  — mean of grouped data by assumed-mean and step-deviation methods,
+  median and mode of grouped data, ogives.
+- [`cbse10.probability`](../../tier-cbse-10-class-10/15-probability/index.qmd)
+  — frequency interpretation of probability begins here.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 12 — Statistics** (NCERT 2023 rationalised
+  syllabus). Covers Sections 12.1–12.4: data collection, tabulation,
+  histograms, frequency polygons, central tendency.
+- **Sister synthesis lesson** (different angle):
+  [`t1.data-and-average`](../../tier-1-foundations/14-data-and-average/index.qmd)
+  introduces the mean. The grouped-data and histogram work is this
+  chapter's contribution.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every machine-learning workflow begins with summary
+statistics: means, medians, distributions. The histogram is the
+data-scientist's first plot of any new dataset. *Outliers warp the
+mean* (Discover Problem 6) is the original motivation for **robust
+statistics** — the median, the trimmed mean, M-estimators.
+:::
+
+::: {.applied-callout}
+**Databases.** SQL aggregate functions `AVG()`, `MEDIAN()`, `MODE()`
+implement exactly the three formulas in *Name*. Every data-warehousing
+report in business begins with these queries.
+:::
+
+::: {.applied-callout}
+**Research.** The mean of a sample is an *estimator* of the population
+mean. The 19th- and 20th-century statisticians (Gauss, Galton,
+Fisher) showed how the sample mean converges to the truth as the sample
+grows — the **Law of Large Numbers**. This is the foundation of every
+opinion poll and clinical trial.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (real height data Touch),
+  Russian problem-first (Discover 6 forces the mean-vs-median
+  insight before the *Name* beat states their definitions),
+  Bhāskara (compact verse for the three averages).
+:::

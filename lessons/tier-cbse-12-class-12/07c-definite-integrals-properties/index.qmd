@@ -1,0 +1,392 @@
+---
+title: "Ch 7c — Definite Integrals and Their Properties"
+subtitle: "Bounded sums, the Fundamental Theorem, and the seven board-paper properties"
+lesson-id: "cbse12.definite-integrals-properties"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 7
+ncert-chapter-title: "Integrals"
+board-exam: true
+prerequisites: ["cbse12.integration-techniques"]
+unlocks: ["cbse12.area-under-curves"]
+applied-domains: ["research", "ai-ml", "game-dev"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are you fluent with the standard antiderivatives?
+2. Comfortable with substitution and by-parts?
+3. Have you done [Ch 7b](../07b-integration-techniques/index.qmd)?
+:::
+
+## Touch
+
+The shape under $y = x^2$ between $x = 0$ and $x = 3$ has area
+$$A = \int_0^3 x^2 \, dx.$$
+
+::: {.lesson-beat}
+
+You computed indefinite integrals last lesson. *Definite* integrals
+are antiderivatives evaluated between two limits — they give a number,
+not a family.
+
+The **Fundamental Theorem of Calculus**:
+$$\int_a^b f(x) \, dx = F(b) - F(a),$$
+where $F$ is any antiderivative of $f$.
+
+For our example: $F(x) = x^3/3$. Area $= F(3) - F(0) = 9 - 0 = 9$.
+
+:::
+
+But CBSE doesn't stop there. There are **seven properties** that turn
+ugly definite integrals into easy ones — by spotting symmetry, by
+exploiting periodicity, by changing the variable inside the limits.
+These properties are the heart of this lesson.
+
+## Wonder
+
+1. If $f(x) = -f(-x)$ and the integral is over $[-a, a]$, what should
+   the answer be?
+2. If $f(x) = f(-x)$, can you "fold" $[-a, a]$ to $[0, a]$?
+3. Does $\int_a^b f(x)\,dx = \int_a^b f(a + b - x)\,dx$? Why?
+
+## Discover
+
+### Problem 1
+
+Compute $\int_0^1 (x^2 + 1) \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$\left[\frac{x^3}{3} + x\right]_0^1 = \frac{1}{3} + 1 - 0 = 4/3$.
+</details>
+
+### Problem 2
+
+Compute $\int_0^{\pi/2} \cos x \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$[\sin x]_0^{\pi/2} = 1 - 0 = 1$.
+</details>
+
+### Problem 3
+
+Compute $\int_{-1}^{1} x^3 \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^3$ is an odd function. The interval is symmetric about 0.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$[x^4/4]_{-1}^1 = 1/4 - 1/4 = 0$. **Odd function over symmetric
+interval is zero.**
+</details>
+
+### Problem 4
+
+Compute $\int_0^{\pi/2} \dfrac{\sin x}{\sin x + \cos x} \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $\int_0^a f(x) dx = \int_0^a f(a - x) dx$ with $a = \pi/2$. Add the
+two.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $I = \int_0^{\pi/2} \frac{\sin x}{\sin x + \cos x} dx$. Substitute
+$x \to \pi/2 - x$: $I = \int_0^{\pi/2} \frac{\cos x}{\cos x + \sin x}
+dx$. Add: $2I = \int_0^{\pi/2} 1 \, dx = \pi/2$. So $I = \pi/4$.
+</details>
+
+### Problem 5
+
+Compute $\int_{-2}^{2} (x^4 + 1) \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^4$ is even. So $\int_{-2}^2 = 2 \int_0^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int_{-2}^2 (x^4 + 1) dx = 2 \int_0^2 (x^4 + 1) dx = 2[x^5/5 + x]_0^2
+= 2[32/5 + 2] = 2 \cdot 42/5 = 84/5$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Fundamental Theorem of Calculus.** If $f$ is continuous on $[a, b]$
+and $F$ is any antiderivative of $f$, then
+$$\int_a^b f(x) \, dx = F(b) - F(a).$$
+
+**Properties** (memorise — every CBSE paper uses some):
+
+1. $\int_a^b f(x) \, dx = -\int_b^a f(x) \, dx$.
+2. $\int_a^b f(x) \, dx = \int_a^b f(t) \, dt$ (variable-name doesn't
+   matter).
+3. $\int_a^b f(x) \, dx = \int_a^c f(x) \, dx + \int_c^b f(x) \, dx$.
+4. $\int_a^b f(x) \, dx = \int_a^b f(a + b - x) \, dx$.
+5. $\int_0^a f(x) \, dx = \int_0^a f(a - x) \, dx$.
+6. $\int_{-a}^a f(x) \, dx = \begin{cases} 2\int_0^a f(x) dx & f \text{
+   even} \\ 0 & f \text{ odd} \end{cases}$.
+7. $\int_0^{2a} f(x) dx = \begin{cases} 2 \int_0^a f(x) dx & f(2a - x)
+   = f(x) \\ 0 & f(2a - x) = -f(x) \end{cases}$.
+
+:::
+
+A verse:
+
+> *Limits define the bounded sum;*
+> *FTC says antiderivative — at top minus bottom — and you're done.*
+> *Odd over $[-a, a]$? Zero on the spot.*
+> *$f(x) = f(a + b - x)$? Add and divide. That's the lot.*
+
+## Apply
+
+### Worked example
+
+> Evaluate $\int_0^{\pi} \dfrac{x \sin x}{1 + \cos^2 x} \, dx$.
+
+A competent solver:
+
+1. Apply Property 4 with $a = 0, b = \pi$: $I = \int_0^\pi \frac{(\pi -
+   x) \sin(\pi - x)}{1 + \cos^2(\pi - x)} dx = \int_0^\pi \frac{(\pi -
+   x) \sin x}{1 + \cos^2 x} dx$.
+2. Add to original: $2I = \pi \int_0^\pi \frac{\sin x}{1 + \cos^2 x}
+   dx$.
+3. Substitute $u = \cos x, du = -\sin x \, dx$: limits $1 \to -1$.
+   $\int_1^{-1} \frac{-du}{1 + u^2} = \int_{-1}^1 \frac{du}{1 + u^2} =
+   [\tan^{-1} u]_{-1}^1 = \pi/2$.
+4. So $2I = \pi \cdot \pi/2 \Rightarrow I = \pi^2/4$.
+
+### Practice — Warm
+
+**W1.** $\int_0^2 (3x^2 + 2x) \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$[x^3 + x^2]_0^2 = 8 + 4 = 12$.
+</details>
+
+**W2.** $\int_0^{\pi/4} \sec^2 x \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$[\tan x]_0^{\pi/4} = 1 - 0 = 1$.
+</details>
+
+**W3.** $\int_{-1}^{1} (x^3 + 2x) \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+Both terms are odd — total integral is **0**.
+</details>
+
+### Practice — Working
+
+**P1.** $\int_0^{\pi/2} \log(\tan x) \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\log(\tan x)$ at $x \to \pi/2 - x$ becomes $\log(\cot x) = -\log(\tan
+x)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By Prop 5: $I = \int_0^{\pi/2} \log\tan(\pi/2 - x) dx = \int_0^{\pi/2}
+\log\cot x \, dx = -I$. So $2I = 0 \Rightarrow I = 0$.
+</details>
+
+**P2.** $\int_0^1 x(1 - x)^n \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $u = 1 - x$; or use Prop 5.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Prop 5: $\int_0^1 x(1-x)^n dx = \int_0^1 (1-x) x^n dx = \int_0^1 x^n dx
+- \int_0^1 x^{n+1} dx = \frac{1}{n+1} - \frac{1}{n+2} = \frac{1}{(n+1)
+(n+2)}$.
+</details>
+
+**P3.** $\int_0^{\pi/2} \dfrac{\sin^2 x}{\sin x + \cos x}\, dx + \int_0^
+{\pi/2} \dfrac{\cos^2 x}{\sin x + \cos x}\, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+Sum $= \int_0^{\pi/2} \frac{\sin^2 + \cos^2}{\sin + \cos} dx = \int_0^{
+\pi/2} \frac{dx}{\sin x + \cos x}$.
+$\sin x + \cos x = \sqrt 2 \sin(x + \pi/4)$. $\int_0^{\pi/2}
+\frac{dx}{\sqrt 2 \sin(x + \pi/4)} = \frac{1}{\sqrt 2}\int_{\pi/4}^{
+3\pi/4} \csc u\, du = \frac{1}{\sqrt 2}[\log|\tan(u/2)|]_{\pi/4}^{3
+\pi/4}$.
+At $u = 3\pi/4$: $\log \tan(3\pi/8)$. At $u = \pi/4$: $\log \tan(\pi/8)$.
+$\tan(3\pi/8) = 1/\tan(\pi/8)$, so the difference is $-2\log\tan(\pi/8)$;
+$\tan(\pi/8) = \sqrt 2 - 1$. Final: $\frac{1}{\sqrt 2}\log\frac{1}{(\sqrt
+2 - 1)^2} = \frac{2}{\sqrt 2}\log(\sqrt 2 + 1) = \sqrt 2 \log(\sqrt 2
++ 1)$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Evaluate $\int_0^\pi x \sin x \, dx$ using Property 4.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Replace $x$ with $\pi - x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$I = \int_0^\pi (\pi - x) \sin x dx = \pi \int_0^\pi \sin x dx - I$. So
+$2I = \pi \cdot 2 = 2\pi \Rightarrow I = \pi$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $\int_{-1}^1 x|x|\,dx =$ (a) 0 (b) $1/3$ (c) $2/3$
+(d) $-1/3$.
+
+<details class="hint"><summary>Full solution</summary>
+$x|x|$ is odd: $f(-x) = -x|x| = -f(x)$. **(a) 0.**
+</details>
+
+**1-mark MCQ #2.** $\int_0^{\pi} \sin^2 x \, dx =$ (a) $\pi/2$ (b)
+$\pi$ (c) $0$ (d) $\pi/4$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sin^2 x = (1 - \cos 2x)/2$. $\int_0^\pi (1 - \cos 2x)/2 \,dx =
+\frac{1}{2}[x - \sin(2x)/2]_0^\pi = \pi/2$. **(a).**
+</details>
+
+**2-mark.** $\int_0^2 \sqrt{4 - x^2}\,dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is the area of a quarter circle of radius 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Quarter of $\pi \cdot 4 = \pi$.
+</details>
+
+**2-mark.** Evaluate $\int_0^1 \dfrac{1}{1 + x^2}\,dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$[\tan^{-1} x]_0^1 = \pi/4$.
+</details>
+
+**3-mark.** Show $\int_0^{\pi/2} \frac{\sqrt{\sin x}}{\sqrt{\sin x} +
+\sqrt{\cos x}} dx = \pi/4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use Prop 5 with $a = \pi/2$, swap $\sin \leftrightarrow \cos$, add.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By Prop 5: $I = \int_0^{\pi/2} \frac{\sqrt{\cos x}}{\sqrt{\cos x} +
+\sqrt{\sin x}} dx$. Add: $2I = \int_0^{\pi/2} 1 \, dx = \pi/2$. So $I =
+\pi/4$. ✓
+</details>
+
+**3-mark.** $\int_{-2}^2 (x^3 + 5x + |x|) \, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^3$ odd → 0. $5x$ odd → 0. $|x|$ even → $2\int_0^2 x dx = 4$.
+**Total: 4.**
+</details>
+
+**5-mark long answer.** Evaluate $\int_0^{\pi/2} \log(\sin x) \, dx$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+By Prop 5, $I = \int_0^{\pi/2} \log(\cos x) dx$. Add and use $\sin x
+\cos x = \sin(2x)/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2I = \int_0^{\pi/2} \log(\sin x \cos x) dx = \int_0^{\pi/2}
+\log(\sin(2x)/2) dx = \int_0^{\pi/2} \log\sin(2x) dx - \frac{\pi}{2}\log
+2$.
+Substitute $u = 2x$ in the first integral: $\frac{1}{2}\int_0^\pi
+\log\sin u \, du = \frac{1}{2} \cdot 2 \int_0^{\pi/2} \log\sin u \, du
+= I$ (using symmetry of $\log \sin$ about $\pi/2$).
+So $2I = I - (\pi/2)\log 2 \Rightarrow I = -(\pi/2)\log 2$.
+</details>
+
+**6-mark Case Study.** *Average power consumption.*
+
+A household appliance draws current $i(t) = 5\sin(100\pi t)$ amperes
+(India, 50 Hz). The voltage is $v(t) = 220 \sin(100\pi t)$ volts.
+Instantaneous power $p(t) = v(t) i(t)$.
+
+(i) Set up the integral for average power over one period. (1 mark)
+(ii) Evaluate $\int_0^{T} \sin^2(100\pi t)\,dt$ where $T = 1/50$.
+(3 marks)
+(iii) Compute the average power. (2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $P_{\text{avg}} = \frac{1}{T} \int_0^T 220 \cdot 5 \sin^2(100
+\pi t) dt$.
+**(ii)** $\sin^2(100\pi t) = (1 - \cos(200\pi t))/2$.
+$\int_0^{1/50} \sin^2 dt = [t/2 - \sin(200\pi t)/(400\pi)]_0^{1/50} =
+1/100 - 0 = 1/100$.
+**(iii)** $P_{\text{avg}} = \frac{1}{1/50} \cdot 1100 \cdot 1/100 = 50
+\cdot 11 = 550$ W.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 7.6, 7.7, 7.8.
+**Previous-year pointer:** CBSE 2023 Set 2 Q34 (5-mark $\log\sin$);
+CBSE 2022 Q31.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Forgetting the lower limit."** $F(b) - F(a)$, both. A common
+   slip.
+2. **"$\int_{-a}^a f \, dx = 0$ for any $f$."** Only for *odd* $f$. For
+   even, it doubles up.
+3. **"Property 4 needs $a + b = \pi$."** No — Property 4 holds for
+   *any* $a, b$.
+:::
+
+### Self-Assessment
+
+1. Could you list all seven properties from memory in two minutes?
+2. Did you solve at least 5 of 7 board items unaided?
+3. Can you spot the symmetry trick in a $\sin/\cos$ integrand?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark $\log\sin$ problem.
+- **0–1 yes:** rewrite the seven properties from memory.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.integration-techniques`](../07b-integration-techniques/index.qmd)
+  — antiderivatives feed FTC.
+
+### What this unlocks
+
+- [`cbse12.area-under-curves`](../08-area-under-curves/index.qmd)
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 7** (NCERT 2023). Sections 7.7–7.10.
+- **Sister synthesis lessons:**
+  [`t4.ftc`](../../tier-4-precalc-calculus/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research / engineering.** RMS current, average power, total work —
+all definite integrals. Symmetry tricks are how engineers compute these
+quickly.
+:::
+
+::: {.applied-callout}
+**AI/ML.** Expectations $\mathbb{E}[f(X)]$ over a distribution are
+definite integrals; symmetric distributions yield zero odd-moment
+integrals "for free".
+:::
+
+::: {.applied-callout}
+**Game development.** Evaluating a Bezier curve's arc length is a
+definite integral; CFD-style fluid simulations integrate forces over
+surfaces.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Gelfand (problem-first), Bhāskara (verse), Kiselev
+  (clarity through restraint).
+:::

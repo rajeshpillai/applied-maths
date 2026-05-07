@@ -1,0 +1,457 @@
+---
+title: "Ch 12 — Factorisation"
+subtitle: "Run the multiplication backwards — turn a sum into a product"
+lesson-id: "cbse8.factorisation"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 12
+ncert-chapter-title: "Factorisation"
+board-exam: false
+prerequisites: ["cbse8.algebraic-expressions", "t1.divisibility-primes"]
+unlocks: ["cbse9.polynomials", "cbse10.polynomials", "cbse10.quadratic-equations"]
+applied-domains: ["research", "encryption"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you expand $(x + 3)(x + 5)$? If not, revisit
+   **[Algebraic Expressions and Identities](../08-algebraic-expressions/index.qmd)**.
+2. Do you remember the three identities $(a+b)^2$, $(a-b)^2$, and
+   $(a+b)(a-b) = a^2 - b^2$?
+3. Can you write $24$ as a product of primes? If not, revisit
+   **[Divisibility and Primes](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)**.
+4. Do you know what the *greatest common factor (GCF)* of $12$ and
+   $18$ is?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Take $12$ identical buttons (or coins). Arrange them in rectangles —
+*all* the rectangles you can make.
+
+You will find: $1 \times 12$, $2 \times 6$, $3 \times 4$. (And the
+mirror images.) Each rectangle is a "factoring" of $12$ into a product
+of two whole numbers.
+
+The widget below does the same for variable expressions.
+
+```{ojs}
+viewof expr = Inputs.select(
+  ["6x + 9", "x^2 + 5x", "x^2 + 7x + 12", "x^2 - 16"],
+  {label: "Expression"}
+)
+```
+
+```{ojs}
+{
+  const e = expr;
+  const map = {
+    "6x + 9":         "= 3 &middot; (2x + 3)",
+    "x^2 + 5x":       "= x &middot; (x + 5)",
+    "x^2 + 7x + 12":  "= (x + 3) &middot; (x + 4)",
+    "x^2 - 16":       "= (x - 4) &middot; (x + 4)",
+  };
+  return html`<div style="font-family:system-ui;font-size:1.05rem;line-height:1.6;">
+    <div><b>${e}</b> &nbsp; ${map[e]}</div>
+    <div style="color:#666;margin-top:0.4rem;">
+      Each expression is being shown as a product of simpler pieces.
+      How would you find that product *yourself*?
+    </div>
+  </div>`;
+}
+```
+
+Each example *is* a product, written as a sum. The job of this chapter
+is to run the rectangle-game in reverse: given the sum, recover the
+product.
+
+## Wonder
+
+Sit with these.
+
+1. In $6x + 9$, what number divides both terms? What about $x^2 + 5x$
+   — is there a *variable* that divides both?
+2. We discovered $(a+b)(a-b) = a^2 - b^2$ in the last chapter. So if
+   you see $x^2 - 25$, what should you reach for?
+3. The expression $x^2 + 7x + 12$ has constant $12$ and middle
+   coefficient $7$. Can you guess the two numbers we'll need?
+4. Could every algebraic sum be factorised into two simpler pieces? Or
+   are some sums "prime"?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+Factorisation has four main techniques: pull out the **common
+factor**, group, recognise an **identity** ($a^2 - b^2$, $a^2 + 2ab +
+b^2$, $a^2 - 2ab + b^2$), and split the middle term. Some expressions
+are irreducible — like prime numbers in algebra-land — and stay sums.
+:::
+
+## Discover
+
+### Problem 1 — Common factor
+
+Factorise $6x + 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What is the GCF of $6$ and $9$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+GCF $= 3$. So $6x + 9 = 3(2x + 3)$.
+
+Check by expanding: $3 \cdot 2x + 3 \cdot 3 = 6x + 9$. ✓
+</details>
+
+### Problem 2 — Variable common factor
+
+Factorise $x^2 + 5x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What divides both $x^2$ and $5x$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Both contain $x$. So $x^2 + 5x = x(x + 5)$.
+</details>
+
+### Problem 3 — Group and factor
+
+Factorise $ax + ay + bx + by$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The first two terms share an $a$; the last two share a $b$. Group
+them.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$a(x + y) + b(x + y)$ — both pieces share $(x+y)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$ax + ay + bx + by = a(x + y) + b(x + y) = (x + y)(a + b)$.
+</details>
+
+### Problem 4 — Difference of squares
+
+Factorise $x^2 - 49$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$49 = 7^2$. Identity: $a^2 - b^2 = (a+b)(a-b)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 49 = (x + 7)(x - 7)$.
+</details>
+
+### Problem 5 — Perfect square
+
+Factorise $x^2 + 10x + 25$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$25 = 5^2$ and $10 = 2 \cdot 5$. Identity: $(a + b)^2 = a^2 + 2ab + b^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 10x + 25 = (x + 5)^2$.
+</details>
+
+### Problem 6 — Split the middle term
+
+Factorise $x^2 + 7x + 12$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You need two numbers whose *sum* is $7$ and *product* is $12$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Factors of $12$: $1 \cdot 12, 2 \cdot 6, 3 \cdot 4$. Of these, $3 + 4 =
+7$. So split: $7x = 3x + 4x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 7x + 12 = x^2 + 3x + 4x + 12 = x(x + 3) + 4(x + 3) = (x + 3)(x +
+4)$.
+</details>
+
+### Problem 7 — Polynomial division
+
+Divide $6x^3 - 8x^2 + 4x$ by $2x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pull the common factor $2x$ from each term.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$6x^3 - 8x^2 + 4x = 2x(3x^2 - 4x + 2)$. Dividing by $2x$: **$3x^2 - 4x +
+2$**.
+
+Polynomial division is just factorisation followed by cancellation when
+the divisor is a factor.
+</details>
+
+You have just used four techniques: common factor, grouping, identity,
+and middle-term split. The chapter is the choreography of switching
+between them.
+
+## Name
+
+::: {.lesson-beat}
+
+To **factorise** an expression is to write it as a *product* of simpler
+expressions whose product equals the original.
+
+**The four techniques:**
+
+1. **Common factor.** Pull out the largest expression dividing every
+   term.
+2. **Grouping.** Pair terms so each pair has a common factor; pull
+   out the shared binomial.
+3. **Identity.** Recognise $a^2 - b^2$, $(a \pm b)^2$, etc., and
+   apply.
+4. **Splitting the middle term.** For $x^2 + bx + c$, find numbers
+   $p, q$ with $p + q = b$ and $pq = c$, then split $bx = px + qx$ and
+   group.
+
+**Polynomial division** is just factorisation: if $g(x)$ divides
+$f(x)$, then $f(x) = g(x) \cdot q(x)$, and the quotient is what is
+left after extracting the factor.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Pull the common, group the four, spot the identity-shape;*
+> *Or split the middle into two whose sum is right, whose product is too.*
+> *Then the sum has become a product —*
+> *And the product reveals what the sum could not.*
+
+## Apply
+
+### Worked example
+
+> Factorise $4x^2 - 25y^2$.
+
+Competent solver's path:
+
+1. Spot the shape: difference of two squares.
+2. $4x^2 = (2x)^2$ and $25y^2 = (5y)^2$.
+3. Apply $a^2 - b^2 = (a+b)(a-b)$ with $a = 2x$, $b = 5y$.
+
+**Answer: $4x^2 - 25y^2 = (2x + 5y)(2x - 5y)$.**
+
+### Practice — Warm
+
+**W1.** Factorise $12x + 8$.
+
+<details class="hint"><summary>Full solution</summary>
+$4(3x + 2)$.
+</details>
+
+**W2.** Factorise $a^2 - 81$.
+
+<details class="hint"><summary>Full solution</summary>
+$(a + 9)(a - 9)$.
+</details>
+
+**W3.** Factorise $y^2 + 6y + 9$.
+
+<details class="hint"><summary>Full solution</summary>
+$(y + 3)^2$.
+</details>
+
+### Practice — Working
+
+**P1.** Factorise $a^2 - 14a + 49$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$49 = 7^2$ and $14 = 2 \cdot 7$. Perfect square of a difference.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a - 7)^2$.
+</details>
+
+**P2.** Factorise $x^2 + 9x + 18$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two numbers with sum $9$ and product $18$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 + 6 = 9$, $3 \cdot 6 = 18$. Split: $9x = 3x + 6x$.
+$x^2 + 3x + 6x + 18 = x(x + 3) + 6(x + 3) = (x + 3)(x + 6)$.
+</details>
+
+**P3.** Factorise $6x^2 + 17x + 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For $ax^2 + bx + c$, find two numbers whose product is $ac$ and whose
+sum is $b$. Here $ac = 30$, $b = 17$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$15 \cdot 2 = 30$, $15 + 2 = 17$. Split $17x = 15x + 2x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$6x^2 + 17x + 5 = 6x^2 + 15x + 2x + 5 = 3x(2x + 5) + 1(2x + 5) =
+(2x + 5)(3x + 1)$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Factorise $a^4 - b^4$ completely.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Difference of squares applied twice.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$a^4 - b^4 = (a^2)^2 - (b^2)^2$. Now factor again.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a^4 - b^4 = (a^2 + b^2)(a^2 - b^2) = (a^2 + b^2)(a + b)(a - b)$.
+
+(Note: $a^2 + b^2$ is *not* further factorisable using real-number
+techniques.)
+</details>
+
+**S2.** Factorise $x^3 + 2x^2 - x - 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Group the four terms in pairs.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Group: $(x^3 + 2x^2) - (x + 2) = x^2(x + 2) - 1(x + 2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^3 + 2x^2 - x - 2 = x^2(x+2) - 1(x+2) = (x+2)(x^2 - 1) = (x+2)(x+1)(x-1)$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $x^2 - 9$ factorises as
+(a) $(x-3)(x+3)$ (b) $(x-9)(x+9)$ (c) $(x-3)^2$ (d) $(x+3)^2$.
+
+<details class="hint"><summary>Full solution</summary>
+Difference of squares. **Answer: (a).**
+</details>
+
+**2-mark (short answer).** Factorise $25x^2 - 70xy + 49y^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$25x^2 = (5x)^2$ and $49y^2 = (7y)^2$ and $70xy = 2 \cdot 5x \cdot 7y$.
+$(a-b)^2$ shape.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(5x - 7y)^2$.
+</details>
+
+**3-mark (short answer II).** Factorise $x^2 + x - 132$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two numbers with product $-132$ and sum $1$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Try $12$ and $-11$: product $-132$, sum $1$. ✓
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + x - 132 = x^2 + 12x - 11x - 132 = x(x + 12) - 11(x + 12) =
+(x + 12)(x - 11)$.
+
+Check: $(x+12)(x-11) = x^2 - 11x + 12x - 132 = x^2 + x - 132$. ✓
+</details>
+
+**4-mark (long answer).** (i) Factorise $a^2 - 2ab + b^2 - c^2$.
+(ii) Hence find the value when $a = 7, b = 4, c = 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The first three terms form a perfect square. Then a difference of
+squares appears.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+**(i)** $a^2 - 2ab + b^2 = (a-b)^2$. So
+$a^2 - 2ab + b^2 - c^2 = (a-b)^2 - c^2 = (a - b + c)(a - b - c)$.
+
+**(ii)** $a - b = 3$. So $(a-b+c) = 8$ and $(a-b-c) = -2$.
+Product: $8 \times (-2) = -16$.
+
+(Verify by direct substitution: $49 - 56 + 16 - 25 = -16$. ✓)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 12.6 ("factorise $a^2 -
+b^2 + 2bc - c^2$") is a near-twin of the 4-mark item — both use
+*group three terms as a square, then difference-of-squares*.
+**Previous-year pointer:** CBSE 2019 Set 1, Q11 ("factorise $x^2 + 6x
++ 8$") matches *Working P2* exactly.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$a^2 + b^2 = (a + b)(a - b)$."** No — that's $a^2 - b^2$. The
+   *sum* of two squares does not factor over the real numbers (in this
+   chapter's toolkit).
+2. **"Splitting the middle term works for any trinomial."** Only for
+   trinomials of the form $ax^2 + bx + c$ where the discriminant
+   $b^2 - 4ac$ is a perfect square. Otherwise the roots are irrational
+   and you need the formula from Class 10.
+3. **"$x^2 + 1$ can be factorised."** Not over the real numbers. You
+   meet its complex factorisation $(x + i)(x - i)$ later, in Tier 4.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state the four techniques in order, and pick the right
+   one for a problem you've never seen?
+2. Did you solve at least 6 of the 7 *Discover* problems and 5 of the
+   7 *Practice* problems without peeking past Hint 1?
+3. Given a trinomial, can you split the middle term in under thirty
+   seconds?
+
+- **3 yes:** move on to **[Introduction to Graphs](../13-introduction-to-graphs/index.qmd)**.
+- **2 yes:** redo *Working P3* and the 4-mark board item, then move on.
+- **0–1 yes:** rebuild from
+  **[Algebraic Expressions and Identities](../08-algebraic-expressions/index.qmd)** —
+  factorisation runs the same identities backwards, so the forward
+  direction must be airtight.
+
+## Connect
+
+### Prerequisites used
+
+- **[Algebraic Expressions and Identities](../08-algebraic-expressions/index.qmd)** — the three standard identities, ready to be reversed.
+- **[Divisibility and Primes](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)** — finding the GCF of integer coefficients.
+
+### What this unlocks
+
+- **[Class 9 — Polynomials](../../tier-cbse-09-class-9/02-polynomials/index.qmd)** — adds Remainder and Factor theorems for cubics.
+- **[Class 10 — Polynomials](../../tier-cbse-10-class-10/02-polynomials/index.qmd)** — relations between roots and coefficients.
+- **[Class 10 — Quadratic Equations](../../tier-cbse-10-class-10/04-quadratic-equations/index.qmd)** — solving by factorisation, the formula, completing the square.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 12 — Factorisation** (NCERT 2023 rationalised
+  syllabus). Covers Sections 12.1–12.4: common factors, grouping,
+  identity-based factorisation, and division of polynomials by
+  monomials.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t2.factoring-polynomials`](../../tier-2-prealgebra/12-factoring-polynomials/index.qmd)
+  treats factoring at the synthesis level; this chapter focuses on
+  computational technique and the four-pattern recognition drill.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** Factoring polynomials is the discrete cousin of factoring
+integers. The same algorithms — Gauss's method, Berlekamp's
+algorithm — show up in symbolic computation systems like Mathematica
+and SymPy.
+:::
+
+::: {.applied-callout}
+**Encryption.** RSA security depends on a *very specific*
+factorisation problem being hard: factoring a $2048$-bit integer that
+is the product of two large primes. The fact that *integer*
+factorisation is hard while *polynomial* factorisation (today's lesson)
+is easy is the unsung asymmetry of modern cryptography.
+:::

@@ -1,0 +1,439 @@
+---
+title: "Ch 8 — Algebraic Expressions and Identities"
+subtitle: "Multiply rectangles by their parts — the four identities of school algebra"
+lesson-id: "cbse8.algebraic-expressions"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 8
+ncert-chapter-title: "Algebraic Expressions and Identities"
+board-exam: false
+prerequisites: ["t1.intro-variables", "t1.multiply-as-area"]
+unlocks: ["cbse8.factorisation", "cbse9.polynomials", "cbse10.polynomials"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you read $3x^2 - 2x + 5$ as "three times an unknown squared,
+   minus two times the unknown, plus five"? If not, revisit
+   **[Intro to Variables](../../tier-1-foundations/11-intro-variables/index.qmd)**.
+2. Can you compute $(7 + 3) \times 4$ and $7 \times 4 + 3 \times 4$ and
+   confirm they're equal? If not, revisit
+   **[Multiplication as Area](../../tier-1-foundations/05-multiply-as-area/index.qmd)**.
+3. Are you comfortable with $a + a = 2a$ and $a \cdot a = a^2$?
+4. Do you know that $-(-3) = 3$?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Take a sheet of paper. Draw a rectangle whose sides have unknown
+lengths $a$ and $b$. Now extend each side by another unknown length —
+$c$ to the right of $a$ and $d$ above $b$. The big rectangle now has
+sides $(a+c)$ and $(b+d)$.
+
+The slider below shows the same picture for chosen numerical values.
+Watch how the big rectangle is built from four smaller pieces.
+
+```{ojs}
+viewof aa = Inputs.range([1, 8], {value: 4, step: 1, label: "a"})
+viewof bb = Inputs.range([1, 6], {value: 3, step: 1, label: "b"})
+viewof cc = Inputs.range([1, 6], {value: 2, step: 1, label: "c"})
+viewof dd = Inputs.range([1, 5], {value: 2, step: 1, label: "d"})
+```
+
+```{ojs}
+{
+  const a=aa, b=bb, c=cc, d=dd;
+  const k = 28;
+  const W = (a+c)*k, H = (b+d)*k;
+  const ab = a*b, ad=a*d, cb=c*b, cd=c*d;
+  return html`<div style="font-family:system-ui;">
+    <svg width="${W+40}" height="${H+30}">
+      <rect x="20" y="0" width="${a*k}" height="${b*k}" fill="#bde0fe" stroke="#1d4ed8"/>
+      <rect x="${20+a*k}" y="0" width="${c*k}" height="${b*k}" fill="#fed7aa" stroke="#c2410c"/>
+      <rect x="20" y="${b*k}" width="${a*k}" height="${d*k}" fill="#bbf7d0" stroke="#15803d"/>
+      <rect x="${20+a*k}" y="${b*k}" width="${c*k}" height="${d*k}" fill="#fecaca" stroke="#b91c1c"/>
+      <text x="${20+a*k/2}" y="${b*k/2+5}" text-anchor="middle" font-size="12">a&times;b=${ab}</text>
+      <text x="${20+a*k+c*k/2}" y="${b*k/2+5}" text-anchor="middle" font-size="12">c&times;b=${cb}</text>
+      <text x="${20+a*k/2}" y="${b*k+d*k/2+5}" text-anchor="middle" font-size="12">a&times;d=${ad}</text>
+      <text x="${20+a*k+c*k/2}" y="${b*k+d*k/2+5}" text-anchor="middle" font-size="12">c&times;d=${cd}</text>
+    </svg>
+    <div style="color:#444;margin-top:0.4rem;">
+      Total area: (${a}+${c}) &times; (${b}+${d}) = ${a+c}&times;${b+d} = ${(a+c)*(b+d)}.
+      &nbsp; Pieces: ${ab}+${cb}+${ad}+${cd} = ${ab+cb+ad+cd}.
+    </div>
+  </div>`;
+}
+```
+
+The big area equals the sum of the four little areas, *whatever* the
+side lengths. That algebraic fact is the engine of this chapter.
+
+## Wonder
+
+Sit with these.
+
+1. The big rectangle has side $(a+c) \times (b+d)$. Pull out the four
+   tiles. Why do you get four pieces, not three or five?
+2. What if $c = 0$? What does the picture become?
+3. What if $a$ and $b$ are equal, and $c$ and $d$ are also equal? What
+   is the big shape?
+4. Could the same picture be drawn with $a$, $c$ as letters (not
+   numbers)? What would change?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+The four tiles always exist: $ab, ad, cb, cd$. Adding them gives
+$(a+c)(b+d)$. That is the **distributive law**, generalised. Three
+shortcut versions of this picture — when the two sides are the same
+sum, the same difference, or one of each — are the **identities** named
+in this chapter.
+:::
+
+## Discover
+
+### Problem 1 — Combine like terms
+
+Simplify $4x + 7 - 2x + 3 - x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Group $x$-terms together and constants together.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x$-terms: $4x - 2x - x = x$. Constants: $7 + 3 = 10$. Answer: $x + 10$.
+</details>
+
+### Problem 2 — Multiply a monomial by a polynomial
+
+Compute $3x \cdot (2x^2 + 5x - 4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distribute $3x$ to each term.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x \cdot 2x^2 + 3x \cdot 5x + 3x \cdot (-4) = 6x^3 + 15x^2 - 12x$.
+</details>
+
+### Problem 3 — Two binomials
+
+Use the rectangle picture (or the FOIL pattern) to compute
+$(x + 3)(x + 5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Four tiles: $x \cdot x$, $x \cdot 5$, $3 \cdot x$, $3 \cdot 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x+3)(x+5) = x^2 + 5x + 3x + 15 = x^2 + 8x + 15$.
+
+(Note the middle coefficient $8 = 3 + 5$. The constant $15 = 3 \cdot 5$.
+That is the FOIL pattern.)
+</details>
+
+### Problem 4 — Square of a sum
+
+Compute $(a + b)^2$ by expansion.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a+b)^2 = (a+b)(a+b)$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Use FOIL.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a+b)(a+b) = a^2 + ab + ba + b^2 = a^2 + 2ab + b^2$.
+
+(Picture: a square of side $a+b$ split into one $a^2$ tile, two $ab$
+tiles, one $b^2$ tile. The famous *square of a sum* identity.)
+</details>
+
+### Problem 5 — Square of a difference
+
+Compute $(a - b)^2$ similarly.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a-b)(a-b)$. Take care with signs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a-b)(a-b) = a^2 - ab - ba + b^2 = a^2 - 2ab + b^2$.
+</details>
+
+### Problem 6 — Product of sum and difference
+
+Compute $(a + b)(a - b)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use FOIL. The two cross terms cancel.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a+b)(a-b) = a^2 - ab + ba - b^2 = a^2 - b^2$.
+
+(Beautiful and useful — the **difference of squares** identity.)
+</details>
+
+### Problem 7 — Use one in the wild
+
+Compute $103 \times 97$ in your head, using one of the identities you
+just discovered.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$103 = 100 + 3$, $97 = 100 - 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$103 \times 97 = (100+3)(100-3) = 100^2 - 3^2 = 10000 - 9 = 9991$.
+</details>
+
+You have just proved (and used) the three most important identities of
+school algebra:
+$$(a+b)^2 = a^2 + 2ab + b^2,$$
+$$(a-b)^2 = a^2 - 2ab + b^2,$$
+$$(a+b)(a-b) = a^2 - b^2.$$
+
+## Name
+
+::: {.lesson-beat}
+
+An **algebraic expression** is a combination of variables and constants
+joined by $+, -, \times, \div$ and powers. A **term** is a single
+addend; **like terms** are terms differing only in their numerical
+coefficient.
+
+The three **standard identities**:
+$$(a+b)^2 = a^2 + 2ab + b^2$$
+$$(a-b)^2 = a^2 - 2ab + b^2$$
+$$(a+b)(a-b) = a^2 - b^2$$
+
+A fourth, often useful:
+$$(x+a)(x+b) = x^2 + (a+b)x + ab.$$
+
+These are *equalities for all values of the variables* — not equations
+to solve.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Square the sum: each piece, then twice the cross.*
+> *Square the diff: same shape, the cross sign flips.*
+> *Sum times diff: the squares fall apart, the crosses cancel.*
+> *FOIL all four — first, outer, inner, last.*
+
+## Apply
+
+### Worked example
+
+> Use a standard identity to compute $(2x + 3)^2$ and then evaluate
+> when $x = 5$.
+
+Competent solver's path:
+
+1. Identity $(a+b)^2 = a^2 + 2ab + b^2$ with $a = 2x$, $b = 3$.
+2. $(2x+3)^2 = (2x)^2 + 2 \cdot 2x \cdot 3 + 3^2 = 4x^2 + 12x + 9$.
+3. At $x = 5$: $4 \cdot 25 + 12 \cdot 5 + 9 = 100 + 60 + 9 = 169$.
+
+(Double-check: $2 \cdot 5 + 3 = 13$, and $13^2 = 169$. ✓)
+
+### Practice — Warm
+
+**W1.** Simplify $5a + 3b - 2a + b$.
+
+<details class="hint"><summary>Full solution</summary>
+$3a + 4b$.
+</details>
+
+**W2.** Expand $(x - 7)(x + 7)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Difference-of-squares identity.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 49$.
+</details>
+
+**W3.** Expand $(p + 2)^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$p^2 + 4p + 4$.
+</details>
+
+### Practice — Working
+
+**P1.** Compute $(3x - 4y)^2$ using the appropriate identity.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a-b)^2 = a^2 - 2ab + b^2$ with $a=3x$, $b=4y$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(3x)^2 - 2(3x)(4y) + (4y)^2 = 9x^2 - 24xy + 16y^2$.
+</details>
+
+**P2.** Use $(x+a)(x+b) = x^2 + (a+b)x + ab$ to expand $(x+5)(x-3)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a = 5, b = -3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x+5)(x-3) = x^2 + (5-3)x + 5 \cdot (-3) = x^2 + 2x - 15$.
+</details>
+
+**P3.** Use the difference-of-squares identity to compute $51 \times
+49$ mentally.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$51 = 50+1$, $49 = 50-1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$51 \times 49 = (50+1)(50-1) = 2500 - 1 = 2499$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that for every real $a, b$:
+$(a+b)^2 - (a-b)^2 = 4ab$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand both squares using the identities.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a+b)^2 = a^2 + 2ab + b^2$, $(a-b)^2 = a^2 - 2ab + b^2$.
+Subtract: $(a^2 + 2ab + b^2) - (a^2 - 2ab + b^2) = 4ab$. ✓
+</details>
+
+**S2.** If $a + b = 7$ and $ab = 12$, find $a^2 + b^2$ without solving
+for $a$ and $b$ individually.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a+b)^2 = a^2 + 2ab + b^2$. Rearrange to solve for $a^2 + b^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a^2 + b^2 = (a+b)^2 - 2ab = 49 - 24 = 25$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $(x + 4)(x - 4) = ?$
+(a) $x^2 - 16$ (b) $x^2 + 16$ (c) $x^2 - 8x + 16$ (d) $x^2 + 8x - 16$.
+
+<details class="hint"><summary>Full solution</summary>
+Difference of squares: $x^2 - 16$. **Answer: (a).**
+</details>
+
+**2-mark (short answer).** Find the product $(2x + 3y)(2x - 3y)$ and
+state the identity used.
+
+<details class="hint"><summary>Full solution</summary>
+$(a+b)(a-b) = a^2 - b^2$ with $a = 2x$, $b = 3y$.
+$(2x)^2 - (3y)^2 = 4x^2 - 9y^2$.
+</details>
+
+**3-mark (short answer II).** Use a suitable identity to compute
+$(99)^2$ without long multiplication.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$99 = 100 - 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(100 - 1)^2 = 100^2 - 2 \cdot 100 \cdot 1 + 1 = 10000 - 200 + 1 = 9801$.
+</details>
+
+**4-mark (long answer).** (i) Expand $(x + 2y - 3z)^2$. (ii) If $x + 2y
+- 3z = 7$ and $x^2 + 4y^2 + 9z^2 = 49$, find the value of
+$2xy - 6yz - 3xz$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For three terms, use $(a+b+c)^2 = a^2 + b^2 + c^2 + 2(ab + bc + ca)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+**(i)** Let $a = x$, $b = 2y$, $c = -3z$.
+$(x + 2y - 3z)^2 = x^2 + 4y^2 + 9z^2 + 2(2xy + 2y(-3z) + x(-3z))$
+$= x^2 + 4y^2 + 9z^2 + 4xy - 12yz - 6xz$.
+
+**(ii)** Substitute the given values into the expansion:
+$49 = 49 + 2(2xy - 6yz - 3xz)$
+$0 = 2(2xy - 6yz - 3xz)$
+$\boxed{2xy - 6yz - 3xz = 0}$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 8.4 (using $(a+b+c)^2$ to
+extract a cross-term sum) is a near-twin of the 4-mark item.
+**Previous-year pointer:** CBSE 2019 Set 1, Q19 ("compute $103^2$
+using an identity") matches the 3-mark style.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$(a+b)^2 = a^2 + b^2$."** Almost always wrong. The cross term
+   $2ab$ is missing. Picture the rectangle: it has *two* off-diagonal
+   tiles, not zero.
+2. **"$(a-b)^2$ is negative."** No — it's always $\geq 0$. The square
+   of a real number is non-negative.
+3. **"FOIL only works on $(a+b)(c+d)$."** It works on any two
+   binomials. The four pieces are *first*, *outer*, *inner*, *last*.
+   Identities are just FOIL with patterns.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you re-derive $(a+b)^2 = a^2 + 2ab + b^2$ from a rectangle
+   picture, on a blank sheet, without notes?
+2. Did you solve at least 6 of the 7 *Discover* problems and 5 of the 7
+   *Practice* problems without peeking past Hint 1?
+3. Given a number puzzle like $103 \times 97$, can you spot which
+   identity to deploy?
+
+- **3 yes:** move on to **[Mensuration](../09-mensuration/index.qmd)**.
+- **2 yes:** redo *Stretch S2* and the 4-mark board item, then move on.
+- **0–1 yes:** rebuild from *Discover Problems 4–6*. The three
+  identities are the foundation of the *next* chapter.
+
+## Connect
+
+### Prerequisites used
+
+- **[Intro to Variables](../../tier-1-foundations/11-intro-variables/index.qmd)** — letters as placeholders.
+- **[Multiplication as Area](../../tier-1-foundations/05-multiply-as-area/index.qmd)** — the rectangle picture that proves the identities.
+
+### What this unlocks
+
+- **[Factorisation](../12-factorisation/index.qmd)** — running the identities *backward*.
+- **[Class 9 — Polynomials](../../tier-cbse-09-class-9/02-polynomials/index.qmd)** — adds the Remainder and Factor theorems.
+- **[Class 10 — Polynomials](../../tier-cbse-10-class-10/02-polynomials/index.qmd)** — relations between roots and coefficients.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 8 — Algebraic Expressions and Identities** (NCERT
+  2023 rationalised syllabus). Covers Sections 8.1–8.5: terms, like
+  terms, multiplication of monomials and polynomials, the standard
+  identities.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t2.factoring-polynomials`](../../tier-2-prealgebra/12-factoring-polynomials/index.qmd)
+  inverts these identities; this chapter establishes them by direct
+  expansion.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** The identity $a^2 - b^2 = (a+b)(a-b)$ is the seed of
+factorisation in number theory; Fermat's factorisation method (used by
+hand to break small RSA-like keys) starts from this rectangle picture.
+:::
+
+::: {.applied-callout}
+**AI / ML.** The bias-variance decomposition in machine learning is a
+direct application of $(a+b)^2 = a^2 + 2ab + b^2$ applied to the
+expected-error term — the same algebra you learned today, used by
+practitioners every day.
+:::

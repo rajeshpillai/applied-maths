@@ -1,0 +1,406 @@
+---
+title: "Ch 5a — Continuity"
+subtitle: "Draw the curve without lifting your pen — and what that really means"
+lesson-id: "cbse12.continuity"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 5
+ncert-chapter-title: "Continuity and Differentiability"
+board-exam: true
+prerequisites: ["cbse11.limits", "cbse11.derivatives-intro"]
+unlocks: ["cbse12.differentiability-and-rules"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute simple limits like $\lim_{x \to 2}(x^2 + 1) = 5$?
+2. Do you know $\lim_{x \to 0} \dfrac{\sin x}{x} = 1$?
+3. Comfortable evaluating $f(x)$ at a point and "from both sides"?
+
+If no on (1) or (2), revisit
+[Class 11 · Limits](../../tier-cbse-11-class-11/12a-limits/index.qmd).
+:::
+
+## Touch
+
+Three sketches. Imagine each as the path of your pen.
+
+::: {.lesson-beat}
+
+**Curve A:** $f(x) = x^2$. A smooth U. Pen never lifts.
+
+**Curve B:** $g(x) = \begin{cases} x & x < 1 \\ x + 2 & x \ge 1
+\end{cases}$. Two line segments. At $x = 1$ the curve **jumps**
+from $1$ to $3$. You must lift your pen.
+
+**Curve C:** $h(x) = \begin{cases} \sin x / x & x \ne 0 \\ 0 & x = 0
+\end{cases}$. The graph approaches $1$ as $x \to 0$, but the dot
+plotted at $x = 0$ is at $0$. **Removable hole.**
+
+:::
+
+Continuity is exactly the question: *can you draw it through that
+point without lifting?*
+
+Three things must agree at the test point $a$:
+
+1. $f(a)$ is defined.
+2. $\lim_{x \to a} f(x)$ exists.
+3. The two equal each other.
+
+Curve A passes everywhere. Curve B fails at $x = 1$ (jump). Curve C
+fails at $x = 0$ (defined value disagrees with the limit).
+
+## Wonder
+
+1. Could a function be defined at $a$ and have a limit at $a$ but still
+   not be continuous there?
+2. Is "continuous on the whole domain" automatic for polynomials?
+3. What sort of physical signal is *most* visibly discontinuous —
+   temperature, sound, voltage at a switch?
+
+## Discover
+
+### Problem 1
+
+Show $f(x) = x^2$ is continuous at $x = 3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $f(3)$ and $\lim_{x \to 3} f(x)$ separately.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f(3) = 9$. $\lim_{x \to 3} x^2 = 9$ (polynomial limits are evaluation).
+Equal. ✓ Continuous.
+</details>
+
+### Problem 2
+
+Test continuity of $g(x) = \begin{cases} 2x + 1 & x < 1 \\ 4 & x \ge 1
+\end{cases}$ at $x = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Left limit, right limit, $g(1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS limit $= 2(1) + 1 = 3$. RHS limit $= 4$. They disagree — limit
+doesn't exist. **Discontinuous** at $x = 1$.
+</details>
+
+### Problem 3
+
+For what value of $k$ is $h(x) = \begin{cases} kx + 2 & x \le 2 \\
+x^2 - 1 & x > 2 \end{cases}$ continuous at $x = 2$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Match left and right limits at $x = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS at 2: $2k + 2$. RHS at 2: $4 - 1 = 3$. So $2k + 2 = 3 \Rightarrow k
+= 1/2$. Also $h(2) = 2k + 2 = 3$. ✓
+</details>
+
+### Problem 4
+
+Test $f(x) = \dfrac{\sin x}{x}$ for $x \ne 0$, $f(0) = 1$, at $x = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the standard limit $\lim_{x \to 0} \sin x / x = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\lim_{x \to 0} f(x) = 1 = f(0)$. ✓ Continuous (with the gap filled).
+</details>
+
+### Problem 5
+
+Identify the type of discontinuity of $f(x) = \dfrac{1}{x - 1}$ at $x =
+1$.
+
+<details class="hint"><summary>Full solution</summary>
+$f(1)$ is undefined. As $x \to 1^-$, $f \to -\infty$. As $x \to 1^+$,
+$f \to +\infty$. **Infinite discontinuity** (vertical asymptote).
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A function $f$ is **continuous at $x = a$** iff
+$$\lim_{x \to a} f(x) = f(a).$$
+Equivalently, three things hold: $f(a)$ exists, $\lim_{x\to a}f(x)$
+exists, and they match.
+
+$f$ is **continuous on a set $S$** iff it is continuous at every
+point of $S$.
+
+**Algebra of continuous functions.** If $f, g$ are continuous at $a$,
+so are $f + g, f - g, fg, f/g$ (provided $g(a) \ne 0$), and $f \circ
+g$ (composite).
+
+**Standard continuous functions.** Polynomials, $\sin, \cos, e^x, \log
+x$ (on their natural domains) are continuous everywhere on those
+domains.
+
+:::
+
+A verse:
+
+> *Three checks at $a$ — value defined, limit alive, the two agree;*
+> *Polynomials, sine, exp — all continuous, all the way.*
+> *Jump means LHS, RHS disagree;*
+> *Hole means limit lives but the point is misplaced.*
+
+## Apply
+
+### Worked example
+
+> Find $a, b$ if $f(x) = \begin{cases} ax + 1 & x \le 3 \\ bx + 3 & x >
+> 3 \end{cases}$ is continuous everywhere and $f(2) = 5$.
+
+A competent solver:
+
+1. $f(2) = 2a + 1 = 5 \Rightarrow a = 2$.
+2. Continuity at $x = 3$: $3a + 1 = 3b + 3 \Rightarrow 7 = 3b + 3
+   \Rightarrow b = 4/3$.
+
+Linear pieces are continuous on each piece; only the join needs care.
+
+### Practice — Warm
+
+**W1.** Show $f(x) = |x|$ is continuous at $x = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$f(0) = 0$. LHS limit $= \lim_{x\to0^-}(-x) = 0$. RHS limit $= 0$.
+All agree. ✓
+</details>
+
+**W2.** For what value of $c$ is $f(x) = \begin{cases} cx^2 & x < 1 \\
+4x - 1 & x \ge 1 \end{cases}$ continuous at $x = 1$?
+
+<details class="hint"><summary>Full solution</summary>
+$c(1)^2 = 4(1) - 1 \Rightarrow c = 3$.
+</details>
+
+**W3.** Is $f(x) = \tan x$ continuous at $x = \pi/2$?
+
+<details class="hint"><summary>Full solution</summary>
+$\tan(\pi/2)$ is undefined; in fact $\tan x \to \pm\infty$ as $x \to
+\pi/2$. **Not continuous** at $\pi/2$ (infinite discontinuity).
+</details>
+
+### Practice — Working
+
+**P1.** Test continuity of $f(x) = \begin{cases} \dfrac{x^2 - 4}{x - 2}
+& x \ne 2 \\ 4 & x = 2 \end{cases}$ at $x = 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor the numerator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $x \ne 2$: $\frac{(x-2)(x+2)}{x-2} = x + 2$. Limit as $x \to 2$ is
+$4$. $f(2) = 4$. ✓ **Continuous.**
+</details>
+
+**P2.** Find $a$ such that $f(x) = \begin{cases} \dfrac{1 - \cos x}{x^2}
+& x \ne 0 \\ a & x = 0 \end{cases}$ is continuous at $0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$1 - \cos x = 2 \sin^2(x/2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\lim_{x\to0} \frac{1 - \cos x}{x^2} = \lim \frac{2\sin^2(x/2)}{x^2} =
+\frac{1}{2}\lim \left(\frac{\sin(x/2)}{x/2}\right)^2 = \frac{1}{2}$. So
+$a = 1/2$.
+</details>
+
+**P3.** Show $f(x) = \begin{cases} x \sin(1/x) & x \ne 0 \\ 0 & x = 0
+\end{cases}$ is continuous at $0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|\sin(1/x)| \le 1$, so $|x \sin(1/x)| \le |x|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By squeeze: $-|x| \le x\sin(1/x) \le |x|$. Both bounds $\to 0$ as $x\to0$.
+So $\lim = 0 = f(0)$. ✓
+</details>
+
+### Practice — Stretch
+
+**S1.** Discuss continuity of $f(x) = \lfloor x \rfloor$ (greatest
+integer function) on $\mathbb{R}$.
+
+<details class="hint"><summary>Full solution</summary>
+At any non-integer $a$, $f$ is constant on a small neighbourhood —
+continuous. At an integer $n$: LHS limit $= n - 1$ (from below) but
+$f(n) = n$ — jump. **Discontinuous at every integer; continuous
+elsewhere.**
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $f(x) = \frac{x^2 - 9}{x - 3}$ for $x \ne 3, f(3) =
+6$. At $x = 3$, $f$ is (a) continuous (b) jump (c) infinite (d) removed.
+
+<details class="hint"><summary>Full solution</summary>
+$\lim = 6 = f(3)$. **(a) continuous.**
+</details>
+
+**1-mark MCQ #2.** Number of points where $f(x) = |x| + |x - 1|$ is not
+differentiable on $\mathbb{R}$ is (a) 0 (b) 1 (c) 2 (d) 3. (Continuity
+question implied — at corners.)
+
+<details class="hint"><summary>Full solution</summary>
+Corners at $x = 0, x = 1$. Continuous everywhere (sum of continuous);
+*not differentiable* at 2 points. **(c) 2.** (Note: continuity holds
+everywhere.)
+</details>
+
+**2-mark.** Examine continuity of $f(x) = \begin{cases} x + 5 & x \le 1
+\\ x - 5 & x > 1 \end{cases}$ at $x = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+LHS $= 6, RHS = -4$. Disagree. **Discontinuous (jump).**
+</details>
+
+**2-mark.** Find $k$ if $f(x) = \begin{cases} kx + 1 & x \le 5 \\ 3x - 5
+& x > 5 \end{cases}$ is continuous at $x = 5$.
+
+<details class="hint"><summary>Full solution</summary>
+$5k + 1 = 10 \Rightarrow k = 9/5$.
+</details>
+
+**3-mark.** Find $a, b$ such that $f(x) = \begin{cases} 5 & x \le 2 \\
+ax + b & 2 < x < 10 \\ 21 & x \ge 10 \end{cases}$ is continuous on
+$\mathbb{R}$.
+
+<details class="hint"><summary>Full solution</summary>
+At $x = 2$: $2a + b = 5$. At $x = 10$: $10a + b = 21$. Subtract: $8a =
+16 \Rightarrow a = 2, b = 1$.
+</details>
+
+**3-mark.** Test continuity of $f(x) = \begin{cases} \dfrac{\sin 3x}{x}
+& x \ne 0 \\ k & x = 0 \end{cases}$ at $x = 0$. Find $k$ so $f$ is
+continuous.
+
+<details class="hint"><summary>Full solution</summary>
+$\lim_{x\to0} \sin 3x / x = 3 \lim \sin 3x / (3x) = 3$. So $k = 3$.
+</details>
+
+**5-mark long answer.** Discuss the continuity of $f(x) =
+\begin{cases} \dfrac{\sqrt{1 + kx} - \sqrt{1 - kx}}{x} & -1 \le x < 0
+\\ \dfrac{2x + 1}{x - 2} & 0 \le x \le 1 \end{cases}$ at $x = 0$. Find
+$k$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Rationalise the LHS expression. Compute LHS limit and $f(0)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS: rationalise. $\frac{\sqrt{1+kx} - \sqrt{1-kx}}{x} \cdot
+\frac{\sqrt{1+kx} + \sqrt{1-kx}}{\sqrt{1+kx} + \sqrt{1-kx}} =
+\frac{(1+kx) - (1-kx)}{x(\sqrt{1+kx} + \sqrt{1-kx})} = \frac{2k}{
+\sqrt{1+kx} + \sqrt{1-kx}}$.
+As $x \to 0^-$: $= \frac{2k}{2} = k$.
+RHS at $0$: $f(0) = (0+1)/(0-2) = -1/2$. For continuity, $k = -1/2$.
+</details>
+
+**6-mark Case Study.** *Tax slabs as a piecewise function.*
+
+A simplified income-tax model:
+$$
+T(x) = \begin{cases} 0 & x \le 250{,}000 \\ 0.05(x - 250{,}000) &
+250{,}000 < x \le 500{,}000 \\ 12{,}500 + 0.20(x - 500{,}000) &
+500{,}000 < x \le 1{,}000{,}000 \\ 112{,}500 + 0.30(x - 1{,}000{,}000)
+& x > 1{,}000{,}000 \end{cases}
+$$
+
+(i) Is $T$ continuous at $x = 250{,}000$? At $x = 500{,}000$? Justify.
+(3 marks)
+(ii) Is $T$ continuous at $x = 1{,}000{,}000$? (1 mark)
+(iii) Why is continuity *desirable* for tax law? (2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** At $250{,}000$: LHS $= 0$, RHS $= 0$. ✓ At $500{,}000$: LHS $=
+0.05 \cdot 250{,}000 = 12{,}500$. RHS $= 12{,}500$. ✓
+**(ii)** At $1{,}000{,}000$: LHS $= 12{,}500 + 0.20 \cdot 500{,}000 =
+112{,}500$. RHS $= 112{,}500$. ✓
+**(iii)** A jump at a slab boundary would mean someone earning ₹1
+extra pays substantially more tax — incentivising reporting tricks
+just below the boundary. Continuity ensures *fairness in marginal
+behaviour*.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 5.1 Q1–14.
+**Previous-year pointer:** CBSE 2023 Set 1 Q23 (3-mark);
+CBSE 2022 Q15.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Continuous means smooth."** No. $|x|$ is continuous everywhere
+   but not smooth at 0 — a corner. Smoothness is differentiability;
+   continuity is weaker.
+2. **"If $f(a)$ is defined, $f$ is continuous at $a$."** Defined-at-$a$
+   is one of three requirements; the limit must also exist *and* equal
+   $f(a)$.
+3. **"Discontinuity means $f$ is undefined."** Not necessarily. $f$ can
+   be defined at $a$ but still discontinuous (Curve B, Curve C above).
+:::
+
+### Self-Assessment
+
+1. Could you state the three conditions for continuity at a point and
+   give a counterexample to each?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you spot which standard limit each problem hides?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark problem.
+- **0–1 yes:** revisit Class 11 limits.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse11.limits`](../../tier-cbse-11-class-11/12a-limits/index.qmd) —
+  the limit is the heart of continuity.
+
+### What this unlocks
+
+- [`cbse12.differentiability-and-rules`](../05b-differentiability-and-rules/index.qmd)
+  — every differentiable function is continuous.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 5 — Continuity and Differentiability** (NCERT
+  2023). Sections 5.1.
+- **Sister synthesis lessons:**
+  [`t4.continuity`](../../tier-4-precalc-calculus/index.qmd) and
+  [`t5.real-analysis-foundation`](../../tier-5-undergrad-core/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** ReLU activation is continuous but has a corner at 0; sigmoid
+is smooth. Network designers care about which discontinuities the
+optimiser tolerates.
+:::
+
+::: {.applied-callout}
+**Research / engineering.** Physical laws are usually modelled by
+continuous functions; jumps signal a phase transition or impact event.
+Numerical integrators must detect and handle these.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained ("draw without lifting"), Bhāskara
+  (verse), Gelfand (problem-first).
+:::

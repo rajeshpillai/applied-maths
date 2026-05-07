@@ -1,0 +1,425 @@
+---
+title: "Ch 13b — Random Variables and Probability Distributions"
+subtitle: "Numbers attached to outcomes — and the distributions they form"
+lesson-id: "cbse12.random-variables-distributions"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 13
+ncert-chapter-title: "Probability"
+board-exam: true
+prerequisites: ["cbse12.conditional-probability-bayes"]
+unlocks: []
+applied-domains: ["ai-ml", "research", "databases"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Comfortable with $P(A)$ for finite sample spaces?
+2. Can you compute $\binom{n}{k}$ ($n$ choose $k$)?
+3. Have you done [Ch 13a](../13a-conditional-probability-bayes/index.qmd)?
+:::
+
+## Touch
+
+Toss a fair coin twice. Outcomes: $\{HH, HT, TH, TT\}$. Define $X = $
+number of heads.
+
+::: {.lesson-beat}
+
+| Outcome | $X$ | Prob |
+|:-:|:-:|:-:|
+| HH | 2 | 1/4 |
+| HT | 1 | 1/4 |
+| TH | 1 | 1/4 |
+| TT | 0 | 1/4 |
+
+**Distribution of $X$:**
+
+| $X$ | 0 | 1 | 2 |
+|:-:|:-:|:-:|:-:|
+| $P(X)$ | 1/4 | 1/2 | 1/4 |
+
+:::
+
+The function $X$ assigns a *number* to each outcome — that's a
+**random variable**. The table on the right is its **probability
+distribution**.
+
+Two summary numbers:
+
+- **Mean (expected value)** $\mu = E(X) = \sum x \cdot P(X = x) = 0
+  \cdot 1/4 + 1 \cdot 1/2 + 2 \cdot 1/4 = 1$.
+- **Variance** $\text{Var}(X) = E((X - \mu)^2) = \sum (x - \mu)^2 P(X
+  = x) = 1/4 + 0 + 1/4 = 1/2$.
+
+This lesson:
+- read off probability distributions,
+- compute mean and variance,
+- recognise the **binomial distribution** for a fixed number of
+  independent trials.
+
+## Wonder
+
+1. Why must the probabilities in a distribution sum to 1?
+2. The mean is a *weighted average*. What's the weight for each value?
+3. If you toss $n$ coins, the count of heads is binomial. What two
+   parameters describe it?
+
+## Discover
+
+### Problem 1
+
+Two dice rolled. $X = $ sum. Find $P(X = 7)$.
+
+<details class="hint"><summary>Full solution</summary>
+Outcomes summing to 7: $(1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6$.
+Total 36. $P(X = 7) = 6/36 = 1/6$.
+</details>
+
+### Problem 2
+
+In Problem 1, write the distribution of $X$ — list $P(X = k)$ for $k =
+2, 3, \ldots, 12$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(X = k) = (\text{number of ways})/36$:
+$k = 2: 1, k=3: 2, k=4: 3, k=5: 4, k=6: 5, k=7: 6, k=8: 5, k=9: 4, k=
+10: 3, k=11: 2, k=12: 1$. Sum $= 36/36 = 1$ ✓.
+</details>
+
+### Problem 3
+
+Compute $E(X)$ for $X = $ sum of two dice.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$E(X) = \sum k P(X = k)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$E(X) = (1\cdot2 + 2\cdot3 + 3\cdot4 + 4\cdot5 + 5\cdot6 + 6\cdot7 + 5
+\cdot8 + 4\cdot9 + 3\cdot10 + 2\cdot11 + 1\cdot12)/36 = 252/36 = 7$.
+(Or: by linearity, $E(X) = E(D_1) + E(D_2) = 3.5 + 3.5 = 7$.)
+</details>
+
+### Problem 4
+
+A coin is tossed 4 times. $X = $ number of heads. Find $P(X = 2)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Binomial: $\binom{4}{2}(1/2)^4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{4}{2}(1/2)^4 = 6/16 = 3/8$.
+</details>
+
+### Problem 5
+
+A factory's defect rate is 5%. 10 items inspected. Find probability of
+exactly 1 defective.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Binomial with $n = 10, p = 0.05$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(X = 1) = \binom{10}{1}(0.05)(0.95)^9 = 10 \cdot 0.05 \cdot
+(0.95)^9 \approx 10 \cdot 0.05 \cdot 0.6302 \approx 0.3151$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **random variable** $X$ on a sample space $\Omega$ is a function $X
+: \Omega \to \mathbb{R}$. A **discrete** $X$ takes finitely many (or
+countably many) values.
+
+The **probability distribution** of $X$ is the table $\{(x_i, P(X =
+x_i))\}$, with $\sum_i P(X = x_i) = 1$.
+
+**Mean (expected value):**
+$$E(X) = \mu = \sum_i x_i \, P(X = x_i).$$
+
+**Variance:**
+$$\text{Var}(X) = \sigma^2 = \sum_i (x_i - \mu)^2 P(X = x_i) = E(X^2) -
+[E(X)]^2.$$
+
+**Standard deviation:** $\sigma = \sqrt{\text{Var}(X)}$.
+
+**Bernoulli trial:** experiment with two outcomes, success (prob $p$)
+and failure (prob $q = 1 - p$).
+
+**Binomial distribution.** $X = $ number of successes in $n$
+independent Bernoulli trials, each with success probability $p$:
+$$P(X = k) = \binom{n}{k} p^k q^{n-k}, \quad k = 0, 1, \ldots, n.$$
+**Mean** $= np$. **Variance** $= npq$.
+
+:::
+
+A verse:
+
+> *Random variable: a number per outcome;*
+> *Distribution: probabilities, summing to one.*
+> *Mean: weighted sum; variance: deviation squared, weighted again;*
+> *Binomial: $\binom{n}{k} p^k q^{n-k}$ — count successes, count again.*
+
+## Apply
+
+### Worked example
+
+> A die is rolled twice. $X = $ sum of the larger and the absolute
+> difference. Find $E(X)$.
+
+A competent solver:
+
+(Worked example for clarity.) Let me redo with a tractable example.
+
+> Two coins. $X = $ number of heads. Find $E(X), \text{Var}(X)$.
+
+1. Distribution: $P(X = 0) = 1/4, P(X = 1) = 1/2, P(X = 2) = 1/4$.
+2. $E(X) = 0(1/4) + 1(1/2) + 2(1/4) = 1$.
+3. $E(X^2) = 0 + 1(1/2) + 4(1/4) = 3/2$.
+4. $\text{Var}(X) = 3/2 - 1 = 1/2$.
+5. (Check: binomial $n = 2, p = 1/2$. Mean $np = 1$, variance $npq =
+   2 \cdot 1/2 \cdot 1/2 = 1/2$ ✓.)
+
+### Practice — Warm
+
+**W1.** Distribution of $X = $ number of tails in 3 coin tosses.
+
+<details class="hint"><summary>Full solution</summary>
+$P(X = 0) = 1/8, P(X = 1) = 3/8, P(X = 2) = 3/8, P(X = 3) = 1/8$
+(binomial $n = 3, p = 1/2$).
+</details>
+
+**W2.** Mean of W1.
+
+<details class="hint"><summary>Full solution</summary>
+$E(X) = np = 3/2$.
+</details>
+
+**W3.** Variance of W1.
+
+<details class="hint"><summary>Full solution</summary>
+$npq = 3/4$.
+</details>
+
+### Practice — Working
+
+**P1.** A box contains 4 red and 6 black balls. 5 are drawn with
+replacement. Find $P(\text{at most 2 red})$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Binomial $n = 5, p = 0.4$. Want $P(X \le 2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(X = 0) = (0.6)^5 = 0.07776$.
+$P(X = 1) = 5(0.4)(0.6)^4 = 5 \cdot 0.4 \cdot 0.1296 = 0.2592$.
+$P(X = 2) = 10(0.4)^2(0.6)^3 = 10 \cdot 0.16 \cdot 0.216 = 0.3456$.
+Sum $\approx 0.6826$.
+</details>
+
+**P2.** $X$ has distribution $P(X = -2) = 0.1, P(X = -1) = 0.2, P(X =
+0) = 0.4, P(X = 1) = 0.2, P(X = 2) = 0.1$. Find $E(X), E(X^2),
+\text{Var}(X)$.
+
+<details class="hint"><summary>Full solution</summary>
+$E(X) = -2(0.1) + (-1)(0.2) + 0 + 1(0.2) + 2(0.1) = 0$.
+$E(X^2) = 4(0.1) + 1(0.2) + 0 + 1(0.2) + 4(0.1) = 1.2$.
+$\text{Var}(X) = 1.2 - 0 = 1.2$.
+</details>
+
+**P3.** A coin is tossed until a head appears, max 4 tosses. $X = $
+number of tosses. Find the distribution and mean.
+
+<details class="hint"><summary>Full solution</summary>
+$P(X = 1) = 1/2, P(X = 2) = 1/4, P(X = 3) = 1/8, P(X = 4) = 1/8$
+(includes both $TTTH$ and $TTTT$, a quirky stopping rule). Sum $= 1$.
+$E(X) = 1/2 + 2/4 + 3/8 + 4/8 = 1/2 + 1/2 + 3/8 + 1/2 = 15/8$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Probability that an arrow hits a target is 0.3. 10 arrows are
+shot. Find probability of *at least* 2 hits.
+
+<details class="hint"><summary>Full solution</summary>
+$P(X \ge 2) = 1 - P(X = 0) - P(X = 1)$.
+$P(X = 0) = (0.7)^{10} \approx 0.0282$.
+$P(X = 1) = 10(0.3)(0.7)^9 \approx 10 \cdot 0.3 \cdot 0.04035 \approx
+0.1211$.
+$P(X \ge 2) \approx 1 - 0.0282 - 0.1211 \approx 0.8507$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $X$ is binomial with $n = 6, p = 1/2$. $E(X) =$
+(a) 3 (b) 6 (c) 1 (d) 1.5.
+
+<details class="hint"><summary>Full solution</summary>
+$np = 3$. **(a).**
+</details>
+
+**1-mark MCQ #2.** Variance of binomial $X$ with $n = 10, p = 0.4$ is
+(a) 4 (b) 2.4 (c) 6 (d) 1.6.
+
+<details class="hint"><summary>Full solution</summary>
+$npq = 10 \cdot 0.4 \cdot 0.6 = 2.4$. **(b).**
+</details>
+
+**Assertion–Reason.** *A:* Mean of binomial = $np$. *R:* Sum of $n$
+Bernoulli expectations is $n p$.
+
+(a) Both true, R explains. (b) Both true, R doesn't explain. (c) A
+true, R false. (d) A false.
+
+<details class="hint"><summary>Full solution</summary>
+By linearity of expectation. **(a).**
+</details>
+
+**2-mark.** $X$ has $P(X = 0) = k, P(X = 1) = 2k, P(X = 2) = 3k, P(X =
+3) = k$. Find $k, E(X)$.
+
+<details class="hint"><summary>Full solution</summary>
+$k + 2k + 3k + k = 7k = 1 \Rightarrow k = 1/7$.
+$E(X) = 0 + 2/7 + 6/7 + 3/7 = 11/7$.
+</details>
+
+**2-mark.** A pair of dice rolled. Find $P(\text{sum is 8})$.
+
+<details class="hint"><summary>Full solution</summary>
+Outcomes summing 8: $(2,6),(3,5),(4,4),(5,3),(6,2) = 5$. $P = 5/36$.
+</details>
+
+**3-mark.** A box has 5 white, 7 black. 5 drawn with replacement. Find
+$P(\text{exactly 3 white})$.
+
+<details class="hint"><summary>Full solution</summary>
+$p = 5/12, q = 7/12$. Binomial: $\binom{5}{3}(5/12)^3(7/12)^2 = 10 \cdot
+(125/1728)(49/144) = 10 \cdot 6125 / 248832 = 61250/248832 \approx
+0.246$.
+</details>
+
+**3-mark.** A multiple-choice test has 5 questions, each with 4 options,
+one correct. A student guesses. Find $P(\text{at least 4 correct})$.
+
+<details class="hint"><summary>Full solution</summary>
+Binomial $n = 5, p = 1/4$.
+$P(X = 4) = 5(1/4)^4(3/4) = 15/1024$.
+$P(X = 5) = (1/4)^5 = 1/1024$.
+Sum $= 16/1024 = 1/64$.
+</details>
+
+**5-mark long answer.** Two dice are tossed. Let $X = $ number of dice
+showing 6. Find the distribution, mean, and variance of $X$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Binomial $n = 2, p = 1/6$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(X = 0) = (5/6)^2 = 25/36$. $P(X = 1) = 2(1/6)(5/6) = 10/36$. $P(X =
+2) = 1/36$.
+Mean $= np = 1/3$.
+Variance $= npq = 2 \cdot 1/6 \cdot 5/6 = 10/36 = 5/18$.
+</details>
+
+**6-mark Case Study.** *Quality control.*
+
+A factory produces light bulbs with defect rate 4%. A retailer
+inspects 25 bulbs.
+
+(i) Identify the distribution of $X = $ number of defective bulbs in
+the sample. (1 mark)
+(ii) Find $E(X)$ and $\text{Var}(X)$. (2 marks)
+(iii) Find $P(X = 0)$ — probability the entire batch passes. (2
+marks)
+(iv) Find $P(X \ge 2)$. (1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** Binomial $n = 25, p = 0.04$.
+**(ii)** $E(X) = np = 1$, $\text{Var}(X) = npq = 25 \cdot 0.04 \cdot
+0.96 = 0.96$.
+**(iii)** $P(X = 0) = (0.96)^{25} \approx 0.3604$.
+**(iv)** $P(X = 1) = 25 \cdot 0.04 \cdot (0.96)^{24} \approx 25 \cdot
+0.04 \cdot 0.3754 \approx 0.3754$. $P(X \ge 2) = 1 - 0.3604 - 0.3754
+\approx 0.2642$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 13.4, 13.5.
+**Previous-year pointer:** CBSE 2023 Set 1 Q34 (5-mark binomial); CBSE
+2022 Q35.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Random variable = random number."** A random variable is a
+   *function* on the sample space. The "random" comes from the input.
+2. **"Mean = most likely value."** Not necessarily. Mean is an average;
+   the mode is the most likely value.
+3. **"Binomial requires fair coins."** No — $p$ can be anything in $[0,
+   1]$. The crucial assumptions are *fixed $n$* and *independence*
+   between trials with constant $p$.
+:::
+
+### Self-Assessment
+
+1. Could you write a binomial distribution from a verbal problem in 1
+   minute?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you compute mean and variance from a probability table?
+
+- **3 yes:** you've completed Class 12 — congratulations.
+- **2 yes:** redo Stretch.
+- **0–1 yes:** revisit Ch 13a; conditional reasoning underpins every
+  distribution.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.conditional-probability-bayes`](../13a-conditional-probability-bayes/index.qmd)
+  — independence is the spine of binomial trials.
+
+### What this unlocks
+
+- Tier 5 — undergraduate probability (continuous distributions,
+  estimation theory).
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 13** (NCERT 2023). Sections 13.6–13.7.
+- **Sister synthesis lessons:**
+  [`t3.discrete-distributions`](../../tier-3-algebra2-geometry-trig/index.qmd),
+  [`t5.continuous-distributions`](../../tier-5-undergrad-core/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Most classifiers output probabilities; cross-entropy loss
+is the negative log-likelihood under a Bernoulli/multinomial model.
+Sampling from learned distributions is the heart of generative AI.
+:::
+
+::: {.applied-callout}
+**Research.** Hypothesis testing models test statistics as random
+variables; A/B tests use binomial confidence intervals.
+:::
+
+::: {.applied-callout}
+**Databases.** Bloom filters use independent hash functions —
+binomial-style false-positive analysis. Reservoir sampling computes
+probabilities of inclusion.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained ("expected value as average"),
+  3Blue1Brown ("probability distributions"), Bhāskara (verse), AoPS
+  (counting + binomial drill).
+:::

@@ -1,0 +1,486 @@
+---
+title: "Ch 8b — Trigonometric Identities"
+subtitle: "One Pythagorean fact, three identities, and a board-paper machine"
+lesson-id: "cbse10.trigonometric-identities"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 8
+ncert-chapter-title: "Introduction to Trigonometry"
+board-exam: true
+prerequisites: [cbse10.trigonometry-intro]
+unlocks: [cbse10.heights-and-distances, cbse11.trigonometric-functions]
+applied-domains: [research, game-dev]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state $\sin\theta, \cos\theta, \tan\theta$ in a right triangle?
+   See [`cbse10.trigonometry-intro`](../08a-trigonometry-intro/index.qmd).
+2. Do you remember $\sin 30°, \sin 60°, \sin 45°$ from the special-angle
+   table?
+3. Can you simplify $\dfrac{\sin\theta}{\cos\theta}$ as a single function?
+4. Can you expand $(a + b)^2$ in your head?
+
+Three yeses, ready.
+:::
+
+## Touch
+
+A right triangle. The legs are $a$ and $b$, the hypotenuse $c$. Pythagoras
+says $a^2 + b^2 = c^2$. Divide both sides by $c^2$:
+
+$$\dfrac{a^2}{c^2} + \dfrac{b^2}{c^2} = 1.$$
+
+But $a/c$ is **opposite over hypotenuse** = $\sin\theta$, and $b/c$ is
+**adjacent over hypotenuse** = $\cos\theta$. So
+$$\sin^2\theta + \cos^2\theta = 1.$$
+
+That single equation, applied differently, generates **every** trigonometric
+identity in this chapter. Tap the slider — confirm the identity holds
+numerically.
+
+```{ojs}
+viewof tt = Inputs.range([0, 90], {value: 35, step: 1, label: "θ (degrees)"})
+```
+
+```{ojs}
+{
+  const r = tt * Math.PI / 180;
+  const s = Math.sin(r), c = Math.cos(r);
+  return html`<pre style="font-family: ui-monospace, SFMono-Regular, monospace;">
+sin θ          = ${s.toFixed(4)}
+cos θ          = ${c.toFixed(4)}
+sin² θ + cos² θ = ${(s*s + c*c).toFixed(8)}    ← always 1
+1 + tan² θ      = ${(1 + (s/c)*(s/c)).toFixed(4)}
+sec² θ          = ${(1/(c*c)).toFixed(4)}    ← equals 1 + tan² θ
+1 + cot² θ      = ${(1 + (c/s)*(c/s)).toFixed(4)}
+csc² θ          = ${(1/(s*s)).toFixed(4)}    ← equals 1 + cot² θ
+</pre>`;
+}
+```
+
+Three identities. One source. We will derive all three.
+
+## Wonder
+
+1. The first identity is $\sin^2\theta + \cos^2\theta = 1$. What does this
+   say about how big $\sin\theta$ can ever get?
+2. The widget shows $\sec^2\theta - \tan^2\theta = 1$ as well — a different
+   shape. Could that also be Pythagoras in disguise?
+3. Could you get a third identity from the other reciprocal pair, $\csc$
+   and $\cot$?
+4. If $\sin\theta = 0.6$, can you compute $\cos\theta$ without measuring?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) $\sin\theta \le 1$, and $= 1$ only when $\cos\theta = 0$, i.e.
+$\theta = 90°$. (2) Yes — divide $a^2 + b^2 = c^2$ by $b^2$ instead.
+(3) Yes — divide by $a^2$.
+:::
+
+## Discover
+
+### Problem 1 — Derive identity 1
+Start from $a^2 + b^2 = c^2$. Divide by $c^2$. Recognise.
+
+<details class="hint"><summary>Full solution</summary>
+$\left(\dfrac{a}{c}\right)^2 + \left(\dfrac{b}{c}\right)^2 = 1$, i.e.
+$\sin^2\theta + \cos^2\theta = 1$.
+</details>
+
+### Problem 2 — Derive identity 2
+Start from $a^2 + b^2 = c^2$. Divide by $b^2$. Recognise.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a/b = \tan\theta, c/b = \sec\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{a^2}{b^2} + 1 = \dfrac{c^2}{b^2}$, i.e. $\tan^2\theta + 1 =
+\sec^2\theta$.
+Equivalently, $\sec^2\theta - \tan^2\theta = 1$.
+</details>
+
+### Problem 3 — Derive identity 3
+Start from $a^2 + b^2 = c^2$. Divide by $a^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$1 + \dfrac{b^2}{a^2} = \dfrac{c^2}{a^2}$, i.e. $1 + \cot^2\theta =
+\csc^2\theta$. Equivalently, $\csc^2\theta - \cot^2\theta = 1$.
+</details>
+
+### Problem 4 — A direct application
+Given $\sin\theta = \dfrac{3}{5}$, find $\cos\theta$ without drawing a
+triangle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos^2\theta = 1 - \sin^2\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos^2\theta = 1 - 9/25 = 16/25$. $\cos\theta = 4/5$ (positive, since
+$\theta$ is acute).
+</details>
+
+### Problem 5 — Algebraic dance
+Simplify $\dfrac{\sin\theta}{1 + \cos\theta} + \dfrac{1 + \cos\theta}{\sin\theta}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Common denominator: $\sin\theta(1 + \cos\theta)$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Numerator: $\sin^2\theta + (1 + \cos\theta)^2$. Expand the second term and
+use identity 1.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numerator: $\sin^2\theta + 1 + 2\cos\theta + \cos^2\theta = 1 + 1 +
+2\cos\theta = 2(1 + \cos\theta)$.
+So the expression $= \dfrac{2(1 + \cos\theta)}{\sin\theta(1 + \cos\theta)} =
+\dfrac{2}{\sin\theta} = 2\csc\theta$.
+</details>
+
+### Problem 6 — Identity from a hypothesis
+If $\tan\theta + \cot\theta = 2$, find $\tan^2\theta + \cot^2\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(\tan\theta + \cot\theta)^2 = \tan^2 + 2 \tan\cot + \cot^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tan\theta \cdot \cot\theta = 1$. So $4 = \tan^2\theta + 2 +
+\cot^2\theta$, hence $\tan^2\theta + \cot^2\theta = 2$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**The three Pythagorean identities** (for any acute $\theta$ where the
+expressions are defined):
+
+$$\sin^2\theta + \cos^2\theta = 1,$$
+$$1 + \tan^2\theta = \sec^2\theta,$$
+$$1 + \cot^2\theta = \csc^2\theta.$$
+
+**Quotient identities:** $\tan\theta = \dfrac{\sin\theta}{\cos\theta}$ and
+$\cot\theta = \dfrac{\cos\theta}{\sin\theta}$.
+
+**Reciprocal identities:** $\sec\theta = 1/\cos\theta, \csc\theta = 1/
+\sin\theta, \cot\theta = 1/\tan\theta$.
+
+:::
+
+A verse:
+
+> *Sine squared plus cosine squared, always equal to one.*
+> *Tangent squared plus one is sec squared — the second sun.*
+> *Cot squared plus one is csc squared — the third in line.*
+> *Three from one Pythagorean root, all three combine.*
+
+## Apply
+
+### Worked example
+
+> Prove $\dfrac{1 - \cos\theta}{1 + \cos\theta} = \left(\csc\theta -
+> \cot\theta\right)^2$.
+
+**Right-hand side:**
+$\csc\theta - \cot\theta = \dfrac{1}{\sin\theta} - \dfrac{\cos\theta}
+{\sin\theta} = \dfrac{1 - \cos\theta}{\sin\theta}$.
+
+So $\left(\csc\theta - \cot\theta\right)^2 = \dfrac{(1 - \cos\theta)^2}
+{\sin^2\theta}$.
+
+**Use identity 1**: $\sin^2\theta = 1 - \cos^2\theta = (1 - \cos\theta)
+(1 + \cos\theta)$.
+
+So RHS = $\dfrac{(1 - \cos\theta)^2}{(1 - \cos\theta)(1 + \cos\theta)} =
+\dfrac{1 - \cos\theta}{1 + \cos\theta} = $ LHS. $\square$
+
+### Practice — Warm
+
+**W1.** $\sin\theta = \dfrac{12}{13}$, find $\cos\theta$ using identity 1.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos^2\theta = 1 - 144/169 = 25/169$, so $\cos\theta = 5/13$.
+</details>
+
+**W2.** Simplify $(1 - \sin\theta)(1 + \sin\theta)$.
+
+<details class="hint"><summary>Full solution</summary>
+$1 - \sin^2\theta = \cos^2\theta$.
+</details>
+
+**W3.** Simplify $\sec^2\theta - \tan^2\theta$.
+
+<details class="hint"><summary>Full solution</summary>
+$1$.
+</details>
+
+### Practice — Working
+
+**P1.** Prove $\dfrac{\cos\theta}{1 + \sin\theta} + \dfrac{1 + \sin\theta}
+{\cos\theta} = 2 \sec\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Common denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$= \dfrac{\cos^2\theta + (1 + \sin\theta)^2}{\cos\theta(1 + \sin\theta)}$.
+Numerator: $\cos^2\theta + 1 + 2\sin\theta + \sin^2\theta = 2 + 2\sin\theta
+= 2(1 + \sin\theta)$.
+So $= \dfrac{2(1 + \sin\theta)}{\cos\theta(1 + \sin\theta)} = \dfrac{2}
+{\cos\theta} = 2\sec\theta$. $\square$
+</details>
+
+**P2.** If $\tan\theta = \dfrac{a}{b}$, find $\dfrac{a \sin\theta + b
+\cos\theta}{a \sin\theta - b \cos\theta}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide top and bottom by $\cos\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{a \tan\theta + b}{a \tan\theta - b} = \dfrac{a^2/b + b}{a^2/b - b}
+= \dfrac{a^2 + b^2}{a^2 - b^2}$.
+</details>
+
+**P3.** Prove $(\sin\theta + \csc\theta)^2 + (\cos\theta + \sec\theta)^2 =
+7 + \tan^2\theta + \cot^2\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand both squares.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS = $\sin^2\theta + 2 + \csc^2\theta + \cos^2\theta + 2 + \sec^2\theta$
+$= 1 + 4 + (1 + \cot^2\theta) + (1 + \tan^2\theta)$
+$= 7 + \cot^2\theta + \tan^2\theta$. $\square$
+</details>
+
+### Practice — Stretch
+
+**S1.** Prove $\dfrac{\tan\theta}{1 - \cot\theta} + \dfrac{\cot\theta}
+{1 - \tan\theta} = 1 + \sec\theta \csc\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Convert all to $\sin, \cos$. Then common-denominate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS = $\dfrac{\sin\theta/\cos\theta}{1 - \cos\theta/\sin\theta} +
+\dfrac{\cos\theta/\sin\theta}{1 - \sin\theta/\cos\theta}$
+$= \dfrac{\sin^2\theta}{\cos\theta(\sin\theta - \cos\theta)} -
+\dfrac{\cos^2\theta}{\sin\theta(\sin\theta - \cos\theta)}$ (note sign change
+on the second by reflecting)
+$= \dfrac{1}{\sin\theta - \cos\theta} \cdot \left[\dfrac{\sin^3\theta -
+\cos^3\theta}{\sin\theta\cos\theta}\right]$
+$= \dfrac{(\sin\theta - \cos\theta)(\sin^2\theta + \sin\theta\cos\theta +
+\cos^2\theta)}{(\sin\theta - \cos\theta)\sin\theta\cos\theta}$
+$= \dfrac{1 + \sin\theta\cos\theta}{\sin\theta\cos\theta}
+= 1 + \sec\theta\csc\theta$. $\square$
+</details>
+
+**S2.** If $\sin\theta + \cos\theta = \sqrt{2}$, find $\tan\theta + \cot\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Square the given. $(\sin + \cos)^2 = 1 + 2 \sin\cos$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 = 1 + 2\sin\theta\cos\theta \Rightarrow \sin\theta\cos\theta = \frac{1}{2}$.
+$\tan\theta + \cot\theta = \dfrac{\sin\theta}{\cos\theta} + \dfrac{\cos\theta}{\sin\theta}
+= \dfrac{1}{\sin\theta\cos\theta} = 2$.
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** $9\sec^2 A - 9 \tan^2 A = $
+(a) $1$  (b) $9$  (c) $0$  (d) $8$.
+
+<details class="hint"><summary>Full solution</summary>
+$9(\sec^2 A - \tan^2 A) = 9 \cdot 1 = 9$. **(b).**
+</details>
+
+**Q2 (1 mark — fill-in).** $(\sec\theta + \tan\theta)(\sec\theta -
+\tan\theta) = $ ____.
+
+<details class="hint"><summary>Full solution</summary>
+$\sec^2\theta - \tan^2\theta = 1$.
+</details>
+
+**Q3 (2 marks).** Prove $\sin^4\theta + \cos^4\theta = 1 - 2\sin^2\theta
+\cos^2\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin^4 + \cos^4 = (\sin^2 + \cos^2)^2 - 2\sin^2\cos^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(\sin^2\theta + \cos^2\theta)^2 = \sin^4\theta + 2\sin^2\theta\cos^2\theta
++ \cos^4\theta$.
+LHS = $1$, so $\sin^4\theta + \cos^4\theta = 1 - 2\sin^2\theta\cos^2\theta$.
+$\square$
+</details>
+
+**Q4 (2 marks).** If $\sin\theta + \sin^2\theta = 1$, prove $\cos^2\theta +
+\cos^4\theta = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+From the given: $\sin\theta = 1 - \sin^2\theta = \cos^2\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin\theta = \cos^2\theta$. Square: $\sin^2\theta = \cos^4\theta$.
+But $\sin^2\theta + \cos^2\theta = 1$, so $\cos^4\theta + \cos^2\theta =
+1$. $\square$
+</details>
+
+**Q5 (3 marks).** Prove $\dfrac{\tan\theta + \sec\theta - 1}{\tan\theta -
+\sec\theta + 1} = \dfrac{1 + \sin\theta}{\cos\theta}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The "$-1$" and "$+1$" terms beg for the substitution $\sec^2\theta -
+\tan^2\theta = 1$, written as $-1 = -(\sec^2\theta - \tan^2\theta) = (\tan
+- \sec)(\tan + \sec)$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Replace the "$-1$" in the numerator using the identity, then factor.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numerator: $\tan\theta + \sec\theta - 1 = \tan\theta + \sec\theta -
+(\sec^2\theta - \tan^2\theta) = (\tan\theta + \sec\theta) - (\sec\theta -
+\tan\theta)(\sec\theta + \tan\theta) = (\tan\theta + \sec\theta)[1 -
+(\sec\theta - \tan\theta)] = (\tan\theta + \sec\theta)(1 - \sec\theta +
+\tan\theta)$.
+So LHS $= \dfrac{(\tan\theta + \sec\theta)(1 - \sec\theta + \tan\theta)}
+{\tan\theta - \sec\theta + 1} = \tan\theta + \sec\theta$
+(the bracketed factors cancel) $= \dfrac{\sin\theta}{\cos\theta} + \dfrac{1}{\cos\theta}
+= \dfrac{1 + \sin\theta}{\cos\theta}$. $\square$
+</details>
+
+**Q6 (3 marks).** If $7 \sin^2\theta + 3 \cos^2\theta = 4$, find $\tan\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Replace $\cos^2\theta = 1 - \sin^2\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7\sin^2\theta + 3(1 - \sin^2\theta) = 4 \Rightarrow 4\sin^2\theta = 1
+\Rightarrow \sin\theta = 1/2$. So $\theta = 30°$ (acute). $\tan\theta =
+\tan 30° = 1/\sqrt{3}$.
+</details>
+
+**Q7 (5 marks — long answer).** (a) Prove
+$\dfrac{\cos A}{1 - \tan A} + \dfrac{\sin A}{1 - \cot A} = \cos A + \sin A$.
+
+(b) Verify the identity at $A = 60°$ as a numerical sanity check.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Convert $\tan, \cot$ to $\sin, \cos$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+After conversion, factor and look for a difference-of-cubes structure.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** $\dfrac{\cos A}{1 - \sin A/\cos A} + \dfrac{\sin A}{1 - \cos A/\sin A}$
+$= \dfrac{\cos^2 A}{\cos A - \sin A} + \dfrac{\sin^2 A}{\sin A - \cos A}$
+$= \dfrac{\cos^2 A - \sin^2 A}{\cos A - \sin A}$
+$= \dfrac{(\cos A - \sin A)(\cos A + \sin A)}{\cos A - \sin A} = \cos A +
+\sin A$. $\square$
+
+**(b)** At $A = 60°$: $\sin 60° = \sqrt{3}/2, \cos 60° = 1/2, \tan 60° =
+\sqrt{3}, \cot 60° = 1/\sqrt{3}$.
+LHS $= \dfrac{1/2}{1 - \sqrt{3}} + \dfrac{\sqrt{3}/2}{1 - 1/\sqrt{3}}$
+$= \dfrac{1}{2(1 - \sqrt{3})} + \dfrac{\sqrt{3}}{2(1 - 1/\sqrt{3})}$
+$= \dfrac{1}{2(1 - \sqrt{3})} + \dfrac{\sqrt{3} \cdot \sqrt{3}}{2(\sqrt{3} - 1)}$
+$= \dfrac{1}{2(1 - \sqrt{3})} + \dfrac{3}{2(\sqrt{3} - 1)}$
+$= \dfrac{-1}{2(\sqrt{3} - 1)} + \dfrac{3}{2(\sqrt{3} - 1)}$
+$= \dfrac{2}{2(\sqrt{3} - 1)} = \dfrac{1}{\sqrt{3} - 1} = \dfrac{\sqrt{3}
++ 1}{2}$.
+RHS = $\cos 60° + \sin 60° = \dfrac{1}{2} + \dfrac{\sqrt{3}}{2} =
+\dfrac{1 + \sqrt{3}}{2}$. ✓
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 8.4 Q1–Q12 cover identity proofs of
+the shape Q5 and Q7; Exemplar 8.3 Q9–Q14 are "given X, find Y" problems
+like Q6 and S2.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q35 mirrors Q5 (the $1 = \sec^2
+- \tan^2$ trick). CBSE 2023 Standard, Q35 mirrors Q7.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sin^2\theta = \sin\theta^2$."** No. $\sin^2\theta$ means
+   $(\sin\theta)^2$. $\sin(\theta^2)$ would be a completely different
+   function (the sine of the square of $\theta$).
+2. **"$\sec^2\theta - \tan^2\theta = 0$."** It equals **$1$**, not zero.
+   Easy to slip if you're rushing.
+3. **"You can square both sides of an identity to prove it."** That works
+   for *equations* (with side-conditions on signs), but for *identities*
+   you should manipulate one side until it equals the other. Squaring is
+   not a clean proof step.
+:::
+
+### Self-Assessment
+
+1. Could you derive all three Pythagorean identities from $a^2 + b^2 =
+   c^2$, without notes?
+2. Did Q5 and Q7 fall out cleanly with at most one hint?
+3. Could you spot, in an unfamiliar identity, which side to start
+   manipulating (the more complex one)?
+
+- **3 yes:** move on.
+- **2 yes:** redo P1, P3, Q5. The board paper picks one of these
+  identity-proof shapes nearly every year.
+- **0–1 yes:** drill, drill, drill. The proofs are mechanical once you
+  internalise the three identities and the "convert all to sin, cos"
+  reflex.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse10.trigonometry-intro`](../08a-trigonometry-intro/index.qmd) — the
+  six trig ratios and the special-angle table.
+
+### What this unlocks
+
+- [`cbse10.heights-and-distances`](../09-heights-and-distances/index.qmd) —
+  applications.
+- [`cbse11.trigonometric-functions`](../../tier-cbse-11-class-11/03a-trig-functions/index.qmd) —
+  the unit-circle generalisation, and many more identities (sum, difference,
+  double-angle).
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 8 — Introduction to Trigonometry, Section 8.4**
+  (NCERT 2023 rationalised syllabus). Covers the three identities and
+  their applications.
+- **Sister synthesis lesson:**
+  [`t3.unit-circle`](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd) —
+  the same identities derived from the unit-circle equation $x^2 + y^2 = 1$.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** The Pythagorean identity is the simplest case of a
+*conservation law*: a quantity that does not change as a parameter
+varies. In physics and signal processing, $\sin^2 + \cos^2 = 1$ is the
+constancy of energy of a unit-amplitude oscillator.
+:::
+
+::: {.applied-callout}
+**Game development.** Normalisation — making a 2D vector have length 1 —
+divides by $\sqrt{x^2 + y^2}$, the Pythagorean length. The result is
+exactly $(\cos\theta, \sin\theta)$ for some $\theta$. The identity is
+the engine.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Bhāskara (compact *Name*); Russian school (problem-
+  first, identities derived, not stated).
+- **Source notes:** Q5 is the NCERT-canonical "double identity" pattern;
+  Q7 is the NCERT 8.4 Example 11 archetype.
+:::

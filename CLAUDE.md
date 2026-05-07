@@ -155,6 +155,78 @@ Because the learner has no teacher to ask, every lesson must include:
    - **0–1 yes:** re-read Discover and Apply; the idea hasn't landed yet.
    ```
 
+## CBSE / NCERT Lesson Additions
+
+CBSE / NCERT track lessons (any lesson whose `lesson-id` starts with
+`cbseN.`) follow the same six-beat contract above and add **two extras**.
+Do not invent a seventh beat — both extras live inside existing beats.
+
+### 1. Frontmatter
+
+In addition to the standard fields, a CBSE lesson sets:
+
+```yaml
+ncert-class: 10                     # 8, 9, 10, 11, or 12
+ncert-chapter: 5                    # NCERT chapter number
+ncert-chapter-title: "Arithmetic Progressions"
+board-exam: true                    # true for Class 10 and Class 12 lessons
+tier: "cbse10"                      # use the cbseN string, not an integer
+```
+
+### 2. Inside `## Apply` — Board-Pattern Practice
+
+After Warm / Working / Stretch, add a **Board-Pattern Practice** sub-section
+mirroring the actual board paper structure. Every problem still gets graduated
+hints + a worked solution.
+
+```markdown
+### Board-Pattern Practice
+
+**1-mark (objective).** ...
+**2-mark (short answer).** ...
+**3-mark (short answer II).** ...
+**4 or 5-mark (long answer).** ...
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 5.3, Q12 (variant of S1).
+**Previous-year pointer:** CBSE 2023 Set 3, Q14 (similar to W2).
+:::
+```
+
+The 1/2/3-mark items can be objective, short answer, and reasoning. The
+long-answer item should require multiple steps and explanation.
+
+### 3. Inside `## Connect` — NCERT Chapter Alignment
+
+Add a sub-section between *What this unlocks* and *Where this matters*:
+
+```markdown
+### NCERT chapter alignment
+
+- **Class 10, Chapter 5 — Arithmetic Progressions**
+  (NCERT 2023 rationalised syllabus). Covers Sections 5.1–5.3.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t3.sequences-series`](../../tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd).
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+```
+
+The "sister synthesis lesson" link is what stops the two tracks feeling
+like duplicate work — a learner who is stuck can compare the
+chapter-by-chapter board treatment to the synthesis lens.
+
+### CBSE-specific items in the "Done" checklist
+
+When a lesson's `lesson-id` starts with `cbseN.`, also verify:
+
+- [ ] Frontmatter sets `ncert-class`, `ncert-chapter`, `ncert-chapter-title`.
+- [ ] *Apply* contains a **Board-Pattern Practice** block with at least
+      1 + 2 + 3 + (4-or-5)-mark style items, all with hints and full
+      solutions, plus an Exemplar / PYQ pointer callout.
+- [ ] *Connect* contains a **NCERT chapter alignment** sub-section with
+      a working link to the sister synthesis lesson (or a clear note if
+      no synthesis lesson covers this idea).
+
 ## Voice and Style
 
 - **Address the learner directly.** "You" not "the student" or "one."

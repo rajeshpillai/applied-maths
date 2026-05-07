@@ -1,0 +1,549 @@
+---
+title: "Ch 1 — Real Numbers"
+subtitle: "Why every integer factors into primes in exactly one way — and what that buys you"
+lesson-id: "cbse10.real-numbers"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 1
+ncert-chapter-title: "Real Numbers"
+board-exam: true
+prerequisites: [cbse9.number-systems, t1.divisibility-primes]
+unlocks: [cbse10.polynomials, cbse10.arithmetic-progressions, cbse11.sets]
+applied-domains: [encryption, research]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Are you ready for this lesson? Be honest — Class 10 is a board year and a
+shaky foundation here will cost you marks across the paper.
+
+1. Can you list the prime numbers up to 30 without looking them up? See
+   [`t1.divisibility-primes`](../../tier-1-foundations/15-divisibility-and-primes/index.qmd).
+2. Can you write a fraction like $\dfrac{7}{20}$ as a decimal in your head, and
+   say whether it terminates? See
+   [`cbse9.number-systems`](../../tier-cbse-09-class-9/01-number-systems/index.qmd).
+3. Do you know what $\sqrt{2}$ is, and that it is **not** a fraction of
+   integers? See
+   [`cbse9.number-systems`](../../tier-cbse-09-class-9/01-number-systems/index.qmd).
+4. Can you compute $\gcd(24,36)$ by listing factors?
+
+If you said yes to at least three, read on. If two or fewer, revisit the
+prerequisites first — these tools are load-bearing.
+:::
+
+## Touch
+
+Open a kitchen drawer. Take out **12 spoons** and **18 forks**. You want to
+arrange them in equal-sized rows so that *every* row has the same number of
+spoons and the same number of forks — no leftovers, no mixing.
+
+Try a few row counts on paper first. Then check what works.
+
+```{ojs}
+viewof rows = Inputs.range([1, 12], {value: 4, step: 1, label: "Number of rows"})
+```
+
+```{ojs}
+{
+  const spoons = 12, forks = 18, n = rows;
+  const sOk = spoons % n === 0;
+  const fOk = forks % n === 0;
+  const sPer = sOk ? spoons / n : "—";
+  const fPer = fOk ? forks / n : "—";
+  return html`<div style="font-family:system-ui; font-size:1rem; line-height:1.6;">
+    <div>Spoons per row: <b>${sPer}</b> ${sOk ? "✓" : "(does not divide evenly)"}</div>
+    <div>Forks per row: <b>${fPer}</b> ${fOk ? "✓" : "(does not divide evenly)"}</div>
+    <div style="margin-top:0.5rem; color:${sOk && fOk ? "#0a7" : "#a33"};">
+      ${sOk && fOk ? "Both work. This row count is allowed." : "At least one is uneven. Try another."}
+    </div>
+  </div>`;
+}
+```
+
+Find every row count that works. Then ask: what is the **largest** row count
+that works for both? That number is special. We will name it later.
+
+## Wonder
+
+Sit with these. No answers yet.
+
+1. Which numbers from 1 to 12 evenly divide both 12 and 18? Why those?
+2. If you instead had 12 spoons and 25 forks, would *any* row count above 1
+   work? What does that say about 12 and 25?
+3. The fraction $\dfrac{12}{18}$ shrinks to $\dfrac{2}{3}$. The number 6 you
+   spotted in the widget — does it appear here too? Where?
+4. Multiply two prime numbers, say $7 \times 11 = 77$. Could you have written
+   77 as a product of *different* primes?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+The "largest row count that works" is the **HCF** (highest common factor),
+also called the GCD. The fraction $\dfrac{12}{18} = \dfrac{2}{3}$ is what you
+get after dividing top and bottom by exactly that HCF. And question 4 is the
+hinge of this whole chapter.
+:::
+
+## Discover
+
+Each problem teaches one move. Do them in order.
+
+### Problem 1 — Two integers, one division
+Take $a = 455$ and $b = 42$. Divide $a$ by $b$. Write the result as
+"$a = b \cdot q + r$" where $q$ is the quotient and $r$ the remainder, and
+$0 \le r < b$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$455 \div 42$. How many times does 42 fit?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$42 \times 10 = 420$. So $q = 10$, and $r = 455 - 420 = 35$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$455 = 42 \cdot 10 + 35$, with $0 \le 35 < 42$. The pair $(q, r)$ is
+**unique** — there is only one way to write it.
+</details>
+
+### Problem 2 — Repeat the move
+Now divide $42$ by the remainder $35$ in the same way.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$42 = 35 \cdot q + r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$42 = 35 \cdot 1 + 7$, so the new remainder is $7$.
+</details>
+
+### Problem 3 — Keep going
+Divide $35$ by $7$. What is the remainder?
+
+<details class="hint"><summary>Full solution</summary>
+$35 = 7 \cdot 5 + 0$. The remainder is $0$ — the chain stops. **The last
+nonzero remainder was 7.** Check: does $7$ divide both $455$ and $42$? Yes.
+And no larger number does. You just computed $\gcd(455, 42) = 7$.
+</details>
+
+### Problem 4 — Two ways to factor?
+Take $360$. Break it into primes any way you like. Then ask a friend to break
+it independently. Compare the prime lists (ignoring order).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try starting from 2, or from 5, or from 3. Different starts.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$360 = 2^3 \cdot 3^2 \cdot 5$ — every route lands on the same multiset of
+primes $\{2, 2, 2, 3, 3, 5\}$. Try to engineer a different list. You cannot.
+</details>
+
+### Problem 5 — A decimal that stops
+Convert $\dfrac{7}{20}$ to a decimal. Convert $\dfrac{1}{6}$ to a decimal.
+Notice the difference.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Long division. $\dfrac{7}{20} = \dfrac{35}{100}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{7}{20} = 0.35$ — terminates. $\dfrac{1}{6} = 0.1666\ldots$ — repeats.
+Now factor the denominators: $20 = 2^2 \cdot 5$, $6 = 2 \cdot 3$. The first
+has only $2$s and $5$s; the second has a $3$. That is the rule.
+</details>
+
+### Problem 6 — Is $\sqrt{2}$ a fraction?
+Suppose $\sqrt{2} = \dfrac{p}{q}$ with $p, q$ integers, $q \ne 0$, and the
+fraction in lowest terms (so $\gcd(p,q) = 1$). Square both sides. What goes
+wrong?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$2 = p^2 / q^2$, so $p^2 = 2q^2$. So $p^2$ is even. So $p$ is even. Write
+$p = 2k$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Substitute back: $4k^2 = 2q^2$, so $q^2 = 2k^2$. So $q$ is even too.
+</details>
+<details class="hint"><summary>Full solution</summary>
+We assumed $\gcd(p, q) = 1$. But we just showed both are even — contradiction.
+So $\sqrt{2}$ cannot be written as a fraction of integers. It is **irrational**.
+</details>
+
+You have just rediscovered three results: the **Division Algorithm**, the
+**Euclidean Algorithm** for HCF, and the **Fundamental Theorem of Arithmetic**
+in spirit. Plus the classical proof that $\sqrt{2}$ is irrational.
+
+## Name
+
+::: {.lesson-beat}
+
+**Euclid's Division Lemma.** Given positive integers $a$ and $b$, there exist
+**unique** integers $q$ and $r$ with $a = bq + r$ and $0 \le r < b$.
+
+**Fundamental Theorem of Arithmetic.** Every integer greater than 1 is either
+a prime or can be written as a product of primes. This factorisation is
+**unique** — apart from the order of the factors.
+
+**Terminating decimals.** A rational number $\dfrac{p}{q}$ (in lowest terms,
+$q > 0$) has a terminating decimal expansion **if and only if** $q$ has the
+form $2^m \cdot 5^n$ for non-negative integers $m, n$.
+
+:::
+
+A verse to remember it by:
+
+> *Divide once, you get one quotient and one rest;*
+> *Factor a number, the primes you find are blessed —*
+> *Re-arrange them, hide them, work however you might,*
+> *The same primes return, in the same number, every night.*
+
+## Apply
+
+### Worked example
+
+> Find $\gcd(135, 225)$ using Euclid's algorithm. Then verify it via prime
+> factorisation.
+
+**Euclidean algorithm:**
+
+$$
+\begin{aligned}
+225 &= 135 \cdot 1 + 90 \\
+135 &= 90 \cdot 1 + 45 \\
+90  &= 45 \cdot 2 + 0
+\end{aligned}
+$$
+
+The last nonzero remainder is **45**, so $\gcd(135, 225) = 45$.
+
+**Prime factorisation check:** $135 = 3^3 \cdot 5$ and $225 = 3^2 \cdot 5^2$.
+Take the *minimum* power of each shared prime:
+$\gcd = 3^2 \cdot 5 = 9 \cdot 5 = 45$. ✓
+
+The two methods agree. They always do — that is what the Fundamental Theorem
+guarantees.
+
+### Practice — Warm
+
+**W1.** Find $\gcd(96, 404)$ by Euclid's algorithm.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Start: $404 = 96 \cdot q + r$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$96 \times 4 = 384$, so $q = 4, r = 20$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$404 = 96 \cdot 4 + 20$; $96 = 20 \cdot 4 + 16$; $20 = 16 \cdot 1 + 4$;
+$16 = 4 \cdot 4 + 0$. Answer: **$\gcd = 4$**.
+</details>
+
+**W2.** Express $156$ as a product of primes.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pull out 2s first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$156 = 2 \cdot 78 = 2 \cdot 2 \cdot 39 = 2^2 \cdot 3 \cdot 13$.
+</details>
+
+**W3.** Without dividing, decide whether $\dfrac{17}{50}$ has a terminating
+decimal expansion.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor the denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$50 = 2 \cdot 5^2$. Only $2$s and $5$s, so **yes**. (For practice:
+$\dfrac{17}{50} = \dfrac{34}{100} = 0.34$.)
+</details>
+
+### Practice — Working
+
+**P1.** Find the HCF and LCM of $510$ and $92$, and verify
+$\text{HCF} \times \text{LCM} = 510 \times 92$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use Euclid for HCF; then $\text{LCM} = \dfrac{510 \cdot 92}{\text{HCF}}$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$510 = 92 \cdot 5 + 50$; $92 = 50 \cdot 1 + 42$; $50 = 42 \cdot 1 + 8$;
+$42 = 8 \cdot 5 + 2$; $8 = 2 \cdot 4 + 0$. So $\gcd = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{HCF} = 2$. $\text{LCM} = \dfrac{510 \times 92}{2} = 510 \times 46 =
+23460$. Check: $\text{HCF} \times \text{LCM} = 2 \times 23460 = 46920 =
+510 \times 92$. ✓
+</details>
+
+**P2.** Prove that $\sqrt{5}$ is irrational, mirroring the proof from
+*Discover, Problem 6*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Assume $\sqrt{5} = p/q$ in lowest terms. Square.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$p^2 = 5q^2$. So $5 \mid p^2$, hence $5 \mid p$ (since 5 is prime).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Write $p = 5k$. Then $25k^2 = 5q^2$, so $q^2 = 5k^2$, meaning $5 \mid q$ too.
+But then $\gcd(p, q) \ge 5 > 1$ — contradicting "lowest terms". So no such
+fraction exists. $\sqrt{5}$ is irrational.
+</details>
+
+**P3.** A bookseller has $32$ Hindi books and $48$ English books. She wants to
+arrange them in stacks of equal size, with no stack mixing the two languages,
+using as few stacks as possible. How many books per stack? How many stacks?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"As few stacks as possible" means "as many books per stack as possible".
+That's an HCF problem.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\gcd(32, 48) = 16$. So **16 books per stack**, giving $32/16 + 48/16 = 2 + 3
+= \mathbf{5}$ **stacks**.
+</details>
+
+### Practice — Stretch
+
+**S1.** Without computing decimals, classify each of the following as
+*terminating* or *non-terminating recurring*:
+$\dfrac{13}{3125}$, $\dfrac{17}{8}$, $\dfrac{64}{455}$, $\dfrac{29}{343}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reduce each to lowest terms, then factor the denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3125 = 5^5$ → terminating. $8 = 2^3$ → terminating. $455 = 5 \cdot 7 \cdot
+13$ — has primes other than 2, 5 — and $\gcd(64, 455) = 1$, so
+**non-terminating recurring**. $343 = 7^3$, $\gcd(29, 343) = 1$, so
+**non-terminating recurring**.
+</details>
+
+**S2.** Show that any number of the form $6q + 5$ (for integer $q \ge 0$) can
+also be written as $3k + 2$ for some non-negative integer $k$, but not every
+$3k + 2$ is of the form $6q + 5$. Give an example.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$6q + 5 = 3(2q + 1) + 2$. That handles one direction.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$6q + 5 = 3(2q + 1) + 2$, so it is $3k + 2$ with $k = 2q + 1$ (which is odd).
+The reverse fails because $k$ may be **even**: e.g. $k = 0$ gives $2$, which
+is not of the form $6q + 5$. Another: $k = 2$ gives $8$, also not $6q + 5$.
+</details>
+
+### Board-Pattern Practice
+
+This block mirrors the actual CBSE Class 10 paper. Marks are indicated.
+
+**Q1 (1 mark — MCQ).** The HCF of two numbers is 27 and their LCM is 162. If
+one of the numbers is 81, then the other is:
+(a) 36 (b) 35 (c) 9 (d) 54
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\text{HCF} \times \text{LCM} = $ product of the two numbers.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{other} = \dfrac{27 \times 162}{81} = \dfrac{4374}{81} = 54$.
+**Answer: (d) 54.**
+</details>
+
+**Q2 (1 mark — fill in the blank).** The decimal expansion of
+$\dfrac{23}{2^3 \cdot 5^2}$ will terminate after ____ decimal places.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the larger of the two exponents.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Multiply top and bottom by $5$ to make denominator $2^3 \cdot 5^3 = 1000$:
+$\dfrac{115}{1000} = 0.115$. Terminates after **3 decimal places**.
+</details>
+
+**Q3 (2 marks).** Find the HCF and LCM of $26$ and $91$ using prime
+factorisation. Verify $\text{HCF} \times \text{LCM} = $ product.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor each.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$26 = 2 \cdot 13$; $91 = 7 \cdot 13$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+HCF = $13$ (the only common prime). LCM = $2 \cdot 7 \cdot 13 = 182$.
+Check: $13 \times 182 = 2366 = 26 \times 91$. ✓ **HCF = 13, LCM = 182.**
+</details>
+
+**Q4 (2 marks).** Show that any positive odd integer is of the form $4q + 1$
+or $4q + 3$, where $q$ is a whole number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply Euclid's lemma with $b = 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By Euclid's division lemma with $b = 4$, every integer $a$ has the form
+$4q + r$ with $r \in \{0, 1, 2, 3\}$. The forms $4q$ and $4q + 2 = 2(2q+1)$
+are even. So every **odd** integer must be of the form **$4q + 1$ or
+$4q + 3$**.
+</details>
+
+**Q5 (3 marks).** Prove that $3 + 2\sqrt{5}$ is irrational, given that
+$\sqrt{5}$ is irrational.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Assume the contrary. Solve for $\sqrt{5}$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+If $3 + 2\sqrt{5} = \dfrac{p}{q}$, then $\sqrt{5} = \dfrac{p - 3q}{2q}$.
+The right side is rational.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose $3 + 2\sqrt{5}$ is rational, equal to $\dfrac{p}{q}$ with $p, q
+\in \mathbb{Z}$, $q \ne 0$. Then
+$\sqrt{5} = \dfrac{p - 3q}{2q}$.
+The right-hand side is a ratio of two integers, hence rational. But
+$\sqrt{5}$ is irrational — contradiction. So $3 + 2\sqrt{5}$ is **irrational**.
+</details>
+
+**Q6 (3 marks).** Three bells toll at intervals of $9$, $12$, and $15$
+minutes. They tolled together at 8:00 a.m. When will they toll together again?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"All together again" means time elapsed is a common multiple. Smallest such
+is the LCM.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$9 = 3^2$, $12 = 2^2 \cdot 3$, $15 = 3 \cdot 5$. LCM = $2^2 \cdot 3^2 \cdot 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LCM $= 4 \cdot 9 \cdot 5 = 180$ minutes $= 3$ hours. So the next common toll
+is at **11:00 a.m.**
+</details>
+
+**Q7 (5 marks — long answer).** (a) State the Fundamental Theorem of
+Arithmetic. (b) Use it to find the HCF and LCM of $336$ and $54$. (c) Hence
+prove that $\sqrt{2}$ is irrational.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three small jobs. Treat them in order.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+For (b), factor each, take min/max powers. For (c), the standard proof by
+contradiction.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** Every integer greater than 1 is either prime or a product of primes,
+and that factorisation is unique up to the order of factors.
+
+**(b)** $336 = 2^4 \cdot 3 \cdot 7$. $54 = 2 \cdot 3^3$.
+HCF = $2 \cdot 3 = 6$. LCM = $2^4 \cdot 3^3 \cdot 7 = 16 \cdot 27 \cdot 7 =
+3024$. Check: $6 \cdot 3024 = 18144 = 336 \cdot 54$. ✓
+
+**(c)** Assume $\sqrt{2} = \dfrac{p}{q}$ in lowest terms. Then $p^2 = 2q^2$,
+so $2 \mid p^2$, hence $2 \mid p$ (because 2 is prime — this is where the
+Fundamental Theorem is used: a prime divides a product only if it divides
+one of the factors). Write $p = 2k$: $4k^2 = 2q^2$, so $q^2 = 2k^2$, hence
+$2 \mid q$. But $\gcd(p, q) = 1$ — contradiction. So $\sqrt{2}$ is
+**irrational**. $\blacksquare$
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problems 1.3 (Short Answer) Q3-Q5 cover
+HCF/LCM-with-product checks; 1.4 (Long Answer) Q6-Q9 are irrationality
+proofs in the style of Q7.
+
+**Previous-year pointer:** CBSE 2023 Standard, Q14 mirrors Q3 (HCF/LCM via
+factorisation). CBSE 2020 Set 1, Q31 is exactly the form of Q7(c).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sqrt{4}$ is irrational because it has a square root sign."** No.
+   $\sqrt{4} = 2$, an integer. Irrationality is about whether a number can be
+   written as a ratio of integers, not about how it is written.
+2. **"If a fraction has a non-terminating decimal, the denominator must have
+   no $2$s or $5$s."** No — it must have at least one prime *other than* 2
+   or 5. $\dfrac{1}{6}$ is non-terminating even though 6 has a factor of 2,
+   because 6 also has a factor of 3.
+3. **"Euclid's lemma needs $a > b$."** It works for *any* positive $a, b$,
+   but the algorithm is most efficient when you start with $a \ge b$. If
+   $a < b$, the first step just swaps them.
+:::
+
+### Self-Assessment
+
+Be honest. The board paper is unforgiving on this chapter.
+
+1. Could you state the Fundamental Theorem of Arithmetic *and* the
+   terminating-decimal rule, without notes?
+2. Did you complete the irrationality proof in Q7(c) without hints?
+3. If a 3-mark question asks "Find the LCM and HCF of 12, 15 and 21", can you
+   do it for **three** numbers, not just two?
+
+- **3 yes:** move on to Polynomials.
+- **2 yes:** redo Q5 and Q7. Then move on.
+- **0–1 yes:** re-read *Discover* and *Apply*. Re-attempt every Working
+  problem. This chapter rewards practice more than insight.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.number-systems`](../../tier-cbse-09-class-9/01-number-systems/index.qmd) —
+  rationals, irrationals, decimals.
+- [`t1.divisibility-primes`](../../tier-1-foundations/15-divisibility-and-primes/index.qmd) —
+  primes, divisibility, prime factorisation as a multiset.
+
+### What this unlocks
+
+- [`cbse10.polynomials`](../02-polynomials/index.qmd) — polynomial roots over
+  the reals; uniqueness arguments inherit from FTA.
+- [`cbse10.arithmetic-progressions`](../05-arithmetic-progressions/index.qmd) —
+  divisibility patterns on AP terms.
+- [`cbse11.sets`](../../tier-cbse-11-class-11/01-sets/index.qmd) — the set
+  $\mathbb{Q}$ vs $\mathbb{R}$ rests on the rational/irrational distinction.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 1 — Real Numbers** (NCERT 2023 rationalised
+  syllabus). Covers Sections 1.1–1.3: Euclid's division lemma (intuitive
+  treatment), Fundamental Theorem of Arithmetic, irrationality of
+  $\sqrt{2}, \sqrt{3}, \sqrt{5}$, terminating/non-terminating decimal
+  expansions.
+- **Sister synthesis lessons** (different pedagogical angle):
+  - [`t1.divisibility-primes`](../../tier-1-foundations/15-divisibility-and-primes/index.qmd)
+    builds primes from scratch.
+  - [`t2.square-roots-irrationals`](../../tier-2-prealgebra/09-square-roots-irrationals/index.qmd)
+    sits with the irrationality proof in isolation.
+- **Read alongside the NCERT textbook**, which remains the canonical source
+  for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** RSA, the cryptosystem that secures most banking traffic,
+rests directly on the *uniqueness* of prime factorisation: if you could
+factor a 2048-bit number into primes quickly, you could read everyone's
+mail. The Fundamental Theorem you proved in this lesson is the reason RSA
+is even *meaningful* — without unique factorisation, the question "what
+are the primes of $n$?" would have no single answer.
+:::
+
+::: {.applied-callout}
+**Research.** Number theory — extending the ideas in this chapter — is a
+central pillar of modern mathematics. The 1995 proof of Fermat's Last
+Theorem (Andrew Wiles) and the still-open Riemann Hypothesis both live in
+the world that begins with Euclid's lemma.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Russian school (problem-first *Discover*); Bhāskara
+  (compact *Name* + verse); AoPS (graduated CBSE-style problem set).
+- **Source notes:** Q4 and Q7(c) follow standard NCERT problem patterns;
+  Q6 is a classic LCM bell-ringing problem from Indian school folklore.
+- **No forward references** beyond declared prerequisites and the explicit
+  *Unlocks* list.
+:::

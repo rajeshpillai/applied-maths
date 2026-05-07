@@ -33,6 +33,26 @@ The full dependency graph is in [`_curriculum.yml`](_curriculum.yml).
 See [`CLAUDE.md`](CLAUDE.md) for the authoring contract used to build
 every lesson.
 
+### CBSE / NCERT track (Class 8 – Class 12)
+
+A parallel, board-exam-aligned track follows the **rationalised 2023
+NCERT** syllabus chapter by chapter. It is for learners sitting CBSE
+boards or any other Indian board that follows NCERT. Every CBSE lesson
+uses the same six-beat contract and adds two extras:
+
+- a **Board-Pattern Practice** block in *Apply* (1/2/3/4-mark style
+  questions plus NCERT Exemplar / previous-year pointers); and
+- a **NCERT chapter alignment** block in *Connect* with a link to the
+  sister synthesis lesson in the main tiers.
+
+Start at the [CBSE / NCERT Track Overview](cbse/index.qmd), or jump
+straight to your class:
+[Class 8](lessons/tier-cbse-08-class-8/index.qmd) ·
+[Class 9](lessons/tier-cbse-09-class-9/index.qmd) ·
+[Class 10 (Board)](lessons/tier-cbse-10-class-10/index.qmd) ·
+[Class 11](lessons/tier-cbse-11-class-11/index.qmd) ·
+[Class 12 (Board)](lessons/tier-cbse-12-class-12/index.qmd).
+
 ## Building locally
 
 You need [Quarto](https://quarto.org/docs/get-started/) installed.

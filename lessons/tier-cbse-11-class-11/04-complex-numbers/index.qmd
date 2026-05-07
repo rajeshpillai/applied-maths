@@ -1,0 +1,466 @@
+---
+title: "Ch 4 — Complex Numbers and Quadratic Equations"
+subtitle: "What if the square root of a negative number were a number after all?"
+lesson-id: "cbse11.complex-numbers"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 4
+ncert-chapter-title: "Complex Numbers and Quadratic Equations"
+board-exam: false
+prerequisites: ["cbse10.quadratic-equations", "cbse10.real-numbers"]
+unlocks: ["cbse11.trig-identities-compound-angles", "cbse12.matrices"]
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you solve $x^2 - 5x + 6 = 0$ by factoring or formula?
+2. Do you remember why $x^2 + 1 = 0$ has no real solutions?
+3. Can you place a point in the coordinate plane given its $(x, y)$
+   coordinates?
+4. Are you fluent with $\sqrt{a} \cdot \sqrt{b} = \sqrt{ab}$ for positive
+   $a, b$?
+
+Three confident yeses — read on.
+:::
+
+## Touch
+
+Try to solve $x^2 + 4 = 0$ using only real numbers. You will fail. The
+square of a real number is never negative.
+
+Now do something audacious: **declare** a new symbol $i$ with the rule
+$i^2 = -1$. Plug it in: $x^2 = -4 \Rightarrow x = \pm 2i$. Done.
+
+The plot below shows what these new numbers look like. Each is a pair
+$(a, b)$ — a horizontal "real" coordinate and a vertical "imaginary"
+coordinate.
+
+```{ojs}
+viewof reA = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "Re(z)"})
+```
+```{ojs}
+viewof imA = Inputs.range([-3, 3], {value: 2, step: 0.1, label: "Im(z)"})
+```
+
+```{ojs}
+{
+  const a = reA, b = imA;
+  const r = Math.sqrt(a * a + b * b);
+  const theta = Math.atan2(b, a);
+  const conj = `${a.toFixed(2)} − ${Math.abs(b).toFixed(2)}i`;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>z = ${a.toFixed(2)} + ${b.toFixed(2)}i</b></div>
+    <div><b>|z| (modulus)</b> = √(a² + b²) = ${r.toFixed(3)}</div>
+    <div><b>arg z</b> ≈ ${theta.toFixed(3)} rad = ${(theta * 180 / Math.PI).toFixed(1)}°</div>
+    <div><b>conjugate</b> z̄ = ${conj}</div>
+    <div style="margin-top:0.4em;color:#666;">
+      Drag the sliders. Modulus is distance from origin; argument is the angle.
+    </div>
+  </div>`;
+}
+```
+
+The point lives in the **complex plane**. The whole chapter is about
+arithmetic on these points.
+
+## Wonder
+
+Sit with these.
+
+1. We *invented* $i$ to solve $x^2 = -1$. Did we cheat?
+2. Once $i$ exists, what are $i^2$, $i^3$, $i^4$, $i^5$? Is there a
+   pattern?
+3. Can you "see" addition of complex numbers if they're points in the
+   plane?
+4. The complex number $1 + i$ has modulus $\sqrt{2}$ and argument
+   $\pi/4$. What about $(1 + i)^2$?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+Multiplication of complex numbers, in modulus-argument form, becomes
+"multiply the moduli, add the arguments". This is the most beautiful
+fact in the chapter.
+:::
+
+## Discover
+
+### Problem 1 — Powers of i
+
+Compute $i^1, i^2, i^3, i^4, i^5, i^6$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$i^2 = -1$ by definition. Then $i^3 = i^2 \cdot i = -i$, etc.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| $n$ | $i^n$ |
+|:--|:--|
+| 1 | $i$ |
+| 2 | $-1$ |
+| 3 | $-i$ |
+| 4 | $1$ |
+| 5 | $i$ |
+| 6 | $-1$ |
+
+The pattern repeats every 4. So $i^n$ depends only on $n \bmod 4$.
+</details>
+
+### Problem 2 — Add and multiply
+
+If $z_1 = 2 + 3i$ and $z_2 = 1 - i$, compute $z_1 + z_2$ and $z_1 z_2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add real to real, imaginary to imaginary. Multiply like binomials,
+remembering $i^2 = -1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$z_1 + z_2 = (2 + 1) + (3 - 1)i = 3 + 2i$.
+
+$z_1 z_2 = (2 + 3i)(1 - i) = 2 - 2i + 3i - 3i^2 = 2 + i + 3 = 5 + i$.
+</details>
+
+### Problem 3 — Conjugate
+
+For $z = 3 + 4i$, what is the **conjugate** $\bar{z}$? Compute
+$z \cdot \bar{z}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Conjugate flips the sign of the imaginary part.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\bar{z} = 3 - 4i$. $z\bar{z} = (3 + 4i)(3 - 4i) = 9 - 16i^2 = 9 + 16 = 25$.
+
+Notice: $z\bar{z}$ is always a **non-negative real number**, equal to
+$|z|^2$. Here $|z| = 5$.
+</details>
+
+### Problem 4 — Division
+
+Compute $\dfrac{1}{1 + i}$ in $a + bi$ form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply numerator and denominator by the conjugate of the denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{1+i} \cdot \dfrac{1-i}{1-i} = \dfrac{1-i}{1 - i^2} =
+\dfrac{1-i}{2} = \dfrac{1}{2} - \dfrac{1}{2}i$.
+</details>
+
+### Problem 5 — Modulus and argument
+
+Find the modulus and argument of $z = 1 + i\sqrt{3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|z| = \sqrt{a^2 + b^2}$. Argument is the angle $\theta$ with
+$\cos\theta = a/|z|$, $\sin\theta = b/|z|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|z| = \sqrt{1 + 3} = 2$. $\cos\theta = 1/2$, $\sin\theta = \sqrt{3}/2$,
+so $\theta = \pi/3$.
+
+**Polar form:** $z = 2(\cos\pi/3 + i\sin\pi/3)$.
+</details>
+
+### Problem 6 — Roots of negative
+
+Find both roots of $x^2 + 9 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 = -9 = 9i^2$, so $x = \pm 3i$.
+</details>
+
+### Problem 7 — Quadratic with complex roots
+
+Solve $x^2 + x + 1 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Quadratic formula. Discriminant is $1 - 4 = -3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = \dfrac{-1 \pm \sqrt{-3}}{2} = \dfrac{-1 \pm i\sqrt{3}}{2}$.
+
+These are the (non-real) cube roots of unity, often called $\omega$ and
+$\omega^2$.
+</details>
+
+You have just used **$i$**, the **complex plane**, **conjugates**,
+**division by rationalising**, the **modulus**, the **argument**, and
+**polar form**. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+A **complex number** is an expression $z = a + bi$ where $a, b \in
+\mathbb{R}$ and $i^2 = -1$. The set is denoted $\mathbb{C}$.
+
+- $\operatorname{Re}(z) = a$, $\operatorname{Im}(z) = b$.
+- **Conjugate:** $\bar{z} = a - bi$.
+- **Modulus:** $|z| = \sqrt{a^2 + b^2}$. Note $z\bar{z} = |z|^2$.
+- **Argument:** $\arg(z) = \theta$ with $\cos\theta = a/|z|$,
+  $\sin\theta = b/|z|$.
+- **Polar form:** $z = r(\cos\theta + i\sin\theta)$ where $r = |z|$.
+
+**Operations:**
+$$ (a+bi)+(c+di) = (a+c) + (b+d)i $$
+$$ (a+bi)(c+di) = (ac-bd) + (ad+bc)i $$
+$$ \frac{a+bi}{c+di} = \frac{(a+bi)(c-di)}{c^2+d^2} $$
+
+**Polar multiplication:** moduli multiply, arguments add:
+$$ |z_1 z_2| = |z_1||z_2|, \quad \arg(z_1 z_2) = \arg z_1 + \arg z_2. $$
+
+**Quadratic with $b^2 - 4ac < 0$:** roots are
+$$x = \frac{-b \pm i\sqrt{4ac - b^2}}{2a}.$$
+
+:::
+
+A short verse:
+
+> *Two coordinates married into one number;*
+> *Square of $i$ is the loss of the sign.*
+> *Multiply: moduli grow as a product;*
+> *Arguments add as the angles align.*
+
+## Apply
+
+### Worked example
+
+> Express $\dfrac{(2 + 3i)(3 - 4i)}{1 + i}$ in $a + bi$ form.
+
+How a competent solver thinks:
+
+1. Top: $(2+3i)(3-4i) = 6 - 8i + 9i - 12i^2 = 6 + i + 12 = 18 + i$.
+2. Now $\dfrac{18 + i}{1 + i} \cdot \dfrac{1 - i}{1 - i} =
+   \dfrac{(18+i)(1-i)}{2}$.
+3. $(18+i)(1-i) = 18 - 18i + i - i^2 = 19 - 17i$.
+4. Divide: $\dfrac{19 - 17i}{2} = \dfrac{19}{2} - \dfrac{17}{2}i$.
+
+**Answer:** $\dfrac{19}{2} - \dfrac{17}{2}i$.
+
+### Practice — Warm
+
+**W1.** Simplify $i^{37}$.
+
+<details class="hint"><summary>Full solution</summary>
+$37 = 4 \cdot 9 + 1$, so $i^{37} = i^1 = i$.
+</details>
+
+**W2.** Find the conjugate of $5 - 7i$.
+
+<details class="hint"><summary>Full solution</summary>
+$5 + 7i$.
+</details>
+
+**W3.** Solve $x^2 + 25 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = \pm 5i$.
+</details>
+
+### Practice — Working
+
+**P1.** Express $\dfrac{3 + 2i}{2 - 5i}$ in $a + bi$ form.
+
+<details class="hint"><summary>Full solution</summary>
+Multiply by $\dfrac{2 + 5i}{2 + 5i}$:
+
+$\dfrac{(3+2i)(2+5i)}{(2)^2 + (5)^2} = \dfrac{6 + 15i + 4i + 10i^2}{29}
+= \dfrac{-4 + 19i}{29} = -\dfrac{4}{29} + \dfrac{19}{29}i$.
+</details>
+
+**P2.** Find $|z|$ and $\arg z$ for $z = -\sqrt{3} + i$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is in the second quadrant of the complex plane.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|z| = \sqrt{3 + 1} = 2$. $\cos\theta = -\sqrt{3}/2$, $\sin\theta = 1/2$.
+The angle in Q II with these values is $\theta = 5\pi/6$.
+
+So $z = 2(\cos 5\pi/6 + i\sin 5\pi/6)$.
+</details>
+
+**P3.** Solve $2x^2 + x + 1 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+Discriminant $= 1 - 8 = -7$. $x = \dfrac{-1 \pm i\sqrt{7}}{4}$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that $\left(\dfrac{1 + i}{1 - i}\right)^4 = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Simplify the inner fraction first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1+i}{1-i} \cdot \dfrac{1+i}{1+i} = \dfrac{(1+i)^2}{2} =
+\dfrac{2i}{2} = i$.
+
+So the expression $= i^4 = 1$. ✓
+</details>
+
+**S2.** Find the cube roots of $-8$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$-8 = 8(\cos\pi + i\sin\pi)$. Use the polar/de-Moivre approach: take
+the cube root of the modulus and divide the angle by 3, plus
+$2k\pi/3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Modulus 2; angles $\pi/3$, $\pi/3 + 2\pi/3 = \pi$, $\pi/3 + 4\pi/3 = 5\pi/3$.
+
+Cube roots:
+
+$2(\cos\pi/3 + i\sin\pi/3) = 1 + i\sqrt{3}$.
+
+$2(\cos\pi + i\sin\pi) = -2$.
+
+$2(\cos 5\pi/3 + i\sin 5\pi/3) = 1 - i\sqrt{3}$.
+
+Verify: $(-2)^3 = -8$. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $i^{2024}$ equals
+(a) $1$ (b) $i$ (c) $-1$ (d) $-i$.
+
+<details class="hint"><summary>Full solution</summary>
+$2024 = 4 \cdot 506$, so $i^{2024} = 1$. **Answer: (a).**
+</details>
+
+**2-mark (short answer).** Find $|z|$ if $z = (1 + i)(2 - 3i)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|z_1 z_2| = |z_1||z_2|$ — moduli multiply.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|1+i| = \sqrt{2}$, $|2-3i| = \sqrt{13}$.
+$|z| = \sqrt{2 \cdot 13} = \sqrt{26}$.
+</details>
+
+**3-mark (short answer II).** Express $\dfrac{1 + 2i}{1 - 3i}$ in
+$a + bi$ form.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{(1+2i)(1+3i)}{(1)^2 + 3^2} = \dfrac{1 + 3i + 2i + 6i^2}{10} =
+\dfrac{-5 + 5i}{10} = -\dfrac{1}{2} + \dfrac{1}{2}i$.
+</details>
+
+**5-mark (long answer).** Let $z = 1 + i\sqrt{3}$.
+
+(i) Find $|z|$ and $\arg z$.
+(ii) Express $z$ in polar form.
+(iii) Use polar form (and de Moivre's theorem, if you have met it) to
+compute $z^6$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For (iii), de Moivre says $z^n = r^n(\cos n\theta + i \sin n\theta)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $|z| = 2$, $\arg z = \pi/3$.
+
+**(ii)** $z = 2(\cos\pi/3 + i\sin\pi/3)$.
+
+**(iii)** $z^6 = 2^6 (\cos 2\pi + i \sin 2\pi) = 64 \cdot 1 = 64$.
+
+(Even without de Moivre: $z^2 = 4(\cos 2\pi/3 + i\sin 2\pi/3) = -2 + 2i\sqrt{3}$,
+$z^3 = z^2 \cdot z = (-2 + 2i\sqrt{3})(1 + i\sqrt{3}) = -2 - 2i\sqrt{3} + 2i\sqrt{3} + 2i^2 \cdot 3 = -8$.
+$z^6 = (z^3)^2 = 64$. ✓)
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 4 LA "powers of (1+i) using
+polar form" matches the 5-mark item.
+**JEE pointer:** $n$-th roots of complex numbers (Stretch S2) is JEE
+Main standard.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sqrt{-9} = 3i$ and $-3i$ both."** Conventionally $\sqrt{-9}$
+   denotes the principal root $3i$. The two solutions of $x^2 = -9$ are
+   $\pm 3i$, but the symbol $\sqrt{\cdot}$ picks one.
+2. **"$\sqrt{a}\sqrt{b} = \sqrt{ab}$ always."** Not for negative
+   $a, b$. $\sqrt{-1}\sqrt{-1} = i \cdot i = -1$, while $\sqrt{(-1)(-1)}
+   = \sqrt{1} = 1$. Don't merge negative radicands.
+3. **"Complex numbers are imaginary, not real."** They are perfectly
+   real *as mathematical objects* — points in $\mathbb{R}^2$ with a
+   special multiplication. The name "imaginary" is historical baggage,
+   not a description.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you compute $(a + bi)(c + di)$ and $\dfrac{a + bi}{c + di}$
+   without notes?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you place a complex number in the plane and state its modulus
+   and argument from a quick glance?
+
+- **3 yes:** move on to **[Linear Inequalities](../05-linear-inequalities/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** rebuild from *Discover*. Polar form is the route to
+  every clever shortcut in this chapter.
+
+## Connect
+
+### Prerequisites used
+
+- **[Class 10 — Quadratic Equations](../../tier-cbse-10-class-10/04-quadratic-equations/index.qmd)** —
+  $b^2 - 4ac < 0$ is no longer a dead-end; complex roots fill the gap.
+- **[Class 10 — Real Numbers](../../tier-cbse-10-class-10/01-real-numbers/index.qmd)**.
+
+### What this unlocks
+
+- **[Compound Angles](../03b-trig-identities-compound-angles/index.qmd)** —
+  Euler's $e^{i\theta} = \cos\theta + i\sin\theta$ unifies all
+  trigonometric identities.
+- **[Class 12 — Matrices](../../tier-cbse-12-class-12/03a-matrices-intro/index.qmd)** —
+  $2\times2$ rotation matrices are complex numbers in disguise.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 4 — Complex Numbers and Quadratic Equations**
+  (NCERT 2023 rationalised). Sections 4.1–4.5: $i$, algebra, modulus and
+  conjugate, polar form, quadratic equations with complex roots.
+- **Sister synthesis lesson:**
+  [`t6.complex-numbers`](../../tier-6-undergrad-advanced/complex-numbers/index.qmd) —
+  proof-flavoured treatment with field-theoretic context.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** A 2D rotation by angle $\theta$ is exactly
+multiplication by $e^{i\theta} = \cos\theta + i\sin\theta$.
+"Compose two rotations" = "multiply two unit complex numbers" — and
+the formula is automatic.
+:::
+
+::: {.applied-callout}
+**Research / Engineering.** AC circuits are analysed entirely with
+complex impedances $Z = R + iX$ (resistance + reactance). Quantum
+mechanics' wavefunction lives in $\mathbb{C}$. The Fourier transform —
+the basic tool of signal processing — is complex-valued.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: 3Blue1Brown (the visual explanation of complex multiplication
+as rotation+scaling), Better Explained (the leap of faith framing of $i$),
+Russian school (Discover sequence forces polar form by the end).
+:::

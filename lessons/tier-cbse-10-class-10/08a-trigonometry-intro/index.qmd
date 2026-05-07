@@ -1,0 +1,493 @@
+---
+title: "Ch 8a — Introduction to Trigonometry"
+subtitle: "Three ratios — sine, cosine, tangent — that depend on the angle, not on the size"
+lesson-id: "cbse10.trigonometry-intro"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 8
+ncert-chapter-title: "Introduction to Trigonometry"
+board-exam: true
+prerequisites: [cbse10.triangles-similarity, t2.pythagorean-theorem]
+unlocks: [cbse10.trigonometric-identities, cbse10.heights-and-distances, cbse11.trigonometric-functions]
+applied-domains: [game-dev, research]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state when two right triangles are *similar*? See
+   [`cbse10.triangles-similarity`](../06-triangles-similarity/index.qmd).
+2. Can you state and use Pythagoras: $a^2 + b^2 = c^2$?
+3. Can you simplify $\sqrt{3}/2$ — that is, leave it in surd form, not
+   convert to decimal?
+4. Do you know what an angle in degrees is — e.g. $30°, 45°, 60°$?
+
+Three yeses, ready.
+:::
+
+## Touch
+
+A right triangle has one right angle, plus two acute angles. Fix one of
+the acute angles — call it $\theta$ — and ask: as the triangle gets
+*bigger* but keeps the same angle $\theta$, what stays the same?
+
+```{ojs}
+viewof theta = Inputs.range([15, 75], {value: 30, step: 5, label: "Angle θ (degrees)"})
+```
+
+```{ojs}
+viewof size = Inputs.range([1, 4], {value: 2, step: 0.5, label: "Triangle size"})
+```
+
+```{ojs}
+{
+  const w = 380, h = 280, padX = 20, padY = 20;
+  const rad = theta * Math.PI / 180;
+  const adj = 100 * size, opp = adj * Math.tan(rad), hyp = adj / Math.cos(rad);
+  const A = [padX, h - padY], B = [padX + adj, h - padY], C = [padX + adj, h - padY - opp];
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  // triangle
+  svg.append("polygon").attr("points", `${A.join(",")} ${B.join(",")} ${C.join(",")}`)
+    .attr("fill", "rgba(38,102,170,0.1)").attr("stroke", "#26a").attr("stroke-width", 2);
+  // labels
+  svg.append("text").attr("x", A[0] + 30).attr("y", A[1] - 4).attr("font-size", 12).text("θ");
+  svg.append("text").attr("x", (A[0] + B[0]) / 2).attr("y", A[1] + 15).attr("font-size", 11)
+    .text(`adjacent ${(adj / 100).toFixed(2)}`);
+  svg.append("text").attr("x", B[0] + 4).attr("y", (A[1] + C[1]) / 2).attr("font-size", 11)
+    .text(`opposite ${(opp / 100).toFixed(2)}`);
+  svg.append("text").attr("x", (A[0] + C[0]) / 2 - 50).attr("y", (A[1] + C[1]) / 2 - 6)
+    .attr("font-size", 11).text(`hypotenuse ${(hyp / 100).toFixed(2)}`);
+  // ratios panel
+  const sinT = opp / hyp, cosT = adj / hyp, tanT = opp / adj;
+  svg.append("text").attr("x", padX).attr("y", padY + 14).attr("font-size", 13)
+    .text(`opp/hyp = ${sinT.toFixed(3)},  adj/hyp = ${cosT.toFixed(3)},  opp/adj = ${tanT.toFixed(3)}`);
+  return svg.node();
+}
+```
+
+Drag the **size** slider while keeping $\theta$ fixed. Watch the three
+ratios at the bottom. They do not change. Now change $\theta$ — the ratios
+change immediately.
+
+That is the central observation: the ratios depend on the **angle**, not
+on the **size**.
+
+## Wonder
+
+1. The widget reports three ratios. Why do they not change when you change
+   the size?
+2. If $\theta = 0°$, what would the triangle look like? What about
+   $\theta = 90°$?
+3. The widget had three "labelled" sides: opposite, adjacent, hypotenuse.
+   Which one is *always* the longest? Why?
+4. Suppose someone tells you only the value of one ratio (e.g. opp/hyp =
+   $0.6$). Could you reconstruct the angle?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Similar right triangles have proportional sides — that's *Class 10
+Ch. 6 BPT* in disguise. (3) The hypotenuse is opposite the right angle,
+and the right angle is the largest angle, so the hypotenuse is the
+longest side. (4) Yes — that's what the inverse-trig functions do.
+:::
+
+## Discover
+
+### Problem 1 — Three ratios for a 3-4-5 triangle
+A right triangle has legs $3$ and $4$, hypotenuse $5$. The angle $\theta$
+faces the side of length $3$. Compute opp/hyp, adj/hyp, opp/adj.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Opposite to $\theta$ is the side facing $\theta$, which is $3$. Adjacent is
+$4$. Hyp is $5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+opp/hyp = $3/5$. adj/hyp = $4/5$. opp/adj = $3/4$.
+</details>
+
+### Problem 2 — Why don't they change?
+Same right triangle, but now scaled up by a factor of $5$ (so legs $15, 20$,
+hypotenuse $25$). The angle is still $\theta$. Recompute the three ratios.
+
+<details class="hint"><summary>Full solution</summary>
+opp/hyp = $15/25 = 3/5$. adj/hyp = $20/25 = 4/5$. opp/adj = $15/20 = 3/4$.
+**Identical.** Reason: the new triangle is *similar* to the old one
+(same shape, scaled), so corresponding sides are in the same ratio.
+</details>
+
+### Problem 3 — Specific angles
+Build (or imagine) a $30°{-}60°{-}90°$ triangle with hypotenuse $2$. The side
+opposite $30°$ has length $1$ (a known fact from Class 9 geometry, derived
+from an equilateral split). The side opposite $60°$ has length $\sqrt{3}$.
+Compute the three ratios for $\theta = 30°$ and for $\theta = 60°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For $\theta = 30°$: opposite is $1$, adjacent is $\sqrt{3}$, hyp is $2$.
+For $\theta = 60°$: opposite is $\sqrt{3}$, adjacent is $1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\theta = 30°$: opp/hyp = $1/2$, adj/hyp = $\sqrt{3}/2$, opp/adj = $1/\sqrt{3}$.
+
+$\theta = 60°$: opp/hyp = $\sqrt{3}/2$, adj/hyp = $1/2$, opp/adj = $\sqrt{3}$.
+</details>
+
+### Problem 4 — A 45° triangle
+A right isoceles triangle has both legs of length $1$, hypotenuse
+$\sqrt{2}$. With $\theta = 45°$, find the three ratios.
+
+<details class="hint"><summary>Full solution</summary>
+opp/hyp = $1/\sqrt{2} = \sqrt{2}/2$. adj/hyp = $1/\sqrt{2} = \sqrt{2}/2$.
+opp/adj = $1/1 = 1$.
+
+(All three are clean numbers — that is why $30°, 45°, 60°$ are the
+**special angles**.)
+</details>
+
+### Problem 5 — Sine and cosine of complementary angles
+For the $30°-60°-90°$ triangle in Problem 3, you found that
+opp/hyp at $30°$ equals adj/hyp at $60°$. Why?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the two acute angles in *any* right triangle. What do they sum to?
+What is the *opposite* of one angle compared to the *adjacent* of the
+other?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$30 + 60 = 90$, so they are **complementary**. The side opposite to one
+acute angle is adjacent to the other. So the ratio "opp/hyp" computed at
+one acute angle equals "adj/hyp" at the complementary angle. This will
+become the rule $\sin(90° - \theta) = \cos\theta$ in *Name*.
+</details>
+
+### Problem 6 — Inverse: from ratio to angle
+A right triangle has opp/hyp = $1/2$. What is $\theta$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You computed this in Problem 3.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\theta = 30°$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+In a right triangle, with $\theta$ one of the acute angles, define:
+
+$$
+\sin\theta = \dfrac{\text{opposite}}{\text{hypotenuse}}, \qquad
+\cos\theta = \dfrac{\text{adjacent}}{\text{hypotenuse}}, \qquad
+\tan\theta = \dfrac{\text{opposite}}{\text{adjacent}}.
+$$
+
+The reciprocals are
+$$\csc\theta = \dfrac{1}{\sin\theta}, \qquad \sec\theta = \dfrac{1}
+{\cos\theta}, \qquad \cot\theta = \dfrac{1}{\tan\theta}.$$
+
+(Note: in CBSE notation, $\csc$ is written $\text{cosec}$.)
+
+**Special angles** — memorise this table:
+
+| $\theta$ | $0°$ | $30°$ | $45°$ | $60°$ | $90°$ |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $\sin\theta$ | $0$ | $1/2$ | $\sqrt{2}/2$ | $\sqrt{3}/2$ | $1$ |
+| $\cos\theta$ | $1$ | $\sqrt{3}/2$ | $\sqrt{2}/2$ | $1/2$ | $0$ |
+| $\tan\theta$ | $0$ | $1/\sqrt{3}$ | $1$ | $\sqrt{3}$ | undef. |
+
+**Complementary-angle rule** (for $0° < \theta < 90°$):
+$$\sin(90° - \theta) = \cos\theta, \quad \cos(90° - \theta) = \sin\theta,
+\quad \tan(90° - \theta) = \cot\theta,$$
+and similarly for the reciprocals.
+
+:::
+
+A verse:
+
+> *Sine is opposite over hypotenuse high.*
+> *Cosine, adjacent over hypotenuse, never to lie.*
+> *Tangent? Opposite over adjacent — that's the way.*
+> *Same shape, same ratios — for any size, any day.*
+
+(Memorisation hint: **SOH-CAH-TOA** — Sin = Opp/Hyp, Cos = Adj/Hyp,
+Tan = Opp/Adj.)
+
+## Apply
+
+### Worked example
+
+> In a right triangle, $\sin A = \dfrac{3}{5}$. Find $\cos A$ and $\tan A$.
+
+The triangle has opposite $= 3$ and hypotenuse $= 5$ (or any scalar
+multiple). By Pythagoras, adjacent $= \sqrt{25 - 9} = 4$.
+
+So $\cos A = \dfrac{4}{5}$ and $\tan A = \dfrac{3}{4}$.
+
+### Practice — Warm
+
+**W1.** $\sin\theta = \dfrac{12}{13}$. Find $\cos\theta$.
+
+<details class="hint"><summary>Full solution</summary>
+opp = 12, hyp = 13. adj = $\sqrt{169 - 144} = 5$. $\cos\theta = 5/13$.
+</details>
+
+**W2.** Compute $\sin 30° + \cos 60°$.
+
+<details class="hint"><summary>Full solution</summary>
+$1/2 + 1/2 = 1$.
+</details>
+
+**W3.** Compute $\tan 45° \cdot \cos 60° + \sin 30°$.
+
+<details class="hint"><summary>Full solution</summary>
+$1 \cdot 1/2 + 1/2 = 1$.
+</details>
+
+### Practice — Working
+
+**P1.** If $\tan\theta = \dfrac{4}{3}$, find $\sin\theta + \cos\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set up a 3-4-5 right triangle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+opp = 4, adj = 3, hyp = 5. $\sin\theta = 4/5, \cos\theta = 3/5$. Sum =
+$7/5$.
+</details>
+
+**P2.** Evaluate $\dfrac{\sin 30° + \tan 45° - \csc 60°}{\sec 30° + \cos 60°
++ \cot 45°}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plug in special-angle values.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numerator: $\frac{1}{2} + 1 - \frac{2}{\sqrt{3}} = \frac{3}{2} - \frac{2}
+{\sqrt{3}} = \frac{3\sqrt{3} - 4}{2\sqrt{3}}$.
+Denominator: $\frac{2}{\sqrt{3}} + \frac{1}{2} + 1 = \frac{2}{\sqrt{3}} +
+\frac{3}{2} = \frac{4 + 3\sqrt{3}}{2\sqrt{3}}$.
+Ratio = $\dfrac{3\sqrt{3} - 4}{3\sqrt{3} + 4}$. Rationalise:
+$\dfrac{(3\sqrt{3} - 4)^2}{27 - 16} = \dfrac{43 - 24\sqrt{3}}{11}$.
+</details>
+
+**P3.** $\sin(A + B) = 1$ and $\sin(A - B) = \dfrac{1}{2}$ with $A, B$
+acute. Find $A$ and $B$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin x = 1$ when $x = 90°$. $\sin x = 1/2$ when $x = 30°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A + B = 90°$, $A - B = 30°$. Solve: $A = 60°, B = 30°$.
+</details>
+
+### Practice — Stretch
+
+**S1.** In a right triangle $ABC$, right-angled at $B$, $AB = 24, BC = 7$.
+Find $\sin A, \cos A, \tan C$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Hypotenuse first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AC = \sqrt{576 + 49} = 25$. From $A$'s viewpoint: opposite is $BC = 7$,
+adjacent is $AB = 24$. $\sin A = 7/25$, $\cos A = 24/25$.
+From $C$'s viewpoint: opposite is $AB = 24$, adjacent is $BC = 7$. $\tan C
+= 24/7$.
+</details>
+
+**S2.** Express $\sin 67° + \cos 75°$ in terms of trigonometric ratios of
+acute angles between $0°$ and $45°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin(90° - x) = \cos x$, etc.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin 67° = \sin(90° - 23°) = \cos 23°$. $\cos 75° = \cos(90° - 15°) =
+\sin 15°$. So **$\sin 67° + \cos 75° = \cos 23° + \sin 15°$**.
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** $\sin 60° \cdot \cos 30° = $
+(a) $\dfrac{1}{4}$  (b) $\dfrac{1}{2}$  (c) $\dfrac{3}{4}$  (d) $1$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\sqrt{3}}{2} \cdot \dfrac{\sqrt{3}}{2} = \dfrac{3}{4}$. **(c).**
+</details>
+
+**Q2 (1 mark — MCQ).** If $\sin\theta = \cos\theta$ and $\theta$ is acute,
+then $\theta = $
+(a) $30°$ (b) $45°$ (c) $60°$ (d) $90°$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan\theta = 1 \Rightarrow \theta = 45°$. **(b).**
+</details>
+
+**Q3 (2 marks).** If $\sec\theta = \dfrac{13}{12}$, find $\sin\theta$ and
+$\tan\theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\cos\theta = 12/13$, so adj = 12, hyp = 13.
+</details>
+<details class="hint"><summary>Full solution</summary>
+opp = $\sqrt{169 - 144} = 5$. $\sin\theta = 5/13, \tan\theta = 5/12$.
+</details>
+
+**Q4 (2 marks).** Evaluate $\dfrac{\sin 30°}{\cos 45°} + \dfrac{\cos 60°}
+{\sin 45°} - \dfrac{\sin 60°}{\tan 45°}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1/2}{\sqrt{2}/2} + \dfrac{1/2}{\sqrt{2}/2} - \dfrac{\sqrt{3}/2}{1}
+= \dfrac{1}{\sqrt{2}} + \dfrac{1}{\sqrt{2}} - \dfrac{\sqrt{3}}{2}
+= \sqrt{2} - \dfrac{\sqrt{3}}{2} = \dfrac{2\sqrt{2} - \sqrt{3}}{2}$.
+</details>
+
+**Q5 (3 marks).** In $\triangle ABC$, right-angled at $B$, $AB = 5$,
+$\angle ACB = 30°$. Find the lengths of sides $BC$ and $AC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At angle $C = 30°$: opposite is $AB = 5$, adjacent is $BC$, hyp is $AC$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tan 30° = \dfrac{AB}{BC} \Rightarrow \dfrac{1}{\sqrt{3}} = \dfrac{5}{BC}
+\Rightarrow BC = 5\sqrt{3}$.
+$\sin 30° = \dfrac{AB}{AC} \Rightarrow \dfrac{1}{2} = \dfrac{5}{AC}
+\Rightarrow AC = 10$.
+</details>
+
+**Q6 (3 marks).** Without using trig tables, evaluate
+$$\dfrac{\sec 41° \sin 49° + \cos 49° \csc 41°}{\sin^2 38° + \sin^2 52°}.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$41 + 49 = 90$ and $38 + 52 = 90$. Use complementary identities.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numerator: $\sec 41° = \csc 49°$, so $\sec 41° \cdot \sin 49° = \csc 49°
+\cdot \sin 49° = 1$. Similarly, $\cos 49° \csc 41° = \sin 41° \sec 41° = $
+hmm, actually $\csc 41° = \sec 49°$, so $\cos 49° \csc 41° = \cos 49° \sec
+49° = 1$. Numerator = $2$.
+Denominator: $\sin 52° = \cos 38°$, so $\sin^2 38° + \cos^2 38° = 1$.
+Ratio = $\boxed{2}$.
+</details>
+
+**Q7 (5 marks — long answer).** (a) Show that $(1 + \tan A + \sec A)(1 +
+\cot A - \csc A) = 2$. (b) Hence evaluate the expression at $A = 45°$ as a
+sanity check.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Convert everything to $\sin$ and $\cos$. Common-denominate.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Numerator after common-denominator manipulation: $(\cos A + \sin A + 1)
+(\sin A + \cos A - 1)/(\sin A \cos A) = $ difference of squares.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** $(1 + \tan A + \sec A)(1 + \cot A - \csc A)$
+$= \left(1 + \dfrac{\sin A}{\cos A} + \dfrac{1}{\cos A}\right)
+\left(1 + \dfrac{\cos A}{\sin A} - \dfrac{1}{\sin A}\right)$
+$= \dfrac{\cos A + \sin A + 1}{\cos A} \cdot \dfrac{\sin A + \cos A - 1}{\sin A}$
+$= \dfrac{(\sin A + \cos A)^2 - 1^2}{\sin A \cos A}$
+$= \dfrac{\sin^2 A + 2 \sin A \cos A + \cos^2 A - 1}{\sin A \cos A}$
+$= \dfrac{1 + 2 \sin A \cos A - 1}{\sin A \cos A}$
+$= \dfrac{2 \sin A \cos A}{\sin A \cos A} = \mathbf{2}$. $\square$
+
+**(b)** At $A = 45°$: $\tan 45° = 1, \sec 45° = \sqrt{2}, \cot 45° = 1,
+\csc 45° = \sqrt{2}$. Expression = $(1 + 1 + \sqrt{2})(1 + 1 - \sqrt{2}) =
+(2 + \sqrt{2})(2 - \sqrt{2}) = 4 - 2 = 2$. ✓
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 8.3 Q1–Q12 cover special-angle
+evaluations like Q4; Exemplar 8.4 Q1–Q12 are full identity simplifications
+like Q7.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q22 mirrors Q5. CBSE 2023
+Standard, Q35 mirrors Q7.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sin 30° = 0.5$, so $\sin 60° = $ double, $= 1$."** Wrong. Sine is
+   *not* linear. $\sin 60° = \sqrt{3}/2 \approx 0.866$. The special-angle
+   table is not a multiplicative pattern.
+2. **"$\tan 90°$ is some big number."** $\tan 90°$ is **undefined**
+   (denominator zero). Do not write a number for it on the board script.
+3. **"$\sin\theta$ can be more than 1."** Never, in a right triangle:
+   opp $\le$ hyp, so $\sin\theta \in [0, 1]$. Same for $\cos$.
+:::
+
+### Self-Assessment
+
+1. Could you derive the special-angle table from the $30°{-}60°{-}90°$ and
+   $45°{-}45°{-}90°$ geometries, without notes?
+2. Did Q6 and Q7 fall out cleanly with at most one hint?
+3. Could you spot, in an unlabelled right triangle, which side is "opposite
+   to $\theta$" and which is "adjacent"?
+
+- **3 yes:** move on to identities.
+- **2 yes:** redo P2 and Q7. Trig algebra rewards drill.
+- **0–1 yes:** the special-angle table is the foundation of *Identities*
+  and *Heights & Distances*. Do not move on until it is automatic.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse10.triangles-similarity`](../06-triangles-similarity/index.qmd) —
+  similar right triangles have proportional sides; that's why ratios depend
+  only on the angle.
+- [`t2.pythagorean-theorem`](../../tier-2-prealgebra/10-pythagorean-theorem/index.qmd) —
+  closing the loop between two known sides and the third.
+
+### What this unlocks
+
+- [`cbse10.trigonometric-identities`](../08b-trigonometric-identities/index.qmd) —
+  the algebraic rules that follow from these ratios.
+- [`cbse10.heights-and-distances`](../09-heights-and-distances/index.qmd) —
+  applications.
+- [`cbse11.trigonometric-functions`](../../tier-cbse-11-class-11/03a-trig-functions/index.qmd) —
+  the unit-circle generalisation.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 8 — Introduction to Trigonometry** (NCERT 2023
+  rationalised syllabus). Covers Sections 8.1–8.3: trigonometric ratios,
+  ratios of complementary angles. (Section 8.4 — trigonometric identities
+  — is treated in **Lesson 9 (Ch 8b)** of this tier.)
+- **Sister synthesis lessons:**
+  - [`t3.trig-ratios`](../../tier-3-algebra2-geometry-trig/07-trig-ratios/index.qmd) —
+    the ratios from a synthesis angle.
+  - [`t3.unit-circle`](../../tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd) —
+    extending beyond acute angles.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every "rotate the spaceship by $\theta$" call in a
+2D engine evaluates $\sin\theta$ and $\cos\theta$ to map old coordinates
+to new. Same for character pathfinding around obstacles.
+:::
+
+::: {.applied-callout}
+**Research.** Sine and cosine are the building blocks of *Fourier
+analysis* — the decomposition of any periodic signal into pure tones.
+Audio compression (MP3), image compression (JPEG), and signal
+processing all rest on it.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained (the "ratios depend on angle, not
+  size" framing); Russian school (problem-first); Bhāskara (compact
+  *Name* table + verse).
+- **Source notes:** Q7 is the NCERT-canonical "show this identity equals
+  2" pattern; Q6 is the canonical complementary-angle simplification.
+:::

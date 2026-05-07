@@ -1,0 +1,470 @@
+---
+title: "Ch 9 — Mensuration"
+subtitle: "Measure the surface, fill the inside — areas and volumes for the shapes you actually meet"
+lesson-id: "cbse8.mensuration"
+tier: "cbse8"
+ncert-class: 8
+ncert-chapter: 9
+ncert-chapter-title: "Mensuration"
+board-exam: false
+prerequisites: ["t1.area-perimeter-volume", "cbse8.understanding-quadrilaterals"]
+unlocks: ["cbse9.heron-formula", "cbse9.surface-areas-volumes", "cbse10.surface-areas-volumes"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Do you remember the area of a rectangle ($l \times b$) and a
+   triangle ($\tfrac{1}{2} \times b \times h$)? If not, revisit
+   **[Area, Perimeter, Volume](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)**.
+2. Can you tell a rhombus from a trapezium? If not, revisit
+   **[Understanding Quadrilaterals](../03-understanding-quadrilaterals/index.qmd)**.
+3. Do you know that $\pi \approx 3.14$ and that the circumference of a
+   circle is $2 \pi r$?
+4. Can you compute $7^2$ in your head?
+
+If three were a confident yes, read on.
+:::
+
+## Touch
+
+Take a sheet of paper and cut a *trapezium* — a four-sided shape with
+exactly one pair of parallel sides. Cut a second copy and rotate it
+$180^\circ$. Slide them together so the parallel sides line up. What
+shape do you get?
+
+The widget below shows it. Slide $a$ and $b$ (the two parallel side
+lengths) and $h$ (the height).
+
+```{ojs}
+viewof aTrap = Inputs.range([2, 8], {value: 4, step: 1, label: "Top side a"})
+viewof bTrap = Inputs.range([2, 10], {value: 7, step: 1, label: "Bottom side b"})
+viewof hTrap = Inputs.range([2, 6], {value: 3, step: 1, label: "Height h"})
+```
+
+```{ojs}
+{
+  const a=aTrap, b=bTrap, h=hTrap;
+  const k=24;
+  const offX = 30;
+  const x1 = offX + (b-a)*k/2;
+  const trap1 = `M ${offX},${h*k} L ${offX+b*k},${h*k} L ${x1+a*k},0 L ${x1},0 Z`;
+  const offX2 = offX + b*k + 30;
+  const x2 = offX2 + (b-a)*k/2;
+  const trap2 = `M ${offX2+b*k},0 L ${offX2},0 L ${x2},${h*k} L ${x2+a*k},${h*k} Z`;
+  const para = `M 0,${h*k+50} L ${(a+b)*k},${h*k+50} L ${(a+b)*k - (b-a)*k/2 + a*k - a*k},${50} L ${(b-a)*k/2 + 0 + a*k - a*k + 0},${50} Z`;
+  const px=20, py=h*k+30;
+  const paraPath = `M ${px},${py+h*k} L ${px+(a+b)*k},${py+h*k} L ${px+(a+b)*k - (b-a)*k/2},${py} L ${px + (b-a)*k/2},${py} Z`;
+  const area = (a+b)*h/2;
+  return html`<div style="font-family:system-ui;">
+    <svg width="${(a+b)*k+100}" height="${2*h*k+90}">
+      <path d="${trap1}" fill="#bde0fe" stroke="#1d4ed8"/>
+      <path d="${trap2}" fill="#fed7aa" stroke="#c2410c"/>
+      <path d="${paraPath}" fill="#bbf7d0" stroke="#15803d"/>
+    </svg>
+    <div style="color:#444;margin-top:0.4rem;">
+      Two trapezia joined make a parallelogram of base (a+b) = ${a+b},
+      height ${h}. Area = ${(a+b)*h}. So one trapezium has area
+      <b>(a+b)h/2 = ${area}</b>.
+    </div>
+  </div>`;
+}
+```
+
+Two trapezia, rotated and pasted, become a parallelogram with base
+$a+b$ and height $h$. So one trapezium has area $\tfrac{1}{2}(a+b)h$.
+That is the chapter's first formula — proved by your scissors.
+
+## Wonder
+
+Sit with these.
+
+1. Why does the trapezium-pair give a *parallelogram*, not a rectangle?
+2. The same trick with two triangles also gives a parallelogram. What
+   does that say about a triangle's area?
+3. A circle isn't made of straight lines. How would you go about
+   measuring *its* area?
+4. A box (a *cuboid*) has six rectangular faces. What is the relation
+   between the *surface area* and the *volume*? Is there a simple one?
+
+::: {.callout-tip collapse="true"}
+## What you might notice (don't peek until you've thought)
+
+The chapter has three families of formulas: **areas of plane figures**
+(trapezium, rhombus, polygon), **surface areas of solids** (cuboid,
+cube, cylinder), and **volumes** of those solids. You will derive
+several from the rectangle / triangle areas you already trust.
+:::
+
+## Discover
+
+### Problem 1 — Area of a trapezium
+
+A trapezium has parallel sides of $7$ cm and $5$ cm and the
+perpendicular distance between them is $4$ cm. Find its area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You just derived the formula in *Touch*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = \tfrac{1}{2}(7 + 5) \times 4 = \tfrac{1}{2} \cdot 12 \cdot 4 = 24$
+cm$^2$.
+</details>
+
+### Problem 2 — Area of a rhombus
+
+A rhombus has diagonals $d_1 = 10$ cm and $d_2 = 24$ cm. Find its area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The diagonals split the rhombus into four congruent right triangles.
+Add their areas.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Each small triangle has legs $\tfrac{d_1}{2}$ and $\tfrac{d_2}{2}$.
+Four of them.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Area $= 4 \cdot \tfrac{1}{2} \cdot \tfrac{d_1}{2} \cdot \tfrac{d_2}{2} =
+\tfrac{d_1 d_2}{2} = \tfrac{10 \cdot 24}{2} = 120$ cm$^2$.
+
+(General formula: **area of rhombus $= \tfrac{1}{2} d_1 d_2$**.)
+</details>
+
+### Problem 3 — Surface area of a cuboid
+
+Find the total surface area of a cuboid with $l = 8, b = 5, h = 3$ cm.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Six faces, three different pairs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two faces of $l \times b$, two of $b \times h$, two of $l \times h$.
+$\text{TSA} = 2(lb + bh + lh) = 2(40 + 15 + 24) = 2 \cdot 79 = 158$
+cm$^2$.
+</details>
+
+### Problem 4 — Surface area of a cube
+
+A cube has edge $7$ cm. Find its surface area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Six congruent square faces.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{TSA} = 6 \cdot 7^2 = 6 \cdot 49 = 294$ cm$^2$.
+</details>
+
+### Problem 5 — Volume of a cuboid and a cylinder
+
+(i) Find the volume of a cuboid with sides $10$ cm, $4$ cm, $3$ cm.
+(ii) Find the volume of a cylinder of radius $7$ cm and height $10$
+cm. Take $\pi = \tfrac{22}{7}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cuboid: $V = lbh$. Cylinder: $V = \pi r^2 h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $V = 10 \cdot 4 \cdot 3 = 120$ cm$^3$.
+
+**(ii)** $V = \tfrac{22}{7} \cdot 7^2 \cdot 10 = \tfrac{22}{7} \cdot 49
+\cdot 10 = 22 \cdot 70 = 1540$ cm$^3$.
+</details>
+
+### Problem 6 — Curved surface of a cylinder
+
+A cylinder has radius $r = 3.5$ cm and height $h = 10$ cm. Find its
+*curved* surface area (just the side, not the top and bottom). Take
+$\pi = \tfrac{22}{7}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Imagine slitting the cylinder along its height and unrolling it. The
+unrolled side is a rectangle of width $2 \pi r$ (the circumference)
+and height $h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+CSA $= 2 \pi r h = 2 \cdot \tfrac{22}{7} \cdot 3.5 \cdot 10 = 2 \cdot
+\tfrac{22}{7} \cdot \tfrac{35}{10} \cdot 10 = 220$ cm$^2$.
+
+(Total surface area of a cylinder includes the two circular ends:
+$\text{TSA} = 2 \pi r h + 2 \pi r^2 = 2 \pi r (h + r)$.)
+</details>
+
+You have just measured plane areas and the surface and volume of two
+solids — using rectangles, circles, and the trapezium trick.
+
+## Name
+
+::: {.lesson-beat}
+
+**Plane figures.**
+
+| Shape | Area |
+|:--|:--|
+| Trapezium with parallel sides $a, b$, height $h$ | $\tfrac{1}{2}(a+b)h$ |
+| Rhombus with diagonals $d_1, d_2$ | $\tfrac{1}{2} d_1 d_2$ |
+| General quadrilateral (split by diagonal of length $d$ with offsets $h_1, h_2$) | $\tfrac{1}{2} d (h_1 + h_2)$ |
+
+**Solids.**
+
+| Solid | Lateral / curved surface | Total surface area | Volume |
+|:--|:--|:--|:--|
+| Cuboid ($l, b, h$) | $2(l + b)h$ | $2(lb + bh + lh)$ | $lbh$ |
+| Cube (edge $a$) | $4a^2$ | $6a^2$ | $a^3$ |
+| Cylinder ($r, h$) | $2 \pi r h$ | $2 \pi r (h + r)$ | $\pi r^2 h$ |
+
+**One litre $= 1000$ cm$^3 = 1000$ ml.**
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Trapezium: parallels added, halved, times height.*
+> *Rhombus: diagonals' product, halved, comes through.*
+> *Cuboid: pair-product summed, doubled, the surface gleams;*
+> *Cylinder: roll it flat — a rectangle of $2 \pi r$ by height.*
+
+## Apply
+
+### Worked example
+
+> A field is in the shape of a trapezium with parallel sides $25$ m
+> and $35$ m, separated by $20$ m. (i) What is the area of the field?
+> (ii) If the field is to be levelled at a cost of $\text{₹}12$ per
+> m$^2$, what is the total cost?
+
+Competent solver's path:
+
+1. $A = \tfrac{1}{2}(25 + 35) \times 20 = \tfrac{1}{2} \cdot 60 \cdot 20
+   = 600$ m$^2$.
+2. Cost $= 600 \times 12 = \text{₹}7200$.
+
+### Practice — Warm
+
+**W1.** Area of a trapezium with parallel sides $9$ cm and $11$ cm and
+height $6$ cm.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{2}(9+11) \cdot 6 = 60$ cm$^2$.
+</details>
+
+**W2.** Surface area of a cube of edge $5$ cm.
+
+<details class="hint"><summary>Full solution</summary>
+$6 \cdot 25 = 150$ cm$^2$.
+</details>
+
+**W3.** Volume of a cylinder, $r = 7$ cm, $h = 5$ cm. Use $\pi =
+\tfrac{22}{7}$.
+
+<details class="hint"><summary>Full solution</summary>
+$V = \tfrac{22}{7} \cdot 49 \cdot 5 = 22 \cdot 35 = 770$ cm$^3$.
+</details>
+
+### Practice — Working
+
+**P1.** A rhombus has area $96$ cm$^2$ and one diagonal $12$ cm. Find
+the other diagonal.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{2} \cdot 12 \cdot d_2 = 96 \Rightarrow d_2 = 16$ cm.
+</details>
+
+**P2.** A closed box has dimensions $40 \times 25 \times 15$ cm. Find
+the area of metal sheet needed to make it.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Closed" → all six faces. Use TSA of cuboid.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2(lb + bh + lh) = 2(40 \cdot 25 + 25 \cdot 15 + 40 \cdot 15)$
+$= 2(1000 + 375 + 600) = 2 \cdot 1975 = 3950$ cm$^2$.
+</details>
+
+**P3.** An open cylindrical tank ($\pi = \tfrac{22}{7}$) has radius
+$1.4$ m and height $3$ m. (i) Find its capacity in litres. (ii) Find
+the area of metal needed to make it (open — only side and bottom).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Capacity = volume. 1 m$^3$ = 1000 litres.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $V = \pi r^2 h = \tfrac{22}{7} \cdot 1.96 \cdot 3 = \tfrac{22
+\cdot 5.88}{7} = \tfrac{129.36}{7} \approx 18.48$ m$^3$.
+$1$ m$^3 = 1000$ litres, so capacity $\approx 18{,}480$ litres.
+
+**(ii)** Metal area $=$ CSA $+$ bottom area $= 2 \pi r h + \pi r^2 =
+\pi r (2h + r)$.
+$= \tfrac{22}{7} \cdot 1.4 \cdot (6 + 1.4) = \tfrac{22}{7} \cdot 1.4
+\cdot 7.4 = \tfrac{22 \cdot 1.4 \cdot 7.4}{7} = \tfrac{227.92}{7}
+\approx 32.56$ m$^2$.
+</details>
+
+### Practice — Stretch
+
+**S1.** A cuboidal water tank measures $6$ m $\times 5$ m $\times 4.5$
+m. How many cubical buckets of edge $30$ cm can be filled completely
+from this tank?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume of tank in cm$^3$, divided by volume of one bucket in cm$^3$.
+Mind the units.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Tank volume $= 600 \times 500 \times 450 = 1{,}35{,}000{,}000$ cm$^3$.
+Bucket volume $= 30^3 = 27{,}000$ cm$^3$.
+Number of buckets $= \tfrac{1{,}35{,}000{,}000}{27{,}000} = 5000$.
+</details>
+
+**S2.** A solid metallic cylinder of diameter $14$ cm and height $10$
+cm is melted and recast into smaller cubes of edge $1$ cm. How many
+cubes are formed? (Take $\pi = \tfrac{22}{7}$.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cylinder volume $/$ cube volume.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V_{\text{cyl}} = \tfrac{22}{7} \cdot 7^2 \cdot 10 = \tfrac{22}{7} \cdot
+49 \cdot 10 = 1540$ cm$^3$.
+$V_{\text{cube}} = 1$ cm$^3$.
+Number of cubes $= 1540$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** Surface area of a cube of edge $a$ is
+(a) $a^2$ (b) $3a^2$ (c) $6a^2$ (d) $a^3$.
+
+<details class="hint"><summary>Full solution</summary>
+Six congruent square faces. **Answer: (c).**
+</details>
+
+**2-mark (short answer).** Find the area of a quadrilateral whose
+diagonal is $26$ cm and the perpendicular offsets to the two opposite
+vertices are $6$ cm and $9$ cm.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Area of a general quadrilateral split by a diagonal: $\tfrac{1}{2} d
+(h_1 + h_2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = \tfrac{1}{2} \cdot 26 \cdot (6 + 9) = 13 \cdot 15 = 195$ cm$^2$.
+</details>
+
+**3-mark (short answer II).** A cylindrical pipe has inner radius
+$3.5$ cm, outer radius $4$ cm, and length $20$ cm. Find the volume of
+the pipe material. (Take $\pi = \tfrac{22}{7}$.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume of material = volume of outer cylinder − volume of inner
+cylinder.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = \pi (R^2 - r^2) h = \tfrac{22}{7}(16 - 12.25) \cdot 20 =
+\tfrac{22}{7} \cdot 3.75 \cdot 20$
+$= \tfrac{22 \cdot 75}{7} = \tfrac{1650}{7} \approx 235.71$ cm$^3$.
+</details>
+
+**5-mark (long answer).** The water in a rectangular pool measures
+$80$ m $\times 30$ m and is $5$ m deep. (i) Find the volume of water
+in cubic metres and in litres. (ii) The pool is to be drained through
+a cylindrical pipe of radius $35$ cm at $2$ m/s. How long does it
+take? (Take $\pi = \tfrac{22}{7}$.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume per second through pipe = pipe cross-section × speed.
+Then time = total volume / volume per second.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+**(i)** Volume $= 80 \times 30 \times 5 = 12000$ m$^3 = 12000 \times
+1000 = 1{,}20{,}00{,}000$ litres.
+
+**(ii)** Convert pipe radius: $r = 35$ cm $= 0.35$ m.
+Cross-section $= \pi r^2 = \tfrac{22}{7} \cdot 0.1225 =
+\tfrac{22 \cdot 0.1225}{7} = \tfrac{2.695}{7} = 0.385$ m$^2$.
+
+Volume drained per second $= 0.385 \times 2 = 0.77$ m$^3$/s.
+
+Total time $= \tfrac{12000}{0.77} \approx 15{,}584$ seconds $\approx
+4$ hours $20$ minutes.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 9.5 (drain a tank through
+a cylindrical pipe) is a near-twin of the 5-mark item.
+**Previous-year pointer:** CBSE 2018 Set 3, Q19 ("hollow cylindrical
+pipe — volume of material") matches the 3-mark item closely.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$1$ m$^2 = 100$ cm$^2$."** No — $1$ m $= 100$ cm, so $1$ m$^2 =
+   100 \times 100 = 10{,}000$ cm$^2$. Watch the units.
+2. **"$1$ m$^3 = 1000$ cm$^3$."** No — $1$ m$^3 = 100^3 = 10^6$ cm$^3$.
+   But $1$ litre $= 1000$ cm$^3$, hence $1$ m$^3 = 1000$ litres.
+3. **"Surface area and volume scale the same way."** They don't.
+   Doubling the edge multiplies area by $4$ and volume by $8$. (The
+   square-cube law.)
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you re-derive the trapezium and rhombus area formulas, with
+   pictures, on a blank sheet?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the
+   7 *Practice* problems without peeking past Hint 1?
+3. Can you keep units straight (cm vs m, ml vs litres) when reading a
+   word problem?
+
+- **3 yes:** move on to **[Exponents and Powers](../10-exponents-and-powers/index.qmd)**.
+- **2 yes:** redo *Working P3* and the 5-mark board item, then move on.
+- **0–1 yes:** redo each *Discover* problem with the formula box from
+  *Name* hidden — until each formula feels obvious.
+
+## Connect
+
+### Prerequisites used
+
+- **[Area, Perimeter, Volume](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)** — basic formulas for rectangle, triangle, circle, cube.
+- **[Understanding Quadrilaterals](../03-understanding-quadrilaterals/index.qmd)** — names and properties of trapezium, rhombus.
+
+### What this unlocks
+
+- **[Class 9 — Heron's Formula](../../tier-cbse-09-class-9/10-herons-formula/index.qmd)** — area of a triangle from its three sides.
+- **[Class 9 — Surface Areas and Volumes](../../tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd)** — adds cone, sphere, hemisphere.
+- **[Class 10 — Surface Areas and Volumes](../../tier-cbse-10-class-10/12-surface-areas-and-volumes/index.qmd)** — combinations of solids.
+
+### NCERT chapter alignment
+
+- **Class 8, Chapter 9 — Mensuration** (NCERT 2023 rationalised
+  syllabus). Covers Sections 9.1–9.4: area of plane figures (trapezium,
+  general quadrilateral, polygons), surface area of cuboid, cube, and
+  right circular cylinder, and volume of the same.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)
+  treats area and volume as foundations; this chapter pushes the
+  formulas to the trapezium and the cylinder.
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every collision detection routine for a
+cuboid-shaped object computes the same surface area and volume you
+just did. Bounding-box rendering uses $l \times b \times h$ tens of
+thousands of times per second.
+:::
+
+::: {.applied-callout}
+**Research.** Mensuration formulas are the *finite* shadow of integral
+calculus. Once you know how to add up $n$ thin strips to get an area,
+the leap to $\int$ is small.
+:::

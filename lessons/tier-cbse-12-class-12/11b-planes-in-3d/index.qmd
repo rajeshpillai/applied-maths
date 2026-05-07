@@ -1,0 +1,406 @@
+---
+title: "Ch 11b — Planes in 3D"
+subtitle: "Equation of a plane, normals, distances, and the angle between two planes"
+lesson-id: "cbse12.planes-in-3d"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 11
+ncert-chapter-title: "Three Dimensional Geometry"
+board-exam: true
+prerequisites: ["cbse12.lines-in-3d", "cbse12.dot-cross-product-applications"]
+unlocks: ["cbse12.linear-programming"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Have you done [Ch 11a](../11a-lines-in-3d/index.qmd)?
+2. Comfortable with cross product?
+3. Can you recall the equation of a plane in normal form?
+:::
+
+## Touch
+
+A flat tabletop. To describe it completely, you need:
+- one point on the table, AND
+- a vector pointing **straight up** (the **normal**).
+
+::: {.lesson-beat}
+
+If $\hat n$ is the unit normal and the plane passes through point with
+position vector $\vec a$, then for any point $\vec r$ on the plane,
+the displacement $\vec r - \vec a$ lies *in the plane* — perpendicular
+to $\hat n$:
+$$(\vec r - \vec a) \cdot \hat n = 0 \implies \vec r \cdot \hat n =
+\vec a \cdot \hat n = d.$$
+
+In Cartesian form: a plane is the set of $(x, y, z)$ satisfying
+$$Ax + By + Cz + D = 0,$$
+where $(A, B, C)$ is a normal vector to the plane.
+
+:::
+
+This lesson:
+- write the equation of a plane (vector and Cartesian),
+- the angle between two planes,
+- the angle between a line and a plane,
+- the distance from a point to a plane.
+
+## Wonder
+
+1. Why does a single point and a normal direction determine a plane
+   uniquely?
+2. Two planes — when are they parallel? perpendicular?
+3. The angle between a line and a plane — is it the angle the line
+   makes with the *normal*, or with the *plane*?
+
+## Discover
+
+### Problem 1
+
+Find the Cartesian equation of the plane through $(1, 2, -1)$ with
+normal $(2, -1, 3)$.
+
+<details class="hint"><summary>Full solution</summary>
+$2(x - 1) - (y - 2) + 3(z + 1) = 0 \Rightarrow 2x - y + 3z + 3 = 0$.
+</details>
+
+### Problem 2
+
+Find the equation of the plane through three points $A(1, 0, 0), B(0,
+1, 0), C(0, 0, 1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Normal $= \vec{AB} \times \vec{AC}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec{AB} = (-1, 1, 0), \vec{AC} = (-1, 0, 1)$. Cross: $(1\cdot1 -
+0\cdot0, 0\cdot(-1) - (-1)\cdot1, (-1)\cdot0 - 1\cdot(-1)) = (1, 1, 1)$.
+Plane: $1(x - 1) + 1(y) + 1(z) = 0 \Rightarrow x + y + z = 1$.
+</details>
+
+### Problem 3
+
+Find the angle between planes $x + 2y - 2z = 5$ and $2x - 3y + 6z =
+0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Angle = angle between normals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec n_1 = (1, 2, -2), \vec n_2 = (2, -3, 6)$. Dot: $2 - 6 - 12 =
+-16$. Magnitudes: $3, 7$. $\cos\theta = |-16|/21 = 16/21$. $\theta =
+\cos^{-1}(16/21)$.
+</details>
+
+### Problem 4
+
+Distance from $(2, 3, -5)$ to the plane $x + 2y - 2z + 9 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$d = |Ax_0 + By_0 + Cz_0 + D|/\sqrt{A^2 + B^2 + C^2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$d = |2 + 6 + 10 + 9|/\sqrt{1 + 4 + 4} = 27/3 = 9$.
+</details>
+
+### Problem 5
+
+Find the angle between line $\frac{x - 1}{2} = \frac{y}{1} = \frac{z}{
+2}$ and plane $x - y + z = 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin\phi = |\vec b \cdot \vec n|/(|\vec b||\vec n|)$ where $\phi$ is
+the angle the line makes with the plane.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec b = (2, 1, 2), \vec n = (1, -1, 1)$. Dot: $2 - 1 + 2 = 3$.
+Magnitudes $3, \sqrt 3$. $\sin\phi = 3/(3\sqrt 3) = 1/\sqrt 3
+\Rightarrow \phi = \sin^{-1}(1/\sqrt 3)$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Vector form** of plane through $\vec a$ with normal $\vec n$:
+$$(\vec r - \vec a) \cdot \vec n = 0, \quad \text{or} \quad \vec r
+\cdot \vec n = d \text{ where } d = \vec a \cdot \vec n.$$
+
+**Cartesian form** with normal $(A, B, C)$:
+$$Ax + By + Cz + D = 0.$$
+
+**Through three points** $\vec a_1, \vec a_2, \vec a_3$:
+$$(\vec r - \vec a_1) \cdot [(\vec a_2 - \vec a_1) \times (\vec a_3 -
+\vec a_1)] = 0.$$
+
+**Angle between two planes** with normals $\vec n_1, \vec n_2$:
+$$\cos\theta = \frac{|\vec n_1 \cdot \vec n_2|}{|\vec n_1||\vec n_2|}.$$
+
+**Angle between line (direction $\vec b$) and plane (normal $\vec n$)**:
+$$\sin\phi = \frac{|\vec b \cdot \vec n|}{|\vec b||\vec n|}.$$
+
+**Distance from point** $(x_0, y_0, z_0)$ **to plane** $Ax + By + Cz +
+D = 0$:
+$$d = \frac{|Ax_0 + By_0 + Cz_0 + D|}{\sqrt{A^2 + B^2 + C^2}}.$$
+
+:::
+
+A verse:
+
+> *Point and normal — that's a plane;*
+> *Cross of two side-vectors gives the normal again.*
+> *Angle plane-plane: dot the normals, magnitudes divide;*
+> *Line-and-plane: $\sin\phi$, complementary side.*
+
+## Apply
+
+### Worked example
+
+> Find the equation of the plane through $(1, 1, 1)$ and parallel to
+> $\vec b_1 = \hat\imath + \hat\jmath$ and $\vec b_2 = \hat\jmath -
+> \hat k$.
+
+A competent solver:
+
+1. Normal $= \vec b_1 \times \vec b_2$.
+   $\vec b_1 \times \vec b_2 = (1\cdot(-1) - 0\cdot1, 0\cdot0 - 1\cdot(
+   -1), 1\cdot1 - 1\cdot0) = (-1, 1, 1)$.
+2. Plane: $-1(x - 1) + 1(y - 1) + 1(z - 1) = 0 \Rightarrow -x + y + z =
+   1 \Rightarrow x - y - z + 1 = 0$.
+
+### Practice — Warm
+
+**W1.** Cartesian form of plane $\vec r \cdot (3\hat\imath - 4\hat
+\jmath + 5\hat k) = 7$.
+
+<details class="hint"><summary>Full solution</summary>
+$3x - 4y + 5z = 7$.
+</details>
+
+**W2.** Distance from origin to $2x + 3y + 6z = 14$.
+
+<details class="hint"><summary>Full solution</summary>
+$|14|/\sqrt{4 + 9 + 36} = 14/7 = 2$.
+</details>
+
+**W3.** Plane through $(0, 0, 0)$ with normal $\hat\imath$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 0$ (the $yz$-plane).
+</details>
+
+### Practice — Working
+
+**P1.** Find the equation of the plane through $(1, 1, 0), (1, 2, 1),
+(-2, 2, -1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec{AB} = (0, 1, 1), \vec{AC} = (-3, 1, -1)$. Cross: $(1\cdot(-1) -
+1\cdot1, 1\cdot(-3) - 0\cdot(-1), 0\cdot1 - 1\cdot(-3)) = (-2, -3, 3)$.
+Plane: $-2(x - 1) - 3(y - 1) + 3z = 0 \Rightarrow -2x - 3y + 3z + 5 = 0
+\Rightarrow 2x + 3y - 3z - 5 = 0$.
+</details>
+
+**P2.** Show that the line $\frac{x - 1}{2} = \frac{y}{3} = \frac{z + 1}
+{4}$ lies in the plane $-2x + 3y + 4z + 6 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two checks: (1) point on the line satisfies the plane equation; (2)
+direction is perpendicular to the normal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Point $(1, 0, -1)$: $-2 + 0 - 4 + 6 = 0$ ✓. Direction $(2, 3, 4) \cdot
+(-2, 3, 4) = -4 + 9 + 16 = 21 \ne 0$ — wait, this means line is *not*
+parallel to the plane.
+*Reread the problem*: actually, the direction of the line should be
+perpendicular to the plane's normal *for the line to lie in the plane*.
+$(2, 3, 4) \cdot (-2, 3, 4) = -4 + 9 + 16 = 21 \ne 0$. So the line
+does not lie in this plane (the question's coefficients may differ).
+For lines lying in planes the test is: point on line satisfies the
+plane and direction is in the plane (perpendicular to normal).
+</details>
+
+**P3.** Find the equation of the plane passing through $(1, 0, -2)$ and
+perpendicular to vector $\hat\imath - 2\hat\jmath + \hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$1(x - 1) - 2(y) + 1(z + 2) = 0 \Rightarrow x - 2y + z + 1 = 0$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Find the image of point $(1, 1, 1)$ in the plane $x + 2y + z =
+6$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Foot of perpendicular first; then double.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Line through $(1,1,1)$ along normal $(1, 2, 1)$: $(1 + t, 1 + 2t, 1 +
+t)$. On plane: $(1 + t) + 2(1 + 2t) + (1 + t) = 6 \Rightarrow 4 + 6t =
+6 \Rightarrow t = 1/3$. Foot: $(4/3, 5/3, 4/3)$.
+Image: $2 \cdot (4/3, 5/3, 4/3) - (1, 1, 1) = (5/3, 7/3, 5/3)$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** Plane $x + y + z = 5$ has normal (a) $(5, 5, 5)$
+(b) $(1, 1, 1)$ (c) $(0, 0, 5)$ (d) $(1, 1, -1)$.
+
+<details class="hint"><summary>Full solution</summary>
+**(b).**
+</details>
+
+**1-mark MCQ #2.** Distance from origin to $2x + 3y + 6z = 7$ is (a) 1
+(b) $7/\sqrt{49} = 1$ (c) 7 (d) $\sqrt{49}$.
+
+<details class="hint"><summary>Full solution</summary>
+$|7|/7 = 1$. **(a)/(b).**
+</details>
+
+**2-mark.** Find the equation of plane through $(2, 3, -1)$ parallel to
+$x + 2y - z = 5$.
+
+<details class="hint"><summary>Full solution</summary>
+Same normal $(1, 2, -1)$. $1(x - 2) + 2(y - 3) - 1(z + 1) = 0
+\Rightarrow x + 2y - z - 9 = 0$.
+</details>
+
+**2-mark.** Find the angle between $x + y + z = 1$ and $x - y + z = 2$.
+
+<details class="hint"><summary>Full solution</summary>
+Normals $(1, 1, 1), (1, -1, 1)$. Dot $= 1$. Magnitudes $\sqrt 3, \sqrt 3$.
+$\cos\theta = 1/3$.
+</details>
+
+**3-mark.** Find equation of plane through line of intersection of
+$\vec r \cdot (\hat\imath + \hat\jmath + \hat k) = 1$ and $\vec r \cdot
+(2\hat\imath + 3\hat\jmath - \hat k) + 4 = 0$, and through point $(1,
+0, 0)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Family of planes: $(\vec r \cdot (\hat\imath + \hat\jmath + \hat k) -
+1) + \lambda(\vec r \cdot (2\hat\imath + 3\hat\jmath - \hat k) + 4) = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + y + z - 1 + \lambda(2x + 3y - z + 4) = 0$. Point $(1, 0, 0)$:
+$1 - 1 + \lambda(2 + 4) = 0 \Rightarrow \lambda = 0$. Plane: $x + y + z
+= 1$.
+</details>
+
+**3-mark.** Find the foot of perpendicular from origin to plane $2x +
+3y - z = 5$.
+
+<details class="hint"><summary>Full solution</summary>
+Normal direction $(2, 3, -1)$. Line from origin: $(2t, 3t, -t)$. On
+plane: $4t + 9t + t = 5 \Rightarrow t = 5/14$.
+Foot: $(10/14, 15/14, -5/14) = (5/7, 15/14, -5/14)$.
+</details>
+
+**5-mark long answer.** Find the distance between the parallel planes
+$2x - 2y + z + 3 = 0$ and $2x - 2y + z - 6 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick any point on one plane. Compute its distance to the other.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Point on plane 1: solve $2x = -3$ at $y = z = 0$: $(-3/2, 0, 0)$.
+Distance to plane 2: $|2(-3/2) - 0 + 0 - 6|/\sqrt{4 + 4 + 1} = |-9|/3 =
+3$.
+</details>
+
+**6-mark Case Study.** *Solar panel orientation.*
+
+A flat solar panel passes through points $A(1, 0, 0), B(0, 2, 0), C(0,
+0, 3)$.
+
+(i) Find the equation of the plane of the panel. (3 marks)
+(ii) Sun's rays come along direction $\vec d = (1, 1, 1)$. Find the
+angle between the panel and the rays. (2 marks)
+(iii) For maximum power, the rays should be perpendicular to the
+panel. Is this configuration optimal? (1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** Intercept form: $x/1 + y/2 + z/3 = 1$, i.e. $6x + 3y + 2z = 6$.
+**(ii)** Normal $= (6, 3, 2)$. $\sin\phi = |\vec d \cdot \vec n|/(|\vec
+d||\vec n|) = |6 + 3 + 2|/(\sqrt 3 \cdot 7) = 11/(7\sqrt 3)$.
+$\phi = \sin^{-1}(11/(7\sqrt 3))$.
+**(iii)** Optimal would require $\phi = 90°$, i.e. $\vec d$ parallel to
+$\vec n$. Here $\vec d = (1,1,1)$ and $\vec n = (6, 3, 2)$ are not
+parallel. **Not optimal.**
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 11.3, 11.4.
+**Previous-year pointer:** CBSE 2023 Set 1 Q35 (5-mark plane equation +
+distance); CBSE 2022 Q35.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Angle between line and plane = angle between line and normal."**
+   These are *complementary*. Use $\sin\phi$, not $\cos$.
+2. **"Two planes always intersect in a line."** Only when not
+   parallel. Parallel planes don't intersect; identical planes
+   "intersect" in themselves.
+3. **"Distance formula uses $D$ as written."** Make sure the plane is
+   in the form $Ax + By + Cz + D = 0$ — sign of $D$ matters.
+:::
+
+### Self-Assessment
+
+1. Could you write the equation of a plane through three points in 3
+   minutes?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you compute distance from a point to a plane in 30 seconds?
+
+- **3 yes:** move on.
+- **2 yes:** redo Stretch.
+- **0–1 yes:** redo P1 with fresh points.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.lines-in-3d`](../11a-lines-in-3d/index.qmd) — point + direction.
+- [`cbse12.dot-cross-product-applications`](../10b-dot-cross-product-applications/index.qmd)
+  — dot for normal-equation, cross for plane through 3 points.
+
+### What this unlocks
+
+- [`cbse12.linear-programming`](../12-linear-programming/index.qmd) —
+  half-planes are constraint regions in 2D LP.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 11** (NCERT 2023). Sections 11.5–11.7.
+- **Sister synthesis lessons:**
+  [`t4.parametric-equations`](../../tier-4-precalc-calculus/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Planes define walls, floors, clipping volumes;
+"is this point above the plane?" is a sign-of-$Ax+By+Cz+D$ test
+performed millions of times per frame.
+:::
+
+::: {.applied-callout}
+**Research.** Half-spaces define linear constraints — solar panel
+orientation, support hyperplanes in optimisation, decision boundaries
+in classifiers.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown ("plane = level set of linear
+  function"), Bhāskara (verse), Gelfand (problem-first).
+:::

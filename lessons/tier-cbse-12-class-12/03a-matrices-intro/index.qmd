@@ -1,0 +1,466 @@
+---
+title: "Ch 3a — Matrices (Definition and Types)"
+subtitle: "A grid of numbers — and the few special shapes that matter"
+lesson-id: "cbse12.matrices-intro"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 3
+ncert-chapter-title: "Matrices"
+board-exam: true
+prerequisites: ["cbse11.relations-and-functions"]
+unlocks: ["cbse12.matrix-operations", "cbse12.determinants"]
+applied-domains: ["ai-ml", "game-dev", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are you comfortable with ordered pairs and tables of numbers?
+2. Do you know what "rows" and "columns" of a table mean?
+3. Have you done [Class 12 · Ch 1](../01-relations-functions-types/index.qmd)?
+
+If no on (3), please go back — the function language matters.
+:::
+
+## Touch
+
+Below is a class register: 4 students, 3 subjects, the marks each scored.
+
+::: {.lesson-beat}
+
+|        | Math | Phys | Chem |
+|:------:|:----:|:----:|:----:|
+| Asha   | 84   | 76   | 88   |
+| Bina   | 91   | 82   | 79   |
+| Chetan | 67   | 73   | 70   |
+| Diya   | 88   | 90   | 85   |
+
+:::
+
+Strip the headers and the names. What you have left is
+
+$$
+A \;=\; \begin{pmatrix}
+84 & 76 & 88 \\
+91 & 82 & 79 \\
+67 & 73 & 70 \\
+88 & 90 & 85
+\end{pmatrix}.
+$$
+
+A rectangle of numbers. Four rows, three columns.
+
+Now imagine a *square* version: a $3 \times 3$ table where the diagonal
+is the only thing that matters — say a "subject weight" table where
+Math counts $\times 2$, Physics $\times 3$, Chemistry $\times 1$, and
+the off-diagonals are zero:
+
+$$
+W \;=\; \begin{pmatrix}
+2 & 0 & 0 \\
+0 & 3 & 0 \\
+0 & 0 & 1
+\end{pmatrix}.
+$$
+
+That special shape — zeros off the diagonal — has a name. So does the
+all-zero matrix, the identity matrix, and a handful more.
+
+This lesson names them.
+
+## Wonder
+
+1. The marks matrix has shape $4 \times 3$. Could you reshape it without
+   losing information? What would the shape be?
+2. The weight matrix has zeros off its diagonal — why might that be
+   useful when combining with marks?
+3. If someone wrote the marks matrix in a different order — say
+   columns first, then rows — would it be the same matrix?
+4. What's the smallest possible matrix? (Think hard.)
+
+## Discover
+
+### Problem 1
+
+A matrix $A = [a_{ij}]$ of order $3 \times 4$ has entries $a_{ij} =
+i + j$. Write $A$ explicitly.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$i$ runs over rows ($1, 2, 3$); $j$ runs over columns ($1, 2, 3, 4$).
+$a_{ij}$ is the entry in row $i$, column $j$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$
+A = \begin{pmatrix}
+2 & 3 & 4 & 5 \\
+3 & 4 & 5 & 6 \\
+4 & 5 & 6 & 7
+\end{pmatrix}.
+$$
+Three rows, four columns — order $3 \times 4$.
+</details>
+
+### Problem 2
+
+Construct a $2 \times 2$ matrix $B$ with $b_{ij} = (i + j)^2 / 2$ for
+$i, j \in \{1, 2\}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute four entries: $b_{11}, b_{12}, b_{21}, b_{22}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$b_{11} = 4/2 = 2,\ b_{12} = 9/2,\ b_{21} = 9/2,\ b_{22} = 16/2 = 8$.
+$$
+B = \begin{pmatrix} 2 & 9/2 \\ 9/2 & 8 \end{pmatrix}.
+$$
+Notice $b_{12} = b_{21}$ — symmetric across the diagonal.
+</details>
+
+### Problem 3
+
+How many rows must a matrix have if it has exactly 12 entries and is
+declared "square"?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A square has equal rows and columns.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Square requires $m = n$ and $mn = 12$, so $m^2 = 12$ — but 12 is not a
+perfect square. **No such square matrix exists.** A 12-entry matrix can
+only be $1 \times 12$, $2 \times 6$, $3 \times 4$, etc.
+</details>
+
+### Problem 4
+
+A matrix $A$ has $a_{ij} = 0$ whenever $i \ne j$, and $a_{ii} = i$.
+Write the $3 \times 3$ version.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Off-diagonal entries are zero.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$
+A = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 3 \end{pmatrix}.
+$$
+Diagonal matrix.
+</details>
+
+### Problem 5
+
+Find $x$ if $\begin{pmatrix} x + 1 & 2 \\ 3 & y - 4 \end{pmatrix} =
+\begin{pmatrix} 4 & 2 \\ 3 & 7 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two matrices are equal iff every entry matches.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + 1 = 4 \Rightarrow x = 3$. $y - 4 = 7 \Rightarrow y = 11$.
+</details>
+
+You've now built matrices, read entries, and matched the
+diagonal-only and equality patterns.
+
+## Name
+
+::: {.lesson-beat}
+
+A **matrix** is a rectangular array of numbers. A matrix $A$ with $m$
+rows and $n$ columns has **order** $m \times n$, written
+$A = [a_{ij}]_{m \times n}$, where $a_{ij}$ is the entry in row $i$,
+column $j$.
+
+**Special types** (let $A = [a_{ij}]$):
+
+- **Row matrix**: $1 \times n$.
+- **Column matrix**: $m \times 1$.
+- **Square matrix**: $m = n$.
+- **Diagonal matrix**: square with $a_{ij} = 0$ for $i \ne j$.
+- **Scalar matrix**: diagonal with all diagonal entries equal.
+- **Identity matrix** $I_n$: scalar with diagonal entries $= 1$.
+- **Zero matrix** $O$: every entry is $0$.
+
+Two matrices $A$ and $B$ are **equal** iff they have the same order
+*and* $a_{ij} = b_{ij}$ for every $i, j$.
+
+:::
+
+A verse:
+
+> *Rows count first, columns next — that's the order;*
+> *Identity wears ones on its border;*
+> *Zero off-diagonal makes a diagonal name;*
+> *Equality demands every entry the same.*
+
+## Apply
+
+### Worked example
+
+> If $A = \begin{pmatrix} 2 & x \\ y & -1 \end{pmatrix}$ and $A$ is a
+> scalar matrix, find $x, y$, and the scalar.
+
+A competent solver thinks:
+
+1. Scalar matrix = diagonal matrix with equal diagonal entries.
+2. So off-diagonals must be zero: $x = 0,\ y = 0$.
+3. Diagonal entries equal: $2 = -1$? Contradiction.
+
+**Answer:** No such scalar matrix exists. (Trick problem to test
+attention!) If the problem instead said the bottom-right is also $2$,
+the answer would be $x = 0, y = 0,$ scalar $= 2$.
+
+### Practice — Warm
+
+**W1.** Construct a $2 \times 3$ matrix $A$ with $a_{ij} = 2i - j$.
+
+<details class="hint"><summary>Full solution</summary>
+$a_{11} = 1, a_{12} = 0, a_{13} = -1, a_{21} = 3, a_{22} = 2, a_{23} =
+1$.
+$$A = \begin{pmatrix} 1 & 0 & -1 \\ 3 & 2 & 1 \end{pmatrix}.$$
+</details>
+
+**W2.** A matrix has 24 entries. List all possible orders.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find every factorisation $m \times n = 24$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1\times24, 2\times12, 3\times8, 4\times6, 6\times4, 8\times3, 12\times2,
+24\times1$. **8 orders.**
+</details>
+
+**W3.** Identify each: (a) $\begin{pmatrix} 5 & 0 \\ 0 & 5
+\end{pmatrix}$ (b) $\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1
+\end{pmatrix}$ (c) $\begin{pmatrix} 0 & 0 \\ 0 & 0 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+(a) Scalar matrix (also diagonal). (b) Identity matrix $I_3$ (also
+scalar, also diagonal). (c) Zero matrix.
+</details>
+
+### Practice — Working
+
+**P1.** Find $x, y, z, w$ if $\begin{pmatrix} x + y & 2 \\ 5 + z & xy
+\end{pmatrix} = \begin{pmatrix} 6 & 2 \\ 5 & 8 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Match each entry. The bottom-left says $5 + z = 5$ — find $z$ first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$z = 0$. $x + y = 6,\ xy = 8$. So $x, y$ are roots of $t^2 - 6t + 8 = 0$,
+giving $t = 2, 4$. So $\{x, y\} = \{2, 4\}$. $w$ is not in the matrix
+— the question (as stated) determines $z = 0$ and $\{x, y\} = \{2, 4\}$.
+</details>
+
+**P2.** If $A = [a_{ij}]_{3 \times 3}$ has $a_{ij} = i^2 - j^2$, write
+$A$ and check whether $a_{ij} + a_{ji} = 0$ for all $i, j$.
+
+<details class="hint"><summary>Full solution</summary>
+$$A = \begin{pmatrix} 0 & -3 & -8 \\ 3 & 0 & -5 \\ 8 & 5 & 0
+\end{pmatrix}.$$
+$a_{ij} + a_{ji} = (i^2 - j^2) + (j^2 - i^2) = 0$ ✓. Such a matrix is
+called *skew-symmetric* (covered in Ch 3b).
+</details>
+
+**P3.** How many distinct $2 \times 2$ matrices can be made with each
+entry from $\{0, 1\}$?
+
+<details class="hint"><summary>Full solution</summary>
+4 entries, 2 choices each: $2^4 = 16$ matrices.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that an $n \times n$ matrix cannot be both an identity
+matrix and a zero matrix unless $n = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the diagonal entries.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Identity has diagonal entries 1; zero has them all 0. For both to hold,
+$1 = 0$, a contradiction. The only escape is *no diagonal entries* —
+i.e. $n = 0$, the empty matrix.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** If $A$ is a $3 \times 4$ matrix and $B$ is a matrix
+such that $A = B$, then the order of $B$ is (a) $3 \times 4$ (b) $4
+\times 3$ (c) $4 \times 4$ (d) $3 \times 3$.
+
+<details class="hint"><summary>Full solution</summary>
+Equal matrices must have the same order. **(a) $3 \times 4$.**
+</details>
+
+**1-mark MCQ #2.** Total number of possible matrices of order $3 \times
+3$ with each entry $0$ or $1$: (a) 27 (b) 18 (c) 81 (d) 512.
+
+<details class="hint"><summary>Full solution</summary>
+9 entries, 2 choices: $2^9 = 512$. **(d).**
+</details>
+
+**2-mark.** If a matrix has 18 elements, what are the possible orders
+it can have? What if it has 5 elements?
+
+<details class="hint"><summary>Full solution</summary>
+**18 entries:** $1\times18, 2\times9, 3\times6, 6\times3, 9\times2,
+18\times1$ — 6 orders.
+**5 entries:** 5 is prime, so $1\times5$ or $5\times1$ — 2 orders.
+</details>
+
+**2-mark.** Find $a, b, c, d$ if $\begin{pmatrix} a-b & 2a+c \\ 2a-b &
+3c+d \end{pmatrix} = \begin{pmatrix} -1 & 5 \\ 0 & 13 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$a - b = -1$ ... (i); $2a + c = 5$ ... (ii); $2a - b = 0 \Rightarrow b
+= 2a$ ... (iii); $3c + d = 13$ ... (iv).
+From (i), (iii): $a - 2a = -1 \Rightarrow a = 1, b = 2$.
+From (ii): $c = 3$. From (iv): $d = 4$.
+</details>
+
+**3-mark.** Construct a $3 \times 2$ matrix whose elements are given by
+$a_{ij} = \dfrac{1}{2}|i - 3j|$.
+
+<details class="hint"><summary>Full solution</summary>
+$a_{11} = |1-3|/2 = 1$. $a_{12} = |1-6|/2 = 5/2$. $a_{21} = |2-3|/2 =
+1/2$. $a_{22} = |2-6|/2 = 2$. $a_{31} = |3-3|/2 = 0$. $a_{32} = |3-6|/2
+= 3/2$.
+$$A = \begin{pmatrix} 1 & 5/2 \\ 1/2 & 2 \\ 0 & 3/2 \end{pmatrix}.$$
+</details>
+
+**3-mark.** If $A = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 2 & 0 \\ 0 & 0 & 3
+\end{pmatrix}$, check whether $A$ is diagonal, scalar, or identity, and
+whether $A = I_3$.
+
+<details class="hint"><summary>Full solution</summary>
+**Diagonal** — off-diagonals zero. **Not scalar** — diagonal entries
+$1, 2, 3$ differ. **Not identity** — identity has all diagonal $1$.
+</details>
+
+**5-mark long answer.** A school has three sections (A, B, C) of Class
+12. A has 30 students with average marks 75 in Math and 70 in Phys; B
+has 25 students with averages 80 and 78; C has 35 students with
+averages 72 and 74. Construct a $3 \times 2$ matrix $M$ whose rows are
+sections and columns are subjects, giving each section's *total* marks.
+Identify the order of $M$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total marks = average $\times$ student count.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Row A: $30 \times 75 = 2250$ Math, $30 \times 70 = 2100$ Phys.
+Row B: $25 \times 80 = 2000$, $25 \times 78 = 1950$.
+Row C: $35 \times 72 = 2520$, $35 \times 74 = 2590$.
+$$M = \begin{pmatrix} 2250 & 2100 \\ 2000 & 1950 \\ 2520 & 2590
+\end{pmatrix},\quad \text{order } 3 \times 2.$$
+</details>
+
+**6-mark Case Study.** *Image as a matrix.*
+
+A grayscale image is stored as a matrix of pixel intensities. A
+$4 \times 4$ section is
+
+$$P = \begin{pmatrix} 0 & 50 & 100 & 150 \\ 50 & 100 & 150 & 200 \\ 100
+& 150 & 200 & 250 \\ 150 & 200 & 250 & 255 \end{pmatrix}.$$
+
+(i) State the order of $P$. (1 mark)
+(ii) Construct a matrix $T = [t_{ij}]$ where $t_{ij} = 1$ if $p_{ij} <
+128$ and $t_{ij} = 0$ otherwise. (2 marks)
+(iii) The diagonal $p_{11}, p_{22}, p_{33}, p_{44}$ encodes the
+brightness gradient on the main diagonal. List the four values.
+(2 marks)
+(iv) Why might storing $P$ as a *symmetric* matrix (so $p_{ij} =
+p_{ji}$) save half the memory? (1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $4 \times 4$. **(ii)**
+$$T = \begin{pmatrix} 1 & 1 & 1 & 0 \\ 1 & 1 & 0 & 0 \\ 1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \end{pmatrix}.$$
+**(iii)** $0, 100, 200, 255$. **(iv)** A symmetric matrix has only
+$n(n+1)/2$ unique entries instead of $n^2$ — for $n = 4$, that's $10$
+versus $16$, a 37.5% saving.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 3.1 Q2–9.
+**Previous-year pointer:** CBSE 2023 Set 1 Q2 (similar to W2);
+CBSE 2022 Q1 (similar to MCQ #1).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$3 \times 4$ and $4 \times 3$ are the same order."** No. Rows
+   first, columns second. A $3 \times 4$ matrix is *not* equal in shape
+   to a $4 \times 3$ matrix.
+2. **"Identity = diagonal."** Identity is one specific scalar matrix
+   with $1$s on the diagonal. Every identity is diagonal, not vice
+   versa.
+3. **"You can compare any two matrices."** Equality requires *same
+   order*. A $2 \times 2$ matrix can never equal a $2 \times 3$ matrix.
+:::
+
+### Self-Assessment
+
+1. Could you sketch on paper the seven types of special matrices from
+   *Name*, with one example each, in two minutes?
+2. Did you solve at least 5 board-pattern items unaided?
+3. Could you construct a matrix from a rule like $a_{ij} = i + 2j$ in
+   under a minute?
+
+- **3 yes:** move on.
+- **2 yes:** redo the worked example variants.
+- **0–1 yes:** re-read *Name*; spend 10 minutes drawing the special
+  shapes.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse11.relations-and-functions`](../../tier-cbse-11-class-11/02-relations-and-functions/index.qmd)
+  — a matrix is a function on a finite index set.
+
+### What this unlocks
+
+- [`cbse12.matrix-operations`](../03b-matrix-operations/index.qmd) —
+  add, subtract, multiply, transpose.
+- [`cbse12.determinants`](../04a-determinants/index.qmd) — the scalar
+  attached to a square matrix.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 3 — Matrices** (NCERT 2023 rationalised).
+  Sections 3.1–3.2.
+- **Sister synthesis lesson:**
+  [`t5.matrices`](../../tier-5-undergrad-core/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI/ML.** Every neural-network weight is stored as a matrix. A linear
+layer is a matrix-vector multiplication. The "shape" question — does
+this matrix multiply with that — is the most common bug to debug.
+:::
+
+::: {.applied-callout}
+**Game development.** Every 3D engine stores camera and object
+transforms as $4 \times 4$ matrices. The order matters; getting rows
+and columns confused is the classic GPU bug.
+:::
+
+::: {.applied-callout}
+**Research.** Adjacency matrices encode graphs; covariance matrices
+encode statistics; transition matrices encode Markov chains — wherever
+data has rows-and-columns structure, a matrix appears.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown (the "matrix as data layout"), Bhāskara
+  (verse), AoPS (graded practice).
+:::

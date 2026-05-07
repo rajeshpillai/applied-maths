@@ -1,0 +1,444 @@
+---
+title: "Ch 10 — Heron's Formula"
+subtitle: "Area of a triangle from the three sides alone"
+lesson-id: "cbse9.herons-formula"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 10
+ncert-chapter-title: "Heron's Formula"
+board-exam: false
+prerequisites: ["t1.area-perimeter-volume", "cbse9.triangles", "cbse8.squares-and-square-roots"]
+unlocks: ["cbse9.surface-areas-and-volumes", "cbse10.areas-related-to-circles"]
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 35
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute the area of a rectangle and a right triangle?
+   *(If no, revisit
+   [t1.area-perimeter-volume](../../tier-1-foundations/13-area-perimeter-volume/index.qmd).)*
+2. Can you simplify $\sqrt{144}$ and $\sqrt{72} = 6\sqrt{2}$? *(If no,
+   revisit
+   [cbse8.squares-and-square-roots](../../tier-cbse-08-class-8/05-squares-and-square-roots/index.qmd).)*
+3. Can you check the triangle inequality (each pair of sides sums to
+   more than the third)? *(If no, revisit
+   [cbse9.triangles](../07-triangles/index.qmd).)*
+
+Three yes? Read on.
+:::
+
+## Touch
+
+Take a piece of grid paper. Cut out a triangle with sides exactly $3$,
+$4$, $5$ (count the squares carefully). The angle between the two
+shorter sides is a right angle. Use the basic formula:
+$$\text{Area} = \tfrac{1}{2} \cdot \text{base} \cdot \text{height} =
+\tfrac{1}{2} \cdot 3 \cdot 4 = 6.$$
+
+Now cut a triangle with sides $5, 5, 6$. There is no right angle — but
+you still expect it to have an area. How can you find it without
+measuring the height?
+
+```{ojs}
+viewof aSide = Inputs.range([3, 12], {value: 5, step: 1, label: "side a"})
+```
+
+```{ojs}
+viewof bSide = Inputs.range([3, 12], {value: 5, step: 1, label: "side b"})
+```
+
+```{ojs}
+viewof cSide = Inputs.range([3, 12], {value: 6, step: 1, label: "side c"})
+```
+
+```{ojs}
+{
+  const a = aSide, b = bSide, c = cSide;
+  const valid = (a + b > c) && (a + c > b) && (b + c > a);
+  if (!valid) return html`<div style="color:#a30; font-family: monospace;">${a}, ${b}, ${c}: triangle inequality fails.</div>`;
+  const s = (a + b + c) / 2;
+  const A = Math.sqrt(s*(s-a)*(s-b)*(s-c));
+  return html`<div style="font-family: monospace; font-size: 1rem; padding: 0.4rem 0;">
+    sides: ${a}, ${b}, ${c} — semi-perimeter s = ${s}<br/>
+    area = √(s(s−a)(s−b)(s−c)) = √(${s}·${s-a}·${s-b}·${s-c}) ≈ ${A.toFixed(4)}
+  </div>`;
+}
+```
+
+Drag the sliders. Whenever the three sides actually make a triangle, you
+get a single positive area — without ever drawing or measuring an
+altitude.
+
+## Wonder
+
+1. The area of a $3, 4, 5$ triangle is $6$. Why does the formula in the
+   widget agree? Plug in: $s = 6$, then $\sqrt{6 \cdot 3 \cdot 2 \cdot 1}$.
+2. If you fix the three sides, can the triangle have *more than one*
+   area? Could you reshape it?
+3. The formula has a peculiar shape: a square root, four factors. Why
+   *four* — what would the formula look like for a quadrilateral?
+4. The formula was attributed to Heron of Alexandria around 60 CE. Why
+   is it strange that this idea waited until then to be discovered?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q1 is your first sanity check. Q2 is the deep one — three sides
+**uniquely** determine a triangle (SSS), so its area is also forced.
+:::
+
+## Discover
+
+### Problem 1 (Sanity check)
+
+Verify Heron's formula for the right triangle with sides $3, 4, 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $s = (3+4+5)/2 = 6$. Then $s - a, s - b, s - c$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$s = 6$. $s - 3 = 3, s - 4 = 2, s - 5 = 1$. Area $=
+\sqrt{6 \cdot 3 \cdot 2 \cdot 1} = \sqrt{36} = 6$. Matches the
+$\tfrac{1}{2} \cdot 3 \cdot 4 = 6$ from the basic formula. ✓
+</details>
+
+### Problem 2 (Equilateral)
+
+Verify Heron's formula for the equilateral triangle with side $a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$s = 3a/2$. Each $s - $ side $= a/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$s = \tfrac{3a}{2}$, $s - a = \tfrac{a}{2}$. Area $=
+\sqrt{\tfrac{3a}{2} \cdot \tfrac{a}{2} \cdot \tfrac{a}{2} \cdot \tfrac{a}{2}}
+= \sqrt{\tfrac{3 a^4}{16}} = \tfrac{a^2 \sqrt{3}}{4}$. This is the
+familiar formula for an equilateral triangle's area.
+</details>
+
+### Problem 3 (Isosceles)
+
+Find the area of a triangle with sides $5, 5, 6$ using Heron's formula.
+
+<details class="hint"><summary>Full solution</summary>
+$s = 8$. $s - 5 = 3, s - 5 = 3, s - 6 = 2$. Area $=
+\sqrt{8 \cdot 3 \cdot 3 \cdot 2} = \sqrt{144} = 12$ square units.
+</details>
+
+### Problem 4 (Heron's idea)
+
+Compute Heron's formula for a triangle with sides $7, 8, 9$. Then
+compute the height onto the side of length $9$ using
+$\text{Area} = \tfrac{1}{2} \cdot \text{base} \cdot \text{height}$. Are
+the two consistent?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$s = 12$. Compute Heron's area first; then equate to $\tfrac{1}{2}
+\cdot 9 \cdot h$ to find $h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$s = 12$. Area $= \sqrt{12 \cdot 5 \cdot 4 \cdot 3} = \sqrt{720} = 12
+\sqrt{5}$. Setting $\tfrac{1}{2} \cdot 9 \cdot h = 12 \sqrt{5}$ gives
+$h = \tfrac{24 \sqrt{5}}{9} = \tfrac{8 \sqrt{5}}{3}$. Numerically
+$\approx 5.96$. Both formulae deliver the same area; Heron's just skips
+the height step.
+</details>
+
+### Problem 5 (Quadrilateral by triangulation)
+
+A quadrilateral $ABCD$ has sides $AB = 4$, $BC = 5$, $CD = 6$, $DA = 7$,
+and one diagonal $AC = 5$. Find the area by splitting into two triangles
+and using Heron's formula on each.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle ABC$ has sides $4, 5, 5$. $\triangle ACD$ has sides $5, 6, 7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ABC$: $s = 7$, area $= \sqrt{7 \cdot 3 \cdot 2 \cdot 2} =
+\sqrt{84} = 2\sqrt{21} \approx 9.165$.
+$\triangle ACD$: $s = 9$, area $= \sqrt{9 \cdot 4 \cdot 3 \cdot 2} =
+\sqrt{216} = 6\sqrt{6} \approx 14.697$.
+Total area $\approx 23.86$ square units.
+</details>
+
+You discovered: Heron's formula always works once the three sides obey
+the triangle inequality; it agrees with $\tfrac{1}{2} bh$ but doesn't
+need the height; quadrilaterals reduce to two triangles when one
+diagonal is known.
+
+## Name
+
+::: {.lesson-beat}
+
+**Heron's formula.** A triangle with sides $a, b, c$ has area
+$$\text{Area} = \sqrt{s(s-a)(s-b)(s-c)},$$
+where $s = \tfrac{a + b + c}{2}$ is the **semi-perimeter**.
+
+The formula uses *only the three sides*. No height, no angle.
+
+For an equilateral triangle of side $a$, this reduces to
+$\dfrac{a^2 \sqrt{3}}{4}$.
+
+For a quadrilateral, split along a diagonal whose length is known and
+add the two triangle areas.
+
+:::
+
+A short verse:
+
+> *Add the sides; halve them — call it $s$.*
+> *Subtract each side from $s$; multiply all four by $s$.*
+> *The square root of that product is the area.*
+> *No height, no angle — only sides.*
+
+## Apply
+
+### Worked example
+
+> Find the area of a triangular field with sides $13$ m, $14$ m,
+> $15$ m. (This is a famous Heronian triangle — try to spot why.)
+
+A competent solver:
+
+1. $s = \dfrac{13 + 14 + 15}{2} = 21$.
+2. $s - 13 = 8, \quad s - 14 = 7, \quad s - 15 = 6$.
+3. Area $= \sqrt{21 \cdot 8 \cdot 7 \cdot 6} = \sqrt{7056} = 84$ m$^2$.
+
+**Answer:** $84$ m$^2$. (The triangle is *Heronian* — integer sides and
+integer area. Discovered by Heron in his *Metrica*.)
+
+### Practice — Warm
+
+**W1.** Find the area of a triangle with sides $6, 8, 10$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Notice $6^2 + 8^2 = 100 = 10^2$ — right triangle! Two ways to compute.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By Heron: $s = 12$, area $= \sqrt{12 \cdot 6 \cdot 4 \cdot 2} =
+\sqrt{576} = 24$. Or by base-height: $\tfrac{1}{2} \cdot 6 \cdot 8 = 24$.
+Both agree. **24 sq.units.**
+</details>
+
+**W2.** Find the area of an equilateral triangle with side $10$ cm.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{10^2 \sqrt{3}}{4} = 25 \sqrt{3} \approx 43.3$ sq.cm.
+</details>
+
+**W3.** A triangle has sides $9, 12, 15$. Compute the semi-perimeter and
+state without computing whether the area is an integer.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$9^2 + 12^2 = 225 = 15^2$ — right triangle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$s = 18$. Area = $\tfrac{1}{2} \cdot 9 \cdot 12 = 54$ — integer.
+</details>
+
+### Practice — Working
+
+**P1.** A triangular plot has sides $50, 65, 65$ metres. Find its area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Isosceles: $s = 90$. Then $s - 50 = 40, s - 65 = 25$ (twice).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Area $= \sqrt{90 \cdot 40 \cdot 25 \cdot 25} = 25 \cdot \sqrt{3600} =
+25 \cdot 60 = 1500$ m$^2$.
+</details>
+
+**P2.** A quadrilateral garden has $AB = 3, BC = 4, CD = 4, DA = 5$ m
+and the diagonal $AC = 5$ m. Find its area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle ABC$ has sides $3, 4, 5$. $\triangle ACD$ has sides $5, 4, 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ABC$: right triangle, area $= \tfrac{1}{2} \cdot 3 \cdot 4 = 6$.
+$\triangle ACD$: $s = 7$, area $= \sqrt{7 \cdot 2 \cdot 3 \cdot 2} =
+\sqrt{84} = 2\sqrt{21} \approx 9.17$. Total $\approx 15.17$ m$^2$.
+</details>
+
+**P3.** The perimeter of a triangle is $30$ cm; its sides are in the
+ratio $3 : 4 : 5$. Find the area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let sides be $3k, 4k, 5k$. Sum = $12k = 30 \Rightarrow k = 2.5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sides: $7.5, 10, 12.5$. Right triangle (the ratios are Pythagorean).
+Area = $\tfrac{1}{2} \cdot 7.5 \cdot 10 = 37.5$ sq.cm. (Check by
+Heron: $s = 15$, $\sqrt{15 \cdot 7.5 \cdot 5 \cdot 2.5} =
+\sqrt{1406.25} = 37.5$ ✓.)
+</details>
+
+### Practice — Stretch
+
+**S1.** A triangle has perimeter $48$ cm and sides in the ratio
+$3 : 4 : 5$. A second triangle has perimeter $48$ cm and is equilateral.
+Which has the larger area?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First: same as P3 scaled. Second: equilateral with side $16$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First: sides $12, 16, 20$. Right triangle. Area $= \tfrac{1}{2} \cdot 12
+\cdot 16 = 96$ sq.cm.
+Second: $\tfrac{16^2 \sqrt{3}}{4} = 64 \sqrt{3} \approx 110.85$ sq.cm.
+**The equilateral wins.** (For fixed perimeter, equilateral maximises
+the area — the *isoperimetric* bound for triangles.)
+</details>
+
+**S2.** A field is in the shape of a quadrilateral $ABCD$ with
+$AB = 30, BC = 40, CD = 35, DA = 25$ m. The diagonal $AC = 50$ m. Find
+the area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two triangles. $\triangle ABC$ has $30, 40, 50$ — Pythagorean.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ABC$: right triangle, area $= \tfrac{1}{2} \cdot 30 \cdot 40
+= 600$ m$^2$.
+$\triangle ACD$: sides $50, 35, 25$. $s = 55$. Area $=
+\sqrt{55 \cdot 5 \cdot 20 \cdot 30} = \sqrt{165000} \approx 406.2$ m$^2$.
+Total $\approx 1006.2$ m$^2$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The semi-perimeter of a triangle with sides $5,
+6, 7$ is:
+(a) $9$ (b) $18$ (c) $9.5$ (d) $7$.
+
+<details class="hint"><summary>Full solution</summary>
+$(5 + 6 + 7)/2 = 9$. **(a).**
+</details>
+
+**2-mark (short answer).** Find the area of a triangle whose sides are
+$26, 28, 30$ cm.
+
+<details class="hint"><summary>Full solution</summary>
+$s = 42$. Area $= \sqrt{42 \cdot 16 \cdot 14 \cdot 12} =
+\sqrt{112896} = 336$ sq.cm.
+</details>
+
+**3-mark (short answer II).** The sides of a triangular plot are in
+ratio $3 : 5 : 7$ and its perimeter is $300$ m. Find its area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$3k + 5k + 7k = 300 \Rightarrow k = 20$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sides: $60, 100, 140$. $s = 150$. Area $= \sqrt{150 \cdot 90 \cdot 50
+\cdot 10} = \sqrt{6750000} = 1500\sqrt{3}$ m$^2 \approx 2598.1$ m$^2$.
+</details>
+
+**4-mark (long answer).** A field is in the form of a triangle with
+sides $50$ m, $80$ m, and $90$ m. Find the area of the field, and the
+length of the perpendicular dropped from the vertex opposite to the
+side of $90$ m.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use Heron for the area; then equate to $\tfrac{1}{2} \cdot 90 \cdot h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$s = 110$. Area $= \sqrt{110 \cdot 60 \cdot 30 \cdot 20} =
+\sqrt{3960000} = 600\sqrt{11}$ m$^2 \approx 1989.97$ m$^2$.
+For the height: $\tfrac{1}{2} \cdot 90 \cdot h = 600\sqrt{11}
+\Rightarrow h = \tfrac{40\sqrt{11}}{3} \approx 44.22$ m.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 10, Problem 10.3
+(Heron's on a quadrilateral by triangulation, similar to P2).
+**Previous-year pointer:** CBSE Class 9 sample paper "find area of a
+plot with sides $a, b, c$" (similar to 4-mark above).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Heron's formula needs an angle or a height."** No — only the
+   three sides. That is the whole point.
+2. **"Three lengths always make a triangle."** Only if each pair sums
+   to more than the third. If $a + b \le c$, the formula gives zero or
+   complex; you should reject as "not a triangle".
+3. **"For a quadrilateral, you can plug all four sides into the
+   formula."** No — Heron's formula is for triangles only. For a
+   quadrilateral, split into two triangles along a diagonal and use the
+   formula on each.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state Heron's formula and apply it to fresh sides cold?
+2. Did you solve W1–P3 with at most one hint each?
+3. Could you split a quadrilateral into two triangles and find its area
+   without prompting?
+
+- **3 yes:** move on to **Surface Areas and Volumes**.
+- **2 yes:** redo S1 and S2.
+- **0–1 yes:** re-read *Discover* 3 and 5.
+
+## Connect
+
+### Prerequisites used
+
+- [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)
+  — basic area meaning.
+- [`cbse9.triangles`](../07-triangles/index.qmd) — three sides
+  (uniquely) determine a triangle.
+- [`cbse8.squares-and-square-roots`](../../tier-cbse-08-class-8/05-squares-and-square-roots/index.qmd)
+  — simplifying $\sqrt{n}$.
+
+### What this unlocks
+
+- [`cbse9.surface-areas-and-volumes`](../11-surface-areas-and-volumes/index.qmd)
+  — flat-face area sums for prisms.
+- [`cbse10.areas-related-to-circles`](../../tier-cbse-10-class-10/12-areas-related-to-circles/index.qmd)
+  — sector & segment areas of circles, and combined figures.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 10 — Heron's Formula** (NCERT 2023 rationalised
+  syllabus). Covers Section 10.1: the formula and its applications.
+- **Sister synthesis lesson** — the synthesis curriculum treats area at
+  a more general level via
+  [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd).
+  Heron's formula proper is unique to this NCERT chapter.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Triangle meshes are the universal data structure
+for 3D graphics. Computing the area of each triangle (for lighting
+weights, collision masses, level-of-detail decisions) is done by Heron's
+formula or its 3D vector-cross-product equivalent — the latter is
+literally Heron's formula in disguise.
+:::
+
+::: {.applied-callout}
+**Research / surveying.** Heron's formula is how surveyors estimated
+land area from rope-and-stake measurements for two thousand years before
+GPS. Modern GIS still triangulates terrain ("triangulated irregular
+network") and sums Heron areas to compute parcel sizes from satellite
+imagery.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Pestalozzi (cut-out triangle Touch),
+  Bhāskara (one-verse compactification), AoPS (Heronian triangles like
+  $13, 14, 15$ as a recurring motif).
+:::

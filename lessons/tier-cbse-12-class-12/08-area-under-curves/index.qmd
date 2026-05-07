@@ -1,0 +1,374 @@
+---
+title: "Ch 8 — Application of Integrals (Areas)"
+subtitle: "Area between curves: cleanly set up, cleanly evaluated"
+lesson-id: "cbse12.area-under-curves"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 8
+ncert-chapter-title: "Application of Integrals"
+board-exam: true
+prerequisites: ["cbse12.definite-integrals-properties"]
+unlocks: ["cbse12.differential-equations"]
+applied-domains: ["research", "game-dev", "ai-ml"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute a definite integral of a polynomial?
+2. Comfortable sketching $y = x^2, y = \sqrt{x}, y = \sin x$?
+3. Have you done [Ch 7c](../07c-definite-integrals-properties/index.qmd)?
+:::
+
+## Touch
+
+The region under $y = x$ from $x = 0$ to $x = 4$ is a triangle. Area
+$= \frac{1}{2}\cdot 4\cdot 4 = 8$.
+
+::: {.lesson-beat}
+
+Calculus gives the same: $\int_0^4 x \, dx = [x^2/2]_0^4 = 8$.
+
+Now consider the region between $y = x$ and $y = x^2$ from $x = 0$ to
+$x = 1$. Sketch it: $y = x^2$ is below $y = x$ on $[0, 1]$. The "strip"
+at column $x$ has height $x - x^2$.
+
+Area $= \int_0^1 (x - x^2) \, dx = [x^2/2 - x^3/3]_0^1 = 1/2 - 1/3 =
+1/6$.
+
+:::
+
+The recipe is:
+1. Sketch.
+2. Identify which curve is upper, which is lower.
+3. Find the limits where they meet.
+4. Integrate $(\text{upper} - \text{lower})$.
+
+## Wonder
+
+1. What if the curves cross more than once on the interval?
+2. What if the upper curve is on the left and the lower on the right —
+   could you integrate w.r.t. $y$ instead?
+3. Does $\int_a^b f(x) dx$ ever give a *negative* "area"?
+
+## Discover
+
+### Problem 1
+
+Find the area under $y = x^2$ from $x = 0$ to $x = 3$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^3 x^2 dx = 9$.
+</details>
+
+### Problem 2
+
+Find the area under $y = \sin x$ from $x = 0$ to $x = \pi$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_0^\pi \sin x dx = [-\cos x]_0^\pi = 2$.
+</details>
+
+### Problem 3
+
+Find the area between $y = x$ and $y = x^3$ from $x = 0$ to $x = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+On $[0, 1]$, which is bigger: $x$ or $x^3$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x \ge x^3$ on $[0,1]$. Area $= \int_0^1 (x - x^3) dx = 1/2 - 1/4 =
+1/4$.
+</details>
+
+### Problem 4
+
+Find the area enclosed by $y^2 = 4x$ and $x = 4$ (parabola and vertical
+line).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Easier to integrate w.r.t. $y$. $x = y^2/4$. Range of $y$ at $x = 4$:
+$y^2 = 16 \Rightarrow y = \pm 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Area $= \int_{-4}^4 (4 - y^2/4) dy = 2\int_0^4 (4 - y^2/4) dy = 2[4y -
+y^3/12]_0^4 = 2(16 - 64/12) = 2(16 - 16/3) = 64/3$.
+</details>
+
+### Problem 5
+
+Find the area of the region bounded by $y = x^2$ and $y = x$.
+
+<details class="hint"><summary>Full solution</summary>
+Intersect: $x^2 = x \Rightarrow x = 0, 1$. On $[0,1]$, $x \ge x^2$.
+Area $= \int_0^1 (x - x^2) dx = 1/6$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Area under $y = f(x)$, $f \ge 0$, on $[a, b]$:**
+$$A = \int_a^b f(x) \, dx.$$
+
+**Area between $y = f(x)$ and $y = g(x)$, with $f \ge g$ on $[a, b]$:**
+$$A = \int_a^b [f(x) - g(x)] \, dx.$$
+
+If the curves cross at $c$ inside $[a, b]$, split and use absolute
+values:
+$$A = \int_a^c |f - g| \, dx + \int_c^b |f - g| \, dx.$$
+
+**Integration w.r.t. $y$:** when curves are functions of $y$, write $x
+= F(y)$ and integrate over $[c, d]$.
+
+:::
+
+A verse:
+
+> *Sketch first — the picture decides the answer;*
+> *Upper minus lower across the interval — that's the dancer.*
+> *Cross-over? Split and take absolute values, lest the signs deceive;*
+> *Integrate $y$ when the curves prefer to be solved that way — believe.*
+
+## Apply
+
+### Worked example
+
+> Find the area of the region bounded by $y^2 = x$ and $y = x$.
+
+A competent solver:
+
+1. Intersect: $y = x$ and $y^2 = x$. Substitute: $y^2 = y \Rightarrow
+   y = 0, 1$. Points: $(0, 0), (1, 1)$.
+2. On $[0, 1]$ the parabola $y = \sqrt x$ lies above the line $y = x$
+   (check $x = 1/4$: $\sqrt{1/4} = 1/2 > 1/4$ ✓).
+3. Area $= \int_0^1 (\sqrt x - x) dx = [2x^{3/2}/3 - x^2/2]_0^1 = 2/3 -
+   1/2 = 1/6$.
+
+### Practice — Warm
+
+**W1.** Area under $y = 4 - x^2$ from $x = -2$ to $x = 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_{-2}^2 (4 - x^2) dx = 2\int_0^2 (4 - x^2) dx = 2[4x - x^3/3]_0^2
+= 2(8 - 8/3) = 32/3$.
+</details>
+
+**W2.** Area enclosed by $y = x^2$ and $y = 4$.
+
+<details class="hint"><summary>Full solution</summary>
+Intersect: $x^2 = 4 \Rightarrow x = \pm 2$. Area $= \int_{-2}^2 (4 -
+x^2) dx = 32/3$ (from W1).
+</details>
+
+**W3.** Area under $y = e^x$ from $x = 0$ to $x = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$[e^x]_0^1 = e - 1$.
+</details>
+
+### Practice — Working
+
+**P1.** Area enclosed by $y^2 = 8x$ and $y = 2x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve for intersections.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Substitute $y = 2x$ into $y^2 = 8x$: $4x^2 = 8x \Rightarrow x = 0, 2$.
+Points $(0, 0), (2, 4)$.
+On $[0, 2]$, parabola above line: $\sqrt{8x} \ge 2x$ for $0 \le x \le
+2$. Area $= \int_0^2 (\sqrt{8x} - 2x) dx = \int_0^2 (2\sqrt 2 \sqrt x -
+2x) dx = 2\sqrt 2 \cdot \frac{2}{3} x^{3/2} \Big|_0^2 - x^2 \Big|_0^2 =
+2\sqrt 2 \cdot \frac{2}{3} \cdot 2\sqrt 2 - 4 = \frac{16}{3} - 4 =
+\frac{4}{3}$.
+</details>
+
+**P2.** Area of the region bounded by $y = |x|$ and $y = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$y = |x|$ is a V; $y = 1$ a horizontal line.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The region is a triangle with vertices $(-1, 1), (1, 1), (0, 0)$. Area
+$= \frac{1}{2} \cdot 2 \cdot 1 = 1$. By calculus: $\int_{-1}^1 (1 -
+|x|) dx = 2 \int_0^1 (1 - x) dx = 1$. ✓
+</details>
+
+**P3.** Area enclosed by $x = 1, x = 4, y = 0, y = \sqrt x$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_1^4 \sqrt x \, dx = [2x^{3/2}/3]_1^4 = (16 - 2)/3 = 14/3$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Find the area enclosed by the ellipse $x^2/9 + y^2/4 = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve for $y$: $y = \pm \frac{2}{3}\sqrt{9 - x^2}$. Use the
+quarter-area formula with $x = 3\sin\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Area $= 4 \int_0^3 \frac{2}{3}\sqrt{9 - x^2}\, dx = \frac{8}{3} \cdot
+\frac{1}{4}\pi(3)^2 = \frac{8}{3} \cdot \frac{9\pi}{4} = 6\pi$.
+**Total area = $\pi a b = \pi \cdot 3 \cdot 2 = 6\pi$.** ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** Area under $y = \cos x$ from $0$ to $\pi/2$ is (a) 0
+(b) 1 (c) $\pi/2$ (d) 2.
+
+<details class="hint"><summary>Full solution</summary>
+$[\sin x]_0^{\pi/2} = 1$. **(b).**
+</details>
+
+**1-mark MCQ #2.** Area enclosed by $y^2 = x$ and $x = 1$ is (a) 2/3
+(b) 4/3 (c) 1 (d) 1/2.
+
+<details class="hint"><summary>Full solution</summary>
+$2 \int_0^1 \sqrt x \, dx = 2 \cdot 2/3 = 4/3$. **(b).**
+</details>
+
+**2-mark.** Area under $y = x^2 + 1$ from $-1$ to $1$.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_{-1}^1 (x^2 + 1) dx = 2 \int_0^1 (x^2 + 1) dx = 2(1/3 + 1) = 8/3$.
+</details>
+
+**2-mark.** Area of the circle $x^2 + y^2 = 16$.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi r^2 = 16\pi$. (Or compute $4 \int_0^4 \sqrt{16 - x^2} dx = 4 \cdot
+4\pi = 16\pi$.)
+</details>
+
+**3-mark.** Area enclosed by $y = x^2$ and $y = 2x$.
+
+<details class="hint"><summary>Full solution</summary>
+Intersect: $x^2 = 2x \Rightarrow x = 0, 2$. On $[0, 2]$, $2x \ge x^2$.
+Area $= \int_0^2 (2x - x^2) dx = [x^2 - x^3/3]_0^2 = 4 - 8/3 = 4/3$.
+</details>
+
+**3-mark.** Area enclosed by $y = \sin x$, $y = \cos x$, between $x = 0$
+and $x = \pi/2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Curves meet at $x = \pi/4$. Split.
+</details>
+<details class="hint"><summary>Full solution</summary>
+On $[0, \pi/4]$: $\cos x \ge \sin x$. On $[\pi/4, \pi/2]$: $\sin x \ge
+\cos x$.
+$A = \int_0^{\pi/4} (\cos - \sin) dx + \int_{\pi/4}^{\pi/2} (\sin -
+\cos) dx$.
+$= [\sin + \cos]_0^{\pi/4} + [-\cos - \sin]_{\pi/4}^{\pi/2}$
+$= (\sqrt 2 - 1) + (-1 - (-\sqrt 2))$
+$= \sqrt 2 - 1 + \sqrt 2 - 1 = 2\sqrt 2 - 2$.
+</details>
+
+**5-mark long answer.** Find the area enclosed by $y = x^2 + 2$, $y =
+x$, $x = 0$, $x = 3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Check sign: for $x \in [0, 3]$, $x^2 + 2 \ge x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 2 - x \ge 0$ for all real $x$ (discriminant negative). So
+$A = \int_0^3 (x^2 + 2 - x) dx = [x^3/3 + 2x - x^2/2]_0^3 = 9 + 6 - 4.5
+= 10.5$ sq units.
+</details>
+
+**6-mark Case Study.** *A garden of two grass varieties.*
+
+A landlord has a region bounded by $y = \sqrt x$ (variety A) and $y = x
+/2$ (variety B), for $x \in [0, 4]$.
+
+(i) Sketch the two curves and find their intersection. (2 marks)
+(ii) Find the area where A grows above B. (3 marks)
+(iii) If A costs ₹50 / sq.m and B costs ₹30 / sq.m, what is the cost
+saved if A's area is replaced with B? (1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\sqrt x = x/2 \Rightarrow x = x^2/4 \Rightarrow x(x - 4) = 0
+\Rightarrow x = 0, 4$.
+**(ii)** On $[0, 4]$: $\sqrt x \ge x/2$ (check $x = 1$: $1 \ge 0.5$ ✓).
+$A = \int_0^4 (\sqrt x - x/2) dx = [2x^{3/2}/3 - x^2/4]_0^4 = 16/3 - 4
+= 4/3$ sq m.
+**(iii)** Saving $= (50 - 30) \cdot 4/3 = 80/3 \approx ₹26.67$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 8.1, 8.2.
+**Previous-year pointer:** CBSE 2023 Set 1 Q32 (5-mark area between
+curves); CBSE 2022 Q33.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\int_a^b f \, dx$ always gives positive area."** Only when $f
+   \ge 0$ on $[a, b]$. Otherwise it's signed area.
+2. **"Forgetting to find intersection points."** The integration
+   limits *are* the intersections — skip them and you integrate over
+   the wrong interval.
+3. **"Sketching is optional."** It is not. Without a sketch, you cannot
+   know which curve is upper.
+:::
+
+### Self-Assessment
+
+1. Could you set up an area problem with a sketch in 5 minutes?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you choose between integrating w.r.t. $x$ vs. $y$ smoothly?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark problem with a fresh sketch.
+- **0–1 yes:** sketch each Working problem from scratch.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.definite-integrals-properties`](../07c-definite-integrals-properties/index.qmd)
+  — FTC and properties.
+
+### What this unlocks
+
+- [`cbse12.differential-equations`](../09-differential-equations/index.qmd)
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 8** (NCERT 2023). Sections 8.1–8.2.
+- **Sister synthesis lessons:**
+  [`t4.integration-applications`](../../tier-4-precalc-calculus/11-integration-applications/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Pixel-shading and texture mapping integrate
+contributions over a region; collision-detection algorithms compute
+the area of intersection of two shapes.
+:::
+
+::: {.applied-callout}
+**Research / engineering.** Cumulative distribution functions are
+areas; consumer surplus in economics is the area between demand and
+price curves.
+:::
+
+::: {.applied-callout}
+**AI/ML.** ROC-AUC is the area under the ROC curve — a definite
+integral over [0, 1].
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained ("integral as accumulated area"),
+  Bhāskara (verse), AoPS (sketch-then-integrate).
+:::

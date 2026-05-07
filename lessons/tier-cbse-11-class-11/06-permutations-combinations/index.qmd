@@ -1,0 +1,466 @@
+---
+title: "Ch 6 — Permutations and Combinations"
+subtitle: "Counting cleverly: when order matters, when it doesn't, and when n is too big to list"
+lesson-id: "cbse11.permutations-combinations"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 6
+ncert-chapter-title: "Permutations and Combinations"
+board-exam: false
+prerequisites: ["cbse11.sets", "t1.divide-fair-share"]
+unlocks: ["cbse11.binomial-theorem", "cbse11.probability"]
+applied-domains: ["encryption", "ai-ml", "databases", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you compute $5 \times 4 \times 3 \times 2 \times 1$ without a
+   calculator?
+2. Do you remember the symbol $n!$ and what it means?
+3. Are you fluent with the difference between **arrangement** and
+   **selection** in everyday language?
+4. Can you list all 2-letter "words" from $\{A, B, C\}$ where order
+   matters?
+
+Three confident yeses — read on.
+:::
+
+## Touch
+
+Take a coin and a die. Toss the coin (H or T), then roll the die (1 to
+6). How many possible outcomes? Lay them out in a 2-by-6 grid:
+
+| | 1 | 2 | 3 | 4 | 5 | 6 |
+|:--|:--|:--|:--|:--|:--|:--|
+| H | H1 | H2 | H3 | H4 | H5 | H6 |
+| T | T1 | T2 | T3 | T4 | T5 | T6 |
+
+12 cells. Two choices for the coin times six for the die.
+
+This is the **multiplication principle**. Now play with the widget:
+choose $r$ things in sequence from a pool of $n$.
+
+```{ojs}
+viewof n = Inputs.range([3, 8], {value: 5, step: 1, label: "n (size of pool)"})
+```
+```{ojs}
+viewof r = Inputs.range([1, 5], {value: 3, step: 1, label: "r (how many to pick)"})
+```
+
+```{ojs}
+{
+  if (r > n) return html`<div>Need r ≤ n.</div>`;
+  let perm = 1, comb = 1;
+  for (let i = 0; i < r; i++) perm *= (n - i);
+  for (let i = 1; i <= r; i++) comb = comb * (n - i + 1) / i;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>Pool size n = ${n}</b>; <b>pick r = ${r}</b>.</div>
+    <div><b>Permutations</b> (order matters): nPr = <b>${perm}</b></div>
+    <div><b>Combinations</b> (order doesn't): nCr = <b>${comb}</b></div>
+    <div style="margin-top:0.4em;color:#666;">
+      Notice nCr × r! = nPr always. Each combination has r! orderings.
+    </div>
+  </div>`;
+}
+```
+
+Move the sliders. The relationship $n!\,/\,((n-r)!\,r!) = \binom{n}{r}$ is
+the most useful formula in counting.
+
+## Wonder
+
+Sit with these.
+
+1. From $\{A, B, C\}$, how many *ordered* pairs are there (no repeat)?
+   How many *unordered*?
+2. Does "1st place gold, 2nd place silver" count differently from "1st
+   place silver, 2nd place gold"? What about "the panel of 3 winners"?
+3. In how many ways can $4$ children sit in a row of $4$ seats? In a
+   *circle* of $4$ seats?
+4. From a $26$-letter alphabet, how many $5$-letter words can be formed
+   (a) with repeats allowed, (b) without?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) is the central question: **does the order matter?** If yes —
+permutation. If no — combination. (3) hints at *circular* permutations,
+where one rotation gets quietly removed.
+:::
+
+## Discover
+
+### Problem 1 — Multiplication principle
+
+A menu has 3 starters, 4 mains, 2 desserts. How many different 3-course
+meals?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Choose starter, then main, then dessert. Multiply.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 \times 4 \times 2 = 24$ meals.
+</details>
+
+### Problem 2 — Factorial
+
+How many ways can 5 people stand in a row?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First seat: 5 choices. Second: 4. Third: 3. Fourth: 2. Fifth: 1.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5 \times 4 \times 3 \times 2 \times 1 = 5! = 120$ ways.
+</details>
+
+### Problem 3 — Permutations of r from n
+
+How many ways can a president, vice-president, and secretary be chosen
+from a club of $10$? (No person holds two offices.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Order matters (the offices are different).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$10 \times 9 \times 8 = 720$. This is ${}^{10}P_3 = 10!/(10-3)! = 10!/7!$.
+</details>
+
+### Problem 4 — Combinations
+
+In how many ways can a 3-person committee be chosen from a club of
+$10$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Order does not matter — Alice-Bob-Carl is the same committee as
+Carl-Bob-Alice.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each committee corresponds to $3! = 6$ ordered selections, so:
+
+$\dfrac{{}^{10}P_3}{3!} = \dfrac{720}{6} = 120 = {}^{10}C_3 = \binom{10}{3}$.
+</details>
+
+### Problem 5 — Repeated letters
+
+How many different "words" can be formed from the letters of *MISSISSIPPI*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total letters: 11. But many repeat: I (4 times), S (4 times), P (2),
+M (1). Divide by the factorials of the repeats.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{11!}{4! \cdot 4! \cdot 2! \cdot 1!} = \dfrac{39916800}{1152} =
+34650$.
+</details>
+
+### Problem 6 — Picking with restrictions
+
+A committee of $5$ is to be formed from $6$ men and $4$ women, with at
+least $2$ women. How many committees?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cases: 2 women + 3 men, 3 women + 2 men, 4 women + 1 man.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{4}{2}\binom{6}{3} + \binom{4}{3}\binom{6}{2} + \binom{4}{4}\binom{6}{1}$
+$= 6 \cdot 20 + 4 \cdot 15 + 1 \cdot 6 = 120 + 60 + 6 = 186$.
+</details>
+
+### Problem 7 — Circular arrangement
+
+In how many ways can $5$ people sit around a circular table?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Linear arrangements: $5!$. But every rotation of a circular arrangement
+is the *same* arrangement. There are $5$ rotations per arrangement.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{5!}{5} = 4! = 24$. In general, $n$ objects around a circle
+arrange in $(n-1)!$ ways.
+</details>
+
+You have just used the **multiplication principle**, **factorial
+notation**, **permutations**, **combinations**, and the **division
+trick** for repetitions and circular arrangements. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**Factorial.** $n! = n \times (n-1) \times \cdots \times 2 \times 1$,
+with $0! = 1$.
+
+**Multiplication principle.** If task A has $m$ outcomes and task B has
+$n$ outcomes, the joint task has $mn$ outcomes.
+
+**Permutations** (order matters):
+$$ P(n, r) = {}^nP_r = \dfrac{n!}{(n-r)!} = n(n-1)\cdots(n-r+1). $$
+
+Special cases:
+
+- All $n$ items: $n!$.
+- Around a **circle** of $n$ seats: $(n-1)!$.
+- With repeats $n_1, n_2, \ldots, n_k$ identical:
+  $\dfrac{n!}{n_1! n_2! \cdots n_k!}$.
+
+**Combinations** (order does not matter):
+$$ C(n, r) = {}^nC_r = \binom{n}{r} = \dfrac{n!}{r!\,(n-r)!}. $$
+
+**Key identities:**
+$$ \binom{n}{r} = \binom{n}{n-r}, \quad \binom{n}{r} + \binom{n}{r-1} = \binom{n+1}{r}. $$
+
+:::
+
+A short verse:
+
+> *Order in line — that is permutation;*
+> *Order ignored — that is selection.*
+> *Multiply choices, divide by the swaps —*
+> *And the count of arrangements rises and stops.*
+
+## Apply
+
+### Worked example
+
+> How many different $4$-digit numbers, with no digit repeated, can be
+> formed from $\{1, 2, 3, 4, 5, 6, 7\}$? Among these, how many are even?
+
+How a competent solver thinks:
+
+1. Total: choose $4$ from $7$ in order. ${}^7P_4 = 7 \cdot 6 \cdot 5 \cdot 4 = 840$.
+2. Even: last digit must be $2, 4$, or $6$. So 3 choices for the last digit.
+3. The remaining 3 digits go to the first 3 positions, picked from the
+   remaining 6 digits in order: ${}^6P_3 = 6 \cdot 5 \cdot 4 = 120$.
+4. Total even: $3 \times 120 = 360$.
+
+**Answers:** $840$ total, $360$ even.
+
+### Practice — Warm
+
+**W1.** Compute $\binom{8}{3}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{8!}{3!\,5!} = \dfrac{8 \cdot 7 \cdot 6}{3 \cdot 2 \cdot 1} = 56$.
+</details>
+
+**W2.** How many ways can the letters of *DELHI* be arranged?
+
+<details class="hint"><summary>Full solution</summary>
+All distinct, so $5! = 120$.
+</details>
+
+**W3.** In how many ways can a captain and a vice-captain be chosen
+from a team of $11$?
+
+<details class="hint"><summary>Full solution</summary>
+Order matters. ${}^{11}P_2 = 11 \times 10 = 110$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the number of arrangements of the letters of *INDEPENDENCE*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Count letters: I-1, N-3, D-2, E-4, P-1, C-1. Total 12.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{12!}{1! \cdot 3! \cdot 2! \cdot 4! \cdot 1! \cdot 1!} =
+\dfrac{479001600}{6 \cdot 2 \cdot 24} = \dfrac{479001600}{288} =
+1663200$.
+</details>
+
+**P2.** From a deck of 52 cards, in how many ways can $5$ cards be
+drawn so that all $5$ are spades?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+13 spades; pick 5 unordered.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\binom{13}{5} = 1287$.
+</details>
+
+**P3.** In how many ways can $10$ children form a circle?
+
+<details class="hint"><summary>Full solution</summary>
+$(10-1)! = 9! = 362880$.
+</details>
+
+### Practice — Stretch
+
+**S1.** How many $4$-letter words can be formed from the letters of
+*EQUATION* such that two are vowels and two are consonants?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Vowels in *EQUATION*: E, U, A, I, O — 5 vowels. Consonants: Q, T, N — 3.
+Pick 2 vowels, 2 consonants, then arrange.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Pick 2 vowels: $\binom{5}{2} = 10$. Pick 2 consonants: $\binom{3}{2} = 3$.
+
+Arrange the 4 chosen letters: $4! = 24$.
+
+Total: $10 \times 3 \times 24 = 720$ words.
+</details>
+
+**S2.** Find the number of ways of arranging $7$ men and $5$ women in a
+row such that no two women are adjacent.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First arrange the men. Then place the women in the gaps between (and at
+the ends of) the men.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Men in a row: $7!$ ways.
+
+The men create $8$ gaps (before, between, after). Choose $5$ of these
+gaps for the women, in order: ${}^8P_5 = 8 \cdot 7 \cdot 6 \cdot 5 \cdot 4 = 6720$.
+
+Total: $7! \times 6720 = 5040 \times 6720 = 33{,}868{,}800$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $\binom{n}{r} = \binom{n}{n-r}$ for all valid
+$n, r$. The value of $\binom{15}{12}$ equals
+(a) $\binom{15}{3}$ (b) $\binom{15}{4}$ (c) $\binom{15}{12}$ only
+(d) $\binom{12}{3}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\binom{15}{12} = \binom{15}{3}$. **Answer: (a).**
+</details>
+
+**2-mark (short answer).** How many different $4$-digit numbers can be
+formed from the digits $\{1, 2, 3, 4, 5\}$ if (i) repetitions are
+allowed, (ii) repetitions are not allowed?
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $5^4 = 625$.
+**(ii)** ${}^5P_4 = 5 \cdot 4 \cdot 3 \cdot 2 = 120$.
+</details>
+
+**3-mark (short answer II).** In how many ways can $11$ players be
+chosen from $15$ players if (i) a particular player is always
+included, (ii) a particular player is never included?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+(i) That player takes a slot. Pick the remaining 10 from the other 14.
+(ii) Remove that player. Pick 11 from 14.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\binom{14}{10} = \binom{14}{4} = 1001$.
+
+**(ii)** $\binom{14}{11} = \binom{14}{3} = 364$.
+</details>
+
+**5-mark (long answer).** A committee of $7$ is to be formed from $9$
+boys and $4$ girls. In how many ways can this be done if (i) exactly
+$3$ girls, (ii) at least $3$ girls, (iii) at most $3$ girls?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For each part, decompose by the number of girls.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\binom{4}{3}\binom{9}{4} = 4 \times 126 = 504$.
+
+**(ii)** Cases: 3 girls + 4 boys, 4 girls + 3 boys.
+$\binom{4}{3}\binom{9}{4} + \binom{4}{4}\binom{9}{3} = 504 + 84 = 588$.
+
+**(iii)** Cases: 0, 1, 2, or 3 girls.
+$\binom{4}{0}\binom{9}{7} + \binom{4}{1}\binom{9}{6} +
+\binom{4}{2}\binom{9}{5} + \binom{4}{3}\binom{9}{4}$
+$= 36 + 4 \cdot 84 + 6 \cdot 126 + 4 \cdot 126 = 36 + 336 + 756 + 504 = 1632$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 6 LA "committee with at least
+$k$ girls" matches the 5-mark item.
+**JEE pointer:** the gap method (Stretch S2) appears almost verbatim
+in JEE Main.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Combinations and permutations are the same."** They are not. The
+   acid test is: would *swapping the order* give a different outcome?
+   Yes → permutation; no → combination.
+2. **"All arrangements of MISSISSIPPI are $11!$."** No — repeated letters
+   produce identical words. Always divide by $n_1! n_2! \cdots$ for the
+   repeats.
+3. **"Circular arrangements of $n$ are $n!$."** No — they are $(n-1)!$,
+   because rotations of the same arrangement should be counted once.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you decide "permutation or combination?" for any new word
+   problem within $10$ seconds?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you handle restrictions ("at least 2 women", "two adjacent"),
+   case-splitting, and the gap method?
+
+- **3 yes:** move on to **[Binomial Theorem](../07-binomial-theorem/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** re-do *Discover*. Counting fluency is built by repetition,
+  not insight.
+
+## Connect
+
+### Prerequisites used
+
+- **[Sets](../01-sets/index.qmd)** — committees and arrangements are
+  subsets and ordered tuples.
+- **[Divide & Fair Share](../../tier-1-foundations/divide-fair-share/index.qmd)** —
+  the seed of multiplication-principle counting.
+
+### What this unlocks
+
+- **[Binomial Theorem](../07-binomial-theorem/index.qmd)** —
+  $\binom{n}{r}$ are exactly its coefficients.
+- **[Probability](../14-probability/index.qmd)** — counting favourable
+  outcomes is the engine of probability.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 6 — Permutations and Combinations** (NCERT 2023
+  rationalised). Sections 6.1–6.4: fundamental principle, factorial,
+  permutations and combinations, applications.
+- **Sister synthesis lesson:**
+  [`t3.combinatorics-counting`](../../tier-3-algebra2-geometry-trig/combinatorics-counting/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** A symmetric key of length $128$ bits has $2^{128}$
+possible values. The strength of every cipher rests on counting how
+many keys an attacker must try.
+:::
+
+::: {.applied-callout}
+**Databases / AI.** Indexing and joining tables involve counting
+combinations of rows. Cardinality estimation — predicting how many rows
+a query will produce — is built on combinatorial identities.
+:::
+
+::: {.applied-callout}
+**Research.** Combinatorics is a subject in its own right. The
+**Catalan numbers** $C_n = \dfrac{1}{n+1}\binom{2n}{n}$ count, for
+example, the number of valid bracket sequences of length $2n$.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: NRICH (low-floor word problems escalating to subtle gap
+arrangements), Russian school (Discover problems force the
+*permutation vs combination* distinction), Bhāskara (verse mnemonic).
+:::

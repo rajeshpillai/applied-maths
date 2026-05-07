@@ -1,0 +1,462 @@
+---
+title: "Ch 14 — Probability (Axiomatic Approach)"
+subtitle: "From sample spaces and events to Kolmogorov's three axioms"
+lesson-id: "cbse11.probability"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 14
+ncert-chapter-title: "Probability"
+board-exam: false
+prerequisites: ["cbse10.probability", "cbse11.sets"]
+unlocks: ["cbse12.probability"]
+applied-domains: ["ai-ml", "encryption", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you state the Class 10 definition $P(E) = \dfrac{\text{favourable}}{\text{total}}$?
+2. Are you fluent with set operations $\cup, \cap, '$ from
+   **[Sets](../01-sets/index.qmd)**?
+3. Can you list the sample space when two coins are tossed?
+4. Are you comfortable with the word "event" meaning "a subset of the
+   sample space"?
+
+Three confident yeses — read on.
+:::
+
+## Touch
+
+Toss two coins. The possible outcomes are:
+
+$$ S = \{HH,\ HT,\ TH,\ TT\}. $$
+
+This is the **sample space**. Now consider:
+
+- $A$ = "first coin is heads" $= \{HH, HT\}$.
+- $B$ = "exactly one head" $= \{HT, TH\}$.
+
+Each is a *subset* of $S$ — that's an **event**. The probability of an
+event is the fraction of outcomes it contains, **assuming each outcome
+is equally likely**.
+
+Use the widget to enumerate sample spaces for various dice and coin
+combinations.
+
+```{ojs}
+viewof exper = Inputs.select(
+  ["coin", "two coins", "die", "two dice (sum)", "card draw"],
+  {label: "Experiment"}
+)
+```
+
+```{ojs}
+{
+  let s, n;
+  if (exper === "coin") { s = "H, T"; n = 2; }
+  else if (exper === "two coins") { s = "HH, HT, TH, TT"; n = 4; }
+  else if (exper === "die") { s = "1, 2, 3, 4, 5, 6"; n = 6; }
+  else if (exper === "two dice (sum)") {
+    s = "2, 3, ..., 12 (with multiplicity); 36 ordered pairs"; n = 36;
+  }
+  else { s = "52 cards (13 ranks × 4 suits)"; n = 52; }
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>Experiment:</b> ${exper}</div>
+    <div><b>Sample space:</b> ${s}</div>
+    <div><b>|S| = ${n}</b> equally likely outcomes (assuming fairness).</div>
+  </div>`;
+}
+```
+
+Probability is just counting — but counting *very carefully*.
+
+## Wonder
+
+Sit with these.
+
+1. Toss two coins. Why is "exactly one head" *not* probability $1/3$,
+   even though there are three "kinds" of outcome (0H, 1H, 2H)?
+2. The probability of an event $A$ is between $0$ and $1$. What event
+   has probability $0$? Probability $1$?
+3. If $P(A) = 0.4$ and $P(B) = 0.5$ and $P(A \cap B) = 0.1$, what is
+   $P(A \cup B)$? Is it $0.9$? Or something else?
+4. The event "either $A$ or $B$" — is its probability the sum
+   $P(A) + P(B)$? When?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) is the eternal trap: outcomes must be *equally likely*. The four
+ordered pairs are equally likely; the three "kinds" are not. (4) is the
+**addition rule**: works as a sum *only* when $A$ and $B$ are disjoint.
+:::
+
+## Discover
+
+### Problem 1 — Sample space
+
+A die is rolled twice. Write the sample space.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$36$ ordered pairs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S = \{(i, j) : 1 \le i, j \le 6\}$, $|S| = 36$.
+</details>
+
+### Problem 2 — Probability of an event
+
+Find the probability that the sum is $7$ when a die is rolled twice.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pairs summing to $7$: $(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$6$ favourable out of $36$. $P = 6/36 = 1/6$.
+</details>
+
+### Problem 3 — Complement
+
+If $P(A) = 3/8$, find $P(A')$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(A') = 1 - P(A) = 5/8$.
+</details>
+
+### Problem 4 — Addition rule
+
+If $P(A) = 0.4$, $P(B) = 0.5$, $P(A \cap B) = 0.1$, find $P(A \cup B)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(A \cup B) = P(A) + P(B) - P(A \cap B)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(A \cup B) = 0.4 + 0.5 - 0.1 = 0.8$.
+</details>
+
+### Problem 5 — Mutually exclusive
+
+A bag has 5 red, 3 blue, 4 green balls. One ball is drawn. Find the
+probability it is red **or** blue.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Red" and "blue" are mutually exclusive: $P(R \cup B) = P(R) + P(B)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(R) = 5/12$, $P(B) = 3/12$. $P(R \cup B) = 8/12 = 2/3$.
+</details>
+
+### Problem 6 — Card problem
+
+A card is drawn from a standard $52$-card deck. Find the probability
+the card is a heart **or** a king.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$13$ hearts, $4$ kings, $1$ king of hearts (in the overlap).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(H) + P(K) - P(H \cap K) = 13/52 + 4/52 - 1/52 = 16/52 = 4/13$.
+</details>
+
+### Problem 7 — Three coins
+
+Three coins are tossed. Find the probability of getting at least two
+heads.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|S| = 8$. Outcomes with $\ge 2$ heads: pick which $2$ are H, plus all
+$3$ H.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At least two heads: $\binom{3}{2} + \binom{3}{3} = 3 + 1 = 4$ outcomes
+out of $8$. $P = 4/8 = 1/2$.
+</details>
+
+You have just used **sample spaces**, **events as subsets**, the
+**probability function**, the **complement rule**, the **addition rule**,
+**mutually exclusive events**, and **counting via combinations**. Now we
+name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**Sample space** $S$: the set of all outcomes of the experiment.
+
+**Event** $E$: a subset $E \subseteq S$.
+
+**Equally-likely outcomes:** if all $|S|$ outcomes are equally likely,
+then for any event $E$,
+$$ P(E) = \dfrac{|E|}{|S|}. $$
+
+**Kolmogorov's axioms** (for any sample space):
+
+1. $P(E) \ge 0$ for every event $E$.
+2. $P(S) = 1$.
+3. If $E_1, E_2$ are mutually exclusive ($E_1 \cap E_2 = \varnothing$):
+   $P(E_1 \cup E_2) = P(E_1) + P(E_2)$.
+
+**Consequences:**
+
+- $P(\varnothing) = 0$.
+- $P(E') = 1 - P(E)$.
+- $0 \le P(E) \le 1$.
+- **Addition rule (general):** $P(A \cup B) = P(A) + P(B) - P(A \cap B)$.
+
+**Three-event addition:**
+$$P(A \cup B \cup C) = P(A) + P(B) + P(C) - P(A \cap B) - P(A \cap C) - P(B \cap C) + P(A \cap B \cap C).$$
+
+:::
+
+A short verse:
+
+> *Outcomes equally likely — count and divide;*
+> *Add when disjoint, subtract overlap aside.*
+> *Complement adds to one;*
+> *And every probability lies between zero and one.*
+
+## Apply
+
+### Worked example
+
+> A bag contains $4$ red and $6$ black balls. Two are drawn at random
+> *without replacement*. Find the probability that both are red.
+
+How a competent solver thinks:
+
+1. Total ways to draw $2$ balls: $\binom{10}{2} = 45$.
+2. Ways to draw $2$ red: $\binom{4}{2} = 6$.
+3. $P = 6/45 = 2/15$.
+
+### Practice — Warm
+
+**W1.** A die is rolled. Probability of an even number?
+
+<details class="hint"><summary>Full solution</summary>
+$3/6 = 1/2$.
+</details>
+
+**W2.** Two coins tossed. Probability of two tails?
+
+<details class="hint"><summary>Full solution</summary>
+$1/4$.
+</details>
+
+**W3.** A card drawn. Probability of a face card (J, Q, K)?
+
+<details class="hint"><summary>Full solution</summary>
+$12/52 = 3/13$.
+</details>
+
+### Practice — Working
+
+**P1.** A bag contains $5$ red and $3$ blue balls. Two are drawn at
+random. Find the probability that they are of different colours.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total ways: $\binom{8}{2} = 28$. Different colours: pick 1 red and 1 blue.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Different colours: $5 \times 3 = 15$. $P = 15/28$.
+</details>
+
+**P2.** Three letters are randomly placed in three envelopes (each
+envelope has its own correct letter). What is the probability that
+none of the letters is in its correct envelope?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The number of permutations with no fixed point is the **derangement**
+number. For 3 letters, this equals 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Total permutations: $3! = 6$. Derangements: $2$ (the cycles
+$1 \to 2 \to 3 \to 1$ and $1 \to 3 \to 2 \to 1$).
+
+$P = 2/6 = 1/3$.
+</details>
+
+**P3.** From a group of $7$ men and $5$ women, a committee of $4$ is
+chosen. Find the probability that the committee has exactly $2$ women.
+
+<details class="hint"><summary>Full solution</summary>
+Total ways: $\binom{12}{4} = 495$. Favourable: $\binom{5}{2}\binom{7}{2} = 10 \times 21 = 210$.
+
+$P = 210/495 = 14/33$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Two dice are rolled. Find the probability that the sum is a
+prime number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Possible sums: $2$ to $12$. Primes among them: $2, 3, 5, 7, 11$.
+Count outcomes for each.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sum $2$: $1$ way. Sum $3$: $2$. Sum $5$: $4$. Sum $7$: $6$. Sum $11$: $2$.
+
+Total: $1 + 2 + 4 + 6 + 2 = 15$.
+
+$P = 15/36 = 5/12$.
+</details>
+
+**S2.** A class has $25$ students. Find the probability that at least
+two have the same birthday (assume $365$ equally likely days, no leap
+years). State the answer to two decimals.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the complement: $P(\text{all different}) = \dfrac{365}{365} \cdot \dfrac{364}{365} \cdots \dfrac{341}{365}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{all different}) = \prod_{k=0}^{24} \dfrac{365 - k}{365} \approx 0.4313$.
+
+$P(\text{some match}) \approx 1 - 0.4313 = 0.5687 \approx 0.57$.
+
+This is the famous **birthday paradox** — over $50$% chance with just
+$23$ people.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** If $P(A) = 0.4$ and $P(B) = 0.3$ and $A, B$ are
+mutually exclusive, then $P(A \cup B)$ equals
+(a) $0.12$ (b) $0.58$ (c) $0.7$ (d) $1.0$.
+
+<details class="hint"><summary>Full solution</summary>
+Mutually exclusive $\Rightarrow A \cap B = \varnothing \Rightarrow
+P(A \cup B) = P(A) + P(B) = 0.4 + 0.3 = 0.7$. **Answer: (c).**
+</details>
+
+**2-mark (short answer).** Two unbiased dice are rolled. Find the
+probability of getting a doublet (same number on both).
+
+<details class="hint"><summary>Full solution</summary>
+Doublets: $(1,1), (2,2), \ldots, (6,6)$ — $6$ outcomes. $P = 6/36 = 1/6$.
+</details>
+
+**3-mark (short answer II).** From a deck of $52$ cards, a card is drawn
+at random. Find the probability that it is (i) an ace, (ii) a face card,
+(iii) a red card or a king.
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $4/52 = 1/13$.
+
+**(ii)** $12/52 = 3/13$.
+
+**(iii)** Red cards: $26$. Kings: $4$. Red kings (in overlap): $2$.
+$P = (26 + 4 - 2)/52 = 28/52 = 7/13$.
+</details>
+
+**5-mark (long answer).** A box contains $4$ defective and $6$
+non-defective items. Three items are drawn at random *without
+replacement*.
+
+(i) Find the probability that all three are non-defective.
+(ii) Find the probability that exactly two are defective.
+(iii) Find the probability that at least one is defective.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total: $\binom{10}{3} = 120$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\binom{6}{3}/\binom{10}{3} = 20/120 = 1/6$.
+
+**(ii)** $\binom{4}{2}\binom{6}{1}/\binom{10}{3} = 6 \times 6/120 = 36/120 = 3/10$.
+
+**(iii)** Complement of "all non-defective": $1 - 1/6 = 5/6$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 14 LA "card-drawing combined
+events" matches the 5-mark item.
+**JEE pointer:** the birthday paradox (Stretch S2) is JEE Advanced
+adjacent — practice the complement-then-product technique.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"All outcomes are equally likely."** Sample-space outcomes must be
+   defined so they *are* equally likely. "Three kinds of outcome"
+   (0 heads, 1 head, 2 heads) is *not* equally likely; the four ordered
+   pairs $HH, HT, TH, TT$ are.
+2. **"$P(A \cup B) = P(A) + P(B)$ always."** Only when $A \cap B =
+   \varnothing$. In general, subtract the overlap.
+3. **"Probabilities can be greater than $1$."** They cannot. If your
+   formula gives $> 1$, either the events aren't disjoint (and you
+   need to subtract) or the question is malformed.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you list the sample space for "draw $2$ cards from a deck"
+   and count the outcomes for "both red"?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you decide when to use the addition rule vs the complement vs
+   the multiplication of independent events?
+
+- **3 yes:** you have completed Class 11 — congratulations!
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** drill the addition rule on five fresh two-event problems.
+
+## Connect
+
+### Prerequisites used
+
+- **[Class 10 — Probability](../../tier-cbse-10-class-10/14-probability/index.qmd)** —
+  the favourable/total ratio for equally likely outcomes.
+- **[Sets](../01-sets/index.qmd)** — events are subsets; operations
+  $\cup, \cap, '$ are the heart of probability algebra.
+
+### What this unlocks
+
+- **[Class 12 — Probability](../../tier-cbse-12-class-12/13a-conditional-probability-bayes/index.qmd)** —
+  conditional probability, Bayes' theorem, random variables, binomial
+  and normal distributions.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 14 — Probability** (NCERT 2023 rationalised).
+  Sections 14.1–14.4: random experiments, events, axiomatic
+  probability, addition rule.
+- **Sister synthesis lessons:**
+  [`t3.basic-probability`](../../tier-3-algebra2-geometry-trig/basic-probability/index.qmd) and
+  [`t3.conditional-probability`](../../tier-3-algebra2-geometry-trig/conditional-probability/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every machine learning model encodes probabilities —
+class-conditional likelihoods, posterior beliefs, attention weights.
+Classifiers output $P(\text{class} \mid \text{features})$.
+:::
+
+::: {.applied-callout}
+**Encryption.** A cipher is "secure" if the probability of guessing
+the plaintext from the ciphertext is essentially $1/|\text{key space}|$.
+Cryptanalysis is probability theory weaponised.
+:::
+
+::: {.applied-callout}
+**Research.** Statistical hypothesis testing rejects null hypotheses
+when the observed event has $P < 0.05$. The whole machinery of
+$p$-values starts from the axioms you've just learned.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: NRICH (the birthday paradox), Russian school (Discover
+problems force the addition rule before it is named), Bhāskara (verse
+on disjoint vs overlapping events), Better Explained ("counting very
+carefully" framing).
+:::

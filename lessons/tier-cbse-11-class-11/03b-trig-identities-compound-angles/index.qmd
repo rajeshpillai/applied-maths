@@ -1,0 +1,468 @@
+---
+title: "Ch 3b — Compound, Multiple & Sub-Multiple Angle Identities"
+subtitle: "What sin(A+B) actually equals, and the chain of identities that fall out of it"
+lesson-id: "cbse11.trig-identities-compound-angles"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 3
+ncert-chapter-title: "Trigonometric Functions"
+board-exam: false
+prerequisites: ["cbse11.trig-functions"]
+unlocks: ["cbse11.trig-equations", "cbse11.complex-numbers"]
+applied-domains: ["research", "game-dev"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you state the unit-circle definition: $(\cos\theta, \sin\theta)$
+   is a point on the unit circle?
+2. Do you have the special-angle table for $\pi/6, \pi/4, \pi/3$ in
+   your head?
+3. Can you write $\sin^2\theta + \cos^2\theta = 1$ without thinking?
+4. Are you comfortable with $\sin(-\theta) = -\sin\theta$ and
+   $\cos(-\theta) = \cos\theta$?
+
+Three confident yeses — read on. Otherwise, return to
+**[Trigonometric Functions](../03a-trig-functions/index.qmd)**.
+:::
+
+## Touch
+
+Take two protractors (or two paper triangles you cut to size). Hold one
+horizontal — its angle is $A$. Stack the second on top, angle $B$, with
+its base aligned to the first one's hypotenuse. Together, the stack
+sweeps out an angle of $A + B$.
+
+Now ask: what is the **sine** of this combined angle? It is *not*
+$\sin A + \sin B$. The widget below shows the truth.
+
+```{ojs}
+viewof angA = Inputs.range([0, Math.PI / 2], {value: Math.PI / 6, step: 0.01, label: "A (rad)"})
+```
+```{ojs}
+viewof angB = Inputs.range([0, Math.PI / 2], {value: Math.PI / 4, step: 0.01, label: "B (rad)"})
+```
+
+```{ojs}
+{
+  const sA = Math.sin(angA), cA = Math.cos(angA);
+  const sB = Math.sin(angB), cB = Math.cos(angB);
+  const sumSin = Math.sin(angA + angB);
+  const naive = sA + sB;
+  const correct = sA * cB + cA * sB;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>sin(A + B)</b> (true value) = <b>${sumSin.toFixed(4)}</b></div>
+    <div><span style="color:#c00;">sin A + sin B (naive guess)</span> = ${naive.toFixed(4)}</div>
+    <div><span style="color:#080;">sin A · cos B + cos A · sin B</span> = ${correct.toFixed(4)}</div>
+    <div style="margin-top:0.5em;color:#444;">
+      The naive guess is wrong. The green formula always matches.
+    </div>
+  </div>`;
+}
+```
+
+Drag both sliders. The naive guess and the truth almost never agree.
+The green formula is what you must learn — it is the master key for
+this chapter.
+
+## Wonder
+
+Sit with these.
+
+1. If $\sin(A+B) \neq \sin A + \sin B$, what would change about
+   trigonometry if it *did*?
+2. From the formula for $\sin(A+B)$ alone, can you guess
+   $\sin(A-B)$? $\cos(A+B)$?
+3. What happens to $\sin(A+B)$ when $B = A$? Could that simplify
+   $\sin(2A)$?
+4. The angle $75°$ is not on your special table. But $75° = 45° + 30°$.
+   Could the formula give you the exact value of $\sin 75°$?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(3) is the seed of the **double-angle formulas**. (4) is the *whole
+point* of compound-angle identities — they triple the size of your
+special-angle table.
+:::
+
+## Discover
+
+### Problem 1 — Verify with numbers
+
+Let $A = 30°$, $B = 60°$. Compute $\sin(A+B)$ directly, and also
+compute $\sin A \cos B + \cos A \sin B$. Do they agree?
+
+<details class="hint"><summary>Full solution</summary>
+$A + B = 90°$, so $\sin(A+B) = 1$.
+
+$\sin 30° \cos 60° + \cos 30° \sin 60° = \tfrac{1}{2} \cdot \tfrac{1}{2}
++ \tfrac{\sqrt{3}}{2} \cdot \tfrac{\sqrt{3}}{2} = \tfrac{1}{4} +
+\tfrac{3}{4} = 1$. ✓
+</details>
+
+### Problem 2 — Sin(A − B)
+
+Replace $B$ by $-B$ in the formula. Use $\sin(-B) = -\sin B$ and
+$\cos(-B) = \cos B$ to derive $\sin(A - B)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin(A + (-B)) = \sin A \cos(-B) + \cos A \sin(-B)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin(A - B) = \sin A \cos B - \cos A \sin B$.
+</details>
+
+### Problem 3 — Cos(A + B)
+
+State (or derive) $\cos(A + B)$ and $\cos(A - B)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For cosine, the signs flip: cosine of *sum* gets a minus, cosine of
+*difference* gets a plus. ("CD plus, sum minus.")
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\cos(A + B) = \cos A \cos B - \sin A \sin B$.
+
+$\cos(A - B) = \cos A \cos B + \sin A \sin B$.
+</details>
+
+### Problem 4 — Exact value of sin 75°
+
+Use $75° = 45° + 30°$ to compute $\sin 75°$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sin 75° = \sin(45° + 30°) = \sin 45° \cos 30° + \cos 45° \sin 30°$
+$= \tfrac{\sqrt{2}}{2} \cdot \tfrac{\sqrt{3}}{2} + \tfrac{\sqrt{2}}{2}
+\cdot \tfrac{1}{2} = \tfrac{\sqrt{6} + \sqrt{2}}{4}$.
+
+The exact value of $\sin 15°$ is the same with a sign:
+$\tfrac{\sqrt{6} - \sqrt{2}}{4}$.
+</details>
+
+### Problem 5 — Double angle
+
+Set $B = A$ in $\sin(A + B)$ and $\cos(A + B)$. What identities pop out?
+
+<details class="hint"><summary>Full solution</summary>
+$\sin(2A) = 2\sin A \cos A$.
+
+$\cos(2A) = \cos^2 A - \sin^2 A$.
+
+Using $\sin^2 A + \cos^2 A = 1$, this last form has two siblings:
+$\cos(2A) = 1 - 2\sin^2 A = 2\cos^2 A - 1$.
+</details>
+
+### Problem 6 — Half angle
+
+Solve $\cos 2\theta = 1 - 2\sin^2\theta$ for $\sin^2\theta$. This gives
+the **half-angle formula** for sine.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$2\sin^2\theta = 1 - \cos 2\theta$, so $\sin^2\theta = (1 - \cos 2\theta)/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin^2\theta = \dfrac{1 - \cos 2\theta}{2}$.
+
+Replacing $\theta$ by $\theta/2$:
+$\sin^2(\theta/2) = \dfrac{1 - \cos\theta}{2}$.
+
+Similarly $\cos^2(\theta/2) = \dfrac{1 + \cos\theta}{2}$.
+</details>
+
+### Problem 7 — Sum to product
+
+Add $\sin(A+B) + \sin(A-B)$. What do you get?
+
+<details class="hint"><summary>Full solution</summary>
+$\sin(A+B) + \sin(A-B) = 2\sin A \cos B$.
+
+This rearranges to the **sum-to-product** formula: with $C = A+B$ and
+$D = A-B$, so $A = (C+D)/2$ and $B = (C-D)/2$:
+
+$$\sin C + \sin D = 2 \sin\frac{C+D}{2} \cos\frac{C-D}{2}.$$
+</details>
+
+You have just derived the **sum**, **difference**, **double-angle**,
+**half-angle**, and **sum-to-product** identities. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**Compound angle (must memorise):**
+$$\sin(A \pm B) = \sin A \cos B \pm \cos A \sin B$$
+$$\cos(A \pm B) = \cos A \cos B \mp \sin A \sin B$$
+$$\tan(A \pm B) = \frac{\tan A \pm \tan B}{1 \mp \tan A \tan B}$$
+
+**Double angle:**
+$$\sin 2A = 2 \sin A \cos A$$
+$$\cos 2A = \cos^2 A - \sin^2 A = 1 - 2\sin^2 A = 2\cos^2 A - 1$$
+$$\tan 2A = \frac{2\tan A}{1 - \tan^2 A}$$
+
+**Triple angle:**
+$$\sin 3A = 3\sin A - 4\sin^3 A, \quad \cos 3A = 4\cos^3 A - 3\cos A$$
+
+**Half angle:**
+$$\sin^2(\theta/2) = \tfrac{1-\cos\theta}{2}, \quad \cos^2(\theta/2) = \tfrac{1+\cos\theta}{2}$$
+
+**Sum to product:**
+$$\sin C + \sin D = 2 \sin\tfrac{C+D}{2}\cos\tfrac{C-D}{2}$$
+$$\sin C - \sin D = 2 \cos\tfrac{C+D}{2}\sin\tfrac{C-D}{2}$$
+$$\cos C + \cos D = 2 \cos\tfrac{C+D}{2}\cos\tfrac{C-D}{2}$$
+$$\cos C - \cos D = -2 \sin\tfrac{C+D}{2}\sin\tfrac{C-D}{2}$$
+
+:::
+
+A short verse:
+
+> *Sin of a sum is sin-cos plus cos-sin;*
+> *Cos of a sum has the minus locked in.*
+> *Double the angle: two sin cos go free;*
+> *Halve and a one minus cos lights the way.*
+
+## Apply
+
+### Worked example
+
+> Prove $\dfrac{\sin 3A + \sin A}{\cos 3A + \cos A} = \tan 2A$.
+
+How a competent solver thinks:
+
+1. Sum-to-product on top: $\sin 3A + \sin A = 2 \sin 2A \cos A$.
+2. Sum-to-product on bottom: $\cos 3A + \cos A = 2 \cos 2A \cos A$.
+3. Divide: $\dfrac{2 \sin 2A \cos A}{2 \cos 2A \cos A} = \dfrac{\sin 2A}{\cos 2A} = \tan 2A$. ✓
+
+### Practice — Warm
+
+**W1.** Find $\cos 15°$ exactly.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos 15° = \cos(45° - 30°) = \cos 45° \cos 30° + \sin 45° \sin 30°
+= \tfrac{\sqrt{2}}{2} \cdot \tfrac{\sqrt{3}}{2} + \tfrac{\sqrt{2}}{2}
+\cdot \tfrac{1}{2} = \tfrac{\sqrt{6} + \sqrt{2}}{4}$.
+</details>
+
+**W2.** If $\sin A = 3/5$ and $A$ is acute, find $\sin 2A$.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos A = 4/5$. $\sin 2A = 2 \cdot (3/5)(4/5) = 24/25$.
+</details>
+
+**W3.** Find $\tan 75°$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan 75° = \tan(45° + 30°) = \dfrac{1 + 1/\sqrt{3}}{1 - 1/\sqrt{3}} =
+\dfrac{\sqrt{3} + 1}{\sqrt{3} - 1} = 2 + \sqrt{3}$ (after rationalising).
+</details>
+
+### Practice — Working
+
+**P1.** Express $\cos^2 x - \sin^2 x$ as a single trig function.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos^2 x - \sin^2 x = \cos 2x$.
+</details>
+
+**P2.** If $\tan A = 1/2$ and $\tan B = 1/3$, find $\tan(A + B)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan(A+B) = \dfrac{1/2 + 1/3}{1 - (1/2)(1/3)} = \dfrac{5/6}{5/6} = 1$.
+
+So $A + B = \pi/4$ — a famous identity.
+</details>
+
+**P3.** Prove $\sin 3A = 3\sin A - 4\sin^3 A$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$3A = 2A + A$. Use $\sin(2A + A) = \sin 2A \cos A + \cos 2A \sin A$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin 3A = \sin 2A \cos A + \cos 2A \sin A = (2\sin A \cos A)\cos A +
+(1 - 2\sin^2 A)\sin A$
+$= 2\sin A \cos^2 A + \sin A - 2\sin^3 A$
+$= 2\sin A (1 - \sin^2 A) + \sin A - 2\sin^3 A$
+$= 3\sin A - 4\sin^3 A$. ✓
+</details>
+
+### Practice — Stretch
+
+**S1.** Prove $\sin A + \sin 3A + \sin 5A + \sin 7A = 4\cos A \cos 2A
+\sin 4A$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pair the terms cleverly: $(\sin A + \sin 7A) + (\sin 3A + \sin 5A)$,
+then sum-to-product each pair.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin A + \sin 7A = 2 \sin 4A \cos 3A$.
+
+$\sin 3A + \sin 5A = 2 \sin 4A \cos A$.
+
+Sum $= 2\sin 4A (\cos 3A + \cos A) = 2\sin 4A \cdot 2 \cos 2A \cos A
+= 4 \cos A \cos 2A \sin 4A$. ✓
+</details>
+
+**S2.** If $A + B + C = \pi$, prove
+$\sin 2A + \sin 2B + \sin 2C = 4 \sin A \sin B \sin C$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pair $\sin 2A + \sin 2B$ with sum-to-product, then use
+$A + B = \pi - C$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin 2A + \sin 2B = 2 \sin(A+B) \cos(A-B) = 2 \sin C \cos(A-B)$ (since
+$A+B = \pi - C$ and $\sin(\pi - C) = \sin C$).
+
+Adding $\sin 2C = 2\sin C \cos C$:
+
+LHS $= 2\sin C [\cos(A-B) + \cos C]$. But $\cos C = \cos(\pi - A - B) =
+-\cos(A+B)$, so
+
+$\cos(A-B) + \cos C = \cos(A-B) - \cos(A+B) = 2\sin A \sin B$.
+
+Therefore LHS $= 2\sin C \cdot 2\sin A \sin B = 4 \sin A \sin B \sin C$. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $\sin 2A$ equals
+(a) $2\sin A$ (b) $\sin A \cos A$ (c) $2\sin A \cos A$ (d) $\sin^2 A$.
+
+<details class="hint"><summary>Full solution</summary>
+**Answer: (c).**
+</details>
+
+**2-mark (short answer).** Find $\sin 105°$ in surd form.
+
+<details class="hint"><summary>Full solution</summary>
+$105° = 60° + 45°$. $\sin 105° = \sin 60° \cos 45° + \cos 60° \sin 45°
+= \tfrac{\sqrt{3}}{2} \cdot \tfrac{\sqrt{2}}{2} + \tfrac{1}{2} \cdot
+\tfrac{\sqrt{2}}{2} = \tfrac{\sqrt{6} + \sqrt{2}}{4}$.
+</details>
+
+**3-mark (short answer II).** Prove
+$\dfrac{\cos 9° - \sin 9°}{\cos 9° + \sin 9°} = \tan 36°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide top and bottom by $\cos 9°$, use $\tan 45° = 1$ and difference
+formula.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS $= \dfrac{1 - \tan 9°}{1 + \tan 9°} = \dfrac{\tan 45° - \tan 9°}
+{1 + \tan 45° \tan 9°} = \tan(45° - 9°) = \tan 36°$. ✓
+</details>
+
+**5-mark (long answer).** (i) Prove
+$\cos\dfrac{\pi}{5} \cos\dfrac{2\pi}{5} = \dfrac{1}{4}$.
+(ii) Hence find $\sin\dfrac{\pi}{10}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both sides by $4 \sin(\pi/5)$ and use $2\sin\theta\cos\theta =
+\sin 2\theta$ repeatedly.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $4\sin(\pi/5)\cos(\pi/5)\cos(2\pi/5) = 2\sin(2\pi/5)\cos(2\pi/5)
+= \sin(4\pi/5) = \sin(\pi/5)$.
+
+So $4\cos(\pi/5)\cos(2\pi/5) = 1$, giving $\cos(\pi/5)\cos(2\pi/5) = 1/4$. ✓
+
+**(ii)** $\cos(2\pi/5) = 1 - 2\sin^2(\pi/5)$, but also $\cos(\pi/5) =
+\sin(\pi/2 - \pi/5) = \sin(3\pi/10)$. Easier: use the identity
+$\sin 18° = \cos 72° = (\sqrt{5}-1)/4$, so
+
+$\sin(\pi/10) = \sin 18° = \dfrac{\sqrt{5} - 1}{4}$.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 3 LA on
+$\sin A + \sin 3A + \sin 5A + \sin 7A$ matches Stretch S1.
+**JEE pointer:** the chain of triangle identities ($A+B+C = \pi$,
+Stretch S2) is JEE Main standard.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\cos(A + B) = \cos A + \cos B$."** Never. The cosine of a sum
+   has *both* a cosine-cosine and a sine-sine term, with a minus sign
+   between them.
+2. **"Half-angle gives only one value."** No — half-angle formulas have
+   a $\pm$. The sign comes from which quadrant $\theta/2$ lies in. You
+   *must* check.
+3. **"$\tan(A+B) = \tan A + \tan B$."** No. The denominator
+   $1 - \tan A \tan B$ matters, and it can blow up to $\infty$ when
+   $A + B = \pi/2$.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you derive $\cos(A-B)$ from $\cos(A+B)$ in under 30 seconds?
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the
+   7 practice problems without peeking past Hint 1?
+3. Can you spot when a problem is begging for sum-to-product or
+   product-to-sum?
+
+- **3 yes:** move on to **[Trigonometric Equations](../03c-trig-equations/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** the identities have not landed yet — drill them by
+  re-deriving each from the unit circle. Identities feared in Class 11
+  are identities feared in Class 12 and JEE.
+
+## Connect
+
+### Prerequisites used
+
+- **[Trigonometric Functions](../03a-trig-functions/index.qmd)** — the
+  unit-circle definitions and the Pythagorean identity.
+
+### What this unlocks
+
+- **[Trigonometric Equations](../03c-trig-equations/index.qmd)** — solve
+  $\sin x = k$, $\cos 2x = \tfrac{1}{2}$, etc.
+- **[Complex Numbers](../04-complex-numbers/index.qmd)** — Euler's
+  formula and de Moivre's theorem make compound-angle identities trivial.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 3 — Trigonometric Functions** (NCERT 2023
+  rationalised). Section 3.4: trigonometric functions of sum and
+  difference of two angles, and the derived double-/triple-/half- and
+  sum-to-product formulas.
+- **Sister synthesis lesson:**
+  [`t3.trig-identities`](../../tier-3-algebra2-geometry-trig/trig-identities/index.qmd) —
+  proof-flavoured treatment.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Composing two rotations by angles $A$ and $B$ in
+2D produces a rotation by $A + B$. The *matrix* for that combined
+rotation is exactly the compound-angle formulas in disguise:
+$$\begin{pmatrix} \cos(A+B) & -\sin(A+B) \\ \sin(A+B) & \cos(A+B) \end{pmatrix}
+= \begin{pmatrix} \cos A & -\sin A \\ \sin A & \cos A \end{pmatrix}
+\begin{pmatrix} \cos B & -\sin B \\ \sin B & \cos B \end{pmatrix}.$$
+:::
+
+::: {.applied-callout}
+**Research.** Fourier analysis decomposes signals into sums of sines.
+The product-to-sum identities are exactly the rules for *modulation* in
+radio engineering — multiplying two sinusoids produces sidebands at
+$f_1 + f_2$ and $f_1 - f_2$. Every AM/FM radio is built on this.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: 3Blue1Brown (the rotation-matrix view of compound-angle
+identities), Russian school (Discover sequence derives every identity
+from one master formula), Bhāskara (verse mnemonic).
+:::

@@ -1,0 +1,439 @@
+---
+title: "Ch 8b — Series and Special Sums"
+subtitle: "Sums in closed form: Σn, Σn², Σn³, and the arithmetic-geometric mix"
+lesson-id: "cbse11.series-sums"
+tier: "cbse11"
+ncert-class: 11
+ncert-chapter: 8
+ncert-chapter-title: "Sequences and Series"
+board-exam: false
+prerequisites: ["cbse11.sequences-ap-gp"]
+unlocks: ["cbse11.limits", "cbse12.integrals"]
+applied-domains: ["research", "ai-ml"]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you write down the AP sum formula $S_n = \dfrac{n}{2}(2a + (n-1)d)$?
+2. Are you fluent with the GP sum $S_n = \dfrac{a(r^n - 1)}{r - 1}$?
+3. Are you comfortable with summation $\sum$ notation?
+4. Can you compute $1 + 2 + 3 + \cdots + 100$ in your head with a trick?
+
+Three confident yeses — read on.
+:::
+
+## Touch
+
+Pile up unit cubes into a square of side $n$. The number of cubes is
+$n^2$. Now stack: a $1 \times 1$ on top of $2 \times 2$ on top of $3 \times 3$
+on top of $\cdots$ on top of $n \times n$. The total cubes used is
+$1 + 4 + 9 + 16 + \cdots + n^2$.
+
+Is there a clean formula? Yes — and the widget below verifies it for
+each $n$.
+
+```{ojs}
+viewof Nss = Inputs.range([1, 20], {value: 5, step: 1, label: "n"})
+```
+
+```{ojs}
+{
+  const n = Nss;
+  let s1 = 0, s2 = 0, s3 = 0;
+  for (let k = 1; k <= n; k++) { s1 += k; s2 += k * k; s3 += k * k * k; }
+  const f1 = n * (n + 1) / 2;
+  const f2 = n * (n + 1) * (2 * n + 1) / 6;
+  const f3 = (n * (n + 1) / 2) ** 2;
+  return html`<div style="font-family:system-ui;line-height:1.7;">
+    <div><b>Σk</b> = 1 + 2 + ... + ${n} = <b>${s1}</b> &nbsp; (formula: n(n+1)/2 = ${f1})</div>
+    <div><b>Σk²</b> = 1² + 2² + ... + ${n}² = <b>${s2}</b> &nbsp; (formula: n(n+1)(2n+1)/6 = ${f2})</div>
+    <div><b>Σk³</b> = 1³ + 2³ + ... + ${n}³ = <b>${s3}</b> &nbsp; (formula: [n(n+1)/2]² = ${f3})</div>
+    <div style="margin-top:0.4em;color:#666;">
+      Notice: Σk³ = (Σk)². The cubes' sum is the square of the linear sum.
+    </div>
+  </div>`;
+}
+```
+
+Three formulas; each is the closed form for one of the special sums of
+this lesson.
+
+## Wonder
+
+Sit with these.
+
+1. The sum $\sum k$ has a $n^2$-flavoured answer. The sum $\sum k^2$ has
+   a $n^3$-flavoured answer. What pattern do you predict for $\sum k^4$?
+2. The sequence $1 \cdot 2, 2 \cdot 3, 3 \cdot 4, 4 \cdot 5, \ldots$ —
+   what is its $k$-th term, and how would you sum it?
+3. The series $1 + 2x + 3x^2 + 4x^3 + \cdots$ — neither AP nor GP, but a
+   *blend*. Does it sum to something clean for $|x| < 1$?
+4. Why does $\sum k^3 = (\sum k)^2$? Is that a coincidence?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) is the seed of summing $\sum k(k+1) = \sum (k^2 + k)$ by
+linearity. (3) is the **arithmetic-geometric series** — the headline
+of this lesson.
+:::
+
+## Discover
+
+### Problem 1 — Sum of first n natural numbers
+
+Compute $1 + 2 + 3 + \cdots + 100$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pair: $(1 + 100), (2 + 99), \ldots$ — Gauss's trick.
+</details>
+<details class="hint"><summary>Full solution</summary>
+50 pairs, each summing to $101$: $50 \times 101 = 5050$. Equivalently,
+$\dfrac{n(n+1)}{2} = \dfrac{100 \cdot 101}{2} = 5050$.
+</details>
+
+### Problem 2 — Sum of squares
+
+Compute $1^2 + 2^2 + 3^2 + \cdots + 10^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\dfrac{n(n+1)(2n+1)}{6}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{10 \cdot 11 \cdot 21}{6} = \dfrac{2310}{6} = 385$.
+</details>
+
+### Problem 3 — Sum of cubes
+
+Verify $1^3 + 2^3 + 3^3 + 4^3 = (1 + 2 + 3 + 4)^2$.
+
+<details class="hint"><summary>Full solution</summary>
+LHS: $1 + 8 + 27 + 64 = 100$. RHS: $10^2 = 100$. ✓
+
+In general $\sum_{k=1}^{n} k^3 = \left(\dfrac{n(n+1)}{2}\right)^2$.
+</details>
+
+### Problem 4 — Linearity
+
+Compute $\sum_{k=1}^{20} (3k^2 + 2k - 5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Split: $3 \sum k^2 + 2 \sum k - 5 \sum 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 \cdot \dfrac{20 \cdot 21 \cdot 41}{6} + 2 \cdot \dfrac{20 \cdot 21}{2} - 5 \cdot 20$
+$= 3 \cdot 2870 + 420 - 100 = 8610 + 420 - 100 = 8930$.
+</details>
+
+### Problem 5 — Sum of k(k+1)
+
+Compute $\sum_{k=1}^{n} k(k+1)$ in closed form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$k(k+1) = k^2 + k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum k^2 + \sum k = \dfrac{n(n+1)(2n+1)}{6} + \dfrac{n(n+1)}{2}
+= \dfrac{n(n+1)}{6}\left[(2n+1) + 3\right] = \dfrac{n(n+1)(2n+4)}{6} =
+\dfrac{n(n+1)(n+2)}{3}$.
+</details>
+
+### Problem 6 — Arithmetic-geometric series
+
+Find $S = 1 + 2x + 3x^2 + 4x^3 + \cdots$ for $|x| < 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply by $x$, subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S = 1 + 2x + 3x^2 + 4x^3 + \cdots$
+
+$xS = \quad x + 2x^2 + 3x^3 + \cdots$
+
+Subtract: $S - xS = 1 + x + x^2 + x^3 + \cdots = \dfrac{1}{1 - x}$.
+
+So $S(1 - x) = \dfrac{1}{1 - x}$, giving $S = \dfrac{1}{(1 - x)^2}$.
+</details>
+
+You have just used the **three special sums** ($\sum k, \sum k^2,
+\sum k^3$), **linearity** of summation, and the **multiply-and-subtract**
+trick for arithmetic-geometric (AGP) series. Now we name them.
+
+## Name
+
+::: {.lesson-beat}
+
+**The three special sums:**
+$$ \sum_{k=1}^{n} k = \dfrac{n(n+1)}{2} $$
+$$ \sum_{k=1}^{n} k^2 = \dfrac{n(n+1)(2n+1)}{6} $$
+$$ \sum_{k=1}^{n} k^3 = \left(\dfrac{n(n+1)}{2}\right)^2 $$
+
+**Linearity:** $\sum (a u_k + b v_k) = a \sum u_k + b \sum v_k$.
+
+**Arithmetic-Geometric Progression (AGP).** Term: $T_k = (a + (k-1)d) r^{k-1}$.
+Sum to $n$ terms (multiply-and-subtract method):
+$$ S_n = \dfrac{a - (a + (n-1)d) r^n}{1 - r} + \dfrac{d r (1 - r^{n-1})}{(1 - r)^2}. $$
+
+For $|r| < 1$, sum to infinity:
+$$ S_\infty = \dfrac{a}{1 - r} + \dfrac{d r}{(1 - r)^2}. $$
+
+(In practice: derive the formula on the spot by multiplying by $r$ and
+subtracting. That's the Class-11 standard method.)
+
+:::
+
+A short verse:
+
+> *Sum the first $n$ — the $n^2$ pattern shows;*
+> *Sum the squares — a cubic surprise grows.*
+> *Sum the cubes — the linear sum, squared;*
+> *And linearity splits any combined.*
+
+## Apply
+
+### Worked example
+
+> Find $S = \sum_{k=1}^{n} (2k - 1)^2$ in closed form.
+
+How a competent solver thinks:
+
+1. Expand: $(2k - 1)^2 = 4k^2 - 4k + 1$.
+2. Sum: $4 \sum k^2 - 4 \sum k + \sum 1 = 4 \cdot \dfrac{n(n+1)(2n+1)}{6} - 4 \cdot \dfrac{n(n+1)}{2} + n$.
+3. Common factor $n$: $= n\left[\dfrac{2(n+1)(2n+1)}{3} - 2(n+1) + 1\right]$
+   $= \dfrac{n}{3}\left[2(n+1)(2n+1) - 6(n+1) + 3\right]$
+   $= \dfrac{n}{3}\left[(n+1)(4n - 4) + 3\right]$
+   $= \dfrac{n}{3}\left[4(n+1)(n-1) + 3\right]$
+   $= \dfrac{n(4n^2 - 1)}{3} = \dfrac{n(2n-1)(2n+1)}{3}$.
+
+**Answer:** $\sum_{k=1}^{n}(2k-1)^2 = \dfrac{n(2n-1)(2n+1)}{3}$.
+
+### Practice — Warm
+
+**W1.** Find $\sum_{k=1}^{15} k$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{15 \cdot 16}{2} = 120$.
+</details>
+
+**W2.** Find $\sum_{k=1}^{8} k^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{8 \cdot 9 \cdot 17}{6} = 204$.
+</details>
+
+**W3.** Find $\sum_{k=1}^{6} k^3$.
+
+<details class="hint"><summary>Full solution</summary>
+$\left(\dfrac{6 \cdot 7}{2}\right)^2 = 21^2 = 441$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the sum of the first $n$ terms of the series whose $k$-th
+term is $T_k = k(k+1)(k+2)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand: $T_k = k^3 + 3k^2 + 2k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum k^3 + 3 \sum k^2 + 2 \sum k$
+$= \left(\dfrac{n(n+1)}{2}\right)^2 + 3 \cdot \dfrac{n(n+1)(2n+1)}{6} +
+2 \cdot \dfrac{n(n+1)}{2}$
+$= \dfrac{n^2(n+1)^2}{4} + \dfrac{n(n+1)(2n+1)}{2} + n(n+1)$
+$= \dfrac{n(n+1)}{4}\left[n(n+1) + 2(2n+1) + 4\right]$
+$= \dfrac{n(n+1)}{4}\left[n^2 + 5n + 6\right]$
+$= \dfrac{n(n+1)(n+2)(n+3)}{4}$.
+</details>
+
+**P2.** Find the sum to $n$ terms of $1 + 3x + 5x^2 + 7x^3 + \cdots$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+AGP: $a = 1, d = 2, r = x$. Multiply by $x$ and subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S = 1 + 3x + 5x^2 + \cdots + (2n - 1) x^{n-1}$.
+
+$xS = \quad x + 3x^2 + \cdots + (2n - 3) x^{n-1} + (2n - 1) x^n$.
+
+Subtract: $S(1 - x) = 1 + 2x + 2x^2 + \cdots + 2x^{n-1} - (2n-1)x^n$
+$= 1 + 2 \cdot \dfrac{x(1 - x^{n-1})}{1 - x} - (2n-1)x^n$
+(GP from the middle).
+
+So $S = \dfrac{1}{1-x} + \dfrac{2x(1 - x^{n-1})}{(1-x)^2} - \dfrac{(2n-1)x^n}{1-x}$
+(for $x \ne 1$).
+</details>
+
+**P3.** Find $\sum_{k=1}^{20} (3k - 2)^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand $(3k - 2)^2 = 9k^2 - 12k + 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$9 \cdot \dfrac{20 \cdot 21 \cdot 41}{6} - 12 \cdot \dfrac{20 \cdot 21}{2} + 4 \cdot 20$
+$= 9 \cdot 2870 - 12 \cdot 210 + 80$
+$= 25830 - 2520 + 80 = 23390$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Find $\sum_{k=1}^{n} \dfrac{1}{k(k+1)}$ in closed form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Partial fractions: $\dfrac{1}{k(k+1)} = \dfrac{1}{k} - \dfrac{1}{k+1}$.
+Telescoping sum.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum_{k=1}^{n} \left(\dfrac{1}{k} - \dfrac{1}{k+1}\right) =
+1 - \dfrac{1}{n+1} = \dfrac{n}{n+1}$.
+
+In particular, $\sum_{k=1}^{\infty} \dfrac{1}{k(k+1)} = 1$.
+</details>
+
+**S2.** Find $S = 1 + \dfrac{2}{3} + \dfrac{3}{9} + \dfrac{4}{27} + \cdots$
+to infinity.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+AGP with $a = 1$, $d = 1$, $r = 1/3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S = \sum_{k=1}^{\infty} \dfrac{k}{3^{k-1}}$. Using $\sum k x^{k-1} =
+1/(1-x)^2$ for $|x|<1$:
+
+$S = \dfrac{1}{(1 - 1/3)^2} = \dfrac{1}{(2/3)^2} = \dfrac{9}{4}$.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** $\sum_{k=1}^{10} k$ equals
+(a) $45$ (b) $50$ (c) $55$ (d) $60$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{10 \cdot 11}{2} = 55$. **Answer: (c).**
+</details>
+
+**2-mark (short answer).** Find $\sum_{k=1}^{n} (2k + 3)$.
+
+<details class="hint"><summary>Full solution</summary>
+$2 \sum k + 3n = 2 \cdot \dfrac{n(n+1)}{2} + 3n = n^2 + n + 3n = n^2 + 4n
+= n(n + 4)$.
+</details>
+
+**3-mark (short answer II).** Find the sum to $n$ terms of the series
+whose $k$-th term is $T_k = k(2k + 1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_k = 2k^2 + k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 \sum k^2 + \sum k = 2 \cdot \dfrac{n(n+1)(2n+1)}{6} + \dfrac{n(n+1)}{2}$
+$= \dfrac{n(n+1)(2n+1)}{3} + \dfrac{n(n+1)}{2}$
+$= \dfrac{n(n+1)}{6}\left[2(2n+1) + 3\right]$
+$= \dfrac{n(n+1)(4n + 5)}{6}$.
+</details>
+
+**5-mark (long answer).** (i) Sum the AGP $1 \cdot 1 + 2 \cdot \dfrac{1}{2} +
+3 \cdot \dfrac{1}{4} + 4 \cdot \dfrac{1}{8} + \cdots$ to infinity.
+(ii) Sum the same series to $n$ terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_k = k \cdot (1/2)^{k-1}$. Use $\sum k x^{k-1} = 1/(1-x)^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** $S_\infty = \dfrac{1}{(1 - 1/2)^2} = \dfrac{1}{1/4} = 4$.
+
+**(ii)** $S_n = 1 + 2 \cdot \dfrac{1}{2} + 3 \cdot \dfrac{1}{4} + \cdots
++ n \cdot \dfrac{1}{2^{n-1}}$.
+
+$\dfrac{1}{2} S_n = \dfrac{1}{2} + 2 \cdot \dfrac{1}{4} + \cdots + (n-1) \cdot \dfrac{1}{2^{n-1}} + n \cdot \dfrac{1}{2^n}$.
+
+Subtract: $\dfrac{1}{2} S_n = 1 + \dfrac{1}{2} + \dfrac{1}{4} + \cdots + \dfrac{1}{2^{n-1}} - n \cdot \dfrac{1}{2^n}$
+$= \dfrac{1 - (1/2)^n}{1 - 1/2} - \dfrac{n}{2^n} = 2 - \dfrac{2}{2^n} - \dfrac{n}{2^n} = 2 - \dfrac{n + 2}{2^n}$.
+
+So $S_n = 4 - \dfrac{n + 2}{2^{n-1}}$.
+
+Check: as $n \to \infty$, $S_n \to 4$. ✓
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Ch 8 LA "AGP sum to $n$ terms"
+matches the 5-mark item.
+**JEE pointer:** AGP and telescoping sums (Stretch S1) appear in JEE
+Main every cycle.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sum k^2 = (\sum k)^2$."** No — that's only true for cubes.
+   Squares give a *different* polynomial in $n$.
+2. **"$\sum k^4$ equals $\dfrac{n(n+1)(2n+1)(3n^2 + 3n - 1)}{30}$? Memorise it."**
+   You don't need this for boards. But know it exists, and that the
+   pattern continues to higher powers.
+3. **"AGP is just AP × GP."** It is the *term-by-term product*. There's
+   no "AGP sum formula" you can plug into; always derive by
+   multiply-and-subtract.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you write the three special-sum formulas from memory?
+2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+   practice problems without peeking past Hint 1?
+3. Can you handle a $\sum$ involving a polynomial in $k$ by linearity?
+
+- **3 yes:** move on to **[Straight Lines](../09-straight-lines/index.qmd)**.
+- **2 yes:** redo Stretch S2 and the 5-mark item.
+- **0–1 yes:** drill polynomial sums until linearity is automatic.
+
+## Connect
+
+### Prerequisites used
+
+- **[Sequences (AP and GP)](../08a-sequences-ap-gp/index.qmd)** — AP
+  and GP sum formulas.
+
+### What this unlocks
+
+- **[Limits](../12a-limits/index.qmd)** — $\lim_{n \to \infty}
+  \dfrac{\text{sum}}{\text{closed form}}$ uses these formulas.
+- **[Class 12 — Definite Integrals](../../tier-cbse-12-class-12/07a-integrals-definite/index.qmd)** —
+  Riemann sums use $\sum k$ and $\sum k^2$ to derive integrals from
+  first principles.
+
+### NCERT chapter alignment
+
+- **Class 11, Chapter 8 — Sequences and Series** (NCERT 2023
+  rationalised). Section 8.5 (special sums) and 8.6 (sum-to-$n$-terms
+  of AGP and similar mixed series).
+- **Sister synthesis lesson:**
+  [`t3.sequences-series`](../../tier-3-algebra2-geometry-trig/sequences-series/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**Research / Discrete Math.** $\sum k^p$ for general $p$ is the seed
+of *Faulhaber's formula* and the **Bernoulli numbers**, central to
+zeta-function values and number theory.
+:::
+
+::: {.applied-callout}
+**AI / ML.** The sum-of-squares loss
+$\sum (y_i - \hat{y}_i)^2$ is the most common training objective —
+the algebra of $\sum k^2$ informs how it scales with sample size.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+Touchstones: 3Blue1Brown (visual proof of $\sum k^3 = (\sum k)^2$),
+Russian school (multiply-and-subtract derived from scratch in
+Discover), Bhāskara (verse on the three sums).
+:::

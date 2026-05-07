@@ -1,0 +1,526 @@
+---
+title: "Ch 9 — Some Applications of Trigonometry (Heights & Distances)"
+subtitle: "Stand on the ground, look up, and trigonometry tells you the height"
+lesson-id: "cbse10.heights-and-distances"
+tier: "cbse10"
+ncert-class: 10
+ncert-chapter: 9
+ncert-chapter-title: "Some Applications of Trigonometry"
+board-exam: true
+prerequisites: [cbse10.trigonometry-intro]
+unlocks: [cbse11.trigonometric-functions]
+applied-domains: [game-dev, research]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state $\sin\theta, \cos\theta, \tan\theta$ for a right triangle?
+   See [`cbse10.trigonometry-intro`](../08a-trigonometry-intro/index.qmd).
+2. Do you remember the special-angle values at $30°, 45°, 60°$?
+3. Can you draw a right triangle from a verbal description ("a tower of
+   height $h$ casts a shadow of length $s$")?
+4. Can you simplify $\dfrac{1}{\sqrt{3}}$ to $\dfrac{\sqrt{3}}{3}$?
+
+Three yeses, you are ready.
+:::
+
+## Touch
+
+Stand outside on a sunny day. Stand a metre stick vertically. Measure the
+length of its shadow. Note the time and the date.
+
+The triangle formed by the metre stick, the shadow, and the line from the
+top of the stick to the tip of the shadow — is a right triangle. The angle
+between the ground and the line to the sun is the **angle of elevation** of
+the sun.
+
+```{ojs}
+viewof H = Inputs.range([2, 50], {value: 10, step: 1, label: "Object height H (m)"})
+```
+
+```{ojs}
+viewof angle = Inputs.range([10, 80], {value: 45, step: 5, label: "Angle of elevation θ"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 220, padX = 30, padY = 20;
+  const rad = angle * Math.PI / 180;
+  const D = H / Math.tan(rad);  // ground distance
+  // scale to fit
+  const maxX = Math.max(D, 30);
+  const xS = d3.scaleLinear().domain([0, maxX]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([0, 60]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+  // ground
+  svg.append("line").attr("x1", padX).attr("x2", w - padX)
+    .attr("y1", yS(0)).attr("y2", yS(0)).attr("stroke", "#888");
+  // pole
+  svg.append("line").attr("x1", xS(D)).attr("x2", xS(D))
+    .attr("y1", yS(0)).attr("y2", yS(H)).attr("stroke", "#26a")
+    .attr("stroke-width", 3);
+  // line of sight
+  svg.append("line").attr("x1", xS(0)).attr("y1", yS(0))
+    .attr("x2", xS(D)).attr("y2", yS(H)).attr("stroke", "#c33")
+    .attr("stroke-dasharray", "4,3");
+  // labels
+  svg.append("text").attr("x", padX).attr("y", padY + 14).attr("font-size", 13)
+    .text(`H = ${H} m,  θ = ${angle}°,  ground distance D = H/tan θ = ${D.toFixed(2)} m`);
+  svg.append("text").attr("x", padX + 10).attr("y", yS(0) - 4).attr("font-size", 11).text("θ");
+  return svg.node();
+}
+```
+
+For each combination of height and angle, the ground distance changes
+deterministically. **One measurement, one angle, full geometry.**
+
+## Wonder
+
+1. If the angle of elevation is $45°$, what is the relationship between the
+   height and the ground distance?
+2. As the angle of elevation grows from $30°$ to $60°$, does the ground
+   distance get bigger or smaller (with the same height)? Why?
+3. What is the **angle of depression**, and how is it related to angle of
+   elevation?
+4. If you measured a shadow but did not know the angle of the sun, could
+   you still find the height of an object by comparing it to a stick of
+   known height nearby?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Equal — $\tan 45° = 1$. (2) Smaller — $\tan$ grows with the angle so
+$D = H/\tan\theta$ shrinks. (3) Equal — they are alternate angles when
+sight is from the higher point. (4) Yes — that is the *similar-triangle*
+shortcut from Ch 6 (P2 there).
+:::
+
+## Discover
+
+### Problem 1 — A tower
+The angle of elevation of the top of a tower from a point on the ground
+$30$ m away from the foot is $30°$. Find the height of the tower.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\tan 30° = H / 30$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$H = 30 \tan 30° = 30 \cdot \dfrac{1}{\sqrt{3}} = 10\sqrt{3} \approx 17.32$
+m.
+</details>
+
+### Problem 2 — A taller tower
+A tower stands vertically. From a point $20$ m from its foot, the angle of
+elevation of the top is $60°$. Find the height.
+
+<details class="hint"><summary>Full solution</summary>
+$H = 20 \tan 60° = 20 \sqrt{3} \approx 34.64$ m.
+</details>
+
+### Problem 3 — Shadows at two times
+A vertical pole has shadow lengths $L_1$ at angle $\theta_1$ and $L_2$ at
+angle $\theta_2$. If $\theta_1 = 60°$ and $\theta_2 = 30°$, what is the
+ratio $L_2 : L_1$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$L = H / \tan\theta = H \cot\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$L_1 = H \cot 60° = H/\sqrt{3}$.
+$L_2 = H \cot 30° = H\sqrt{3}$.
+Ratio $L_2 : L_1 = \sqrt{3} : 1/\sqrt{3} = 3 : 1$.
+</details>
+
+### Problem 4 — Two angles, one tower
+From two points on the ground, on the same side and in line with the foot
+of a tower, the angles of elevation of the top are $30°$ and $60°$. The
+two points are $40$ m apart. The closer point has elevation $60°$. Find
+the height of the tower.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let height = $H$, distance from closer point to base = $x$. Then $\tan 60°
+= H/x$ and $\tan 30° = H/(x + 40)$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$x = H/\sqrt{3}$ from the first. Substitute into the second.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{\sqrt{3}} = \dfrac{H}{H/\sqrt{3} + 40}$
+$\Rightarrow H/\sqrt{3} + 40 = H\sqrt{3}$
+$\Rightarrow 40 = H(\sqrt{3} - 1/\sqrt{3}) = H \cdot \dfrac{2}{\sqrt{3}}$
+$\Rightarrow H = 20\sqrt{3} \approx 34.64$ m.
+</details>
+
+### Problem 5 — Angle of depression
+From the top of a 50 m lighthouse, the angle of depression of a boat in the
+sea is $30°$. How far is the boat from the foot of the lighthouse?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Angle of depression" from the top equals "angle of elevation" from the
+boat (alternate interior angles, with horizontal at top parallel to ground).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tan 30° = 50 / D \Rightarrow D = 50 / \tan 30° = 50\sqrt{3} \approx
+86.60$ m.
+</details>
+
+### Problem 6 — Two ships
+A man on a cliff of height $100$ m sees two boats in the sea, on the same
+side. Their angles of depression are $30°$ and $45°$. Find the distance
+between the two boats.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$D_1$ at $45°$: $\tan 45° = 100/D_1 \Rightarrow D_1 = 100$.
+$D_2$ at $30°$: $\tan 30° = 100/D_2 \Rightarrow D_2 = 100\sqrt{3}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Distance = $D_2 - D_1 = 100\sqrt{3} - 100 = 100(\sqrt{3} - 1) \approx
+73.21$ m.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Angle of elevation.** The angle between the horizontal ground and your
+line of sight up to a higher object.
+
+**Angle of depression.** The angle between the horizontal at your level
+and your line of sight down to a lower object.
+
+**Solving height-and-distance problems** is a four-step recipe:
+
+1. Sketch the situation as a right triangle (or two).
+2. Identify which side is the height, which is the ground distance, and
+   which angles are known.
+3. Use the appropriate trig ratio: $\tan\theta = \dfrac{\text{vertical}}
+   {\text{horizontal}}$ is the most common.
+4. Substitute special-angle values from the table; simplify.
+
+A key fact: angle of depression from a high point equals angle of
+elevation from the corresponding low point (alternate interior angles
+between the two horizontals).
+
+:::
+
+A verse:
+
+> *Look up — that's elevation. Look down — depression's the name.*
+> *Tan of theta is height over ground; the rest is the same game.*
+> *Sketch first, label twice, then trigonometry takes the lead;*
+> *Substitute special angles — and the answer is your reward indeed.*
+
+## Apply
+
+### Worked example
+
+> A boy is standing on the ground and flying a kite with a string of length
+> $100$ m at an angle of elevation of $60°$. Another boy is standing on the
+> roof of a 10 m high building, and is flying his kite at an elevation of
+> $45°$. Both boys are on the same side of their kites. If the kites
+> coincide (are at the same point in the sky), find the length of the
+> second boy's string.
+
+For the first boy: kite height above the ground = $100 \sin 60° = 50\sqrt{3}$
+m. Horizontal distance from boy to point below kite = $100 \cos 60° = 50$
+m.
+
+The kite is at the same point for both. The second boy is $10$ m up.
+
+Vertical from second boy to kite: $50\sqrt{3} - 10$ m.
+At elevation $45°$, vertical = horizontal, so the second boy's string makes
+a $45°-45°-90°$ triangle with vertical leg $50\sqrt{3} - 10$.
+
+String length = $(50\sqrt{3} - 10) \cdot \sqrt{2} = 10\sqrt{2}(5\sqrt{3} -
+1)$ m.
+
+Numerically: $\approx 10 \cdot 1.414 \cdot (8.660 - 1) = 14.14 \cdot 7.66
+\approx 108.3$ m.
+
+### Practice — Warm
+
+**W1.** A pole 6 m high casts a shadow $2\sqrt{3}$ m long. Find the angle
+of elevation of the sun.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan\theta = 6/(2\sqrt{3}) = \sqrt{3}$, so $\theta = 60°$.
+</details>
+
+**W2.** From the top of a building, the angle of depression of a car on
+the ground is $30°$. The car is $30\sqrt{3}$ m from the foot. Find the
+building's height.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan 30° = H / (30\sqrt{3}) \Rightarrow H = 30\sqrt{3}/\sqrt{3} = 30$ m.
+</details>
+
+**W3.** A ladder $10$ m long leans against a wall, making an angle of
+$60°$ with the ground. How high up the wall does it reach?
+
+<details class="hint"><summary>Full solution</summary>
+$\sin 60° = H/10 \Rightarrow H = 5\sqrt{3} \approx 8.66$ m.
+</details>
+
+### Practice — Working
+
+**P1.** From the top of a 50 m high tower, the angles of depression of
+two cars on the ground (on the same side and in line) are $45°$ and $60°$.
+Find the distance between the two cars.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$D_1$ at depression $60°$: closer car. $D_2$ at $45°$: farther.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D_1 = 50 / \tan 60° = 50/\sqrt{3}$. $D_2 = 50 / \tan 45° = 50$.
+Distance between $= D_2 - D_1 = 50 - 50/\sqrt{3} = 50(1 - 1/\sqrt{3}) =
+50 \cdot \dfrac{\sqrt{3} - 1}{\sqrt{3}} = \dfrac{50(\sqrt{3} - 1)}{\sqrt{3}}
+\cdot \dfrac{\sqrt{3}}{\sqrt{3}} = \dfrac{50\sqrt{3}(\sqrt{3} - 1)}{3} =
+\dfrac{50(3 - \sqrt{3})}{3} \approx 21.13$ m.
+</details>
+
+**P2.** A vertical tower stands on a horizontal plane and is surmounted by
+a vertical flagstaff of height $h$. At a point on the plane, the angles of
+elevation of the bottom and top of the flagstaff are $\alpha$ and $\beta$.
+Show that the height of the tower is $\dfrac{h \tan\alpha}{\tan\beta -
+\tan\alpha}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let tower height = $H$, distance from observer = $x$. Then $\tan\alpha =
+H/x$ and $\tan\beta = (H + h)/x$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = H/\tan\alpha$. Substitute: $\tan\beta = (H + h) \tan\alpha / H$.
+$H \tan\beta = H \tan\alpha + h \tan\alpha$.
+$H(\tan\beta - \tan\alpha) = h \tan\alpha$.
+$H = \dfrac{h \tan\alpha}{\tan\beta - \tan\alpha}$. $\square$
+</details>
+
+**P3.** The angle of elevation of a cloud from a point $60$ m above the
+surface of a lake is $30°$, and the angle of depression of its reflection
+in the lake is $60°$. Find the height of the cloud above the lake.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reflection is at depth equal to the cloud's height *below* the lake.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let cloud height above lake = $h$, horizontal distance = $x$. Observer is
+$60$ m above lake. Vertical distance from observer to cloud = $h - 60$;
+to reflection = $h + 60$.
+$\tan 30° = (h - 60)/x \Rightarrow x = (h - 60)\sqrt{3}$.
+$\tan 60° = (h + 60)/x \Rightarrow x = (h + 60)/\sqrt{3}$.
+Equate: $(h - 60)\sqrt{3} = (h + 60)/\sqrt{3} \Rightarrow 3(h - 60) =
+h + 60 \Rightarrow 2h = 240 \Rightarrow h = 120$ m.
+</details>
+
+### Practice — Stretch
+
+**S1.** The angle of elevation of the top of a tower from a point on the
+ground is $30°$. On walking $40$ m towards the tower, the angle becomes
+$60°$. Find the height of the tower.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two unknowns (height, original distance), two equations.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $H$ = height, $x$ = distance after walking 40 m.
+$\tan 60° = H/x \Rightarrow x = H/\sqrt{3}$.
+$\tan 30° = H/(x + 40) \Rightarrow x + 40 = H\sqrt{3}$.
+$H/\sqrt{3} + 40 = H\sqrt{3} \Rightarrow 40 = H\sqrt{3} - H/\sqrt{3} =
+H(2/\sqrt{3})$.
+$H = 20\sqrt{3} \approx 34.64$ m.
+</details>
+
+**S2.** A bird sits on the top of a tree 80 m high. From a point on the
+ground, the angle of elevation of the bird is $45°$. The bird flies away
+horizontally and after $2$ seconds, the angle becomes $30°$. Find the
+speed of the bird in m/s.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At elevation $45°$: ground distance = 80 m. At elevation $30°$: ground
+distance = $80\sqrt{3}$ m.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Distance flown = $80\sqrt{3} - 80 = 80(\sqrt{3} - 1) \approx 58.56$ m
+in 2 seconds. Speed $\approx 29.28$ m/s. Exact: $40(\sqrt{3} - 1)$ m/s.
+</details>
+
+### Board-Pattern Practice
+
+**Q1 (1 mark — MCQ).** The angle of elevation of the top of a tower from
+a point on the ground at a distance $30$ m is $60°$. The height of the
+tower is:
+(a) $30$ m  (b) $30\sqrt{3}$ m  (c) $\dfrac{30}{\sqrt{3}}$ m  (d) $60$ m.
+
+<details class="hint"><summary>Full solution</summary>
+$H = 30 \tan 60° = 30\sqrt{3}$. **(b).**
+</details>
+
+**Q2 (1 mark — fill-in).** If the shadow of a vertical pole is $\sqrt{3}$
+times its height, the angle of elevation of the sun is ____.
+
+<details class="hint"><summary>Full solution</summary>
+$\tan\theta = H / (H\sqrt{3}) = 1/\sqrt{3} \Rightarrow \theta = 30°$.
+</details>
+
+**Q3 (2 marks).** From a point on the ground, the angles of elevation of
+the bottom and the top of a transmission tower fixed at the top of a 20 m
+high building are $45°$ and $60°$ respectively. Find the height of the
+tower.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distance from observer to base = $20 / \tan 45° = 20$ m. Then total height
+to top of tower = $20 \tan 60° = 20\sqrt{3}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Tower height = $20\sqrt{3} - 20 = 20(\sqrt{3} - 1) \approx 14.64$ m.
+</details>
+
+**Q4 (2 marks).** The angle of elevation of the top of a hill from the foot
+of a tower is $60°$ and the angle of elevation of the top of the tower
+from the foot of the hill is $30°$. If the tower is $50$ m high, find the
+height of the hill.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distance between foot of tower and foot of hill = $D$. From foot of hill:
+$\tan 30° = 50/D \Rightarrow D = 50\sqrt{3}$. From foot of tower: $\tan 60°
+= H/D \Rightarrow H = D\sqrt{3}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = 50\sqrt{3}$. $H = 50\sqrt{3} \cdot \sqrt{3} = 150$ m. **Hill: 150 m.**
+</details>
+
+**Q5 (3 marks).** As observed from the top of a 75 m lighthouse, the angles
+of depression of two ships are $30°$ and $45°$. If one ship is exactly
+behind the other (on the same side of the lighthouse), find the distance
+between them.
+
+<details class="hint"><summary>Full solution</summary>
+$D_1$ at $45°$: $D_1 = 75$. $D_2$ at $30°$: $D_2 = 75\sqrt{3}$.
+Distance = $D_2 - D_1 = 75(\sqrt{3} - 1) \approx 54.9$ m.
+</details>
+
+**Q6 (3 marks).** A man on the deck of a ship 16 m above sea level observes
+that the angle of elevation of the top of a cliff is $45°$. The angle of
+depression of the base of the cliff is $30°$. Find the height of the cliff
+and the distance from the ship.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distance to base of cliff = $16 / \tan 30° = 16\sqrt{3}$. Cliff height
+above deck = $16\sqrt{3} \cdot \tan 45° = 16\sqrt{3}$. Total cliff height =
+deck height + above-deck = $16 + 16\sqrt{3}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Distance from ship: $16\sqrt{3} \approx 27.71$ m.
+Cliff height: $16(1 + \sqrt{3}) \approx 43.71$ m.**
+</details>
+
+**Q7 (5 marks — long answer).** A person standing on the bank of a river
+observes that the angle of elevation of the top of a tree on the opposite
+bank is $60°$. When he moves $40$ m away from the bank, he finds the angle
+of elevation to be $30°$. Find:
+(a) the height of the tree, and
+(b) the width of the river.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let tree height = $H$, river width = $W$. Two equations.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At first position (on bank): $\tan 60° = H/W \Rightarrow H = W\sqrt{3}$.
+After walking 40 m back: $\tan 30° = H/(W + 40) \Rightarrow H = (W + 40)/
+\sqrt{3}$.
+Equate: $W\sqrt{3} = (W + 40)/\sqrt{3} \Rightarrow 3W = W + 40 \Rightarrow
+2W = 40 \Rightarrow W = 20$ m.
+$H = 20\sqrt{3} \approx 34.64$ m.
+
+**(a) Height of tree: $20\sqrt{3}$ m. (b) Width of river: $20$ m.**
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar 9.3 Q1–Q12 cover single-triangle
+height/distance problems like Q3 and Q4; Exemplar 9.4 Q1–Q12 are full
+two-angle problems like Q5–Q7.
+
+**Previous-year pointer:** CBSE 2020 Set 1, Q33 mirrors Q7 (river crossing).
+CBSE 2023 Standard, Q35 mirrors Q6 (ship-and-cliff).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Angle of depression is measured from vertical."** No — it is measured
+   from the **horizontal** at the higher point, looking *down*. So it
+   equals (alternate-interior) the angle of elevation from the lower point.
+2. **"$\tan 30° = \sqrt{3}$."** No: $\tan 30° = 1/\sqrt{3}$. $\tan 60° =
+   \sqrt{3}$. Memorise the table; one swap-mistake costs ₹2-5.
+3. **"All ground distances are positive, so I can drop the absolute
+   values."** True for the magnitude. But signed distance matters when
+   you compute "distance between two points on the same side" vs "on
+   opposite sides" — sketch carefully before solving.
+:::
+
+### Self-Assessment
+
+1. Could you solve a two-angle problem (Q4, Q5, Q7) without notes,
+   sketching the figure first?
+2. Did Q3 and Q6 fall out cleanly with at most one hint?
+3. Can you recognise when a problem mixes elevation and depression
+   (observer at height, target on ground or vice versa)?
+
+- **3 yes:** move on.
+- **2 yes:** redo Q5 and Q7. They're the modal board questions.
+- **0–1 yes:** the mistake is almost always in the *sketch*. Re-walk the
+  *Apply* worked example with paper and pencil.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse10.trigonometry-intro`](../08a-trigonometry-intro/index.qmd) —
+  trig ratios and the special-angle table.
+
+### What this unlocks
+
+- [`cbse11.trigonometric-functions`](../../tier-cbse-11-class-11/03a-trig-functions/index.qmd) —
+  the unit-circle generalisation; sum, difference, double-angle.
+
+### NCERT chapter alignment
+
+- **Class 10, Chapter 9 — Some Applications of Trigonometry** (NCERT 2023
+  rationalised syllabus). Covers Section 9.1: heights and distances.
+  Common board scenarios: tower + flagstaff, ship + lighthouse, cloud +
+  reflection.
+- **Sister synthesis lesson:**
+  [`t3.trig-ratios`](../../tier-3-algebra2-geometry-trig/07-trig-ratios/index.qmd) —
+  the ratios from a synthesis angle, with applications.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Aiming a projectile in a 3D game uses the same
+right-triangle reasoning. The "lead a target" computation in
+first-person shooters: predict where the target will be, then compute
+the angle of elevation to send the projectile there.
+:::
+
+::: {.applied-callout}
+**Research.** Surveying — measuring real-world land — uses these exact
+techniques. The Great Trigonometric Survey of India (1802–1871) measured
+the height of Mount Everest, then named "Peak XV", using
+height-and-distance problems exactly like Q4 and Q7, scaled to
+hundreds of kilometres.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained (the *Touch* shadow narrative);
+  Russian school (problem-first); Bhāskara (compact recipe).
+- **Source notes:** Q7 (river crossing) is the NCERT Example 5.5
+  archetype; Q5 (lighthouse) is NCERT Example 5.7.
+:::

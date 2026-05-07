@@ -1,0 +1,479 @@
+---
+title: "Ch 9 — Circles"
+subtitle: "Chords, arcs, angles, and the cyclic quadrilateral"
+lesson-id: "cbse9.circles"
+tier: "cbse9"
+ncert-class: 9
+ncert-chapter: 9
+ncert-chapter-title: "Circles"
+board-exam: false
+prerequisites: ["cbse9.lines-and-angles", "t1.shapes-angles"]
+unlocks: ["cbse10.circles-tangents", "cbse10.areas-related-to-circles"]
+applied-domains: ["game-dev", "research"]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you begin.
+
+1. Can you state the angle-sum theorem of a triangle? *(If no, revisit
+   [cbse9.lines-and-angles](../06-lines-and-angles/index.qmd).)*
+2. Can you prove triangles congruent by SSS / SAS / ASA / RHS?
+   *(If no, revisit
+   [cbse9.triangles](../07-triangles/index.qmd).)*
+3. Do you know "radius", "diameter", "circumference"? *(If no, revisit
+   [t1.shapes-angles](../../tier-1-foundations/12-shapes-angles/index.qmd).)*
+
+Three yes? Read on.
+:::
+
+## Touch
+
+Take a circular plate. Place a long ruler across the plate so it crosses
+two points on the rim. Mark those points $A$ and $B$ — that's a
+**chord**. Find the **midpoint** of $AB$, then drop a perpendicular from
+the centre $O$ of the plate down to the chord. Where does it land?
+
+```{ojs}
+viewof chordPos = Inputs.range([-80, 80], {value: 30, step: 5, label: "chord offset"})
+```
+
+```{ojs}
+{
+  const cx = 150, cy = 130, R = 100;
+  const yOff = chordPos;
+  if (Math.abs(yOff) > R - 1) return html`<div>chord misses circle</div>`;
+  const halfLen = Math.sqrt(R*R - yOff*yOff);
+  const ax = cx - halfLen, ay = cy + yOff;
+  const bx = cx + halfLen, by = cy + yOff;
+  const mx = (ax+bx)/2, my = (ay+by)/2;
+  return html`<svg width="300" height="280" style="border:1px solid #ccc">
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#333" stroke-width="1.5"/>
+    <line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="#36a" stroke-width="2"/>
+    <line x1="${cx}" y1="${cy}" x2="${mx}" y2="${my}" stroke="#a30" stroke-dasharray="3,3"/>
+    <circle cx="${cx}" cy="${cy}" r="3" fill="#000"/>
+    <circle cx="${mx}" cy="${my}" r="3" fill="#a30"/>
+    <text x="${cx + 6}" y="${cy - 6}" font-size="13">O</text>
+    <text x="${mx + 6}" y="${my - 6}" font-size="13">M</text>
+    <text x="${ax - 14}" y="${ay + 4}" font-size="13">A</text>
+    <text x="${bx + 4}" y="${by + 4}" font-size="13">B</text>
+  </svg>`;
+}
+```
+
+Drag the slider. The dashed line from $O$ always hits the chord at its
+midpoint $M$ at $90^\circ$. Move the chord — the perpendicular from
+centre never misses the midpoint.
+
+## Wonder
+
+1. The radius from $O$ to a chord's midpoint is always perpendicular to
+   the chord. Why must that be? Could a circle ever cheat this?
+2. Cut two chords of equal length on the same circle. Are they equally
+   far from the centre? What if you cut one short and one long?
+3. Pick two points $A, B$ on a circle. Pick a third point $P$ anywhere
+   on the *major* arc between them. The angle $\angle APB$ has a value.
+   Slide $P$ along the major arc — does the value change?
+4. A four-cornered figure with all four corners on the circle — what
+   special relationship do its opposite angles share?
+
+::: {.callout-tip collapse="true"}
+## A whisper, no answer yet
+
+Q3 is the **angle in the same segment** theorem (also called the
+inscribed-angle theorem in this special form). Q4 is **cyclic
+quadrilateral** — opposite angles sum to $180^\circ$.
+:::
+
+## Discover
+
+### Problem 1 (Equal chords ⟺ equal distances)
+
+In a circle with centre $O$, two chords $AB$ and $CD$ are drawn. $M$ is
+the midpoint of $AB$ and $N$ is the midpoint of $CD$. Suppose $AB = CD$.
+Prove $OM = ON$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use right-angled triangles $\triangle OMB$ and $\triangle OND$, with
+the radius as hypotenuse.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $OM \perp AB$ and $ON \perp CD$. | Radius to midpoint of chord is perpendicular. |
+| 2. $OB = OD$. | Both are radii. |
+| 3. $MB = \tfrac{1}{2} AB$, $ND = \tfrac{1}{2} CD$, and $AB = CD$. | Given + midpoint. |
+| 4. So $MB = ND$. | From 3. |
+| 5. $\triangle OMB \cong \triangle OND$. | RHS (right angle, hypotenuse, side). |
+| 6. $OM = ON$. | CPCT. $\blacksquare$ |
+
+</details>
+
+### Problem 2 (Angle subtended at centre vs at arc)
+
+In a circle with centre $O$, an arc $AB$ subtends $\angle AOB$ at the
+centre. Pick any point $P$ on the major arc. Use the radii $OA, OB, OP$
+and the isosceles triangles $\triangle OPA$, $\triangle OPB$ to show
+$\angle APB = \tfrac{1}{2} \angle AOB$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each radius makes an isosceles triangle with the chord through $P$.
+Exterior angle of a triangle equals the sum of the two opposite interior
+angles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Join $PO$ and extend it to meet the circle at $Q$ (the diameter
+through $P$). Look at $\triangle OPA$: it is isosceles ($OP = OA$), so
+$\angle OAP = \angle OPA$. The exterior angle $\angle AOQ$ at $O$
+equals $\angle OAP + \angle OPA = 2 \angle OPA$. Similarly
+$\angle BOQ = 2 \angle OPB$. Adding (or subtracting, depending on which
+side of $PO$ the points lie),
+$\angle AOB = 2(\angle OPA + \angle OPB) = 2 \angle APB$.
+$\blacksquare$
+
+**The angle subtended by an arc at the centre is twice the angle it
+subtends at any point on the major arc.**
+</details>
+
+### Problem 3 (Same-segment angles equal)
+
+Two points $P_1$ and $P_2$ lie on the major arc of $AB$. Use the result
+of Problem 2 to conclude $\angle AP_1 B = \angle AP_2 B$.
+
+<details class="hint"><summary>Full solution</summary>
+Both equal $\tfrac{1}{2} \angle AOB$ (the central angle of $AB$ is the
+*same* angle for the same arc). So they equal each other.
+**Angles in the same segment are equal.** $\blacksquare$
+</details>
+
+### Problem 4 (Angle in a semicircle)
+
+If $AB$ is a **diameter** and $P$ is any point on the circle (not $A$
+or $B$), what is $\angle APB$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The arc $AB$ is now half the circle. The central angle is what?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle AOB = 180^\circ$ (since $AB$ is a diameter and $O$ is on it).
+By the central-vs-arc theorem, $\angle APB = \tfrac{1}{2}(180^\circ) =
+90^\circ$. **The angle in a semicircle is a right angle.** (This is
+**Thales' theorem**, the oldest named theorem in geometry, ~600 BCE.)
+</details>
+
+### Problem 5 (Cyclic quadrilateral)
+
+$ABCD$ is a quadrilateral with all four vertices on a circle (a *cyclic
+quadrilateral*). Show $\angle A + \angle C = 180^\circ$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle A$ stands on the major arc of $BCD$; $\angle C$ stands on the
+opposite arc.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle A$ is the inscribed angle on arc $BCD$, so it equals half the
+central angle on arc $BCD$. Similarly $\angle C$ is half the central
+angle on arc $BAD$. The two arcs together make the whole circle, so the
+two central angles sum to $360^\circ$, hence the two inscribed angles
+sum to $\tfrac{1}{2}(360^\circ) = 180^\circ$.
+**Opposite angles of a cyclic quadrilateral are supplementary.**
+$\blacksquare$
+</details>
+
+You discovered: chords pair up by length and distance from centre;
+central angle is twice the inscribed angle for the same arc; angles in
+the same segment are equal; the angle in a semicircle is right; and
+opposite angles of a cyclic quadrilateral sum to $180^\circ$.
+
+## Name
+
+::: {.lesson-beat}
+
+In a circle with centre $O$:
+
+- **Chord, radius, diameter, arc, sector, segment** — standard
+  vocabulary from the figure.
+- **Theorem 1.** The perpendicular from the centre of a circle to a
+  chord bisects the chord. (Conversely, the line from the centre to
+  the midpoint of a chord is perpendicular to it.)
+- **Theorem 2.** Equal chords of a circle are equidistant from the
+  centre, and conversely.
+- **Theorem 3.** The angle subtended by an arc at the centre is twice
+  the angle it subtends at any point on the major arc.
+- **Theorem 4 (same segment).** Angles in the same segment are equal.
+- **Theorem 5 (Thales).** The angle in a semicircle is a right angle.
+- **Theorem 6 (cyclic quadrilateral).** The sum of either pair of
+  opposite angles of a cyclic quadrilateral is $180^\circ$.
+
+:::
+
+A short verse:
+
+> *Drop from the centre — perpendicular and midpoint, both at once.*
+> *Equal chords, equal distances; equal arcs, equal angles.*
+> *Centre angle is double the rim;*
+> *On a diameter, every angle is right.*
+
+## Apply
+
+### Worked example
+
+> $AB$ is a chord of a circle of radius $5$ cm. The chord is at a
+> perpendicular distance of $3$ cm from the centre. Find the length of
+> $AB$.
+
+A competent solver:
+
+1. Drop the perpendicular from $O$ to $AB$, meeting at $M$. By Theorem
+   1, $M$ is the midpoint of $AB$, and $OM = 3$, $OA = 5$.
+2. Triangle $OMA$ is right-angled at $M$. By Pythagoras,
+   $AM^2 + OM^2 = OA^2 \Rightarrow AM^2 = 25 - 9 = 16 \Rightarrow AM
+   = 4$.
+3. $AB = 2 \cdot AM = 8$ cm.
+
+**Answer: $AB = 8$ cm.**
+
+### Practice — Warm
+
+**W1.** A chord of length $24$ cm is at a perpendicular distance of $5$
+cm from the centre. Find the radius.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same setup as the worked example, going the other way.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Half-chord = $12$. Radius $= \sqrt{12^2 + 5^2} = 13$ cm.
+</details>
+
+**W2.** $\angle AOB = 80^\circ$ at the centre of a circle. What is the
+inscribed angle $\angle APB$ at any point $P$ on the major arc?
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{2}(80) = 40^\circ$.
+</details>
+
+**W3.** $ABCD$ is cyclic with $\angle A = 92^\circ$. Find $\angle C$.
+
+<details class="hint"><summary>Full solution</summary>
+$\angle C = 180 - 92 = 88^\circ$.
+</details>
+
+### Practice — Working
+
+**P1.** Two chords $AB$ and $CD$ of a circle are equal in length. Show
+that the arcs $AB$ and $CD$ are equal.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Equal chords subtend equal angles at the centre. Equal central angles
+mean equal arcs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $OA = OC$ and $OB = OD$. | All radii. |
+| 2. $AB = CD$. | Given. |
+| 3. $\triangle OAB \cong \triangle OCD$. | SSS. |
+| 4. $\angle AOB = \angle COD$. | CPCT. |
+| 5. So arc $AB$ = arc $CD$. | Equal central angles cut equal arcs. $\blacksquare$ |
+
+</details>
+
+**P2.** $ABCD$ is a cyclic quadrilateral. The bisectors of $\angle A$
+and $\angle C$ meet at point $X$. Show $X$ lies on the line $BD$ (or
+state the relationship between the bisectors).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle A + \angle C = 180^\circ$, so half each sums to $90^\circ$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Half-angles sum to $90^\circ$, so the two bisectors are perpendicular at
+their intersection. The full proof of "$X$ lies on $BD$" requires
+additional configuration — the cleaner statement is that the bisectors
+are perpendicular. Treat this as practice in extracting facts.
+</details>
+
+**P3.** A diameter of a circle is $26$ cm. A chord of the circle is $24$
+cm long. Find its perpendicular distance from the centre.
+
+<details class="hint"><summary>Full solution</summary>
+Radius $= 13$. Half-chord $= 12$. Distance from centre $=
+\sqrt{13^2 - 12^2} = \sqrt{25} = 5$ cm.
+</details>
+
+### Practice — Stretch
+
+**S1.** $AB$ is a diameter and $CD$ is any other chord of a circle. The
+perpendicular from $A$ to $CD$ has foot $P$; the perpendicular from $B$
+to $CD$ has foot $Q$. Prove $CP = QD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Drop a perpendicular from the centre $O$ to $CD$ — call the foot $M$.
+$M$ is the midpoint of $CD$, and $OM$ is the average of $AP$ and $BQ$
+(parallel lines, like rungs of a ladder).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$AP, OM, BQ$ are all perpendicular to $CD$, so they are parallel. $O$
+is the midpoint of $AB$ (centre on diameter), so $OM$ is the average of
+$AP$ and $BQ$ — meaning $M$ is the midpoint of $PQ$. But $M$ is also
+the midpoint of $CD$ (perpendicular from centre). So
+$CP = CM - PM = MD - MQ = QD$. $\blacksquare$
+</details>
+
+**S2.** A circle has two parallel chords of lengths $6$ cm and $8$ cm.
+The chords are on opposite sides of the centre, $7$ cm apart. Find the
+radius of the circle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the perpendicular distances from the centre be $d_1$ and $d_2$
+($d_1 + d_2 = 7$). Use Pythagoras to relate each chord to the radius.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let radius be $r$. Then $r^2 = d_1^2 + 3^2 = d_1^2 + 9$ and
+$r^2 = d_2^2 + 4^2 = d_2^2 + 16$. So $d_2^2 = d_1^2 - 7$. Together with
+$d_1 + d_2 = 7$: substitute $d_2 = 7 - d_1$, get $(7 - d_1)^2 = d_1^2 -
+7 \Rightarrow 49 - 14 d_1 = -7 \Rightarrow d_1 = 4$, so $d_2 = 3$.
+$r = \sqrt{16 + 9} = 5$ cm.
+</details>
+
+### Board-Pattern Practice
+
+**1-mark (objective).** The angle in a semicircle is:
+(a) $45^\circ$ (b) $60^\circ$ (c) $90^\circ$ (d) $180^\circ$.
+
+<details class="hint"><summary>Full solution</summary>
+**(c) $90^\circ$** — Thales' theorem.
+</details>
+
+**2-mark (short answer).** A chord of a circle of radius $10$ cm
+subtends a right angle at the centre. Find the length of the chord.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The chord and two radii form a right triangle with the right angle at
+the centre.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Length $= \sqrt{10^2 + 10^2} = 10\sqrt{2}$ cm.
+</details>
+
+**3-mark (short answer II).** $ABCD$ is a cyclic quadrilateral with
+$\angle A = 100^\circ$ and $\angle B = 70^\circ$. Find $\angle C$ and
+$\angle D$.
+
+<details class="hint"><summary>Full solution</summary>
+Opposite angles supplementary: $\angle C = 180 - 100 = 80^\circ$,
+$\angle D = 180 - 70 = 110^\circ$. Check: $100 + 70 + 80 + 110 = 360$ ✓.
+</details>
+
+**5-mark (long answer).** Prove that the perpendicular from the centre
+of a circle to a chord bisects the chord.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Right triangles $\triangle OMA$ and $\triangle OMB$, with hypotenuse =
+radius.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Statement | Reason |
+|:--|:--|
+| 1. $OM \perp AB$, $M$ on $AB$. | Given. |
+| 2. $OA = OB$. | Radii. |
+| 3. $OM = OM$. | Common. |
+| 4. $\angle OMA = \angle OMB = 90^\circ$. | Given. |
+| 5. $\triangle OMA \cong \triangle OMB$. | RHS. |
+| 6. $AM = MB$. | CPCT. So $M$ is the midpoint of $AB$. $\blacksquare$ |
+
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Class 9 Exemplar Ch. 9, Problem 9.3 (chord
+distance, similar to W1). **Previous-year pointer:** CBSE Class 9 sample
+paper "prove perpendicular from centre bisects chord" (similar to
+5-mark).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"The angle subtended at the centre equals the angle subtended at
+   the rim."** No — *centre angle is twice the rim angle* for the same
+   arc.
+2. **"Every quadrilateral inscribed in a circle has all four angles
+   equal."** No — only opposite angles are *supplementary*. They need
+   not be equal individually.
+3. **"A chord is the same as a diameter."** A diameter is the longest
+   chord; not every chord is a diameter.
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you prove "perpendicular from centre bisects chord" without
+   notes?
+2. Did you solve W1–P3 with at most one hint each?
+3. Could you state the inscribed-angle theorem and its consequences
+   (same segment, semicircle, cyclic quadrilateral) cold?
+
+- **3 yes:** move on to **Heron's Formula**.
+- **2 yes:** redo S1 and S2.
+- **0–1 yes:** re-read *Discover* 2–5. The inscribed-angle theorem is
+  the engine of this chapter.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse9.lines-and-angles`](../06-lines-and-angles/index.qmd) — angle
+  facts, especially exterior-angle and triangle-sum.
+- [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd)
+  — radius, diameter, chord vocabulary.
+
+### What this unlocks
+
+- [`cbse10.circles-tangents`](../../tier-cbse-10-class-10/11-circles-tangents/index.qmd)
+  — tangent–radius, alternate-segment theorem.
+- [`cbse10.areas-related-to-circles`](../../tier-cbse-10-class-10/12-areas-related-to-circles/index.qmd)
+  — sector and segment areas.
+
+### NCERT chapter alignment
+
+- **Class 9, Chapter 9 — Circles** (NCERT 2023 rationalised syllabus).
+  Covers Sections 9.1–9.5: chord theorems, central vs inscribed angles,
+  cyclic quadrilateral.
+- **Sister synthesis lesson** (different angle):
+  [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd)
+  meets the circle as a shape; the *theorems* are this chapter's
+  contribution.
+- **Read alongside the NCERT textbook**.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Camera-frustum culling — deciding which objects
+are visible — uses the angle subtended by an object at the camera. The
+inscribed-angle theorem is the formal version of "things on the same
+horizon look the same width regardless of where you are on the
+horizon".
+:::
+
+::: {.applied-callout}
+**Research.** Thales' theorem (Discover Problem 4) is the oldest
+recorded named theorem, attributed to Thales of Miletus around 600 BCE.
+It is also the key step in deriving the equation of a circle from
+$x^2 + y^2 = r^2$ — the first place algebra and geometry truly fuse.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones honoured:** Kiselev (proof discipline), Russian
+  problem-first (the inscribed-angle theorem is forced through Discover
+  before *Name* states it), Better Explained (the "centre angle is
+  double the rim" memorable phrasing).
+:::

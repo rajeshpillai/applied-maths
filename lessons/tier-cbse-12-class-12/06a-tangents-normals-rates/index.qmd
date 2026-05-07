@@ -1,0 +1,401 @@
+---
+title: "Ch 6a — Application of Derivatives (Tangents, Normals, Rates)"
+subtitle: "The derivative as slope, as rate of change, as direction"
+lesson-id: "cbse12.tangents-normals-rates"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 6
+ncert-chapter-title: "Application of Derivatives"
+board-exam: true
+prerequisites: ["cbse12.differentiability-and-rules"]
+unlocks: ["cbse12.maxima-minima"]
+applied-domains: ["game-dev", "research", "ai-ml"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute $\frac{dy}{dx}$ for a polynomial in 30 seconds?
+2. Do you remember that *slope of tangent* $= \frac{dy}{dx}|_{x = a}$?
+3. Have you done [Ch 5b](../05b-differentiability-and-rules/index.qmd)?
+:::
+
+## Touch
+
+A balloon is inflated. Its radius $r$ grows with time. At a moment when
+$r = 5$ cm and $r$ is increasing at 2 cm/s, *how fast* is the surface
+area growing?
+
+::: {.lesson-beat}
+
+Surface area $S = 4\pi r^2$. The chain links **two rates**:
+$$\frac{dS}{dt} = \frac{dS}{dr} \cdot \frac{dr}{dt} = (8\pi r)(2) =
+16\pi r.$$
+At $r = 5$: $\frac{dS}{dt} = 80\pi \approx 251$ cm²/s.
+
+:::
+
+That's a **related-rates** problem. Two quantities both depend on
+time; you know one rate and want the other.
+
+Now think geometrically. The graph of $y = x^2$ at the point $(2, 4)$
+has tangent slope $f'(2) = 4$. The line through $(2, 4)$ with slope $4$
+*is* the tangent. Its perpendicular through that same point is the
+**normal**.
+
+Three uses of the derivative in this lesson:
+- slope of tangent and normal to a curve,
+- rate of change of one variable in terms of another,
+- whether a function is **increasing** or **decreasing** on an
+  interval.
+
+## Wonder
+
+1. If $\frac{dy}{dx}$ at a point is positive, what does that say about
+   the curve there?
+2. The **normal** is perpendicular to the tangent — so its slope is...?
+3. How does "the function is increasing on $[a, b]$" translate into a
+   condition on $f'$?
+
+## Discover
+
+### Problem 1
+
+Find the slope of the tangent to $y = x^3 - 3x + 2$ at $x = 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' = 3x^2 - 3$. At $x = 2$: $y' = 9$.
+</details>
+
+### Problem 2
+
+Find the equation of the tangent to $y = x^2$ at $(1, 1)$.
+
+<details class="hint"><summary>Full solution</summary>
+Slope $= 2$ at $x = 1$. Tangent: $y - 1 = 2(x - 1) \Rightarrow y = 2x -
+1$.
+</details>
+
+### Problem 3
+
+Find the equation of the **normal** to the curve in Problem 2 at the
+same point.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Normal slope = $-1/(\text{tangent slope})$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Normal slope $= -1/2$. Normal: $y - 1 = -\frac{1}{2}(x - 1) \Rightarrow
+x + 2y = 3$.
+</details>
+
+### Problem 4
+
+A spherical bubble has radius $r = 3$ cm growing at $0.5$ cm/s. How
+fast is its volume changing?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$V = \frac{4}{3}\pi r^3$. Differentiate w.r.t. $t$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{dV}{dt} = 4\pi r^2 \cdot \frac{dr}{dt} = 4\pi(9)(0.5) = 18\pi$
+cm³/s.
+</details>
+
+### Problem 5
+
+For what values of $x$ is $f(x) = x^3 - 3x^2$ increasing?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Increasing where $f'(x) > 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 3x^2 - 6x = 3x(x - 2)$. $f' > 0$ when $x < 0$ or $x > 2$.
+**Increasing on $(-\infty, 0) \cup (2, \infty)$**, decreasing on
+$(0, 2)$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+Let $y = f(x)$ and let $P = (a, f(a))$.
+
+- **Slope of tangent** at $P$ = $f'(a)$. **Tangent line:** $y - f(a) =
+  f'(a)(x - a)$.
+- **Slope of normal** at $P$ = $-1/f'(a)$ (when $f'(a) \ne 0$).
+  **Normal line:** $y - f(a) = -\frac{1}{f'(a)}(x - a)$.
+- If $f'(a) = 0$, tangent is horizontal; normal is vertical.
+
+**Rates of change.** If $y$ depends on $t$ and $x$ depends on $t$, the
+rates are linked by $\dfrac{dy}{dt} = \dfrac{dy}{dx} \cdot \dfrac{dx}{
+dt}$.
+
+**Increasing / decreasing.** $f$ is increasing on $[a, b]$ iff $f'(x)
+\ge 0$ for $x \in [a, b]$, decreasing iff $f'(x) \le 0$ there.
+*Strictly* increasing requires $f'(x) > 0$ except at isolated points.
+
+:::
+
+A verse:
+
+> *Slope of tangent — that's $f'(a)$;*
+> *Negative reciprocal — the normal's way.*
+> *Linked rates by chain — from one stream to another;*
+> *$f' > 0$ climbs, $f' < 0$ falls — that's the rule.*
+
+## Apply
+
+### Worked example
+
+> Find the equations of the tangent and normal to $y = x^3 - 6x^2 +
+> 13x - 10$ at $x = 1$.
+
+A competent solver:
+
+1. $f(1) = 1 - 6 + 13 - 10 = -2$. Point: $(1, -2)$.
+2. $f'(x) = 3x^2 - 12x + 13$. $f'(1) = 4$.
+3. Tangent: $y + 2 = 4(x - 1) \Rightarrow y = 4x - 6$.
+4. Normal: $y + 2 = -\frac{1}{4}(x - 1) \Rightarrow x + 4y + 7 = 0$.
+
+### Practice — Warm
+
+**W1.** Slope of tangent to $y = \sin x$ at $x = \pi/3$.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos(\pi/3) = 1/2$.
+</details>
+
+**W2.** A ladder slides down a wall. Bottom moves outward at 2 m/s. When
+bottom is 3 m from wall and ladder is 5 m, how fast is top descending?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 + y^2 = 25$. $\frac{dx}{dt} = 2$. Find $\frac{dy}{dt}$ at $x = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At $x = 3$, $y = 4$. $2x x' + 2y y' = 0 \Rightarrow 6\cdot2 + 8 y' =
+0 \Rightarrow y' = -3/2$. **Top descends at 1.5 m/s.**
+</details>
+
+**W3.** Show $f(x) = x^2 + 1$ is increasing on $(0, \infty)$.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 2x > 0$ for $x > 0$. ✓
+</details>
+
+### Practice — Working
+
+**P1.** Find points on $y = x^3 - 11x + 5$ where the tangent is
+$y = x - 11$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Tangent slope is $1$. Solve $f'(x) = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3x^2 - 11 = 1 \Rightarrow x^2 = 4 \Rightarrow x = \pm 2$. At $x = 2$:
+$y = 8 - 22 + 5 = -9$. Tangent at $(2, -9)$ has slope 1: $y + 9 = (x -
+2) \Rightarrow y = x - 11$ ✓. At $x = -2$: $y = -8 + 22 + 5 = 19$.
+Tangent: $y = x + 21$, not $y = x - 11$. **Only $(2, -9)$.**
+</details>
+
+**P2.** Sand is being poured forming a conical pile. Height $h$ equals
+$\frac{1}{6}$ of base radius $r$. Sand falls at $12$ cm³/s. How fast
+does $h$ rise when $h = 4$ cm?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$V = \frac{1}{3}\pi r^2 h$ with $r = 6h$. So $V = 12\pi h^3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\frac{dV}{dt} = 36\pi h^2 \cdot \frac{dh}{dt}$. At $h = 4$: $12 = 36\pi
+\cdot 16 \cdot \frac{dh}{dt} \Rightarrow \frac{dh}{dt} = \frac{1}{
+48\pi}$ cm/s.
+</details>
+
+**P3.** Find intervals on which $f(x) = 2x^3 - 9x^2 + 12x + 30$ is
+strictly increasing / decreasing.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 6x^2 - 18x + 12 = 6(x-1)(x-2)$. $f' > 0$ on $(-\infty, 1) \cup
+(2, \infty)$ — **increasing**. $f' < 0$ on $(1, 2)$ — **decreasing**.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the tangent to $y = bx^a$ at any point cuts the
+$y$-axis at a height that is $-(a - 1)$ times the $y$-coordinate of
+the point.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+General point $(x_0, bx_0^a)$. Slope $abx_0^{a-1}$. Tangent equation;
+set $x = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Tangent: $y - bx_0^a = abx_0^{a-1}(x - x_0)$. At $x = 0$:
+$y = bx_0^a - abx_0^a = bx_0^a(1 - a) = -(a-1) \cdot bx_0^a$. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** Slope of tangent to $y = e^x$ at $(0, 1)$ is (a) 0
+(b) 1 (c) $e$ (d) $1/e$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' = e^x$. At $x = 0$: $1$. **(b).**
+</details>
+
+**1-mark MCQ #2.** $f(x) = x^2 - 4$ is decreasing on (a) $(0, \infty)$
+(b) $(-\infty, 0)$ (c) $\mathbb{R}$ (d) nowhere.
+
+<details class="hint"><summary>Full solution</summary>
+$f'(x) = 2x < 0$ for $x < 0$. **(b) $(-\infty, 0)$.**
+</details>
+
+**2-mark.** Find slope of normal to $x = a\cos^3 t,\ y = a\sin^3 t$ at
+$t = \pi/4$.
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{dy}{dx} = -\tan t$. At $t = \pi/4$: slope of tangent $= -1$, so
+slope of normal $= 1$.
+</details>
+
+**2-mark.** A particle moves on $y = x^2$. When does $\frac{dy}{dt} =
+\frac{dx}{dt}$?
+
+<details class="hint"><summary>Full solution</summary>
+$\frac{dy}{dt} = 2x \frac{dx}{dt}$. So $2x = 1 \Rightarrow x = 1/2$.
+</details>
+
+**3-mark.** Find the point on $y = x^2$ where the tangent is parallel to
+$y = 4x + 5$.
+
+<details class="hint"><summary>Full solution</summary>
+$y' = 2x = 4 \Rightarrow x = 2, y = 4$. Point $(2, 4)$.
+</details>
+
+**3-mark.** A water tank is in the shape of an inverted cone with semi-
+vertical angle $30°$. Water flows in at $5$ m³/min. Find the rate of
+rise of water-level when water is $2$ m deep.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\tan 30° = r/h$, so $r = h/\sqrt{3}$. $V = \frac{1}{3}\pi r^2 h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = \frac{1}{3}\pi \cdot h^2/3 \cdot h = \pi h^3/9$. $\frac{dV}{dt}
+= \pi h^2/3 \cdot \frac{dh}{dt}$. At $h = 2$: $5 = 4\pi/3 \cdot
+\frac{dh}{dt} \Rightarrow \frac{dh}{dt} = 15/(4\pi)$ m/min.
+</details>
+
+**5-mark long answer.** A man $1.6$ m tall walks away from a streetlight
+$5$ m above ground at $1.2$ m/s. (i) At what rate does the tip of his
+shadow move? (ii) At what rate does his shadow lengthen?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Similar triangles: tip of shadow $s$, his position $x$. Then $s/(s -
+x) = 5/1.6$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $x$ = distance from pole, $s$ = distance of shadow-tip from pole.
+By similar triangles: $\frac{1.6}{5} = \frac{s - x}{s}$, so $1.6 s = 5
+(s - x) \Rightarrow x = (3.4/5) s$, equivalently $s = (5/3.4)x = (25/17)
+x$.
+$\frac{ds}{dt} = \frac{25}{17} \cdot 1.2 = \frac{30}{17} \approx 1.76$
+m/s.
+**Tip moves at $30/17$ m/s.**
+Shadow length $= s - x = (25/17 - 1)x = (8/17) x$. Rate $= 8/17 \cdot
+1.2 = 9.6/17 \approx 0.56$ m/s.
+</details>
+
+**6-mark Case Study.** *Inflating a balloon for a campaign.*
+
+A spherical helium balloon is being inflated. Volume rises at $V'(t) =
+100\pi$ cm³/s.
+
+(i) Express radius $r$ as a function of $V$. (1 mark)
+(ii) Find $\frac{dr}{dt}$ when $V = 36\pi$ cm³. (3 marks)
+(iii) The balloon's surface is being printed at the same rate. Find
+$\frac{dS}{dt}$ at the same moment. (2 marks)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $V = \frac{4}{3}\pi r^3 \Rightarrow r = (3V/(4\pi))^{1/3}$.
+**(ii)** $V = 36\pi \Rightarrow r = (108\pi/(4\pi))^{1/3} = 27^{1/3} =
+3$ cm. $\frac{dV}{dt} = 4\pi r^2 \frac{dr}{dt} \Rightarrow 100\pi =
+36\pi \cdot \frac{dr}{dt} \Rightarrow \frac{dr}{dt} = 25/9$ cm/s.
+**(iii)** $S = 4\pi r^2$, $\frac{dS}{dt} = 8\pi r \frac{dr}{dt} = 8\pi
+\cdot 3 \cdot 25/9 = 200\pi/3$ cm²/s.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 6.1, 6.2, 6.3.
+**Previous-year pointer:** CBSE 2023 Set 2 Q27 (5-mark related rates);
+CBSE 2022 Q19.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Tangent and normal at $(a, b)$ have the same slope."** No — they
+   are *perpendicular*. Slopes multiply to $-1$.
+2. **"$f' = 0$ means horizontal tangent and you're done."** It only
+   identifies a critical point — the next lesson tells you whether it's
+   a max, min, or neither.
+3. **"$f$ is increasing iff $f' \ge 0$ at one point."** Need $f' \ge 0$
+   throughout the interval, not at one point.
+:::
+
+### Self-Assessment
+
+1. Could you find tangent and normal to a polynomial curve in 5 minutes?
+2. Did you solve at least 5 of 7 board items unaided?
+3. Can you set up a related-rates problem from a word description?
+
+- **3 yes:** move on.
+- **2 yes:** redo the 5-mark problem.
+- **0–1 yes:** redo Problem 4 with a fresh balloon example.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.differentiability-and-rules`](../05b-differentiability-and-rules/index.qmd)
+  — chain rule especially for related rates.
+
+### What this unlocks
+
+- [`cbse12.maxima-minima`](../06b-maxima-minima/index.qmd) — what are
+  the critical points good for?
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 6** (NCERT 2023). Sections 6.1–6.3.
+- **Sister synthesis lessons:**
+  [`t4.related-rates`](../../tier-4-precalc-calculus/07-related-rates/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Velocity vectors are tangent vectors; collision
+normals come from surface tangent planes. Both are derivatives in
+disguise.
+:::
+
+::: {.applied-callout}
+**Research / engineering.** Newton's second law $F = m \frac{dv}{dt}$
+is a related-rates statement. Heat-transfer rates, fluid flow,
+chemical kinetics — all use chain-of-rates.
+:::
+
+::: {.applied-callout}
+**AI/ML.** Increasing/decreasing intervals correspond to monotone
+ranges of activation functions, which determine network expressivity.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Better Explained ("derivative as rate"), Bhāskara
+  (verse), Gelfand (related rates problem-first).
+:::

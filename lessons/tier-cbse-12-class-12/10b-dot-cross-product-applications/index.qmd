@@ -1,0 +1,406 @@
+---
+title: "Ch 10b — Dot Product, Cross Product, and Applications"
+subtitle: "Two products that turn geometry into arithmetic"
+lesson-id: "cbse12.dot-cross-product-applications"
+tier: "cbse12"
+ncert-class: 12
+ncert-chapter: 10
+ncert-chapter-title: "Vector Algebra"
+board-exam: true
+prerequisites: ["cbse12.vector-algebra"]
+unlocks: ["cbse12.planes-in-3d"]
+applied-domains: ["game-dev", "ai-ml", "research"]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Comfortable computing magnitude and unit vectors?
+2. Can you read components $a_1, a_2, a_3$ off a vector?
+3. Have you done [Ch 10a](../10a-vector-algebra/index.qmd)?
+:::
+
+## Touch
+
+Two vectors $\vec a$ and $\vec b$. There are two natural products:
+
+::: {.lesson-beat}
+
+**Dot product** ($\vec a \cdot \vec b$) — gives a *number*. Measures
+*how aligned* $\vec a$ and $\vec b$ are:
+$$\vec a \cdot \vec b = |\vec a||\vec b|\cos\theta = a_1 b_1 + a_2 b_2
++ a_3 b_3.$$
+Zero when perpendicular. Maximum (positive) when parallel.
+
+**Cross product** ($\vec a \times \vec b$) — gives a *vector*. Measures
+*how non-aligned* they are, and points perpendicular to both:
+$$\vec a \times \vec b = \begin{vmatrix} \hat\imath & \hat\jmath & \hat
+k \\ a_1 & a_2 & a_3 \\ b_1 & b_2 & b_3 \end{vmatrix},$$
+$$|\vec a \times \vec b| = |\vec a||\vec b|\sin\theta = \text{area of
+parallelogram}.$$
+
+:::
+
+The dot product picks out alignment. The cross product picks out
+twist (and the perpendicular axis).
+
+This lesson: definitions, computations, and the two big applications —
+**angle between two vectors** and **area of a parallelogram /
+triangle**.
+
+## Wonder
+
+1. Why does $\vec a \cdot \vec a = |\vec a|^2$?
+2. If $\vec a \times \vec b = 0$, what does that say about $\vec a, \vec
+   b$?
+3. The cross product is *not* commutative — $\vec b \times \vec a =
+   -\vec a \times \vec b$. Why?
+
+## Discover
+
+### Problem 1
+
+Compute $\vec a \cdot \vec b$ for $\vec a = 2\hat\imath + \hat\jmath -
+\hat k, \vec b = \hat\imath + 2\hat\jmath + 3\hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$2\cdot1 + 1\cdot2 + (-1)\cdot3 = 1$.
+</details>
+
+### Problem 2
+
+Find the angle between the two vectors in Problem 1.
+
+<details class="hint"><summary>Full solution</summary>
+$|\vec a| = \sqrt{6}, |\vec b| = \sqrt{14}$. $\cos\theta = 1/(\sqrt 6 \cdot
+\sqrt{14}) = 1/\sqrt{84}$.
+$\theta = \cos^{-1}(1/\sqrt{84})$.
+</details>
+
+### Problem 3
+
+Compute $\vec a \times \vec b$ for the same vectors.
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{vmatrix} \hat\imath & \hat\jmath & \hat k \\ 2 & 1 & -1 \\ 1 & 2
+& 3 \end{vmatrix} = \hat\imath(3 + 2) - \hat\jmath(6 + 1) + \hat k(4 - 1)
+= 5\hat\imath - 7\hat\jmath + 3\hat k$.
+</details>
+
+### Problem 4
+
+Verify $|\vec a \times \vec b|^2 + (\vec a \cdot \vec b)^2 = |\vec a|^2
+|\vec b|^2$ for the vectors above.
+
+<details class="hint"><summary>Full solution</summary>
+$|\vec a \times \vec b|^2 = 25 + 49 + 9 = 83$. $(\vec a \cdot \vec b)^2 =
+1$. Sum: $84$. $|\vec a|^2 |\vec b|^2 = 6 \cdot 14 = 84$. ✓
+This is the **Lagrange identity**: $\sin^2 + \cos^2 = 1$ in disguise.
+</details>
+
+### Problem 5
+
+Find the area of the parallelogram with adjacent sides $\vec a, \vec b$
+above.
+
+<details class="hint"><summary>Full solution</summary>
+$|\vec a \times \vec b| = \sqrt{83}$. Area = $\sqrt{83}$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Dot product (scalar product).**
+$$\vec a \cdot \vec b = |\vec a||\vec b|\cos\theta = a_1 b_1 + a_2 b_2
++ a_3 b_3.$$
+
+- Commutative: $\vec a \cdot \vec b = \vec b \cdot \vec a$.
+- Distributive: $\vec a \cdot (\vec b + \vec c) = \vec a \cdot \vec b
+  + \vec a \cdot \vec c$.
+- $\vec a \cdot \vec a = |\vec a|^2$.
+- $\vec a \perp \vec b \iff \vec a \cdot \vec b = 0$ (for non-zero
+  vectors).
+
+**Cross product (vector product).**
+$$\vec a \times \vec b = \begin{vmatrix} \hat\imath & \hat\jmath & \hat k
+\\ a_1 & a_2 & a_3 \\ b_1 & b_2 & b_3 \end{vmatrix}.$$
+$|\vec a \times \vec b| = |\vec a||\vec b|\sin\theta$.
+
+- Anticommutative: $\vec a \times \vec b = -\vec b \times \vec a$.
+- $\vec a \times \vec a = \vec 0$.
+- Direction follows the **right-hand rule**.
+
+**Applications.**
+
+- **Projection of $\vec a$ on $\vec b$:** $\dfrac{\vec a \cdot \vec b}{
+  |\vec b|}$.
+- **Angle between vectors:** $\cos\theta = \dfrac{\vec a \cdot \vec b}{
+  |\vec a||\vec b|}$.
+- **Area of parallelogram** with adjacent sides $\vec a, \vec b$:
+  $|\vec a \times \vec b|$.
+- **Area of triangle** with sides $\vec a, \vec b$ at one vertex:
+  $\frac{1}{2}|\vec a \times \vec b|$.
+
+:::
+
+A verse:
+
+> *Dot — a number, alignment in disguise;*
+> *Cross — a vector, twist and perpendicular rise.*
+> *Zero dot — perpendicular; zero cross — parallel;*
+> *$|cross|$ is parallelogram area, no need to spell it.*
+
+## Apply
+
+### Worked example
+
+> Find a unit vector perpendicular to both $\vec a = 2\hat\imath +
+> \hat\jmath + \hat k$ and $\vec b = \hat\imath + 2\hat\jmath + \hat k$.
+
+A competent solver:
+
+1. Compute $\vec a \times \vec b$:
+   $\begin{vmatrix} \hat\imath & \hat\jmath & \hat k \\ 2 & 1 & 1 \\ 1
+   & 2 & 1 \end{vmatrix} = \hat\imath(1 - 2) - \hat\jmath(2 - 1) + \hat
+   k(4 - 1) = -\hat\imath - \hat\jmath + 3\hat k$.
+2. $|\vec a \times \vec b| = \sqrt{1 + 1 + 9} = \sqrt{11}$.
+3. Unit perpendicular: $(-\hat\imath - \hat\jmath + 3\hat k)/\sqrt{11}$.
+
+### Practice — Warm
+
+**W1.** $\vec a \cdot \vec b$ for $\vec a = \hat\imath + 2\hat\jmath -
+\hat k, \vec b = 3\hat\imath - \hat\jmath + 2\hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 - 2 - 2 = -1$.
+</details>
+
+**W2.** Angle between $\hat\imath$ and $\hat\imath + \hat\jmath$.
+
+<details class="hint"><summary>Full solution</summary>
+$\cos\theta = 1/(1 \cdot \sqrt 2) = 1/\sqrt 2 \Rightarrow \theta =
+\pi/4$.
+</details>
+
+**W3.** $\vec a \times \vec b$ for $\vec a = \hat\imath + \hat\jmath,
+\vec b = \hat\imath - \hat\jmath$.
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{vmatrix} \hat\imath & \hat\jmath & \hat k \\ 1 & 1 & 0 \\ 1 & -1
+& 0 \end{vmatrix} = \hat k(-1 - 1) = -2\hat k$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the projection of $\vec a = 2\hat\imath + 3\hat\jmath +
+2\hat k$ on $\vec b = \hat\imath + 2\hat\jmath + \hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec a \cdot \vec b = 2 + 6 + 2 = 10$. $|\vec b| = \sqrt 6$.
+Projection $= 10/\sqrt 6$.
+</details>
+
+**P2.** Area of triangle with vertices $A(1, 1, 1), B(2, 3, 5), C(0, 1,
+4)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec{AB} = (1, 2, 4), \vec{AC} = (-1, 0, 3)$.
+$\vec{AB} \times \vec{AC} = (6, -7, 2)$. $|.| = \sqrt{36 + 49 + 4} =
+\sqrt{89}$.
+Area $= \sqrt{89}/2$.
+</details>
+
+**P3.** If $\vec a + \vec b + \vec c = \vec 0$ with $|\vec a| = 3,
+|\vec b| = 5, |\vec c| = 7$, find the angle between $\vec a$ and $\vec
+b$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\vec c = -(\vec a + \vec b)$. Square magnitudes.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|\vec c|^2 = |\vec a|^2 + |\vec b|^2 + 2\vec a \cdot \vec b
+\Rightarrow 49 = 9 + 25 + 2\vec a \cdot \vec b \Rightarrow \vec a \cdot
+\vec b = 15/2$.
+$\cos\theta = (15/2)/(3 \cdot 5) = 1/2 \Rightarrow \theta = \pi/3$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that $(\vec a - \vec b) \times (\vec a + \vec b) = 2(\vec a
+\times \vec b)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand using distributivity. $\vec a \times \vec a = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(\vec a - \vec b)\times(\vec a + \vec b) = \vec a \times \vec a + \vec
+a \times \vec b - \vec b \times \vec a - \vec b \times \vec b = 0 +
+\vec a \times \vec b + \vec a \times \vec b - 0 = 2(\vec a \times \vec
+b)$. ✓
+</details>
+
+### Board-Pattern Practice
+
+**1-mark MCQ #1.** $\hat\imath \cdot (\hat\jmath \times \hat k) =$
+(a) 0 (b) 1 (c) $\hat\imath$ (d) $\hat\jmath$.
+
+<details class="hint"><summary>Full solution</summary>
+$\hat\jmath \times \hat k = \hat\imath$. $\hat\imath \cdot \hat\imath =
+1$. **(b).**
+</details>
+
+**1-mark MCQ #2.** If $\vec a \cdot \vec b = 0$ and $|\vec a||\vec b|
+\ne 0$, then $\theta =$ (a) 0 (b) $\pi/4$ (c) $\pi/2$ (d) $\pi$.
+
+<details class="hint"><summary>Full solution</summary>
+**(c) $\pi/2$.**
+</details>
+
+**2-mark.** Find $\lambda$ if $\vec a = 2\hat\imath + \lambda
+\hat\jmath + \hat k$ is perpendicular to $\vec b = \hat\imath -
+2\hat\jmath + 3\hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec a \cdot \vec b = 2 - 2\lambda + 3 = 0 \Rightarrow \lambda = 5/2$.
+</details>
+
+**2-mark.** Find a vector of magnitude 5 perpendicular to both $\vec a
+= \hat\imath + \hat\jmath, \vec b = \hat\jmath + \hat k$.
+
+<details class="hint"><summary>Full solution</summary>
+$\vec a \times \vec b = (1, -1, 1)$, magnitude $\sqrt 3$. Required
+vector: $5/\sqrt 3 \cdot (1, -1, 1)$.
+</details>
+
+**3-mark.** Show that $\vec a, \vec b, \vec c$ are coplanar iff
+$[\vec a\ \vec b\ \vec c] = \vec a \cdot (\vec b \times \vec c) = 0$
+(scalar triple product).
+
+<details class="hint"><summary>Full solution</summary>
+Coplanar means the parallelepiped they span has zero volume. Volume $=
+|\vec a \cdot (\vec b \times \vec c)|$. Zero iff coplanar. ✓
+</details>
+
+**3-mark.** Find the area of the parallelogram with diagonals $\vec d_1
+= 3\hat\imath + \hat\jmath - 2\hat k$ and $\vec d_2 = \hat\imath - 3
+\hat\jmath + 4\hat k$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For diagonals: area $= \frac{1}{2}|\vec d_1 \times \vec d_2|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec d_1 \times \vec d_2 = \hat\imath(4 - 6) - \hat\jmath(12 + 2) +
+\hat k(-9 - 1) = (-2, -14, -10)$. $|.| = \sqrt{4 + 196 + 100} =
+\sqrt{300} = 10\sqrt 3$. Area $= 5\sqrt 3$.
+</details>
+
+**5-mark long answer.** If $\vec a, \vec b, \vec c$ are unit vectors
+such that $\vec a + \vec b + \vec c = \vec 0$, find $\vec a \cdot \vec
+b + \vec b \cdot \vec c + \vec c \cdot \vec a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Square both sides of $\vec a + \vec b + \vec c = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|\vec a + \vec b + \vec c|^2 = 0$.
+$= |\vec a|^2 + |\vec b|^2 + |\vec c|^2 + 2(\vec a \cdot \vec b + \vec
+b \cdot \vec c + \vec c \cdot \vec a) = 1 + 1 + 1 + 2 S = 0$.
+$S = -3/2$.
+</details>
+
+**6-mark Case Study.** *Forces on a robot arm.*
+
+A robot arm has end-effector at $\vec r = (4, 0, 3)$ m, and a force
+$\vec F = (0, 5, 0)$ N is applied. Torque is $\vec\tau = \vec r \times
+\vec F$.
+
+(i) Compute $\vec\tau$ and its magnitude. (3 marks)
+(ii) Find the angle between $\vec r$ and $\vec F$. (2 marks)
+(iii) Compute the work done if $\vec F$ acts along a displacement
+$\vec d = (1, 1, 1)$. (1 mark)
+
+<details class="hint"><summary>Full solution</summary>
+**(i)** $\vec\tau = (4, 0, 3) \times (0, 5, 0) = (0\cdot0 - 3\cdot5, 3
+\cdot0 - 4\cdot0, 4\cdot5 - 0\cdot0) = (-15, 0, 20)$. $|\vec\tau| =
+\sqrt{225 + 400} = 25$ N·m.
+**(ii)** $|\vec r| = 5, |\vec F| = 5$. $\vec r \cdot \vec F = 0$.
+$\cos\theta = 0 \Rightarrow \theta = 90°$.
+**(iii)** $W = \vec F \cdot \vec d = 5$ J.
+</details>
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Ex 10.3, 10.4, 10.5.
+**Previous-year pointer:** CBSE 2023 Set 1 Q28 (5-mark unit-vector
+identity); CBSE 2022 Q26.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\vec a \cdot \vec b = \vec a \times \vec b$ if vectors are
+   parallel."** Different *types* — one is a scalar, the other a
+   vector. They live in different spaces.
+2. **"$|\vec a \times \vec b|$ = area of triangle."** It's the area of
+   the parallelogram. Triangle is **half** of that.
+3. **"Cross product is commutative."** Anticommutative: $\vec a \times
+   \vec b = -\vec b \times \vec a$.
+:::
+
+### Self-Assessment
+
+1. Could you compute the angle between two 3D vectors in 1 minute?
+2. Did you handle 5 of 7 board items unaided?
+3. Can you remember the right-hand rule for cross-product direction?
+
+- **3 yes:** move on.
+- **2 yes:** redo P3 with fresh magnitudes.
+- **0–1 yes:** memorise the determinant formula for cross product.
+
+## Connect
+
+### Prerequisites used
+
+- [`cbse12.vector-algebra`](../10a-vector-algebra/index.qmd) — basic
+  vector arithmetic.
+
+### What this unlocks
+
+- [`cbse12.planes-in-3d`](../11b-planes-in-3d/index.qmd) — uses the
+  cross product to find normals.
+
+### NCERT chapter alignment
+
+- **Class 12, Chapter 10** (NCERT 2023). Sections 10.5–10.7.
+- **Sister synthesis lessons:**
+  [`t4.dot-cross-product`](../../tier-4-precalc-calculus/index.qmd).
+- Read alongside the NCERT textbook.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Lighting calculations use $\vec n \cdot \vec l$
+to determine brightness; cross products give surface normals; angular
+velocity is a cross product.
+:::
+
+::: {.applied-callout}
+**AI/ML.** Cosine similarity in NLP is $\vec a \cdot \vec b / (|\vec
+a||\vec b|)$ — the angle interpretation, computed billions of times in
+embedding searches.
+:::
+
+::: {.applied-callout}
+**Research.** Lorentz force, magnetic torque, angular momentum — all
+cross products. Work and power are dot products.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** 3Blue1Brown ("dot = projection, cross = signed
+  area"), Bhāskara (verse), Gelfand (problem-first).
+:::
