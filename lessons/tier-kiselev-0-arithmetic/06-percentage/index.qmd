@@ -1,0 +1,479 @@
+---
+title: "Ch 6 — Percentage and Interest"
+subtitle: "Per-hundred — and the simple-vs-compound interest difference that built modern finance"
+lesson-id: "kar.percentage"
+tier: "kar"
+kiselev-book: "Arithmetic"
+kiselev-chapter: 6
+kiselev-chapter-title: "Percentage and interest"
+kiselev-sections: "§§161–185 (percentage definition, simple interest, compound interest, applications)"
+prerequisites: [kar.decimals, kar.ratio-proportion]
+unlocks: []
+applied-domains: [databases, research, ai-ml]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are decimals and their operations automatic? See
+   [`kar.decimals`](../04-decimals/index.qmd).
+2. Can you set up and solve a *rule of three* problem? See
+   [`kar.ratio-proportion`](../05-ratio-proportion/index.qmd).
+3. Are you comfortable that $25\% = \dfrac{25}{100} = 0.25$?
+4. Can you compute $30\%$ of $200$ in your head? *(Answer: $60$.)*
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A percentage is a fraction with denominator $100$. Saying *"$15$
+percent"* is the same as saying *"fifteen per hundred"* — i.e.
+$\dfrac{15}{100} = 0.15$.
+
+```{ojs}
+viewof base = Inputs.range([0, 1000], {value: 200, step: 10, label: "base amount"})
+```
+
+```{ojs}
+viewof pct = Inputs.range([0, 200], {value: 25, step: 1, label: "percentage (%)"})
+```
+
+```{ojs}
+{
+  const part = base * pct / 100;
+  return `**${pct}%** of ${base} = ${part}.
+
+(That is, ${pct}/100 = ${(pct/100).toFixed(2)} as a decimal, times ${base}.)`;
+}
+```
+
+Three classical questions: (a) what is *$p\%$ of $A$*? (b) *what
+percent of $A$ is $B$*? (c) *if $p\%$ of something is $C$, what is
+the something?* All three reduce to a single proportion.
+
+## Wonder
+
+1. The phrases *"increased by $20\%$"* and *"$120\%$ of the
+   original"* — are they the same?
+2. *"Discount $10\%$ then a further $20\%$"* vs *"Discount $30\%$"*
+   — same final price?
+3. **Simple interest:** the interest is the same every year.
+   **Compound interest:** the interest itself earns interest. How
+   different are the two over $20$ years?
+4. The famous **rule of $72$:** at $r\%$ per year compounded
+   annually, money doubles in roughly $72/r$ years. **Why $72$?**
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Yes** — both equal $1.2 \cdot $ original. (2) **No** —
+two successive discounts are *multiplicative* ($0.9 \times 0.8 =
+0.72$, i.e. $28\%$ off), not additive ($30\%$ off). (3) Compound
+trumps simple at any positive rate; at $5\%$ over $20$ years, simple
+gives $100\%$ extra, compound gives $\sim 165\%$ extra. (4) From
+$\ln 2 \approx 0.693$, the doubling time at rate $r$ is $\ln 2 / \ln
+(1 + r/100) \approx 0.693 / (r/100) = 69.3 / r$. The "$72$" is a
+slight over-estimate that's friendlier for mental math (because
+$72$ has many divisors).
+:::
+
+## Discover
+
+### Problem 1 — Definition
+
+A **percent** ($\%$) is a fraction with denominator $100$.
+$p\% = \dfrac{p}{100}$. Express $35\%$ and $7\%$ as decimals.
+
+<details class="hint"><summary>Full solution</summary>
+$35\% = 0.35$; $7\% = 0.07$. *(Arithmetic §161.)*
+</details>
+
+### Problem 2 — Three classical questions
+
+Solve each via the proportion $\dfrac{\text{part}}{\text{whole}} =
+\dfrac{p}{100}$:
+
+(a) What is $15\%$ of $80$?
+
+(b) What percent of $40$ is $30$?
+
+(c) If $20\%$ of a number is $36$, what is the number?
+
+<details class="hint"><summary>Full solution</summary>
+(a) $\dfrac{x}{80} = \dfrac{15}{100}$, so $x = 12$.
+
+(b) $\dfrac{30}{40} = \dfrac{p}{100}$, so $p = 75$. **$30$ is
+$75\%$ of $40$.**
+
+(c) $\dfrac{36}{N} = \dfrac{20}{100}$, so $N = 180$.
+
+*(Three sides of one proportion. **The unifying setup is the rule
+of three.**)*
+</details>
+
+### Problem 3 — Increase and decrease
+
+A quantity is *increased* by $p\%$. Show the new value is the
+original times $\left(1 + \dfrac{p}{100}\right)$. *Decreased*:
+times $\left(1 - \dfrac{p}{100}\right)$.
+
+<details class="hint"><summary>Full solution</summary>
+Original $A$. Increase by $p\%$: add $p\%$ of $A = \dfrac{p A}{100}$.
+New value: $A + \dfrac{p A}{100} = A \left(1 + \dfrac{p}{100}\right)$.
+
+Symmetrically for decrease. *(Arithmetic §165.)*
+</details>
+
+### Problem 4 — Successive percentages
+
+A discount of $10\%$ followed by another $15\%$: what is the
+*combined* discount percentage?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply: $(1 - 0.10) \cdot (1 - 0.15) = 0.9 \cdot 0.85 = 0.765$.
+That's $76.5\%$ of the original — i.e. $23.5\%$ off.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0.9 \cdot 0.85 = 0.765$. **Combined discount: $23.5\%$** (not
+$25\%$).
+
+*Two successive percentage changes are **multiplicative**, not
+additive.* This is one of the most consequential rules in finance.
+</details>
+
+### Problem 5 — Simple interest
+
+**Simple interest** $I$ on principal $P$ at rate $r\%$ per year for
+$t$ years is $I = \dfrac{P r t}{100}$. The total amount $A = P + I
+= P\left(1 + \dfrac{r t}{100}\right)$.
+
+<details class="hint"><summary>Full solution</summary>
+Each year, the interest is $\dfrac{P r}{100}$ — same every year
+(the *principal* is constant). After $t$ years, total interest is
+$\dfrac{P r t}{100}$. Total amount: $P + I$. *(Arithmetic §170.)*
+
+*Example:* $P = 1000, r = 5, t = 3$: $I = 150, A = 1150$.
+</details>
+
+### Problem 6 — Compound interest
+
+**Compound interest** *adds* the interest to the principal at the
+end of each period — so subsequent interest is computed on the
+new (larger) total. Show the formula: after $t$ periods at rate
+$r\%$ per period, $A = P \left(1 + \dfrac{r}{100}\right)^t$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+After year $1$: $P \cdot (1 + r/100)$. Treat this as the new
+principal for year $2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+After 1 period: $P \cdot (1 + r/100)$.
+After 2: $P \cdot (1 + r/100)^2$.
+... After $t$: $P \cdot (1 + r/100)^t$.
+
+**$A = P (1 + r/100)^t$.** *(Arithmetic §175.)*
+
+*Example:* $P = 1000, r = 5, t = 3$: $A = 1000 \cdot (1.05)^3 =
+1000 \cdot 1.157625 = 1157.63$. (Compare simple at the same
+parameters: $1150$. Compound earns $7.63$ more in $3$ years.)
+</details>
+
+### Problem 7 — Reverse questions
+
+A bank advertises *"$10\%$ APR, compounded annually."* If you
+deposit $₹1000$, after how many years will you have $₹2000$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$1000 \cdot (1.1)^t = 2000$, so $(1.1)^t = 2$, i.e. $t = \log_{1.1}
+2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$t = \dfrac{\log 2}{\log 1.1} \approx \dfrac{0.693}{0.0953} \approx
+7.27$ years.
+
+**Rule of $72$:** $72 / 10 = 7.2$ years — close to the exact
+$7.27$. *(Arithmetic §178 — the *doubling-time approximation*.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Percent ($\%$)**: a fraction with denominator $100$. $p\% =
+\dfrac{p}{100} = $ the decimal $0.0p$.
+
+**The three percentage questions** all reduce to:
+$$\dfrac{\text{part}}{\text{whole}} = \dfrac{p}{100}.$$
+
+**Increase / decrease.** New value $= $ Original $\times \left(1
+\pm \dfrac{p}{100}\right)$.
+
+**Multiplicativity of successive percentages.** Two successive
+$p\%$ and $q\%$ changes give a combined factor of $\left(1 \pm
+\dfrac{p}{100}\right)\left(1 \pm \dfrac{q}{100}\right)$ —
+**not** additive.
+
+**Simple interest:** $A = P (1 + r t / 100)$, where $r\%$ is the
+yearly rate and $t$ years.
+
+**Compound interest:** $A = P (1 + r/100)^t$.
+
+**Rule of $72$:** doubling time $\approx 72/r$ at rate $r\%$
+compounded annually.
+
+:::
+
+A verse:
+
+> *Percent is per-hundred — fraction or decimal, your choice.*
+> *The three classical questions reduce to one proportional voice.*
+> *Successive changes multiply — never add — that's the rule of finance.*
+> *And compound interest crushes simple, given enough years to
+> dance.*
+
+## Apply
+
+### Worked example
+
+> A shirt costs $₹800$ after a $20\%$ discount. Original price?
+
+If $80\%$ of original $= 800$, then original $= 800 / 0.8 = 1000$.
+
+**Original: $₹1000$.**
+
+### Practice — Warm
+
+**W1.** Compute $40\%$ of $250$.
+
+<details class="hint"><summary>Full solution</summary>
+$0.4 \times 250 = 100$.
+</details>
+
+**W2.** What percent of $80$ is $32$?
+
+<details class="hint"><summary>Full solution</summary>
+$32/80 = 0.4 = 40\%$.
+</details>
+
+**W3.** Increase $200$ by $25\%$.
+
+<details class="hint"><summary>Full solution</summary>
+$200 \times 1.25 = 250$.
+</details>
+
+### Practice — Working
+
+**P1.** Compute the simple interest on $₹5000$ at $8\%$ per year
+for $3$ years.
+
+<details class="hint"><summary>Full solution</summary>
+$I = 5000 \cdot 8 \cdot 3 / 100 = 1200$. **$₹1200$.**
+</details>
+
+**P2.** Compute the compound interest on $₹5000$ at $8\%$ per year
+for $3$ years (compounded annually).
+
+<details class="hint"><summary>Full solution</summary>
+$A = 5000 \cdot (1.08)^3 = 5000 \cdot 1.259712 = 6298.56$.
+$I = A - P = 1298.56$. **$₹1298.56$.**
+
+(Compare: simple interest gives only $₹1200$. The extra $₹98.56$
+is the "*interest on interest*.")
+</details>
+
+**P3.** A car loses $15\%$ of its value each year. After $4$
+years, what fraction of its original value remains?
+
+<details class="hint"><summary>Full solution</summary>
+$(0.85)^4 = 0.5220$. **About $52.2\%$ remains.**
+</details>
+
+### Practice — Stretch
+
+**S1.** A salesman raises his price by $20\%$ then offers a
+$20\%$ discount. *Net effect on the buyer*?
+
+<details class="hint"><summary>Full solution</summary>
+$1.20 \cdot 0.80 = 0.96$. **The buyer pays $96\%$ of the original
+— i.e. $4\%$ off.** (Not $0\%$, despite the symmetric percentages.)
+
+*The asymmetry: $20\%$ of a *larger* number is more than $20\%$
+of a smaller. The buyer is worse off than $20\%$ off the original
+would have been.*
+</details>
+
+**S2.** *Continuous compounding* approaches $A = P e^{r t / 100}$
+(Algebra II Ch 7). Compute the "advantage" of continuous
+compounding over annual at $r = 5\%$ for $t = 10$ years.
+
+<details class="hint"><summary>Full solution</summary>
+Annual: $(1.05)^{10} \approx 1.6289$.
+Continuous: $e^{0.5} \approx 1.6487$.
+
+Continuous beats annual by about $0.0198$, i.e. about $2\%$ more
+total amount. *(For higher rates and longer times, the gap
+widens. At $r = 10\%$ for $30$ years: annual $17.45 \times$,
+continuous $20.09 \times$.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Arithmetic*, §§170–185.
+
+**K1.** A merchant sells a watch at $₹1200$ and makes a $20\%$
+profit. What was the cost price?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$1.20 \cdot \text{cost} = 1200$. So cost $= 1000$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Cost price: $₹1000$.** Profit: $₹200$ ($= 20\%$ of $1000$).
+</details>
+
+**K2.** Population grows at $2\%$ per year. After how many years
+does it triple?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(1.02)^t = 3$, so $t = \log 3 / \log 1.02 \approx 1.0986/0.0198
+\approx 55.5$ years.
+</details>
+<details class="hint"><summary>Full solution</summary>
+About $55.5$ years.
+</details>
+
+**K3.** A loan of $₹1000$ at $5\%$ compound annual interest is
+repaid by *equal annual payments* over $3$ years. Find the annual
+payment.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The present value of $3$ equal payments $X$ at $5\%$ should equal
+the loan: $X \left(\dfrac{1}{1.05} + \dfrac{1}{1.05^2} +
+\dfrac{1}{1.05^3}\right) = 1000$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{1.05} + \dfrac{1}{1.05^2} + \dfrac{1}{1.05^3} \approx
+0.9524 + 0.9070 + 0.8638 = 2.7232$. So $X = 1000/2.7232 \approx
+367.21$. **Annual payment: $₹367.21$.**
+
+*(The classical *amortisation formula*; underpins all loan
+calculation.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Систематический курс
+арифметики* (1884; modern reprint Fizmatlit). Russian original:
+[archive.org scan](https://archive.org/details/libgen_00032025).
+The simple/compound interest distinction (Problems 5, 6) is
+§§170–175; the rule of $72$ (Problem 7) is mentioned in §178 as a
+practical mnemonic.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Two successive $10\%$ discounts equal one $20\%$ discount."**
+   *Wrong.* They equal $19\%$ off ($0.9 \cdot 0.9 = 0.81$).
+2. **"Simple and compound interest are the same."** Compound
+   exceeds simple by an *exponentially growing* amount over time.
+   At long horizons, the gap is enormous.
+3. **"$200\%$ is impossible."** Percentages can exceed $100$ —
+   *"$200\%$ of $50$"* means *twice $50$, i.e. $100$*. There's no
+   ceiling.
+:::
+
+### Self-Assessment
+
+1. Could you state and apply the *three classical percentage
+   questions* (Problem 2) without notes?
+2. Did the *multiplicative successive percentages* idea (Problem 4
+   and S1) feel like a key insight?
+3. Can you derive the compound interest formula by iterating one
+   year at a time (Problem 6)?
+
+- **3 yes:** **You have completed Kiselev *Arithmetic* in
+  Russian-classical style.** Continue to *Algebra Part I* —
+  signed numbers and beyond.
+- **2 yes:** redo Problem 6 — compound interest is the chapter's
+  payoff.
+- **0–1 yes:** practise the three classical percentage questions
+  (Problem 2) on five different problems.
+
+## Connect
+
+### Prerequisites used
+
+- [`kar.decimals`](../04-decimals/index.qmd) — percentages are
+  decimals scaled by $100$; the multiplicative-successive rule is
+  decimal multiplication.
+- [`kar.ratio-proportion`](../05-ratio-proportion/index.qmd) — the
+  rule of three underlies the three classical percentage
+  questions.
+
+### What this unlocks
+
+- [`ka1.signed-numbers`](../../tier-kiselev-1-algebra-1/01-signed-numbers/index.qmd) —
+  the natural next step in Kiselev: signed numbers and algebraic
+  manipulation.
+- [`ka2.exponentials-logarithms`](../../tier-kiselev-2-algebra-2/04-exponentials-logarithms/index.qmd) —
+  compound interest is exponential growth, formalised.
+- [`ka2.sequences-progressions`](../../tier-kiselev-2-algebra-2/05-sequences-progressions/index.qmd) —
+  GPs underlie compound interest; the amortisation formula in K3 is
+  a GP sum.
+- [`t1.ratio-proportion`](../../tier-1-foundations/09-ratio-proportion/index.qmd) —
+  same content, t-tier idiom.
+
+### Kiselev chapter alignment
+
+- **Arithmetic — Chapter 6: Percentage and interest (§§161–185).**
+  Russian original on
+  [archive.org](https://archive.org/details/libgen_00032025).
+- **Sister synthesis lesson:**
+  [`t1.ratio-proportion`](../../tier-1-foundations/09-ratio-proportion/index.qmd) —
+  the synthesis Tier 1 covers ratio + percentage in one lesson.
+- **Read alongside the source PDF** for Kiselev's full development
+  of *amortisation* and *annuities* (§§180–185).
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** **Financial systems** track every account using
+percentage-of-balance and compound-interest logic. Bugs here cost
+money — the percentage formulas in this lesson are sometimes
+hard-coded into core banking platforms.
+:::
+
+::: {.applied-callout}
+**Research.** **Exponential population dynamics** — bacteria,
+viruses, populations — follow the same compound-growth formula
+($A = P \cdot e^{r t}$ in continuous time). The doubling-time rule
+of $72$ is the everyday epidemiologist's tool.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Learning rate decay schedules** in neural network
+training are often "*reduce by $p\%$ every $k$ epochs*" — a
+percentage-of-percentage rule, exactly Problem 4.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§161–185 ordering); Bhāskara (the
+  *Līlāvatī* interest problems); Fibonacci (1202 — the *Liber
+  Abaci* introduced compound interest to Europe).
+- **The compound interest formula** is the most-applied formula in
+  human commerce. Memorise it.
+- **What this lesson does not do:** treat *continuous compounding*
+  ($A = P e^{r t}$) in full — that's an Algebra II Ch 7 topic
+  (the limit of compound interest as compounding frequency → ∞).
+- **Arithmetic — track complete.** Six chapters, all aligned to
+  Kiselev's *Систематический курс арифметики* (1884). Together
+  with Algebra I (9), Algebra II (7), Planimetry (9), and
+  Stereometry (5), the Kiselev track now spans **36 lessons**
+  across all five books.
+:::

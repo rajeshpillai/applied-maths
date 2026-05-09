@@ -247,8 +247,9 @@ kiselev-chapter-title: "Parallels"
 kiselev-sections: "§§78–95"                          # author-verified
 ```
 
-The four book-prefixes:
+The five book-prefixes:
 
+- `kar` — Kiselev *Arithmetic*
 - `ka1` — Kiselev *Algebra, Part I*
 - `ka2` — Kiselev *Algebra, Part II*
 - `kg1` — Kiselev *Geometry, Book I (Planimetry)*
@@ -311,8 +312,8 @@ public domain. The contract:
 
 ### Kiselev-specific items in the "Done" checklist
 
-When a lesson's `lesson-id` starts with `ka1.`, `ka2.`, `kg1.`, or
-`kg2.`, also verify:
+When a lesson's `lesson-id` starts with `kar.`, `ka1.`, `ka2.`,
+`kg1.`, or `kg2.`, also verify:
 
 - [ ] Frontmatter sets `kiselev-book`, `kiselev-chapter`,
       `kiselev-chapter-title`, `kiselev-sections`.

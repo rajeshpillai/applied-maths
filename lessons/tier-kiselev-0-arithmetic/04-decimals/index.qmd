@@ -1,0 +1,428 @@
+---
+title: "Ch 4 — Decimal Fractions"
+subtitle: "Place value extended to the right of the point — fractions written as if they were whole numbers"
+lesson-id: "kar.decimals"
+tier: "kar"
+kiselev-book: "Arithmetic"
+kiselev-chapter: 4
+kiselev-chapter-title: "Decimal fractions"
+kiselev-sections: "§§111–135 (definition, conversion, four operations, repeating decimals)"
+prerequisites: [kar.common-fractions]
+unlocks: []
+applied-domains: [research, databases, ai-ml]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are common fractions and their four operations automatic? See
+   [`kar.common-fractions`](../03-common-fractions/index.qmd).
+2. Can you place $0.5, 0.75, 1.25$ on a number line?
+3. Are you comfortable that $0.5 = \dfrac{1}{2}$?
+4. Can you compute $3.14 + 2.86 = 6.00$ in your head?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Place value to the **right** of the decimal point. The number
+$3.14$ is $3 + \dfrac{1}{10} + \dfrac{4}{100}$. Each position is
+ten times smaller than the one to its left.
+
+```{ojs}
+viewof x = Inputs.range([0, 10], {value: 3.14, step: 0.01, label: "x"})
+```
+
+```{ojs}
+{
+  // decompose
+  const intPart = Math.floor(x);
+  const frac = (x - intPart).toFixed(4);
+  return `**${x.toFixed(4)}** = ${intPart} + ${frac}.
+
+As a common fraction: ${(x * 10000).toFixed(0)} / 10000 (then reduce).`;
+}
+```
+
+A decimal fraction is a *common fraction with a power-of-10
+denominator*, written compactly with a decimal point instead of a
+denominator.
+
+## Wonder
+
+1. Is every common fraction expressible as a *terminating* decimal?
+2. The fraction $\dfrac{1}{3}$ becomes $0.\overline{3}$ —
+   *non-terminating, repeating*. Why doesn't it terminate?
+3. Adding decimals: $0.7 + 0.5 = 1.2$. **Why** is this just
+   integer addition with a decimal point?
+4. The product $0.3 \times 0.04 = 0.012$. **How** do you predict
+   the position of the decimal point in the answer?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Yes, iff** the denominator (in lowest terms) has only prime
+factors $2$ and $5$. Otherwise the decimal is *eventually
+periodic*. (2) The denominator $3$ has a factor that isn't $2$ or
+$5$, so the decimal repeats. (3) Both terms are fractions with
+denominator $10$: $7/10 + 5/10 = 12/10 = 1.2$. *Same denominator
++ same place value* = direct integer addition. (4) The total
+number of decimal places in the *factors* equals the number in the
+*product*: $0.3$ (1 place) $\times 0.04$ (2 places) $= 0.012$
+(3 places).
+:::
+
+## Discover
+
+### Problem 1 — Definition
+
+A **decimal fraction** is a fraction whose denominator is a power
+of $10$, written using a *decimal point*. Convert $\dfrac{37}{100}$
+to a decimal.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{37}{100} = 0.37$. The two digits after the point are the
+*tenths* and *hundredths*. *(Arithmetic §112.)*
+</details>
+
+### Problem 2 — Conversion: common to decimal
+
+Convert $\dfrac{3}{4}, \dfrac{1}{8}, \dfrac{1}{3}$ to decimals.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Long division of numerator by denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{3}{4} = 0.75$ (terminates).
+$\dfrac{1}{8} = 0.125$ (terminates).
+$\dfrac{1}{3} = 0.\overline{3}$ (repeats — denominator has factor
+$3$, not just $2$ and $5$).
+</details>
+
+### Problem 3 — When does a fraction terminate?
+
+Show that $\dfrac{p}{q}$ in lowest terms terminates iff $q = 2^a
+\cdot 5^b$ for some non-negative integers $a, b$.
+
+<details class="hint"><summary>Full solution</summary>
+*Terminates means decimal expansion has finitely many digits, i.e.
+$\dfrac{p}{q} = \dfrac{n}{10^k}$ for some integer $n, k$.*
+$10^k = 2^k \cdot 5^k$. So $q$ divides $10^k$, hence $q = 2^a \cdot
+5^b$ with $a, b \le k$.
+
+*Conversely:* if $q = 2^a 5^b$, multiply num. and denom. by
+$2^{\max(b - a, 0)} \cdot 5^{\max(a - b, 0)}$ to get a denominator
+of $10^{\max(a, b)}$ — terminating.
+
+**QED.** *(Arithmetic §118.)*
+</details>
+
+### Problem 4 — Adding decimals
+
+Compute $4.27 + 18.6 + 0.083$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Align decimal points; pad with zeros so all numbers have the same
+number of decimal places.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Pad: $4.270 + 18.600 + 0.083$. Add column-by-column:
+$\quad 22.953$. **$22.953$.**
+</details>
+
+### Problem 5 — Multiplying decimals
+
+Compute $1.25 \times 0.4$. State the rule for placing the decimal
+point.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply as if integers ($125 \times 4 = 500$); then count total
+decimal places ($2 + 1 = 3$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$125 \times 4 = 500$. Total decimal places: $3$. Result:
+$0.500 = 0.5$.
+
+**$1.25 \times 0.4 = 0.5$.** *(Arithmetic §123 — the **decimal-
+point counting rule**.)*
+</details>
+
+### Problem 6 — Dividing decimals
+
+Compute $4.5 \div 0.15$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both by $100$ to clear the decimal in the divisor:
+$450 \div 15$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$450 \div 15 = 30$. **$4.5 \div 0.15 = 30$.**
+</details>
+
+### Problem 7 — Repeating decimal to fraction
+
+Convert $0.\overline{27}$ (i.e. $0.272727\ldots$) to a common
+fraction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $x = 0.272727\ldots$. Then $100 x = 27.2727\ldots$. Subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$100 x - x = 27.272727\ldots - 0.272727\ldots = 27$. So $99 x =
+27$, giving $x = \dfrac{27}{99} = \dfrac{3}{11}$.
+
+**$0.\overline{27} = \dfrac{3}{11}$.** *(Arithmetic §128 — every
+*eventually periodic* decimal is rational, and conversely.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Decimal fraction:** $\sum_{i \ge 0} d_i \cdot 10^{-i - 1}$ for
+digits $d_i \in \{0, 1, \ldots, 9\}$, written with a decimal point
+between the integer and fractional parts.
+
+**Conversion.**
+
+- *Common to decimal:* long division.
+- *Decimal to common:* read the decimal as $\dfrac{n}{10^k}$ and
+  reduce.
+
+**Termination criterion.** $\dfrac{p}{q}$ (in lowest terms)
+terminates iff $q$ has only $2$ and $5$ as prime factors.
+
+**Operations.**
+
+- **Add / subtract:** align decimal points, pad with zeros, add as
+  integers.
+- **Multiply:** multiply as integers; place the decimal so the
+  total number of decimal places equals the sum from the factors.
+- **Divide:** multiply both by a power of $10$ to clear the
+  divisor's decimal, then divide as integers.
+
+**Repeating decimals.** Every rational number has a *terminating*
+or *eventually periodic* decimal. Conversely, every eventually
+periodic decimal is rational.
+
+:::
+
+A verse:
+
+> *Decimal point: place value to the right, ten times smaller each
+> step.*
+> *Convert by long division; reverse by reading $n / 10^k$, no
+> misstep.*
+> *Add by aligning the points, pad with zeros, sum the columns plain.*
+> *Multiply as integers; count the places in factors — that's the
+> answer's decimal grain.*
+
+## Apply
+
+### Worked example
+
+> Compute $4.8 \div 1.6$.
+
+Multiply both by $10$: $48 \div 16 = 3$. **$4.8 \div 1.6 = 3$.**
+
+### Practice — Warm
+
+**W1.** Convert $\dfrac{7}{20}$ to a decimal.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{7}{20} = \dfrac{35}{100} = 0.35$.
+</details>
+
+**W2.** Compute $0.6 + 0.4$.
+
+<details class="hint"><summary>Full solution</summary>
+$1.0$.
+</details>
+
+**W3.** Compute $0.3 \times 0.7$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 \times 7 = 21$. Total decimal places: $2$. **$0.21$.**
+</details>
+
+### Practice — Working
+
+**P1.** Convert $0.625$ to a common fraction in lowest terms.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{625}{1000} = \dfrac{5}{8}$ (cancel by GCD $125$).
+</details>
+
+**P2.** Compute $12.5 \div 0.25$.
+
+<details class="hint"><summary>Full solution</summary>
+$1250 \div 25 = 50$.
+</details>
+
+**P3.** Convert $0.\overline{142857}$ to a common fraction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$10^6 x - x = 142857$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = \dfrac{142857}{999999} = \dfrac{1}{7}$ (since $7 \cdot 142857
+= 999999$). **$\dfrac{1}{7}$.**
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that $0.\overline{9} = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same trick as Problem 7: let $x = 0.999\ldots$, multiply by $10$,
+subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$10 x - x = 9.999\ldots - 0.999\ldots = 9$, so $9 x = 9$, $x = 1$.
+**$0.\overline{9} = 1$.** *(A famous identity that troubles many
+learners — but the algebra is unforgiving. Two decimal expansions
+can represent the same number.)*
+</details>
+
+**S2.** Show that the **set of decimals with terminating
+expansions** is closed under addition and multiplication, but not
+under division.
+
+<details class="hint"><summary>Full solution</summary>
+*Add / multiply two terminating decimals:* the result has
+denominator a power of $10$ (after combination), so terminates.
+
+*Divide:* $1 / 3$ is not terminating (denominator $3$ has the
+forbidden factor). So division can leave the set. **QED.**
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Arithmetic*, §§120–135.
+
+**K1.** A package weighs $2.45$ kg. Twelve packages cost a total
+of $₹1764$. Cost per kg?
+
+<details class="hint"><summary>Full solution</summary>
+Total weight: $12 \times 2.45 = 29.4$ kg. Cost per kg: $1764 / 29.4
+= 60$. **$₹60$ per kg.**
+</details>
+
+**K2.** Convert $\dfrac{1}{12}$ to a decimal. Is it terminating?
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{12}$: $q = 12 = 2^2 \cdot 3$. Has factor $3$, so does
+not terminate. Long division: $0.0833\ldots = 0.08\overline{3}$.
+</details>
+
+**K3.** A repeating decimal $0.\overline{ab}$ (two-digit period)
+equals $\dfrac{ab}{99}$, where $ab$ is the two-digit integer.
+Verify, then express $0.\overline{45}$ as a common fraction.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 0.\overline{ab}$, $100 x = ab.\overline{ab}$, $100 x - x =
+ab$, so $x = \dfrac{ab}{99}$.
+
+For $0.\overline{45}$: $\dfrac{45}{99} = \dfrac{5}{11}$ (cancel by
+$9$).
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Систематический курс
+арифметики* (1884; modern reprint Fizmatlit). Russian original:
+[archive.org scan](https://archive.org/details/libgen_00032025).
+The decimal-point counting rule (Problem 5) is §123; the
+periodic-decimal-to-fraction algorithm (Problem 7) is §128.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$0.\overline{9} \ne 1$."** They are equal — see S1. Two
+   different decimal expansions can represent the same number.
+2. **"Multiplying decimals just multiplies the digits and keeps
+   the decimal place."** No — count *both* factors' decimal places
+   and *sum* them for the answer's place count.
+3. **"Every decimal corresponds to a unique fraction."** Almost —
+   $0.\overline{9} = 1.\overline{0}$ shows the exceptions. Modulo
+   that, yes.
+:::
+
+### Self-Assessment
+
+1. Could you state the *terminating-iff-2-and-5* criterion (Problem
+   3) without notes?
+2. Did the periodic-to-fraction conversion (Problem 7) feel like
+   one move?
+3. Can you predict whether $\dfrac{17}{40}$ terminates without
+   doing long division?
+
+- **3 yes:** move on to *Ratio and Proportion* (Ch 5).
+- **2 yes:** redo Problem 7 — the multiply-by-power-of-ten trick
+  is the chapter's algebraic core.
+- **0–1 yes:** the rules of decimal arithmetic (Problems 4, 5, 6)
+  are practical drills; practise.
+
+## Connect
+
+### Prerequisites used
+
+- [`kar.common-fractions`](../03-common-fractions/index.qmd) —
+  decimals are a special form of common fractions.
+
+### What this unlocks
+
+- **`kar.percentage`** *(Ch 6, planned)* — percentages are
+  decimals scaled by $100$.
+- [`t1.decimals`](../../tier-1-foundations/08-decimals/index.qmd) —
+  same content, t-tier idiom.
+- [`ka1.signed-numbers`](../../tier-kiselev-1-algebra-1/01-signed-numbers/index.qmd) —
+  decimal arithmetic with signed numbers.
+
+### Kiselev chapter alignment
+
+- **Arithmetic — Chapter 4: Decimal fractions (§§111–135).**
+  Russian original on
+  [archive.org](https://archive.org/details/libgen_00032025).
+- **Sister synthesis lesson:**
+  [`t1.decimals`](../../tier-1-foundations/08-decimals/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the periodic-to-fraction algorithm (§§125–130).
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** Currency stored as a decimal (`DECIMAL(12, 2)`)
+preserves *exact* value, while floating-point can drift. Banks
+mandate decimal arithmetic for ledger correctness.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Floating-point** training of neural networks involves
+the *binary* analogue of decimal expansion. Numerical stability
+issues arise from the same termination questions Problem 3 asks.
+:::
+
+::: {.applied-callout}
+**Research.** The *real numbers* are most accessibly defined as
+infinite decimal expansions modulo the $0.\overline{9} = 1$ identity.
+A foundational construction.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§111–135 ordering); Stevin (1585 —
+  the *De Thiende*, which introduced decimal fractions to Europe);
+  Bhāskara's place-value extension to fractions.
+- **The $0.\overline{9} = 1$ identity** is a useful litmus for
+  whether a learner has internalised the *limit* idea.
+- **What this lesson does not do:** treat *binary* (base-2) decimals
+  in detail — that's a foundation for computer arithmetic, treated
+  in Tier 5.
+:::

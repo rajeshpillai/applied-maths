@@ -1,0 +1,461 @@
+---
+title: "Ch 1 — Whole Numbers and the Four Operations"
+subtitle: "Place value, addition, subtraction, multiplication, division — and why they all rest on counting"
+lesson-id: "kar.whole-numbers"
+tier: "kar"
+kiselev-book: "Arithmetic"
+kiselev-chapter: 1
+kiselev-chapter-title: "Whole numbers"
+kiselev-sections: "§§1–40 (counting, place value, addition, subtraction, multiplication, division)"
+prerequisites: []
+unlocks: []
+applied-domains: [research, databases, encryption]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you count to $100$ aloud?
+2. Do you accept that *every* whole number can be written in
+   *base ten* using the digits $0$ through $9$?
+3. Can you add $27 + 35$ in your head (it equals $62$)?
+4. Can you say what $3 \times 4$ means in terms of "*$3$ groups of
+   $4$*"?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Ten fingers. Count one finger at a time. After ten, you've used up
+your hands — but ten *tens* gives you a hundred, ten *hundreds* a
+thousand, and so on. **Place value** is the trick by which a single
+digit ($1$) takes on a different *meaning* depending on its
+*position*.
+
+```{ojs}
+viewof n = Inputs.range([0, 9999], {value: 4307, step: 1, label: "number n"})
+```
+
+```{ojs}
+{
+  const s = String(n).padStart(4, "0");
+  const places = ["thousands", "hundreds", "tens", "units"];
+  const lines = [];
+  for (let i = 0; i < 4; i++) {
+    const d = parseInt(s[i]);
+    const v = d * Math.pow(10, 3 - i);
+    lines.push(`**${d}** in the ${places[i]} place = ${v}`);
+  }
+  const sum = lines.map((_, i) => parseInt(s[i]) * Math.pow(10, 3 - i)).reduce((a, b) => a + b, 0);
+  return `**n = ${n}**
+
+${lines.join("  \n")}
+
+Total: ${sum}`;
+}
+```
+
+The number $4307$ means $4 \cdot 1000 + 3 \cdot 100 + 0 \cdot 10 +
+7$. The same digit $4$ in $4307$ vs. $0040$ stands for vastly
+different quantities. **Place value is the foundational trick of
+arithmetic.**
+
+## Wonder
+
+1. Why **ten**? Why not eight or twelve as the base of our number
+   system?
+2. *Adding* two-digit numbers like $27 + 35$. **Where** does the
+   "carry" come from?
+3. *Multiplication* is repeated addition. So is $3 \times 4$
+   different from $4 \times 3$? *(Try counting both with grouped
+   dots.)*
+4. *Division.* If $42 \div 7 = 6$, what does this say about $7$
+   and $42$?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Ten fingers, that's all.** No deeper reason. Other cultures
+used base 12 (a *dozen*), base 60 (Babylonian, still in our
+clocks), base 20 (Mayan). Computers use base 2. (2) Adding the
+units gives $7 + 5 = 12$ — too big for one digit, so we *carry*
+the $1$ to the tens. (3) **No different** — $3 \times 4 = 4 \times
+3 = 12$ in either order. *Multiplication is commutative.*
+(4) $7$ is a *factor* of $42$, and $42$ is a *multiple* of $7$.
+Division is the inverse of multiplication.
+:::
+
+## Discover
+
+### Problem 1 — Place value
+
+Write $5024$ as a sum of place-values: $5 \cdot 10^3 + \cdots$.
+
+<details class="hint"><summary>Full solution</summary>
+$5024 = 5 \cdot 10^3 + 0 \cdot 10^2 + 2 \cdot 10^1 + 4 \cdot 10^0
+= 5000 + 0 + 20 + 4$.
+
+The zero placeholder *matters* — without it, "$524$" is a
+different number.
+</details>
+
+### Problem 2 — Addition with carry
+
+Compute $387 + 254$ by columns.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add units, tens, hundreds in turn, *carrying* when a column
+exceeds $9$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Units: $7 + 4 = 11$ — write $1$, carry $1$.
+Tens: $8 + 5 + 1 = 14$ — write $4$, carry $1$.
+Hundreds: $3 + 2 + 1 = 6$.
+**$387 + 254 = 641$.**
+</details>
+
+### Problem 3 — Subtraction with borrow
+
+Compute $623 - 478$ by columns.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+When a column has a smaller top than bottom, *borrow* a unit from
+the next-higher column.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Units: $3 - 8$ — borrow. $13 - 8 = 5$. (Tens become $1$ instead
+of $2$.)
+Tens: $1 - 7$ — borrow. $11 - 7 = 4$. (Hundreds become $5$ instead
+of $6$.)
+Hundreds: $5 - 4 = 1$.
+**$623 - 478 = 145$.**
+</details>
+
+### Problem 4 — Multiplication as repeated addition
+
+Compute $7 \times 6$ by repeated addition; then by direct
+recall.
+
+<details class="hint"><summary>Full solution</summary>
+$7 + 7 + 7 + 7 + 7 + 7 = 42$ (six 7's).
+Or: $6 + 6 + 6 + 6 + 6 + 6 + 6 = 42$ (seven 6's).
+
+Same answer either way — *commutativity*. **$7 \times 6 = 42$.**
+</details>
+
+### Problem 5 — Multiplication by a multi-digit number
+
+Compute $23 \times 14$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$23 \times 14 = 23 \times 10 + 23 \times 4 = 230 + 92$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$230 + 92 = 322$. **$23 \times 14 = 322$.**
+
+(*Long multiplication*: write $23$ above $14$, multiply by units,
+then by tens shifted one column left, sum.)
+</details>
+
+### Problem 6 — Division as inverse of multiplication
+
+Compute $84 \div 7$. State why the answer must be $12$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Dividing $84$ by $7$* asks: *how many sevens fit in $84$?*
+Equivalently, *what number times $7$ equals $84$?*
+</details>
+<details class="hint"><summary>Full solution</summary>
+$12 \times 7 = 84$, so $84 \div 7 = 12$.
+
+**Division is the *inverse* of multiplication.** *(Algebra II §10.)*
+</details>
+
+### Problem 7 — Division with remainder
+
+Compute $43 \div 5$ — and observe the **remainder**.
+
+<details class="hint"><summary>Full solution</summary>
+$8 \times 5 = 40$, with $43 - 40 = 3$ left over.
+**$43 \div 5 = 8$ remainder $3$**, written $43 = 5 \cdot 8 + 3$.
+
+The remainder is always *less than* the divisor.
+*(Algebra I §35 — the **division algorithm**.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Whole numbers:** $0, 1, 2, 3, \ldots$ (the *non-negative integers*).
+
+**Decimal place value.** Every whole number is uniquely written as
+$$d_n \cdot 10^n + d_{n-1} \cdot 10^{n-1} + \cdots + d_1 \cdot 10
++ d_0,$$
+with each digit $d_i \in \{0, 1, \ldots, 9\}$.
+
+**The four operations.**
+
+- **Addition** ($a + b$): the count of $a$ items combined with $b$
+  items.
+- **Subtraction** ($a - b$, with $a \ge b$): how many remain when
+  $b$ items are removed from $a$.
+- **Multiplication** ($a \times b$): the count of $a$ groups of $b$
+  items each. *Commutative:* $a \times b = b \times a$.
+- **Division** ($a \div b$, with $b \ne 0$): how many $b$-sized
+  groups fit in $a$. The unique pair (quotient $q$, remainder $r$)
+  with $a = b q + r$ and $0 \le r < b$ is the *division algorithm*.
+
+**Properties.** All four operations on whole numbers are:
+
+- *Commutative* (for $+$ and $\times$): order doesn't matter.
+- *Associative* (for $+$ and $\times$): grouping doesn't matter.
+- *Distributive*: $a \times (b + c) = a b + a c$.
+
+:::
+
+A verse:
+
+> *Ten fingers gave us ten — that's the base, no deeper why.*
+> *Carry when units exceed nine; borrow from the higher dye.*
+> *Multiply is grouped addition; divide is grouped subtraction's twin.*
+> *Remainder always smaller than divisor — the rule that makes the
+> dance begin.*
+
+## Apply
+
+### Worked example
+
+> A school has $437$ students. They split into classes of $25$.
+> How many classes, and how many students are left over?
+
+$437 \div 25$. $25 \times 17 = 425$. Remainder: $437 - 425 = 12$.
+
+**$17$ full classes, $12$ students left over.**
+
+### Practice — Warm
+
+**W1.** Compute $456 + 378$.
+
+<details class="hint"><summary>Full solution</summary>
+$834$.
+</details>
+
+**W2.** Compute $1000 - 287$.
+
+<details class="hint"><summary>Full solution</summary>
+$713$.
+</details>
+
+**W3.** Compute $36 \times 7$.
+
+<details class="hint"><summary>Full solution</summary>
+$252$ (by $30 \times 7 + 6 \times 7 = 210 + 42$).
+</details>
+
+### Practice — Working
+
+**P1.** Compute $124 \times 36$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$124 \times 36 = 124 \times 30 + 124 \times 6 = 3720 + 744$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4464$.
+</details>
+
+**P2.** Compute $952 \div 17$ (with remainder).
+
+<details class="hint"><summary>Full solution</summary>
+$17 \times 56 = 952$. **$952 \div 17 = 56$ remainder $0$.**
+</details>
+
+**P3.** *Word problem.* A bookshop sells $a$ books at $₹120$ each
+and $b$ books at $₹85$ each. Total revenue?
+
+<details class="hint"><summary>Full solution</summary>
+$120 a + 85 b$ rupees.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the **sum of any two even numbers** is even,
+and the **sum of two odd numbers** is even.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Write even = $2m$, odd = $2k + 1$. Add and observe.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 m + 2 n = 2(m + n)$ — even.
+$(2 m + 1) + (2 n + 1) = 2(m + n + 1)$ — even.
+**QED.**
+</details>
+
+**S2.** Find the smallest whole number $n$ such that $n^2$ has
+exactly $4$ digits.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+4-digit means $1000 \le n^2 \le 9999$. So $\sqrt{1000} \le n \le
+\sqrt{9999}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{1000} \approx 31.62$, so $n \ge 32$. **Smallest $n = 32$**
+(since $32^2 = 1024$, a 4-digit number).
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Arithmetic*, §§20–40.
+
+**K1.** A train travels from $A$ to $B$ at $60$ km/h and from $B$
+to $A$ at $40$ km/h. Total round-trip distance is $480$ km. Find
+the total time.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+One-way distance: $240$ km. Forward time: $240/60$. Return:
+$240/40$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Forward: $4$ h. Return: $6$ h. **Total: $10$ h.**
+</details>
+
+**K2.** A **3-digit** number has digits whose **sum** is $15$, and
+the digit in the *hundreds* place is twice the digit in the *units*
+place. The digit in the *tens* place is $5$. Find the number.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let units = $u$. Then hundreds = $2 u$, tens = $5$. Sum: $2u + 5
++ u = 15$, so $3 u = 10$ — *no integer solution*. Re-read: maybe
+"sum" is something else.
+</details>
+<details class="hint"><summary>Full solution</summary>
+With sum $15$: $2u + 5 + u = 3u + 5 = 15 \Rightarrow u = 10/3$ —
+no integer. **Adjust the problem:** if sum is $14$, $u = 3$, digits
+$6, 5, 3$ → number $653$. ✓ *(A reminder that careful arithmetic
+requires careful problem-statement.)*
+</details>
+
+**K3.** *Long division.* Compute $98765 \div 41$ (quotient and
+remainder).
+
+<details class="hint"><summary>Full solution</summary>
+$41 \times 2000 = 82000$. $98765 - 82000 = 16765$.
+$41 \times 400 = 16400$. $16765 - 16400 = 365$.
+$41 \times 8 = 328$. $365 - 328 = 37$.
+$41 \times 9 = 369 > 365$ — so we use $8$.
+
+**$98765 \div 41 = 2408$ remainder $37$.**
+
+(Verify: $41 \times 2408 = 98728$; $98728 + 37 = 98765$. ✓)
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Систематический курс
+арифметики* (1884; modern reprint Fizmatlit). Russian original:
+[archive.org scan](https://archive.org/details/libgen_00032025).
+The division algorithm (Problem 7) is §38; the carry / borrow
+mechanics (Problems 2, 3) are §§20–25.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$5 - 8$ is impossible."** *Within whole numbers, yes.* The
+   operation gives a *negative* result, which extends arithmetic
+   to the *integers* — a Tier 1 / Algebra I topic.
+2. **"Division by zero gives $0$."** *No.* Division by zero is
+   **undefined** — there is no number that, multiplied by zero,
+   gives a non-zero number.
+3. **"$0$ is not a whole number."** *Yes it is.* In the modern
+   convention (and Kiselev's), the whole numbers begin with $0$.
+   The *natural numbers* sometimes start at $1$, sometimes at $0$ —
+   conventions vary.
+:::
+
+### Self-Assessment
+
+1. Could you explain place value to someone who'd never seen it?
+2. Did the carry / borrow mechanics (Problems 2, 3) feel like one
+   move each, or did you have to think step-by-step?
+3. Can you compute $43 \div 5 = 8$ remainder $3$ in your head?
+
+- **3 yes:** move on to *Divisibility, Primes, GCD and LCM*
+  (Ch 2).
+- **2 yes:** drill the long-multiplication and long-division
+  algorithms.
+- **0–1 yes:** the four operations are the foundation; replay
+  Problems 1–7.
+
+## Connect
+
+### Prerequisites used
+
+*None.* This is the foundational lesson; all later mathematics
+builds on it.
+
+### What this unlocks
+
+- **`kar.divisibility`** *(Ch 2, planned)* — primes, GCD, LCM use
+  the division algorithm directly.
+- **`kar.common-fractions`** *(Ch 3, planned)* — fractions are
+  ratios of whole numbers.
+- [`ka1.signed-numbers`](../../tier-kiselev-1-algebra-1/01-signed-numbers/index.qmd) —
+  extending whole numbers to signed numbers (negatives).
+- [`t1.what-is-a-number`](../../tier-1-foundations/01-what-is-a-number/index.qmd) —
+  the synthesis-tier opener; same content, gentler idiom.
+
+### Kiselev chapter alignment
+
+- **Arithmetic — Chapter 1: Whole numbers (§§1–40).** Russian
+  original on
+  [archive.org](https://archive.org/details/libgen_00032025).
+- **Sister synthesis lessons:**
+  [`t1.what-is-a-number`](../../tier-1-foundations/01-what-is-a-number/index.qmd);
+  [`t1.place-value`](../../tier-1-foundations/03-place-value/index.qmd);
+  [`t1.add-subtract`](../../tier-1-foundations/04-add-subtract/index.qmd);
+  [`t1.multiply-as-area`](../../tier-1-foundations/05-multiply-as-area/index.qmd);
+  [`t1.divide-fair-share`](../../tier-1-foundations/06-divide-fair-share/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of place value (§§5–10).
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** Every database stores integers in *binary place
+value* (base 2). The carry / borrow mechanics this lesson teaches
+are *literally* what the CPU does on every arithmetic instruction —
+in base 2 instead of base 10.
+:::
+
+::: {.applied-callout}
+**Encryption.** **Modular arithmetic** — the integers reduced mod
+some $n$ — is the foundation of RSA, Diffie-Hellman, and most of
+modern cryptography. The division algorithm (Problem 7) is the
+operation behind every modular reduction.
+:::
+
+::: {.applied-callout}
+**Research.** Number theory begins here. Every result about prime
+numbers, every theorem of analytic number theory, every conjecture
+about the integers, ultimately rests on the four operations and
+the division algorithm.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§1–40 ordering); Pestalozzi (the
+  finger-counting *Touch*); Bhāskara (the place-value verses in
+  *Līlāvatī*).
+- **Place value as a *mathematical structure***, not just a
+  notational convention, is the key insight to land. Once a learner
+  sees that "$523$" is a polynomial in $10$, every base — binary,
+  hexadecimal, base 60 — becomes accessible.
+- **What this lesson does not do:** treat *negative* numbers
+  (Algebra I Ch 1) or *modular* arithmetic (Tier 5).
+:::

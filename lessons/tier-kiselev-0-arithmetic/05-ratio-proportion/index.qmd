@@ -1,0 +1,461 @@
+---
+title: "Ch 5 — Ratio and Proportion"
+subtitle: "$a : b = c : d$ — and the *rule of three* that solved problems for two thousand years"
+lesson-id: "kar.ratio-proportion"
+tier: "kar"
+kiselev-book: "Arithmetic"
+kiselev-chapter: 5
+kiselev-chapter-title: "Ratio and proportion"
+kiselev-sections: "§§136–160 (definition, properties, direct and inverse proportion, rule of three)"
+prerequisites: [kar.common-fractions]
+unlocks: []
+applied-domains: [research, ai-ml, databases, game-dev]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are common fractions automatic? See
+   [`kar.common-fractions`](../03-common-fractions/index.qmd).
+2. Can you reduce $\dfrac{12}{18}$ to $\dfrac{2}{3}$ by cancelling
+   GCD?
+3. Are you comfortable saying "the ratio of $A$ to $B$ is $3$ to
+   $5$" and understanding what that means about *quantities*?
+4. Can you cross-multiply: $\dfrac{a}{b} = \dfrac{c}{d}
+   \Leftrightarrow a d = b c$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A recipe calls for $2$ cups flour to $3$ cups water. Doubling: $4$
+cups flour to $6$ cups water. Tripling: $6$ to $9$. The **ratio**
+$2 : 3$ stays the same — it captures the *relationship* between
+quantities, not the quantities themselves.
+
+```{ojs}
+viewof a = Inputs.range([1, 20], {value: 2, step: 1, label: "a (flour cups)"})
+```
+
+```{ojs}
+viewof b = Inputs.range([1, 20], {value: 3, step: 1, label: "b (water cups)"})
+```
+
+```{ojs}
+viewof multiplier = Inputs.range([1, 8], {value: 3, step: 1, label: "scale"})
+```
+
+```{ojs}
+{
+  const A = a * multiplier;
+  const B = b * multiplier;
+  // gcd
+  const gcd = (m, n) => n === 0 ? m : gcd(n, m % n);
+  const g = gcd(a, b);
+  const reduced = (g > 1) ? `${a/g} : ${b/g}` : `${a} : ${b}`;
+  return `**Original ratio:** ${a} : ${b} (reduced: ${reduced}).
+
+**Scaled by ${multiplier}:** ${A} : ${B}.
+
+The two ratios are *equal* (same simplified form).`;
+}
+```
+
+A ratio $a : b$ behaves like a fraction $\dfrac{a}{b}$ — but with
+*two named quantities* preserved on either side, so the *applied
+meaning* survives the math.
+
+## Wonder
+
+1. The ratios $2 : 3$ and $4 : 6$ are *equal*. **Why** is "$=$"
+   the right symbol — what does it mean for two ratios to be
+   equal?
+2. If $a : b = c : d$, then $a d = b c$. **Why** does this
+   cross-multiplication identity hold?
+3. *Direct proportion:* doubling one quantity doubles the other.
+   *Inverse proportion:* doubling one halves the other. **Examples
+   of each?**
+4. The classical *rule of three*: given three of $a, b, c, d$ in
+   the proportion $a : b = c : d$, find the fourth. **How** does
+   this work?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Two ratios are *equal* if their fractions reduce to the same
+lowest-terms form. (2) Cross-multiplication is just clearing
+denominators. (3) *Direct:* speed and time at fixed distance. *No
+wait* — speed and *time* are inversely proportional (faster ⇒
+less time). *Direct:* distance and time at fixed speed. (4) Set
+up $\dfrac{a}{b} = \dfrac{c}{d}$, cross-multiply, solve for the
+unknown.
+:::
+
+## Discover
+
+### Problem 1 — Ratio as fraction
+
+Show that the *ratio* $a : b$ behaves identically to the *fraction*
+$\dfrac{a}{b}$ for the purposes of arithmetic operations.
+
+<details class="hint"><summary>Full solution</summary>
+A ratio $a : b$ encodes the same information as $\dfrac{a}{b}$ —
+the *relative size* of $a$ to $b$. Equivalent ratios obey the same
+cancellation as equivalent fractions: $a : b = (a k) : (b k)$ for
+$k \ne 0$. The four operations on ratios mirror those on
+fractions.
+
+The *difference* is only conceptual: a ratio preserves *which
+quantity is which*, useful for applied problems. **(Arithmetic
+§137.)**
+</details>
+
+### Problem 2 — Equality of ratios (proportion)
+
+A **proportion** is an equality of two ratios: $a : b = c : d$.
+Show this is equivalent to $a d = b c$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\dfrac{a}{b} = \dfrac{c}{d}$, multiply both sides by $bd$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{a}{b} = \dfrac{c}{d} \Rightarrow a d = b c$ (clearing
+denominators).
+
+Conversely, $a d = b c$ with $b, d \ne 0$ gives $\dfrac{a}{b} =
+\dfrac{c}{d}$. **QED.** *(Arithmetic §139 — the **fundamental
+property of proportions**, also called *cross-multiplication*.)*
+</details>
+
+### Problem 3 — Mean and extremes
+
+In the proportion $a : b = c : d$: $a, d$ are called the *extremes*
+and $b, c$ the *means*. Show: **product of extremes = product of
+means**.
+
+<details class="hint"><summary>Full solution</summary>
+$a d = b c$ from Problem 2. The "extremes" are at the ends of the
+proportion when written $a : b = c : d$; the "means" are in the
+middle. **Their products are equal.** *(Arithmetic §140.)*
+</details>
+
+### Problem 4 — Direct proportion
+
+Two quantities $x, y$ are in **direct proportion** if their ratio
+$x : y$ is constant: $\dfrac{x}{y} = k$ for some constant $k$.
+Examples: cost vs quantity at fixed unit price; distance vs time
+at fixed speed.
+
+<details class="hint"><summary>Full solution</summary>
+*If the unit price is $₹50$, then for $x$ kg the cost $y = 50 x$.*
+Ratio $y : x = 50 : 1$, constant. *(Arithmetic §145.)*
+
+**$y = k x$** is the standard form of a direct-proportion relation.
+</details>
+
+### Problem 5 — Inverse proportion
+
+Two quantities $x, y$ are in **inverse proportion** if their
+*product* is constant: $x y = k$. Examples: speed vs time at fixed
+distance; number of workers vs days to complete a fixed job.
+
+<details class="hint"><summary>Full solution</summary>
+*A trip of $300$ km: speed $\times$ time $= 300$, constant.* If
+speed is $60$ km/h, time is $5$ h. If speed is $100$ km/h, time is
+$3$ h.
+
+**$x y = k$**, equivalently $y = k/x$. *(Arithmetic §147.)*
+</details>
+
+### Problem 6 — The rule of three
+
+Given a proportion $a : b = c : d$ with three knowns and one
+unknown, solve for the unknown.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cross-multiply: $a d = b c$. Solve for the unknown.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*If $a, b, c$ known and $d$ unknown:* $d = \dfrac{b c}{a}$.
+
+*Example:* "If $5$ workers take $12$ days for a job, how long for
+$8$ workers?" Inverse proportion: $5 \cdot 12 = 8 \cdot d$, so
+$d = \dfrac{60}{8} = 7.5$ days.
+
+**The *rule of three*** has been the workhorse algorithm of
+applied arithmetic for two millennia. *(Arithmetic §150.)*
+</details>
+
+### Problem 7 — Compound ratios
+
+Two ratios $a : b$ and $c : d$ have **compound ratio** $(a c) :
+(b d)$. Verify and apply.
+
+<details class="hint"><summary>Full solution</summary>
+The compound ratio is just the *product* of the two ratios as
+fractions: $\dfrac{a}{b} \cdot \dfrac{c}{d} = \dfrac{a c}{b d}$.
+
+*Application:* "If A : B = 2 : 3 and B : C = 4 : 5, find A : C."
+Express both with B as common scale: $A : B = 8 : 12, B : C = 12
+: 15$. So $A : B : C = 8 : 12 : 15$, hence $A : C = 8 : 15$. **(Or
+directly via compound: $A : C = (A : B)(B : C) = (2 \cdot 4) : (3
+\cdot 5) = 8 : 15$.)** *(Arithmetic §155.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Ratio** $a : b$: the relative size of $a$ to $b$. Behaves
+arithmetically like the fraction $\dfrac{a}{b}$.
+
+**Proportion** $a : b = c : d$: equality of two ratios.
+*Equivalent to* $a d = b c$.
+
+**Means and extremes:** in $a : b = c : d$, $a, d$ are *extremes*,
+$b, c$ are *means*. Product of extremes = product of means.
+
+**Direct proportion** $y = k x$: $y/x$ is constant.
+
+**Inverse proportion** $x y = k$: $x \cdot y$ is constant.
+
+**Rule of three:** given three of $a, b, c, d$ in proportion, find
+the fourth via $d = \dfrac{b c}{a}$.
+
+**Compound ratio:** $(a : b)(c : d) = (a c) : (b d)$.
+
+:::
+
+A verse:
+
+> *Ratio names two quantities; proportion equates two ratios.*
+> *Cross-multiply: extremes equal means — that's the rule for the
+> ages.*
+> *Direct: $y$ over $x$ stays put; inverse: $x$ times $y$ stays the
+> same.*
+> *And the rule of three for two thousand years has been
+> arithmetic's claim.*
+
+## Apply
+
+### Worked example
+
+> If $7$ pencils cost $₹35$, how much for $12$ pencils?
+
+Direct proportion. $\dfrac{x}{12} = \dfrac{35}{7}$, so $x = 60$.
+
+**$₹60$.**
+
+### Practice — Warm
+
+**W1.** Reduce the ratio $24 : 36$ to lowest terms.
+
+<details class="hint"><summary>Full solution</summary>
+$\gcd = 12$. **$2 : 3$.**
+</details>
+
+**W2.** If $5 : 8 = 15 : x$, find $x$.
+
+<details class="hint"><summary>Full solution</summary>
+$5 x = 8 \cdot 15 = 120$, $x = 24$.
+</details>
+
+**W3.** If $a$ varies *directly* with $b$, and $a = 6$ when $b = 8$,
+find $a$ when $b = 20$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{a}{b} = \dfrac{6}{8} = \dfrac{3}{4}$. So $a = 15$.
+</details>
+
+### Practice — Working
+
+**P1.** $4$ workers paint a fence in $9$ days. How long for $6$
+workers?
+
+<details class="hint"><summary>Full solution</summary>
+Inverse proportion. $4 \cdot 9 = 6 \cdot d$, so $d = 6$ days.
+</details>
+
+**P2.** A car travels $360$ km in $4$ hours. At the same average
+speed, how long for $540$ km?
+
+<details class="hint"><summary>Full solution</summary>
+Direct proportion (distance/time = speed, constant). $\dfrac{360}
+{4} = \dfrac{540}{t}$, so $t = 6$ hours.
+</details>
+
+**P3.** Three people share $₹3300$ in the ratio $2 : 3 : 6$. Find
+each share.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total parts: $11$. Each part: $3300/11 = 300$. Multiply each
+ratio component.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Shares: $600, 900, 1800$.
+</details>
+
+### Practice — Stretch
+
+**S1.** A mixture of $20$ litres of milk and water has milk and
+water in ratio $5 : 3$. How much water must be *added* to make
+the ratio $1 : 1$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Initial milk: $\dfrac{5}{8} \cdot 20 = 12.5$ L. Water: $7.5$ L.
+For ratio $1 : 1$, water must equal milk = $12.5$ L. Add: $5$ L.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Add $5$ litres of water.
+</details>
+
+**S2.** Three quantities $a, b, c$ are in **continued proportion**
+($a : b = b : c$). Show that $b = \sqrt{a c}$ — *i.e., $b$ is the
+geometric mean*.
+
+<details class="hint"><summary>Full solution</summary>
+$a/b = b/c$, so $b^2 = a c$, hence $b = \sqrt{a c}$ (positive
+root). **The middle term of a continued proportion is the
+geometric mean of the extremes.** *(Arithmetic §158.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Arithmetic*, §§145–160.
+
+**K1.** A 100-m race: A finishes in $12$ s, B in $13$ s. By how
+many *metres* does A beat B?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+B's speed: $100/13$ m/s. In $12$ s, B covers $1200/13 \approx
+92.3$ m.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$100 - \dfrac{1200}{13} = \dfrac{1300 - 1200}{13} = \dfrac{100}
+{13} \approx 7.69$ m. **A beats B by $\dfrac{100}{13} \approx
+7.7$ metres.**
+</details>
+
+**K2.** *Tank-filling.* Three pipes can fill a tank in $4, 6, 12$
+hours respectively. How long if all three are open simultaneously?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combined rate: $\dfrac{1}{4} + \dfrac{1}{6} + \dfrac{1}{12}$
+tank/hour.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LCD $12$: $\dfrac{3 + 2 + 1}{12} = \dfrac{6}{12} = \dfrac{1}{2}$
+tank/hour. Time: $2$ hours.
+</details>
+
+**K3.** *(Continued proportion.)* If $a : b = b : c = c : d$ and
+$a = 1, d = 64$, find $b$ and $c$.
+
+<details class="hint"><summary>Full solution</summary>
+$b/a = c/b = d/c = r$ (common ratio). Then $d = a r^3 = r^3 = 64$,
+so $r = 4$. Hence $b = 4, c = 16$. **$b = 4, c = 16$.** *(A
+geometric progression in disguise.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Систематический курс
+арифметики* (1884; modern reprint Fizmatlit). Russian original:
+[archive.org scan](https://archive.org/details/libgen_00032025).
+The rule of three (Problem 6) is §150; the continued-proportion
+theorem (S2) is §158.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"More workers always means more days."** *Backwards* — more
+   workers means *fewer* days for a fixed job. Inverse proportion.
+2. **"Ratio and fraction are different."** They behave the same
+   way arithmetically. The *only* difference is that a ratio
+   preserves which quantity is which (semantic), while a fraction
+   is purely numerical.
+3. **"$a : b : c$ means $\dfrac{a}{b} = \dfrac{b}{c}$."** No —
+   $a : b : c$ is a *triple ratio* meaning the three quantities
+   are in the relations $a : b$ and $b : c$ simultaneously. (For
+   *continued proportion* — the equal-ratio case — see S2.)
+:::
+
+### Self-Assessment
+
+1. Could you state the *fundamental property of proportions*
+   (Problem 2) and apply it to solve $5 : x = 7 : 21$?
+2. Did the *rule of three* (Problem 6) feel like one move?
+3. Can you spot when a real-world relationship is direct vs
+   inverse proportion (P1, P2 — workers vs time, distance vs
+   time)?
+
+- **3 yes:** move on to *Percentage* (Ch 6).
+- **2 yes:** redo the inverse-proportion problem (P1) — sign /
+  direction is the chapter's most-confused detail.
+- **0–1 yes:** practise the rule of three on five real-world
+  problems before moving on.
+
+## Connect
+
+### Prerequisites used
+
+- [`kar.common-fractions`](../03-common-fractions/index.qmd) —
+  ratios obey the same arithmetic.
+
+### What this unlocks
+
+- **`kar.percentage`** *(Ch 6, planned)* — percentages are ratios
+  with denominator $100$.
+- [`kg1.similarity`](../../tier-kiselev-3-planimetry/07-similarity/index.qmd) —
+  similar figures have proportional sides.
+- [`t1.ratio-proportion`](../../tier-1-foundations/09-ratio-proportion/index.qmd) —
+  same content, t-tier idiom.
+
+### Kiselev chapter alignment
+
+- **Arithmetic — Chapter 5: Ratio and proportion (§§136–160).**
+  Russian original on
+  [archive.org](https://archive.org/details/libgen_00032025).
+- **Sister synthesis lesson:**
+  [`t1.ratio-proportion`](../../tier-1-foundations/09-ratio-proportion/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the *rule of three* and its many applied variants (§§148–
+  155).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** **Bayes' theorem** is a proportion: posterior /
+prior = likelihood / evidence. The same cross-multiplication.
+:::
+
+::: {.applied-callout}
+**Game development.** **Aspect ratios** ($16:9, 4:3$) are
+fundamental to image and video display. **Scaling laws** in
+graphics use direct proportion when stretching, inverse when
+fitting.
+:::
+
+::: {.applied-callout}
+**Research.** **Allometry** — how biological traits scale with
+size — is a vast field built on log-log proportional relations.
+The square-cube law (Algebra II Ch 5) is a special case.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§136–160 ordering); Bhāskara
+  (*Līlāvatī* on the rule of three); Galileo (the square-cube law
+  as inverse / direct proportion).
+- **The rule of three** is older than algebra — practical
+  arithmetic for centuries before symbolic notation.
+- **What this lesson does not do:** treat *partitive* proportion
+  in full (sharing in ratios with constraints), which Kiselev
+  covers in §155–158.
+:::

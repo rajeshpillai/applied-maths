@@ -1,0 +1,505 @@
+---
+title: "Ch 2 — Divisibility, Primes, GCD and LCM"
+subtitle: "Why every number factors uniquely into primes — and how Euclid's algorithm finds the GCD in seconds"
+lesson-id: "kar.divisibility"
+tier: "kar"
+kiselev-book: "Arithmetic"
+kiselev-chapter: 2
+kiselev-chapter-title: "Divisibility and primes"
+kiselev-sections: "§§41–75 (divisibility rules, primes, GCD, LCM, fundamental theorem of arithmetic)"
+prerequisites: [kar.whole-numbers]
+unlocks: []
+applied-domains: [encryption, research, databases]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are the four operations on whole numbers automatic? See
+   [`kar.whole-numbers`](../01-whole-numbers/index.qmd).
+2. Can you do long division with remainder?
+3. Are you comfortable saying "$15$ is divisible by $5$" and "$5$
+   is a *factor* of $15$"?
+4. Can you list the divisors of $12$ ($1, 2, 3, 4, 6, 12$)?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+The number $30$. List **all** its divisors: $1, 2, 3, 5, 6, 10, 15,
+30$. Eight numbers. The structure of those divisors is hidden in
+the *prime factorisation* $30 = 2 \cdot 3 \cdot 5$.
+
+```{ojs}
+viewof n = Inputs.range([2, 100], {value: 30, step: 1, label: "n"})
+```
+
+```{ojs}
+{
+  const divisors = [];
+  for (let d = 1; d <= n; d++) if (n % d === 0) divisors.push(d);
+  let m = n, factors = {};
+  let p = 2;
+  while (m > 1) {
+    while (m % p === 0) { factors[p] = (factors[p] || 0) + 1; m /= p; }
+    p++;
+  }
+  const fs = Object.entries(factors).map(([p, e]) => e === 1 ? p : `${p}^${e}`).join(" · ");
+  return `**${n}**
+
+Divisors (${divisors.length}): ${divisors.join(", ")}.
+
+Prime factorisation: **${fs}**.`;
+}
+```
+
+The number of divisors equals the product of (exponent + 1) over
+all primes — for $30 = 2^1 \cdot 3^1 \cdot 5^1$, that's $2 \cdot 2
+\cdot 2 = 8$.
+
+## Wonder
+
+1. Some numbers have only **two** divisors ($1$ and itself). What
+   are they called?
+2. *Every* whole number $> 1$ can be written as a product of
+   primes. Is the factorisation **unique**?
+3. The **GCD** (greatest common divisor) of $12$ and $18$ is $6$.
+   How would you find the GCD of a much larger pair, like $1071$
+   and $462$?
+4. The **LCM** (least common multiple) of $4$ and $6$ is $12$. What
+   is the relationship between GCD and LCM?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Primes:** $2, 3, 5, 7, 11, 13, 17, \ldots$ (2) **Yes** — up
+to ordering. This is the *Fundamental Theorem of Arithmetic*.
+(3) **Euclid's algorithm:** repeatedly replace the larger by its
+remainder mod the smaller. (4) For any $a, b$: $\gcd(a, b) \cdot
+\text{lcm}(a, b) = a \cdot b$.
+:::
+
+## Discover
+
+### Problem 1 — Divisibility rules
+
+State and verify:
+- $n$ is divisible by **2** iff its last digit is even.
+- $n$ is divisible by **3** iff its *digit sum* is divisible by 3.
+- $n$ is divisible by **5** iff its last digit is $0$ or $5$.
+- $n$ is divisible by **9** iff its *digit sum* is divisible by 9.
+
+<details class="hint"><summary>Full solution</summary>
+*Divisibility by 2 and 5* follows from $10 = 2 \cdot 5$, so place-
+value contributions $\ge 10$ are always divisible by both. The
+last-digit test reduces $n$ mod $10$.
+
+*Divisibility by 3 and 9* follows from $10 \equiv 1 \pmod 9$ (and
+mod 3), so $n \equiv \text{(digit sum)} \pmod 9$ — and hence mod 3.
+
+**(Algebra II §44 — *modular arithmetic* gives a cleaner proof.)**
+</details>
+
+### Problem 2 — Primes
+
+A whole number $> 1$ is **prime** if its only positive divisors
+are $1$ and itself. List all primes up to $20$.
+
+<details class="hint"><summary>Full solution</summary>
+$2, 3, 5, 7, 11, 13, 17, 19$. **Eight primes up to $20$.**
+*(The **sieve of Eratosthenes** finds primes by crossing out
+multiples of $2$, $3$, $5$, ... up to $\sqrt n$.)*
+</details>
+
+### Problem 3 — Fundamental Theorem of Arithmetic
+
+State (and *believe*) the fundamental theorem: every whole number
+$n \ge 2$ factors uniquely into primes (up to ordering).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Existence:* iterative factoring (try smaller primes; if none, $n$
+is prime). *Uniqueness:* hardest to prove — uses Euclid's lemma
+(if $p \mid a b$ then $p \mid a$ or $p \mid b$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Existence.** Induction: if $n$ has a prime factor $p$, then
+$n/p$ is smaller and (by induction) factors into primes; combined
+with $p$, so does $n$.
+
+**Uniqueness.** Suppose $n = p_1 \cdots p_k = q_1 \cdots q_l$ with
+all $p_i, q_j$ prime. Then $p_1 \mid q_1 q_2 \cdots q_l$. By
+*Euclid's lemma* (a prime dividing a product divides one of the
+factors), $p_1 \mid q_j$ for some $j$. Both prime, so $p_1 = q_j$.
+Cancel and recurse. **The two factorisations match up to
+permutation.** *(Arithmetic §62 — Euclid's *Elements*, Book IX,
+~300 BCE.)*
+
+*Application:* $30 = 2 \cdot 3 \cdot 5$ — and *no other primes*,
+in any order, multiply to $30$.
+</details>
+
+### Problem 4 — Euclid's algorithm for GCD
+
+Compute $\gcd(1071, 462)$ by repeatedly replacing the larger by
+its remainder mod the smaller.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$1071 = 462 \cdot 2 + 147$. So $\gcd(1071, 462) = \gcd(462, 147)$.
+Continue.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1071 = 462 \cdot 2 + 147$ → $\gcd(462, 147)$.
+$462 = 147 \cdot 3 + 21$ → $\gcd(147, 21)$.
+$147 = 21 \cdot 7 + 0$ → $\gcd(21, 0) = 21$.
+
+**$\gcd(1071, 462) = 21$.**
+
+(*Verify:* $1071 = 21 \cdot 51, 462 = 21 \cdot 22$, and $\gcd(51,
+22) = 1$ — confirming $21$ is the *greatest* common divisor.)
+*(Arithmetic §66 — **Euclid's algorithm**, ~300 BCE.)*
+</details>
+
+### Problem 5 — Why Euclid's algorithm works
+
+Show that for $a > b > 0$: $\gcd(a, b) = \gcd(b, a \bmod b)$.
+
+<details class="hint"><summary>Full solution</summary>
+$a = b q + r$. Any common divisor $d$ of $a, b$ also divides $r =
+a - b q$. Conversely, any common divisor of $b, r$ divides $a =
+b q + r$. So the set of common divisors of $\{a, b\}$ equals the
+set of common divisors of $\{b, r\}$. Their *greatest* element
+is hence the same. **QED.** *(Arithmetic §67.)*
+</details>
+
+### Problem 6 — LCM via prime factorisation
+
+Compute $\text{lcm}(12, 18)$ via prime factorisation.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$12 = 2^2 \cdot 3$, $18 = 2 \cdot 3^2$. LCM = product of *highest*
+prime powers.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LCM = $2^2 \cdot 3^2 = 4 \cdot 9 = 36$. (Highest power of $2$ in
+either: $2^2$. Highest power of $3$: $3^2$.) **$\text{lcm}(12, 18)
+= 36$.**
+
+GCD = product of *lowest* prime powers: $2^1 \cdot 3^1 = 6$.
+*Verify:* $\gcd \cdot \text{lcm} = 6 \cdot 36 = 216 = 12 \cdot
+18$. ✓
+</details>
+
+### Problem 7 — GCD-LCM relation
+
+For any $a, b > 0$: $\gcd(a, b) \cdot \text{lcm}(a, b) = a \cdot b$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the prime-factorisation viewpoint: write $a = \prod p_i^{a_i}$
+and $b = \prod p_i^{b_i}$. GCD has exponent $\min(a_i, b_i)$; LCM
+has $\max$. Sum: $\min + \max = a_i + b_i$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For each prime $p$: $\min(a_p, b_p) + \max(a_p, b_p) = a_p + b_p$.
+So the prime factorisation of $\gcd \cdot \text{lcm}$ matches that
+of $a \cdot b$ exponent-by-exponent. **QED.** *(Arithmetic §72.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Divisor / factor.** $d \mid n$ means $n = d k$ for some integer
+  $k$.
+- **Prime number.** $p > 1$ with no divisors other than $1$ and
+  $p$. Examples: $2, 3, 5, 7, 11, \ldots$
+- **Composite number.** $n > 1$ that is not prime — has a divisor
+  strictly between $1$ and $n$.
+- **GCD** ($\gcd(a, b)$): largest whole number dividing both.
+- **LCM** ($\text{lcm}(a, b)$): smallest whole number that is a
+  multiple of both.
+- **Coprime** (relatively prime): $\gcd(a, b) = 1$.
+
+**Theorems.**
+
+1. **Fundamental Theorem of Arithmetic.** Every whole number $n
+   \ge 2$ has a unique prime factorisation (up to ordering).
+2. **Euclid's algorithm.** $\gcd(a, b) = \gcd(b, a \bmod b)$,
+   terminating at $\gcd(d, 0) = d$.
+3. **GCD-LCM relation.** $\gcd(a, b) \cdot \text{lcm}(a, b) = a
+   \cdot b$.
+4. **Euclid's lemma.** If $p$ is prime and $p \mid a b$, then $p
+   \mid a$ or $p \mid b$.
+
+**Divisibility shortcuts (base 10).**
+
+| By | Test |
+|----|------|
+| $2$ | last digit even |
+| $3$ | digit sum divisible by $3$ |
+| $4$ | last two digits form a multiple of $4$ |
+| $5$ | last digit $0$ or $5$ |
+| $6$ | divisible by both $2$ and $3$ |
+| $9$ | digit sum divisible by $9$ |
+| $10$ | last digit $0$ |
+| $11$ | alternating digit sum divisible by $11$ |
+
+:::
+
+A verse:
+
+> *Every number breaks into primes — that's the fundamental rule.*
+> *Euclid's swap of larger for remainder finds the GCD as a tool.*
+> *GCD times LCM is the product itself — remember the symmetry.*
+> *And primes go on forever, by Euclid's two-line eternity.*
+
+## Apply
+
+### Worked example
+
+> Find $\gcd(252, 105)$ and $\text{lcm}(252, 105)$.
+
+**GCD by Euclid:**
+$252 = 105 \cdot 2 + 42$
+$105 = 42 \cdot 2 + 21$
+$42 = 21 \cdot 2 + 0$
+**$\gcd(252, 105) = 21$.**
+
+**LCM:** $\dfrac{252 \cdot 105}{21} = \dfrac{26460}{21} = 1260$.
+
+### Practice — Warm
+
+**W1.** Is $2348$ divisible by $4$?
+
+<details class="hint"><summary>Full solution</summary>
+Last two digits: $48$. $48 / 4 = 12$. **Yes.**
+</details>
+
+**W2.** List the prime factorisation of $84$.
+
+<details class="hint"><summary>Full solution</summary>
+$84 = 2 \cdot 42 = 2 \cdot 2 \cdot 21 = 2^2 \cdot 3 \cdot 7$.
+</details>
+
+**W3.** $\gcd(15, 25)$?
+
+<details class="hint"><summary>Full solution</summary>
+$5$.
+</details>
+
+### Practice — Working
+
+**P1.** Find all positive divisors of $36$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$36 = 2^2 \cdot 3^2$. Divisor count: $3 \cdot 3 = 9$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1, 2, 3, 4, 6, 9, 12, 18, 36$. **Nine divisors.**
+</details>
+
+**P2.** Compute $\gcd(360, 252)$.
+
+<details class="hint"><summary>Full solution</summary>
+$360 = 252 \cdot 1 + 108$. $252 = 108 \cdot 2 + 36$. $108 = 36
+\cdot 3 + 0$. **$\gcd = 36$.**
+</details>
+
+**P3.** Show that $7$ is *prime* — i.e., it has no divisors other
+than $1$ and $7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Test divisibility by $2, 3, 5$ (you only need primes up to $\sqrt
+7 \approx 2.6$, so just $2$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$7$ is odd (not divisible by $2$), digit sum $7$ (not by $3$),
+last digit $7$ (not by $5$). Since $\sqrt 7 < 3$, we only need to
+test up to $2$. **$7$ is prime.**
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that there are **infinitely many primes**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Euclid's proof (300 BCE).* Suppose finitely many primes $p_1,
+\ldots, p_n$ exist. Consider $N = p_1 p_2 \cdots p_n + 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$N = p_1 p_2 \cdots p_n + 1$. By the fundamental theorem, $N$ has
+a prime factor $q$. But $q \ne p_i$ for any $i$ (since $p_i \mid
+p_1 \cdots p_n$ but $p_i \nmid 1$). So $q$ is a *new* prime —
+contradicting the assumption that $p_1, \ldots, p_n$ are all of
+them. **Infinitely many primes exist.** *(Euclid's *Elements*,
+Book IX, Proposition 20 — one of the most beautiful proofs in
+mathematics.)*
+</details>
+
+**S2.** Show that $\sqrt 2$ is *irrational* using the fundamental
+theorem.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose $\sqrt 2 = p/q$ in lowest terms. Then $2 q^2 = p^2$. Look
+at the *parity* of the exponent of $2$ in each side's prime
+factorisation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 q^2 = p^2$. The exponent of $2$ in the prime factorisation of
+$p^2$ is *even* (twice the exponent in $p$). The exponent in $2 q^2$
+is *odd* (one plus twice the exponent in $q$). **Even $\ne$ odd —
+contradiction.** $\sqrt 2$ is irrational. *(A clean alternative to
+Euclid's parity proof from Algebra I Ch 8.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Arithmetic*, §§50–75.
+
+**K1.** Find the smallest whole number divisible by all integers
+from $1$ to $10$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+LCM of $1, 2, \ldots, 10$. Highest prime powers $\le 10$: $2^3$
+(from $8$), $3^2$ (from $9$), $5, 7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{lcm}(1, 2, \ldots, 10) = 2^3 \cdot 3^2 \cdot 5 \cdot 7 = 8
+\cdot 9 \cdot 35 = 2520$. **$2520$.**
+</details>
+
+**K2.** Two bus routes leave a station — route A every $12$
+minutes, route B every $18$ minutes. They start together at
+$8{:}00$ am. **At what time** do they next leave together?
+
+<details class="hint"><summary>Full solution</summary>
+$\text{lcm}(12, 18) = 36$. **$8{:}36$ am.**
+</details>
+
+**K3.** Show that of any $n + 1$ chosen integers from $\{1, 2,
+\ldots, 2 n\}$, *at least two* must be coprime.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Pigeonhole* — pair the integers $\{1, 2\}, \{3, 4\}, \ldots,
+\{2n-1, 2n\}$ (i.e., consecutive pairs). With $n + 1$ choices in
+$n$ pairs, two are in the same pair. Consecutive integers are
+coprime.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The $2 n$ numbers split into $n$ pairs of consecutive integers
+$\{1, 2\}, \{3, 4\}, \ldots, \{2n - 1, 2n\}$. By pigeonhole, at
+least two of the $n + 1$ chosen numbers lie in the same pair —
+hence are *consecutive*. Consecutive integers $k, k + 1$ have
+$\gcd = 1$ (any common divisor divides their difference $= 1$).
+**At least two chosen are coprime. QED.**
+*(A beautiful pigeonhole + GCD argument; classical Russian-school
+problem.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Систематический курс
+арифметики* (1884; modern reprint Fizmatlit). Russian original:
+[archive.org scan](https://archive.org/details/libgen_00032025).
+Euclid's algorithm (Problem 4) is §66; the FTA (Problem 3) is §62.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$1$ is prime."** *No.* $1$ is the *unit* (multiplicative
+   identity), not a prime. Including $1$ as prime would break the
+   uniqueness of factorisation.
+2. **"GCD must be one of the two numbers."** Not generally — only
+   if one divides the other. $\gcd(12, 18) = 6$, neither $12$ nor
+   $18$.
+3. **"All odd numbers are prime."** $9 = 3^2$, $15 = 3 \cdot 5$,
+   $21 = 3 \cdot 7$ — odd, composite. Primality requires having
+   *only* $1$ and itself as divisors.
+:::
+
+### Self-Assessment
+
+1. Could you state and prove the fundamental theorem of arithmetic
+   (Problem 3) on a fresh sheet?
+2. Did Euclid's algorithm (Problem 4) feel like one move per row,
+   or did you have to think?
+3. Can you prove there are infinitely many primes (S1) without
+   notes?
+
+- **3 yes:** move on to *Common Fractions* (Ch 3).
+- **2 yes:** practise prime factorisation on harder numbers — try
+  $360, 1024, 999$.
+- **0–1 yes:** the divisibility rules (Problem 1) are the most-used
+  shortcut in arithmetic; drill them.
+
+## Connect
+
+### Prerequisites used
+
+- [`kar.whole-numbers`](../01-whole-numbers/index.qmd) — the
+  division algorithm and the four operations.
+
+### What this unlocks
+
+- **`kar.common-fractions`** *(Ch 3, planned)* — reducing fractions
+  to lowest terms uses GCD; common denominators use LCM.
+- [`ka1.factoring`](../../tier-kiselev-1-algebra-1/03-factoring/index.qmd) —
+  the polynomial factoring is structurally analogous.
+- [`t5.modular-arithmetic-rsa`](../../tier-5-undergrad-core/13-modular-arithmetic-rsa/index.qmd) —
+  the basis of RSA is finding a coprime exponent and computing
+  GCDs.
+- [`t1.divisibility-and-primes`](../../tier-1-foundations/15-divisibility-and-primes/index.qmd) —
+  same content, t-tier idiom.
+
+### Kiselev chapter alignment
+
+- **Arithmetic — Chapter 2: Divisibility and primes (§§41–75).**
+  Russian original on
+  [archive.org](https://archive.org/details/libgen_00032025).
+- **Sister synthesis lesson:**
+  [`t1.divisibility-and-primes`](../../tier-1-foundations/15-divisibility-and-primes/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the *Sieve of Eratosthenes* (§52) and Euclid's algorithm
+  (§66).
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** **RSA** generates two large primes $p, q$, computes
+$n = p q$, and uses $\phi(n) = (p - 1)(q - 1)$ to find a public
+exponent coprime to $\phi(n)$. **Every step of RSA is a divisibility
+operation.** The hardness of *factoring* $n$ back into $p, q$ is
+what secures the system.
+:::
+
+::: {.applied-callout}
+**Databases.** **Hash tables** with prime-sized buckets distribute
+keys more evenly than non-prime sizes; this is a number-theoretic
+property used in production hash-map implementations.
+:::
+
+::: {.applied-callout}
+**Research.** The **Riemann hypothesis** — about the distribution
+of primes — is one of the most famous open problems in mathematics.
+Every result on prime density traces back to fundamental theorem of
+arithmetic.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§41–75 ordering); Euclid (the
+  algorithm and the infinity-of-primes proof, ~300 BCE);
+  Eratosthenes (the sieve, ~250 BCE).
+- **The fundamental theorem of arithmetic** seems "obvious" but
+  has surprising depth — the uniqueness part requires Euclid's
+  lemma, which is non-trivial.
+- **What this lesson does not do:** treat *modular arithmetic*
+  ($\mathbb Z / n \mathbb Z$) — that's a Tier 5 topic.
+:::

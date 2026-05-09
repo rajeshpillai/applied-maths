@@ -1,0 +1,453 @@
+---
+title: "Ch 3 — Common Fractions"
+subtitle: "$\\dfrac{p}{q}$ — equal parts of a whole, with rules of arithmetic that turn fractions into a number system"
+lesson-id: "kar.common-fractions"
+tier: "kar"
+kiselev-book: "Arithmetic"
+kiselev-chapter: 3
+kiselev-chapter-title: "Common fractions"
+kiselev-sections: "§§76–110 (definition, equivalence, four operations, mixed numbers, comparison)"
+prerequisites: [kar.divisibility]
+unlocks: []
+applied-domains: [research, databases, ai-ml]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are GCD and LCM automatic? See
+   [`kar.divisibility`](../02-divisibility/index.qmd).
+2. Can you say what $\dfrac{2}{3}$ *means* — two equal parts out of
+   three?
+3. Are you comfortable that $\dfrac{1}{2} = \dfrac{2}{4} =
+   \dfrac{3}{6}$ — *equivalent fractions*?
+4. Can you compare $\dfrac{2}{5}$ and $\dfrac{3}{7}$ at a glance?
+   *(Answer: $14/35 < 15/35$, so $\dfrac{2}{5} < \dfrac{3}{7}$.)*
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A pizza divided into $8$ equal slices. You take $3$. You ate the
+fraction $\dfrac{3}{8}$ of the pizza. Now imagine slicing it
+differently — say into $4$ slices. Could you describe the same
+amount? Yes: $\dfrac{1.5}{4}$ — *or* equivalently, $\dfrac{3}{8}$ in
+the original slicing.
+
+```{ojs}
+viewof p = Inputs.range([0, 12], {value: 3, step: 1, label: "numerator p"})
+```
+
+```{ojs}
+viewof q = Inputs.range([1, 12], {value: 8, step: 1, label: "denominator q"})
+```
+
+```{ojs}
+{
+  if (q === 0) return "Denominator can't be zero.";
+  const decimal = (p / q).toFixed(4);
+  // gcd
+  const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+  const g = gcd(Math.abs(p), q);
+  const reduced = g > 1 ? `**reduced:** ${p/g}/${q/g}` : "*already in lowest terms*";
+  return `**${p}/${q}** = ${decimal} (decimal). ${reduced}.`;
+}
+```
+
+A fraction is two whole numbers stacked, separated by a bar. The
+*numerator* counts; the *denominator* tells you what's being
+counted.
+
+## Wonder
+
+1. The fraction $\dfrac{4}{6}$ equals $\dfrac{2}{3}$. **Why?**
+2. To add $\dfrac{1}{3} + \dfrac{1}{4}$, you can't just "add the
+   numerators." **What** is the right approach?
+3. Multiplying $\dfrac{2}{3} \times \dfrac{4}{5} = \dfrac{8}{15}$
+   — *much simpler than adding*. **Why does multiplication treat
+   fractions differently?**
+4. *Dividing* by a fraction *flips* it: $\dfrac{2}{3} \div \dfrac{4}
+   {5} = \dfrac{2}{3} \times \dfrac{5}{4}$. **Why?**
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Both numerator and denominator have a common factor of $2$,
+which can be cancelled. (2) **Common denominator:**
+$\dfrac{1}{3} + \dfrac{1}{4} = \dfrac{4}{12} + \dfrac{3}{12} =
+\dfrac{7}{12}$. (3) Multiplication of fractions is built directly
+from multiplication of integers, with denominators multiplying.
+(4) Dividing by $\dfrac{p}{q}$ undoes multiplying by $\dfrac{p}{q}$
+— and multiplying by the *reciprocal* $\dfrac{q}{p}$ achieves the
+same.
+:::
+
+## Discover
+
+### Problem 1 — Equivalent fractions
+
+Show that $\dfrac{a}{b} = \dfrac{a k}{b k}$ for any non-zero $k$.
+
+<details class="hint"><summary>Full solution</summary>
+"$\dfrac{a}{b}$" represents *the unique number* $x$ with $b x = a$.
+"$\dfrac{a k}{b k}$" represents the unique $y$ with $b k y = a k$.
+Divide by $k$: $b y = a$, so $y = x$. **Equal.** *(Arithmetic
+§78.)*
+
+This is the *cancellation* rule and the engine for *reducing
+fractions to lowest terms*.
+</details>
+
+### Problem 2 — Reducing to lowest terms
+
+Reduce $\dfrac{84}{120}$ to lowest terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\gcd(84, 120) = ?$ Cancel.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\gcd(84, 120) = 12$ (Euclid: $120 = 84 \cdot 1 + 36, 84 = 36
+\cdot 2 + 12, 36 = 12 \cdot 3 + 0$). Cancel: $\dfrac{84}{120} =
+\dfrac{7}{10}$. *(In lowest terms when $\gcd(\text{num},
+\text{den}) = 1$.)*
+</details>
+
+### Problem 3 — Adding fractions with the same denominator
+
+$\dfrac{a}{c} + \dfrac{b}{c} = \dfrac{a + b}{c}$. Verify.
+
+<details class="hint"><summary>Full solution</summary>
+$a/c + b/c$ means: $a$ pieces of size $1/c$ added to $b$ pieces of
+size $1/c$ gives $a + b$ pieces of size $1/c$, i.e. $(a + b)/c$.
+**QED.**
+</details>
+
+### Problem 4 — Adding fractions with different denominators
+
+Compute $\dfrac{1}{6} + \dfrac{1}{4}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+LCD: $\text{lcm}(6, 4) = 12$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2}{12} + \dfrac{3}{12} = \dfrac{5}{12}$. *(Common
+denominator first; then add numerators.)*
+</details>
+
+### Problem 5 — Multiplication of fractions
+
+$\dfrac{a}{b} \times \dfrac{c}{d} = \dfrac{a c}{b d}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Two-thirds of $1/2$ of a pizza* — picture the slicing.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{a}{b} \times \dfrac{c}{d}$ means *taking $a/b$ of the
+quantity $c/d$* — geometrically, taking $a$ rows in a $b$-row
+$d$-column grid containing $c$ filled cells per row, gives $ac$
+total cells out of $bd$. **$\dfrac{ac}{bd}$.**
+*(Arithmetic §92.)*
+</details>
+
+### Problem 6 — Reciprocals and division
+
+The **reciprocal** of $\dfrac{p}{q}$ (with $p \ne 0$) is
+$\dfrac{q}{p}$. Show that $\dfrac{a}{b} \div \dfrac{c}{d} =
+\dfrac{a}{b} \times \dfrac{d}{c} = \dfrac{a d}{b c}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{a/b}{c/d}$ asks: *what number $x$ multiplied by $c/d$
+gives $a/b$?* Multiplying both sides by $d/c$:
+$x = \dfrac{a/b}{c/d} \cdot 1 = \dfrac{a/b}{c/d} \cdot
+\dfrac{d/c}{d/c}$... Easier:
+$x \cdot \dfrac{c}{d} = \dfrac{a}{b}$
+$x = \dfrac{a}{b} \cdot \dfrac{d}{c} = \dfrac{ad}{bc}$. **QED.**
+*(Arithmetic §95.)*
+</details>
+
+### Problem 7 — Comparison via cross-multiplication
+
+For positive fractions $\dfrac{a}{b}$ and $\dfrac{c}{d}$ (with $b,
+d > 0$): $\dfrac{a}{b} < \dfrac{c}{d}$ iff $a d < b c$.
+
+<details class="hint"><summary>Full solution</summary>
+Multiply both sides by $b d$ (positive — no sign-flip): $a d
+< b c$. **QED.** *(Arithmetic §86 — the *cross-multiplication
+test*.)*
+
+*Example:* compare $\dfrac{3}{7}$ and $\dfrac{4}{9}$. $3 \cdot 9 =
+27, 7 \cdot 4 = 28$. Since $27 < 28$, $\dfrac{3}{7} < \dfrac{4}{9}$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Fraction:** $\dfrac{p}{q}$ with $p, q$ whole numbers and $q
+  \ne 0$. *Numerator* $p$, *denominator* $q$.
+- **Proper fraction:** $|p| < q$. **Improper:** $|p| \ge q$.
+- **Mixed number:** an improper fraction written as integer +
+  proper, e.g. $\dfrac{7}{3} = 2 \dfrac{1}{3}$.
+- **Equivalent fractions:** $\dfrac{a}{b} = \dfrac{a k}{b k}$.
+- **Reciprocal:** $\dfrac{p}{q}$ has reciprocal $\dfrac{q}{p}$.
+- **Lowest terms:** $\gcd(p, q) = 1$.
+
+**Operations.**
+
+| Op | Rule |
+|----|------|
+| Add (same den) | $\dfrac{a}{c} + \dfrac{b}{c} = \dfrac{a + b}{c}$ |
+| Add (diff den) | bring to LCD, then as above |
+| Subtract | analogous |
+| Multiply | $\dfrac{a}{b} \cdot \dfrac{c}{d} = \dfrac{ac}{bd}$ |
+| Divide | $\dfrac{a}{b} \div \dfrac{c}{d} = \dfrac{ad}{bc}$ |
+| Compare | $\dfrac{a}{b}$ vs $\dfrac{c}{d}$: cross-multiply |
+
+**Lowest-terms rule.** After every operation, *reduce* by the GCD
+of numerator and denominator.
+
+:::
+
+A verse:
+
+> *Numerator over denominator — count and divisor side by side.*
+> *Equivalent fractions multiply both top and bottom — that's the
+> guide.*
+> *Common denominator first, then add — never just add the tops.*
+> *Multiply across; divide by flipping; cross-multiply for the size
+> drops.*
+
+## Apply
+
+### Worked example
+
+> Compute $\dfrac{2}{3} + \dfrac{3}{4} - \dfrac{5}{6}$.
+
+LCM of $3, 4, 6$: $12$.
+$\dfrac{8}{12} + \dfrac{9}{12} - \dfrac{10}{12} = \dfrac{7}{12}$.
+
+**$\dfrac{7}{12}$.**
+
+### Practice — Warm
+
+**W1.** Reduce $\dfrac{18}{24}$ to lowest terms.
+
+<details class="hint"><summary>Full solution</summary>
+$\gcd = 6$. $\dfrac{3}{4}$.
+</details>
+
+**W2.** Compute $\dfrac{1}{2} + \dfrac{1}{3}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{3 + 2}{6} = \dfrac{5}{6}$.
+</details>
+
+**W3.** Compute $\dfrac{3}{5} \cdot \dfrac{2}{7}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{6}{35}$.
+</details>
+
+### Practice — Working
+
+**P1.** Compute $\dfrac{5}{8} \div \dfrac{15}{16}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{5}{8} \cdot \dfrac{16}{15} = \dfrac{80}{120} = \dfrac{2}{3}$.
+</details>
+
+**P2.** Convert $\dfrac{17}{5}$ to a mixed number.
+
+<details class="hint"><summary>Full solution</summary>
+$17 = 5 \cdot 3 + 2$, so $\dfrac{17}{5} = 3 \dfrac{2}{5}$.
+</details>
+
+**P3.** A recipe calls for $\dfrac{3}{4}$ cup sugar. You want to
+make $\dfrac{2}{3}$ of the recipe. How much sugar?
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2}{3} \cdot \dfrac{3}{4} = \dfrac{6}{12} = \dfrac{1}{2}$
+cup.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that for $0 < a/b < c/d$ (both positive fractions),
+$\dfrac{a}{b} < \dfrac{a + c}{b + d} < \dfrac{c}{d}$. *(The
+*mediant* lies between.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cross-multiply each inequality.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{a}{b} < \dfrac{a + c}{b + d}$ iff $a(b + d) < b(a + c)$ iff
+$a d < b c$ — which is the hypothesis $a/b < c/d$. ✓ Similarly
+$\dfrac{a + c}{b + d} < \dfrac{c}{d}$ iff $a d < b c$, same.
+**QED.** *(The *mediant* is the gateway to the **Stern-Brocot
+tree** and Farey fractions.)*
+</details>
+
+**S2.** Show that for any fraction $\dfrac{a}{b}$ (in lowest
+terms), there exists a fraction with denominator at most $\sqrt b$
+within $\dfrac{1}{b \sqrt b}$ of $\dfrac{a}{b}$.
+
+<details class="hint"><summary>Full solution</summary>
+*Pigeonhole on multiples of $a/b$ mod $1$.* Among the fractional
+parts of $\dfrac{a}{b}, \dfrac{2a}{b}, \ldots, \dfrac{\lfloor
+\sqrt b \rfloor a}{b}$, two must be within $1/\lfloor \sqrt b
+\rfloor$ of each other (pigeonhole on intervals of length
+$1/\lfloor \sqrt b \rfloor$). Their *difference* gives a fraction
+of denominator $\le \sqrt b$ close to a multiple of $\dfrac{a}{b}$.
+**This is *Dirichlet's approximation theorem*** — the foundation
+of *continued fractions* and *transcendence theory*.
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Arithmetic*, §§88–110.
+
+**K1.** A man spends $\dfrac{1}{3}$ of his money on rent,
+$\dfrac{1}{4}$ on food, and $\dfrac{1}{6}$ on transport. He has
+$₹150$ left. How much did he start with?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Spent: $\dfrac{1}{3} + \dfrac{1}{4} + \dfrac{1}{6} = \dfrac{4 + 3
++ 2}{12} = \dfrac{9}{12} = \dfrac{3}{4}$. Left: $\dfrac{1}{4}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{4} \cdot M = 150$, so $M = ₹600$.
+</details>
+
+**K2.** Compute $\dfrac{1}{2} + \dfrac{1}{6} + \dfrac{1}{12} +
+\dfrac{1}{20} + \dfrac{1}{30}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Notice $\dfrac{1}{n(n + 1)} = \dfrac{1}{n} - \dfrac{1}{n + 1}$
+(telescoping).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each term $\dfrac{1}{n(n+1)}$ for $n = 1, 2, 3, 4, 5$:
+$\dfrac{1}{2} + \dfrac{1}{6} + \dfrac{1}{12} + \dfrac{1}{20} +
+\dfrac{1}{30} = (1 - 1/2) + (1/2 - 1/3) + (1/3 - 1/4) + (1/4 - 1/5)
++ (1/5 - 1/6) = 1 - 1/6 = \dfrac{5}{6}$. **QED.** *(Telescoping
+foreshadows Algebra II Ch 5.)*
+</details>
+
+**K3.** Two cyclists start from opposite ends of a $60$-km
+road, one at $\dfrac{40}{3}$ km/h and the other at $\dfrac{50}{3}$
+km/h. After how long do they meet?
+
+<details class="hint"><summary>Full solution</summary>
+Combined closing speed: $\dfrac{40 + 50}{3} = 30$ km/h. Time:
+$\dfrac{60}{30} = 2$ hours.
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Систематический курс
+арифметики* (1884; modern reprint Fizmatlit). Russian original:
+[archive.org scan](https://archive.org/details/libgen_00032025).
+The cross-multiplication comparison (Problem 7) is §86; the
+fraction-of-fraction multiplication (Problem 5) is §92.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\dfrac{a + b}{c + d} = \dfrac{a}{c} + \dfrac{b}{d}$."**
+   *Catastrophically wrong.* Try $a = b = c = d = 1$: LHS $1$,
+   RHS $2$. Fractions with sums in numerator and denominator do
+   *not* split this way.
+2. **"To add fractions, just add tops and bottoms."** Wrong: that
+   would give $\dfrac{1}{2} + \dfrac{1}{2} = \dfrac{2}{4} = \dfrac
+   {1}{2}$, not $1$. **Always common denominator first.**
+3. **"Improper fractions are wrong."** No — they're just
+   *unconverted* mixed numbers. $\dfrac{7}{3}$ is a perfectly
+   valid number, equal to $2 \dfrac{1}{3}$. The "improper" name is
+   historical baggage.
+:::
+
+### Self-Assessment
+
+1. Could you derive the four operations on fractions from scratch
+   on a fresh sheet?
+2. Did the *common-denominator* + *cross-multiplication* tricks
+   feel like one move each?
+3. Can you reduce a fraction to lowest terms in one mental step?
+
+- **3 yes:** move on to *Decimal Fractions* (Ch 4).
+- **2 yes:** redo Problems 4, 5, 6 — they cover all four operations.
+- **0–1 yes:** the operations on fractions are arithmetic's
+  practical centerpiece; drill until automatic.
+
+## Connect
+
+### Prerequisites used
+
+- [`kar.divisibility`](../02-divisibility/index.qmd) — GCD for
+  reducing; LCM for common denominators.
+
+### What this unlocks
+
+- **`kar.decimals`** *(Ch 4, planned)* — decimals are fractions
+  with denominators that are powers of $10$.
+- **`kar.ratio-proportion`** *(Ch 5, planned)* — ratios *are*
+  fractions, with applied semantics.
+- [`ka1.algebraic-fractions`](../../tier-kiselev-1-algebra-1/04-algebraic-fractions/index.qmd) —
+  the same rules with polynomials in numerator and denominator.
+- [`t1.fractions-as-parts`](../../tier-1-foundations/07-fractions-as-parts/index.qmd) —
+  same content, t-tier idiom.
+
+### Kiselev chapter alignment
+
+- **Arithmetic — Chapter 3: Common fractions (§§76–110).** Russian
+  original on
+  [archive.org](https://archive.org/details/libgen_00032025).
+- **Sister synthesis lessons:**
+  [`t1.fractions-as-parts`](../../tier-1-foundations/07-fractions-as-parts/index.qmd);
+  [`cbse8.rational-numbers`](../../tier-cbse-08-class-8/01-rational-numbers/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the *theory of magnitudes* (§§105–110), the historical bridge
+  to real numbers.
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** **Rational-number arithmetic** is the *exact*
+alternative to floating-point in financial systems. Banks track
+balances as rationals to avoid the rounding errors that plagued
+early systems.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Probabilistic models** are most cleanly expressed
+in fractions. The Bayesian update $\dfrac{P(\text{data} \mid
+\text{model}) P(\text{model})}{P(\text{data})}$ is a fraction
+operation at heart.
+:::
+
+::: {.applied-callout}
+**Research.** The **rationals** $\mathbb Q$ are a *field* — closed
+under all four operations except division by zero. The same field
+axioms apply to the algebraic numbers (`ka2.complex-numbers`) and
+beyond.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§76–110 ordering); Bhāskara (the
+  *Līlāvatī* fraction problems); Stevin (1585 — the practical
+  introduction of decimal fractions, Ch 4 next).
+- **The reciprocal-and-multiply rule** for division (Problem 6)
+  generalises directly to *inverse elements* in any algebraic
+  structure — group theory's foundation.
+- **What this lesson does not do:** treat *negative fractions*
+  systematically; the signed rationals are an Algebra I topic.
+:::

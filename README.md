@@ -67,13 +67,14 @@ contract and adds two extras:
 - a **Kiselev chapter alignment** block in *Connect* with the source
   book/chapter/section and a link to the sister synthesis lesson.
 
-The track is in **pilot phase** — one lesson per book, end-to-end
-against the contract. Start at the
-[Kiselev Track Overview](kiselev/index.qmd), or jump to a pilot:
-[Algebra I — Signed Numbers](lessons/tier-kiselev-1-algebra-1/01-signed-numbers/index.qmd) ·
-[Algebra II — Complex Numbers](lessons/tier-kiselev-2-algebra-2/01-complex-numbers/index.qmd) ·
-[Planimetry — Parallels](lessons/tier-kiselev-3-planimetry/04-parallels/index.qmd) ·
-[Stereometry — Cylinder & Cone](lessons/tier-kiselev-4-stereometry/03-cylinder-cone/index.qmd).
+**Track complete: 36 lessons across all five Kiselev books.** Start
+at the [Kiselev Track Overview](kiselev/index.qmd), or jump to a
+book:
+[Arithmetic](lessons/tier-kiselev-0-arithmetic/index.qmd) ·
+[Algebra Part I](lessons/tier-kiselev-1-algebra-1/index.qmd) ·
+[Algebra Part II](lessons/tier-kiselev-2-algebra-2/index.qmd) ·
+[Planimetry](lessons/tier-kiselev-3-planimetry/index.qmd) ·
+[Stereometry](lessons/tier-kiselev-4-stereometry/index.qmd).
 
 ## Building locally
 
