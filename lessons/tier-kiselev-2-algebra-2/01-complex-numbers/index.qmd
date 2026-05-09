@@ -1,0 +1,502 @@
+---
+title: "Ch 1 — Complex Numbers"
+subtitle: "$i^2 = -1$, the rotation that names $i$, and arithmetic on $a + bi$"
+lesson-id: "ka2.complex-numbers"
+tier: "ka2"
+kiselev-book: "Algebra, Part II"
+kiselev-chapter: 1
+kiselev-chapter-title: "Irrational and complex numbers"
+kiselev-sections: "§§1–14 (the imaginary unit and operations on a + bi)"
+prerequisites: [ka1.signed-numbers, t2.square-roots-irrationals]
+unlocks: []
+applied-domains: [research, ai-ml, game-dev, encryption]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are the **rules of signed arithmetic** automatic for you —
+   especially $(-)(-) = +$? See
+   [`ka1.signed-numbers`](../../tier-kiselev-1-algebra-1/01-signed-numbers/index.qmd).
+2. Can you compute $\sqrt{8}$ as $2\sqrt{2}$ without consulting notes?
+   See [`t2.square-roots-irrationals`](../../tier-2-prealgebra/09-square-roots-irrationals/index.qmd).
+3. Are you comfortable with **expanding brackets**, e.g.
+   $(2 + 3x)(1 - x) = 2 - 2x + 3x - 3x^2 = 2 + x - 3x^2$?
+4. Do you remember the **Pythagorean theorem**: $a^2 + b^2 = c^2$ for
+   the legs and hypotenuse of a right triangle?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A point in the plane. Drag it. Now press *multiply by $i$* — the
+point rotates **90° about the origin**.
+
+```{ojs}
+viewof px = Inputs.range([-5, 5], {value: 3, step: 0.5, label: "x-coordinate"})
+```
+
+```{ojs}
+viewof py = Inputs.range([-5, 5], {value: 1, step: 0.5, label: "y-coordinate"})
+```
+
+```{ojs}
+viewof rotations = Inputs.range([0, 4], {value: 1, step: 1, label: "Multiplications by i"})
+```
+
+```{ojs}
+{
+  const w = 360, h = 360, padX = 30, padY = 30;
+  const xMin = -6, xMax = 6;
+  const xS = d3.scaleLinear().domain([xMin, xMax]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([xMin, xMax]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // axes
+  svg.append("line").attr("x1", xS(xMin)).attr("x2", xS(xMax))
+    .attr("y1", yS(0)).attr("y2", yS(0)).attr("stroke", "#888");
+  svg.append("line").attr("x1", xS(0)).attr("x2", xS(0))
+    .attr("y1", yS(xMin)).attr("y2", yS(xMax)).attr("stroke", "#888");
+  // tick labels
+  for (let i = xMin; i <= xMax; i++) {
+    if (i === 0) continue;
+    svg.append("text").attr("x", xS(i)).attr("y", yS(0) + 14)
+      .attr("text-anchor", "middle").attr("font-size", 10).text(i);
+    svg.append("text").attr("x", xS(0) - 8).attr("y", yS(i) + 4)
+      .attr("text-anchor", "end").attr("font-size", 10).text(i);
+  }
+  svg.append("text").attr("x", xS(xMax) - 8).attr("y", yS(0) - 6)
+    .attr("font-size", 11).attr("text-anchor", "end").text("real");
+  svg.append("text").attr("x", xS(0) + 6).attr("y", yS(xMax) + 12)
+    .attr("font-size", 11).text("imaginary");
+
+  // rotate (px, py) by 90° n times: (x, y) → (-y, x)
+  let x = px, y = py;
+  const colors = ["#26a", "#62a", "#a26", "#a62", "#2a6"];
+  for (let k = 0; k <= rotations; k++) {
+    svg.append("circle").attr("cx", xS(x)).attr("cy", yS(y))
+      .attr("r", 5).attr("fill", colors[k % colors.length]);
+    svg.append("text").attr("x", xS(x) + 8).attr("y", yS(y) - 6)
+      .attr("font-size", 10).attr("fill", colors[k % colors.length])
+      .text(`i^${k}·z`);
+    [x, y] = [-y, x];
+  }
+  return svg.node();
+}
+```
+
+Each multiplication by $i$ is a **90° turn** counterclockwise. Four
+turns return you to where you started — so $i^4 = 1$.
+
+## Wonder
+
+1. The equation $x^2 = 4$ has solutions $\pm 2$ in the real numbers.
+   $x^2 = -1$ has no real solution. **Why not?**
+2. If we *invented* an object $i$ with $i^2 = -1$, what would
+   $i^3, i^4, i^5, \ldots$ be? Could they cycle?
+3. If $i$ is a number, can we add real numbers and multiples of $i$?
+   What does $2 + 3i$ then *mean* — a number on a line, or somewhere
+   else?
+4. The widget showed multiplication by $i$ as a rotation. What might
+   multiplication by **$1 + i$** do — a rotation, a stretch, both?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Squaring a real number always gives a non-negative result, so
+$x^2 = -1$ has no real solution — full stop. (2) Powers of $i$ cycle
+with period 4: $i, -1, -i, 1, i, -1, \ldots$. (3) $a + bi$ is best
+thought of as a *point in a plane*, not on a line. (4) Multiplication
+by $1 + i$ both rotates (by $45°$) and stretches (by $\sqrt{2}$).
+:::
+
+## Discover
+
+### Problem 1 — A square that cannot be
+
+Show that no real number $x$ satisfies $x^2 + 1 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 \ge 0$ for every real $x$, so $x^2 + 1 \ge 1 > 0$. The equation
+has no real solution.
+</details>
+
+### Problem 2 — Inventing $i$
+
+Suppose we declare a new object $i$ with the single rule $i^2 = -1$
+and otherwise treat $i$ like any number. Compute $i^3, i^4, i^5,
+i^{100}, i^{2026}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$i^3 = i^2 \cdot i = -i$. $i^4 = (i^2)^2 = (-1)^2 = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$i^1 = i,\ i^2 = -1,\ i^3 = -i,\ i^4 = 1$. Then it cycles with period
+$4$. So $i^{100} = (i^4)^{25} = 1$ and
+$i^{2026} = i^{2024} \cdot i^2 = 1 \cdot (-1) = -1$.
+</details>
+
+### Problem 3 — Adding $a + bi$
+
+Compute $(2 + 3i) + (1 - i)$ and $(5 - 2i) + (-3 + 7i)$. State the
+addition rule for $a + bi$ in your own words.
+
+<details class="hint"><summary>Full solution</summary>
+$(2 + 3i) + (1 - i) = 3 + 2i$. $(5 - 2i) + (-3 + 7i) = 2 + 5i$.
+**Add the real parts; add the imaginary parts.** Just like grouping
+$x$-terms and $y$-terms in a polynomial.
+</details>
+
+### Problem 4 — Multiplying $a + bi$
+
+Compute $(2 + 3i)(1 - i)$ by expanding brackets and using $i^2 = -1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a + bi)(c + di) = ac + adi + bci + bdi^2$. Now substitute $i^2 = -1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(2 + 3i)(1 - i) = 2 - 2i + 3i - 3i^2 = 2 + i + 3 = 5 + i$.
+*General rule:*
+$(a + bi)(c + di) = (ac - bd) + (ad + bc) i.$
+</details>
+
+### Problem 5 — The conjugate trick
+
+Compute $(2 + 3i)(2 - 3i)$. Why is this useful?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Difference of squares — $(x + y)(x - y) = x^2 - y^2$. Here
+$y = 3i$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(2 + 3i)(2 - 3i) = 4 - 9i^2 = 4 + 9 = 13$. **A real number** — and
+in fact $|2 + 3i|^2$. The pair $z = a + bi$ and $\bar z = a - bi$ —
+*conjugates* — multiply to a real, namely $a^2 + b^2$. This is the
+key to division.
+</details>
+
+### Problem 6 — Division via the conjugate
+
+Compute $\dfrac{1}{2 + 3i}$ as $a + bi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply numerator and denominator by the conjugate $2 - 3i$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{2 + 3i} \cdot \dfrac{2 - 3i}{2 - 3i} = \dfrac{2 - 3i}{13}
+= \dfrac{2}{13} - \dfrac{3}{13} i.$
+</details>
+
+### Problem 7 — Geometric meaning
+
+Plot $z = 2 + 3i$ in the plane (real on $x$, imaginary on $y$).
+Compute $|z| = \sqrt{a^2 + b^2}$ — its distance from the origin.
+What is the *angle* this point makes with the positive real axis?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|z| = \sqrt{4 + 9} = \sqrt{13}$. Angle: $\tan \theta = 3/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|z| = \sqrt{13} \approx 3.606$. Angle $\theta = \arctan(3/2) \approx
+56.3°$. *Multiplication by $z$ scales by $\sqrt{13}$ and rotates by
+$56.3°$* — the route into trigonometric / polar form.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **complex number** is an expression $z = a + bi$ with $a, b$ real
+and $i$ a symbol satisfying $i^2 = -1$.
+
+- **Real part:** $\operatorname{Re}(z) = a$.
+- **Imaginary part:** $\operatorname{Im}(z) = b$ (a real number).
+- **Conjugate:** $\bar z = a - bi$.
+- **Modulus:** $|z| = \sqrt{a^2 + b^2}$.
+
+The four operations:
+$$
+(a + bi) \pm (c + di) = (a \pm c) + (b \pm d) i,
+$$
+$$
+(a + bi)(c + di) = (ac - bd) + (ad + bc) i,
+$$
+$$
+\frac{a + bi}{c + di} = \frac{(a + bi)(c - di)}{c^2 + d^2}
+\quad (c + di \ne 0).
+$$
+
+The key identities: $i^2 = -1$, $i^4 = 1$, and $z \bar z = |z|^2$.
+
+:::
+
+A verse:
+
+> *i squared is minus one — that one rule writes the rest.*
+> *Add real to real, imaginary to imaginary — that's the test.*
+> *Multiply with brackets, then i-squared collapses the term.*
+> *Divide by conjugate — the denominator goes firm.*
+
+## Apply
+
+### Worked example
+
+> Express $\dfrac{3 + 4i}{1 - 2i}$ in the form $a + bi$.
+
+Multiply top and bottom by the conjugate of the denominator:
+
+$$
+\frac{3 + 4i}{1 - 2i} \cdot \frac{1 + 2i}{1 + 2i}
+= \frac{(3 + 4i)(1 + 2i)}{1^2 + 2^2}
+= \frac{3 + 6i + 4i + 8i^2}{5}.
+$$
+
+Use $i^2 = -1$: numerator $= 3 + 10i - 8 = -5 + 10i$.
+
+$$
+\frac{-5 + 10i}{5} = -1 + 2i.
+$$
+
+### Practice — Warm
+
+**W1.** Compute $i^7$ and $i^{50}$.
+
+<details class="hint"><summary>Full solution</summary>
+$i^7 = i^4 \cdot i^3 = -i$. $i^{50} = (i^4)^{12} \cdot i^2 = -1$.
+</details>
+
+**W2.** Compute $(3 - 2i) - (1 + 5i)$.
+
+<details class="hint"><summary>Full solution</summary>
+$(3 - 1) + (-2 - 5)i = 2 - 7i$.
+</details>
+
+**W3.** Compute $|3 + 4i|$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{9 + 16} = \sqrt{25} = 5$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $z^2 = -16$ for $z$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare with $z^2 = -1$ where $z = \pm i$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$z^2 = -16 = 16 \cdot (-1)$, so $z = \pm 4i$.
+</details>
+
+**P2.** Express $(1 + i)^4$ in the form $a + bi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First square: $(1 + i)^2 = 1 + 2i + i^2 = 2i$. Then square again.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1 + i)^2 = 2i$. $(2i)^2 = 4 i^2 = -4$. So $(1 + i)^4 = -4$.
+</details>
+
+**P3.** Find all complex $z$ with $z + \bar z = 6$ and $z \bar z = 13$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If $z = a + bi$, then $z + \bar z = 2a$ and $z \bar z = a^2 + b^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2a = 6 \Rightarrow a = 3$. $a^2 + b^2 = 13 \Rightarrow b^2 = 4
+\Rightarrow b = \pm 2$. So $z = 3 + 2i$ or $z = 3 - 2i$ — they are
+each other's conjugates, as one would hope.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that for any complex $z$, the real number
+$\operatorname{Re}(z) = \dfrac{z + \bar z}{2}$ and
+$\operatorname{Im}(z) = \dfrac{z - \bar z}{2i}$.
+
+<details class="hint"><summary>Full solution</summary>
+With $z = a + bi$: $z + \bar z = 2a$, so the first formula gives $a =
+\operatorname{Re}(z)$. $z - \bar z = 2bi$, divide by $2i$ to get
+$b = \operatorname{Im}(z)$.
+</details>
+
+**S2.** Prove that $|zw| = |z| \cdot |w|$ for any complex $z, w$.
+*This is the multiplicativity of the modulus.*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $|zw|^2 = (zw)(\overline{zw}) = (zw)(\bar z \bar w)$ and
+rearrange.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|zw|^2 = (zw)(\bar z \bar w) = (z \bar z)(w \bar w) = |z|^2 |w|^2$.
+Take square roots — both sides are non-negative reals — to get
+$|zw| = |z||w|$. **One line of algebra; geometric content: the
+*moduli multiply* under multiplication.**
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from *Algebra II*,
+§§5–14.
+
+**K1.** Compute $(1 + i\sqrt{3})^3$ and verify the answer geometrically
+(modulus and angle).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|1 + i\sqrt{3}| = 2$, angle $60°$. Cube: modulus $8$, angle $180°$ —
+so the answer should be a real $-8$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1 + i\sqrt 3)^2 = 1 + 2i\sqrt 3 + 3 i^2 = -2 + 2i\sqrt 3$.
+Times $(1 + i\sqrt 3)$: expand to get
+$-2 - 2i\sqrt 3 + 2i\sqrt 3 + 2 \cdot 3 \cdot i^2 = -2 - 6 = -8$.
+*The real cube $-8$ matches the polar prediction.*
+</details>
+
+**K2.** Find all $z$ such that $z^2 = 5 + 12i$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $z = a + bi$. Then $a^2 - b^2 = 5$ and $2ab = 12$, so $ab = 6$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$ab = 6 \Rightarrow b = 6/a$. Substitute: $a^2 - 36/a^2 = 5$, i.e.
+$a^4 - 5a^2 - 36 = 0$. Quadratic in $a^2$: $a^2 = (5 \pm 13)/2$, so
+$a^2 = 9$ (positive root). $a = \pm 3$, giving $b = \pm 2$ (same sign
+as $a$). Hence $z = 3 + 2i$ or $z = -3 - 2i$.
+</details>
+
+**K3.** Show that the three roots of $z^3 = 1$ are
+$1,\ \omega = -\tfrac{1}{2} + \tfrac{\sqrt 3}{2} i,\ \omega^2 =
+-\tfrac{1}{2} - \tfrac{\sqrt 3}{2} i$, and that $1 + \omega +
+\omega^2 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$z^3 - 1 = (z - 1)(z^2 + z + 1) = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Factor: $(z-1)(z^2 + z + 1) = 0$. Roots: $z = 1$, and the quadratic
+gives $z = (-1 \pm \sqrt{1 - 4})/2 = (-1 \pm i\sqrt 3)/2$, i.e.
+$\omega$ and $\omega^2$. Their sum: vieta on $z^2 + z + 1$ gives
+$\omega + \omega^2 = -1$, so $1 + \omega + \omega^2 = 0$.
+*Geometric reading:* the three cube-roots of unity are the vertices
+of an equilateral triangle on the unit circle, and any centroid of
+such vertices is at the origin.
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Часть вторая*
+(Fizmatlit reprint 2005), §§5–14. Russian original:
+[archive.org scan](https://archive.org/details/kiselyov-algebra-part-2-2005).
+K3 is a classic Kiselev problem — the cube roots of unity appear in
+his §13 as the trigonometric introduction to roots of higher degree.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sqrt{-1} = i$, so $\sqrt{-4} = 2i$, therefore
+   $\sqrt{-4} \cdot \sqrt{-9} = \sqrt{36} = 6$."** *No.* The identity
+   $\sqrt{a}\sqrt{b} = \sqrt{ab}$ holds only for non-negative reals.
+   Correct: $\sqrt{-4}\sqrt{-9} = (2i)(3i) = 6 i^2 = -6$.
+2. **"Imaginary numbers are not real, so they don't really exist."**
+   The same was once said of negatives, irrationals, and zero.
+   Complex numbers are as legitimate as any other ring of numbers —
+   their construction from $\mathbb R$ is rigorous and short.
+3. **"$|z| = z$ when $z$ is real."** Only when $z \ge 0$. For
+   $z = -3$, $|z| = 3 \ne z$. The modulus is the *non-negative*
+   distance from the origin.
+:::
+
+### Self-Assessment
+
+1. Could you explain to a friend why we *need* the rule $i^2 = -1$
+   and what would break without it?
+2. Did you compute K2 ($z^2 = 5 + 12i$) cleanly via the system in
+   $a, b$, with at most one hint?
+3. Can you predict the *geometric* effect of multiplying by a complex
+   number — rotation by its angle, scaling by its modulus — without
+   first computing components?
+
+- **3 yes:** move on.
+- **2 yes:** revisit Problem 7 in *Discover* — the polar reading.
+- **0–1 yes:** the algebra is in place but the geometry has not
+  landed. Replay the *Touch* widget with several different starting
+  points and watch the rotation pattern.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.signed-numbers`](../../tier-kiselev-1-algebra-1/01-signed-numbers/index.qmd) —
+  the rules of signed arithmetic, especially $(-)(-) = +$, which
+  underwrites the conjugate trick.
+- [`t2.square-roots-irrationals`](../../tier-2-prealgebra/09-square-roots-irrationals/index.qmd) —
+  comfort with non-rational quantities like $\sqrt{2}$, the analogue
+  before $\sqrt{-1}$.
+
+### What this unlocks
+
+- **`ka2.higher-degree-equations`** *(planned)* — once $z^2 = -1$ is
+  legal, every polynomial factors completely over $\mathbb C$
+  (Fundamental Theorem of Algebra).
+- **`ka2.trigonometric-form`** *(planned)* — Euler's formula and the
+  polar identity $z = r(\cos\theta + i\sin\theta)$.
+- [`t6.complex-numbers`](../../tier-6-undergrad-advanced/04-complex-numbers/index.qmd) —
+  the same idea, undergraduate depth.
+- [`t6.complex-functions`](../../tier-6-undergrad-advanced/05-complex-functions/index.qmd) —
+  complex analysis (residues, contour integration).
+
+### Kiselev chapter alignment
+
+- **Algebra, Part II — Chapter 1: Irrational and complex numbers
+  (§§1–14).** Russian original on
+  [archive.org](https://archive.org/details/kiselyov-algebra-part-2-2005).
+- **Sister synthesis lesson:**
+  [`cbse11.complex-numbers`](../../tier-cbse-11-class-11/04-complex-numbers/index.qmd) —
+  same content under board-exam discipline, with extra weight on the
+  modulus-argument form.
+- **Read alongside the source** for Kiselev's full exercise set on
+  the cube roots of unity (§13).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Multiplication by a unit complex number
+$\cos\theta + i \sin\theta$ rotates 2D points by angle $\theta$ —
+no matrices needed. This is the standard route in 2D engines and
+the natural stepping-stone to **quaternions** in 3D
+([`t7.quaternions`](../../tier-7-masters-tracks/08-quaternions/index.qmd)).
+:::
+
+::: {.applied-callout}
+**AI / ML.** The Fourier transform, which underwrites half of
+modern signal processing and a great deal of neural-network theory,
+is *defined* over the complex numbers. The conjugate trick from
+Problem 6 is exactly what makes Fourier coefficients computable.
+:::
+
+::: {.applied-callout}
+**Encryption.** Algebraic number theory and elliptic-curve
+cryptography both rely on extensions of $\mathbb Q$ that mirror the
+construction $\mathbb Q[i]$ exhibited here. The pattern *"adjoin a
+root of an irreducible polynomial"* generalises directly.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the algebraic discipline of
+  $i^2 = -1$ as the *single rule*); 3Blue1Brown (the rotation
+  *Touch*); Better Explained (the polar-form intuition).
+- **Source citation:** §§5–14 of Kiselev's *Algebra II* introduce the
+  complex numbers in this exact order — algebraic operations first,
+  geometric interpretation second.
+- **What this lesson does not do:** prove the Fundamental Theorem of
+  Algebra (deferred), or develop De Moivre's theorem in full
+  (planned for `ka2.trigonometric-form`).
+:::

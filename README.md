@@ -53,6 +53,28 @@ straight to your class:
 [Class 11](lessons/tier-cbse-11-class-11/index.qmd) ·
 [Class 12 (Board)](lessons/tier-cbse-12-class-12/index.qmd).
 
+### Kiselev — Russian Classical track (pilot)
+
+A third track follows **A. P. Kiselev's** classical Russian textbooks
+chapter-by-chapter — *Algebra* (Parts I & II) and *Geometry*
+(*Planimetry* and *Stereometry*). It is for learners who want the
+rigorous, deductive, problem-first presentation that trained sixty
+million Soviet students. Every Kiselev lesson uses the same six-beat
+contract and adds two extras:
+
+- a **Kiselev-style problems** block in *Apply* (3 problems adapted
+  from Kiselev's own exercise sets, in his terse style); and
+- a **Kiselev chapter alignment** block in *Connect* with the source
+  book/chapter/section and a link to the sister synthesis lesson.
+
+The track is in **pilot phase** — one lesson per book, end-to-end
+against the contract. Start at the
+[Kiselev Track Overview](kiselev/index.qmd), or jump to a pilot:
+[Algebra I — Signed Numbers](lessons/tier-kiselev-1-algebra-1/01-signed-numbers/index.qmd) ·
+[Algebra II — Complex Numbers](lessons/tier-kiselev-2-algebra-2/01-complex-numbers/index.qmd) ·
+[Planimetry — Parallels](lessons/tier-kiselev-3-planimetry/04-parallels/index.qmd) ·
+[Stereometry — Cylinder & Cone](lessons/tier-kiselev-4-stereometry/03-cylinder-cone/index.qmd).
+
 ## Building locally
 
 You need [Quarto](https://quarto.org/docs/get-started/) installed.

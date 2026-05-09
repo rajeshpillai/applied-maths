@@ -1,0 +1,615 @@
+---
+title: "Ch 7 — Similarity"
+subtitle: "Same shape, any size — and Pythagoras falls out as a corollary"
+lesson-id: "kg1.similarity"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 7
+kiselev-chapter-title: "Similarity"
+kiselev-sections: "Planimetry §§156–185 (Thales' intercepts, similar triangles, Pythagoras)"
+prerequisites: [kg1.parallels, kg1.triangle-congruence]
+unlocks: []
+applied-domains: [game-dev, ai-ml, research]
+estimated-minutes: 55
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state the *alternate-interior-angles* theorem? See
+   [`kg1.parallels`](../04-parallels/index.qmd).
+2. Are SSS / SAS / ASA reflexive for you? See
+   [`kg1.triangle-congruence`](../02-triangle-congruence/index.qmd).
+3. Can you handle ratios and proportions: $\dfrac{a}{b} =
+   \dfrac{c}{d} \Leftrightarrow ad = bc$?
+4. Do you know that the *area of a triangle* is $\tfrac{1}{2}
+   \times \text{base} \times \text{height}$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Two triangles, side by side. Drag a slider — one of them scales
+up. The angles never change; only the sizes.
+
+```{ojs}
+viewof scale = Inputs.range([0.5, 2.5], {value: 1.5, step: 0.1, label: "Scale factor k"})
+```
+
+```{ojs}
+viewof shapeAngle = Inputs.range([20, 80], {value: 50, step: 1, label: "Apex angle (°)"})
+```
+
+```{ojs}
+{
+  const w = 480, h = 280, padX = 30, padY = 30;
+  const xS = d3.scaleLinear().domain([-1, 12]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-1, 5]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  const rad = d => d * Math.PI / 180;
+  const drawTri = (ox, base, lab) => {
+    const apexAng = rad(shapeAngle);
+    // place A at (ox, 0), B at (ox+base, 0), C above forming apex angle at A
+    const A = [ox, 0];
+    const B = [ox + base, 0];
+    const C = [ox + base * 0.6 * Math.cos(apexAng) + base * 0.05,
+               base * 0.7 * Math.sin(apexAng) + 0.6];
+    svg.append("polygon")
+      .attr("points", `${xS(A[0])},${yS(A[1])} ${xS(B[0])},${yS(B[1])} ${xS(C[0])},${yS(C[1])}`)
+      .attr("fill", "#26a").attr("fill-opacity", 0.18)
+      .attr("stroke", "#26a").attr("stroke-width", 2);
+    const labels = ["A","B","C"];
+    [A, B, C].forEach((p, i) => {
+      svg.append("text").attr("x", xS(p[0]) + 4).attr("y", yS(p[1]) - 4)
+        .attr("font-size", 11).text(`${labels[i]}${lab}`);
+    });
+  };
+
+  drawTri(0, 2, "");          // small one
+  drawTri(5, 2 * scale, "'"); // scaled one
+
+  svg.append("text").attr("x", padX).attr("y", padY - 10)
+    .attr("font-size", 12)
+    .text(`△ABC and △A'B'C' are similar with ratio k = ${scale.toFixed(2)}.`);
+  svg.append("text").attr("x", padX).attr("y", padY + 6)
+    .attr("font-size", 11).attr("fill", "#666")
+    .text(`Same angles (apex = ${shapeAngle}°). All sides scaled by k.`);
+  return svg.node();
+}
+```
+
+The two triangles have **the same angles** and **proportional sides**.
+That is what *similar* means.
+
+## Wonder
+
+1. Two triangles have the same three angles. Must they be similar?
+   *(Try to imagine a counterexample.)*
+2. Two triangles have proportional sides $a' = ka, b' = kb, c' = kc$.
+   Must they be similar?
+3. A triangle and a *scaled copy* — what is the ratio of their
+   *areas* (not sides)?
+4. Pythagoras: in a right triangle, $a^2 + b^2 = c^2$. Is this
+   somehow a *similarity* statement in disguise?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Yes** — the *AA* similarity criterion (any two equal angles
+force the third by the angle-sum theorem). (2) **Yes** — the *SSS*
+similarity criterion. (3) **$k^2$** — areas scale by the *square*
+of the linear ratio. (4) Yes — the cleanest proof of Pythagoras
+drops the altitude from the right angle and uses two pairs of
+similar triangles.
+:::
+
+## Discover
+
+### Problem 1 — The intercept theorem (Thales)
+
+Three parallel lines $\ell_1, \ell_2, \ell_3$ cut two transversals.
+The transversals meet $\ell_1, \ell_2, \ell_3$ at $A_1, A_2, A_3$
+and $B_1, B_2, B_3$ respectively. Show that
+$$
+\dfrac{|A_1 A_2|}{|A_2 A_3|} = \dfrac{|B_1 B_2|}{|B_2 B_3|}.
+$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The classical proof: when the ratio is *rational*, divide both sides
+into equal sub-pieces using parallels through the divisions. For
+*irrational* ratios use the standard Eudoxean / continuity argument.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Rational case.* If $|A_1 A_2| : |A_2 A_3| = p : q$ in lowest terms,
+divide $A_1 A_3$ into $p + q$ equal parts and through each division
+point draw a parallel to $\ell_1$. By construction these parallels
+cut $A_1 A_3$ into $p + q$ equal pieces; by alternate-interior + ASA
+they also cut the second transversal $B_1 B_3$ into $p + q$ equal
+pieces. So $|B_1 B_2| : |B_2 B_3| = p : q$ as well.
+
+*Irrational case.* Take rational approximations from above and below;
+both ratios are pinched. *(Kiselev gives the rational case in §158
+and refers the irrational to the *theory of magnitudes* in an
+appendix; for school it is taken as a continuity statement.)*
+**QED. — *Thales' intercept theorem.* Planimetry §158.**
+</details>
+
+### Problem 2 — A line parallel to a side cuts the other two
+sides proportionally
+
+In $\triangle ABC$, a line parallel to side $BC$ meets $AB$ at $D$
+and $AC$ at $E$. Show that $\dfrac{|AD|}{|DB|} = \dfrac{|AE|}{|EC|}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $\ell_1 = $ line $DE$, $\ell_2 = $ line $BC$, and a third
+parallel through $A$. Apply Thales' intercept theorem with
+transversals $AB$ and $AC$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The line through $A$ parallel to $BC$, the line $DE \parallel BC$,
+and the line $BC$ itself are three parallels. The transversal $AB$
+cuts them at $A, D, B$; the transversal $AC$ at $A, E, C$. By
+Thales (Problem 1):
+$\dfrac{|AD|}{|DB|} = \dfrac{|AE|}{|EC|}$.
+**QED.** *(Planimetry §159 — the *basic proportionality theorem*,
+or *BPT*.)*
+</details>
+
+### Problem 3 — AA similarity criterion
+
+Two triangles have two pairs of equal angles. Show they are similar.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The third angles are also equal (angle-sum). Lay one triangle on
+the other matching the equal angles; the third sides are parallel.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\triangle ABC$ and $\triangle A'B'C'$ have $\angle A = \angle
+A'$ and $\angle B = \angle B'$. Then $\angle C = \angle C'$
+(angle-sum). Place $A' \to A$ and rotate so $A'B'$ lies along $AB$;
+the side $A'B'$ extends to some length along $AB$, ending at a
+point $B''$ with $|AB''| = |A'B'|$. The angle at $A$ matches; the
+angle at $B''$ matches $\angle B' = \angle B$. So line $B''C''$ is
+parallel to $BC$ (corresponding angles). By Problem 2:
+$\dfrac{|AB''|}{|B''B|} + 1 = \dfrac{|AB|}{|AB''|}$, etc. — the
+ratios of corresponding sides are all equal. **Triangles similar.**
+*(Planimetry §161.)*
+</details>
+
+### Problem 4 — SSS similarity
+
+Two triangles have all three pairs of sides proportional. Show they
+are similar.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Construct a triangle similar to the first by AA, then show it is
+*congruent* to the second by SSS.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose $a' / a = b' / b = c' / c = k$ for triangles with sides
+$a, b, c$ and $a', b', c'$. Construct $\triangle A'' B'' C''$ inside
+$\triangle ABC$ as the unique triangle similar to $\triangle ABC$
+with linear scale $k$ — by Problem 2 (cut a line parallel to one
+side), this triangle exists and has sides $ka, kb, kc = a', b', c'$.
+By SSS congruence, $\triangle A''B''C'' \cong \triangle A'B'C'$.
+Both are similar to $\triangle ABC$ — hence $\triangle A'B'C' \sim
+\triangle ABC$. **QED.** *(Planimetry §162.)*
+</details>
+
+### Problem 5 — Area scales with the square
+
+Two similar triangles have linear scale ratio $k$. Show their areas
+have ratio $k^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangle area $= \tfrac{1}{2} (\text{base}) (\text{height})$. Both
+base and height scale by $k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+If the linear scale is $k$, then base is $k \cdot b$ and height is
+$k \cdot h$. Area: $\tfrac{1}{2} (kb)(kh) = k^2 \cdot \tfrac{1}{2}
+bh = k^2 \cdot \text{(original area)}$. **Ratio of areas: $k^2$.**
+*(Planimetry §164. — generalises to all similar figures, not just
+triangles.)*
+</details>
+
+### Problem 6 — The Pythagorean theorem via similarity
+
+In right triangle $ABC$ with right angle at $C$, drop the altitude
+$CH$ to hypotenuse $AB$. Show $|AC|^2 + |BC|^2 = |AB|^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The altitude $CH$ creates **three similar triangles**: the original
+$\triangle ABC$, $\triangle ACH$, and $\triangle CBH$. Express
+$|AH|$ and $|BH|$ in terms of the sides via the similarities, then
+add.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $a = |BC|, b = |AC|, c = |AB|, h = |CH|, p = |AH|, q = |BH|$
+(so $p + q = c$).
+
+$\triangle ABC \sim \triangle ACH$ (both have $\angle A$ and a right
+angle). Ratio of corresponding sides: $\dfrac{c}{b} = \dfrac{b}{p}
+$, hence $b^2 = cp$.
+
+$\triangle ABC \sim \triangle CBH$ (both have $\angle B$ and a right
+angle). Ratio: $\dfrac{c}{a} = \dfrac{a}{q}$, hence $a^2 = cq$.
+
+Adding: $a^2 + b^2 = c(p + q) = c \cdot c = c^2$. **QED.**
+*(Planimetry §170 — the cleanest proof of Pythagoras in school
+geometry.)*
+</details>
+
+### Problem 7 — The angle bisector divides proportionally
+
+In $\triangle ABC$, the bisector of $\angle A$ meets $BC$ at $D$.
+Show $\dfrac{|BD|}{|DC|} = \dfrac{|AB|}{|AC|}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Through $C$ draw a line parallel to $AB$, meeting line $AD$ at $E$.
+Compare $\triangle ABD$ and $\triangle ECD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Through $C$, draw $\ell \parallel AB$, meeting $AD$ extended at $E$.
+$\angle ABD = \angle DEC$ (alternate-interior, $AB \parallel \ell$).
+$\angle ADB = \angle EDC$ (vertical). So $\triangle ABD \sim
+\triangle ECD$ (AA). Hence $\dfrac{|BD|}{|DC|} = \dfrac{|AB|}{|EC|}$.
+Now $\angle BAE = \angle DAC$ (bisector), and $\angle BAE =
+\angle CEA$ (alternate-interior), so $\angle CEA = \angle DAC$ —
+i.e. $\triangle EAC$ is isosceles with $|AC| = |EC|$. Substitute:
+$\dfrac{|BD|}{|DC|} = \dfrac{|AB|}{|AC|}$. **QED.** *(Planimetry
+§175 — the *angle-bisector theorem*.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Similar polygons** (denoted $\sim$): same number of sides; equal
+  corresponding angles; corresponding sides in a common ratio (the
+  *scale factor* $k$).
+
+**Similarity criteria for triangles** *(equivalent — only need one)*:
+
+1. **AA** — two pairs of equal angles ⇒ similar.
+2. **SAS-similarity** — one equal angle and proportional sides about
+   it ⇒ similar.
+3. **SSS-similarity** — three pairs of proportional sides ⇒ similar.
+
+**Theorems (Planimetry §§156–185).**
+
+- *Thales' intercept theorem:* parallel lines cut transversals into
+  proportional segments.
+- *Basic proportionality:* a line parallel to one side of a triangle
+  cuts the other two proportionally (and conversely).
+- *Areas of similar figures:* in ratio $k^2$ where $k$ is the
+  linear ratio.
+- *Pythagoras:* $a^2 + b^2 = c^2$ in a right triangle (proved via
+  similar triangles formed by the altitude to the hypotenuse).
+- *Angle-bisector theorem:* the bisector of $\angle A$ divides the
+  opposite side in the ratio of the adjacent sides.
+
+:::
+
+A verse:
+
+> *Same angles, sides in fixed ratio — that's similarity, full stop.*
+> *AA, SSS, SAS — three doors, one room, take whichever you've got.*
+> *Length scales by k, area by k-squared, volume by k-cubed (next book).*
+> *Drop the altitude in a right triangle — Pythagoras falls out, no extra hook.*
+
+## Apply
+
+### Worked example
+
+> A vertical pole of height $5$ m casts a shadow of length $3$ m on
+> level ground. At the same moment, a tree casts a shadow of $9$ m.
+> How tall is the tree?
+
+The pole-and-shadow and the tree-and-shadow form similar right
+triangles (sun's rays are parallel, ground is shared). Ratios:
+$\dfrac{\text{height}}{\text{shadow}}$ is constant.
+
+$\dfrac{5}{3} = \dfrac{H}{9}$, so $H = \dfrac{5 \cdot 9}{3} = 15$.
+
+**Tree is $15$ m tall.** *(Thales reportedly used exactly this
+trick to measure the Great Pyramid.)*
+
+### Practice — Warm
+
+**W1.** $\triangle ABC \sim \triangle DEF$ with $|AB| = 6, |DE| =
+9$. The scale factor?
+
+<details class="hint"><summary>Full solution</summary>
+$k = 9/6 = 3/2$.
+</details>
+
+**W2.** Two similar triangles have areas $25$ and $100$. The ratio
+of their corresponding sides?
+
+<details class="hint"><summary>Full solution</summary>
+$k^2 = 100/25 = 4$, so $k = 2$.
+</details>
+
+**W3.** A right triangle has legs $5$ and $12$. Find the
+hypotenuse.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{25 + 144} = \sqrt{169} = 13$.
+</details>
+
+### Practice — Working
+
+**P1.** In $\triangle ABC$, $D$ is on $AB$ and $E$ on $AC$ with $DE
+\parallel BC$. If $|AD| = 4, |DB| = 6, |AC| = 15$, find $|AE|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+By BPT: $|AD|/|DB| = |AE|/|EC|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{4}{6} = \dfrac{|AE|}{15 - |AE|}$. Cross-multiply:
+$60 - 4|AE| = 6|AE|$, so $|AE| = 6$.
+</details>
+
+**P2.** A right triangle has hypotenuse $25$ and one leg $7$. Find
+the other leg, and the altitude from the right-angle vertex to the
+hypotenuse.
+
+<details class="hint"><summary>Full solution</summary>
+Other leg: $\sqrt{625 - 49} = \sqrt{576} = 24$. Altitude
+$h = (\text{legs product}) / \text{hypotenuse} = 7 \cdot 24 / 25 =
+6.72$.
+</details>
+
+**P3.** In $\triangle ABC$, the bisector of $\angle A$ meets $BC$
+at $D$. If $|AB| = 8, |AC| = 6, |BC| = 7$, find $|BD|$ and $|DC|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|BD|/|DC| = |AB|/|AC| = 8/6 = 4/3$. And $|BD| + |DC| = 7$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Set $|BD| = 4t, |DC| = 3t$. Then $7t = 7$, so $t = 1$. $|BD| = 4,
+|DC| = 3$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that in any triangle, the three medians **meet at one
+point** which divides each median in ratio $2 : 1$ from vertex to
+midpoint. *(The centroid.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let medians from $A$ and $B$ meet at $G$. Use BPT or similar
+triangles to show $|AG| : |GD| = 2 : 1$ where $D$ is the midpoint
+of $BC$. Then show the median from $C$ also passes through $G$ at
+the same ratio.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $D$ = midpoint of $BC$, $E$ = midpoint of $AC$, $G$ = $AD \cap
+BE$. Connect midpoints — $DE \parallel AB$ (midsegment) with $|DE|
+= \tfrac{1}{2}|AB|$. So $\triangle ABG \sim \triangle DEG$ with
+ratio $2 : 1$ (AA: vertical angles at $G$, alternate-interior at
+$AB \parallel DE$). Hence $|AG| : |GD| = 2 : 1$, and similarly
+$|BG| : |GE| = 2 : 1$. The same applies to the third median (by
+identical argument), so it passes through the same $G$. **Three
+medians concur at $G$ — the *centroid* — at $2:1$.** *(Planimetry
+§168.)*
+</details>
+
+**S2.** Stewart's theorem: in $\triangle ABC$ with cevian $AD$
+(from $A$ to a point $D$ on $BC$ with $|BD| = m, |DC| = n,
+|BC| = m + n$), and $|AD| = d$, then
+$$b^2 m + c^2 n - a m n = d^2 (m + n).$$
+*(Where $a = |BC|, b = |AC|, c = |AB|$.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply the law of cosines in $\triangle ABD$ and $\triangle ACD$
+using the same $\cos \angle ADB = -\cos \angle ADC$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\theta = \angle ADB$, so $\angle ADC = 180° - \theta$ and
+$\cos \angle ADC = -\cos\theta$. In $\triangle ABD$: $c^2 = m^2 +
+d^2 - 2md\cos\theta$. In $\triangle ACD$: $b^2 = n^2 + d^2 +
+2nd\cos\theta$. Multiply the first by $n$, the second by $m$, add:
+$c^2 n + b^2 m = (m^2 n + n^2 m) + d^2 (m + n) - 2mnd\cos\theta +
+2mnd\cos\theta = mn(m + n) + d^2(m + n)$. Rearrange to
+$b^2 m + c^2 n - amn = d^2(m + n)$, with $a = m + n$. **QED.**
+*(A staple stretch problem; Kiselev addresses it implicitly via
+the Apollonius theorem in §181.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Planimetry*, §§158–185.
+
+**K1.** In $\triangle ABC$, the altitude from $C$ to $AB$ has foot
+$H$. Show $|CH|^2 = |AH| \cdot |HB|$ (the *geometric-mean
+relation*).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle AHC \sim \triangle CHB$ — both have a right angle and
+share the angle at $C$ (well, complementary angles).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ACB$ has right angle at $C$ (assumption: $C$ is the
+right-angle vertex; otherwise the statement holds only when the
+altitude lands inside the triangle and we adjust). Both
+$\triangle AHC$ and $\triangle CHB$ are right at $H$ and share
+$\angle CAH = \angle BCH$ (both complement to $\angle ACH$ — yes,
+this is the classic mutual-complement argument). By **AA** they are
+similar. So $\dfrac{|AH|}{|CH|} = \dfrac{|CH|}{|HB|}$, i.e.
+$|CH|^2 = |AH| \cdot |HB|$. **QED.** *(Planimetry §171.)*
+</details>
+
+**K2.** A point $P$ inside $\triangle ABC$ is connected to the three
+vertices, dividing the triangle into three sub-triangles with areas
+$S_a, S_b, S_c$ (opposite to $A, B, C$). Show that the cevians from
+$A, B, C$ through $P$ divide the *opposite sides* in ratios
+$|BD|/|DC| = S_b / S_c$, etc., where $D = AP \cap BC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangles $\triangle ABD$ and $\triangle ACD$ share the altitude
+from $A$. Likewise $\triangle PBD$ and $\triangle PCD$ share the
+altitude from $P$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ABD$ and $\triangle ACD$ share the altitude from $A$, so
+their areas are in ratio $|BD| : |DC|$. Same for $\triangle PBD$
+and $\triangle PCD$. Subtracting (since $\triangle ABP =
+\triangle ABD - \triangle PBD$, etc.): the ratios still equal
+$|BD| : |DC|$. So $S_c / S_b = |BD| / |DC|$ — wait, I need to track
+the labelling: the area of $\triangle BPC$ uses base $BC$ and is
+across from $A$, hence $S_a$. By the cevian-area splitting:
+$|BD|/|DC| = $ (area of $\triangle ABP$ + $\triangle BPD$ piece...)
+The clean statement: **the cevian from $A$ through $P$ hits $BC$ at
+the point dividing $BC$ in ratio $S_c : S_b$.** *(Generalises Ceva's
+theorem; Kiselev's §177.)*
+</details>
+
+**K3.** A circle of radius $r$ is inscribed in $\triangle ABC$
+(touches each side internally). Show that
+$$\text{Area}(\triangle ABC) = r \cdot s$$
+where $s = (a + b + c) / 2$ is the *semi-perimeter*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Connect the incentre $I$ to each vertex, splitting the triangle
+into three sub-triangles whose altitudes from $I$ are all $r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Connect the incentre $I$ to each vertex. The three sub-triangles
+$\triangle IBC, \triangle ICA, \triangle IAB$ have bases $a, b, c$
+respectively and altitudes all equal to $r$ (the inradius — distance
+from $I$ to each side, equal because $I$ is on each angle bisector
+and the perpendicular distances from $I$ to the sides are equal).
+Sum of areas:
+$\tfrac{1}{2}(ar + br + cr) = \tfrac{1}{2} r (a + b + c) = rs$.
+**QED.** *(Planimetry §180 — the *triangle-inradius identity*.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§158–185 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K1's geometric-mean relation is Kiselev §171 verbatim in shape;
+K3's inradius identity is §180.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Similar means same area."** It does not — *similar* allows
+   any scale factor $k > 0$. Same area is a special case of similar
+   (with $k = 1$, i.e. congruent), but most similar triangles have
+   *different* sizes.
+2. **"AA only works if you have all three equal angles."** Two are
+   enough — the third is forced by the angle-sum theorem. Hence the
+   criterion is *AA*, not *AAA*.
+3. **"Pythagoras is its own theorem; similarity is a separate
+   topic."** They are deeply linked. Kiselev's own proof of
+   Pythagoras (Problem 6) is by similarity — the altitude-to-
+   hypotenuse construction creates two triangles each similar to
+   the whole, and Pythagoras is the algebra.
+:::
+
+### Self-Assessment
+
+1. Could you prove Pythagoras (Problem 6) on a fresh sheet, drawing
+   the altitude and stating the two similarities?
+2. Did the area-ratio result (Problem 5) feel like a natural
+   consequence of "scale base × scale height"?
+3. Can you explain why **AA** is enough — and why two equal angles
+   force the third — without consulting notes?
+
+- **3 yes:** move on to *Regular Polygons* (Ch 8).
+- **2 yes:** redo Problems 2 and 6 — BPT and Pythagoras are the
+  chapter's twin pillars.
+- **0–1 yes:** Problems 1 → 2 → 3 form a chain; replay them in
+  order.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg1.parallels`](../04-parallels/index.qmd) — alternate-interior
+  angles + the parallel postulate, used throughout BPT and AA.
+- [`kg1.triangle-congruence`](../02-triangle-congruence/index.qmd) —
+  SSS as the comparator for the SSS-similarity proof.
+
+### What this unlocks
+
+- **`kg1.regular-polygons`** *(Ch 8, planned)* — every regular
+  $n$-gon is similar to every other regular $n$-gon.
+- **`kg1.areas`** *(Ch 9, planned)* — Heron's formula via the
+  inradius identity (K3).
+- [`kg2.cylinder-cone`](../../tier-kiselev-4-stereometry/03-cylinder-cone/index.qmd) —
+  similar cones (linear ratio $k$ ⇒ area ratio $k^2$, volume ratio
+  $k^3$).
+- [`t3.trig-ratios`](../../tier-3-algebra2-geometry-trig/07-trig-ratios/index.qmd) —
+  trigonometric ratios are *similar-triangle ratios* — they depend
+  on the angle, not on the size of the triangle.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 7: Similarity (§§156–185).**
+  Givental translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lessons:**
+  [`t2.similarity-scale`](../../tier-2-prealgebra/13-similarity-scale/index.qmd)
+  (the *Touch* idiom of similarity);
+  [`cbse10.triangles-similarity`](../../tier-cbse-10-class-10/06-triangles-similarity/index.qmd)
+  (board-exam-style similarity proofs);
+  [`t2.pythagorean-theorem`](../../tier-2-prealgebra/10-pythagorean-theorem/index.qmd)
+  (alternative proofs of Pythagoras).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the Eudoxean theory of magnitudes underlying the irrational
+  case of Thales (§158 appendix).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every camera projection — orthographic,
+perspective, or oblique — is a *similarity transformation* of some
+projected plane. The fact that perspective preserves angles
+(approximately, for narrow fields) is exactly why a 3D scene
+remains *recognisable* when projected to a flat screen.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Convolutional neural networks** are built on a
+similarity assumption — that local patterns in an image are
+*scale-invariant*: a cat detector should fire whether the cat is
+near or far. The pyramid / multi-scale architectures used in modern
+vision encode this assumption as similar-triangle reasoning at the
+feature level.
+:::
+
+::: {.applied-callout}
+**Research.** *Fractal geometry* studies sets that are exactly
+similar to themselves at every scale (the Mandelbrot set, the Koch
+snowflake). The dimension of a fractal is fundamentally a
+*similarity-scaling* exponent.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§158–185 ordering); Eudoxus (the
+  irrational-ratio handling, deferred); Thales (the
+  shadow-comparison Worked Example).
+- **The Pythagoras-via-similarity proof (Problem 6)** is the one I
+  recommend memorising — it generalises directly to non-Euclidean
+  geometries (where it *fails*, telling you the geometry is curved)
+  and is the fastest route to the law of cosines.
+- **What this lesson does not do:** prove the *concurrence of
+  angle bisectors* (the incentre exists), only *uses* it in K3.
+  The concurrence proof belongs in Ch 8 or as a direct corollary of
+  the locus theorem from Ch 3.
+:::

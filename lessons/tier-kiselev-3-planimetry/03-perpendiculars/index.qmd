@@ -1,0 +1,550 @@
+---
+title: "Ch 3 — Perpendiculars and Obliques"
+subtitle: "The shortest path from a point to a line — and why slants grow with their feet"
+lesson-id: "kg1.perpendiculars"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 3
+kiselev-chapter-title: "Perpendiculars and slants"
+kiselev-sections: "Planimetry §§56–74 (perpendicular existence and uniqueness, slants vs. projections, right-triangle congruence)"
+prerequisites: [kg1.triangle-congruence]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state the **SAS** and **ASA** congruence theorems? See
+   [`kg1.triangle-congruence`](../02-triangle-congruence/index.qmd).
+2. Are you comfortable proving that the bisectors of an isosceles
+   triangle's apex angle bisect the base?
+3. Do you know what a **right angle** is and how to mark one in a
+   figure?
+4. Can you state the *triangle inequality* in your own words?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A line $\ell$ horizontal across the page; a point $P$ above it. Drop
+many segments from $P$ to $\ell$, hitting different feet. **The
+shortest one** is the **perpendicular** — drag $P$ around to confirm.
+
+```{ojs}
+viewof Px = Inputs.range([-4, 4], {value: 0.5, step: 0.1, label: "P: x"})
+```
+
+```{ojs}
+viewof Py = Inputs.range([0.5, 4], {value: 2.5, step: 0.1, label: "P: y (height above line)"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 280, padX = 30, padY = 30;
+  const xS = d3.scaleLinear().domain([-6, 6]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-1, 5]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // line ℓ at y=0
+  svg.append("line").attr("x1", xS(-6)).attr("x2", xS(6))
+    .attr("y1", yS(0)).attr("y2", yS(0))
+    .attr("stroke", "#333").attr("stroke-width", 2);
+  svg.append("text").attr("x", w - padX - 10).attr("y", yS(0) + 16)
+    .attr("font-size", 12).attr("text-anchor", "end").text("ℓ");
+
+  // P
+  svg.append("circle").attr("cx", xS(Px)).attr("cy", yS(Py))
+    .attr("r", 5).attr("fill", "#a26");
+  svg.append("text").attr("x", xS(Px) + 8).attr("y", yS(Py) - 6)
+    .attr("font-size", 12).attr("font-weight", "bold").text("P");
+
+  // perpendicular foot F at (Px, 0)
+  svg.append("line").attr("x1", xS(Px)).attr("x2", xS(Px))
+    .attr("y1", yS(0)).attr("y2", yS(Py))
+    .attr("stroke", "#26a").attr("stroke-width", 2.5);
+  svg.append("circle").attr("cx", xS(Px)).attr("cy", yS(0))
+    .attr("r", 3).attr("fill", "#26a");
+  svg.append("text").attr("x", xS(Px) + 5).attr("y", yS(0) + 16)
+    .attr("font-size", 11).attr("fill", "#26a").text("F (foot)");
+
+  // five obliques to feet at Px ± 1, Px ± 2, Px ± 3 (bounded)
+  const offsets = [-3, -2, -1, 1, 2, 3];
+  for (const off of offsets) {
+    const fx = Px + off;
+    if (fx < -5.5 || fx > 5.5) continue;
+    svg.append("line").attr("x1", xS(fx)).attr("x2", xS(Px))
+      .attr("y1", yS(0)).attr("y2", yS(Py))
+      .attr("stroke", "#888").attr("stroke-dasharray", "3,2").attr("stroke-width", 1);
+    const len = Math.hypot(off, Py).toFixed(2);
+    svg.append("text").attr("x", xS(fx)).attr("y", yS(0) + 30)
+      .attr("font-size", 9).attr("text-anchor", "middle").attr("fill", "#888")
+      .text(len);
+  }
+  // perpendicular length label
+  svg.append("text").attr("x", xS(Px) - 6).attr("y", yS(Py / 2))
+    .attr("font-size", 11).attr("fill", "#26a").attr("text-anchor", "end")
+    .text(`⊥ length = ${Py.toFixed(2)}`);
+
+  return svg.node();
+}
+```
+
+The perpendicular (solid blue) is shorter than every slant (dashed
+grey). The further the foot strays from $F$, the longer the slant
+gets.
+
+## Wonder
+
+1. From a point $P$ above a line $\ell$, how many perpendiculars to
+   $\ell$ pass through $P$? **Exactly** one, more, or none?
+2. If two slants from $P$ to $\ell$ have equal length, what does
+   that say about their *feet* on $\ell$?
+3. The perpendicular is the shortest. Is there a longest? (Trick
+   question.)
+4. A *right triangle* has a $90°$ angle. The two legs determine the
+   hypotenuse. Are *two* right triangles with equal hypotenuses and
+   one matching leg necessarily congruent?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Exactly one** — and the proof uses ASA on a hypothetical
+"second perpendicular". (2) Their feet are **equidistant** from the
+foot of the perpendicular through $P$. (3) No — slants can grow
+arbitrarily as the foot moves. (4) **Yes** — *hypotenuse-leg* (HL)
+is a fourth congruence theorem, special to right triangles.
+:::
+
+## Discover
+
+### Problem 1 — Existence and uniqueness of the perpendicular
+
+Given a line $\ell$ and a point $P$ not on $\ell$, show that there
+is **exactly one** perpendicular to $\ell$ through $P$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Existence:* drop a segment from $P$ that strikes $\ell$ at a right
+angle. *Uniqueness:* suppose two perpendiculars $PF$ and $PG$ from
+$P$ both meet $\ell$ at right angles — argue triangle inequality
+fails.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Existence* (Planimetry §57). Construct the perpendicular by reflecting
+$P$ in $\ell$ to obtain $P'$; the segment $PP'$ crosses $\ell$ at
+the foot $F$ at right angles, by symmetry of the reflection.
+
+*Uniqueness.* Suppose two perpendiculars from $P$ meet $\ell$ at
+distinct feet $F$ and $G$. Then $\triangle PFG$ has two right angles
+at $F$ and $G$. Adding the third gives $\ge 180°$ before $\angle P$
+is even counted — impossible. Hence $F = G$, and the perpendicular
+is unique. **QED.** *(Planimetry §59.)*
+</details>
+
+### Problem 2 — The perpendicular is the shortest segment
+
+Let $PF$ be the perpendicular from $P$ to $\ell$ (so $F$ is the
+*foot*). Let $PG$ be any other segment from $P$ to a point $G$ on
+$\ell$, $G \ne F$. Show that $|PF| < |PG|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle PFG$ is a right triangle with right angle at $F$. The
+hypotenuse $PG$ is the side opposite the right angle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle PFG$ has $\angle F = 90°$. So
+$\angle P + \angle G + 90° = 180°$, giving $\angle G < 90°$. The
+side **opposite the larger angle is longer** (a corollary of the
+exterior-angle theorem from Ch 2). $\angle F$ is the largest angle,
+so $|PG|$ — opposite it — is the longest side. In particular,
+$|PG| > |PF|$. **QED.** *(Planimetry §60.)*
+</details>
+
+### Problem 3 — Equal slants ⇒ equal projections
+
+From $P$ off line $\ell$, drop the perpendicular $PF$. Let $PG$ and
+$PH$ be two slants of equal length to feet $G, H \in \ell$ with $G$
+and $H$ on opposite sides of $F$. Show that $|FG| = |FH|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle PFG$ and $\triangle PFH$ are right triangles sharing leg
+$PF$ and having equal hypotenuses $|PG| = |PH|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Both right triangles have the right angle at $F$, share leg $PF$,
+and have equal hypotenuses $|PG| = |PH|$. By **hypotenuse-leg**
+congruence (proved in Problem 5 below), $\triangle PFG \cong
+\triangle PFH$. Hence $|FG| = |FH|$ — equal slants project to
+equally-distant feet. **QED.** *(Planimetry §63.)*
+</details>
+
+### Problem 4 — Longer slant ⇔ longer projection
+
+From $P$ off line $\ell$, $F$ the foot of the perpendicular. Let
+$G, H \in \ell$ with $|FG| < |FH|$, both on the same side of $F$ on
+$\ell$. Show that $|PG| < |PH|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the Pythagorean theorem (or its inequality version): $|PG|^2 =
+|PF|^2 + |FG|^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Right triangles $\triangle PFG$ and $\triangle PFH$ share leg
+$|PF|$. Their other legs are $|FG|$ and $|FH|$, with $|FG| < |FH|$.
+Hypotenuse squared = sum of squared legs:
+$|PG|^2 = |PF|^2 + |FG|^2 < |PF|^2 + |FH|^2 = |PH|^2$.
+Hence $|PG| < |PH|$. *(The Pythagorean theorem is itself proved
+later in Ch 6 via similarity; for now Kiselev cites the
+exterior-angle inequality from Ch 2.)*
+</details>
+
+### Problem 5 — Hypotenuse-leg (HL) congruence
+
+Two right triangles have equal hypotenuses and one pair of equal
+legs. Show they are congruent.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Lay one on top of the other, matching the equal legs and the right
+angle. Where can the third vertex go?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\triangle ABC$ and $\triangle A'B'C'$ have right angles at $C$
+and $C'$, with $|BC| = |B'C'|$ (equal legs) and $|AB| = |A'B'|$
+(equal hypotenuses). Lay $C \to C'$, $B \to B'$ aligned along the
+shared leg. The right angles at $C$ and $C'$ force ray $CA$ to
+align with ray $C'A'$. Now $A$ is on ray $CA$ at distance $|CA|$
+from $C$; $A'$ is on the same ray at distance $|C'A'|$. By
+**Pythagoras**, $|CA|^2 = |AB|^2 - |BC|^2 = |A'B'|^2 - |B'C'|^2 =
+|C'A'|^2$, so $|CA| = |C'A'|$ — and $A = A'$. Triangles congruent.
+**QED.** *(Planimetry §73.)*
+</details>
+
+### Problem 6 — Locus of equidistant points
+
+Show that the set of points equidistant from two given points
+$A, B$ is the **perpendicular bisector** of $AB$ — that is, the line
+perpendicular to $AB$ through its midpoint $M$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Two directions:* (i) every point on the perpendicular bisector is
+equidistant; (ii) every equidistant point lies on it. Use SAS for
+(i) and isosceles for (ii).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(i)** Let $P$ be on the perpendicular bisector of $AB$, $M$ the
+midpoint. $\triangle PMA$ and $\triangle PMB$: $|MA| = |MB|$
+(midpoint), $\angle PMA = \angle PMB = 90°$ (perpendicular), $PM$
+shared. By SAS, congruent. So $|PA| = |PB|$ — $P$ is equidistant.
+
+**(ii)** Conversely, suppose $|PA| = |PB|$. Then $\triangle PAB$
+is isosceles. The median from $P$ — the segment to the midpoint
+$M$ — is also the **altitude** (from Ch 2 Problem P3, or the
+isosceles converse). So $PM \perp AB$, meaning $P$ lies on the
+perpendicular bisector. **QED.** *(Planimetry §70 — first locus
+theorem.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Perpendicular** from $P$ to line $\ell$: the unique segment from
+  $P$ to a point $F$ on $\ell$ that meets $\ell$ at a right angle.
+  $F$ is the **foot** of the perpendicular.
+- **Slant** (oblique) from $P$ to $\ell$: any other segment from $P$
+  to a point $G \in \ell$, $G \ne F$.
+- **Projection** of slant $PG$ onto $\ell$: the segment $FG$.
+- **Perpendicular bisector** of segment $AB$: the line through the
+  midpoint of $AB$ perpendicular to $AB$.
+
+**Theorems (Planimetry §§57–74).**
+
+1. *Existence and uniqueness:* through a point $P$, there is exactly
+   one perpendicular to a given line.
+2. *Shortest segment:* the perpendicular is shorter than every slant.
+3. *Equal slants ⇔ equal projections.*
+4. *Longer slant ⇔ longer projection.*
+5. *HL congruence:* two right triangles with equal hypotenuse and one
+   equal leg are congruent.
+6. *Locus theorem:* the set of points equidistant from $A$ and $B$
+   is the perpendicular bisector of $AB$.
+
+:::
+
+A verse:
+
+> *From a point off a line, one perpendicular alone — the shortest path.*
+> *Slants grow with their feet — equal feet give equal slants, and so on*
+> *backward.*
+> *Right triangles match by hypotenuse and a leg — a fourth way to align.*
+> *And every point that's fair to two ends sits on their perpendicular spine.*
+
+## Apply
+
+### Worked example
+
+> $P$ is a point and $\ell$ a line; the perpendicular from $P$ has
+> foot $F$ with $|PF| = 5$. A slant $PG$ has $|FG| = 12$. Find $|PG|$.
+
+Right triangle $\triangle PFG$, right-angled at $F$. By Pythagoras:
+$|PG|^2 = |PF|^2 + |FG|^2 = 25 + 144 = 169$. So $|PG| = 13$.
+
+**$|PG| = 13$.**
+
+### Practice — Warm
+
+**W1.** From $P$, $|PF| = 4$ (perpendicular). A slant has foot
+$|FG| = 3$. Find the slant length.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{16 + 9} = 5$.
+</details>
+
+**W2.** Two slants from $P$ to $\ell$ have equal length and feet on
+opposite sides of the perpendicular foot. Their two feet are $7$ cm
+apart. How far is each foot from the perpendicular foot?
+
+<details class="hint"><summary>Full solution</summary>
+**$3.5$ cm each.** (Equal projections, opposite sides.)
+</details>
+
+**W3.** Two right triangles have hypotenuse $13$ and one leg $5$.
+Are they congruent?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — by **hypotenuse-leg**.
+</details>
+
+### Practice — Working
+
+**P1.** Three slants from $P$ to $\ell$ have feet at $1, 4, 9$
+units from the foot $F$ of the perpendicular ($|PF| = 6$). List the
+slant lengths in increasing order.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{36 + 1} = \sqrt{37}$, $\sqrt{36 + 16} = \sqrt{52}$,
+$\sqrt{36 + 81} = \sqrt{117}$. **Increasing as feet move away** —
+which is the *longer-slant-with-longer-projection* theorem.
+</details>
+
+**P2.** Show that the foot of the perpendicular from $P$ to $\ell$
+is the **point on $\ell$ closest to $P$**.
+
+<details class="hint"><summary>Full solution</summary>
+Direct application of the *shortest segment* theorem (Problem 2).
+</details>
+
+**P3.** $A$ and $B$ are two points; $\ell$ is a line not passing
+through either. Find the point $X \in \ell$ minimising
+$|AX| + |XB|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reflect $A$ across $\ell$ to get $A'$. The path $A \to X \to B$ has
+the same length as $A' \to X \to B$ (since $|AX| = |A'X|$ by
+reflection). The shortest such path is the straight one.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Reflect $A$ in $\ell$ to $A'$. Then $|AX| = |A'X|$, so $|AX| + |XB|
+= |A'X| + |XB| \ge |A'B|$ with equality iff $X$ is on segment $A'B$.
+**$X$ = intersection of segment $A'B$ with $\ell$.** This is the
+*Heron's reflection* problem (and the principle behind the
+**law of reflection** in optics).
+</details>
+
+### Practice — Stretch
+
+**S1.** A right triangle has hypotenuse $c$ and legs $a, b$. Show
+that the perpendicular from the right-angle vertex to the
+hypotenuse has length $\dfrac{ab}{c}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the area two ways: $\tfrac{1}{2} ab$ using the legs as base
+and height; $\tfrac{1}{2} c \cdot h$ using the hypotenuse and the
+altitude $h$ to it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Area $= \tfrac{1}{2} ab = \tfrac{1}{2} c h$, so $h = ab/c$.
+*(A staple right-triangle fact, used heavily in similarity in Ch 7.)*
+</details>
+
+**S2.** Show that the three perpendicular bisectors of a triangle's
+sides **meet at one point** — the **circumcentre**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take any two of the bisectors; they meet at some $O$. Show $O$ lies
+on the third.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\ell_{AB}$ be the perpendicular bisector of $AB$ and $\ell_{BC}$
+of $BC$. They meet at some $O$ (they are not parallel because $AB$
+and $BC$ are not parallel — they share vertex $B$). On $\ell_{AB}$:
+$|OA| = |OB|$ (locus theorem). On $\ell_{BC}$: $|OB| = |OC|$. So
+$|OA| = |OB| = |OC|$. The first and last give $|OA| = |OC|$, so $O$
+is on $\ell_{CA}$ — the perpendicular bisector of $CA$. **All
+three meet at $O$.** *(Planimetry §72; this $O$ is the centre of
+the **circumcircle** through $A, B, C$.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Planimetry*, §§60–74.
+
+**K1.** From a point $P$ off line $\ell$, two equal slants are drawn
+to feet $G$ and $H$ with $|PG| = |PH|$. Show that the perpendicular
+from $P$ to $\ell$ bisects segment $GH$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle PGH$ is isosceles with $|PG| = |PH|$. The foot of the
+perpendicular from $P$ to $\ell$ is...
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle PGH$ is isosceles with apex $P$. The altitude from $P$
+to $GH$ bisects $GH$ (from Ch 2). The altitude from $P$ to line
+$\ell$ — which contains $G$ and $H$ — is precisely the perpendicular
+from $P$ to $\ell$. So its foot is the midpoint of $GH$.
+**QED.** *(Planimetry §63.)*
+</details>
+
+**K2.** Two perpendiculars from a point $P$ are dropped onto two
+*different* lines $\ell_1$ and $\ell_2$. The two feet are $F_1$ on
+$\ell_1$ and $F_2$ on $\ell_2$. If $|PF_1| = |PF_2|$, show that $P$
+lies on a bisector of an angle formed by $\ell_1$ and $\ell_2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The right triangles $\triangle PF_1 X$ and $\triangle PF_2 X$ —
+where $X$ is the intersection of $\ell_1$ and $\ell_2$ — share
+hypotenuse $PX$ and have equal legs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $X = \ell_1 \cap \ell_2$. The right triangles $\triangle PF_1
+X$ (right angle at $F_1$) and $\triangle PF_2 X$ (right angle at
+$F_2$) share hypotenuse $PX$ and have equal legs $|PF_1| = |PF_2|$.
+By **HL** (Problem 5), they are congruent. Hence $\angle F_1 X P =
+\angle F_2 X P$ — so $P$ lies on the bisector of $\angle F_1 X F_2$,
+which is one of the two bisectors of the lines $\ell_1, \ell_2$.
+**QED.** *(Planimetry §71 — locus theorem for angle bisectors.)*
+</details>
+
+**K3.** A point $P$ lies inside an angle. The perpendiculars from $P$
+to the two sides of the angle have equal length. Show that $P$ lies
+on the bisector of the angle.
+
+<details class="hint"><summary>Full solution</summary>
+This is K2 with the angle's sides as $\ell_1, \ell_2$ and the
+vertex $X$ being the angle's vertex. By the same HL argument, $P$
+lies on the angle bisector. *(Planimetry §71.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§60–74 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K2 and K3 are the *angle-bisector locus* exercises that pair with
+Problem 6's perpendicular-bisector locus.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"The perpendicular and the shortest segment are different
+   things."** They are the *same* thing — that is the content of
+   Problem 2. Many students hold them as separate facts and miss the
+   connection.
+2. **"Hypotenuse-leg means SSA."** It does **not**. HL adds the
+   constraint that the angle opposite the longer of the two given
+   sides (the hypotenuse) is a *right* angle. That extra constraint
+   eliminates the SSA ambiguity.
+3. **"Locus = a single point."** A *locus* is the **set** of points
+   satisfying a condition. It can be a line (perpendicular bisector
+   in Problem 6), a circle (locus of points at fixed distance from
+   a centre), or more exotic curves. *Locus is plural in
+   character.*
+:::
+
+### Self-Assessment
+
+1. Could you prove the *uniqueness of the perpendicular* (Problem 1)
+   by the angle-sum contradiction without notes?
+2. Did the *shortest-segment* proof (Problem 2) feel like a clean
+   one-step deduction from "side opposite larger angle is longer"?
+3. Can you set up Heron's reflection problem (P3) on a fresh sheet
+   without consulting the hint?
+
+- **3 yes:** move on to *Parallels* (Ch 4) — the pilot — armed with
+  perpendicular discipline.
+- **2 yes:** redo Problem 6 — the locus theorem and its locked
+  bidirectional structure are the chapter's payoff.
+- **0–1 yes:** Problems 1, 2, 3 are a single pedagogical unit;
+  re-walk all three.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg1.triangle-congruence`](../02-triangle-congruence/index.qmd) —
+  SSS, SAS, ASA, the isosceles triangle theorem, and the exterior-
+  angle inequality (used implicitly in the slant-projection proofs).
+
+### What this unlocks
+
+- [`kg1.parallels`](../04-parallels/index.qmd) — the existence of
+  parallels through a point uses the *erect-perpendicular*
+  construction from this chapter.
+- **`kg1.quadrilaterals`** *(Ch 5, planned)* — diagonals of a
+  rectangle / rhombus require perpendicular-bisector reasoning.
+- **`kg1.circles`** *(Ch 6, planned)* — the locus
+  *equidistant-from-centre* defines a circle; tangent-radius
+  perpendicularity is the next chapter's theme.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 3: Perpendiculars and slants
+  (§§56–74).** Givental translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lessons:**
+  [`cbse9.triangles`](../../tier-cbse-09-class-9/07-triangles/index.qmd)
+  (right-triangle congruence in CBSE idiom) and
+  [`t2.pythagorean-theorem`](../../tier-2-prealgebra/10-pythagorean-theorem/index.qmd)
+  (the right-triangle leg-relation our slants depend on).
+- **Read alongside the source PDF** for Kiselev's full development of
+  the locus theorems (§§70–72).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** *Closest-point-on-a-line-segment* is the
+single most-called geometric query in physics engines and pathfinding.
+Its answer is exactly the perpendicular foot — clipped to the segment
+when the foot falls outside its endpoints. Without this lesson's
+core fact you cannot write a working collision detector.
+:::
+
+::: {.applied-callout}
+**Research.** The *locus characterisation* of geometric objects —
+"the set of points satisfying property X is curve Y" — is the seed
+of analytic geometry, where curves are defined by *equations* (which
+encode the locus property). Descartes' great move was to pair the
+synthetic locus with an algebraic equation; this lesson gives the
+synthetic side.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§56–74 ordering and the angle-sum
+  uniqueness argument); Hadamard (the *Touch* widget framing).
+- **The HL theorem (Problem 5)** is given here using Pythagoras —
+  Kiselev defers the formal Pythagoras proof to similarity (Ch 7),
+  but uses the legs-and-hypotenuse identity as a working tool from
+  Ch 3 onward. We follow that order.
+- **What this lesson does not do:** prove the *concurrence of
+  altitudes* (the orthocentre); that's a Ch 6 result.
+:::

@@ -1,0 +1,575 @@
+---
+title: "Ch 9 — Areas"
+subtitle: "Why a parallelogram has base × height — and Heron's formula in one elegant move"
+lesson-id: "kg1.areas"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 9
+kiselev-chapter-title: "Areas"
+kiselev-sections: "Planimetry §§216–245 (rectangle, parallelogram, triangle, trapezoid, regular n-gon, circle)"
+prerequisites: [kg1.similarity, kg1.regular-polygons]
+unlocks: []
+applied-domains: [game-dev, research, ai-ml]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are similar-figure ratios second-nature for you? *(Linear $k$ ⇒
+   area $k^2$.)* See [`kg1.similarity`](../07-similarity/index.qmd).
+2. Can you state the limit definition of $\pi$ from
+   [`kg1.regular-polygons`](../08-regular-polygons/index.qmd)?
+3. Can you state and apply the *Pythagorean theorem*?
+4. Are you comfortable with the formula
+   $\text{rectangle area} = \text{base} \times \text{height}$ as a
+   working axiom?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A rectangle. Drag its corners; watch the area update as
+$\text{base} \times \text{height}$. Now slide the top edge sideways
+(keeping the height the same) — you get a parallelogram. **Same
+area.**
+
+```{ojs}
+viewof base = Inputs.range([1, 6], {value: 4, step: 0.1, label: "Base b"})
+```
+
+```{ojs}
+viewof height = Inputs.range([1, 5], {value: 3, step: 0.1, label: "Height h"})
+```
+
+```{ojs}
+viewof shear = Inputs.range([-3, 3], {value: 1.5, step: 0.1, label: "Top-edge shift (parallelogram tilt)"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 280, padX = 40, padY = 40;
+  const xS = d3.scaleLinear().domain([-1, 10]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-1, 6]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  const A = [0, 0], B = [base, 0];
+  const D = [shear, height], C = [base + shear, height];
+
+  // parallelogram
+  svg.append("polygon")
+    .attr("points", `${xS(A[0])},${yS(A[1])} ${xS(B[0])},${yS(B[1])} ${xS(C[0])},${yS(C[1])} ${xS(D[0])},${yS(D[1])}`)
+    .attr("fill", "#26a").attr("fill-opacity", 0.20)
+    .attr("stroke", "#26a").attr("stroke-width", 2);
+
+  // ghost rectangle (base × height, same base) for comparison
+  svg.append("polygon")
+    .attr("points", `${xS(0)},${yS(0)} ${xS(base)},${yS(0)} ${xS(base)},${yS(height)} ${xS(0)},${yS(height)}`)
+    .attr("fill", "none")
+    .attr("stroke", "#a26").attr("stroke-dasharray", "3,2").attr("stroke-width", 1.5);
+
+  svg.append("text").attr("x", padX).attr("y", padY - 10)
+    .attr("font-size", 12)
+    .text(`Parallelogram area = base × height = ${base.toFixed(2)} × ${height.toFixed(2)} = ${(base*height).toFixed(2)}`);
+  svg.append("text").attr("x", padX).attr("y", padY + 6)
+    .attr("font-size", 11).attr("fill", "#a26")
+    .text(`Same as the dashed rectangle — sliding the top doesn't change the area.`);
+
+  return svg.node();
+}
+```
+
+The slide along the top is a *shear*. Shears preserve area — that's
+the whole secret of why parallelograms have area $= bh$.
+
+## Wonder
+
+1. The rectangle has area $b \cdot h$ — we accept that as a working
+   axiom (length-times-length). What about the *parallelogram*?
+2. A triangle is *half* a parallelogram on the same base and
+   height. Does that give a triangle-area formula in a single line?
+3. A trapezoid has two parallel bases of length $a$ and $b$, with
+   distance $h$ between them. **What is its area?** *(Guess from
+   the midsegment.)*
+4. The area of a circle is $\pi r^2$. Where does the *square* come
+   from?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Parallelogram area $= b \cdot h$ (same base and same height as
+the rectangle — *shear-invariant*). (2) Triangle area $=
+\tfrac{1}{2} b h$. (3) Trapezoid area $= \tfrac{a + b}{2} \cdot h$
+— the midsegment $\times$ height. (4) Area scales by $k^2$ under
+similarity (Ch 7); doubling the radius quadruples the area; one
+factor of $r$ comes from the circumference, the other from the
+*radial dimension*.
+:::
+
+## Discover
+
+### Problem 1 — Parallelogram has area $b h$
+
+In parallelogram $ABCD$ (with $|AB| = b$ being the *base* and the
+perpendicular distance from $CD$ to line $AB$ being $h$, the
+*height*), show that the area is $b \cdot h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cut a right triangle off one end and translate it to the other end
+to form a rectangle of base $b$ and height $h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Drop perpendicular $DE$ from $D$ to line $AB$, foot $E$ on segment
+$AB$. The right triangle $\triangle ADE$ — by the
+*translation by $\vec{AB}$* — coincides with the right triangle
+formed at the other end of the parallelogram. Cutting off
+$\triangle ADE$ from one end and gluing it to the other turns the
+parallelogram into a rectangle of base $|EB| + |AE| = b$ and height
+$h$. Area $= b \cdot h$. **QED.** *(Planimetry §220 — the *cut-and-
+slide* proof.)*
+
+(*Edge case:* if the perpendicular foot $E$ lies outside segment
+$AB$, a sign-bookkeeping argument with a different cut works. The
+formula is unchanged.)
+</details>
+
+### Problem 2 — Triangle has area $\tfrac{1}{2} b h$
+
+In $\triangle ABC$ with base $|BC| = b$ and altitude $h$ from $A$
+to $BC$, show that the triangle area is $\tfrac{1}{2} b h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reflect $\triangle ABC$ across the midpoint of one of its sides to
+form a parallelogram of which the original triangle is half.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Reflect $\triangle ABC$ across the midpoint $M$ of side $BC$ — the
+reflected triangle $\triangle A'CB$ together with the original
+forms a parallelogram $ABA'C$ (since $A$ and $A'$ are equidistant
+from $M$, and the diagonals of a parallelogram bisect each other).
+This parallelogram has base $b$ and height $h$, hence area $bh$.
+The triangle is half. **Triangle area $= \tfrac{1}{2} b h$. QED.**
+*(Planimetry §222.)*
+</details>
+
+### Problem 3 — Trapezoid area
+
+A trapezoid has parallel bases of lengths $a$ and $b$, with
+perpendicular distance $h$ between them. Show its area is
+$\dfrac{a + b}{2} \cdot h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cut along a diagonal — two triangles, both with height $h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Cut along diagonal $BD$. The two triangles $\triangle ABD$ and
+$\triangle BCD$ have:
+- $\triangle ABD$ base $a$ (along $AB$), altitude $h$, area
+  $\tfrac{1}{2} a h$.
+- $\triangle BCD$ base $b$ (along $CD$), altitude $h$, area
+  $\tfrac{1}{2} b h$.
+Sum: $\tfrac{1}{2}(a + b) h = \dfrac{a + b}{2} \cdot h$. **QED.**
+*(Planimetry §223 — *the trapezoid is the average of its bases
+times the height*.)*
+</details>
+
+### Problem 4 — Heron's formula
+
+Show that the area of a triangle with sides $a, b, c$ is
+$$
+A = \sqrt{s(s - a)(s - b)(s - c)},
+\quad s = \frac{a + b + c}{2}.
+$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Express $h$ (altitude on side $c$) using Pythagoras after splitting
+$c$ into two pieces by the foot of the altitude. Then use $A =
+\tfrac{1}{2} c h$ and simplify.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Drop altitude $h$ from $C$ to $AB$ (length $c$); let the foot $H$
+split $AB$ into $|AH| = m$ and $|HB| = c - m$. Pythagoras: $h^2 =
+b^2 - m^2 = a^2 - (c - m)^2$. Solve for $m$: $m = (b^2 - a^2 + c^2)
+/ (2c)$. Then $h^2 = b^2 - m^2$. Algebraic simplification (the
+*difference of two squares* twice over):
+$h^2 = \dfrac{(2bc)^2 - (b^2 + c^2 - a^2)^2}{(2c)^2}$.
+The numerator factors:
+$(2bc - (b^2 + c^2 - a^2))(2bc + (b^2 + c^2 - a^2))
+= (a^2 - (b - c)^2)((b + c)^2 - a^2)
+= (a - b + c)(a + b - c)(b + c - a)(a + b + c)
+= 16 s (s - a)(s - b)(s - c)$
+(after using $s = (a+b+c)/2$).
+So $h = \dfrac{2\sqrt{s(s-a)(s-b)(s-c)}}{c}$. Then
+$A = \tfrac{1}{2} c h = \sqrt{s(s-a)(s-b)(s-c)}$. **QED.**
+*(Planimetry §234 — Kiselev follows Heron's original derivation.)*
+</details>
+
+### Problem 5 — Area of a regular $n$-gon
+
+Show that a regular $n$-gon with circumradius $R$ has area
+$$A_n = \tfrac{1}{2} n R^2 \sin\left(\tfrac{2\pi}{n}\right).$$
+
+<details class="hint"><summary>Full solution</summary>
+The polygon decomposes into $n$ congruent isoceles triangles, each
+with two sides $R$ and included angle $2\pi / n$ at the centre.
+Each triangle area: $\tfrac{1}{2} R^2 \sin(2\pi/n)$. Total:
+$\tfrac{1}{2} n R^2 \sin(2\pi/n)$. **QED.** *(Planimetry §238;
+also stated as the result of S1 in Ch 8.)*
+</details>
+
+### Problem 6 — Area of a circle
+
+Show that the area of a circle of radius $R$ is $\pi R^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take the limit of the regular $n$-gon area as $n \to \infty$.
+$\sin(2\pi/n) / (2\pi/n) \to 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By Problem 5, $A_n = \tfrac{1}{2} n R^2 \sin(2\pi/n) = \pi R^2 \cdot
+\dfrac{\sin(2\pi/n)}{2\pi/n} \to \pi R^2 \cdot 1 = \pi R^2$ as
+$n \to \infty$. The inscribed regular $n$-gon area is sandwiched
+between the inscribed and circumscribed polygon areas (sandwich
+argument from Ch 8 Pr 7), and both bracket $\pi R^2$. **Circle area
+$= \pi R^2$.** *(Planimetry §241 — Eudoxus' method of exhaustion in
+the school-friendly Kiselev form.)*
+</details>
+
+### Problem 7 — Areas of similar figures
+
+Two similar figures (any shape) with linear ratio $k$ have areas in
+ratio $k^2$.
+
+<details class="hint"><summary>Full solution</summary>
+We proved this for triangles in Ch 7 Problem 5. For *any* polygon,
+triangulate; each triangle has area scaling by $k^2$, so the sum
+does. For *any* region (curved boundary), approximate by a sequence
+of polygons; the ratio is $k^2$ for each, hence in the limit too.
+**QED.** *(Planimetry §242 — generalisation of the triangle case to
+all plane figures.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Area formulas.**
+
+| Figure | Formula |
+|--------|---------|
+| Rectangle, base $b$, height $h$ | $b h$ *(working axiom)* |
+| Parallelogram, base $b$, height $h$ | $b h$ |
+| Triangle, base $b$, altitude $h$ | $\tfrac{1}{2} b h$ |
+| Trapezoid, parallel bases $a, b$, height $h$ | $\tfrac{a + b}{2} h$ |
+| Triangle, sides $a, b, c$ (Heron) | $\sqrt{s(s-a)(s-b)(s-c)}$, $s = \tfrac{a+b+c}{2}$ |
+| Triangle, two sides $a, b$, included angle $C$ | $\tfrac{1}{2} a b \sin C$ |
+| Triangle, inradius $r$, semi-perimeter $s$ | $r s$ |
+| Regular $n$-gon, circumradius $R$ | $\tfrac{1}{2} n R^2 \sin(2\pi/n)$ |
+| Regular $n$-gon, side $s_n$, apothem $\rho$ | $\tfrac{1}{2} (n s_n) \rho$ = $\tfrac{1}{2}$ perim · apothem |
+| Circle, radius $R$ | $\pi R^2$ |
+| Sector of angle $\theta$ (radians) in circle $R$ | $\tfrac{1}{2} R^2 \theta$ |
+
+**Theorem (similarity scaling).** Similar plane figures with linear
+ratio $k$ have areas in ratio $k^2$.
+
+:::
+
+A verse:
+
+> *Rectangle base times height — that is the seed.*
+> *Slide to a parallelogram, area unchanged — that's all you need.*
+> *Half a parallelogram is a triangle — half base times height.*
+> *Average the bases times height — the trapezoid is light.*
+> *And in the limit of n-gons, the circle's area becomes π r squared.*
+
+## Apply
+
+### Worked example
+
+> A trapezoid has parallel bases $5$ and $11$, and the perpendicular
+> distance between them is $4$. Find its area.
+
+$A = \dfrac{5 + 11}{2} \cdot 4 = 8 \cdot 4 = 32$. **Area $= 32$.**
+
+### Practice — Warm
+
+**W1.** A triangle has base $8$ and altitude $5$. Find the area.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{2} \cdot 8 \cdot 5 = 20$.
+</details>
+
+**W2.** A circle has radius $7$. Find the area.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi \cdot 49 = 49\pi \approx 153.94$.
+</details>
+
+**W3.** A rhombus has diagonals $6$ and $8$. Find the area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The diagonals of a rhombus are perpendicular and bisect each other.
+The rhombus is *four* right triangles each with legs $3$ and $4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Half-diagonals $3$ and $4$. Each of the four triangles has area
+$\tfrac{1}{2} \cdot 3 \cdot 4 = 6$. Total $= 24$. *Or:* rhombus
+area = $\tfrac{1}{2} d_1 d_2 = \tfrac{1}{2} \cdot 6 \cdot 8 = 24$.
+</details>
+
+### Practice — Working
+
+**P1.** A triangle has sides $13, 14, 15$. Find its area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Heron's formula. $s = 21$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$s = 21$. $A = \sqrt{21 \cdot 8 \cdot 7 \cdot 6} = \sqrt{7056} =
+84$. *(A famous integer-area triangle.)*
+</details>
+
+**P2.** A circle is inscribed in a square of side $10$. A second
+circle is circumscribed about the same square. Find the *difference*
+between the two circles' areas.
+
+<details class="hint"><summary>Full solution</summary>
+Inscribed circle: radius $5$, area $25\pi$. Circumscribed:
+radius $5\sqrt{2}$, area $50\pi$. Difference: $25\pi$.
+</details>
+
+**P3.** A regular hexagon has side length $6$. Find its area.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A regular hexagon decomposes into 6 equilateral triangles of side
+$s$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each equilateral triangle of side $6$ has area $\dfrac{\sqrt 3}{4}
+\cdot 36 = 9\sqrt 3$. Total: $6 \cdot 9\sqrt 3 = 54\sqrt 3 \approx
+93.53$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that for any triangle, $A = rs$ where $r$ is the
+inradius and $s$ the semi-perimeter — *and* derive Heron's formula
+by combining $A = rs$ with $A = \tfrac{1}{2} a b \sin C$.
+
+<details class="hint"><summary>Full solution</summary>
+$A = rs$ proved as Ch 7 K3. Combining with Heron requires the
+trigonometric identity $\sin C = 2 \sin(C/2) \cos(C/2)$ and
+half-angle formulas in the triangle (using the law of cosines).
+The two identities yield the same expression; the unification is
+**$A^2 = s(s-a)(s-b)(s-c)$**. *(See Planimetry §245 for Kiselev's
+derivation.)*
+</details>
+
+**S2.** A circle of radius $r$ is inscribed in a sector of angle
+$\theta$ in a larger circle of radius $R$. Show that
+$r = \dfrac{R \sin(\theta/2)}{1 + \sin(\theta/2)}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The inscribed circle is tangent to both radii of the sector and to
+the arc. Set up an equation using the distance from the centre of
+the inscribed circle to the centre of the sector (along the angle
+bisector).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $O$ be the centre of the big circle, $C$ the centre of the
+inscribed circle. $C$ lies on the angle bisector at distance
+$|OC| = R - r$ from $O$ (so the inscribed circle is tangent to the
+arc). The perpendicular distance from $C$ to either radius of the
+sector is $r$ — so $|OC| \sin(\theta/2) = r$. Combining:
+$(R - r) \sin(\theta/2) = r$, hence $r = \dfrac{R \sin(\theta/2)}
+{1 + \sin(\theta/2)}$. **QED.**
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Planimetry*, §§220–245.
+
+**K1.** In $\triangle ABC$, points $D, E, F$ are taken on sides
+$BC, CA, AB$ respectively, with $|BD|/|BC| = |CE|/|CA| = |AF|/|AB|
+= 1/3$. Show that the area of $\triangle DEF$ is $\tfrac{1}{3}$ of
+$\triangle ABC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each of the three "corner" triangles $\triangle ADF$, $\triangle
+BEF$, $\triangle CDE$ has area $\tfrac{2}{9}$ of the whole. Sum
+their areas and subtract from the whole.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ADF$: $|AF|/|AB| = 1/3$ and the foot $D$ divides $BC$ at
+$2/3$ from $B$, so the cevian $AD$ has length related to the
+opposite-side configuration. Each "corner" triangle has area
+$\tfrac{1}{3} \cdot \tfrac{2}{3} = \tfrac{2}{9}$ of the whole (using
+the *side-product formula for triangle area inside a triangle*).
+Three corners: $\tfrac{6}{9} = \tfrac{2}{3}$. Inner triangle:
+$1 - \tfrac{2}{3} = \tfrac{1}{3}$. **QED.** *(Planimetry §236 —
+"*the inner triangle of one-third division*". Kiselev's elegant
+result; the general case is **Routh's theorem**.)*
+</details>
+
+**K2.** A circle of radius $r$ is inscribed in a right triangle
+with legs $a, b$ and hypotenuse $c$. Show that $r = \dfrac{a + b - c}{2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $A = rs$. Right-triangle area: $A = \tfrac{1}{2} a b$.
+Semi-perimeter: $s = (a + b + c)/2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = \tfrac{1}{2} ab$ and $A = rs = r \cdot (a + b + c)/2$. So
+$ab = r(a + b + c)$, i.e. $r = \dfrac{ab}{a + b + c}$. Multiply
+top and bottom by $(a + b - c)$: $r = \dfrac{ab(a + b - c)}
+{(a + b + c)(a + b - c)} = \dfrac{ab(a + b - c)}{(a + b)^2 - c^2}$.
+By Pythagoras, $a^2 + b^2 = c^2$, so
+$(a + b)^2 - c^2 = 2ab$. Hence $r = \dfrac{a + b - c}{2}$.
+**QED.** *(Planimetry §244 — *the right-triangle inradius
+formula*.)*
+</details>
+
+**K3.** A circle is inscribed in a regular hexagon of side $a$,
+and another circle is circumscribed about the hexagon. Find the
+**ratio** of the two circles' areas.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For a regular hexagon: circumradius $= a$, apothem $= a \sqrt 3 /
+2$. The circles have these radii.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Inscribed circle (touching the sides) has radius $\rho = a \sqrt 3
+/ 2$. Circumscribed circle (through vertices) has radius $R = a$.
+Areas: $\pi \rho^2 = \tfrac{3}{4} \pi a^2$ and $\pi R^2 = \pi a^2$.
+Ratio: $\dfrac{\pi \rho^2}{\pi R^2} = \tfrac{3}{4}$. **The
+inscribed circle is three-fourths the area of the circumscribed.**
+*(Planimetry §241 exercise.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§216–245 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K1 generalises to *Routh's theorem*; Kiselev's §236 gives only the
+1/3 case but explicitly notes the generalisation.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Area scales linearly with side length."** It does not. Area
+   scales by the **square** of the linear ratio. A triangle with
+   doubled sides has *quadrupled* area. This is the source of the
+   *square-cube law* in biology and engineering.
+2. **"Heron's formula needs a right angle."** It does not — Heron's
+   formula works for *any* triangle whose three side lengths form a
+   valid triangle (triangle inequality). The Pythagorean special
+   case is just one application.
+3. **"$\pi r^2$ is the formula for circumference."** No —
+   *circumference* is $2 \pi r$. *Area* is $\pi r^2$. The two are
+   related but distinct.
+:::
+
+### Self-Assessment
+
+1. Could you derive the parallelogram-area formula (Problem 1) by
+   the cut-and-slide argument on a fresh sheet?
+2. Did Heron's formula (Problem 4) feel like reachable algebra, or
+   like memorisation? Re-do the difference-of-squares step.
+3. Can you compute the area of a regular hexagon of side $s$ in
+   one mental step, and the area of an equilateral triangle of
+   side $s$ likewise?
+
+- **3 yes:** **You have completed Kiselev *Planimetry* in
+  Russian-classical style.** Continue to *Stereometry* (kg2) or
+  return to a synthesis tier for breadth.
+- **2 yes:** redo the Heron derivation — it is the chapter's
+  algebraic centrepiece.
+- **0–1 yes:** Problems 1, 2, 3 form the area chain;
+  re-walk them.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg1.similarity`](../07-similarity/index.qmd) — area-scales-by-$k^2$
+  used everywhere; also the triangle-area-by-altitude.
+- [`kg1.regular-polygons`](../08-regular-polygons/index.qmd) —
+  the limit definition of $\pi$ via $n$-gon perimeters/areas.
+
+### What this unlocks
+
+- [`kg2.cylinder-cone`](../../tier-kiselev-4-stereometry/03-cylinder-cone/index.qmd) —
+  surface and volume formulas in 3D inherit the inscribed-polygon-
+  limit logic from this chapter.
+- [`t4.definite-integral`](../../tier-4-precalc-calculus/08-definite-integral/index.qmd) —
+  the Riemann integral generalises the polygon-limit-equals-region
+  argument used in Problem 6.
+- [`t6.fourier-series`](../../tier-6-undergrad-advanced/12-fourier-series/index.qmd) —
+  *Parseval's identity* is the area-under-a-function version of the
+  Pythagorean theorem in function space.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 9: Areas (§§216–245).** Givental
+  translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lessons:**
+  [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)
+  (the *Touch* of area as counting unit squares);
+  [`cbse9.herons-formula`](../../tier-cbse-09-class-9/10-herons-formula/index.qmd)
+  (board-exam Heron problems);
+  [`cbse10.areas-related-to-circles`](../../tier-cbse-10-class-10/11-areas-related-to-circles/index.qmd)
+  (sectors and segments).
+- **Read alongside the source PDF** for Kiselev's full Heron
+  derivation (§234) and the area-of-a-circle limit proof (§241).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Polygon area is computed *every frame* for
+collision response, light maps, and texture atlasing. The
+*shoelace formula* (a Cartesian-coordinate version of Heron) is the
+runtime workhorse. Kiselev's synthetic argument (cut-and-slide) is
+the geometric *why*; the shoelace is the algorithmic *how*.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Image classification** loss functions are typically
+computed as *integrals over the prediction landscape* — areas in
+high-dimensional space. The intuition that area is "what fits
+inside" lives on; the formulas generalise to **measure theory**
+([`t7.measure-theory`](../../tier-7-masters-tracks/01-measure-theory/index.qmd)).
+:::
+
+::: {.applied-callout}
+**Research.** **The isoperimetric inequality** — among all plane
+figures of a given perimeter, the circle has the largest area —
+is the gateway to a vast theory in calculus of variations and
+mathematical physics. Kiselev's chapter sets up the *area
+language* in which it can be stated.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§216–245 ordering); Heron of
+  Alexandria (the formula); Eudoxus (the limit argument for the
+  circle area).
+- **The *cut-and-slide* proof of parallelogram area (Problem 1)** is
+  the cleanest in the literature — and it generalises to *equal
+  areas under shears*, the seed of integral calculus's
+  change-of-variables.
+- **What this lesson does not do:** prove the *isoperimetric
+  inequality*. That belongs to a separate undergraduate-level
+  treatment.
+- **Kiselev *Planimetry* — track complete.** Nine chapters, all
+  aligned to Givental's English translation. The natural next
+  step is *Stereometry* (kg2) for the three-dimensional version,
+  or *Algebra* (ka1, ka2) for the parallel non-geometry track.
+:::

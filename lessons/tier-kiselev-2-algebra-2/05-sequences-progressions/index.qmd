@@ -1,0 +1,523 @@
+---
+title: "Ch 5 — Sequences and Progressions"
+subtitle: "Arithmetic, geometric, and the infinite-sum formula that surprised Zeno"
+lesson-id: "ka2.sequences-progressions"
+tier: "ka2"
+kiselev-book: "Algebra, Part II"
+kiselev-chapter: 5
+kiselev-chapter-title: "Sequences and progressions"
+kiselev-sections: "§§76–95 (AP, GP, sum formulas, infinite GP)"
+prerequisites: [ka1.linear-equations, ka2.exponentials-logarithms]
+unlocks: []
+applied-domains: [research, ai-ml, databases, game-dev]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you compute $1 + 2 + 3 + \cdots + 100 = 5050$ via Gauss's
+   pairing trick?
+2. Are exponential / logarithm rules automatic? See
+   [`ka2.exponentials-logarithms`](../04-exponentials-logarithms/index.qmd).
+3. Are you comfortable with $\sum$ notation, e.g. $\sum_{i=1}^n i$?
+4. Can you spot the pattern in $2, 4, 8, 16, \ldots$ and extend it?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Two simple kinds of sequence. **Arithmetic:** add the same thing
+each time ($a, a + d, a + 2d, \ldots$). **Geometric:** multiply by
+the same thing each time ($a, ar, ar^2, \ldots$).
+
+```{ojs}
+viewof a = Inputs.range([-5, 10], {value: 2, step: 0.5, label: "first term a"})
+```
+
+```{ojs}
+viewof d_or_r = Inputs.range([-2, 3], {value: 1.5, step: 0.1, label: "common difference d / ratio r"})
+```
+
+```{ojs}
+viewof n = Inputs.range([1, 10], {value: 5, step: 1, label: "number of terms n"})
+```
+
+```{ojs}
+{
+  const arith = [];
+  const geom = [];
+  for (let i = 0; i < n; i++) {
+    arith.push((a + i * d_or_r).toFixed(2));
+    geom.push((a * Math.pow(d_or_r, i)).toFixed(2));
+  }
+  return `**Arithmetic** (a + (i-1)d):  ${arith.join(", ")}.  Sum = ${arith.reduce((s, v) => s + parseFloat(v), 0).toFixed(2)}.
+
+**Geometric** (a · r^(i-1)):  ${geom.join(", ")}.  Sum = ${geom.reduce((s, v) => s + parseFloat(v), 0).toFixed(2)}.`;
+}
+```
+
+The two structures branch into all of finance (compound interest is
+geometric), physics (radioactive decay is geometric), and computer
+science (binary trees grow geometrically).
+
+## Wonder
+
+1. The arithmetic-progression sum from $1$ to $n$ is $\dfrac{n(n +
+   1)}{2}$. **How** did Gauss as a child get this in seconds?
+2. The geometric sum $1 + r + r^2 + r^3 + \cdots + r^{n-1}$ has
+   a closed form. **What** is it?
+3. *Infinite* geometric sums sometimes converge: $1 + \frac{1}{2} +
+   \frac{1}{4} + \frac{1}{8} + \cdots = 2$. Why?
+4. Can a *non-convergent* infinite series still have a useful
+   "sum"? *(A trick question.)*
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Pair $(1, n), (2, n-1), \ldots$ — each pair sums to $n + 1$,
+and there are $n/2$ pairs. (2) $1 + r + \cdots + r^{n-1} =
+\dfrac{r^n - 1}{r - 1}$ for $r \ne 1$. (3) For $|r| < 1$, the sum
+$1 + r + r^2 + \cdots = \dfrac{1}{1 - r}$. (4) **Yes** — *Cesàro
+summation* and *Abel summation* assign meaningful values to many
+divergent series. But that's deeper math; school treats *only
+convergent* series.
+:::
+
+## Discover
+
+### Problem 1 — AP $n$-th term and sum
+
+Show that for an arithmetic progression with first term $a$ and
+common difference $d$:
+- $n$-th term: $T_n = a + (n - 1) d$.
+- Sum of first $n$ terms: $S_n = \dfrac{n}{2} (2 a + (n - 1) d) =
+  \dfrac{n}{2}(a + T_n)$.
+
+<details class="hint"><summary>Full solution</summary>
+$T_n$: by induction, $T_1 = a, T_2 = a + d, \ldots, T_n = a + (n -
+1) d$.
+
+$S_n$: Gauss's trick. $S_n = a + (a + d) + (a + 2 d) + \cdots +
+(a + (n - 1) d)$. Reverse: $S_n = (a + (n - 1) d) + \cdots + a$.
+Add: $2 S_n = n (2 a + (n - 1) d)$, so $S_n = \dfrac{n}{2} (2 a +
+(n - 1) d)$. Since $T_n = a + (n - 1) d$, also $S_n = \dfrac{n}{2}
+(a + T_n)$. **QED.** *(Algebra II §78.)*
+</details>
+
+### Problem 2 — GP $n$-th term and sum
+
+For a geometric progression with first term $a$ and ratio $r$ (where
+$r \ne 0$):
+- $n$-th term: $T_n = a r^{n - 1}$.
+- Sum of first $n$ terms: $S_n = a \dfrac{r^n - 1}{r - 1}$ if
+  $r \ne 1$, else $S_n = n a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For $S_n$: multiply both sides by $r$, subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T_n$: $T_1 = a, T_2 = a r, \ldots, T_n = a r^{n - 1}$.
+
+$S_n = a + a r + a r^2 + \cdots + a r^{n - 1}$.
+$r S_n = a r + a r^2 + \cdots + a r^n$.
+Subtract: $(1 - r) S_n = a - a r^n = a (1 - r^n)$.
+
+So $S_n = a \dfrac{1 - r^n}{1 - r} = a \dfrac{r^n - 1}{r - 1}$
+(for $r \ne 1$). **QED.** *(Algebra II §82 — the **geometric-sum
+formula**.)*
+</details>
+
+### Problem 3 — Infinite GP
+
+For $|r| < 1$, show that the infinite geometric series $a + a r +
+a r^2 + \cdots$ converges to $\dfrac{a}{1 - r}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take the limit of $S_n = a \dfrac{1 - r^n}{1 - r}$ as $n \to
+\infty$. For $|r| < 1$, $r^n \to 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\lim_{n \to \infty} S_n = a \dfrac{1 - 0}{1 - r} = \dfrac{a}{1 - r}$
+(for $|r| < 1$).
+
+For $|r| \ge 1$ (and $r \ne 1$), $|r^n| \to \infty$, so $S_n$
+diverges. **The series converges iff $|r| < 1$**, with sum
+$\dfrac{a}{1 - r}$. **QED.** *(Algebra II §85.)*
+
+*Application:* $1 + \frac{1}{2} + \frac{1}{4} + \cdots = \dfrac{1}
+{1 - 1/2} = 2$.
+</details>
+
+### Problem 4 — Repeating decimals
+
+Show that $0.\overline{3} = 1/3$, $0.\overline{142857} = 1/7$, and in
+general every repeating decimal is rational.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$0.\overline{3} = 0.333\ldots = 3 \cdot (10^{-1} + 10^{-2} + \cdots)
+= 3 \cdot \dfrac{1/10}{1 - 1/10}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0.\overline{3} = 3 \cdot \dfrac{1/10}{9/10} = \dfrac{3}{9} = \dfrac
+{1}{3}$.
+
+$0.\overline{142857} = 142857 \cdot \dfrac{1/10^6}{1 - 1/10^6} =
+\dfrac{142857}{999999} = \dfrac{1}{7}$ (since $7 \cdot 142857 =
+999999$).
+
+**Every repeating decimal is a rational number** — in fact, every
+rational has a (possibly trivial) repeating decimal. *(Algebra II
+§86 — the connection between rational numbers and repeating
+decimals.)*
+</details>
+
+### Problem 5 — A word problem
+
+A ball is dropped from height $4$ m and bounces, each bounce
+reaching $\dfrac{3}{4}$ of the previous height. **Total distance**
+travelled before coming to rest?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distance: down $4$, up $3$, down $3$, up $9/4$, down $9/4$, ... =
+$4 + 2(3 + 9/4 + 27/16 + \cdots)$. The bracketed series is
+geometric.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Total = $4 + 2 \cdot \dfrac{3}{1 - 3/4} = 4 + 2 \cdot 12 = 4 + 24
+= 28$ m.
+
+*(The total is finite even though the ball technically bounces
+infinitely many times — Zeno's paradox resolved.)*
+</details>
+
+### Problem 6 — Geometric mean
+
+For positive $a, b$, the **geometric mean** is $\sqrt{a b}$.
+Show that the geometric mean is the *middle term* of a 3-term
+geometric progression with first term $a$ and last term $b$.
+
+<details class="hint"><summary>Full solution</summary>
+A 3-term GP $a, x, b$ has common ratio $r$ with $x = a r$ and
+$b = a r^2$. So $r = \sqrt{b/a}$ and $x = a \sqrt{b/a} = \sqrt{a
+b}$. **The geometric mean is the GP middle term.** *(Algebra II
+§88.)*
+
+*Connection:* if $a, b$ are sides of a rectangle, $\sqrt{ab}$ is
+the side of the *square of equal area*.
+</details>
+
+### Problem 7 — Mixed AP/GP
+
+The sum $\sum_{n=1}^N n \cdot 2^n$ — neither AP nor GP, but a
+*mixed* sum. Find a closed form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Differentiate the geometric sum $1 + r + r^2 + \cdots + r^N$ with
+respect to $r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $S(r) = \sum_{n=0}^N r^n = \dfrac{r^{N+1} - 1}{r - 1}$. Then
+$S'(r) = \sum_{n=1}^N n r^{n - 1}$, so $r S'(r) = \sum_{n=1}^N
+n r^n$. At $r = 2$: $\sum n \cdot 2^n = 2 \cdot S'(2)$.
+
+Compute $S'(r)$: $\dfrac{d}{dr}\left[\dfrac{r^{N+1} - 1}{r - 1}
+\right]$ (quotient rule). After simplification: $\sum_{n=1}^N n \cdot
+2^n = (N - 1) \cdot 2^{N + 1} + 2$. *(Algebra II §90 — *AP-GP
+mixing*.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Arithmetic progression (AP):** $a, a + d, a + 2d, \ldots$
+- $T_n = a + (n - 1) d$.
+- $S_n = \dfrac{n}{2}(2 a + (n - 1) d) = \dfrac{n (a + T_n)}{2}$.
+
+**Geometric progression (GP):** $a, a r, a r^2, \ldots$
+- $T_n = a r^{n - 1}$.
+- $S_n = a \dfrac{r^n - 1}{r - 1}$ for $r \ne 1$; $n a$ for $r = 1$.
+- *Infinite GP* converges iff $|r| < 1$, sum $= \dfrac{a}{1 - r}$.
+
+**Means.** For positive $a, b$:
+- *Arithmetic mean:* $\dfrac{a + b}{2}$.
+- *Geometric mean:* $\sqrt{a b}$.
+- *Harmonic mean:* $\dfrac{2 a b}{a + b}$.
+
+**AM-GM-HM inequality:** $\dfrac{a + b}{2} \ge \sqrt{a b} \ge
+\dfrac{2 a b}{a + b}$, with equality everywhere iff $a = b$.
+
+:::
+
+A verse:
+
+> *Arithmetic adds the same — Gauss saw the pairing trick.*
+> *Geometric multiplies — its sum has the $(r^n - 1) / (r - 1)$
+> stick.*
+> *And the infinite GP, if $|r|$ stays below one, sums to $a/(1 - r)$.*
+> *Means rank: arithmetic is largest, harmonic smallest, geometric in
+> the middle of the score.*
+
+## Apply
+
+### Worked example
+
+> Find the sum of all integers between $100$ and $1000$ that are
+> divisible by $7$.
+
+Smallest: $105$. Largest: $994$. Common difference: $7$. Number
+of terms: $n = (994 - 105)/7 + 1 = 128$.
+
+Sum: $S = \dfrac{n (a + T_n)}{2} = \dfrac{128 (105 + 994)}{2} =
+\dfrac{128 \cdot 1099}{2} = 64 \cdot 1099 = 70336$.
+
+**Sum $= 70336$.**
+
+### Practice — Warm
+
+**W1.** Find the 50th term of the AP $5, 8, 11, \ldots$.
+
+<details class="hint"><summary>Full solution</summary>
+$T_{50} = 5 + 49 \cdot 3 = 152$.
+</details>
+
+**W2.** Sum the first 20 terms of the AP $2, 7, 12, \ldots$.
+
+<details class="hint"><summary>Full solution</summary>
+$T_{20} = 2 + 19 \cdot 5 = 97$. $S_{20} = 20 \cdot (2 + 97) / 2 =
+10 \cdot 99 = 990$.
+</details>
+
+**W3.** Sum: $1 + \frac{1}{3} + \frac{1}{9} + \frac{1}{27} + \cdots$
+(infinite GP).
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{1 - 1/3} = \dfrac{3}{2}$.
+</details>
+
+### Practice — Working
+
+**P1.** The 5th term of an AP is $19$ and the 13th term is $43$.
+Find $a, d$, and $S_{20}$.
+
+<details class="hint"><summary>Full solution</summary>
+$a + 4 d = 19$ and $a + 12 d = 43$. Subtract: $8 d = 24$, $d = 3$.
+$a = 7$. $S_{20} = 20(2 \cdot 7 + 19 \cdot 3)/2 = 10 \cdot 71 = 710$.
+</details>
+
+**P2.** A GP has $T_3 = 12$ and $T_6 = 96$. Find $a$ and $r$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_6 / T_3 = r^3 = 96/12 = 8$, so $r = 2$. Then $T_3 = a r^2 =
+4 a = 12$, so $a = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$r = 2, a = 3$.
+</details>
+
+**P3.** *Compound interest with deposits.* Each year, ₹$1000$ is
+deposited and the bank pays $5\%$ on the balance. After 10 years,
+how much is in the account?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The first deposit grows for 9 years, the second for 8, ..., the
+tenth for 0 years. Sum: $1000 \cdot ((1.05)^9 + (1.05)^8 + \cdots +
+1)$ = $1000 \cdot \dfrac{(1.05)^{10} - 1}{0.05}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1.05)^{10} \approx 1.6289$. So sum $\approx 1000 \cdot \dfrac{0.6289}
+{0.05} = 1000 \cdot 12.578 = ₹12,578$. **About ₹$12,578$.**
+*(The future-value-of-an-annuity formula.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the sum of the first $n$ squares is $\sum_{i=1}^n
+i^2 = \dfrac{n(n + 1)(2n + 1)}{6}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Induction. Base: $n = 1$: $1 = 6/6$ ✓. Inductive step: assume true
+for $n$, show for $n + 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Inductive step: assume $\sum_{i=1}^n i^2 = \dfrac{n(n+1)(2n+1)}{6}$.
+Adding $(n+1)^2$:
+$\dfrac{n(n+1)(2n+1)}{6} + (n+1)^2 = \dfrac{(n+1)[n(2n+1) + 6(n+1)]}
+{6} = \dfrac{(n+1)(2n^2 + 7n + 6)}{6} = \dfrac{(n+1)(n+2)(2n+3)}{6}$,
+matching the formula at $n + 1$. **QED.** *(Algebra II §92 —
+*sum-of-squares formula*; also derivable by *finite differences*.)*
+</details>
+
+**S2.** Show that $\sum_{n=1}^\infty \dfrac{1}{n(n+1)} = 1$.
+*(Telescoping.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Partial fractions: $\dfrac{1}{n(n+1)} = \dfrac{1}{n} - \dfrac{1}
+{n+1}$. The series telescopes.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum_{n=1}^N \left(\dfrac{1}{n} - \dfrac{1}{n+1}\right) = 1 -
+\dfrac{1}{N + 1} \to 1$ as $N \to \infty$. **Sum = $1$.**
+*(A telescoping series; from Algebra I Ch 4 P3 in a different
+form.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra II*, §§80–95.
+
+**K1.** A geometric progression has the property that the sum of
+its first three terms is $7$ and their product is $8$. Find the
+terms.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the three terms be $a/r, a, ar$. Sum: $a(1/r + 1 + r) = 7$;
+product: $a^3 = 8$, so $a = 2$. Then $1/r + 1 + r = 7/2$, i.e.
+$2 r^2 - 5 r + 2 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a = 2$. $2 r^2 - 5 r + 2 = 0$ ⟹ $r = 2$ or $r = 1/2$. **Terms:
+$1, 2, 4$ (in either order).**
+</details>
+
+**K2.** *Decay problem.* The half-life of a radioactive substance
+is $5$ years. After how many years has $99\%$ decayed?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+After time $t$, fraction remaining is $(1/2)^{t/5}$. We want this
+$= 0.01$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1/2)^{t/5} = 0.01 \Rightarrow t/5 = \log_{1/2} 0.01 = \dfrac{\ln
+0.01}{\ln 0.5} = \dfrac{-4.605}{-0.693} \approx 6.644$. So $t \approx
+33.2$ years.
+</details>
+
+**K3.** Show that the sum $\sum_{n=0}^\infty \dfrac{n}{2^n}$
+converges to $2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the differentiation trick from Problem 7. Sum $= 2 \cdot S'(1/2)$
+where $S(r) = \dfrac{1}{1 - r}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S(r) = \sum_{n=0}^\infty r^n = \dfrac{1}{1 - r}$. Differentiate:
+$S'(r) = \sum_{n=1}^\infty n r^{n - 1} = \dfrac{1}{(1 - r)^2}$.
+
+Multiply by $r$: $\sum_{n=1}^\infty n r^n = \dfrac{r}{(1 - r)^2}$.
+
+At $r = 1/2$: $\sum n \cdot (1/2)^n = \dfrac{1/2}{(1/2)^2} =
+\dfrac{1/2}{1/4} = 2$. **QED.**
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Часть вторая*
+(Fizmatlit reprint 2005), §§76–95. Russian original:
+[archive.org scan](https://archive.org/details/kiselyov-algebra-part-2-2005).
+The bouncing-ball problem (Problem 5) is §85; the AP-GP mixing
+trick (Problem 7) is §90.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Every infinite series sums to a finite number."** Only if
+   *convergent*. The harmonic series $1 + \frac{1}{2} +
+   \frac{1}{3} + \cdots$ **diverges** to infinity, despite the
+   terms shrinking.
+2. **"$|r| < 1$ for convergence; $|r| = 1$ borderline."** $|r| = 1$
+   diverges (terms don't go to zero). The cutoff is *strictly*
+   less.
+3. **"$\sum$ and $\prod$ are interchangeable."** They are not.
+   $\sum (a_i + b_i) = \sum a_i + \sum b_i$, but $\prod (a_i +
+   b_i) \ne \prod a_i + \prod b_i$.
+:::
+
+### Self-Assessment
+
+1. Could you derive the AP and GP sum formulas from scratch on a
+   fresh sheet?
+2. Did the bouncing-ball total (Problem 5) feel like a natural
+   geometric series, or did the "first drop" need a special trick?
+3. Can you solve a half-life decay problem (K2) without
+   calculator-dependence?
+
+- **3 yes:** move on to *Combinatorics and the Binomial Theorem*
+  (Ch 6).
+- **2 yes:** redo Problem 7 — the AP-GP mixing trick is the
+  chapter's most powerful tool.
+- **0–1 yes:** the AP/GP formulas (Problems 1, 2) are the chapter's
+  spine; replay them.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.linear-equations`](../../tier-kiselev-1-algebra-1/05-linear-equations/index.qmd) —
+  setting up the equations $a + 4d = 19$ etc. in problems.
+- [`ka2.exponentials-logarithms`](../04-exponentials-logarithms/index.qmd) —
+  log used in the K2 decay problem.
+
+### What this unlocks
+
+- **`ka2.combinatorics-binomial`** *(Ch 6, planned)* — binomial
+  coefficients $\binom{n}{k}$ form a *triangular* array related to
+  Pascal's triangle.
+- **`ka2.limits`** *(Ch 7, planned)* — convergent vs. divergent
+  series formalised; the limit definition.
+- [`t3.sequences-series`](../../tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd) —
+  same content, t-tier idiom.
+- [`cbse10.arithmetic-progressions`](../../tier-cbse-10-class-10/05-arithmetic-progressions/index.qmd) —
+  CBSE 10 board treatment.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part II — Chapter 5: Sequences and progressions
+  (§§76–95).** Russian original on
+  [archive.org](https://archive.org/details/kiselyov-algebra-part-2-2005).
+- **Sister synthesis lessons:**
+  [`t2.sequences-intro`](../../tier-2-prealgebra/15-sequences-intro/index.qmd);
+  [`t3.sequences-series`](../../tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd);
+  [`cbse11.sequences-ap-gp`](../../tier-cbse-11-class-11/08a-sequences-ap-gp/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of *infinite series convergence* (§§85–90).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** **Particle-system fadeout** is geometric
+decay; **score multipliers** that grow with combo length are GP-
+style. The infinite-GP sum gives the *expected total score* of an
+infinite play.
+:::
+
+::: {.applied-callout}
+**Databases.** **Skip lists** and **B-trees** have logarithmic
+depth — the sequence of node sizes at each level is a geometric
+progression, with the database performance equation reading off
+directly.
+:::
+
+::: {.applied-callout}
+**Research.** The **harmonic series** divergence and **zeta
+function** $\zeta(s) = \sum 1/n^s$ are the entry to the Riemann
+hypothesis — one of the most famous open problems in mathematics.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§76–95 ordering); Gauss (the AP
+  pairing trick, attested when he was 9); Zeno (the bouncing-ball
+  paradox).
+- **The infinite-GP convergence** for $|r| < 1$ is the school-level
+  introduction to the *limit* concept. We use it formally in Ch 7.
+- **What this lesson does not do:** prove the harmonic-series
+  divergence (a calculus result) or treat alternating-series
+  convergence in full.
+:::

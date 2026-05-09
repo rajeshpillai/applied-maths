@@ -1,0 +1,476 @@
+---
+title: "Ch 7 — Linear Inequalities"
+subtitle: "Same operations as equations — except multiplying by a negative *flips the sign*"
+lesson-id: "ka1.linear-inequalities"
+tier: "ka1"
+kiselev-book: "Algebra, Part I"
+kiselev-chapter: 7
+kiselev-chapter-title: "Linear inequalities"
+kiselev-sections: "§§113–125 (single inequalities, systems, absolute-value inequalities)"
+prerequisites: [ka1.linear-equations]
+unlocks: []
+applied-domains: [research, ai-ml, databases]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you solve $a x + b = 0$ for $x$? See
+   [`ka1.linear-equations`](../05-linear-equations/index.qmd).
+2. Are signed-arithmetic facts automatic — especially that
+   multiplying both sides of an inequality by a *negative* needs a
+   sign-flip?
+3. Can you locate $-3, 0, +2$ on a number line and compare them by
+   "less than"?
+4. Are you comfortable with the absolute value $|x|$ and the
+   identity $|x| < a \Leftrightarrow -a < x < a$ for $a > 0$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A number line. Shade the points $x$ satisfying $x < 3$. Now
+multiply both sides by $-1$ — what was a *less-than* becomes a
+*greater-than*: $-x > -3$. The same set, written differently.
+
+```{ojs}
+viewof a = Inputs.range([-5, 5], {value: 2, step: 1, label: "a"})
+```
+
+```{ojs}
+viewof b = Inputs.range([-10, 10], {value: -4, step: 1, label: "b"})
+```
+
+```{ojs}
+{
+  if (a === 0) {
+    if (b > 0) return `**0·x + ${b} > 0**: every $x$ works.`;
+    if (b === 0) return `**0·x + 0 > 0**: never.`;
+    return `**0·x + ${b} > 0**: never.`;
+  }
+  const flipped = a < 0;
+  const x_bound = -b / a;
+  const sign = flipped ? "<" : ">";
+  return `**${a}x + ${b} > 0**
+
+${a > 0 ? "Solve directly: " : "Multiplying through by 1/a (negative — flip!): "} **x ${sign} ${x_bound.toFixed(3)}**.
+
+${flipped ? "*Notice the inequality flipped because a < 0.*" : "*No flip — a > 0.*"}`;
+}
+```
+
+The single new rule: **multiplying both sides by a negative
+reverses the inequality**.
+
+## Wonder
+
+1. The inequality $x < 5$ has *infinitely many* solutions. Is that
+   a problem? How do we describe such a solution set?
+2. Why does multiplying by a *negative* reverse the inequality?
+   *(Try $-2 < 3$, multiply both sides by $-1$.)*
+3. Two inequalities $x > 2$ AND $x < 5$ — what does the *combined*
+   solution look like?
+4. The inequality $|x - 3| < 2$ — how does this look on the number
+   line?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Solution set is an *interval* (or union of intervals). We
+describe it by a *bound* or by *interval notation*: $(-\infty, 5)$.
+(2) $-2 < 3$ becomes $2 > -3$ — yes, the *order* on the number line
+is *reversed* by the reflection $x \mapsto -x$. (3) The
+*intersection*: $2 < x < 5$, written as the open interval $(2, 5)$.
+(4) An interval centred at $3$ of half-width $2$: $(1, 5)$.
+:::
+
+## Discover
+
+### Problem 1 — A simple inequality
+
+Solve $3 x - 7 > 5$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 x > 12 \Rightarrow x > 4$. **Solution: $x > 4$, or $(4, \infty)$.**
+</details>
+
+### Problem 2 — Multiplying by a negative
+
+Solve $-2 x + 3 \le 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract $3$, then divide by $-2$ — *flip the sign*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-2 x \le 6 \Rightarrow x \ge -3$. **Solution: $x \ge -3$, or
+$[-3, \infty)$.**
+
+(*The flip happens at the divide-by-$-2$ step.*)
+</details>
+
+### Problem 3 — Variable on both sides
+
+Solve $5 x - 2 < 2 x + 7$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 x < 9 \Rightarrow x < 3$. **$(-\infty, 3)$.**
+</details>
+
+### Problem 4 — Compound inequality
+
+Solve $-3 < 2 x - 1 \le 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add $1$ throughout, then divide by $2$ throughout.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-2 < 2 x \le 6 \Rightarrow -1 < x \le 3$. **$(-1, 3]$.**
+</details>
+
+### Problem 5 — Absolute-value inequality
+
+Solve $|2 x - 1| < 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|y| < 5 \Leftrightarrow -5 < y < 5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-5 < 2 x - 1 < 5 \Rightarrow -4 < 2 x < 6 \Rightarrow -2 < x < 3$.
+**$(-2, 3)$.**
+</details>
+
+### Problem 6 — Reversed absolute value
+
+Solve $|x + 2| > 3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|y| > 3 \Leftrightarrow y > 3$ OR $y < -3$ — a *union*, not an
+*intersection*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + 2 > 3$ OR $x + 2 < -3$, i.e. $x > 1$ or $x < -5$. **$(-\infty,
+-5) \cup (1, \infty)$.**
+</details>
+
+### Problem 7 — System of inequalities
+
+Solve simultaneously: $\begin{cases} 2 x + 3 > 5 \\ -x + 4 \ge 0
+\end{cases}$.
+
+<details class="hint"><summary>Full solution</summary>
+First: $x > 1$. Second: $x \le 4$. Both: $1 < x \le 4$, **$(1,
+4]$.**
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Linear inequality:** any of $a x + b < 0, > 0, \le 0, \ge 0$.
+The solution is a half-line (or a union, or all of $\mathbb R$,
+depending on degeneracy).
+
+**Operations preserving the solution set.**
+
+1. Add (or subtract) the same expression to both sides.
+2. Multiply (or divide) both sides by a *positive* constant.
+3. **Multiply (or divide) by a negative — and *flip the
+   inequality***. *(This is the only new rule.)*
+
+**Three-step solving.**
+
+- Move all $x$-terms to one side, constants to the other.
+- Combine.
+- Divide by the coefficient of $x$. Flip if the coefficient is
+  negative.
+
+**Compound and absolute-value forms.**
+
+- $a < f(x) < b$ — solve as a *both-sides* compound.
+- $|f(x)| < a$, $a > 0$ — equivalent to $-a < f(x) < a$.
+- $|f(x)| > a$, $a > 0$ — equivalent to $f(x) > a$ OR $f(x) < -a$
+  (a *union*).
+
+:::
+
+A verse:
+
+> *Same operations as equations, but watch the negative multiplier.*
+> *Flip the inequality, every time — that is the rule, no
+> requalifier.*
+> *And the absolute value gives a band: less-than is "between",*
+> *Greater-than is "outside" — two outcomes, one routine.*
+
+## Apply
+
+### Worked example
+
+> Solve $2 |x - 1| - 3 \le 1$.
+
+Add $3$: $2 |x - 1| \le 4$. Divide by $2$: $|x - 1| \le 2$.
+This is $-2 \le x - 1 \le 2$, i.e. $-1 \le x \le 3$.
+
+**$[-1, 3]$.**
+
+### Practice — Warm
+
+**W1.** Solve $4 x + 5 > 13$.
+
+<details class="hint"><summary>Full solution</summary>
+$4 x > 8 \Rightarrow x > 2$.
+</details>
+
+**W2.** Solve $-3 x \le 12$.
+
+<details class="hint"><summary>Full solution</summary>
+$x \ge -4$ (flip!).
+</details>
+
+**W3.** Solve $|x| < 4$.
+
+<details class="hint"><summary>Full solution</summary>
+$-4 < x < 4$, **$(-4, 4)$**.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $\dfrac{x - 2}{3} > \dfrac{x + 1}{4}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both sides by $12$ (positive — no flip).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4(x - 2) > 3 (x + 1) \Rightarrow 4 x - 8 > 3 x + 3 \Rightarrow
+x > 11$.
+</details>
+
+**P2.** Solve $|3 x - 1| \ge 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|y| \ge 2 \Leftrightarrow y \ge 2$ or $y \le -2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 x - 1 \ge 2$ ($x \ge 1$) or $3 x - 1 \le -2$ ($x \le -1/3$).
+**$(-\infty, -1/3] \cup [1, \infty)$.**
+</details>
+
+**P3.** A parking lot charges $₹50$ for the first hour and $₹20$
+per additional hour. With $₹250$, what is the maximum time you
+can park (an integer hours)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $h$ = hours. Cost: $50 + 20(h - 1) \le 250$ for $h \ge 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$50 + 20 h - 20 \le 250 \Rightarrow 20 h \le 220 \Rightarrow h \le
+11$. **$11$ hours.**
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve $\dfrac{x - 1}{x + 2} > 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A fraction is positive iff numerator and denominator have the
+*same sign*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Both positive:* $x > 1$ AND $x > -2$ — i.e. $x > 1$.
+*Both negative:* $x < 1$ AND $x < -2$ — i.e. $x < -2$.
+**Solution: $x < -2$ or $x > 1$, i.e. $(-\infty, -2) \cup (1,
+\infty)$.**
+
+(*Always exclude points where the denominator is zero — here,
+$x = -2$.*)
+</details>
+
+**S2.** Show that $|a + b| \le |a| + |b|$ for all real $a, b$.
+*(The triangle inequality.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Square both sides — both are non-negative, so squaring preserves
+the inequality.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|a + b|^2 = (a + b)^2 = a^2 + 2ab + b^2$.
+$(|a| + |b|)^2 = a^2 + 2|a||b| + b^2$.
+
+Difference: $(|a| + |b|)^2 - |a + b|^2 = 2 (|a||b| - ab) =
+2 (|ab| - ab) \ge 0$ (since $|ab| \ge ab$ for all real $ab$).
+
+So $(|a| + |b|)^2 \ge |a + b|^2$. Take square roots (both
+non-negative): $|a + b| \le |a| + |b|$. **QED.** *(Algebra I §122
+— the *triangle inequality* in absolute-value form, named after
+the 2D triangle inequality.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra I*, §§118–125.
+
+**K1.** Find the smallest integer $x$ satisfying $\dfrac{2 x - 5}{3}
+> \dfrac{x + 1}{4}$.
+
+<details class="hint"><summary>Full solution</summary>
+Multiply by $12$: $4(2 x - 5) > 3(x + 1)$, i.e. $8 x - 20 > 3 x +
+3$, so $5 x > 23$, $x > \dfrac{23}{5} = 4.6$. **Smallest integer:
+$x = 5$.**
+</details>
+
+**K2.** Show that for all positive $a, b, c$, $\dfrac{a}{b + c} +
+\dfrac{b}{c + a} + \dfrac{c}{a + b} \ge \dfrac{3}{2}$. *(Nesbitt's
+inequality.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add $1$ to each fraction: $\dfrac{a + b + c}{b + c}$, etc. The
+sum becomes $(a + b + c)(\dfrac{1}{b + c} + \dfrac{1}{c + a} +
+\dfrac{1}{a + b})$. Apply AM-HM.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $s = a + b + c$. Adding $3$ to LHS: $\dfrac{a + b + c}{b + c}
++ \dfrac{a + b + c}{c + a} + \dfrac{a + b + c}{a + b} = s
+\left(\dfrac{1}{b + c} + \dfrac{1}{c + a} + \dfrac{1}{a + b}\right)$.
+
+By **AM-HM** (or Cauchy-Schwarz): $\dfrac{1}{b + c} + \dfrac{1}
+{c + a} + \dfrac{1}{a + b} \ge \dfrac{9}{(b + c) + (c + a) +
+(a + b)} = \dfrac{9}{2 s}$.
+
+So LHS + 3 $\ge s \cdot \dfrac{9}{2 s} = \dfrac{9}{2}$, i.e.
+LHS $\ge \dfrac{3}{2}$. **QED.** *(Nesbitt 1903; a celebrated
+3-variable inequality.)*
+</details>
+
+**K3.** For what real $x$ is $\dfrac{1}{x - 1} + \dfrac{1}{x + 1} >
+0$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combine: $\dfrac{2 x}{x^2 - 1}$. Sign analysis on numerator and
+denominator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2 x}{x^2 - 1} > 0$ iff $2 x$ and $x^2 - 1$ have the same
+sign.
+
+$x^2 - 1 > 0$ iff $|x| > 1$, i.e. $x > 1$ or $x < -1$.
+$x^2 - 1 < 0$ iff $-1 < x < 1$.
+$2 x > 0$ iff $x > 0$. $2 x < 0$ iff $x < 0$.
+
+Same sign:
+- Both positive: $x > 1$.
+- Both negative: $-1 < x < 0$.
+
+(Exclude $x = \pm 1$.) **Solution: $-1 < x < 0$ or $x > 1$.**
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Ч.1*
+(Fizmatlit reprint 2006), §§113–125. Russian original:
+[archive.org scan](https://archive.org/details/1_kiselev_algebra).
+The triangle inequality (S2) is §122; Nesbitt's inequality (K2) is
+a 20th-century classic that fits Kiselev's style.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Multiplying by a negative is the same as multiplying by a
+   positive."** *No.* Multiplying by a negative *reverses* the
+   inequality. This is the single most-often-violated rule in
+   inequality manipulation.
+2. **"$|x| < a$ and $|x| > a$ have the same shape."** Opposite
+   shapes! $|x| < a$ is an interval (between); $|x| > a$ is a
+   union of two rays (outside).
+3. **"You can solve a fraction-inequality by clearing denominators."**
+   Only with care — multiplying by a denominator whose sign you
+   don't know can flip the inequality. Better: combine into one
+   fraction and analyse signs (S1, K3).
+:::
+
+### Self-Assessment
+
+1. Could you state the *flip rule* for multiplying inequalities by
+   negatives, and explain *why* it's true?
+2. Did the absolute-value inequalities (Problems 5 and 6) feel
+   like the same template applied twice (interval vs union)?
+3. Can you set up a real-world inequality (parking, budget, dosage)
+   from a verbal description?
+
+- **3 yes:** move on to *Powers and Roots* (Ch 8).
+- **2 yes:** redo Problem 6 — the union form is the chapter's
+  trickiest pattern.
+- **0–1 yes:** practise W1, W2, W3 with several variations until
+  the flip becomes automatic.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.linear-equations`](../05-linear-equations/index.qmd) — same
+  manipulation, with one new rule (the flip).
+
+### What this unlocks
+
+- **`ka1.powers-roots`** *(Ch 8, planned)* — square roots take
+  non-negative arguments only — a *domain inequality* in disguise.
+- **`ka1.quadratic-equations`** *(Ch 9, planned)* — solving
+  quadratic *inequalities* via sign-analysis, generalising K3.
+- [`ka2.higher-degree-inequalities`](../../tier-kiselev-2-algebra-2/index.qmd) *(Algebra II, planned)* —
+  the chapter on higher-degree inequalities directly extends this
+  one.
+- [`t6.convex-optimization`](../../tier-6-undergrad-advanced/09-convex-optimization/index.qmd) —
+  feasibility regions are intersections of inequality constraints.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part I — Chapter 7: Linear inequalities (§§113–125).**
+  Russian original on
+  [archive.org](https://archive.org/details/1_kiselev_algebra).
+- **Sister synthesis lessons:**
+  [`t2.linear-inequalities`](../../tier-2-prealgebra/03-linear-inequalities/index.qmd)
+  and
+  [`cbse11.linear-inequalities`](../../tier-cbse-11-class-11/05-linear-inequalities/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of *systems of inequalities* and the *graphical method*
+  (§§120–125).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** **Constrained optimisation** — find the minimum of an
+objective subject to inequality constraints — is the workhorse of
+operations research and modern ML training. The *feasibility
+region* is the intersection of half-spaces, exactly as set up in
+this chapter.
+:::
+
+::: {.applied-callout}
+**Databases.** Every **range query** (`age > 18 AND age < 65`) is
+a system of linear inequalities applied to indexed columns. Query
+planners use the same combine-and-simplify rules.
+:::
+
+::: {.applied-callout}
+**Research.** **Linear programming** — minimise a linear objective
+over a system of linear inequalities — is the gateway to
+*operations research*, used everywhere from airline scheduling to
+diet planning. The simplex method literally walks the boundary of
+the feasibility region.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§113–125 ordering); Nesbitt (the
+  inequality in K2); the AM-HM inequality (used implicitly in K2).
+- **The flip rule** is the chapter's only genuinely new content
+  beyond Ch 5; everything else is *operational mirror* of linear
+  equations. Lock it in.
+- **What this lesson does not do:** treat the *Cauchy-Schwarz
+  inequality* in full. That belongs in undergraduate analysis or
+  Algebra II.
+:::

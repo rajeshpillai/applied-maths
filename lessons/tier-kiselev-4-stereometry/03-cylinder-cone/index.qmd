@@ -1,0 +1,575 @@
+---
+title: "Ch 3 — Cylinder and Cone (Round Solids)"
+subtitle: "Unroll the lateral surface, count the volume — and meet Archimedes' three friends"
+lesson-id: "kg2.cylinder-cone"
+tier: "kg2"
+kiselev-book: "Geometry, Book II (Stereometry)"
+kiselev-chapter: 3
+kiselev-chapter-title: "Round bodies (cylinder, cone, sphere)"
+kiselev-sections: "Stereometry §§430–460 (cylinder and cone — surface and volume)"
+prerequisites: [kg2.polyhedra, kg1.regular-polygons]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Do you know the **area of a circle** is $\pi r^2$ and its
+   **circumference** is $2 \pi r$? See
+   [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd).
+2. Can you compute the **volume of a prism** as
+   $\text{base area} \times \text{height}$?
+3. Are you comfortable with the formula
+   $\text{volume of pyramid} = \tfrac{1}{3} \times \text{base} \times
+   \text{height}$? See
+   [`cbse9.surface-areas-and-volumes`](../../tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd).
+4. Do you accept that a **cylinder** is a "circular prism" and a
+   **cone** is a "circular pyramid" — i.e. the limits of regular
+   prisms / pyramids as the number of sides $n \to \infty$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A cylinder. Slit it from top to bottom along one vertical line and
+**unroll** the curved surface flat. What shape do you get?
+
+```{ojs}
+viewof radius = Inputs.range([0.5, 3], {value: 1.5, step: 0.1, label: "Radius r"})
+```
+
+```{ojs}
+viewof height = Inputs.range([0.5, 4], {value: 2.5, step: 0.1, label: "Height h"})
+```
+
+```{ojs}
+viewof unroll = Inputs.range([0, 1], {value: 0.6, step: 0.05, label: "Unroll progress"})
+```
+
+```{ojs}
+{
+  const w = 520, h = 280, padX = 30, padY = 30;
+  const xS = d3.scaleLinear().domain([0, 14]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-2, 5]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  const C = 2 * Math.PI * radius;
+  const u = unroll;
+
+  // Left: 3D-ish cylinder (ellipse top + bottom + sides)
+  const cx = 2.5;
+  // ellipse top at y=height
+  for (const y of [0, height]) {
+    svg.append("ellipse")
+      .attr("cx", xS(cx)).attr("cy", yS(y))
+      .attr("rx", xS(radius) - xS(0))
+      .attr("ry", (xS(radius) - xS(0)) * 0.3)
+      .attr("fill", "none").attr("stroke", "#26a").attr("stroke-width", 1.5);
+  }
+  // sides
+  svg.append("line").attr("x1", xS(cx - radius)).attr("x2", xS(cx - radius))
+    .attr("y1", yS(0)).attr("y2", yS(height))
+    .attr("stroke", "#26a").attr("stroke-width", 1.5);
+  svg.append("line").attr("x1", xS(cx + radius)).attr("x2", xS(cx + radius))
+    .attr("y1", yS(0)).attr("y2", yS(height))
+    .attr("stroke", "#26a").attr("stroke-width", 1.5);
+
+  // Right: unrolled rectangle, fading in with u, drawn at x ≈ 7..(7 + C)
+  const rx = 7;
+  // partial unroll: width grows from 0 to C as u: 0..1
+  const wu = u * C;
+  svg.append("rect")
+    .attr("x", xS(rx)).attr("y", yS(height))
+    .attr("width", xS(rx + wu) - xS(rx))
+    .attr("height", yS(0) - yS(height))
+    .attr("fill", "#a26").attr("fill-opacity", 0.22)
+    .attr("stroke", "#a26").attr("stroke-width", 1.5);
+
+  // labels
+  svg.append("text").attr("x", xS(cx)).attr("y", yS(height) - 12)
+    .attr("font-size", 11).attr("text-anchor", "middle")
+    .text(`cylinder: r = ${radius.toFixed(2)}, h = ${height.toFixed(2)}`);
+  svg.append("text").attr("x", xS(rx + 0.1)).attr("y", yS(height) - 6)
+    .attr("font-size", 11)
+    .text(`unrolled rectangle:  width = 2πr = ${C.toFixed(2)},  height = h`);
+  svg.append("text").attr("x", xS(rx)).attr("y", yS(0) + 14)
+    .attr("font-size", 11)
+    .text(`lateral area = 2πr · h = ${(C * height).toFixed(2)}`);
+
+  // hint arrow on partial unroll
+  if (u > 0 && u < 1) {
+    svg.append("path")
+      .attr("d", `M ${xS(cx + radius + 0.2)} ${yS(height/2)} L ${xS(rx - 0.1)} ${yS(height/2)}`)
+      .attr("stroke", "#888").attr("stroke-width", 1)
+      .attr("marker-end", null).attr("fill", "none");
+    svg.append("text").attr("x", xS((cx + radius + rx) / 2)).attr("y", yS(height/2) - 4)
+      .attr("font-size", 10).attr("text-anchor", "middle").text("unroll →");
+  }
+
+  return svg.node();
+}
+```
+
+The lateral surface of a cylinder is a **rectangle** of width $2\pi r$
+(the circumference) and height $h$. Total lateral area $= 2 \pi r h$.
+
+## Wonder
+
+1. We just unrolled the *cylinder*. What about a **cone** — what
+   shape do you get if you slit it from apex to base and unroll?
+2. A cylinder and a cone share the same circular base and the same
+   height. **By how much do their volumes differ?** Eyeball it
+   first; the answer is famously simple.
+3. Drop a sphere of radius $r$ inside a cylinder that just contains
+   it (radius $r$, height $2r$). **What fraction of the cylinder
+   does the sphere fill?**
+4. Can you imagine slicing a cone parallel to its base? At height
+   $y$ from the apex, what is the radius of the cross-section?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) A **circular sector** (pie-slice). (2) The cone is exactly
+**one-third** of the cylinder — the same factor that turned a prism
+into a pyramid. (3) **Two-thirds** — Archimedes' favourite theorem.
+(4) Linearly: at height $y$ the radius is $\frac{y}{h} r$. This is
+why cones scale by $y^3$ in volume.
+:::
+
+## Discover
+
+### Problem 1 — The lateral surface of a cylinder
+
+Show that the lateral surface area of a cylinder of base radius $r$
+and height $h$ is $2 \pi r h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cut the cylinder along one vertical line and unroll it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The unrolled surface is a rectangle. Its width equals the
+**circumference** of the base ($2 \pi r$); its height equals $h$. So
+the lateral area is $2 \pi r \cdot h$. Total surface (including two
+circular caps) is $2 \pi r h + 2 \pi r^2$. *(Planimetry-style proof —
+unroll, measure, multiply.)*
+</details>
+
+### Problem 2 — Volume of a cylinder
+
+Show that the volume of a cylinder of base radius $r$ and height $h$
+is $\pi r^2 h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Approximate the cylinder by a regular $n$-gon prism, then take
+$n \to \infty$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For each $n \ge 3$, inscribe a regular $n$-gon in the base circle.
+The resulting prism has volume $A_n \cdot h$, where $A_n$ is the
+area of the inscribed $n$-gon. As $n \to \infty$, $A_n \to \pi r^2$
+(definition of $\pi$ from area). So the cylinder's volume —
+sandwiched between inscribed and circumscribed prisms — is
+$\pi r^2 \cdot h$. **QED.**
+</details>
+
+### Problem 3 — Lateral surface of a cone
+
+A cone has base radius $r$ and **slant height** $\ell$ (the distance
+from apex to base-circle along the surface). Unroll its lateral
+surface. What shape and what dimensions?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Every point on the surface is at distance $\ell$ from the apex —
+so the unrolled shape is part of a circle of radius $\ell$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The unrolled shape is a **circular sector** of radius $\ell$. Its
+arc length must equal the base circumference $2 \pi r$ (the rim).
+A full circle of radius $\ell$ has circumference $2 \pi \ell$, so
+the sector is the fraction $\frac{2 \pi r}{2 \pi \ell} =
+\frac{r}{\ell}$ of the disc. The disc has area $\pi \ell^2$, so the
+sector — the **lateral area of the cone** — is
+$\pi \ell^2 \cdot \frac{r}{\ell} = \pi r \ell$.
+</details>
+
+### Problem 4 — Volume of a cone
+
+Show that the volume of a cone of base radius $r$ and height $h$ is
+$\dfrac{1}{3} \pi r^2 h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The cone is the limit of regular pyramids over regular $n$-gons.
+A pyramid has volume $\tfrac{1}{3} \cdot \text{base} \cdot
+\text{height}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Inscribe a regular $n$-gon in the base; build a regular pyramid
+over it sharing the cone's apex. Its volume is
+$\tfrac{1}{3} A_n \cdot h$. As $n \to \infty$, $A_n \to \pi r^2$, so
+the cone's volume is $\tfrac{1}{3} \pi r^2 \cdot h$. *Same trick as
+Problem 2 — inscribe, increase $n$, take the limit. Kiselev uses the
+prism / pyramid relation as the load-bearing axiom; the cone /
+cylinder relation falls out.*
+</details>
+
+### Problem 5 — Cone fits inside cylinder
+
+Place a cone (base radius $r$, height $h$) inside a cylinder of the
+same base and height, sharing the base. **What fraction of the
+cylinder does the cone occupy?**
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{\frac{1}{3} \pi r^2 h}{\pi r^2 h} = \dfrac{1}{3}$. **One
+third.** *(The same one-third factor that took prism to pyramid.)*
+</details>
+
+### Problem 6 — Archimedes' theorem (read-off)
+
+Inside a cylinder of radius $r$ and height $2r$ (so it just contains
+a sphere of radius $r$), place the sphere and a *double cone* (two
+cones apex-to-apex, each of height $r$, sharing the cylinder's
+axis). Compute the three volumes and check Archimedes' famous
+relation **cylinder : sphere : double cone = 3 : 2 : 1**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cylinder volume: $\pi r^2 \cdot 2r = 2 \pi r^3$. Sphere volume: take
+$\tfrac{4}{3} \pi r^3$ as known. Double cone: two cones of base $r$
+and height $r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Cylinder: $2 \pi r^3$. Sphere: $\tfrac{4}{3} \pi r^3$. Double cone:
+$2 \cdot \tfrac{1}{3} \pi r^2 \cdot r = \tfrac{2}{3} \pi r^3$.
+Ratios (divide each by $\tfrac{2}{3} \pi r^3$):
+$\quad \dfrac{2}{2/3} : \dfrac{4/3}{2/3} : \dfrac{2/3}{2/3}
+= 3 : 2 : 1.$
+*Archimedes asked for this ratio to be carved on his tombstone, and
+it was.*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+A **cylinder** of base radius $r$ and height $h$ has:
+
+$$
+\text{lateral area} = 2 \pi r h, \quad
+\text{total surface} = 2 \pi r h + 2 \pi r^2, \quad
+\text{volume} = \pi r^2 h.
+$$
+
+A **cone** of base radius $r$, height $h$, slant height
+$\ell = \sqrt{r^2 + h^2}$ has:
+
+$$
+\text{lateral area} = \pi r \ell, \quad
+\text{total surface} = \pi r \ell + \pi r^2, \quad
+\text{volume} = \tfrac{1}{3} \pi r^2 h.
+$$
+
+A **sphere** of radius $r$ has:
+
+$$
+\text{surface area} = 4 \pi r^2, \quad
+\text{volume} = \tfrac{4}{3} \pi r^3.
+$$
+
+The **Archimedes relation:** for the smallest enclosing cylinder of a
+sphere of radius $r$ (and the inscribed double cone of the same
+height), the volumes are in the ratio $3 : 2 : 1$.
+
+:::
+
+A verse:
+
+> *Unroll the cylinder — a rectangle, two pi r and h.*
+> *Unroll the cone — a sector, slant by arc, the rim's path.*
+> *One-third for the cone, like one-third for the pyramid before.*
+> *And cylinder, sphere, cone — three, two, one — Archimedes' law.*
+
+## Apply
+
+### Worked example
+
+> A cone has base radius $6$ cm and slant height $10$ cm. Find its
+> volume and total surface area.
+
+Slant height $\ell = 10$, base radius $r = 6$, so the height is
+$h = \sqrt{\ell^2 - r^2} = \sqrt{100 - 36} = \sqrt{64} = 8$ cm.
+
+Volume: $V = \tfrac{1}{3} \pi r^2 h = \tfrac{1}{3} \pi \cdot 36
+\cdot 8 = 96 \pi \approx 301.6$ cm³.
+
+Lateral area: $\pi r \ell = 60 \pi$. Plus base $\pi r^2 = 36 \pi$.
+
+**Total surface: $96 \pi \approx 301.6$ cm².**
+**Volume: $96 \pi \approx 301.6$ cm³.**
+
+(*A pleasing accident: same number, same units of $\pi$ — but
+different physical quantities.*)
+
+### Practice — Warm
+
+**W1.** A cylindrical can has base radius $3$ cm and height $10$ cm.
+Find its volume and lateral area.
+
+<details class="hint"><summary>Full solution</summary>
+$V = \pi \cdot 9 \cdot 10 = 90 \pi$ cm³.
+Lateral $= 2 \pi \cdot 3 \cdot 10 = 60 \pi$ cm².
+</details>
+
+**W2.** A cone has volume $48 \pi$ cm³ and base radius $4$ cm. Find
+its height.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{1}{3} \pi \cdot 16 \cdot h = 48 \pi$, so $h = 9$ cm.
+</details>
+
+**W3.** A sphere has volume $\tfrac{32}{3} \pi$ cm³. Find its
+radius.
+
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{4}{3} \pi r^3 = \tfrac{32}{3} \pi$, so $r^3 = 8$, $r = 2$
+cm.
+</details>
+
+### Practice — Working
+
+**P1.** A cone is cut by a plane parallel to its base, halfway up.
+What fraction of the original cone's volume is the **upper** small
+cone?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Linear scale halves; volume scales by the cube.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The upper cone is similar to the whole, with linear ratio
+$\tfrac{1}{2}$. So volume ratio $= (\tfrac{1}{2})^3 =
+\tfrac{1}{8}$. The **frustum** below has $\tfrac{7}{8}$ of the
+original volume.
+</details>
+
+**P2.** A solid is composed of a cylinder ($r = 3$, $h = 7$) with a
+hemisphere on top ($r = 3$). Find its total volume.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Volume = cylinder + half-sphere.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Cylinder $= \pi \cdot 9 \cdot 7 = 63 \pi$.
+Hemisphere $= \tfrac{1}{2} \cdot \tfrac{4}{3} \pi \cdot 27 = 18 \pi$.
+**Total: $81 \pi$ cubic units.**
+</details>
+
+**P3.** An ice-cream cone (open cone, no base) has slant height
+$12$ cm and lateral area $60 \pi$ cm². Find its base radius.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi r \ell = 60 \pi$ with $\ell = 12$, so $r = 5$ cm.
+</details>
+
+### Practice — Stretch
+
+**S1.** A cylinder, a sphere, and a cone share base circle (radius
+$r$) and height $h$ where $h = 2r$. Show that the **sum of the
+volumes of the cone and the sphere equals the cylinder's volume**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is Problem 6 in disguise. Add cone + sphere; compare with
+cylinder.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Cone (height $2r$): $\tfrac{1}{3} \pi r^2 \cdot 2r = \tfrac{2}{3}
+\pi r^3$. Sphere: $\tfrac{4}{3} \pi r^3$. Sum $= 2 \pi r^3 =$
+cylinder. **QED.** *(This is the equivalent statement of Archimedes'
+3:2:1 — Kiselev gives both.)*
+</details>
+
+**S2.** A right circular cone has the property that its lateral
+surface area equals the area of its base. Show that its slant height
+is exactly the radius — and conclude that **no such non-trivial
+cone exists** (because then the height would be zero, i.e. the cone
+is degenerate).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\pi r \ell = \pi r^2$, so $\ell = r$. But $\ell^2 = r^2 + h^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi r \ell = \pi r^2 \Rightarrow \ell = r$ (assuming $r > 0$).
+Then $\ell^2 = r^2 + h^2$ gives $h^2 = 0$, so $h = 0$. The
+"cone" collapses to a flat disc. *Boundary case; no genuine cone
+satisfies the condition.*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Stereometry*, §§430–460.
+
+**K1.** A cone of slant height $10$ and base radius $6$ is unrolled
+flat into a sector. Find the **angle** at the apex of the unrolled
+sector.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sector arc = base circumference $= 2\pi r$. Sector full circle of
+radius $\ell$ has circumference $2\pi\ell$. The fraction is the
+angle as a fraction of $2\pi$ (or $360°$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Fraction $= \dfrac{r}{\ell} = \dfrac{6}{10} = 0.6$. So the angle is
+$0.6 \cdot 360° = 216°$. (Or in radians, $0.6 \cdot 2\pi = 1.2\pi$.)
+</details>
+
+**K2.** A sphere is inscribed in a cone whose axial cross-section
+is an **equilateral triangle** of side $2a$. Express the sphere's
+radius in terms of $a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The axial cross-section of the inscribed sphere is the **incircle**
+of the equilateral triangle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The incircle of an equilateral triangle of side $s$ has radius
+$\dfrac{s}{2\sqrt 3} = \dfrac{s\sqrt 3}{6}$. With $s = 2a$,
+$r_{\text{sphere}} = \dfrac{a\sqrt 3}{3} = \dfrac{a}{\sqrt 3}$.
+</details>
+
+**K3.** Two right circular cones share the same axis and apex. The
+inner cone has base radius $r_1$ and height $h_1$; the outer cone
+has base radius $r_2 > r_1$ and height $h_2 > h_1$. Show that the
+*frustum-like* region between them — bounded by the inner cone's
+lateral surface, the outer cone's lateral surface, and the two base
+discs at heights $h_1$ and $h_2$ from the apex — has volume
+
+$$
+V = \tfrac{\pi}{3}\bigl(r_2^2 h_2 - r_1^2 h_1\bigr).
+$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract one cone's volume from the other.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = V_{\text{outer cone}} - V_{\text{inner cone}}
+= \tfrac{1}{3} \pi r_2^2 h_2 - \tfrac{1}{3} \pi r_1^2 h_1
+= \tfrac{\pi}{3}(r_2^2 h_2 - r_1^2 h_1)$.
+*(Kiselev uses this kind of difference-of-cones to derive the volume
+of a conical frustum; this is the simpler co-axial version.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book II — Stereometry*, §§430–460 (Sumizdat 2008). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+K3 is the cleanest entry into Kiselev's frustum chapter — adapt
+freely; do not paste Givental's prose.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Slant height equals height."** No. *Height* is the
+   perpendicular from apex to base; *slant height* is the distance
+   along the surface, $\ell = \sqrt{r^2 + h^2}$. Use $\ell$ for
+   surface area, $h$ for volume.
+2. **"The lateral area of a cylinder is $\pi r h$."** Half the truth.
+   The full circumference is $2 \pi r$, so lateral area $= 2 \pi r h$.
+   The factor of $2$ comes from going *around* the circle.
+3. **"Volume scales linearly with size."** It does not. Doubling
+   every linear dimension multiplies volume by $2^3 = 8$ — see
+   Problem P1. This is why a giant ant cannot exist (its weight
+   scales by $8$, its leg cross-section only by $4$).
+:::
+
+### Self-Assessment
+
+1. Could you re-derive **both** $V_{\text{cylinder}} = \pi r^2 h$
+   **and** $V_{\text{cone}} = \tfrac{1}{3} \pi r^2 h$ from scratch
+   using the inscribed-prism / inscribed-pyramid limit?
+2. Could you state Archimedes' 3 : 2 : 1 in your own words and
+   sketch the configuration that proves it?
+3. Can you spot in a real-world object (an ice-cream cone, a tin
+   can, a basketball) which of these formulas applies — and which
+   dimension to measure first?
+
+- **3 yes:** move on.
+- **2 yes:** redo Problem 6 — the Archimedes computation. It is the
+  most important payoff of the chapter.
+- **0–1 yes:** the unroll *Touch* widget did not land. Replay it
+  with paper and scissors — cut a paper cylinder and unroll it.
+
+## Connect
+
+### Prerequisites used
+
+- [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd) —
+  $\pi r^2$, $2 \pi r$, and the area-as-counting intuition.
+- [`cbse9.surface-areas-and-volumes`](../../tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd) —
+  the prism and pyramid formulas, in particular the
+  $\tfrac{1}{3}$-pyramid factor.
+
+### What this unlocks
+
+- **`kg2.sphere`** *(planned)* — the surface-area $4 \pi r^2$ proof
+  by the cylindrical-projection argument (Archimedes again).
+- **`kg2.frustums`** *(planned)* — generalise Problem K3 to any
+  axial frustum.
+- [`t4.definite-integral`](../../tier-4-precalc-calculus/08-definite-integral/index.qmd) —
+  the limit-of-prisms / limit-of-pyramids argument is the seed of
+  Riemann integration.
+- [`cbse10.surface-areas-and-volumes`](../../tier-cbse-10-class-10/12-surface-areas-and-volumes/index.qmd) —
+  combined-solid mensuration in board-exam idiom.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book II — Chapter 3: Round bodies (§§430–460).**
+  Givental translation, Sumizdat 2008. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+- **Sister synthesis lessons:**
+  [`cbse9.surface-areas-and-volumes`](../../tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd)
+  — same material, computational style; and
+  [`cbse10.surface-areas-and-volumes`](../../tier-cbse-10-class-10/12-surface-areas-and-volumes/index.qmd)
+  — combined solids.
+- **Read alongside the source PDF** for Kiselev's full development
+  including the spherical-zone surface-area argument, which this
+  pilot defers to a future lesson.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Cone, cylinder, capsule, and sphere are the
+canonical **collision primitives** in physics engines. The volume
+and surface formulas here are exactly the ones used to compute mass,
+inertia tensors, and intersection volumes in real-time. The
+*unroll-into-rectangle* trick is also how UV mapping a cylindrical
+texture works.
+:::
+
+::: {.applied-callout}
+**Research.** The "inscribe a polygon, take $n \to \infty$"
+argument is **Eudoxus' method of exhaustion**, the historical seed
+of integral calculus. Archimedes' 3:2:1 is the first non-trivial
+theorem proved this way — and the line from this problem to the
+fundamental theorem of calculus is short.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the unroll-and-measure proof of lateral
+  area; the inscribed-prism limit for volume); Archimedes (the
+  3 : 2 : 1 relation in *Discover*, Problem 6); 3Blue1Brown (the
+  *Touch* widget framing of unrolling).
+- **Source citation:** §§430–460 of Kiselev's *Stereometry* cover
+  cylinder and cone in this order — surfaces first, volumes second,
+  Archimedes' relations last.
+- **What this lesson does not do:** prove the surface-area formula
+  for the **sphere** ($4 \pi r^2$). That belongs in `kg2.sphere`,
+  which builds the cylindrical-projection trick (Archimedes' "On
+  the Sphere and Cylinder") in full.
+:::

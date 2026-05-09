@@ -1,0 +1,501 @@
+---
+title: "Ch 6 — Combinatorics and the Binomial Theorem"
+subtitle: "Permutations, combinations, and Pascal's triangle — and the formula for $(a + b)^n$"
+lesson-id: "ka2.combinatorics-binomial"
+tier: "ka2"
+kiselev-book: "Algebra, Part II"
+kiselev-chapter: 6
+kiselev-chapter-title: "Combinatorics and the binomial theorem"
+kiselev-sections: "§§96–115 (factorials, permutations, combinations, binomial expansion, applications)"
+prerequisites: [ka1.polynomials, ka2.sequences-progressions]
+unlocks: []
+applied-domains: [research, ai-ml, encryption, databases]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are polynomial-arithmetic basics automatic — especially the cube
+   identity $(a + b)^3 = a^3 + 3 a^2 b + 3 a b^2 + b^3$? See
+   [`ka1.polynomials`](../../tier-kiselev-1-algebra-1/02-polynomials/index.qmd).
+2. Can you handle $\sum$ notation? See
+   [`ka2.sequences-progressions`](../05-sequences-progressions/index.qmd).
+3. Are you comfortable with **factorials**: $5! = 5 \cdot 4 \cdot
+   3 \cdot 2 \cdot 1 = 120$?
+4. Can you reason about *counting* — e.g. "how many ways to seat
+   3 people in 3 chairs"? *(Answer: $3! = 6$.)*
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Ten people, four chairs. **In how many ways** can the chairs be
+filled? Each chair has fewer choices than the last: $10 \cdot 9
+\cdot 8 \cdot 7 = 5040$.
+
+```{ojs}
+viewof n = Inputs.range([1, 10], {value: 5, step: 1, label: "n (total people)"})
+```
+
+```{ojs}
+viewof k = Inputs.range([1, 10], {value: 3, step: 1, label: "k (chairs to fill)"})
+```
+
+```{ojs}
+{
+  if (k > n) return `Cannot pick ${k} from ${n}.`;
+  const fact = (m) => { let p = 1; for (let i = 2; i <= m; i++) p *= i; return p; };
+  const perm = fact(n) / fact(n - k);
+  const comb = perm / fact(k);
+  return `**Permutations** P(${n}, ${k}) = ${perm} (ordered).
+
+**Combinations** C(${n}, ${k}) = ${comb} (unordered, *who* not *where*).`;
+}
+```
+
+If *order matters* — that's a **permutation**. If *only the set*
+matters — that's a **combination**.
+
+## Wonder
+
+1. The number of orderings of $n$ distinct objects is $n!$. **Why**
+   factorial?
+2. The number of $k$-permutations from $n$ is $\dfrac{n!}{(n-k)!}$.
+   The number of $k$-combinations is $\dfrac{n!}{k!(n-k)!}$. Why
+   the extra $k!$?
+3. The expansion of $(a + b)^4$ has coefficients $1, 4, 6, 4, 1$.
+   These are *Pascal's triangle*. **Why** are they the same as
+   $C(4, k)$?
+4. Symmetry: $C(n, k) = C(n, n - k)$. **Why?**
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Each successive position has one fewer choice; multiplying
+gives $n (n-1)(n-2) \cdots 1 = n!$. (2) Each unordered set of $k$
+items can be ordered in $k!$ ways, so dividing $P(n, k)$ by $k!$
+gives combinations. (3) **The binomial theorem:** $(a + b)^n =
+\sum_k C(n, k) a^k b^{n-k}$. The coefficient of $a^k b^{n-k}$
+counts how many ways to pick which $k$ of the $n$ factors of
+$(a + b)$ contribute the $a$. (4) Choosing which $k$ to **include**
+is the same as choosing which $n - k$ to **exclude**.
+:::
+
+## Discover
+
+### Problem 1 — Counting permutations
+
+The number of ways to arrange $n$ distinct objects in a row is
+$n!$. Show this by counting positions.
+
+<details class="hint"><summary>Full solution</summary>
+First position: $n$ choices. Second: $n - 1$ (one already used).
+Third: $n - 2$. Continuing: total $= n (n-1)(n-2) \cdots 2 \cdot 1
+= n!$. **QED.** *(Algebra II §97.)*
+</details>
+
+### Problem 2 — $k$-permutations
+
+The number of *ordered* selections of $k$ from $n$ is $P(n, k) =
+\dfrac{n!}{(n-k)!} = n (n-1) (n-2) \cdots (n-k+1)$.
+
+<details class="hint"><summary>Full solution</summary>
+First chosen position: $n$ choices. Second: $n - 1$. ... $k$-th:
+$n - k + 1$. Total: $n (n-1) \cdots (n - k + 1) = \dfrac{n!}
+{(n - k)!}$. **QED.** *(Algebra II §99.)*
+</details>
+
+### Problem 3 — $k$-combinations
+
+The number of *unordered* selections of $k$ from $n$ is $C(n, k) =
+\binom{n}{k} = \dfrac{n!}{k! (n-k)!}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each unordered set corresponds to $k!$ ordered arrangements (the
+permutations within it). So $C(n, k) = P(n, k) / k!$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$C(n, k) = \dfrac{P(n, k)}{k!} = \dfrac{n!}{k! (n - k)!}$.
+**QED.** *(Algebra II §101.)*
+
+*Examples:* $C(5, 2) = \dfrac{120}{2 \cdot 6} = 10$. $C(10, 3) =
+\dfrac{3628800}{6 \cdot 5040} = 120$.
+</details>
+
+### Problem 4 — Pascal's identity
+
+Show that $C(n, k) = C(n - 1, k - 1) + C(n - 1, k)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Combinatorial argument:* the $C(n, k)$ subsets of size $k$ split
+into those *containing* a fixed element (count $C(n-1, k-1)$) and
+those *not containing* it ($C(n-1, k)$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Pick a fixed element $x$. Each $k$-subset of $\{1, \ldots, n\}$
+either contains $x$ (and is determined by choosing $k - 1$ of the
+remaining $n - 1$, i.e. $C(n-1, k-1)$ ways) or doesn't ($C(n-1, k)$
+ways). Sum: $C(n, k) = C(n-1, k-1) + C(n-1, k)$. **QED.**
+*(Algebra II §103 — **Pascal's identity**.)*
+</details>
+
+### Problem 5 — Pascal's triangle
+
+Build Pascal's triangle for $n = 0, 1, 2, 3, 4, 5$.
+
+<details class="hint"><summary>Full solution</summary>
+$$
+\begin{array}{c}
+1 \\
+1 \quad 1 \\
+1 \quad 2 \quad 1 \\
+1 \quad 3 \quad 3 \quad 1 \\
+1 \quad 4 \quad 6 \quad 4 \quad 1 \\
+1 \quad 5 \quad 10 \quad 10 \quad 5 \quad 1
+\end{array}
+$$
+
+Each interior entry is the sum of the two above (Problem 4).
+**The $n$-th row gives $C(n, 0), C(n, 1), \ldots, C(n, n)$.**
+*(Algebra II §103 — **Pascal's triangle**, named after Pascal but
+known earlier in India and China.)*
+</details>
+
+### Problem 6 — Binomial theorem
+
+Show that $(a + b)^n = \sum_{k=0}^n \binom{n}{k} a^{n-k} b^k$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Combinatorial proof.* $(a + b)^n = (a + b)(a + b) \cdots (a + b)$
+($n$ factors). Expanding, each term is a product of $n$ choices —
+either $a$ or $b$ — one per factor. The number of terms with $k$
+$b$'s and $n - k$ $a$'s is $C(n, k)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Expanding $(a + b)^n$ as a product of $n$ factors $(a + b)$, each
+term in the expansion picks $a$ or $b$ from each factor. A term
+with $k$ chosen-$b$'s contributes $a^{n-k} b^k$; the number of such
+terms equals the number of ways to choose which $k$ of $n$ factors
+contribute the $b$, namely $C(n, k)$.
+
+So $(a + b)^n = \sum_{k=0}^n \binom{n}{k} a^{n-k} b^k$. **QED.**
+*(Algebra II §107 — the **binomial theorem**, attributed to Newton
+in its full form.)*
+</details>
+
+### Problem 7 — Sum of all binomial coefficients
+
+Show that $\sum_{k=0}^n \binom{n}{k} = 2^n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $a = b = 1$ in the binomial theorem.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1 + 1)^n = \sum_{k=0}^n \binom{n}{k} \cdot 1^{n-k} \cdot 1^k =
+\sum_k \binom{n}{k}$. So $\sum_k \binom{n}{k} = 2^n$. **QED.**
+
+*Combinatorial reading:* the total number of subsets of an
+$n$-element set is $2^n$. (Each element either is or isn't in the
+subset — $2^n$ binary choices.)
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Factorial.** $n! = n (n-1)(n-2) \cdots 2 \cdot 1$, with $0! = 1$
+by convention.
+
+**Permutations** (ordered selections):
+$$P(n, k) = \dfrac{n!}{(n-k)!}.$$
+
+**Combinations** (unordered selections):
+$$\binom{n}{k} = C(n, k) = \dfrac{n!}{k! (n-k)!}.$$
+
+**Pascal's identity:** $\binom{n}{k} = \binom{n-1}{k-1} +
+\binom{n-1}{k}$.
+
+**Symmetry:** $\binom{n}{k} = \binom{n}{n - k}$.
+
+**Pascal's triangle:** Row $n$ gives $\binom{n}{0}, \binom{n}{1},
+\ldots, \binom{n}{n}$.
+
+**Binomial theorem:**
+$$(a + b)^n = \sum_{k=0}^n \binom{n}{k} a^{n-k} b^k.$$
+
+**Two corollaries:** $\sum_k \binom{n}{k} = 2^n$;
+$\sum_k (-1)^k \binom{n}{k} = 0$ (for $n \ge 1$).
+
+:::
+
+A verse:
+
+> *Permute when order matters; combine when only the set is true.*
+> *$n$ factorial counts arrangements; divide by $k!$ when order's
+> bound to subdue.*
+> *Pascal's triangle, two-from-above, is the binomial coefficient's
+> path.*
+> *And $(a + b)^n$ expands by Newton's pattern — combinatorial wrath.*
+
+## Apply
+
+### Worked example
+
+> Expand $(2 x - 3)^4$.
+
+By the binomial theorem with $a = 2x, b = -3$:
+$(2x - 3)^4 = \sum_{k=0}^4 \binom{4}{k} (2x)^{4-k} (-3)^k$.
+
+- $k = 0$: $1 \cdot 16 x^4 = 16 x^4$.
+- $k = 1$: $4 \cdot 8 x^3 \cdot (-3) = -96 x^3$.
+- $k = 2$: $6 \cdot 4 x^2 \cdot 9 = 216 x^2$.
+- $k = 3$: $4 \cdot 2 x \cdot (-27) = -216 x$.
+- $k = 4$: $1 \cdot 81 = 81$.
+
+**Answer: $16 x^4 - 96 x^3 + 216 x^2 - 216 x + 81$.**
+
+### Practice — Warm
+
+**W1.** Compute $7!$, $C(8, 3)$, $P(6, 2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$7! = 5040$. $C(8, 3) = 56$. $P(6, 2) = 30$.
+</details>
+
+**W2.** How many ways to arrange $5$ distinct books on a shelf?
+
+<details class="hint"><summary>Full solution</summary>
+$5! = 120$.
+</details>
+
+**W3.** From $10$ students, choose a committee of $3$.
+
+<details class="hint"><summary>Full solution</summary>
+$C(10, 3) = 120$.
+</details>
+
+### Practice — Working
+
+**P1.** Find the coefficient of $x^3$ in the expansion of
+$(1 + 2x)^7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Term: $\binom{7}{3} (2 x)^3 = 35 \cdot 8 x^3 = 280 x^3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Coefficient: $280$.**
+</details>
+
+**P2.** Find the *constant term* (i.e. the $x^0$ term) in the
+expansion of $\left(2 x + \dfrac{3}{x^2}\right)^9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+General term: $\binom{9}{k} (2 x)^{9 - k} (3/x^2)^k = \binom{9}{k}
+\cdot 2^{9-k} \cdot 3^k \cdot x^{9 - k - 2 k} = \binom{9}{k} \cdot
+2^{9-k} \cdot 3^k \cdot x^{9 - 3 k}$. Constant: $9 - 3 k = 0$, so
+$k = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$k = 3$: $\binom{9}{3} \cdot 2^6 \cdot 3^3 = 84 \cdot 64 \cdot 27 =
+145152$. **Constant term: $145152$.**
+</details>
+
+**P3.** *Counting paths.* From the bottom-left corner of a $4 \times
+3$ grid, how many shortest paths to the top-right?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each path is a sequence of $4$ rights and $3$ ups, in some order.
+Count the orderings: $C(7, 3)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$C(7, 3) = 35$. **35 paths.** *(General: $C(m + n, m)$ for an
+$m \times n$ grid.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that $\sum_k k \binom{n}{k} = n \cdot 2^{n - 1}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Differentiate $(1 + x)^n = \sum \binom{n}{k} x^k$ with respect to
+$x$, then evaluate at $x = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Differentiate: $n (1 + x)^{n - 1} = \sum_k k \binom{n}{k} x^{k - 1}$.
+Set $x = 1$: $n \cdot 2^{n - 1} = \sum_k k \binom{n}{k}$. **QED.**
+
+*Combinatorial reading:* if you choose a $k$-subset of $n$ and
+then mark one of its $k$ elements as a "leader," the count is the
+LHS. Equivalently, choose the leader first ($n$ ways) and then
+include any subset of the rest ($2^{n-1}$ ways): RHS. *(Both count
+the same thing.)*
+</details>
+
+**S2.** Show that $\binom{n}{0}^2 + \binom{n}{1}^2 + \cdots +
+\binom{n}{n}^2 = \binom{2n}{n}$. *(Vandermonde's identity, special
+case.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(1 + x)^n (1 + x)^n = (1 + x)^{2n}$. Compare the coefficient of
+$x^n$ on both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS coefficient of $x^n$ in $(1 + x)^n \cdot (1 + x)^n$:
+$\sum_{k=0}^n \binom{n}{k} \binom{n}{n - k} = \sum_k \binom{n}{k}^2$
+(using $\binom{n}{n-k} = \binom{n}{k}$).
+
+RHS coefficient: $\binom{2n}{n}$.
+
+Equating: $\sum_k \binom{n}{k}^2 = \binom{2n}{n}$. **QED.**
+*(Vandermonde's identity, special case.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra II*, §§100–115.
+
+**K1.** A class of 10 students must form a committee of 3 with one
+*chair*, one *secretary*, and one *member-at-large*. How many
+distinct committees are possible?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Roles distinguish the committee — order matters.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(10, 3) = 720$. **720 committees.**
+</details>
+
+**K2.** Show that for $0 \le k \le n$:
+$\binom{n}{k} = \dfrac{n}{k} \binom{n-1}{k-1}$ (when $k \ge 1$).
+
+<details class="hint"><summary>Full solution</summary>
+$\binom{n}{k} = \dfrac{n!}{k! (n-k)!} = \dfrac{n}{k} \cdot \dfrac{
+(n-1)!}{(k-1)! (n-k)!} = \dfrac{n}{k} \binom{n-1}{k-1}$. **QED.**
+*(Useful for *recursion* on $\binom{n}{k}$.)*
+</details>
+
+**K3.** *Probability preview.* In how many ways can $5$ cards be
+chosen from a deck of $52$? Use this to find the probability of
+being dealt a *flush* (all 5 cards in the same suit). *(Each suit
+has 13 cards.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total hands: $C(52, 5)$. Flush hands: choose suit ($4$) times
+choose 5 cards from the 13 of that suit ($C(13, 5)$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Total $C(52, 5) = 2,598,960$. Flushes: $4 \cdot C(13, 5) = 4 \cdot
+1287 = 5148$. Probability: $\dfrac{5148}{2598960} = \dfrac{33}{16660}
+\approx 0.00198$, about **$0.198\%$**. *(Algebra II §114 —
+combinatorics applied to card games, a classical Kiselev-era
+example.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Часть вторая*
+(Fizmatlit reprint 2005), §§96–115. Russian original:
+[archive.org scan](https://archive.org/details/kiselyov-algebra-part-2-2005).
+The Pascal's-triangle identity (Problem 4) is §103; the binomial
+theorem (Problem 6) is §107.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Permutation and combination are the same thing."** They are
+   not. *Permutation:* order matters. *Combination:* order doesn't.
+   The combination has fewer outcomes (by a factor of $k!$).
+2. **"$\binom{n}{0} = 0$ because there's *no* way to pick zero
+   things."** $\binom{n}{0} = 1$ — there is *exactly one* way to
+   pick zero things (the empty set). And $0! = 1$ supports this.
+3. **"$0! = 0$."** $0! = 1$. By convention (and consistency with
+   recurrences like $n! = n \cdot (n-1)!$).
+:::
+
+### Self-Assessment
+
+1. Could you build Pascal's triangle to row $5$ from the recurrence
+   alone, no formula?
+2. Did the binomial-theorem combinatorial proof (Problem 6) feel
+   natural?
+3. Can you compute the probability of a card-game hand (K3) by
+   ratio of combinatorial counts?
+
+- **3 yes:** move on to *Limits* (Ch 7).
+- **2 yes:** redo Problem 6 — the binomial theorem is the
+  chapter's centerpiece.
+- **0–1 yes:** the permutation / combination counting (Problems 1,
+  2, 3) is the foundation; replay each.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.polynomials`](../../tier-kiselev-1-algebra-1/02-polynomials/index.qmd) —
+  the cube identity from Ch 2 was a binomial theorem at $n = 3$.
+- [`ka2.sequences-progressions`](../05-sequences-progressions/index.qmd) —
+  $\sum$ notation; the differentiation trick from Stretch S1.
+
+### What this unlocks
+
+- **`ka2.limits`** *(Ch 7, planned)* — the binomial expansion of
+  $(1 + 1/n)^n$ is the famous limit defining $e$.
+- [`t3.binomial-theorem`](../../tier-3-algebra2-geometry-trig/12-binomial-theorem/index.qmd) —
+  same content, t-tier idiom.
+- [`t3.combinatorics-counting`](../../tier-3-algebra2-geometry-trig/11-combinatorics-counting/index.qmd) —
+  more counting techniques.
+- [`t3.basic-probability`](../../tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd) —
+  combinatorial probability.
+- [`cbse11.binomial-theorem`](../../tier-cbse-11-class-11/07-binomial-theorem/index.qmd) —
+  CBSE 11 board treatment.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part II — Chapter 6: Combinatorics and the binomial
+  theorem (§§96–115).** Russian original on
+  [archive.org](https://archive.org/details/kiselyov-algebra-part-2-2005).
+- **Sister synthesis lessons:**
+  [`t3.combinatorics-counting`](../../tier-3-algebra2-geometry-trig/11-combinatorics-counting/index.qmd);
+  [`t3.binomial-theorem`](../../tier-3-algebra2-geometry-trig/12-binomial-theorem/index.qmd);
+  [`cbse11.permutations-combinations`](../../tier-cbse-11-class-11/06-permutations-combinations/index.qmd);
+  [`cbse11.binomial-theorem`](../../tier-cbse-11-class-11/07-binomial-theorem/index.qmd).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** **Hyperparameter search** over a grid of $k$
+parameters with $m$ values each is $m^k$ combinations — the curse
+of dimensionality. **Random search** is provably better in
+high-dimensional combinatorial spaces.
+:::
+
+::: {.applied-callout}
+**Encryption.** **Birthday paradox** — among $\sqrt{N}$ random
+choices from a set of size $N$, a collision is likely. The square-
+root scaling underwrites attacks on hash functions.
+:::
+
+::: {.applied-callout}
+**Databases.** **Index selectivity** is a combinatorial estimate.
+The number of distinct query results from a join is bounded by
+combinations of the underlying tables; query planners use this for
+cost estimation.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§96–115 ordering); Pascal (the
+  triangle); Newton (the binomial theorem in full generality);
+  Bhāskara (combinatorial verses in *Līlāvatī*).
+- **The combinatorial proof of the binomial theorem** (Problem 6)
+  is far more memorable than the algebraic-induction proof.
+- **What this lesson does not do:** treat the *generalised
+  binomial theorem* for non-integer exponents (Newton 1665), which
+  involves convergent infinite series.
+:::

@@ -1,0 +1,468 @@
+---
+title: "Ch 3 — Factoring Polynomials"
+subtitle: "Reading the three classical identities backward — and a strategy for every quadratic"
+lesson-id: "ka1.factoring"
+tier: "ka1"
+kiselev-book: "Algebra, Part I"
+kiselev-chapter: 3
+kiselev-chapter-title: "Factoring algebraic expressions"
+kiselev-sections: "§§49–62 (common-factor extraction, grouping, classical identities, factor theorem)"
+prerequisites: [ka1.polynomials]
+unlocks: []
+applied-domains: [research, ai-ml, encryption]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are the three classical identities — square-of-sum,
+   square-of-difference, difference-of-squares — automatic for you?
+   See [`ka1.polynomials`](../02-polynomials/index.qmd).
+2. Can you do polynomial long division reliably?
+3. Are you comfortable with $a^3 - b^3 = (a - b)(a^2 + ab + b^2)$?
+4. Can you spot a *common factor* across two terms — e.g.
+   $6 x y + 9 x = 3 x (2 y + 3)$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+The polynomial $x^2 - 5 x + 6$. Try to write it as a product of
+two simpler polynomials. The slider hints at the candidates by
+checking $(x - p)(x - q)$ for various $(p, q)$.
+
+```{ojs}
+viewof p = Inputs.range([-6, 6], {value: 2, step: 1, label: "guess p"})
+```
+
+```{ojs}
+viewof q = Inputs.range([-6, 6], {value: 3, step: 1, label: "guess q"})
+```
+
+```{ojs}
+{
+  const sum = p + q;
+  const prod = p * q;
+  const ok = (sum === 5 && prod === 6);
+  return `**(x − ${p})(x − ${q})** = x² − (${p} + ${q})x + (${p} · ${q}) = **x² − ${sum} x + ${prod}**.
+
+Target: **x² − 5x + 6**.
+
+Match? ${ok ? "✓ — *factored*" : "✗ — keep guessing"}.
+
+Pattern (Vieta): the two roots add to **5** and multiply to **6**.
+`;
+}
+```
+
+To factor $x^2 - 5x + 6$ as $(x - p)(x - q)$, find $p + q = 5$
+and $p q = 6$. The pair $(2, 3)$ works.
+
+## Wonder
+
+1. Every quadratic $x^2 + bx + c$ factors as $(x - p)(x - q)$
+   where $p + q = -b$ and $p q = c$. Why?
+2. The polynomial $x^4 - 1$ factors. **How many factors** does it
+   have? *(In real polynomials, two? Three? Four?)*
+3. The expression $a^2 + b^2$ — does it factor over the reals?
+   What about $a^2 + b^2$ over the complex numbers?
+4. Polynomial division gives a *factor* when the remainder is zero.
+   Is there a faster way to test "*is this polynomial divisible
+   by $x - r$*?" without doing the division?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Vieta's formulas** for the quadratic — sum and product of
+roots. (2) Over the reals: $x^4 - 1 = (x - 1)(x + 1)(x^2 + 1)$,
+*three* irreducible factors. Over $\mathbb C$: four linear factors
+$(x - 1)(x + 1)(x - i)(x + i)$. (3) **No** over the reals
+($a^2 + b^2 \ge 0$ always); **yes** over $\mathbb C$:
+$a^2 + b^2 = (a + bi)(a - bi)$. (4) **The factor theorem.** $(x -
+r)$ is a factor of $P(x)$ iff $P(r) = 0$.
+:::
+
+## Discover
+
+### Problem 1 — Common-factor extraction
+
+Factor $6 x^2 y - 9 x y^2 + 3 x y$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Find the *greatest common factor* of all three monomials.
+</details>
+<details class="hint"><summary>Full solution</summary>
+GCF: $3 x y$. Factor: $6 x^2 y - 9 x y^2 + 3 x y = 3 x y \cdot
+(2 x - 3 y + 1)$.
+</details>
+
+### Problem 2 — Difference of squares
+
+Factor $25 x^2 - 49$.
+
+<details class="hint"><summary>Full solution</summary>
+$(5 x)^2 - 7^2 = (5 x - 7)(5 x + 7)$.
+</details>
+
+### Problem 3 — Square trinomial
+
+Factor $4 x^2 - 12 x + 9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Recognise as $a^2 - 2ab + b^2$ with $a = 2x$ and $b = 3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(2 x - 3)^2$.
+</details>
+
+### Problem 4 — General quadratic
+
+Factor $x^2 - 7 x + 12$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Vieta: find two numbers summing to $7$ and multiplying to $12$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3$ and $4$ work: $3 + 4 = 7$, $3 \cdot 4 = 12$. So
+$x^2 - 7 x + 12 = (x - 3)(x - 4)$.
+</details>
+
+### Problem 5 — Factoring by grouping
+
+Factor $x^3 + 2 x^2 - x - 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Group: $(x^3 + 2 x^2) + (- x - 2) = x^2 (x + 2) - (x + 2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 (x + 2) - (x + 2) = (x + 2)(x^2 - 1) = (x + 2)(x - 1)(x + 1)$.
+*(Triple factorisation by grouping + difference of squares.)*
+</details>
+
+### Problem 6 — The factor theorem
+
+Show that $(x - r)$ is a factor of polynomial $P(x)$ if and only if
+$P(r) = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Polynomial division: $P(x) = (x - r) Q(x) + R$ where $R$ is a
+constant (since $\deg(x - r) = 1$). Substitute $x = r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By long division, $P(x) = (x - r) Q(x) + R$ for some polynomial
+$Q$ and constant $R$ (the remainder, of degree $< 1$).
+
+Substitute $x = r$: $P(r) = (r - r) Q(r) + R = R$. So $R = P(r)$.
+
+Therefore $(x - r)$ divides $P(x)$ — i.e. $R = 0$ — iff $P(r) = 0$.
+**QED.** *(Algebra I §53 — the **factor theorem**, also called
+**Bezout's little theorem**.)*
+</details>
+
+### Problem 7 — Vieta for quadratics
+
+Show that the quadratic $x^2 + b x + c$ factors as $(x - p)(x - q)$
+where $p, q$ are real roots iff $p + q = -b$ and $pq = c$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand $(x - p)(x - q)$ and compare coefficients.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - p)(x - q) = x^2 - (p + q) x + pq$.
+Equating to $x^2 + b x + c$:
+- coefficient of $x$: $-(p + q) = b$, i.e. $p + q = -b$.
+- constant: $pq = c$.
+
+**The same factorisation works iff $p, q$ exist as real numbers** —
+which requires the *discriminant* $b^2 - 4c \ge 0$. **QED.**
+*(Algebra I §59 — **Vieta's formulas**, the simplest case of the
+celebrated *symmetric-polynomial-equals-elementary-symmetric*
+duality.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Factoring techniques.**
+
+1. **Common-factor extraction:** $a x + a y = a (x + y)$.
+2. **Difference of squares:** $a^2 - b^2 = (a - b)(a + b)$.
+3. **Square trinomials:** $a^2 \pm 2ab + b^2 = (a \pm b)^2$.
+4. **Difference and sum of cubes:** $a^3 \mp b^3 = (a \mp b)(a^2 \pm
+   ab + b^2)$.
+5. **Grouping:** group terms in pairs, factor each, and notice a
+   common bracket.
+6. **General quadratic:** $x^2 + bx + c = (x - p)(x - q)$ where
+   $p + q = -b, pq = c$ (*Vieta*).
+7. **Factor theorem:** $(x - r) \mid P(x) \iff P(r) = 0$.
+
+:::
+
+A verse:
+
+> *Common factor first — pull the GCF out before all else.*
+> *Difference of squares — a-plus-b times a-minus-b, no further help.*
+> *Square trinomial — spot the $a$, the $b$, and the doubled cross.*
+> *Vieta finds the roots: their sum is minus-b, their product, c — no
+> loss.*
+
+## Apply
+
+### Worked example
+
+> Factor $x^3 - 2 x^2 - 5 x + 6$ completely.
+
+Try small integer roots (factor theorem). $P(1) = 1 - 2 - 5 + 6
+= 0$. So $(x - 1)$ is a factor.
+
+Long division: $x^3 - 2 x^2 - 5 x + 6 \div (x - 1) = x^2 - x - 6$.
+
+Factor $x^2 - x - 6$: by Vieta, find $p + q = 1, pq = -6$ — gives
+$p = 3, q = -2$. So $x^2 - x - 6 = (x - 3)(x + 2)$.
+
+**$x^3 - 2 x^2 - 5 x + 6 = (x - 1)(x - 3)(x + 2)$.**
+
+### Practice — Warm
+
+**W1.** Factor $9 x^2 - 16$.
+
+<details class="hint"><summary>Full solution</summary>
+$(3 x - 4)(3 x + 4)$.
+</details>
+
+**W2.** Factor $x^2 + 8 x + 16$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x + 4)^2$.
+</details>
+
+**W3.** Factor $x^2 + 5 x + 6$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x + 2)(x + 3)$ — Vieta: $2 + 3 = 5$, $2 \cdot 3 = 6$.
+</details>
+
+### Practice — Working
+
+**P1.** Factor $a^4 - b^4$.
+
+<details class="hint"><summary>Full solution</summary>
+$(a^2)^2 - (b^2)^2 = (a^2 - b^2)(a^2 + b^2) = (a - b)(a + b)(a^2 +
+b^2)$.
+</details>
+
+**P2.** Factor $x^4 - 5 x^2 + 4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Treat as a quadratic in $u = x^2$: $u^2 - 5u + 4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$u^2 - 5u + 4 = (u - 1)(u - 4)$. Substitute back: $(x^2 - 1)
+(x^2 - 4) = (x - 1)(x + 1)(x - 2)(x + 2)$. **Four real linear
+factors.**
+</details>
+
+**P3.** Factor $x^3 + 8$.
+
+<details class="hint"><summary>Full solution</summary>
+Sum of cubes: $x^3 + 2^3 = (x + 2)(x^2 - 2 x + 4)$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Factor $x^4 + x^2 + 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add and subtract $x^2$: $x^4 + 2 x^2 + 1 - x^2 = (x^2 + 1)^2 -
+x^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x^2 + 1)^2 - x^2 = (x^2 + 1 - x)(x^2 + 1 + x) = (x^2 - x + 1)
+(x^2 + x + 1)$. *(Cyclotomic factoring; appeared as K1 in Ch 2.)*
+</details>
+
+**S2.** Show that $a^3 + b^3 + c^3 - 3 abc = (a + b + c)(a^2 + b^2
++ c^2 - ab - bc - ca)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the cube-of-sum identity from Ch 2 K2 to relate $a^3 + b^3 +
+c^3$ and $abc$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+RHS expansion: $(a + b + c)(a^2 + b^2 + c^2 - ab - bc - ca)$.
+Distribute carefully:
+$= a^3 + ab^2 + ac^2 - a^2 b - abc - a^2 c + a^2 b + b^3 + b c^2 -
+ab^2 - b^2 c - abc + a^2 c + b^2 c + c^3 - abc - bc^2 - ac^2$.
+
+Collect: $a^3 + b^3 + c^3$ are clearly there. Cross terms: $ab^2 -
+ab^2 = 0$, $ac^2 - ac^2 = 0$, etc. The $abc$ terms: $-abc - abc -
+abc = -3abc$.
+
+Result: $a^3 + b^3 + c^3 - 3abc$. ✓ **QED.** *(A famous symmetric-
+polynomial identity; vanishes when $a + b + c = 0$.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra I*, §§49–62.
+
+**K1.** Without computing, decide which is larger:
+$2024 \cdot 2026$ or $2025^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$2024 \cdot 2026 = (2025 - 1)(2025 + 1) = 2025^2 - 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2024 \cdot 2026 = 2025^2 - 1 < 2025^2$. **$2025^2$ is larger by
+exactly $1$.** *(A classic "*algebra-as-fast-arithmetic*" problem.)*
+</details>
+
+**K2.** Show that for every integer $n \ge 1$, the number $n^4 +
+4$ factors over the integers as $n^4 + 4 = (n^2 - 2n + 2)(n^2 +
+2n + 2)$. Conclude that $n^4 + 4$ is **prime only for $n = 1$**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add and subtract $4 n^2$: $n^4 + 4 = n^4 + 4 n^2 + 4 - 4 n^2 =
+(n^2 + 2)^2 - (2n)^2$ — difference of squares.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$n^4 + 4 = (n^2 + 2)^2 - (2n)^2 = (n^2 - 2n + 2)(n^2 + 2n + 2)$.
+
+For $n = 1$: factors are $1$ and $5$, so $n^4 + 4 = 5$ is prime
+(only the trivial factorisation $1 \cdot 5$).
+For $n \ge 2$: both factors $\ge 2$, so $n^4 + 4$ is composite.
+
+**$n^4 + 4$ is prime iff $n = 1$.** *(*Sophie Germain* identity; a
+celebrated number-theoretic factorisation.)*
+</details>
+
+**K3.** Factor $a^5 - 1$ completely over the integers.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a^5 - 1 = (a - 1)(a^4 + a^3 + a^2 + a + 1)$ — geometric-series
+factoring.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a^5 - 1 = (a - 1)(a^4 + a^3 + a^2 + a + 1)$.
+
+The second factor is **irreducible** over the integers (it's the
+**5th cyclotomic polynomial**; this is a classical result usually
+proved in undergraduate algebra). Over the reals it factors
+further, but only with irrational coefficients.
+
+**Final integer factorisation: $(a - 1)(a^4 + a^3 + a^2 + a + 1)$.**
+*(Algebra I §60.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Ч.1*
+(Fizmatlit reprint 2006), §§49–62. Russian original:
+[archive.org scan](https://archive.org/details/1_kiselev_algebra).
+The factor theorem (Problem 6) is §53; Vieta (Problem 7) is §59.
+K2 (the Sophie Germain factorisation) is a Kiselev favourite from
+the §60 exercises.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$a^2 + b^2$ factors."** Over the **reals**, no — $a^2 + b^2$
+   is irreducible. Over $\mathbb C$, yes: $(a + bi)(a - bi)$.
+   The distinction matters for engineering (signal processing
+   relies on complex factorisations).
+2. **"Vieta works for any polynomial."** Vieta extends to higher
+   degrees (sum of roots = $-b/a$, sum of pairs = $c/a$, product
+   of roots = $\pm$ constant / $a$), but for school it's usually
+   stated only for the quadratic.
+3. **"Factor theorem says: if $P(r) = 0$ then $r$ is the root."**
+   It says more: $(x - r)$ is a *factor of $P$* — which is the
+   key to *iterative* factoring (find one root, divide out, repeat
+   on the smaller polynomial).
+:::
+
+### Self-Assessment
+
+1. Could you prove the factor theorem (Problem 6) on a fresh
+   sheet using polynomial division?
+2. Did the Vieta factorisation (Problem 4 and W3) feel automatic,
+   or did you have to set up an equation?
+3. Can you walk a *full* polynomial factorisation (like the worked
+   example) end-to-end without a hint?
+
+- **3 yes:** move on to *Algebraic Fractions* (Ch 4).
+- **2 yes:** redo Problem 6 — the factor theorem is the chapter's
+  load-bearing result.
+- **0–1 yes:** practise the three classical identities (Problems
+  2, 3, and W3) until pattern-recognition is automatic.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.polynomials`](../02-polynomials/index.qmd) — the three
+  classical identities (read backward in this lesson) and
+  polynomial long division.
+
+### What this unlocks
+
+- **`ka1.algebraic-fractions`** *(Ch 4, planned)* — fractions
+  simplify by *factoring* numerator and denominator and cancelling.
+- **`ka1.quadratic-equations`** *(Ch 9, planned)* — solving
+  quadratics by factoring (Vieta) is the first technique.
+- [`t2.factoring-polynomials`](../../tier-2-prealgebra/12-factoring-polynomials/index.qmd) —
+  same content in t-tier idiom.
+- [`t6.rings-fields`](../../tier-6-undergrad-advanced/02-rings-fields/index.qmd) —
+  the *factor theorem* generalises to arbitrary fields; the
+  *cyclotomic polynomials* (K3) are central to algebraic number
+  theory.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part I — Chapter 3: Factoring (§§49–62).** Russian
+  original on [archive.org](https://archive.org/details/1_kiselev_algebra).
+- **Sister synthesis lessons:**
+  [`t2.factoring-polynomials`](../../tier-2-prealgebra/12-factoring-polynomials/index.qmd)
+  and
+  [`cbse8.factorisation`](../../tier-cbse-08-class-8/12-factorisation/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full presentation
+  of the *Sophie Germain* factorisation and other classical
+  decompositions.
+
+### Where this matters
+
+::: {.applied-callout}
+**Encryption.** **Polynomial factorisation over finite fields** is
+a hard problem — and many cryptographic primitives (e.g. AES, BCH
+codes) are built on the *difficulty* of factoring polynomials in
+$\mathbb F_p[x]$. Factoring over $\mathbb Z$ and $\mathbb Q$
+(this lesson) is *easy*; over $\mathbb F_p$ it's the wall that
+secures encryption.
+:::
+
+::: {.applied-callout}
+**Research.** **Galois theory** asks: when can the roots of a
+polynomial be expressed in radicals? The answer involves the
+*solvable group* underlying the polynomial's factorisation — and
+the chain of factorings in this lesson is the seed of the modern
+algebraic structure.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§49–62 ordering); Vieta (1591 —
+  the *In artem analyticem isagoge*); Sophie Germain (the $n^4 + 4$
+  identity in K2).
+- **The factor theorem (Problem 6)** is the cleanest entry point
+  to *iterative factoring* — find a root, divide out, continue.
+- **What this lesson does not do:** prove the **fundamental theorem
+  of algebra** (every non-constant polynomial over $\mathbb C$ has
+  a root). That is a Ch 2 result of *Algebra II* / preview from
+  Algebra II Ch 1's complex numbers (`ka2.complex-numbers`).
+:::

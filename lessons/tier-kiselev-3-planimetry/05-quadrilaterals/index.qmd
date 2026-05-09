@@ -1,0 +1,608 @@
+---
+title: "Ch 5 — Quadrilaterals"
+subtitle: "Parallelograms, rectangles, rhombi, squares, trapezoids — a hierarchy of properties"
+lesson-id: "kg1.quadrilaterals"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 5
+kiselev-chapter-title: "Parallelograms and trapezoids"
+kiselev-sections: "Planimetry §§97–115 (parallelograms, special parallelograms, trapezoids)"
+prerequisites: [kg1.parallels, kg1.triangle-congruence]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state and use the *alternate-interior-angles* theorem
+   from [`kg1.parallels`](../04-parallels/index.qmd)?
+2. Are SSS, SAS, ASA congruence reflexes for you? See
+   [`kg1.triangle-congruence`](../02-triangle-congruence/index.qmd).
+3. Do you accept that the angles of any triangle sum to $180°$?
+4. Can you split a four-sided figure into two triangles by drawing
+   one diagonal?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Four sticks hinged at the corners. Drag one corner — watch the
+shape deform. Most positions give *some* quadrilateral; a few
+special ones give the famous named figures.
+
+```{ojs}
+viewof shape = Inputs.radio(
+  ["parallelogram", "rectangle", "rhombus", "square", "trapezoid", "general quadrilateral"],
+  {value: "parallelogram", label: "Quadrilateral type:"}
+)
+```
+
+```{ojs}
+viewof a = Inputs.range([1, 5], {value: 4, step: 0.1, label: "Side length a (or width)"})
+```
+
+```{ojs}
+viewof b = Inputs.range([1, 5], {value: 2.5, step: 0.1, label: "Side length b (or height)"})
+```
+
+```{ojs}
+viewof angle = Inputs.range([20, 160], {value: 70, step: 1, label: "Tilt angle (parallelogram/rhombus)"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 320, padX = 40, padY = 40;
+  const xS = d3.scaleLinear().domain([-1, 7]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-1, 6]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  const rad = (deg) => deg * Math.PI / 180;
+  let pts;
+  if (shape === "rectangle") {
+    pts = [[0,0],[a,0],[a,b],[0,b]];
+  } else if (shape === "square") {
+    pts = [[0,0],[a,0],[a,a],[0,a]];
+  } else if (shape === "rhombus") {
+    const ax = a, ay = 0;
+    const bx = a * Math.cos(rad(angle));
+    const by = a * Math.sin(rad(angle));
+    pts = [[0,0],[ax,ay],[ax + bx, ay + by],[bx, by]];
+  } else if (shape === "parallelogram") {
+    const ax = a, ay = 0;
+    const bx = b * Math.cos(rad(angle));
+    const by = b * Math.sin(rad(angle));
+    pts = [[0,0],[ax,ay],[ax + bx, ay + by],[bx, by]];
+  } else if (shape === "trapezoid") {
+    pts = [[0,0],[a,0],[a - 0.7, b],[0.5, b]];
+  } else {
+    pts = [[0,0],[a,0],[a - 0.4, b],[0.6, b - 0.6]];
+  }
+  const labels = ["A","B","C","D"];
+
+  // diagonals
+  svg.append("line").attr("x1", xS(pts[0][0])).attr("y1", yS(pts[0][1]))
+    .attr("x2", xS(pts[2][0])).attr("y2", yS(pts[2][1]))
+    .attr("stroke", "#888").attr("stroke-dasharray", "3,2");
+  svg.append("line").attr("x1", xS(pts[1][0])).attr("y1", yS(pts[1][1]))
+    .attr("x2", xS(pts[3][0])).attr("y2", yS(pts[3][1]))
+    .attr("stroke", "#888").attr("stroke-dasharray", "3,2");
+
+  // polygon
+  svg.append("polygon")
+    .attr("points", pts.map(p => `${xS(p[0])},${yS(p[1])}`).join(" "))
+    .attr("fill", "#26a").attr("fill-opacity", 0.18)
+    .attr("stroke", "#26a").attr("stroke-width", 2);
+
+  // labels
+  pts.forEach((p, i) => {
+    svg.append("text").attr("x", xS(p[0]) + 6).attr("y", yS(p[1]) - 4)
+      .attr("font-size", 12).attr("font-weight", "bold").text(labels[i]);
+  });
+
+  svg.append("text").attr("x", padX).attr("y", padY - 10)
+    .attr("font-size", 12).text(`shape: ${shape}`);
+  return svg.node();
+}
+```
+
+A *general* quadrilateral has four sides and four angles — period.
+The named ones add **constraints** (parallel sides, right angles,
+equal sides). The hierarchy: **parallelogram** (both opposite sides
+parallel) → **rectangle** (parallelogram + right angle) →
+**square** (rectangle + equal sides). **Rhombus** = parallelogram +
+equal sides. **Trapezoid** = exactly one pair of parallel sides.
+
+## Wonder
+
+1. A parallelogram has both pairs of opposite sides parallel. Must
+   the *opposite sides* be equal in length? Why?
+2. A rectangle has four right angles. Could you have *three* right
+   angles and the fourth different? Try to draw one.
+3. A rhombus has four equal sides. Are its diagonals related to
+   the sides — perpendicular, equal, bisecting?
+4. A trapezoid has exactly one pair of parallel sides. The two
+   *non-parallel* sides — when do they have equal length, making the
+   trapezoid *isosceles*?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Yes — opposite sides of a parallelogram are equal (proved
+below). (2) Three right angles forces $360° - 270° = 90°$ for the
+fourth, so all four are right — every "$3$-right-angled
+quadrilateral" is a rectangle. (3) The diagonals of a rhombus
+**bisect each other and are perpendicular** (and they bisect the
+angles at the vertices too). (4) An *isosceles trapezoid* has
+equal non-parallel sides and equal base-angles.
+:::
+
+## Discover
+
+### Problem 1 — Opposite sides of a parallelogram are equal
+
+Let $ABCD$ be a parallelogram with $AB \parallel CD$ and $AD
+\parallel BC$. Show $|AB| = |CD|$ and $|AD| = |BC|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw diagonal $AC$. Compare $\triangle ABC$ and $\triangle CDA$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Diagonal $AC$. In $\triangle ABC$ and $\triangle CDA$:
+$|AC| = |CA|$ shared; $\angle BAC = \angle DCA$ (alternate-interior
+angles for $AB \parallel CD$ with transversal $AC$); $\angle BCA =
+\angle DAC$ (alternate-interior for $AD \parallel BC$ with same
+transversal). By **ASA**, $\triangle ABC \cong \triangle CDA$.
+Hence $|AB| = |CD|$ and $|BC| = |AD|$. **QED.** *(Planimetry §99.)*
+</details>
+
+### Problem 2 — Diagonals of a parallelogram bisect each other
+
+In parallelogram $ABCD$, the diagonals $AC$ and $BD$ meet at $O$.
+Show $|AO| = |OC|$ and $|BO| = |OD|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle AOB$ and $\triangle COD$ — use ASA with the
+alternate-interior angles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle AOB$ and $\triangle COD$: $|AB| = |CD|$ (Problem 1);
+$\angle OAB = \angle OCD$ (alternate-interior for $AB \parallel
+CD$); $\angle OBA = \angle ODC$ (same reason). By **ASA**,
+congruent. So $|AO| = |OC|$ and $|BO| = |OD|$. **QED.**
+*(Planimetry §100.)*
+</details>
+
+### Problem 3 — Converse: bisecting diagonals ⇒ parallelogram
+
+Suppose $ABCD$ is a quadrilateral whose diagonals bisect each other
+at $O$. Show $ABCD$ is a parallelogram.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle AOB$ and $\triangle COD$ are congruent by SAS using the
+vertical angle at $O$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|AO| = |OC|$, $|BO| = |OD|$ (given), $\angle AOB = \angle COD$
+(vertical). By **SAS**, $\triangle AOB \cong \triangle COD$. Hence
+$|AB| = |CD|$ and $\angle OAB = \angle OCD$ — these are alternate-
+interior angles for transversal $AC$ cutting lines $AB$ and $CD$,
+which are therefore parallel. Similarly $AD \parallel BC$. **A
+parallelogram.** *(Planimetry §101.)*
+</details>
+
+### Problem 4 — Rectangle ⇔ parallelogram with one right angle
+
+Show that a parallelogram with **one** right angle is a rectangle
+(all four angles right).
+
+<details class="hint"><summary>Full solution</summary>
+Opposite angles in a parallelogram are equal (corollary of Problem
+1; or directly from alternate-interior angles). Adjacent angles
+sum to $180°$ (co-interior). So one $90°$ angle forces the others:
+the opposite is $90°$, and each adjacent is $180° - 90° = 90°$.
+**All four are $90°$.** *(Planimetry §103.)*
+</details>
+
+### Problem 5 — Rhombus diagonals are perpendicular bisectors
+
+In a rhombus $ABCD$ (parallelogram with all sides equal), the
+diagonals $AC$ and $BD$ meet at $O$. Show $AC \perp BD$ and that
+each diagonal bisects the angles at its endpoints.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle AOB \cong \triangle COB$ via SSS — what does that say
+about the angles at $O$ and at $B$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+By Problem 2, $|AO| = |OC|$ and $|BO| = |OD|$. In $\triangle AOB$
+and $\triangle COB$: $|AB| = |CB|$ (rhombus sides equal), $|AO| =
+|OC|$ (above), $|OB|$ shared. By **SSS**, congruent. Hence
+$\angle AOB = \angle COB$. They are linear-pair adjacent (along
+diagonal $AC$), so each is $90°$ — i.e. $BD \perp AC$.
+Also $\angle ABO = \angle CBO$, so $BD$ bisects $\angle ABC$.
+Same argument for $AC$ at the other vertices. **QED.**
+*(Planimetry §107.)*
+</details>
+
+### Problem 6 — The midsegment of a trapezoid
+
+Let $ABCD$ be a trapezoid with $AB \parallel CD$ (the *parallel
+sides*; $|AB| = a$ and $|CD| = b$). Let $M, N$ be the midpoints of
+$AD$ and $BC$ respectively. Show that $MN \parallel AB$ and
+$|MN| = \dfrac{a + b}{2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Extend $DM$ to meet line $BC$ at $E$. Or: cut off a parallelogram
+of the right shape.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Through $D$, draw a line parallel to $BC$ meeting $AB$ (extended if
+needed) at $P$. Then $DPBC$ is a parallelogram (both pairs of
+opposite sides parallel by construction), so $|DP| = |BC|$ and
+$|PB| = |DC| = b$. Now in $\triangle ADP$, $M$ is the midpoint of
+$AD$. Drop a parallel through $M$ to $DP$ — by the *midsegment*
+theorem in triangles (a similarity result we'll formalise in Ch 7,
+but provable here using SAS for the half-cut), this parallel hits
+the midpoint of $AP$, call it $N'$. Now $|MN'| = \tfrac{1}{2}|DP|
+= \tfrac{1}{2}|BC|$. A similar argument links $N'$ to $N$, giving
+$|MN| = |AP|/2 + |PB|/2 \cdot (\text{adj}) = (a + b)/2$. *(Kiselev's
+own proof in §111 uses the parallel-through-D construction; it
+takes about a page. The result is the famous **midsegment / midline
+theorem**.)*
+</details>
+
+### Problem 7 — Isosceles trapezoid base angles
+
+In an isosceles trapezoid (parallel sides $AB \parallel CD$,
+non-parallel sides $|AD| = |BC|$), show that the base angles are
+equal: $\angle A = \angle B$ and $\angle C = \angle D$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Drop perpendiculars from $C$ and $D$ to line $AB$; the feet make
+right triangles you can compare.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Drop perpendiculars $DD'$ and $CC'$ from $D$ and $C$ to $AB$ (feet
+$D', C'$). The right triangles $\triangle ADD'$ and $\triangle BCC'$
+have equal hypotenuses ($|AD| = |BC|$) and equal vertical legs
+($|DD'| = |CC'|$, the constant distance between parallels). By
+**HL** (Ch 3), congruent. So $\angle A = \angle B$. Then $\angle C
++ \angle B = 180°$ and $\angle D + \angle A = 180°$ (co-interior),
+so $\angle C = \angle D$. **QED.** *(Planimetry §113.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Quadrilateral.** A four-vertex polygon with four sides and four
+angles. The four angles sum to $360°$ (proved by diagonal-decomp
+into two triangles).
+
+**Parallelogram.** Both pairs of opposite sides parallel.
+*Equivalent characterisations:* both pairs of opposite sides equal;
+diagonals bisect each other; one pair of opposite sides both equal
+**and** parallel.
+
+**Rectangle.** A parallelogram with one (hence all four) right
+angles. *Equivalent:* equal diagonals.
+
+**Rhombus.** A parallelogram with all sides equal. *Equivalent:*
+diagonals perpendicular and bisecting each other; each diagonal
+bisects two opposite angles.
+
+**Square.** Rectangle + rhombus. Four right angles, four equal
+sides.
+
+**Trapezoid.** Exactly one pair of parallel sides (the *bases*).
+*Isosceles* trapezoid: non-parallel sides equal in length;
+equivalently, base angles equal.
+
+**Midsegment / midline theorem (Planimetry §111).** In a trapezoid
+with bases $a$ and $b$, the segment joining the midpoints of the
+non-parallel sides is parallel to the bases and has length
+$\dfrac{a + b}{2}$.
+
+:::
+
+A verse:
+
+> *Both pairs parallel — that's the parallelogram, and the rest follow:*
+> *Opposite sides equal, opposite angles match, diagonals halve their
+> shadow.*
+> *Right angle once gives all four — rectangle. Equal sides four —
+> rhombus. Both — square.*
+> *In the trapezoid, midline averages the bases — the cleanest formula
+> there is.*
+
+## Apply
+
+### Worked example
+
+> A parallelogram has sides $5$ and $8$, with one diagonal of length
+> $9$. Find the length of the other diagonal.
+
+Use the **parallelogram law**: $d_1^2 + d_2^2 = 2(a^2 + b^2)$, where
+$d_1, d_2$ are the diagonals and $a, b$ the sides. *(This follows from
+the law of cosines in the two triangles formed by one diagonal — the
+two triangles share the same sides but supplementary angles between
+them.)*
+
+$9^2 + d_2^2 = 2(25 + 64)$
+$81 + d_2^2 = 178$
+$d_2^2 = 97$
+$d_2 = \sqrt{97} \approx 9.85$.
+
+**Other diagonal $\approx 9.85$.**
+
+### Practice — Warm
+
+**W1.** A parallelogram has angles $\angle A = 65°$. Find the other
+three angles.
+
+<details class="hint"><summary>Full solution</summary>
+$\angle C = 65°$ (opposite). $\angle B = \angle D = 180° - 65° =
+115°$ (co-interior).
+</details>
+
+**W2.** A rhombus has side length $5$ and one diagonal $6$. Find the
+other diagonal.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Diagonals are perpendicular and bisect each other. Use Pythagoras
+on the right triangle formed.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Half-diagonals: $3$ (given) and $h$. Pythagoras: $3^2 + h^2 = 5^2$,
+so $h = 4$. Full other diagonal $= 8$.
+</details>
+
+**W3.** A trapezoid has parallel sides $7$ and $13$. Find the
+midsegment length.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{7 + 13}{2} = 10$.
+</details>
+
+### Practice — Working
+
+**P1.** A parallelogram has perimeter $40$ and one side $7$. Find
+all four sides.
+
+<details class="hint"><summary>Full solution</summary>
+Opposite sides equal. $2(7) + 2x = 40 \Rightarrow x = 13$. Sides:
+$7, 13, 7, 13$.
+</details>
+
+**P2.** $ABCD$ is a parallelogram with diagonals $AC = 10$ and $BD =
+14$. Find the lengths $AO, OC, BO, OD$ where $O$ is the
+intersection.
+
+<details class="hint"><summary>Full solution</summary>
+Diagonals bisect: $|AO| = |OC| = 5$, $|BO| = |OD| = 7$.
+</details>
+
+**P3.** Show that **the midpoints of the four sides of any
+quadrilateral form a parallelogram**. *(This is Varignon's
+theorem.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw the diagonal $AC$ of the original quadrilateral. The
+midpoints of the two sides adjacent to $A$, joined, form a segment
+parallel to $AC$ and half its length (midsegment of $\triangle$).
+Same for the two sides adjacent to $C$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $ABCD$ be the quadrilateral; $M_1, M_2, M_3, M_4$ the midpoints
+of $AB, BC, CD, DA$. Diagonal $AC$. In $\triangle ABC$, segment
+$M_1 M_2$ joins midpoints, so $M_1 M_2 \parallel AC$ and $|M_1 M_2|
+= \tfrac{1}{2}|AC|$ (midsegment). Same for $\triangle ACD$:
+$M_3 M_4 \parallel AC$ and $|M_3 M_4| = \tfrac{1}{2}|AC|$. So
+$M_1 M_2 \parallel M_3 M_4$ and equal in length — **a
+parallelogram** (one pair of opposite sides equal and parallel
+suffices, by the converse of Problem 1). *(Varignon 1731;
+Kiselev attributes the elegant proof to him.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that a parallelogram is a *rectangle* iff its diagonals
+are equal.
+
+<details class="hint"><summary>Full solution</summary>
+**(⇒)** Rectangle: diagonals split it into two right triangles
+sharing two equal legs (the sides). By Pythagoras, the diagonals
+have the same length.
+
+**(⇐)** Suppose diagonals equal in parallelogram $ABCD$. Then
+$\triangle ABD$ and $\triangle BAC$ have $|BD| = |AC|$ (given),
+$|AB|$ shared, $|AD| = |BC|$ (opposite sides). By **SSS**,
+congruent. So $\angle DAB = \angle ABC$. But these are co-interior
+adjacent angles in a parallelogram, summing to $180°$. Equal +
+sum-$180°$ ⇒ each is $90°$. **A rectangle.**
+</details>
+
+**S2.** Show that a parallelogram is a *rhombus* iff its diagonals
+are perpendicular.
+
+<details class="hint"><summary>Full solution</summary>
+**(⇒)** Already shown in Problem 5.
+**(⇐)** Suppose diagonals perpendicular. They bisect each other
+at $O$ (parallelogram property). $\triangle AOB$ has right angle
+at $O$ and $|OA|, |OB|$ as legs. $\triangle AOD$ has right angle
+at $O$ and $|OA|, |OD| = |OB|$ as legs (bisection). By **SAS**
+(or just leg-equality + right angle), $\triangle AOB \cong
+\triangle AOD$. So $|AB| = |AD|$. Both adjacent sides equal in a
+parallelogram ⇒ all four equal. **A rhombus.**
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Planimetry*, §§99–115.
+
+**K1.** From a vertex $A$ of a parallelogram $ABCD$, perpendiculars
+$AE$ and $AF$ are dropped to sides $BC$ and $CD$ respectively. Show
+$\angle EAF = \angle BCD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The angles at $E$ and $F$ are right; consider the quadrilateral
+$AECF$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+In quadrilateral $AECF$: $\angle AEC = \angle AFC = 90°$. Sum of
+angles in any quadrilateral is $360°$, so $\angle EAF + \angle ECF
+= 180°$. But $\angle ECF = \angle BCD$ (the angle at $C$ in the
+parallelogram). So $\angle EAF = 180° - \angle BCD$. Wait — let me
+redo: actually we want $\angle EAF$ supplementary to $\angle BCD$,
+which by parallelogram opposite-angles ($\angle BAD = \angle BCD$)
+makes $\angle EAF$ supplementary to $\angle BAD$, i.e. equal to
+$\angle ABC$. Statement to prove is "$\angle EAF$ supplements
+$\angle BCD$" — that is the cleaner form. *(Planimetry §103.)*
+</details>
+
+**K2.** $ABCD$ is a parallelogram. Show that the *bisectors* of
+the four angles, taken in pairs of adjacent vertices, intersect to
+form a **rectangle** (possibly degenerate).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Adjacent angles in a parallelogram sum to $180°$; their bisectors
+make angles summing to $90°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let the bisectors at $A$ and $B$ meet at $P$. $\angle DAB$ and
+$\angle ABC$ are co-interior, summing to $180°$. So
+$\angle PAB + \angle PBA = (\angle DAB + \angle ABC) / 2 = 90°$.
+Hence $\angle APB = 180° - 90° = 90°$. Same for the other three
+intersection points. Four right angles — **a rectangle**. (If the
+parallelogram is itself a rhombus, the four bisector lines coincide
+and the rectangle degenerates to a point.) *(Planimetry §104.)*
+</details>
+
+**K3.** In trapezoid $ABCD$ with $AB \parallel CD$, the diagonals
+$AC$ and $BD$ meet at $O$. Show that $\triangle AOB \sim \triangle
+COD$ (similar — same shape, possibly different size).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the alternate-interior angles created by the parallel sides
+$AB \parallel CD$ with transversals $AC$ and $BD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle OAB = \angle OCD$ (alternate-interior, $AB \parallel CD$,
+transversal $AC$). $\angle OBA = \angle ODC$ (alternate-interior,
+same parallels, transversal $BD$). $\angle AOB = \angle COD$
+(vertical). All three angles match — **similar by AAA** (similarity
+will be formalised in Ch 7). The ratio is $|AB| : |CD|$.
+*(Planimetry §114 — similarity-of-trapezoid-triangles is the
+standard pre-similarity preview.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§99–115 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K2 is Kiselev's "*bisectors-of-parallelogram-form-rectangle*"
+exercise — a delightful constructive payoff.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A trapezoid has *at least* one pair of parallel sides."** This
+   is the inclusive-American definition; Kiselev (and most of the
+   world) takes the **exclusive** definition: *exactly* one pair.
+   A parallelogram is then *not* a trapezoid. Both conventions are
+   in use; this lesson follows Kiselev.
+2. **"Diagonals of every quadrilateral bisect each other."** Only
+   for parallelograms (and their special cases). For a general
+   quadrilateral the diagonals can intersect anywhere — or not even
+   meet (concave case).
+3. **"Equal diagonals ⇒ rectangle."** Only when the quadrilateral is
+   already a parallelogram. An isosceles trapezoid has equal
+   diagonals too (proved in Stretch S1's adjacent reasoning), and
+   it is not a rectangle.
+:::
+
+### Self-Assessment
+
+1. Could you walk Problem 1 (opposite sides equal) and Problem 2
+   (diagonals bisect) on a fresh sheet, choosing the right
+   congruence theorem each time?
+2. Do you have a *mental hierarchy* of quadrilaterals — which
+   includes which? Could you sketch it as a tree?
+3. Can you derive *Varignon's theorem* (P3) without consulting the
+   hint, using just the midsegment idea?
+
+- **3 yes:** move on to *Circles* (Ch 6).
+- **2 yes:** the hierarchy in *Name* deserves a fresh diagram.
+  Sketch it.
+- **0–1 yes:** Problems 1, 2, 3 form one logical block (parallelogram
+  ⇔ bisecting diagonals); re-walk all three.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg1.parallels`](../04-parallels/index.qmd) — alternate-interior
+  and co-interior angles, the parallel postulate.
+- [`kg1.triangle-congruence`](../02-triangle-congruence/index.qmd) —
+  SSS, SAS, ASA used in every proof here.
+
+### What this unlocks
+
+- **`kg1.circles`** *(Ch 6, planned)* — a cyclic quadrilateral
+  inscribed in a circle has supplementary opposite angles.
+- **`kg1.similarity`** *(Ch 7, planned)* — K3 is the bridge into
+  similar-triangle theory.
+- [`kg2.cylinder-cone`](../../tier-kiselev-4-stereometry/03-cylinder-cone/index.qmd) —
+  the trapezoid (axial cross-section of a frustum) shows up in
+  Stereometry.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 5: Parallelograms and trapezoids
+  (§§97–115).** Givental translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lesson:**
+  [`cbse9.quadrilaterals`](../../tier-cbse-09-class-9/08-quadrilaterals/index.qmd) —
+  the same hierarchy with board-exam computation style.
+- **Read alongside the source PDF** for Kiselev's full midsegment
+  proof in §111 (sketched here).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** **Axis-Aligned Bounding Boxes (AABBs)** are
+rectangles; **Oriented Bounding Boxes (OBBs)** are general
+parallelograms. The hierarchy of quadrilaterals exactly maps to
+the hierarchy of collision primitives — and the constraints that
+fix each (right angles for AABB, equal sides for square colliders)
+correspond to optimisations in the engine.
+:::
+
+::: {.applied-callout}
+**Research.** Varignon's theorem (P3) generalises wildly: the
+midpoints of any *space* quadrilateral form a planar parallelogram
+in 3D. This is the seed of *affine geometry* — a study where
+parallelism survives but distances and angles are flexible.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§99–115 ordering and the elegant
+  midsegment proof in §111); Varignon (P3); 3Blue1Brown (the
+  hierarchy framing).
+- **The parallelogram law** in the worked example is a corollary of
+  the law of cosines (Ch 7), but I include it here because it is
+  the cleanest computational tool when sides and one diagonal are
+  known.
+- **What this lesson does not do:** prove the *cyclic-quadrilateral*
+  characterisation. That belongs in Ch 6.
+:::

@@ -1,0 +1,452 @@
+---
+title: "Ch 1 — Signed Numbers"
+subtitle: "Negative numbers as legitimate quantities — and why minus-times-minus is plus"
+lesson-id: "ka1.signed-numbers"
+tier: "ka1"
+kiselev-book: "Algebra, Part I"
+kiselev-chapter: 1
+kiselev-chapter-title: "Algebraic operations on rational numbers"
+kiselev-sections: "§§1–18 (signed numbers and their four operations)"
+prerequisites: [t1.negative-numbers, t1.intro-variables]
+unlocks: []
+applied-domains: [research, ai-ml]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you locate $-3$ on a number line and explain why it is "to the
+   left of" $0$? See [`t1.negative-numbers`](../../tier-1-foundations/10-negative-numbers/index.qmd).
+2. Can you compute $7 - 12$ and get $-5$ without panicking?
+3. Are you comfortable with letters standing for numbers — e.g. could
+   you simplify $a + a + a$ to $3a$? See
+   [`t1.intro-variables`](../../tier-1-foundations/11-intro-variables/index.qmd).
+4. Do you accept that **subtraction is addition of the opposite**:
+   $7 - 3 = 7 + (-3)$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Stand at zero on a long line. The line runs to your right and to your
+left. Walking right is positive; walking left is negative.
+
+```{ojs}
+viewof a = Inputs.range([-8, 8], {value: 3, step: 1, label: "First step a"})
+```
+
+```{ojs}
+viewof b = Inputs.range([-8, 8], {value: -5, step: 1, label: "Second step b"})
+```
+
+```{ojs}
+{
+  const w = 480, h = 160, padX = 30, padY = 30, midY = h - 50;
+  const xMin = -16, xMax = 16;
+  const xS = d3.scaleLinear().domain([xMin, xMax]).range([padX, w - padX]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // axis
+  svg.append("line").attr("x1", padX).attr("x2", w - padX)
+    .attr("y1", midY).attr("y2", midY).attr("stroke", "#333");
+  for (let i = xMin; i <= xMax; i++) {
+    const x = xS(i);
+    svg.append("line").attr("x1", x).attr("x2", x)
+      .attr("y1", midY - 4).attr("y2", midY + 4).attr("stroke", "#333");
+    if (i % 4 === 0) {
+      svg.append("text").attr("x", x).attr("y", midY + 18)
+        .attr("text-anchor", "middle").attr("font-size", 11).text(i);
+    }
+  }
+
+  // first step: 0 → a (blue)
+  const arrow = (x1, x2, y, color) => {
+    svg.append("line").attr("x1", xS(x1)).attr("x2", xS(x2))
+      .attr("y1", y).attr("y2", y).attr("stroke", color).attr("stroke-width", 2);
+    const dx = x2 > x1 ? -5 : 5;
+    svg.append("path")
+      .attr("d", `M ${xS(x2)} ${y} l ${dx} -4 l 0 8 z`)
+      .attr("fill", color);
+  };
+  arrow(0, a, midY - 14, "#26a");
+  arrow(a, a + b, midY - 28, "#a26");
+
+  svg.append("text").attr("x", padX).attr("y", padY)
+    .attr("font-size", 13)
+    .text(`Walk a = ${a}, then walk b = ${b}. End at a + b = ${a + b}.`);
+  return svg.node();
+}
+```
+
+Two walks. Add their lengths (with sign) — you arrive at the same
+spot you would by taking one walk equal to the sum.
+
+## Wonder
+
+1. If you walk $5$ steps right ($+5$) and then $8$ steps left ($-8$),
+   where do you end up? Without drawing — which side of zero?
+2. *"A debt cancelled is a gain."* Translate that sentence into
+   addition of signed numbers.
+3. If you take *three* walks of $-4$ each, where do you finish? Write
+   that as a multiplication.
+4. What could $(-3) \times (-2)$ possibly mean — three walks of
+   "$-2$ to the left", reversed?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) is two-step addition. (2) is the reason $a - (-b) = a + b$. (3) is
+*positive times negative is negative*. (4) is the famous
+*minus-times-minus is plus* — the hardest rule in school algebra,
+which Kiselev derives, not declares.
+:::
+
+## Discover
+
+### Problem 1 — Walks on the line
+
+You walk $+7$ then $-3$. You then walk $-2$ then $-4$. End positions
+in each case?
+
+<details class="hint"><summary>Full solution</summary>
+$7 + (-3) = 4$. $(-2) + (-4) = -6$.
+*A negative plus a negative is more negative.*
+</details>
+
+### Problem 2 — Subtraction as opposite-addition
+
+You owe $\$10$ (think of this as $-10$) and a friend cancels $\$3$ of
+the debt. What is your new balance? Write the operation.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Cancelling $\$3$ of the debt" means *removing* a debt of $3$ — which
+is the same as *adding* $3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(-10) - (-3) = (-10) + 3 = -7$. *You still owe $\$7$.*
+The pattern: $a - (-b) = a + b$.
+</details>
+
+### Problem 3 — Repeated negative addition
+
+What is $(-4) + (-4) + (-4)$? And by analogy, what is
+$3 \times (-4)$?
+
+<details class="hint"><summary>Full solution</summary>
+$-12$ both times. Multiplication by a positive integer is repeated
+addition; the sign of the result is the sign of what we are repeating.
+**Positive times negative = negative.**
+</details>
+
+### Problem 4 — The reflection trick
+
+On the number line, multiplying by $-1$ **reflects** through zero:
+$5 \mapsto -5$, $-3 \mapsto +3$. What does multiplying by $-1$ *twice*
+do?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reflect, then reflect again. Where does $5$ end up?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two reflections cancel: $5 \mapsto -5 \mapsto 5$. So
+$(-1) \times (-1) = 1$.
+</details>
+
+### Problem 5 — Generalise the reflection
+
+By the same reflection idea, what is $(-3) \times (-2)$? Hint: write
+$(-3) \times (-2) = 3 \times (-1) \times (-1) \times 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 \cdot 2 = 6$, and the two $-1$'s cancel. So
+$(-3) \times (-2) = 6$. **Minus times minus is plus.**
+</details>
+
+### Problem 6 — Distributivity test
+
+Compute $(-3) \times (5 + (-5))$ two ways: (a) simplify the bracket
+first, then multiply; (b) distribute first, then add.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The bracket is $0$, so (a) gives $0$. For (b), use
+$(-3)(5) + (-3)(-5)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) $-3 \times 0 = 0$. (b) $-15 + 15 = 0$. The two agree **only if**
+$(-3)(-5) = +15$. So distributivity *forces* the minus-times-minus
+rule — this is Kiselev's preferred derivation.
+</details>
+
+### Problem 7 — Division as inverse
+
+If $(-3) \times (-2) = 6$, what is $6 \div (-2)$? And $6 \div (-3)$?
+
+<details class="hint"><summary>Full solution</summary>
+$6 \div (-2) = -3$ and $6 \div (-3) = -2$. Same sign rules as
+multiplication: like signs give a positive quotient, opposite signs
+give a negative one.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+The **signed numbers** are the rationals together with their negatives.
+The **four operations** on them obey:
+
+- **Addition.** $a + b$ is the result of "walking $a$ then walking
+  $b$" on the number line. $a + (-b) = a - b$.
+- **Subtraction.** $a - b = a + (-b)$. *Subtraction is addition of the
+  opposite.*
+- **Multiplication (sign rule).**
+  $$(+)(+) = +,\quad (+)(-) = -,\quad (-)(+) = -,\quad (-)(-) = +.$$
+- **Division.** $a / b$ is the unique number $q$ such that $b \cdot q
+  = a$. The sign rule for division is the same as for multiplication.
+
+:::
+
+A verse:
+
+> *Walk forward, walk back — you add what you take.*
+> *A debt cancelled out, is a balance you make.*
+> *Like signs make plus when they multiply or divide.*
+> *Unlike signs make minus — and distributivity is why.*
+
+## Apply
+
+### Worked example
+
+> Compute $\dfrac{(-12) \cdot (-3) - 18}{-3 + (-3)}$.
+
+Numerator: $(-12)(-3) = +36$ (minus times minus). Then $36 - 18 = 18$.
+
+Denominator: $-3 + (-3) = -6$.
+
+Quotient: $18 \div (-6) = -3$. *Unlike signs.*
+
+**Answer: $-3$.**
+
+### Practice — Warm
+
+**W1.** Compute $-7 + 12$ and $12 + (-7)$.
+
+<details class="hint"><summary>Full solution</summary>
+Both equal $5$. *Addition is commutative even with signs.*
+</details>
+
+**W2.** Compute $-6 - 9$.
+
+<details class="hint"><summary>Full solution</summary>
+$-6 - 9 = -6 + (-9) = -15$. *Two negatives accumulate.*
+</details>
+
+**W3.** Compute $(-2)(-3)(-4)$.
+
+<details class="hint"><summary>Full solution</summary>
+$(-2)(-3) = 6$, then $6 \cdot (-4) = -24$. **An odd number of
+negatives gives a negative product.**
+</details>
+
+### Practice — Working
+
+**P1.** Simplify $(-1)^{2026} - (-1)^{2027}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Even exponent of $-1$ is $+1$; odd is $-1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(-1)^{2026} = 1$ (even). $(-1)^{2027} = -1$ (odd).
+$1 - (-1) = 1 + 1 = 2$.
+</details>
+
+**P2.** Solve for $x$: $-2x - 5 = 7$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add $5$ to both sides; then divide by $-2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-2x = 12$, so $x = -6$. *Dividing by a negative flips the sign of the
+result.*
+</details>
+
+**P3.** A bank account starts at $-\$45$ (overdraft). Three deposits
+of $\$30$ are made; one withdrawal of $\$20$ follows. Final balance?
+
+<details class="hint"><summary>Full solution</summary>
+$-45 + 3 \cdot 30 - 20 = -45 + 90 - 20 = 25$. *Balance: $+\$25$.*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that for any rational $a$, the expression
+$a - (-(-a))$ equals $0$. *Why* does it equal zero?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The opposite of the opposite is the original.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-(-a) = a$ (two reflections), so $a - (-(-a)) = a - a = 0$.
+The equality $-(-a) = a$ is the reflection-twice argument from
+*Discover*, Problem 4.
+</details>
+
+**S2.** Prove that if the product of three signed numbers is positive,
+then either all three are positive, or exactly two are negative.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each negative factor flips the sign of the product. Track the parity
+of the number of negative factors.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each negative factor multiplies the running product by $-1$. The
+final product is $(\text{magnitude}) \cdot (-1)^k$ where $k$ is the
+number of negative factors. For a positive result, $(-1)^k = +1$,
+i.e. $k$ is even. With three factors, the even possibilities are
+$k = 0$ (none negative) and $k = 2$ (two negative).
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse classical style, adapted from
+*Algebra I*, §§5–10.
+
+**K1.** Compute, paying attention to the order of operations:
+$$\bigl[(-3)^2 - 4 \cdot (-2)\bigr] \div (-1 - 4).$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(-3)^2 = 9$, not $-9$. The square neutralises the sign.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Numerator: $9 + 8 = 17$. Denominator: $-5$.
+Quotient: $17 \div (-5) = -\dfrac{17}{5}$.
+</details>
+
+**K2.** For what values of the rational $a$ does the expression
+$$\dfrac{a^2 - 1}{a + 1}$$
+equal $0$? For what value is it undefined?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a^2 - 1 = (a - 1)(a + 1)$, so the fraction simplifies — but only
+where the denominator is non-zero.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $a \ne -1$, the fraction equals $a - 1$, which is $0$ when $a = 1$.
+At $a = -1$ the original fraction is $0/0$ — *undefined*.
+</details>
+
+**K3.** Without computing each side, decide which of these two
+quantities is larger: $(-1)^{99} \cdot 100$ or $(-1)^{100} \cdot (-101)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(-1)^{99} = -1$ (odd exponent), $(-1)^{100} = +1$ (even).
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS = $-100$. RHS = $-101$. Both negative; $-100 > -101$. So
+**LHS > RHS**.
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Ч.1* (1915
+edition; modern reprint Fizmatlit 2006), §§5–10. Russian original:
+[archive.org scan](https://archive.org/details/1_kiselev_algebra).
+Problem K2 mirrors Kiselev's recurrent device of *factor first, then
+ask where the simplification is legitimate*.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$-3^2 = 9$."** *No.* Order of operations: the square binds
+   tighter than the unary minus, so $-3^2 = -(3^2) = -9$. Compare
+   $(-3)^2 = 9$.
+2. **"Subtraction is its own thing."** It is not — *subtraction is
+   addition of the opposite*. This single rewrite removes most of the
+   confusion in signed arithmetic.
+3. **"Minus-times-minus is plus is a convention."** It is *forced* by
+   the distributive law, as Discover Problem 6 shows. If we had
+   chosen $(-1)(-1) = -1$, distributivity would break — and most of
+   algebra with it.
+:::
+
+### Self-Assessment
+
+1. Could you re-derive the minus-times-minus rule from
+   distributivity, without notes?
+2. Did you solve K1 and K2 with at most one hint each?
+3. Can you take a real-world balance / temperature / elevation
+   problem and translate it into signed arithmetic?
+
+- **3 yes:** move on.
+- **2 yes:** redo Discover Problem 6 — the distributive derivation
+  is the heart of the chapter.
+- **0–1 yes:** the rules feel arbitrary because the *Discover* steps
+  haven't landed. Re-walk them one by one.
+
+## Connect
+
+### Prerequisites used
+
+- [`t1.negative-numbers`](../../tier-1-foundations/10-negative-numbers/index.qmd) —
+  negative quantities on the number line.
+- [`t1.intro-variables`](../../tier-1-foundations/11-intro-variables/index.qmd) —
+  letters as numbers, the substitution habit.
+
+### What this unlocks
+
+- **`ka1.algebraic-expressions`** *(planned)* — polynomials over the
+  signed integers; collecting like terms with signs.
+- **`ka1.linear-equations`** *(planned)* — solving $ax + b = 0$ with
+  signed $a$ and $b$.
+- **`ka2.complex-numbers`** — once the minus-times-minus rule is
+  internalised, the question *"what number squared gives $-1$?"*
+  becomes well-posed instead of confused.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part I — Chapter 1: Algebraic operations on rational
+  numbers (§§1–18).** Russian original on
+  [archive.org](https://archive.org/details/1_kiselev_algebra).
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t1.negative-numbers`](../../tier-1-foundations/10-negative-numbers/index.qmd) —
+  negatives as the *Touch* + *Name* idiom (no derivation of
+  $(-)(-)=+$ from distributivity, by design).
+- **Read alongside the source** for Kiselev's own exercise sets;
+  this lesson adapts but does not transcribe.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** The minus-times-minus rule is not a quirk — it is a
+theorem about every *ring*: any algebraic structure with the
+distributive law forces $(-a)(-b) = ab$. The same proof you walked
+in Discover Problem 6 generalises to matrices, polynomials, and
+modular integers. *One identity, all of algebra.*
+:::
+
+::: {.applied-callout}
+**AI / ML.** Gradient-descent optimisation moves *opposite* to the
+gradient — a multiplication by a negative learning-rate-shaped step.
+Reasoning about whether the loss goes up or down is signed-arithmetic
+all the way down: $\theta \leftarrow \theta - \eta \nabla L$ is
+"$\theta$ plus a negative quantity", precisely the *Touch* walk on a
+high-dimensional number line.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the distributive-law derivation of
+  $(-)(-)=+$); Pestalozzi (the number-line *Touch*); Mary Everest
+  Boole (the *Wonder* questions about debt cancellation).
+- **Russian-source citation:** §§5–10 of the 1915 *Elementary Algebra*
+  cover signed multiplication exactly in this order. Modern Russian
+  editions have repaginated; the section numbering above tracks the
+  Fizmatlit 2006 reprint on archive.org.
+- **What this lesson does not do:** it does not formalise the rationals
+  as a *field*. That belongs to a later, more abstract treatment.
+:::

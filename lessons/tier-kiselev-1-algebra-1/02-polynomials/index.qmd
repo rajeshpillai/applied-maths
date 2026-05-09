@@ -1,0 +1,518 @@
+---
+title: "Ch 2 — Polynomials and Algebraic Expressions"
+subtitle: "Monomials, polynomials, and the four operations on them — algebra as careful counting of like terms"
+lesson-id: "ka1.polynomials"
+tier: "ka1"
+kiselev-book: "Algebra, Part I"
+kiselev-chapter: 2
+kiselev-chapter-title: "Algebraic expressions"
+kiselev-sections: "§§19–48 (monomials, polynomials, addition, subtraction, multiplication, division)"
+prerequisites: [ka1.signed-numbers]
+unlocks: []
+applied-domains: [research, ai-ml, encryption]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are signed-arithmetic rules — including $(-)(-) = +$ — automatic
+   for you? See [`ka1.signed-numbers`](../01-signed-numbers/index.qmd).
+2. Can you simplify $3a + 5a$ to $8a$, treating $a$ as an unknown?
+3. Are you comfortable with **exponents** for non-negative integers:
+   $a^3 = a \cdot a \cdot a$, $a^0 = 1$, and the rule $a^m \cdot
+   a^n = a^{m + n}$?
+4. Can you expand $(2 + 3)^2$ both as $25$ and as $4 + 12 + 9$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A literal expression: $3 a + 5 a$. Tap the slider — the value of
+$a$ changes — but the **structure** $3a + 5a = 8a$ holds for every
+value of $a$. *That is the point of algebra.*
+
+```{ojs}
+viewof a = Inputs.range([-5, 5], {value: 2, step: 0.1, label: "a"})
+```
+
+```{ojs}
+viewof b = Inputs.range([-5, 5], {value: 3, step: 0.1, label: "b"})
+```
+
+```{ojs}
+{
+  const lhs = 3 * a + 5 * a;
+  const rhs = 8 * a;
+  const expr1 = `(2a + 3b)(a − b) = ${(2 * a + 3 * b) * (a - b)}`;
+  const expr2 = `2a² + ab − 3b² = ${2 * a * a + a * b - 3 * b * b}`;
+  const md = `
+**Like terms add.** \`3a + 5a\` = \`${lhs.toFixed(2)}\` = \`8a\` = \`${rhs.toFixed(2)}\` ✓
+
+**Polynomial product (preview of *Discover*).**
+${expr1}
+${expr2}
+*(Both are equal for any a, b — the algebra reveals it.)*
+`;
+  return md;
+}
+```
+
+The expression's *value* depends on $a$ (and $b$). The *identities*
+between expressions hold no matter what $a$ and $b$ are.
+
+## Wonder
+
+1. The expression $3 a + 5 a$ simplifies to $8 a$. What about
+   $3 a + 5 b$ — does that simplify? *(Try plugging in a few
+   values.)*
+2. Multiplying $a$ by itself $n$ times gives $a^n$. What is $a^m
+   \cdot a^n$? What is $(a^m)^n$?
+3. The product $(a + b)(a - b)$ — write it out by expansion. Do
+   the cross-terms cancel?
+4. The formula $a^2 - b^2 = (a + b)(a - b)$ — is this true for all
+   real $a, b$, or only for special ones?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **No** — only *like terms* (same letters with same exponents)
+combine. (2) $a^m \cdot a^n = a^{m+n}$ and $(a^m)^n = a^{mn}$.
+(3) $(a + b)(a - b) = a^2 - ab + ab - b^2 = a^2 - b^2$ — the cross
+terms *do* cancel. (4) **All real $a, b$** — the identity is an
+*identity*, true for every numerical substitution.
+:::
+
+## Discover
+
+### Problem 1 — Monomials and like terms
+
+A **monomial** is a product of a number (the *coefficient*) and
+one or more letters with non-negative integer exponents. Examples:
+$3 a^2 b, -7, x, \tfrac{1}{2} x^3 y^4$. **Like monomials** have
+the same letters with the same exponents (any coefficients).
+
+Identify the like monomials in: $3 x^2 y$, $-5 x y^2$, $7 x^2 y$,
+$\tfrac{1}{2} y^2 x$.
+
+<details class="hint"><summary>Full solution</summary>
+*Like:* $3 x^2 y$ and $7 x^2 y$ (both have $x^2 y$).
+*Like:* $-5 x y^2$ and $\tfrac{1}{2} y^2 x$ (both have $x y^2$ —
+order of letters doesn't matter).
+*The two pairs are mutually unlike.*
+</details>
+
+### Problem 2 — Adding polynomials
+
+A **polynomial** is a sum of monomials. Compute:
+$(3 x^2 - 5 x + 2) + (4 x^2 + 6 x - 7)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add like terms: $x^2$ with $x^2$, $x$ with $x$, constants with
+constants.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(3 + 4) x^2 + (-5 + 6) x + (2 - 7) = 7 x^2 + x - 5$.
+</details>
+
+### Problem 3 — Multiplying monomials
+
+Multiply $4 x^3 y$ by $-2 x y^2$. State the rule.
+
+<details class="hint"><summary>Full solution</summary>
+$(4 x^3 y)(-2 x y^2) = -8 \, x^{3+1} \, y^{1+2} = -8 x^4 y^3$.
+
+**Rule:** multiply the coefficients (with signs); add the
+exponents on each common letter.
+</details>
+
+### Problem 4 — Multiplying polynomials (distributivity)
+
+Multiply $(2 a + 3)(a - 4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distribute: $(2a)(a) + (2a)(-4) + (3)(a) + (3)(-4)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2a^2 - 8a + 3a - 12 = 2a^2 - 5a - 12$.
+</details>
+
+### Problem 5 — Three classical identities
+
+Verify by expansion:
+
+(a) $(a + b)^2 = a^2 + 2ab + b^2$.
+
+(b) $(a - b)^2 = a^2 - 2ab + b^2$.
+
+(c) $(a + b)(a - b) = a^2 - b^2$.
+
+<details class="hint"><summary>Full solution</summary>
+(a) $(a + b)(a + b) = a^2 + ab + ab + b^2 = a^2 + 2ab + b^2$.
+
+(b) $(a - b)(a - b) = a^2 - ab - ab + b^2 = a^2 - 2ab + b^2$.
+
+(c) $(a + b)(a - b) = a^2 - ab + ab - b^2 = a^2 - b^2$.
+
+**The three "Egyptian fraction" identities** (so called because
+they appear on Babylonian and Egyptian tablets two millennia BCE).
+*(Planimetry §28.)*
+</details>
+
+### Problem 6 — A subtler identity
+
+Verify: $(a + b)^3 = a^3 + 3a^2 b + 3 a b^2 + b^3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a + b)^3 = (a + b)^2 (a + b) = (a^2 + 2ab + b^2)(a + b)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a^2 + 2ab + b^2)(a + b) = a^3 + a^2 b + 2 a^2 b + 2 a b^2 +
+a b^2 + b^3 = a^3 + 3 a^2 b + 3 a b^2 + b^3$. ✓
+
+The coefficients $1, 3, 3, 1$ are *Pascal's triangle* row 3 — a
+preview of the *binomial theorem* in Algebra II.
+</details>
+
+### Problem 7 — Polynomial division (introduction)
+
+Divide $x^3 - 1$ by $x - 1$ using polynomial long division.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^3 / x = x^2$. Subtract $x^2 (x - 1) = x^3 - x^2$. Continue.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$
+\begin{array}{r|l}
+x - 1 & x^2 + x + 1 \\
+\hline
+x^3 - 1 & \\
+- (x^3 - x^2) & \\
+\hline
+x^2 - 1 & \\
+- (x^2 - x) & \\
+\hline
+x - 1 & \\
+- (x - 1) & \\
+\hline
+0 &
+\end{array}
+$$
+
+So $x^3 - 1 = (x - 1)(x^2 + x + 1)$. **A factoring identity falls
+out of division.** *(Algebra I §47.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Monomial:** $c \cdot x_1^{e_1} \cdots x_k^{e_k}$ with $c$ a
+  numerical coefficient and $e_i \ge 0$ integers.
+- **Polynomial:** a sum of monomials. The **degree** is the largest
+  total exponent count among the monomials.
+- **Like monomials:** same letters with same exponents (coefficients
+  may differ).
+
+**The four operations on polynomials.**
+
+- **Addition / subtraction:** combine like terms.
+- **Multiplication:** distribute, multiply each monomial pair
+  (coefficients multiply, exponents add).
+- **Division:** polynomial long division; the result is a quotient
+  plus a remainder of strictly lower degree.
+
+**Three classical identities (Algebra I §28).**
+$$
+(a + b)^2 = a^2 + 2ab + b^2, \quad
+(a - b)^2 = a^2 - 2ab + b^2, \quad
+(a + b)(a - b) = a^2 - b^2.
+$$
+
+**Cube identity (§30).**
+$$
+(a + b)^3 = a^3 + 3a^2 b + 3a b^2 + b^3.
+$$
+
+**Difference of cubes (§47).**
+$$
+a^3 - b^3 = (a - b)(a^2 + ab + b^2).
+$$
+
+:::
+
+A verse:
+
+> *Like terms add — same letters, same exponents, just count.*
+> *Distribute and multiply, sum exponents on each shared mount.*
+> *Square a sum — a-squared, two-ab, b-squared makes the trio.*
+> *Difference of squares is a plus times a minus, all the way to zero.*
+
+## Apply
+
+### Worked example
+
+> Simplify $(2x + 3)^2 - (2x - 3)^2$.
+
+By identity (a) and (b):
+$(2x + 3)^2 = 4x^2 + 12x + 9$.
+$(2x - 3)^2 = 4x^2 - 12x + 9$.
+
+Difference: $(4x^2 + 12x + 9) - (4x^2 - 12x + 9) = 24x$.
+
+**Answer: $24x$.**
+
+(Cleaner: use $A^2 - B^2 = (A + B)(A - B)$ where $A = 2x + 3,
+B = 2x - 3$. Then $A + B = 4x$, $A - B = 6$, product $= 24x$.)
+
+### Practice — Warm
+
+**W1.** Simplify $5 a^2 b - 3 a b^2 + 2 a^2 b + 7 a b^2$.
+
+<details class="hint"><summary>Full solution</summary>
+Combine like: $(5 + 2) a^2 b + (-3 + 7) a b^2 = 7 a^2 b + 4 a b^2$.
+</details>
+
+**W2.** Multiply $(3 x y^2)(-4 x^3 y)$.
+
+<details class="hint"><summary>Full solution</summary>
+$-12 x^4 y^3$.
+</details>
+
+**W3.** Expand $(x + 5)^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 + 10 x + 25$.
+</details>
+
+### Practice — Working
+
+**P1.** Multiply $(x + 2)(x^2 - 2x + 4)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is the **sum of cubes** factoring backward: $a^3 + b^3 =
+(a + b)(a^2 - ab + b^2)$ with $a = x, b = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^3 + 2 x^2 - 2 x^2 - 4 x + 4 x + 8 = x^3 + 8$. (Sum of cubes.)
+</details>
+
+**P2.** Simplify $(a + b + c)^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Treat $(a + b + c)$ as $((a + b) + c)$ and apply the square-of-sum
+identity, then expand the inner $(a + b)^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$((a + b) + c)^2 = (a + b)^2 + 2(a + b) c + c^2 = a^2 + 2ab + b^2
++ 2ac + 2bc + c^2$. So $(a + b + c)^2 = a^2 + b^2 + c^2 + 2ab +
+2bc + 2ca$. *(General rule: square of a sum = sum of squares + 2
+× sum of pairwise products.)*
+</details>
+
+**P3.** Divide $2 x^3 + x^2 - 8 x - 4$ by $2 x + 1$ using long
+division. Find the quotient and remainder.
+
+<details class="hint"><summary>Full solution</summary>
+$2 x^3 / 2 x = x^2$. $x^2 (2x + 1) = 2 x^3 + x^2$. Subtract:
+$0 + 0 - 8x - 4$. Bring down: $-8x - 4$. $-8x / 2x = -4$. $-4
+(2x + 1) = -8 x - 4$. Subtract: $0$. **Quotient $x^2 - 4$,
+remainder $0$.** So $2 x^3 + x^2 - 8 x - 4 = (2 x + 1)(x^2 - 4) =
+(2 x + 1)(x - 2)(x + 2)$. *(Two factorings at once.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that $a^4 - b^4 = (a - b)(a + b)(a^2 + b^2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$a^4 - b^4 = (a^2)^2 - (b^2)^2 = (a^2 - b^2)(a^2 + b^2)$ —
+difference of squares. Then $a^2 - b^2 = (a - b)(a + b)$ — again
+difference of squares. Multiply: $(a - b)(a + b)(a^2 + b^2)$.
+</details>
+
+**S2.** Show that $(a + b + c)(ab + bc + ca) - abc = (a + b)
+(b + c)(c + a)$. *(A symmetric-polynomial identity.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand the right-hand side carefully and compare.
+</details>
+<details class="hint"><summary>Full solution</summary>
+RHS: $(a + b)(b + c)(c + a)$. Expand $(a + b)(b + c) = ab + ac +
+b^2 + bc$. Multiply by $(c + a)$: $abc + a^2 b + ac^2 + a^2 c +
+b^2 c + ab^2 + bc^2 + abc$. Collect: $a^2 b + a^2 c + ab^2 + ac^2
++ b^2 c + bc^2 + 2abc$.
+
+LHS: $(a + b + c)(ab + bc + ca) = a^2 b + abc + a^2 c + ab^2 + b^2
+c + abc + abc + bc^2 + a c^2$. Collect: $a^2 b + a^2 c + ab^2 + b^2
+c + bc^2 + a c^2 + 3 abc$. Subtract $abc$: $a^2 b + a^2 c + ab^2 +
+b^2 c + bc^2 + a c^2 + 2abc$. **Equal to RHS.** ✓
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra I*, §§28–48.
+
+**K1.** Simplify $(x^2 + x + 1)(x^2 - x + 1)$ to a polynomial in
+$x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Group: $((x^2 + 1) + x) \cdot ((x^2 + 1) - x)$ — difference of
+squares.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$((x^2 + 1)^2 - x^2) = x^4 + 2x^2 + 1 - x^2 = x^4 + x^2 + 1$.
+*(Cyclotomic identity: $x^6 - 1 = (x^2 - 1)(x^4 + x^2 + 1) =
+(x - 1)(x + 1)(x^2 + x + 1)(x^2 - x + 1)$.)*
+</details>
+
+**K2.** Show that for any rational $a, b$:
+$a^3 + b^3 + 3ab(a + b) = (a + b)^3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand $(a + b)^3$ via the cube identity and rearrange.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a + b)^3 = a^3 + 3 a^2 b + 3 a b^2 + b^3 = a^3 + b^3 + 3 ab
+(a + b)$. ✓ *(This is the cube identity rewritten — a useful form
+in Cardano's cubic formula.)*
+</details>
+
+**K3.** Without expanding, find the *coefficient of $x^2 y^2$* in
+the expansion of $(x + y)^4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the cube-identity pattern for the fourth power: $(a + b)^4 =
+a^4 + 4 a^3 b + 6 a^2 b^2 + 4 a b^3 + b^4$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Coefficient of $x^2 y^2$ in $(x + y)^4$ is $6$** (Pascal's
+triangle row 4: $1, 4, 6, 4, 1$). *(Preview of the binomial theorem
+— Algebra II Ch 6.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Ч.1*
+(Fizmatlit reprint 2006), §§28–48. Russian original:
+[archive.org scan](https://archive.org/details/1_kiselev_algebra).
+The three identities (Problem 5) are §28; the cube identity
+(Problem 6) is §30.
+
+**Note on translation.** The English Manokhin edition is on
+[Leanpub](https://leanpub.com/kiselevsalgebrapartone) (paid). This
+lesson adapts the structure freely from the public-domain Russian.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$(a + b)^2 = a^2 + b^2$."** *Catastrophically wrong.* The
+   middle term $2ab$ is the most-missed identity in school algebra.
+   Always: $(a + b)^2 = a^2 + 2ab + b^2$.
+2. **"$a^m \cdot a^n = a^{m \cdot n}$."** No — exponents *add* when
+   you multiply same-base powers. $(a^m)^n$ is what gives $a^{mn}$.
+3. **"Polynomials must have a single variable."** They don't — a
+   polynomial in *several* variables is a sum of monomials in
+   those variables. The polynomial $x y + x + y$ has degree $2$
+   (the term $xy$).
+4. **"Long division of polynomials always gives a remainder of zero."**
+   Only when the divisor is a *factor* of the dividend. Generally
+   the remainder is non-zero with degree strictly less than the
+   divisor's.
+:::
+
+### Self-Assessment
+
+1. Could you state the three classical identities (Problem 5)
+   without notes?
+2. Did the cube-identity expansion (Problem 6) feel like one move,
+   or did you need to multiply step by step?
+3. Can you do polynomial long division on a fresh problem (e.g.
+   $x^4 + 1$ by $x - 1$) without consulting Problem 7?
+
+- **3 yes:** move on to *Factoring* (Ch 3).
+- **2 yes:** redo Problem 7 — long division is a chapter-defining
+  skill.
+- **0–1 yes:** the three identities (Problem 5) are the chapter's
+  spine; replay them with several numerical substitutions.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.signed-numbers`](../01-signed-numbers/index.qmd) — every
+  polynomial coefficient lives in the signed rationals; the
+  $(-)(-) = +$ rule shows up everywhere in expansion.
+
+### What this unlocks
+
+- **`ka1.factoring`** *(Ch 3, planned)* — the three identities of
+  Problem 5 read in reverse become the first factoring techniques.
+- **`ka1.algebraic-fractions`** *(Ch 4, planned)* — fractions whose
+  numerators and denominators are polynomials.
+- **`ka1.linear-equations`** *(Ch 5, planned)* — collecting
+  polynomial terms is the manipulation behind solving $ax + b = 0$.
+- [`t2.polynomials`](../../tier-2-prealgebra/11-polynomials/index.qmd) —
+  same content, t-tier idiom (less proof, more practice).
+
+### Kiselev chapter alignment
+
+- **Algebra, Part I — Chapter 2: Algebraic expressions (§§19–48).**
+  Russian original on
+  [archive.org](https://archive.org/details/1_kiselev_algebra).
+- **Sister synthesis lessons:**
+  [`t2.polynomials`](../../tier-2-prealgebra/11-polynomials/index.qmd)
+  (introductory polynomial arithmetic);
+  [`cbse9.polynomials`](../../tier-cbse-09-class-9/02-polynomials/index.qmd)
+  and
+  [`cbse10.polynomials`](../../tier-cbse-10-class-10/02-polynomials/index.qmd)
+  (board-exam treatment).
+- **Read alongside the source PDF** for Kiselev's full development
+  of polynomial division and the *factor theorem* (§47).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** The **kernel trick** in support vector machines and
+gaussian processes works because *polynomial expressions* in
+high-dimensional features can be evaluated as inner products in a
+lower-dimensional feature space. The three classical identities
+of Problem 5 are the first non-trivial *kernel polynomials* (degree
+2).
+:::
+
+::: {.applied-callout}
+**Encryption.** **Polynomial-time algorithms** for cryptographic
+primitives (multiplication, exponentiation, key derivation) rely
+on fast polynomial arithmetic. The *Karatsuba algorithm*
+(multiplying two $n$-degree polynomials in $O(n^{1.58})$ instead
+of $O(n^2)$) is rooted in clever uses of the
+$(a + b)(a - b)$ identity to fold three multiplications into two.
+:::
+
+::: {.applied-callout}
+**Research.** **Algebraic geometry** — the study of zero sets of
+polynomials in many variables — is one of the most active fields
+in 21st-century mathematics. *Every* algebraic-geometry problem
+starts with a polynomial in this chapter's idiom.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§19–48 ordering); Bhāskara
+  (the verse-style identity statements); 3Blue1Brown (the
+  geometric *Touch* idiom for $(a+b)^2$).
+- **The three identities (Problem 5)** are arguably the most-used
+  formulas in all of school mathematics. Memorise them in both
+  directions.
+- **What this lesson does not do:** treat polynomials over fields
+  other than $\mathbb Q$. That comes in undergraduate ring theory
+  ([`t6.rings-fields`](../../tier-6-undergrad-advanced/02-rings-fields/index.qmd)).
+:::

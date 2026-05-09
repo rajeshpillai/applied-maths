@@ -1,0 +1,564 @@
+---
+title: "Ch 2 — The Triangle (Congruence)"
+subtitle: "SSS, SAS, ASA — and the isosceles triangle theorem in three lines"
+lesson-id: "kg1.triangle-congruence"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 2
+kiselev-chapter-title: "The triangle"
+kiselev-sections: "Planimetry §§35–55 (triangles, congruence, isosceles, exterior angles)"
+prerequisites: [kg1.lines-and-angles]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state and use the *vertical-angles-equal* theorem? See
+   [`kg1.lines-and-angles`](../01-lines-and-angles/index.qmd).
+2. Can you describe what a **triangle** is — three vertices, three
+   sides, three angles?
+3. Are you comfortable measuring an angle and a length?
+4. Do you accept that two figures are *the same shape and size* —
+   that is, **congruent** — if you can lay one on top of the other?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Three sticks of fixed lengths. Try to build a triangle. Can you do
+it more than one way (allowing flips and rotations)?
+
+```{ojs}
+viewof a = Inputs.range([1, 6], {value: 4, step: 0.1, label: "Side a"})
+```
+
+```{ojs}
+viewof b = Inputs.range([1, 6], {value: 3, step: 0.1, label: "Side b"})
+```
+
+```{ojs}
+viewof c = Inputs.range([1, 6], {value: 5, step: 0.1, label: "Side c"})
+```
+
+```{ojs}
+{
+  const w = 380, h = 320, padX = 40, padY = 40;
+  const xS = d3.scaleLinear().domain([-1, 8]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-1, 7]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // Place A at origin, B at (c, 0), and find C from the two lengths a (BC) and b (CA)
+  const Ax = 0, Ay = 0;
+  const Bx = c, By = 0;
+  // C: distance b from A, a from B; intersection above x-axis
+  const cosA = (b * b + c * c - a * a) / (2 * b * c);
+  const valid = c > 0 && b > 0 && a > 0 && cosA >= -1 && cosA <= 1
+    && a + b > c && a + c > b && b + c > a;
+
+  if (valid) {
+    const angA = Math.acos(cosA);
+    const Cx = b * Math.cos(angA);
+    const Cy = b * Math.sin(angA);
+
+    svg.append("polygon")
+      .attr("points", `${xS(Ax)},${yS(Ay)} ${xS(Bx)},${yS(By)} ${xS(Cx)},${yS(Cy)}`)
+      .attr("fill", "#26a").attr("fill-opacity", 0.18)
+      .attr("stroke", "#26a").attr("stroke-width", 2);
+
+    const lab = (px, py, t, dx, dy) => {
+      svg.append("text").attr("x", xS(px) + dx).attr("y", yS(py) + dy)
+        .attr("font-size", 12).attr("font-weight", "bold").text(t);
+    };
+    lab(Ax, Ay, "A", -10, 14);
+    lab(Bx, By, "B", 8, 14);
+    lab(Cx, Cy, "C", 4, -6);
+
+    svg.append("text").attr("x", padX).attr("y", padY - 10)
+      .attr("font-size", 11)
+      .text(`Triangle exists: a=${a.toFixed(2)}, b=${b.toFixed(2)}, c=${c.toFixed(2)}`);
+  } else {
+    svg.append("text").attr("x", padX).attr("y", h / 2)
+      .attr("font-size", 13).attr("fill", "#a26")
+      .text("No triangle: triangle inequality fails (one side ≥ sum of other two)");
+  }
+  return svg.node();
+}
+```
+
+When the lengths satisfy the **triangle inequality** ($a + b > c$,
+etc.) the triangle exists — and **its shape is fixed**. Three
+lengths, one triangle (up to flipping).
+
+## Wonder
+
+1. Three lengths fix a triangle. *Two* lengths and the angle between
+   them — does that fix a triangle too?
+2. *Two* angles and the side between them — does that fix a triangle?
+3. Two triangles match perfectly when laid one over the other. What
+   are the *minimum* pieces of information you'd need to verify they
+   match without lifting the paper?
+4. A triangle has two equal sides. Must it have two equal angles?
+   *Why?*
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Yes — *Side-Angle-Side* (**SAS**). (2) Yes — *Angle-Side-Angle*
+(**ASA**). (3) Three pieces — and they must be of the right kinds.
+SSS, SAS, ASA work; SSA does *not* (the *ambiguous case*). (4) Yes,
+and the proof is one of the cleanest in Kiselev — the *isosceles
+triangle theorem*.
+:::
+
+## Discover
+
+### Problem 1 — The triangle inequality
+
+For any triangle with sides $a, b, c$, show that $a + b > c$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The straight path from one vertex to another is the shortest one
+(an axiom). Compare it to the path that goes via a third vertex.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let the triangle be $ABC$ with $|BC| = a, |CA| = b, |AB| = c$. The
+straight segment from $A$ to $B$ has length $c$. The path $A \to C
+\to B$ has length $b + a$. By the *straight-line shortest* axiom,
+$c < a + b$. By symmetry, the same applies to the other two sides.
+**(Planimetry §39.)**
+</details>
+
+### Problem 2 — Side-Side-Side congruence (SSS)
+
+Two triangles $ABC$ and $A'B'C'$ have $|AB| = |A'B'|$, $|BC| =
+|B'C'|$, $|CA| = |C'A'|$. Show that the triangles are **congruent**
+— i.e., a rigid motion takes one onto the other.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Lay $\triangle A'B'C'$ on $\triangle ABC$ so that $A'$ matches $A$ and
+$B'$ matches $B$. Argue that $C'$ must land on $C$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Place $A' \to A$ and $B' \to B$ (possible because $|A'B'| = |AB|$).
+Now $C'$ must lie at distance $|A'C'| = |AC|$ from $A$ and at
+distance $|B'C'| = |BC|$ from $B$. There are at most **two** such
+points (the two intersections of two circles), one on each side of
+line $AB$. If $C'$ lands on the *same* side as $C$, then $C' = C$ —
+done. If on the *opposite* side, **flip** $\triangle A'B'C'$ across
+$AB$ and now $C'$ lands on $C$. Either way, a rigid motion (possibly
+including a flip) takes one triangle onto the other.
+**Triangles are congruent. QED.** *(Planimetry §44.)*
+</details>
+
+### Problem 3 — Side-Angle-Side congruence (SAS)
+
+Two triangles have *two pairs of equal sides and the **included
+angle*** equal. Show they are congruent.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Lay them so the equal angle and one of its sides match. Where must
+the *third* vertex go?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose $|AB| = |A'B'|, \angle B = \angle B', |BC| = |B'C'|$. Lay
+$B' \to B$, $A' \to A$, and aligned-side onto aligned-side. The
+angle at $B$ matches the angle at $B'$, so the *direction* from $B$
+to $C$ matches the direction from $B'$ to $C'$. Since the lengths
+$|BC|$ and $|B'C'|$ are equal, $C' \to C$. The third vertices
+coincide. Triangles congruent. **QED.** *(Planimetry §45.)*
+</details>
+
+### Problem 4 — Angle-Side-Angle congruence (ASA)
+
+Two triangles have *two pairs of equal angles and the **included
+side*** equal. Show they are congruent.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Lay the equal sides on top. The two rays from each end go off at the
+matching angles — where must the third vertex be?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose $|BC| = |B'C'|, \angle B = \angle B', \angle C = \angle C'$.
+Lay $B \to B', C \to C'$ aligned. The ray from $B$ at angle
+$\angle B$ matches the ray from $B'$ at angle $\angle B'$ — they are
+**the same ray**. Similarly for the rays from $C$ and $C'$. The two
+rays meet at one point — the apex $A$, which equals $A'$.
+**Congruent.** *(Planimetry §47.)*
+</details>
+
+### Problem 5 — Isosceles triangle theorem
+
+Let $\triangle ABC$ have $|AB| = |AC|$. Show that $\angle B =
+\angle C$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare $\triangle ABC$ with itself, but with vertices renamed $A \to
+A, B \to C, C \to B$ — i.e., flipped. Use SSS or SAS.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Compare $\triangle ABC$ with $\triangle ACB$ (same triangle, vertices
+renamed). Sides: $|AB| = |AC|$ (given), $|AC| = |AB|$ (given), $|BC|
+= |CB|$ (same segment). By SSS the two triangles are congruent.
+Hence the corresponding angles are equal — in particular,
+$\angle B = \angle C$. **QED.** *(Planimetry §51 — Pappus' proof,
+recovered by Kiselev.)*
+
+*Three lines, no auxiliary construction. The isosceles triangle is
+its own mirror.*
+</details>
+
+### Problem 6 — Converse: equal angles ⇒ equal sides
+
+Let $\triangle ABC$ have $\angle B = \angle C$. Show that $|AB| =
+|AC|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same trick — compare $\triangle ABC$ with $\triangle ACB$, but use
+ASA this time.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Compare $\triangle ABC$ with $\triangle ACB$. Angles: $\angle B =
+\angle C$ (given), $\angle C = \angle B$ (given), and $|BC| = |CB|$
+(same segment). By ASA, the two triangles are congruent. Hence
+$|AB| = |AC|$ (corresponding sides). **QED.**
+</details>
+
+### Problem 7 — Exterior-angle theorem (weak form)
+
+In $\triangle ABC$, extend side $BC$ past $C$ to a ray. The angle
+formed *outside* the triangle at $C$ is the **exterior angle** at
+$C$. Show that this exterior angle is **strictly greater** than
+either remote interior angle ($\angle A$ or $\angle B$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $M$ be the midpoint of $AC$. Extend $BM$ past $M$ to a point
+$D$ with $|BM| = |MD|$. Compare $\triangle ABM$ and $\triangle CDM$
+using SAS.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $M$ be the midpoint of $AC$. Extend $BM$ to $D$ with $|MD| =
+|BM|$. Then $\triangle ABM \cong \triangle CDM$ by SAS ($|AM| = |MC|$
+given by midpoint; $\angle AMB = \angle CMD$ vertical angles;
+$|MB| = |MD|$ by construction). Hence $\angle BAM = \angle DCM$,
+i.e. $\angle A = \angle DCM$. But $\angle DCM$ is *strictly inside*
+the exterior angle at $C$ (since $D$ is inside the angle), so the
+exterior angle at $C$ is strictly larger than $\angle A$. The same
+argument with the midpoint of $AB$ (rather than $AC$) handles
+$\angle B$. **QED.** *(Planimetry §50.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Triangle.** A figure formed by three line segments connecting three
+non-collinear points (the *vertices*). Three sides, three angles;
+three angles sum to $180°$ (proved next chapter — *Parallels* — but
+already a familiar fact).
+
+**Congruence.** Two triangles are *congruent* if a rigid motion of
+the plane (translation + rotation, possibly with a flip) takes one
+onto the other. Equivalently: corresponding sides and corresponding
+angles are equal.
+
+**The three congruence theorems.**
+
+- **SSS:** three pairs of equal sides ⇒ congruent.
+- **SAS:** two pairs of equal sides + included angle ⇒ congruent.
+- **ASA:** two pairs of equal angles + included side ⇒ congruent.
+
+**Isosceles triangle theorem (Planimetry §51).** A triangle with two
+equal sides has the angles opposite them equal. *Conversely:* a
+triangle with two equal angles has the sides opposite them equal.
+
+**Exterior-angle theorem, weak form (§50).** An exterior angle of a
+triangle is strictly greater than either remote interior angle.
+
+:::
+
+A verse:
+
+> *Three sides, three angles — but only three pieces are needed.*
+> *Side-side-side, side-angle-side, angle-side-angle have all
+> succeeded.*
+> *Equal sides force equal angles, equal angles force equal sides —*
+> *And no exterior angle ever shrinks below either remote that hides.*
+
+## Apply
+
+### Worked example
+
+> In $\triangle ABC$, $|AB| = |AC|$ and $\angle A = 40°$. Find
+> $\angle B$ and $\angle C$.
+
+By isosceles ($|AB| = |AC|$), $\angle B = \angle C$. Triangle angle
+sum gives $\angle B + \angle C = 180° - 40° = 140°$. Each is
+$70°$.
+
+**$\angle B = \angle C = 70°$.**
+
+### Practice — Warm
+
+**W1.** Two triangles have all three sides $5, 6, 8$. Are they
+congruent?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — by **SSS**.
+</details>
+
+**W2.** $\triangle ABC$ has $|AB| = |AC|$. If $\angle B = 65°$, find
+$\angle A$ and $\angle C$.
+
+<details class="hint"><summary>Full solution</summary>
+$\angle C = \angle B = 65°$ (isosceles). $\angle A = 180° - 130° =
+50°$.
+</details>
+
+**W3.** Two triangles have two equal sides $5$ and $7$ and the
+included angle of $50°$ in each. Are they congruent?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — by **SAS**.
+</details>
+
+### Practice — Working
+
+**P1.** $\triangle ABC$ is *equilateral* — all three sides equal.
+Find each angle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply isosceles twice.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|AB| = |AC| \Rightarrow \angle B = \angle C$. $|BA| = |BC|
+\Rightarrow \angle A = \angle C$. So $\angle A = \angle B =
+\angle C$. Sum $= 180° \Rightarrow$ each is $60°$.
+</details>
+
+**P2.** Two triangles have $|AB| = 5, |BC| = 7, \angle A = 40°$ in
+both. Are they necessarily congruent?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is "*Side-Side-Angle*" — the **ambiguous case**. Try drawing it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**No.** SSA does not guarantee congruence; sometimes two distinct
+triangles fit (the famous *ambiguous case* in trigonometry). Three
+of the four canonical "congruence shortcuts" (SSS, SAS, ASA, AAS)
+work; SSA does not. *(Kiselev addresses this explicitly in §49.)*
+</details>
+
+**P3.** $\triangle ABC$ has $|AB| = |AC|$. Let $D$ be the foot of the
+perpendicular from $A$ to $BC$. Show that $|BD| = |DC|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare $\triangle ABD$ and $\triangle ACD$. $AD$ is shared, $|AB| =
+|AC|$ given, $\angle ADB = \angle ADC = 90°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ABD$ and $\triangle ACD$ share $AD$. $|AB| = |AC|$
+(given). $\angle ADB = \angle ADC = 90°$. This is *Side-Angle-Side*
+**iff** the angle is included between the two equal sides — but
+here the angle is at $D$, not between $|AD|$ and the equal sides.
+Use **right-triangle Pythagoras**: $|BD|^2 = |AB|^2 - |AD|^2 =
+|AC|^2 - |AD|^2 = |DC|^2$, so $|BD| = |DC|$. *(Or: by the isosceles
+theorem, $\angle B = \angle C$; then ASA gives $\triangle ABD \cong
+\triangle ACD$, so $|BD| = |DC|$.)* **The altitude from the apex of
+an isosceles triangle bisects the base.**
+</details>
+
+### Practice — Stretch
+
+**S1.** In $\triangle ABC$, the bisector of $\angle A$ meets $BC$ at
+$D$. Show that if $|AB| = |AC|$, then $D$ is the midpoint of $BC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare $\triangle ABD$ and $\triangle ACD$ using SAS at vertex $A$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ABD$ and $\triangle ACD$: $|AB| = |AC|$ given,
+$\angle BAD = \angle CAD$ (bisector), $AD$ shared. By SAS,
+congruent. So $|BD| = |DC|$. **The angle bisector from the apex of
+an isosceles triangle bisects the base.** (Companion to P3.)
+</details>
+
+**S2.** Show that if **two altitudes** of a triangle are equal in
+length, then the triangle is isosceles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose the altitude from $B$ and the altitude from $C$ are equal.
+Use right triangles formed by these altitudes and a third side.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Drop altitudes $BE \perp AC$ and $CF \perp AB$ with $|BE| = |CF|$.
+The right triangles $\triangle BEC$ and $\triangle CFB$ share side
+$BC$, and have equal legs $|BE| = |CF|$. By the right-triangle
+hypotenuse-leg criterion (a corollary of SSS), they are congruent.
+So $\angle BCE = \angle CBF$, i.e. $\angle C = \angle B$. By the
+isosceles converse, $|AB| = |AC|$. **Triangle isosceles.** *(A nice
+Kiselev exercise from §53.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Planimetry*, §§44–55.
+
+**K1.** In a triangle, the median from a vertex is also the
+perpendicular from that vertex. Show the triangle is isosceles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $AD$ be the median (so $|BD| = |DC|$) and also the perpendicular
+($AD \perp BC$). Compare $\triangle ABD$ and $\triangle ACD$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ABD$ and $\triangle ACD$: $|BD| = |DC|$ (median), $AD$
+shared, $\angle ADB = \angle ADC = 90°$. By **SAS** (the angle is
+included between the two equal sides), congruent. So $|AB| = |AC|$
+— triangle isosceles. *(Planimetry §53.)*
+</details>
+
+**K2.** Two segments $AB$ and $CD$ bisect each other at a point $O$
+(so $|AO| = |OB|$ and $|CO| = |OD|$). Show that $|AC| = |BD|$ and
+$AC \parallel BD$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle AOC$ and $\triangle BOD$ — find the SAS pair.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle AOC$ and $\triangle BOD$: $|AO| = |OB|$, $|CO| = |OD|$,
+$\angle AOC = \angle BOD$ (vertical angles). By **SAS**, congruent.
+Hence $|AC| = |BD|$, and corresponding angles $\angle OAC = \angle
+OBD$, which are alternate-interior angles for the transversal $AB$
+cutting lines $AC$ and $BD$. By the converse alternate-interior-
+angles theorem (we'll prove it formally in Ch 4), $AC \parallel BD$.
+**QED.** *(Planimetry §47, exercise.)*
+</details>
+
+**K3.** A triangle $ABC$ has a point $D$ on side $BC$ with $|AD| =
+|AB|$. Compare $\angle ADC$ to $\angle ABC$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle ABD$ is isosceles with $|AB| = |AD|$ — what does that
+say about its angles?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle ABD$ isosceles, so $\angle ABD = \angle ADB$. Now
+$\angle ADC$ is the *exterior angle* of $\triangle ABD$ at $D$, so
+$\angle ADC = 180° - \angle ADB = 180° - \angle ABD$. Hence
+$\angle ADC$ is the **supplement** of $\angle ABC$. *(Planimetry §52,
+typical Kiselev exterior-angle exercise.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§44–55 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K1 and K2 follow Kiselev's own §47 and §53 exercise patterns
+closely; statements have been re-worded.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"SSA is a congruence theorem."** It is **not**. The *ambiguous
+   case* — two non-included sides and a non-included angle — admits
+   two non-congruent triangles in general. (See P2.) Only SSS, SAS,
+   ASA, and the right-triangle hypotenuse-leg case are reliable.
+2. **"Isosceles requires an axis of symmetry."** The *theorem* says
+   equal sides ⇒ equal angles, but does not require you to *find*
+   the axis. Pappus' proof (Problem 5) doesn't construct an axis at
+   all.
+3. **"Congruence is the same as similarity."** It is not. *Congruent*
+   = same shape **and** size. *Similar* = same shape, possibly
+   different size — which we'll cover in Ch 7. Congruence is
+   similarity *with scale factor $1$*.
+:::
+
+### Self-Assessment
+
+1. Could you state and prove the SSS theorem from scratch, including
+   the *flip* step?
+2. Did the isosceles-theorem proof (Problem 5) feel like *one move*,
+   or did you need scaffolding?
+3. Can you take a problem with an unmarked figure and decide whether
+   you'd reach for SSS, SAS, or ASA — and identify the three pieces?
+
+- **3 yes:** move on to *Perpendiculars* (Ch 3).
+- **2 yes:** redo Problem 5 — the Pappus argument is the cleanest
+  proof in the book and worth memorising.
+- **0–1 yes:** the *Discover* sequence is the chapter; replay it
+  with paper and pencil.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg1.lines-and-angles`](../01-lines-and-angles/index.qmd) —
+  segments, angles, and the vertical-angles theorem (used in K2).
+
+### What this unlocks
+
+- **`kg1.perpendiculars`** *(Ch 3, planned)* — congruence applied to
+  right triangles; the perpendicular as the unique shortest segment
+  from a point to a line.
+- [`kg1.parallels`](../04-parallels/index.qmd) — uses the
+  exterior-angle theorem (Problem 7) in the converse alternate-
+  interior proof.
+- **`kg1.quadrilaterals`** *(Ch 5, planned)* — diagonal-and-triangle
+  decompositions reduce quadrilateral theorems to triangle ones.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 2: The triangle (§§35–55).**
+  Givental translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lessons:**
+  [`cbse9.triangles`](../../tier-cbse-09-class-9/07-triangles/index.qmd) —
+  same congruence theorems with board-exam practice; and
+  [`cbse10.triangles-similarity`](../../tier-cbse-10-class-10/06-triangles-similarity/index.qmd)
+  — pushes into similarity, the next step.
+- **Read alongside the source PDF** for Kiselev's full exterior-
+  angle proof in §50, which we sketched here.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Triangle congruence is the foundation of
+**bone rigging** in 3D animation — when a limb deforms, the polygons
+on its surface must remain congruent up to rigid motion to avoid
+visible distortion. The SSS / SAS / ASA invariants are the
+correctness conditions for any deformation model.
+:::
+
+::: {.applied-callout}
+**Research.** The isosceles-triangle theorem (and Pappus' proof)
+generalises to any *symmetric* configuration: if a structure is
+invariant under a transformation, the orbits of points under that
+transformation force equality between corresponding parts. This is
+the seed of *Klein's Erlangen Programme* — geometry as the study of
+group actions.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Pappus (the isosceles proof — three lines, no
+  auxiliary construction); Kiselev (the §44–55 ordering and the
+  weak-exterior-angle proof of §50); Hadamard (the SSS argument via
+  flip).
+- **The exterior-angle theorem (Problem 7)** is famously delicate;
+  Kiselev's midpoint-extend-double construction is the cleanest in
+  the literature.
+- **What this lesson does not do:** prove the *strong* exterior-
+  angle theorem (= sum of two remote interior angles), which is the
+  triangle-angle-sum + arithmetic. That belongs in Ch 4 once the
+  parallel postulate is in play.
+:::

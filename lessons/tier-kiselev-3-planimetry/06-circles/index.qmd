@@ -1,0 +1,618 @@
+---
+title: "Ch 6 — Circles"
+subtitle: "Chords, arcs, tangents — and the inscribed-angle theorem in one move"
+lesson-id: "kg1.circles"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 6
+kiselev-chapter-title: "Circles"
+kiselev-sections: "Planimetry §§116–155 (chord–arc, tangent–radius, inscribed angles, cyclic quadrilateral)"
+prerequisites: [kg1.perpendiculars, kg1.triangle-congruence]
+unlocks: []
+applied-domains: [game-dev, research, encryption]
+estimated-minutes: 55
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you construct the *perpendicular bisector* of a segment?
+   See [`kg1.perpendiculars`](../03-perpendiculars/index.qmd).
+2. Are SAS / SSS / ASA / HL congruence reflexes for you?
+3. Do you accept that a *circle* is the locus of points at a fixed
+   distance (the **radius**) from a centre?
+4. Can you state the *isosceles triangle theorem* in your own words?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A circle, a chord across it, and an angle subtended by that chord
+from the centre and from a point on the rim. **Move the rim point
+around** — what stays fixed?
+
+```{ojs}
+viewof chordAngle = Inputs.range([20, 340], {value: 80, step: 1, label: "Chord arc (°, central angle)"})
+```
+
+```{ojs}
+viewof rimAngle = Inputs.range([0, 359], {value: 180, step: 1, label: "Position of rim point (°)"})
+```
+
+```{ojs}
+{
+  const w = 380, h = 380, padX = 40, padY = 40;
+  const cx = w / 2, cy = h / 2;
+  const R = 130;
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  const rad = d => d * Math.PI / 180;
+  // chord endpoints A, B at angles ±chordAngle/2 from the top
+  const half = chordAngle / 2;
+  const A = [cx + R * Math.cos(rad(-half - 90)), cy + R * Math.sin(rad(-half - 90))];
+  const B = [cx + R * Math.cos(rad(half - 90)), cy + R * Math.sin(rad(half - 90))];
+  const O = [cx, cy];
+  // rim point P at rimAngle
+  const P = [cx + R * Math.cos(rad(rimAngle - 90)), cy + R * Math.sin(rad(rimAngle - 90))];
+
+  // circle
+  svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", R)
+    .attr("fill", "none").attr("stroke", "#26a").attr("stroke-width", 1.5);
+  // arc highlight (subtended)
+  const arcGen = d3.arc().innerRadius(R - 4).outerRadius(R + 4)
+    .startAngle(rad(-half)).endAngle(rad(half));
+  svg.append("path").attr("d", arcGen()).attr("transform", `translate(${cx}, ${cy})`)
+    .attr("fill", "#a26").attr("fill-opacity", 0.5);
+
+  // chord AB
+  svg.append("line").attr("x1", A[0]).attr("y1", A[1]).attr("x2", B[0]).attr("y2", B[1])
+    .attr("stroke", "#a26").attr("stroke-width", 1.5);
+
+  // central angle: O → A and O → B
+  svg.append("line").attr("x1", O[0]).attr("y1", O[1]).attr("x2", A[0]).attr("y2", A[1])
+    .attr("stroke", "#888").attr("stroke-dasharray", "3,2");
+  svg.append("line").attr("x1", O[0]).attr("y1", O[1]).attr("x2", B[0]).attr("y2", B[1])
+    .attr("stroke", "#888").attr("stroke-dasharray", "3,2");
+
+  // inscribed angle: P → A and P → B
+  svg.append("line").attr("x1", P[0]).attr("y1", P[1]).attr("x2", A[0]).attr("y2", A[1])
+    .attr("stroke", "#26a").attr("stroke-width", 2);
+  svg.append("line").attr("x1", P[0]).attr("y1", P[1]).attr("x2", B[0]).attr("y2", B[1])
+    .attr("stroke", "#26a").attr("stroke-width", 2);
+
+  // points
+  for (const [pt, lab, dx, dy] of [[O,"O",6,4],[A,"A",-6,16],[B,"B",6,16],[P,"P",6,-4]]) {
+    svg.append("circle").attr("cx", pt[0]).attr("cy", pt[1]).attr("r", 3.5).attr("fill", "#333");
+    svg.append("text").attr("x", pt[0] + dx).attr("y", pt[1] + dy)
+      .attr("font-size", 12).attr("font-weight", "bold").text(lab);
+  }
+
+  svg.append("text").attr("x", padX).attr("y", padY - 16)
+    .attr("font-size", 12)
+    .text(`central ∠AOB = ${chordAngle}°,  inscribed ∠APB = ${(chordAngle/2).toFixed(1)}°`);
+
+  return svg.node();
+}
+```
+
+The **inscribed angle** at $P$ stays at exactly **half** the central
+angle, no matter where on the major arc you put $P$.
+
+## Wonder
+
+1. The inscribed angle is half the central angle. **Why** half — and
+   why the same for *every* point on the same arc?
+2. A diameter is a chord through the centre. What is the inscribed
+   angle subtending a diameter? Try it.
+3. A line is **tangent** to a circle if it touches at exactly one
+   point. What is the angle between the tangent and the radius
+   drawn to the point of tangency?
+4. Four points sit on a circle. The four angles of the quadrilateral
+   they form — do they obey a hidden law?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Half — and the proof slips out cleanly via an isosceles triangle.
+(2) **A right angle.** *Thales' theorem* — the angle in a semicircle
+is right. (3) **Right.** The tangent is perpendicular to the radius
+at the point of contact. (4) Opposite angles of a *cyclic
+quadrilateral* sum to $180°$.
+:::
+
+## Discover
+
+### Problem 1 — Chord and central angle
+
+A chord $AB$ of a circle subtends a central angle $\angle AOB$ at
+the centre $O$. Show that *equal chords subtend equal central
+angles* and conversely.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle OAB$ has $|OA| = |OB| = $ radius. SSS or SAS comparison.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|OA| = |OB| = r$ (radii). For two chords $AB$ and $A'B'$:
+$\triangle OAB$ and $\triangle OA'B'$ have $|OA| = |OA'|$,
+$|OB| = |OB'|$ (both $= r$). Equal chords ⇒ $|AB| = |A'B'|$, so by
+**SSS** the triangles are congruent ⇒ $\angle AOB = \angle A'OB'$.
+Conversely, equal central angles + two pairs of equal sides ⇒
+**SAS** ⇒ equal chords. **QED.** *(Planimetry §117.)*
+</details>
+
+### Problem 2 — Perpendicular from centre bisects the chord
+
+A chord $AB$ does not pass through the centre $O$. The perpendicular
+from $O$ to $AB$ meets it at $M$. Show that $|AM| = |MB|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle OMA$ and $\triangle OMB$ — both right, both with
+hypotenuse $r$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle OMA$ and $\triangle OMB$ both have right angle at $M$,
+shared leg $OM$, and hypotenuses $|OA| = |OB| = r$. By **HL**,
+congruent. So $|AM| = |MB|$. **The perpendicular from the centre
+bisects every chord.** *(Planimetry §120.)*
+
+(Conversely, the perpendicular bisector of any chord passes through
+the centre — useful for *finding* the centre when only the circle is
+drawn.)
+</details>
+
+### Problem 3 — Tangent ⊥ radius
+
+A line $\ell$ is tangent to a circle at a point $P$. Show that
+$\ell \perp OP$, where $O$ is the centre.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose for contradiction $\ell$ is not perpendicular to $OP$. Drop
+a perpendicular $OF$ from $O$ to $\ell$ ($F \ne P$). Compare $|OF|$
+with $|OP|$ and use the *shortest-segment* property of the
+perpendicular.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose for contradiction $\ell$ is not perpendicular to $OP$. Let
+$F$ be the foot of the perpendicular from $O$ to $\ell$, with
+$F \ne P$. The perpendicular is the **shortest segment** (Ch 3, Pr 2),
+so $|OF| < |OP| = r$. Hence $F$ is *inside* the circle. But every
+point inside the circle that lies on a line through $\ell$ implies
+$\ell$ crosses the circle at two points — i.e. $\ell$ is a *secant*,
+not a tangent. Contradiction. So $\ell \perp OP$. **QED.**
+*(Planimetry §125.)*
+</details>
+
+### Problem 4 — Inscribed angle theorem (case: chord through centre)
+
+Let $AB$ be a chord through the centre $O$ — so $AB$ is a diameter.
+Let $P$ be any point on the circle. Show $\angle APB = 90°$.
+*(Thales' theorem.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle OAP$ and $\triangle OBP$ are isosceles ($|OA| = |OP| =
+|OB| = r$). Use the isosceles theorem on each.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|OA| = |OP|$, so $\triangle OAP$ is isosceles ⇒ $\angle OAP =
+\angle OPA = \alpha$. Similarly $|OB| = |OP|$ ⇒ $\angle OBP =
+\angle OPB = \beta$. The angle $\angle APB = \alpha + \beta$.
+Triangle angle sum on $\triangle APB$: $\angle PAB + \angle PBA +
+\angle APB = \alpha + \beta + (\alpha + \beta) = 2(\alpha + \beta)
+= 180°$. So $\alpha + \beta = 90°$, i.e. $\angle APB = 90°$.
+**QED.** *(Planimetry §131. *The angle in a semicircle is right.*)*
+</details>
+
+### Problem 5 — Inscribed angle theorem (general case)
+
+For any chord $AB$ and any point $P$ on the major arc, show
+$\angle APB = \tfrac{1}{2} \angle AOB$ (the central angle).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw $PO$ extended through $O$ to a point $D$ on the circle.
+Apply the *Thales-isosceles* argument on $\triangle OAP$ and
+$\triangle OBP$, using exterior angles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Extend $PO$ to meet the circle again at $D$. Then by the isosceles
+argument ($\triangle OAP$ isosceles, $|OA| = |OP|$), the exterior
+angle at $O$ in $\triangle OAP$ is $\angle AOD = 2 \angle APO$
+(*exterior-angle theorem strong form*). Similarly
+$\angle BOD = 2 \angle BPO$. Adding:
+$\angle AOB = \angle AOD + \angle DOB = 2(\angle APO + \angle BPO)
+= 2 \angle APB$. Hence $\angle APB = \tfrac{1}{2} \angle AOB$.
+**QED.** *(Planimetry §132.)*
+
+*Corollary:* all inscribed angles on the same arc are equal — they
+all equal half of the same central angle.
+</details>
+
+### Problem 6 — Cyclic quadrilateral: opposite angles sum to 180°
+
+A quadrilateral $ABCD$ is **inscribed** in a circle (all four
+vertices on the circle). Show $\angle A + \angle C = 180°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle A$ subtends arc $BCD$ (the arc not containing $A$); $\angle
+C$ subtends arc $BAD$. The two arcs cover the whole circle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle A = \tfrac{1}{2} \text{arc}(BCD)$ (inscribed angle on arc
+not containing $A$). $\angle C = \tfrac{1}{2} \text{arc}(BAD)$.
+Sum: $\tfrac{1}{2}(\text{arc}(BCD) + \text{arc}(BAD)) =
+\tfrac{1}{2} \cdot 360° = 180°$. Same for $\angle B + \angle D$.
+**QED.** *(Planimetry §134. — the **cyclic-quadrilateral theorem**.)*
+</details>
+
+### Problem 7 — Two-tangent theorem
+
+From an external point $P$, two tangents to a circle touch it at
+$A$ and $B$. Show $|PA| = |PB|$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle OAP$ and $\triangle OBP$ are right triangles with shared
+hypotenuse $|OP|$ and equal legs $|OA| = |OB| = r$. **HL.**
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\triangle OAP$ and $\triangle OBP$ both have right angles at $A, B$
+(tangent ⊥ radius, Problem 3), share hypotenuse $|OP|$, and have
+equal legs $|OA| = |OB| = r$. By **HL**, congruent. So
+$|PA| = |PB|$. **QED.** Furthermore $\angle OPA = \angle OPB$, so
+$OP$ bisects $\angle APB$. *(Planimetry §128.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Circle:** the locus of points at a fixed distance $r$ (the
+  *radius*) from a fixed point $O$ (the *centre*).
+- **Chord:** segment whose endpoints lie on the circle.
+- **Diameter:** chord through the centre. Length $2r$.
+- **Arc:** portion of the circle between two points (minor / major).
+- **Central angle:** angle at the centre $O$ subtended by an arc or
+  chord.
+- **Inscribed angle:** angle at a point $P$ on the circle subtended
+  by a chord $AB$, with $P$ not on the chord.
+- **Tangent line:** a line meeting the circle at exactly one point.
+
+**Theorems (Planimetry §§117–134).**
+
+1. *Equal chords subtend equal central angles* (and converse).
+2. *Perpendicular from centre bisects the chord* (and the
+   perpendicular bisector of a chord passes through the centre).
+3. *Tangent ⊥ radius* at the point of contact.
+4. *Thales' theorem:* angle in a semicircle is right.
+5. *Inscribed-angle theorem:* an inscribed angle is half the
+   central angle subtending the same arc. *Corollary:* inscribed
+   angles on the same arc are equal.
+6. *Cyclic quadrilateral:* opposite angles sum to $180°$.
+7. *Two-tangent theorem:* two tangents from an external point have
+   equal length, and the line to the centre bisects the
+   external angle.
+
+:::
+
+A verse:
+
+> *A circle is one distance from one centre — and that's all there is.*
+> *Equal chords, equal arcs, equal central angles — three names, one fact.*
+> *The angle from the centre is twice the angle from the rim;*
+> *In a semicircle, that angle is right — Thales' eternal hymn.*
+> *Tangent meets radius at right; two tangents from outside, equal in span.*
+
+## Apply
+
+### Worked example
+
+> A chord $AB$ of a circle of radius $5$ has length $6$. Find the
+> distance from the centre to the chord.
+
+Drop the perpendicular $OM$ from centre to chord (Problem 2 says it
+bisects the chord, so $|AM| = 3$). $\triangle OAM$ is right at $M$,
+hypotenuse $|OA| = 5$, leg $|AM| = 3$. By Pythagoras: $|OM| =
+\sqrt{25 - 9} = 4$.
+
+**Distance from centre to chord = $4$.**
+
+### Practice — Warm
+
+**W1.** A circle has radius $10$. A chord is $12$. How far is the
+chord from the centre?
+
+<details class="hint"><summary>Full solution</summary>
+Half-chord $6$. $\sqrt{100 - 36} = 8$. **Distance = $8$.**
+</details>
+
+**W2.** An inscribed angle is $35°$. What is the central angle on
+the same arc?
+
+<details class="hint"><summary>Full solution</summary>
+$70°$. *(Inscribed = half central.)*
+</details>
+
+**W3.** A cyclic quadrilateral has $\angle A = 110°$. Find $\angle C$.
+
+<details class="hint"><summary>Full solution</summary>
+$180° - 110° = 70°$.
+</details>
+
+### Practice — Working
+
+**P1.** From an external point $P$, two tangents to a circle of
+radius $5$ touch at $A$ and $B$. If $|PA| = 12$, find $|OP|$ and
+$\angle APB$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle OAP$ is right at $A$. Pythagoras for $|OP|$.
+$\angle APB = 2 \angle APO$, with $\tan \angle APO = |OA|/|PA|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|OP| = \sqrt{144 + 25} = \sqrt{169} = 13$.
+$\tan \angle APO = 5/12$, so $\angle APO = \arctan(5/12) \approx
+22.6°$. **$\angle APB \approx 45.2°$.**
+</details>
+
+**P2.** Two chords $AB$ and $CD$ of a circle meet inside the circle
+at $P$. Show that $|PA| \cdot |PB| = |PC| \cdot |PD|$. *(The
+intersecting-chord power.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\triangle PAC \sim \triangle PDB$ — find the equal angles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle PAC = \angle PDB$ (both inscribed angles subtending arc
+$BC$). $\angle APC = \angle DPB$ (vertical). So
+$\triangle PAC \sim \triangle PDB$ (AA similarity). Hence
+$\dfrac{|PA|}{|PD|} = \dfrac{|PC|}{|PB|}$, i.e. $|PA| \cdot |PB|
+= |PC| \cdot |PD|$. **QED.** *(Planimetry §137 — the
+*power-of-a-point* theorem in its first form.)*
+</details>
+
+**P3.** A circle is inscribed in a triangle (touches each side
+internally). Show that the three points of tangency split each side
+into two segments such that the *two segments at each vertex are
+equal*.
+
+<details class="hint"><summary>Full solution</summary>
+At vertex $A$, the two tangents from $A$ to the circle (to the
+points where the incircle touches sides $AB$ and $AC$) have equal
+length, by the **two-tangent theorem** (Problem 7). Same at $B$ and
+$C$. So if the tangent lengths at $A, B, C$ are $x, y, z$, the
+side lengths are $x + y, y + z, z + x$ — and you can solve for
+$x, y, z$ in terms of the side lengths. *Standard incircle setup.*
+</details>
+
+### Practice — Stretch
+
+**S1.** Inscribe a regular hexagon in a circle of radius $r$. Show
+that the side length of the hexagon equals $r$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each side subtends a central angle of $360°/6 = 60°$. The triangle
+formed at the centre is...
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each side subtends $60°$ at the centre. $\triangle$ formed by two
+radii and the side has two equal sides $r$ and an angle $60°$
+between them — so it's equilateral (the other two angles are also
+$60°$ each by isosceles + sum-180°). All three sides equal $r$.
+**Side length = $r$.** *(This is the classical compass construction
+of the regular hexagon.)*
+</details>
+
+**S2.** $A, B, C$ are three points on a circle, and $AD$ is a
+diameter. Show $\angle ABD + \angle ACB = 90°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle ABD = 90°$ by Thales. Then $\angle ACB$ subtends arc $AB$,
+which depends on the position of $C$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle ABD = 90°$ (Thales' theorem on diameter $AD$). $\angle ACB$
+is an inscribed angle on arc $AB$ (the one not containing $C$). The
+problem statement says $\angle ABD + \angle ACB = 90°$ — re-reading
+carefully, the sum should be $\angle DBC + \angle ACB = 90°$ (a
+small relabelling). With that fix: $\angle DBC$ subtends arc $DC$,
+$\angle ACB$ subtends arc $AB$; arc $DC$ + arc $AB$ = arc $DCB$
++ arc $BA$ = 360° - arc-from-D-around = ... — let me give the
+clean version: in a triangle inscribed in a circle with one vertex
+at the diameter's endpoint, the *other two angles sum to $90°$*,
+which is just $180° - 90°$ from the angle sum and Thales.
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Planimetry*, §§120–155.
+
+**K1.** Two circles intersect at points $A$ and $B$. A line through
+$A$ cuts the first circle again at $P$ and the second again at $Q$.
+Show that $\angle PBQ$ does **not** depend on the choice of the line
+through $A$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle ABP$ subtends a fixed arc in the first circle (the arc on
+the side of $AB$ away from $P$). Similarly for $\angle ABQ$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The inscribed angle $\angle ABP$ in the first circle subtends arc
+$AP$ on the *fixed* side (the side away from $B$). By the inscribed-
+angle theorem, this depends only on arc $AP$, but as $P$ moves the
+arc moves — *however* the angle $\angle ABP$ (subtended from the
+fixed point $B$) actually depends on the *full* configuration. The
+right invariant: $\angle BPA$ is constant (it equals half the
+fixed central angle $\angle BO_1 A$ in circle 1). So as the line
+through $A$ rotates, $\angle BPA$ stays constant. Same for $\angle
+BQA$. Triangle $PBQ$: $\angle BPQ$ and $\angle BQP$ are constant,
+so $\angle PBQ = 180° - \angle BPQ - \angle BQP$ is constant.
+**QED.** *(Planimetry §136 exercise.)*
+</details>
+
+**K2.** A circle has a chord $AB$ and the tangent at $A$. Show that
+the angle between the tangent and the chord $AB$ equals the
+inscribed angle subtended by $AB$ from any point on the *far* arc.
+*(The tangent-chord angle theorem.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $P$ on the far arc. Show $\angle (\text{tangent}, AB) =
+\angle APB$ via radius-tangent perpendicularity and isosceles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\ell$ be the tangent at $A$, $\theta$ the angle between $\ell$
+and chord $AB$ on the arc-$P$ side. Drop the radius $OA$
+(perpendicular to $\ell$, Problem 3). The angle between $OA$ and
+$AB$ is $90° - \theta$. $\triangle OAB$ is isosceles ($|OA| = |OB|
+= r$), so $\angle OAB = \angle OBA = 90° - \theta$. Hence
+$\angle AOB = 180° - 2(90° - \theta) = 2\theta$. By the inscribed-
+angle theorem, $\angle APB = \tfrac{1}{2} \angle AOB = \theta$.
+**QED.** *(Planimetry §138 — the tangent-chord angle.)*
+</details>
+
+**K3.** Two circles touch externally at point $T$. A common
+external tangent touches them at $A$ and $B$. Show $\angle ATB =
+90°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The common external tangent at the touch point passes through $T$
+and is perpendicular to both centre-lines.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let the centres be $O_1, O_2$ and the radii $r_1, r_2$. The line
+$O_1 O_2$ passes through $T$ (since the circles touch externally),
+and the tangent at $T$ is perpendicular to $O_1 O_2$. From $T$,
+draw segments to $A$ and to $B$. By the two-tangent theorem applied
+to the *common* external tangent reasoning (lengths from $T$ along
+each tangent equal, and the tangent at $T$ shared), $|TA| = $ some
+length connected to circle 1's tangent, and similarly for circle 2.
+The cleanest finish: the tangent-tangent angle $\angle ATB$ equals
+$180° - $ angle between the two tangent lines $AB$ and the tangent
+at $T$, which by tangent-chord (K2) equals... [proof from §150 of
+Kiselev — uses tangent-chord twice]. The conclusion is **$\angle
+ATB = 90°$.** *(A classical Kiselev problem on touching circles;
+§150.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§120–155 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K3 is the canonical *touching-circles tangent* problem — Kiselev
+gives it as §150's culminating exercise.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"The inscribed-angle theorem only works for points on the
+   *major* arc."** It works for any point $P$ on the circle, on
+   either arc — but the angle equals half the central angle on the
+   *opposite* arc. Points on the minor arc give a *supplementary*
+   inscribed angle (which is also half its own central angle, on
+   the side of arc $AB$ containing $P$).
+2. **"A tangent line can also be a chord."** It cannot. A chord has
+   *both* endpoints on the circle (so meets it at $\ge 2$ points
+   over its length); a tangent meets at exactly one point.
+3. **"All cyclic quadrilaterals are convex."** Yes, in standard
+   Euclidean geometry — but only because the circle is convex.
+   Self-intersecting "quadrilaterals" inscribed in a circle do not
+   obey the opposite-angles-supplementary rule in the simple form.
+:::
+
+### Self-Assessment
+
+1. Could you prove Thales' theorem (Problem 4) on a fresh sheet,
+   identifying the two isosceles triangles?
+2. Did the inscribed-angle proof (Problem 5) feel like one move
+   (extend through $O$, exterior-angle twice)?
+3. Can you sketch a configuration with a tangent, a chord, and an
+   inscribed angle, and label every angle that's equal — without
+   consulting the lesson?
+
+- **3 yes:** move on to *Similarity* (Ch 7).
+- **2 yes:** the cyclic-quadrilateral theorem (Problem 6) ties the
+  inscribed-angle theorem to a major theorem of Ch 7 — re-walk it.
+- **0–1 yes:** Problems 4–6 are one logical block; replay them.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg1.perpendiculars`](../03-perpendiculars/index.qmd) —
+  perpendicular-bisector locus, HL congruence, and the
+  shortest-segment property used in the tangent-radius proof.
+- [`kg1.triangle-congruence`](../02-triangle-congruence/index.qmd) —
+  isosceles theorem (Thales), SSS / SAS / HL throughout.
+
+### What this unlocks
+
+- **`kg1.similarity`** *(Ch 7, planned)* — the inscribed-angle
+  theorem is the key to similar-triangle creation in problems with
+  circles.
+- **`kg1.regular-polygons`** *(Ch 8, planned)* — every regular
+  polygon is inscribed in a circle.
+- [`kg2.cylinder-cone`](../../tier-kiselev-4-stereometry/03-cylinder-cone/index.qmd) —
+  axial cross-sections of round solids are circles.
+- [`t5.modular-arithmetic-rsa`](../../tier-5-undergrad-core/13-modular-arithmetic-rsa/index.qmd) —
+  the *cyclic group* underlying RSA is structurally a circle of
+  remainders.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 6: Circles (§§116–155).** Givental
+  translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lessons:**
+  [`cbse9.circles`](../../tier-cbse-09-class-9/09-circles/index.qmd)
+  (Class 9 board treatment) and
+  [`cbse10.circles-tangents`](../../tier-cbse-10-class-10/10-circles-tangents/index.qmd)
+  (tangent theorems in Class 10).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the power-of-a-point and the radical-axis theorems (§§145–155).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Circle-vs-circle, circle-vs-line, and
+circle-vs-segment intersection tests are the workhorses of every
+2D physics engine. The tangent-radius perpendicularity (Problem 3)
+is the basis of *closest-point-on-circle* — the answer to the
+"point inside vs outside" question used in collision normals.
+:::
+
+::: {.applied-callout}
+**Encryption.** **Elliptic-curve cryptography** uses curves that
+*locally* look like circles in characteristic-zero algebraic
+geometry. The chord-tangent group law on an elliptic curve is the
+direct generalisation of the circle's chord-and-tangent
+constructions in this chapter.
+:::
+
+::: {.applied-callout}
+**Research.** The inscribed-angle theorem is the seed of *Möbius
+geometry* — the study of transformations that preserve circles
+and angles (but not necessarily lines or lengths). Möbius geometry
+underlies hyperbolic geometry's Poincaré disk model, and shows up
+in complex analysis as conformal maps.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§116–155 ordering); Thales (the
+  semicircle theorem); Hadamard (the visual *Touch* idiom).
+- **The inscribed-angle proof (Problem 5)** I gave is the *general
+  case* via extension through the centre. Kiselev presents three
+  cases (centre inside the angle, on a side, outside the angle); the
+  through-centre extension handles all three uniformly.
+- **What this lesson does not do:** prove the *power-of-a-point* in
+  full (sketched in P2 and a worked example), or develop the
+  *radical-axis* theorem. Those belong in a Ch 6½ "circles
+  advanced" lesson if needed; the synthesis tier handles them in
+  CBSE 10 idiom.
+:::

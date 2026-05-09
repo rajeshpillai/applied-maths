@@ -1,0 +1,481 @@
+---
+title: "Ch 5 — Linear Equations in One Unknown"
+subtitle: "$ax + b = 0$ — solve in three steps, and watch out for the trick when $a = 0$"
+lesson-id: "ka1.linear-equations"
+tier: "ka1"
+kiselev-book: "Algebra, Part I"
+kiselev-chapter: 5
+kiselev-chapter-title: "Equations of the first degree"
+kiselev-sections: "§§81–95 (linear equations, transformations preserving solutions, word problems)"
+prerequisites: [ka1.algebraic-fractions]
+unlocks: []
+applied-domains: [research, ai-ml, databases]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are signed-arithmetic and polynomial operations automatic?
+   See [`ka1.polynomials`](../02-polynomials/index.qmd).
+2. Can you simplify algebraic fractions by clearing denominators?
+   See [`ka1.algebraic-fractions`](../04-algebraic-fractions/index.qmd).
+3. Are you comfortable with the *equality* symbol — that "=" means
+   *exactly the same value* on both sides?
+4. Can you check whether $x = 3$ is a solution to $5 x - 7 = 8$ by
+   substitution?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A balance scale. The two pans must hold the same weight. Add or
+remove the same thing from both pans — the balance is preserved.
+Multiply both pans' contents by a non-zero factor — also preserved.
+
+```{ojs}
+viewof a = Inputs.range([-5, 5], {value: 3, step: 1, label: "coefficient a"})
+```
+
+```{ojs}
+viewof b = Inputs.range([-10, 10], {value: -6, step: 1, label: "constant b"})
+```
+
+```{ojs}
+{
+  if (a === 0) {
+    if (b === 0) {
+      return `**0 · x + 0 = 0**: every $x$ is a solution. *(Identity.)*`;
+    }
+    return `**0 · x + ${b} = 0**: no solution. *(Contradiction.)*`;
+  }
+  const x = -b / a;
+  return `**${a} · x + (${b}) = 0**  ⟹  ${a}x = ${-b}  ⟹  $x = ${x.toFixed(3)}$.
+
+*Three operations:* (1) move $b$ to the other side; (2) divide by $a$.
+`;
+}
+```
+
+The equation $a x + b = 0$ has a unique solution $x = -b/a$ —
+**provided $a \ne 0$**. The case $a = 0$ is the famous trap: the
+equation degenerates and either has no solution (if $b \ne 0$) or
+infinitely many (if $b = 0$).
+
+## Wonder
+
+1. The equation $a x + b = 0$ — when does it have **exactly one**
+   solution? When **none**? When **infinitely many**?
+2. To solve $3 x - 7 = 5 + x$, what *operations* are legal?
+3. Multiplying both sides by $0$ is *not* a legal operation. **Why**
+   would multiplying both sides by, say, $x$ also be risky?
+4. The equation $(x - 1)(x + 2) = 0$ has *two* solutions. Is this a
+   linear equation?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Exactly one if $a \ne 0$; none if $a = 0, b \ne 0$; infinitely
+many if $a = 0, b = 0$. (2) Add the same thing to both sides;
+subtract; multiply by a non-zero constant; divide by a non-zero
+constant. (3) Multiplying by an *expression* like $x$ can introduce
+*spurious roots* — solutions to the new equation that don't satisfy
+the original. (4) **No** — it's degree 2 (a *quadratic*). Linear
+equations have degree 1.
+:::
+
+## Discover
+
+### Problem 1 — Solve a basic linear equation
+
+Solve $5 x - 7 = 8$ for $x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add $7$ to both sides; then divide by $5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5 x = 15 \Rightarrow x = 3$.
+
+**Check:** $5 (3) - 7 = 15 - 7 = 8$. ✓
+</details>
+
+### Problem 2 — Variable on both sides
+
+Solve $3 x - 7 = 5 + x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Move all $x$ terms to one side, all constants to the other.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 x - x = 5 + 7 \Rightarrow 2 x = 12 \Rightarrow x = 6$.
+</details>
+
+### Problem 3 — Equation with parentheses
+
+Solve $2 (x - 3) + 5 = 3 (x + 1) - 6$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Distribute first, then collect.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 x - 6 + 5 = 3 x + 3 - 6$, i.e. $2 x - 1 = 3 x - 3$. So $2 = x$,
+or $x = 2$.
+
+**Check:** LHS $= 2(2 - 3) + 5 = -2 + 5 = 3$. RHS $= 3(3) - 6 =
+3$. ✓
+</details>
+
+### Problem 4 — Equation with fractions
+
+Solve $\dfrac{x - 3}{2} + \dfrac{x + 1}{3} = 4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both sides by the LCM of the denominators ($6$) to clear
+fractions.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Multiply by $6$: $3(x - 3) + 2(x + 1) = 24$.
+Distribute: $3 x - 9 + 2 x + 2 = 24$, i.e. $5 x - 7 = 24$.
+Solve: $5 x = 31 \Rightarrow x = \dfrac{31}{5}$.
+</details>
+
+### Problem 5 — The degenerate case $a = 0$
+
+Solve $4 x - 5 = 4 x + 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Move $4 x$ from both sides — what remains?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4 x - 5 - 4 x = 2$, i.e. $-5 = 2$. **Contradiction.** *No
+solution* — the original equation is *inconsistent*. *(This is the
+$a = 0, b \ne 0$ case in disguise: the coefficient of $x$ on both
+sides is the same, so when collected to one side you get $0 \cdot
+x = 7$.)*
+</details>
+
+### Problem 6 — Word problem
+
+A classic: the *age problem*. A father is currently three times
+his son's age. In $14$ years, he will be exactly twice his son's
+age. Find the son's current age.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $x$ = son's current age. Father is $3 x$ now. In 14 years:
+son is $x + 14$, father is $3 x + 14$. Set up the equation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Equation: $3 x + 14 = 2 (x + 14)$, i.e. $3 x + 14 = 2 x + 28$.
+Solve: $x = 14$.
+
+**Son is $14$, father is $42$. In 14 years: $28$ and $56$ —
+ratio $1 : 2$. ✓**
+</details>
+
+### Problem 7 — Spurious roots
+
+Solve $\dfrac{1}{x - 2} = \dfrac{x}{x^2 - 4}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both sides by $(x^2 - 4) = (x - 2)(x + 2)$ to clear
+fractions. Watch the domain.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Multiply by $(x - 2)(x + 2)$: $x + 2 = x$. **Contradiction:
+$2 = 0$.** *No solution.*
+
+*But also notice:* $x = 2$ and $x = -2$ are excluded by the
+*original* domain (denominators zero), so even if we'd gotten a
+"solution" $x = \pm 2$, it would be **spurious** — extraneous,
+introduced by the multiplication. *Always check.*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Linear equation in one unknown:**
+$$a x + b = 0, \quad a \ne 0,$$
+with unique solution $x = -\dfrac{b}{a}$.
+
+**Operations preserving the solution set:**
+
+1. Add (or subtract) the same expression on both sides.
+2. Multiply (or divide) both sides by the same **non-zero** constant.
+
+**Operations that risk *spurious* roots:** multiplying both sides
+by an expression involving the unknown (like $x$ or $x - 2$).
+**Always check** the original equation.
+
+**Three cases for $a x + b = 0$ when $a$ may be zero:**
+
+- $a \ne 0$: unique solution $x = -b/a$.
+- $a = 0, b \ne 0$: no solution (contradiction).
+- $a = 0, b = 0$: every $x$ is a solution (identity).
+
+:::
+
+A verse:
+
+> *Move terms with $x$ to one side, constants to the other.*
+> *Combine and divide — the unknown stands alone, no bother.*
+> *But check the equation, especially when fractions or x-products
+> appear:*
+> *Spurious roots can sneak in; the original is the judge to revere.*
+
+## Apply
+
+### Worked example
+
+> Solve $\dfrac{2 x + 3}{4} - \dfrac{x - 1}{6} = \dfrac{1}{2}$.
+
+LCM: $12$. Multiply: $3(2 x + 3) - 2(x - 1) = 6$.
+Expand: $6 x + 9 - 2 x + 2 = 6$, i.e. $4 x + 11 = 6$.
+Solve: $4 x = -5$, so $x = -\dfrac{5}{4}$.
+
+**$x = -\dfrac{5}{4}$.**
+
+### Practice — Warm
+
+**W1.** Solve $7 x + 3 = 24$.
+
+<details class="hint"><summary>Full solution</summary>
+$7 x = 21 \Rightarrow x = 3$.
+</details>
+
+**W2.** Solve $2 x - 5 = 3 x + 7$.
+
+<details class="hint"><summary>Full solution</summary>
+$-5 - 7 = 3 x - 2 x$, i.e. $x = -12$.
+</details>
+
+**W3.** Solve $\dfrac{x}{3} = 5$.
+
+<details class="hint"><summary>Full solution</summary>
+$x = 15$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $0.4 (x - 1) - 0.2 (x + 3) = 0.6$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply both sides by $10$ to clear decimals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4 (x - 1) - 2 (x + 3) = 6$, i.e. $4 x - 4 - 2 x - 6 = 6$. Collect:
+$2 x - 10 = 6 \Rightarrow x = 8$.
+</details>
+
+**P2.** Solve $\dfrac{x}{x - 1} = \dfrac{2}{3}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cross-multiply.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 x = 2(x - 1) = 2 x - 2 \Rightarrow x = -2$. *(Check the
+domain: $x \ne 1$. $x = -2$ is fine.)*
+</details>
+
+**P3.** A train travels from $A$ to $B$ in $4$ hours; another
+travels the reverse $B$ to $A$ in $5$ hours. They start at the
+same time from opposite ends. After how long do they meet?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the distance be $D$. Train 1's speed is $D/4$; train 2's is
+$D/5$. Combined closing speed: $D/4 + D/5$. Time to meet:
+$D / (D/4 + D/5)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Closing speed: $\dfrac{D}{4} + \dfrac{D}{5} = \dfrac{9D}{20}$.
+Time to meet: $\dfrac{D}{9D/20} = \dfrac{20}{9}$ hours $\approx
+2.22$ hours $\approx 2$h $13$min. *(Note: $D$ cancels — the
+meeting time is independent of the distance.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve for $x$ in terms of the parameter $a$:
+$\dfrac{a x - 1}{a} = \dfrac{x + a}{2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cross-multiply (both sides by $2 a$, with $a \ne 0$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 (a x - 1) = a (x + a)$, i.e. $2 a x - 2 = a x + a^2$. So
+$(2 a - a) x = a^2 + 2$, i.e. $a x = a^2 + 2$, giving $x =
+\dfrac{a^2 + 2}{a} = a + \dfrac{2}{a}$ (valid for $a \ne 0$).
+</details>
+
+**S2.** Show that the equation $\dfrac{1}{x - 1} + \dfrac{1}{x - 2}
++ \dfrac{1}{x - 3} = 0$ has exactly one solution in the interval
+$(1, 2)$ and exactly one in $(2, 3)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combine the fractions. The equation becomes a polynomial equation
+of degree 2. Use sign-analysis or the *intermediate-value theorem*
+on the original.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Common denominator: $(x - 1)(x - 2)(x - 3)$. Numerator (after
+combining): $3 x^2 - 12 x + 11$ (working out the symmetry).
+
+Discriminant: $144 - 132 = 12$, so two real roots.
+$x = \dfrac{12 \pm 2\sqrt 3}{6} = 2 \pm \dfrac{\sqrt 3}{3}
+\approx 2 \pm 0.577$.
+
+So roots are at $\approx 1.42$ and $\approx 2.58$ — one in
+$(1, 2)$, one in $(2, 3)$. **QED.** *(A nice example of how
+domain analysis interacts with root counting.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra I*, §§85–95.
+
+**K1.** *Mixture problem.* A merchant has $50$ kg of tea costing
+$₹100$ per kg, and wants to mix it with a cheaper tea costing $₹60$
+per kg, to get a blend costing $₹80$ per kg. How much of the cheaper
+tea?
+
+<details class="hint"><summary>Full solution</summary>
+Let $x$ kg of cheap tea. Total cost: $50 \cdot 100 + 60 x =
+80 (50 + x)$, i.e. $5000 + 60 x = 4000 + 80 x$, so $1000 = 20 x$,
+giving $x = 50$ kg. **$50$ kg of cheap tea.**
+</details>
+
+**K2.** *Work problem.* A pipe fills a tank in $3$ hours; a second
+pipe in $5$ hours. With both open, how long?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Rate of work adds: $\dfrac{1}{3} + \dfrac{1}{5} = \dfrac{8}{15}$
+of the tank per hour.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Combined rate: $\dfrac{8}{15}$ per hour. Time = $\dfrac{1}
+{8/15} = \dfrac{15}{8}$ hours = $1$ h $52.5$ min.
+</details>
+
+**K3.** Solve in terms of parameters $a, b$ (assume non-zero):
+$\dfrac{x}{a} + \dfrac{x}{b} = a + b$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{x (a + b)}{ab} = a + b$. If $a + b \ne 0$, divide:
+$\dfrac{x}{ab} = 1$, so $x = ab$.
+
+If $a + b = 0$ (i.e. $b = -a$), both sides are zero — every $x$
+satisfies the equation (degenerate). *(Algebra I §92 — parametric-
+equation handling.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Ч.1*
+(Fizmatlit reprint 2006), §§81–95. Russian original:
+[archive.org scan](https://archive.org/details/1_kiselev_algebra).
+The mixture and work problems (K1, K2) are §90 and §93 in
+Kiselev's word-problem section.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Both sides equal, so I can multiply by anything."** Multiplying
+   both sides by *zero* makes everything $0 = 0$ — true but
+   useless. Multiplying by an *expression containing the unknown*
+   can introduce *spurious roots*. Always verify against the
+   *original* equation.
+2. **"$5 x = 0 \Rightarrow x = 0$."** Yes — *because* $5 \ne 0$ and
+   we divide by it. The general rule: $a x = 0 \Rightarrow x = 0$
+   only if $a \ne 0$.
+3. **"No solution and infinite solutions are the same."** They are
+   opposite extremes. *No solution* (e.g. $0 = 5$): the equation
+   is contradictory. *Infinite solutions* (e.g. $0 = 0$): every
+   $x$ works. The middle case (one solution) is the standard.
+:::
+
+### Self-Assessment
+
+1. Could you classify the three cases of $a x + b = 0$ on a fresh
+   sheet?
+2. Did the *spurious roots* problem (Problem 7) feel like a
+   warning you'll heed in future problems?
+3. Can you set up an age / mixture / work word problem from a
+   text description?
+
+- **3 yes:** move on to *Linear Systems* (Ch 6).
+- **2 yes:** redo Problem 6 — word problems are the chapter's
+  practical core.
+- **0–1 yes:** the mechanical drill (Problems 1–4) is your
+  immediate need.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.algebraic-fractions`](../04-algebraic-fractions/index.qmd) —
+  clearing denominators by LCM (Problems 4, 7).
+
+### What this unlocks
+
+- **`ka1.linear-systems`** *(Ch 6, planned)* — multiple equations
+  in multiple unknowns; the *substitution* and *elimination*
+  techniques generalise this chapter.
+- **`ka1.linear-inequalities`** *(Ch 7, planned)* — the same
+  operations, with a sign-flip when multiplying by negatives.
+- [`t2.linear-equations-one-var`](../../tier-2-prealgebra/02-linear-equations-one-var/index.qmd) —
+  same content, t-tier idiom.
+- [`cbse9.linear-equations-two-vars`](../../tier-cbse-09-class-9/04-linear-equations-two-vars/index.qmd) —
+  CBSE 9 extension to two variables.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part I — Chapter 5: Equations of the first degree
+  (§§81–95).** Russian original on
+  [archive.org](https://archive.org/details/1_kiselev_algebra).
+- **Sister synthesis lessons:**
+  [`t2.linear-equations-one-var`](../../tier-2-prealgebra/02-linear-equations-one-var/index.qmd)
+  and
+  [`cbse8.linear-equations-one-var`](../../tier-cbse-08-class-8/02-linear-equations-one-var/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full set of
+  word-problem types (§§90–95).
+
+### Where this matters
+
+::: {.applied-callout}
+**Databases.** Every **WHERE clause** with a numerical condition is
+a linear (or higher) equation in disguise. Query optimisation
+relies on the same simplification rules — collecting and clearing.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Gradient descent** in linear regression *literally*
+solves a system of linear equations at each step (the *normal
+equation*: $X^T X \beta = X^T y$). The simple linear-equation
+intuition you just built scales — billions of unknowns at a time —
+in deep learning.
+:::
+
+::: {.applied-callout}
+**Research.** **Diophantine equations** — linear equations
+restricted to integer solutions — are the gateway to number theory.
+Even a simple linear $a x + b y = c$ has a *complete* integer
+solution theory (the *Bezout identity*).
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§81–95 ordering and word-problem
+  taxonomy); Bhāskara (the *Līlāvatī* word problems — many of
+  Kiselev's mixtures and work problems are direct descendants).
+- **The spurious-roots warning** (Problem 7) is the chapter's
+  most-violated rule. Spend a moment on it now to save hours later.
+- **What this lesson does not do:** treat the *parametric* case
+  (linear equations with parameters in the coefficients) in full —
+  only sketched in S1 and K3. A complete treatment belongs to a
+  *parametric equations* sub-chapter.
+:::

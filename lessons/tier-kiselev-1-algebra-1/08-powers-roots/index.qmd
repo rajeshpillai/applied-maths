@@ -1,0 +1,493 @@
+---
+title: "Ch 8 — Powers and Roots"
+subtitle: "Integer and fractional exponents — and why $a^{1/n}$ is the $n$-th root"
+lesson-id: "ka1.powers-roots"
+tier: "ka1"
+kiselev-book: "Algebra, Part I"
+kiselev-chapter: 8
+kiselev-chapter-title: "Powers and roots"
+kiselev-sections: "§§126–145 (positive integer powers, negative and zero exponents, radicals, fractional exponents)"
+prerequisites: [ka1.polynomials]
+unlocks: []
+applied-domains: [research, ai-ml, encryption]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are polynomial-arithmetic and exponent-rule basics
+   ($a^m \cdot a^n = a^{m+n}$, $(a^m)^n = a^{mn}$) automatic? See
+   [`ka1.polynomials`](../02-polynomials/index.qmd).
+2. Can you compute $\sqrt{16} = 4$ and $\sqrt{50} = 5\sqrt 2$?
+3. Are you comfortable with the fact $a^0 = 1$ for $a \ne 0$?
+4. Can you simplify $(2 a)^3 = 8 a^3$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+The expression $a^n$. For a non-negative integer $n$, this is
+$\underbrace{a \cdot a \cdots a}_{n}$. **What if $n$ is *negative*?
+What if $n$ is a *fraction*?**
+
+```{ojs}
+viewof a = Inputs.range([0.1, 10], {value: 2, step: 0.1, label: "a (positive)"})
+```
+
+```{ojs}
+viewof n = Inputs.range([-3, 3], {value: 0.5, step: 0.1, label: "n (any real)"})
+```
+
+```{ojs}
+{
+  const result = Math.pow(a, n);
+  let extra = "";
+  if (Math.abs(n - 0.5) < 0.001) extra = ` = √${a} ≈ ${Math.sqrt(a).toFixed(3)}`;
+  if (Math.abs(n + 1) < 0.001) extra = ` = 1/${a} = ${(1/a).toFixed(3)}`;
+  if (Math.abs(n) < 0.001) extra = ` = 1 (any non-zero base to the 0)`;
+  return `**${a.toFixed(2)} ^ ${n.toFixed(2)} = ${result.toFixed(4)}** ${extra}`;
+}
+```
+
+Three extensions of the integer-power notion:
+- **Zero exponent:** $a^0 = 1$ (so the rule $a^m \cdot a^n =
+  a^{m+n}$ still works at $m + n = 0$).
+- **Negative exponent:** $a^{-n} = \dfrac{1}{a^n}$ (so the rule
+  works for negative sums).
+- **Fractional exponent:** $a^{1/n} = \sqrt[n]{a}$ (so the rule
+  $(a^{1/n})^n = a^1 = a$ defines the $n$-th root).
+
+## Wonder
+
+1. The rule $a^m \cdot a^n = a^{m + n}$ holds for positive integer
+   $m, n$. **Why** should we *want* it to hold for $m = 0$ — and
+   what does that force on $a^0$?
+2. The same rule for $m = -n$ forces $a^{-n} \cdot a^n = a^0 = 1$.
+   What does that say about $a^{-n}$?
+3. The rule $(a^{1/n})^n = a^{(1/n) \cdot n} = a^1 = a$ defines the
+   $n$-th root. **Why** is the $n$-th root *unique* when $a > 0$?
+4. The expression $\sqrt{a^2}$ — does it always equal $a$, or
+   sometimes $|a|$?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) $a^0 \cdot a^n = a^{0 + n} = a^n$, forcing $a^0 = 1$ (cancelling
+$a^n$ which is non-zero). (2) $a^{-n} \cdot a^n = 1$, so $a^{-n} =
+1/a^n$. (3) Uniqueness of the *positive* $n$-th root for $a > 0$
+(the function $x \mapsto x^n$ is strictly increasing on
+$[0, \infty)$). (4) **$\sqrt{a^2} = |a|$** — the *positive* square
+root, regardless of sign of $a$.
+:::
+
+## Discover
+
+### Problem 1 — Defining $a^0$
+
+Use the rule $a^m \cdot a^n = a^{m + n}$ to derive $a^0 = 1$ for
+$a \ne 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$a^0 \cdot a^n = a^{0 + n} = a^n$. Since $a^n \ne 0$, divide both
+sides by $a^n$: $a^0 = 1$. *(For $a = 0$: $0^0$ is left undefined
+in most contexts; combinatorial usage takes $0^0 = 1$ but
+analytical limits suggest $0$.)* **(Algebra I §128.)**
+</details>
+
+### Problem 2 — Defining negative exponents
+
+Show that $a^{-n} = \dfrac{1}{a^n}$ from the same rule.
+
+<details class="hint"><summary>Full solution</summary>
+$a^{-n} \cdot a^n = a^{-n + n} = a^0 = 1$. So $a^{-n} = 1/a^n$.
+*(Valid for $a \ne 0$.)* **(Algebra I §129.)**
+</details>
+
+### Problem 3 — The product, quotient, power rules
+
+Verify the three master rules for non-negative integer exponents:
+$$
+a^m \cdot a^n = a^{m + n}, \quad
+\dfrac{a^m}{a^n} = a^{m - n}, \quad
+(a^m)^n = a^{mn}.
+$$
+
+<details class="hint"><summary>Full solution</summary>
+$a^m \cdot a^n$: Counting factors: $m$ copies of $a$ times $n$
+copies = $m + n$ copies. ✓
+
+$a^m / a^n$: Cancel $\min(m, n)$ pairs; leaves $a^{m - n}$ if
+$m \ge n$ (or its reciprocal otherwise). ✓
+
+$(a^m)^n$: $m \cdot n$ copies of $a$ in total. ✓
+
+**By Problems 1–2, the rules also hold for zero and negative
+exponents.** *(Algebra I §131.)*
+</details>
+
+### Problem 4 — Defining $a^{1/n}$
+
+Show that the rule $(a^{1/n})^n = a$ uniquely defines $a^{1/n}$ as
+the *non-negative* $n$-th root of $a$, for $a \ge 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The function $x \mapsto x^n$ on $[0, \infty)$ is strictly
+increasing.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $a \ge 0$, the equation $x^n = a$ in $x \ge 0$ has exactly one
+solution, called the **non-negative $n$-th root** of $a$ and
+written $\sqrt[n]{a}$ or $a^{1/n}$. *(For odd $n$ and $a < 0$, the
+real $n$-th root is negative; for even $n$ and $a < 0$, no real
+$n$-th root.)* **(Algebra I §137.)**
+</details>
+
+### Problem 5 — Fractional exponents
+
+Define $a^{m/n} = (a^{1/n})^m = (a^m)^{1/n}$. Verify that the
+master exponent rules continue to hold for rational $m/n$.
+
+<details class="hint"><summary>Full solution</summary>
+By Problem 4, $a^{1/n}$ is well-defined for $a > 0$. Then
+$a^{m/n} = (a^{1/n})^m$ is a real number for $a > 0$ and any
+rational $m/n$.
+
+The rules: $a^{p/q} \cdot a^{r/s} = a^{p/q + r/s} = a^{(ps + qr)/(qs)}$ —
+verified by raising both sides to the $qs$-th power and using
+integer-exponent rules. **(Algebra I §139.)**
+
+For $a < 0$: only odd-denominator fractional exponents make
+arithmetic sense in the reals; even-denominator gives complex
+values (covered in Algebra II).
+</details>
+
+### Problem 6 — Simplifying radicals
+
+Simplify $\sqrt{72}$, $\sqrt[3]{54}$, $\sqrt{a^4 b^2}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{72} = \sqrt{36 \cdot 2} = 6\sqrt 2$.
+$\sqrt[3]{54} = \sqrt[3]{27 \cdot 2} = 3 \sqrt[3]{2}$.
+$\sqrt{a^4 b^2} = a^2 |b|$ (assuming we keep the *non-negative*
+square root). *(For non-negative $a, b$, just $a^2 b$.)*
+</details>
+
+### Problem 7 — Rationalising the denominator
+
+Rewrite $\dfrac{1}{\sqrt 2}$ and $\dfrac{1}{1 + \sqrt 2}$ with
+rational denominators.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply numerator and denominator by an appropriate root /
+conjugate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{1}{\sqrt 2} = \dfrac{1 \cdot \sqrt 2}{\sqrt 2 \cdot \sqrt 2}
+= \dfrac{\sqrt 2}{2}$.
+
+$\dfrac{1}{1 + \sqrt 2} = \dfrac{1 - \sqrt 2}{(1 + \sqrt 2)(1 -
+\sqrt 2)} = \dfrac{1 - \sqrt 2}{1 - 2} = \dfrac{1 - \sqrt 2}{-1} =
+\sqrt 2 - 1$.
+*(The conjugate-multiplication trick — same as for complex numbers
+in `ka2.complex-numbers`.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Powers (definition by rules).** For $a > 0$ and any rational $r$:
+$a^r$ is defined so that the three master rules hold:
+$$
+a^m \cdot a^n = a^{m + n}, \quad
+\dfrac{a^m}{a^n} = a^{m - n}, \quad
+(a^m)^n = a^{mn}.
+$$
+
+This forces:
+
+- $a^0 = 1$.
+- $a^{-n} = \dfrac{1}{a^n}$.
+- $a^{1/n} = \sqrt[n]{a}$ (non-negative for $a > 0$).
+- $a^{m/n} = \sqrt[n]{a^m}$.
+
+**Roots / radicals.** The **$n$-th root** $\sqrt[n]{a}$ is the
+unique non-negative real $x$ with $x^n = a$ (for $a \ge 0$, $n
+\ge 1$).
+
+**Key identity:** $\sqrt{a^2} = |a|$.
+
+**Rationalising the denominator:** multiply by the conjugate
+(or appropriate root) to turn an irrational denominator into a
+rational one.
+
+:::
+
+A verse:
+
+> *Zero power gives one — that's the rule, all bases agree, no question.*
+> *Negative power is reciprocal — flip and recompute, no congestion.*
+> *Fractional power means a root — n in the bottom defines the n-th
+> climb.*
+> *And rationalise denominators by conjugate multiplication every time.*
+
+## Apply
+
+### Worked example
+
+> Simplify $\dfrac{a^{2/3} \cdot a^{1/2}}{a^{-1/6}}$.
+
+Combine: $a^{2/3 + 1/2 - (-1/6)} = a^{2/3 + 1/2 + 1/6}$.
+
+Common denominator $6$: $\dfrac{4}{6} + \dfrac{3}{6} + \dfrac{1}{6}
+= \dfrac{8}{6} = \dfrac{4}{3}$.
+
+**Answer: $a^{4/3}$.**
+
+### Practice — Warm
+
+**W1.** Compute $5^0$, $3^{-2}$, $4^{1/2}$, $8^{2/3}$.
+
+<details class="hint"><summary>Full solution</summary>
+$1$, $\dfrac{1}{9}$, $2$, $4$ (since $8^{2/3} = (8^{1/3})^2 = 2^2$).
+</details>
+
+**W2.** Simplify $\dfrac{x^5}{x^3}$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^{5 - 3} = x^2$.
+</details>
+
+**W3.** Compute $(2^3)^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$2^6 = 64$.
+</details>
+
+### Practice — Working
+
+**P1.** Simplify $\sqrt{50} - 2 \sqrt{18} + \sqrt{8}$.
+
+<details class="hint"><summary>Full solution</summary>
+$5\sqrt 2 - 6\sqrt 2 + 2\sqrt 2 = \sqrt 2$.
+</details>
+
+**P2.** Rationalise $\dfrac{2}{3 - \sqrt 5}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2 (3 + \sqrt 5)}{(3 - \sqrt 5)(3 + \sqrt 5)} = \dfrac{6 +
+2\sqrt 5}{9 - 5} = \dfrac{6 + 2\sqrt 5}{4} = \dfrac{3 + \sqrt 5}{2}$.
+</details>
+
+**P3.** Simplify $\sqrt{x + 2 \sqrt{x - 1}} + \sqrt{x - 2 \sqrt{x -
+1}}$ for $x \ge 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each radicand is a perfect square: $(x - 1) + 2 \sqrt{x - 1} + 1 =
+(\sqrt{x - 1} + 1)^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + 2\sqrt{x - 1} = (x - 1) + 2\sqrt{x - 1} + 1 = (\sqrt{x - 1}
++ 1)^2$. Similarly, $x - 2\sqrt{x - 1} = (\sqrt{x - 1} - 1)^2$.
+
+Take square roots (non-negative): $\sqrt{x + 2\sqrt{x - 1}} =
+\sqrt{x - 1} + 1$ (always non-negative). $\sqrt{x - 2\sqrt{x - 1}} =
+|\sqrt{x - 1} - 1|$ — equal to $\sqrt{x - 1} - 1$ if $x \ge 2$, or
+$1 - \sqrt{x - 1}$ if $1 \le x \le 2$.
+
+Sum:
+- If $x \ge 2$: $(\sqrt{x - 1} + 1) + (\sqrt{x - 1} - 1) = 2\sqrt{x
+  - 1}$.
+- If $1 \le x \le 2$: $(\sqrt{x - 1} + 1) + (1 - \sqrt{x - 1}) = 2$.
+
+*(Two-case answer.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that $\sqrt{1 + \sqrt{1 + \sqrt{1 + \cdots}}}$
+(infinitely nested) equals the *golden ratio* $\varphi = \dfrac{1
++ \sqrt 5}{2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $x = \sqrt{1 + \sqrt{1 + \cdots}}$, then $x = \sqrt{1 + x}$.
+Square and solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = \sqrt{1 + x} \Rightarrow x^2 = 1 + x \Rightarrow x^2 - x - 1
+= 0$.
+By the quadratic formula: $x = \dfrac{1 \pm \sqrt 5}{2}$. Take the
+positive root (since $x > 0$): $x = \varphi = \dfrac{1 + \sqrt 5}
+{2} \approx 1.618$.
+</details>
+
+**S2.** Show that for any positive $a, b, c$ and exponent $n$:
+$(a + b + c)^n \ge a^n + b^n + c^n$ for $n \ge 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use convexity of $x \mapsto x^n$ for $n \ge 1$ and Jensen's
+inequality, *or* simply expand $(a + b + c)^n$ and observe the
+extra terms.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $n \ge 1$ integer: $(a + b + c)^n$ has $a^n, b^n, c^n$ as some
+of the multinomial expansion's terms, plus many others (all
+non-negative). So $(a + b + c)^n \ge a^n + b^n + c^n$. **QED.**
+
+For real $n \ge 1$, the same follows from convexity / power-mean
+inequalities — a Tier 6 topic.
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra I*, §§137–145.
+
+**K1.** Simplify $\sqrt[4]{16 a^4 b^8}$.
+
+<details class="hint"><summary>Full solution</summary>
+$(16)^{1/4} = 2$. $(a^4)^{1/4} = |a|$. $(b^8)^{1/4} = b^2$ (always
+non-negative). **Answer: $2 |a| b^2$.**
+</details>
+
+**K2.** Show that $\sqrt 2$ is *irrational* — i.e., it cannot be
+written as $p/q$ with integer $p, q$. *(Euclid's proof.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose $\sqrt 2 = p/q$ in lowest terms. Square: $2 q^2 = p^2$.
+Argue $p$ must be even, then $q$ must be even — contradicting
+"lowest terms".
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose $\sqrt 2 = p/q$ with $\gcd(p, q) = 1$. Square: $2 q^2 =
+p^2$, so $p^2$ is even, hence $p$ is even, write $p = 2 p'$.
+Substitute: $2 q^2 = 4 (p')^2$, i.e. $q^2 = 2 (p')^2$, so $q$ is
+also even. But $\gcd(p, q) > 1$ — contradiction. **$\sqrt 2$ is
+irrational. QED.** *(Algebra I §144 — *Euclid's proof*, c. 300 BCE,
+the first irrationality proof in history.)*
+</details>
+
+**K3.** Show that for any positive integer $n$, $a^n - b^n = (a - b)
+(a^{n-1} + a^{n-2} b + a^{n-3} b^2 + \cdots + b^{n-1})$.
+
+<details class="hint"><summary>Full solution</summary>
+Distribute: $(a - b)(a^{n-1} + a^{n-2} b + \cdots + b^{n-1}) =
+a^n + a^{n-1} b + \cdots + a b^{n-1} - a^{n-1} b - \cdots - b^n$.
+
+Cross-terms telescope: every interior term appears with both signs
+and cancels, leaving $a^n - b^n$. **QED.** *(Algebra I §142 —
+**geometric-series factorisation**, the engine for proving
+divisibility patterns and computing $1 + r + r^2 + \cdots +
+r^{n-1}$.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Ч.1*
+(Fizmatlit reprint 2006), §§126–145. Russian original:
+[archive.org scan](https://archive.org/details/1_kiselev_algebra).
+The irrationality of $\sqrt 2$ (K2) is §144 — Kiselev presents
+Euclid's proof exactly as preserved in the *Elements*.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\sqrt{a^2} = a$."** Only when $a \ge 0$. In general,
+   $\sqrt{a^2} = |a|$.
+2. **"$\sqrt{a + b} = \sqrt a + \sqrt b$."** *Wrong.* Try $a = b =
+   1$: LHS $\sqrt 2 \approx 1.41$, RHS $2$. Roots do not
+   distribute over addition.
+3. **"$0^0 = 0$."** Or "$0^0 = 1$." This is left *undefined* in
+   most analytical contexts; combinatorics takes $0^0 = 1$. Treat
+   as a special case.
+4. **"$a^{m/n}$ requires $n$ to be odd."** Only for *negative* $a$;
+   for $a > 0$, any rational exponent works.
+:::
+
+### Self-Assessment
+
+1. Could you derive $a^0 = 1$, $a^{-n} = 1/a^n$, $a^{1/n} = \sqrt[n]
+   a$ from the master rule, on a fresh sheet?
+2. Did the rationalising trick (P2) feel like *the same* trick as
+   complex-number conjugate division?
+3. Can you spot when $\sqrt{x^2} = x$ vs $\sqrt{x^2} = |x|$ in a
+   problem context?
+
+- **3 yes:** move on to *Quadratic Equations* (Ch 9).
+- **2 yes:** redo Problems 1, 2, 4 — the *defining-rules* logic is
+  the chapter's spine.
+- **0–1 yes:** the master rules and their three corollaries
+  (Problems 1, 2, 4) form a quartet — replay them.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.polynomials`](../02-polynomials/index.qmd) — exponent
+  notation and basic rules.
+
+### What this unlocks
+
+- **`ka1.quadratic-equations`** *(Ch 9, planned)* — the quadratic
+  formula uses $\sqrt{}$ to express roots.
+- [`ka2.complex-numbers`](../../tier-kiselev-2-algebra-2/01-complex-numbers/index.qmd) —
+  the analogue $\sqrt{-1}$ extends the radical sign to negatives.
+- **`ka2.exponentials-logarithms`** *(planned)* — exponentiation
+  generalises to *real* exponents and inverts to logarithms.
+- [`t3.exp-log-functions`](../../tier-3-algebra2-geometry-trig/06-exp-log-functions/index.qmd) —
+  $a^x$ as a continuous function.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part I — Chapter 8: Powers and roots (§§126–145).**
+  Russian original on
+  [archive.org](https://archive.org/details/1_kiselev_algebra).
+- **Sister synthesis lessons:**
+  [`t2.exponents-powers`](../../tier-2-prealgebra/07-exponents-powers/index.qmd)
+  and
+  [`t2.square-roots-irrationals`](../../tier-2-prealgebra/09-square-roots-irrationals/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the *binomial theorem* preview (§145).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** **Activation functions** like ReLU ($\max(0, x)$) and
+sigmoid ($1/(1 + e^{-x})$) use exponential and root operations.
+The *softmax* function for classification is normalised exponential
+— pure exponent algebra.
+:::
+
+::: {.applied-callout}
+**Encryption.** **Modular exponentiation** ($a^k \mod p$) is the
+operation underwriting RSA and Diffie-Hellman key exchange. The
+*square-and-multiply* algorithm uses the rule $a^{2k} = (a^k)^2$
+to compute $a^{1024}$ in only 10 multiplications instead of 1024.
+:::
+
+::: {.applied-callout}
+**Research.** **The fundamental theorem of algebra** asserts every
+polynomial of degree $n$ has $n$ complex roots — a deep
+generalisation of "every positive number has an $n$-th root".
+Counted with multiplicity, the analogy is exact.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§126–145 ordering); Euclid (the
+  $\sqrt 2$ irrationality proof in K2 — verbatim from *Elements*
+  Book X); Bhāskara (the rule-extension argument).
+- **The rule-extension argument** (Problems 1–4) is the conceptual
+  core: we *want* the master rules to hold, so we *define*
+  $a^0, a^{-n}, a^{1/n}$ to make them. This is the first taste of
+  *axiomatic* extension in mathematics.
+- **What this lesson does not do:** treat *real-exponent*
+  exponentials in full ($a^x$ for irrational $x$), which require a
+  limit argument (*continuous extension*). That's `ka2.expo` and
+  `t3.exp-log-functions`.
+:::

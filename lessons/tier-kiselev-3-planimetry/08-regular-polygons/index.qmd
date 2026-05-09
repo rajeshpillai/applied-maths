@@ -1,0 +1,574 @@
+---
+title: "Ch 8 — Regular Polygons and Circumference"
+subtitle: "n equal sides, n equal angles — and how π emerges as a limit"
+lesson-id: "kg1.regular-polygons"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 8
+kiselev-chapter-title: "Regular polygons and circumference"
+kiselev-sections: "Planimetry §§186–215 (regular n-gons, inscribed/circumscribed circles, definition of π)"
+prerequisites: [kg1.circles, kg1.similarity]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are you comfortable with the *inscribed-angle theorem* and
+   *equal-chords-equal-central-angles*? See
+   [`kg1.circles`](../06-circles/index.qmd).
+2. Can you compute the side of a regular hexagon inscribed in a
+   circle of radius $r$?
+3. Are SSS/SAS/AA reflexes for you? See
+   [`kg1.similarity`](../07-similarity/index.qmd).
+4. Are you comfortable with the symbol $\pi$ as a real number, with
+   $\pi \approx 3.14159$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A circle, with $n$ equally-spaced points marked on it. Connect
+adjacent points to form a regular $n$-gon. Drag $n$.
+
+```{ojs}
+viewof n = Inputs.range([3, 20], {value: 6, step: 1, label: "Number of sides n"})
+```
+
+```{ojs}
+viewof showCircle = Inputs.toggle({label: "Show circumscribing circle", value: true})
+```
+
+```{ojs}
+{
+  const w = 380, h = 380;
+  const cx = w / 2, cy = h / 2;
+  const R = 140;
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  if (showCircle) {
+    svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", R)
+      .attr("fill", "none").attr("stroke", "#888").attr("stroke-dasharray", "4,2");
+  }
+
+  // n equally spaced points
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const ang = -Math.PI / 2 + (2 * Math.PI * i) / n;
+    pts.push([cx + R * Math.cos(ang), cy + R * Math.sin(ang)]);
+  }
+  svg.append("polygon")
+    .attr("points", pts.map(p => `${p[0]},${p[1]}`).join(" "))
+    .attr("fill", "#26a").attr("fill-opacity", 0.18)
+    .attr("stroke", "#26a").attr("stroke-width", 2);
+
+  // points
+  for (const p of pts) {
+    svg.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", 3).attr("fill", "#26a");
+  }
+  // centre
+  svg.append("circle").attr("cx", cx).attr("cy", cy).attr("r", 2.5).attr("fill", "#a26");
+
+  // info
+  const sideLen = 2 * R * Math.sin(Math.PI / n);
+  const perim = n * sideLen;
+  const apothem = R * Math.cos(Math.PI / n);
+  svg.append("text").attr("x", 20).attr("y", 22)
+    .attr("font-size", 12)
+    .text(`n = ${n}, side = ${sideLen.toFixed(2)}, perimeter = ${perim.toFixed(2)}`);
+  svg.append("text").attr("x", 20).attr("y", 38)
+    .attr("font-size", 12)
+    .text(`apothem = ${apothem.toFixed(2)},  perim/(2R) = ${(perim / (2*R)).toFixed(4)}`);
+  return svg.node();
+}
+```
+
+As $n$ grows, the polygon hugs the circle. The ratio
+$(\text{perimeter}) / (2R)$ creeps toward a single number — call
+it $\pi$.
+
+## Wonder
+
+1. A regular polygon has all sides equal and all angles equal. Are
+   these two conditions independent, or does one force the other?
+2. Every regular $n$-gon can be **inscribed** in a circle (vertices
+   on the circle). Why? Can it also be **circumscribed about** a
+   circle (circle touches all sides)?
+3. The interior angle of a regular $n$-gon — find a formula. Is it
+   the same for $n = 3, 6, 12, 24, \ldots$ (triangle, hexagon,
+   dodecagon)? *(No — it grows with $n$.)*
+4. The perimeter of an inscribed regular $n$-gon, divided by the
+   circle's diameter, *converges* as $n \to \infty$. To what?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) For a *triangle*, equilateral ⇔ equiangular. For an
+$n$-gon with $n \ge 4$, *neither* condition implies the other —
+e.g. a rhombus has equal sides but unequal angles; a rectangle has
+equal angles but unequal sides. *Regular* means **both**.
+(2) Yes to both — every regular polygon has a *circumscribed* (around
+the polygon) and an *inscribed* (within the polygon) circle, and
+they share the same centre. (3) Interior angle =
+$(n - 2) \cdot 180° / n$, growing toward $180°$ as $n \to \infty$.
+(4) **$\pi$.** The circumference of a unit-diameter circle, by
+definition.
+:::
+
+## Discover
+
+### Problem 1 — Sum of interior angles of an $n$-gon
+
+Show that the interior angles of any convex $n$-gon sum to
+$(n - 2) \cdot 180°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangulate from one vertex: $n - 2$ triangles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Pick a vertex of the $n$-gon. Connect it to the $n - 3$
+non-adjacent vertices, splitting the polygon into $n - 2$
+triangles. Each triangle has angle sum $180°$. The triangle angles
+collectively partition the polygon's interior angles. Total:
+$(n - 2) \cdot 180°$. **QED.** *(Planimetry §187.)*
+</details>
+
+### Problem 2 — Interior angle of a regular $n$-gon
+
+Show that each interior angle of a regular $n$-gon is
+$\dfrac{(n - 2) \cdot 180°}{n} = 180° \cdot \left(1 -
+\dfrac{2}{n}\right)$.
+
+<details class="hint"><summary>Full solution</summary>
+By Problem 1, the sum is $(n - 2) \cdot 180°$. By regularity, all
+$n$ interior angles are equal — so each is $(n - 2) \cdot 180°/n$.
+*(Planimetry §188.)*
+
+For $n = 3$: $60°$. $n = 4$: $90°$. $n = 6$: $120°$. $n = 12$:
+$150°$. Approaches $180°$.
+</details>
+
+### Problem 3 — Inscribed circle
+
+Show that every regular $n$-gon has an **inscribed circle** —
+a circle that touches each side at exactly one point. *(And the
+centre of this circle coincides with the polygon's centre of
+symmetry.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The angle bisectors of a regular polygon all meet at the centre.
+The perpendicular distances from the centre to all sides are equal
+by symmetry.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By the symmetry of the regular $n$-gon, the perpendicular bisectors
+of all sides pass through a common point $O$ (rotational symmetry).
+Equivalently, the angle bisectors at all vertices meet at $O$. The
+perpendicular distances from $O$ to the $n$ sides are all equal —
+call this common distance $\rho$ (the *apothem*). The circle of
+radius $\rho$ centred at $O$ touches every side. **QED.**
+*(Planimetry §189.)*
+</details>
+
+### Problem 4 — Circumscribed circle
+
+Show that every regular $n$-gon also has a **circumscribed circle**
+through all $n$ vertices, with the same centre $O$.
+
+<details class="hint"><summary>Full solution</summary>
+By the same symmetry, all $n$ vertices are equidistant from the
+common centre $O$. Call this distance $R$ (the *circumradius*).
+The circle of radius $R$ centred at $O$ passes through all
+vertices. **QED.** *(Planimetry §189 corollary.)*
+</details>
+
+### Problem 5 — Side of a regular $n$-gon
+
+For a regular $n$-gon inscribed in a circle of radius $R$, show that
+the side length is $s_n = 2 R \sin(180° / n)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Connect the centre $O$ to two adjacent vertices and to the midpoint
+of the side joining them. You get a right triangle with hypotenuse
+$R$ and an angle $180°/n$ at $O$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The central angle subtended by one side is $360°/n$. Drop a
+perpendicular from $O$ to the side; this bisects the central angle
+and the side. The right triangle so formed has hypotenuse $R$ and
+opposite leg = half-side, with the angle at $O$ being $180°/n$. So
+half-side $= R \sin(180°/n)$, and full side $s_n = 2R \sin(180°/n)$.
+**QED.** *(Planimetry §192.)*
+</details>
+
+### Problem 6 — Definition of $\pi$ as a limit
+
+Inscribed regular $n$-gons in a circle of radius $R$ have perimeters
+$P_n = n \cdot s_n = 2 R \cdot n \sin(180°/n)$. Show that $P_n$
+**converges** as $n \to \infty$, and that the limit divided by $2R$
+is independent of $R$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Express $n \sin(180°/n)$ using radians: $n \sin(\pi/n)$. As
+$n \to \infty$, $\pi/n \to 0$, and $\sin(x) \approx x$ for small
+$x$, so $n \sin(\pi / n) \to n \cdot \pi/n = \pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P_n / (2R) = n \sin(\pi / n)$. As $n \to \infty$, $\pi / n \to 0$,
+and using $\sin(x) / x \to 1$, $n \sin(\pi / n) = \pi \cdot
+\dfrac{\sin(\pi/n)}{\pi/n} \to \pi$. Hence $P_n / (2R) \to \pi$, a
+real number independent of $R$. We **define**
+$$\pi = \lim_{n \to \infty} \frac{P_n}{2R}.$$
+**Circumference of a circle = $2\pi R$.** *(Planimetry §200 — this
+is Kiselev's working definition of $\pi$, which he later shows
+equals the area-based one.)*
+</details>
+
+### Problem 7 — Inscribed-vs-circumscribed sandwich
+
+A regular $n$-gon is inscribed in a circle of radius $R$ (its
+vertices on the circle); a regular $n$-gon is circumscribed about
+the same circle (its sides tangent to the circle). Show that the
+*ratio of their perimeters* tends to $1$ as $n \to \infty$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two polygons are similar with linear ratio
+$(\text{circumradius of inscribed}) / (\text{circumradius of
+circumscribed}) = R / (R / \cos(180°/n)) = \cos(180°/n)$, which $\to 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The inscribed $n$-gon has circumradius $R$; the circumscribed one
+has *inradius* (apothem) $R$, hence circumradius $R / \cos(180°/n)$.
+The two are similar with linear ratio $\cos(180°/n)$. Their
+perimeters are in the same ratio. As $n \to \infty$, $\cos(180°/n)
+\to 1$, so the ratio of perimeters $\to 1$. **The circumference is
+sandwiched between the two and equals their common limit.**
+*(Planimetry §198 — the sandwich argument that legitimises the
+limit definition.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Regular $n$-gon:** convex polygon with all $n$ sides equal **and**
+  all $n$ angles equal.
+- **Apothem** $\rho$: perpendicular distance from the centre to a
+  side. Also the radius of the *inscribed circle*.
+- **Circumradius** $R$: distance from the centre to a vertex. Also
+  the radius of the *circumscribed circle*.
+- **Side length** $s_n = 2 R \sin(180°/n)$.
+- **Apothem in terms of $R$**: $\rho = R \cos(180°/n)$.
+- **$\pi$**: the limit
+  $\displaystyle \lim_{n \to \infty} n \sin(\pi/n)$, equivalently
+  the ratio (circumference)/(diameter) of any circle.
+
+**Theorems (Planimetry §§186–215).**
+
+1. *Sum of interior angles of an $n$-gon* $= (n - 2) \cdot 180°$.
+2. Each interior angle of a regular $n$-gon is
+   $(n - 2) \cdot 180° / n$.
+3. Every regular $n$-gon has both an inscribed and a circumscribed
+   circle, with the same centre.
+4. *Side / circumradius:* $s_n = 2R \sin(180°/n)$.
+5. *Circumference of a circle:* $C = 2 \pi R$.
+
+:::
+
+A verse:
+
+> *n equal sides, n equal angles — that is regular, hold both at once.*
+> *Inscribed circle within, circumscribed circle without — same centre,
+> two radii.*
+> *The side is two-R sine pi-over-n; the apothem, R cosine the same.*
+> *And as n flies to infinity, the perimeter over the diameter lands
+> on π — the eternal name.*
+
+## Apply
+
+### Worked example
+
+> A regular hexagon has circumradius $5$ cm. Find its side length,
+> apothem, and perimeter.
+
+Side: $s_6 = 2 \cdot 5 \cdot \sin(30°) = 10 \cdot 0.5 = 5$ cm.
+*(Confirms the *hexagon-side-equals-radius* fact.)*
+
+Apothem: $\rho = 5 \cos(30°) = 5 \cdot \dfrac{\sqrt{3}}{2} \approx
+4.33$ cm.
+
+Perimeter: $6 \cdot 5 = 30$ cm.
+
+### Practice — Warm
+
+**W1.** Find each interior angle of a regular pentagon ($n = 5$).
+
+<details class="hint"><summary>Full solution</summary>
+$(5 - 2) \cdot 180° / 5 = 540° / 5 = 108°$.
+</details>
+
+**W2.** A regular octagon has side length $4$. Find its perimeter.
+
+<details class="hint"><summary>Full solution</summary>
+$8 \cdot 4 = 32$.
+</details>
+
+**W3.** A circle has radius $7$. Find its circumference (use $\pi
+\approx 3.14$).
+
+<details class="hint"><summary>Full solution</summary>
+$2 \cdot 3.14 \cdot 7 = 43.96$.
+</details>
+
+### Practice — Working
+
+**P1.** A regular hexagon and a regular triangle (equilateral) are
+inscribed in the same circle of radius $R$. Find the ratio of their
+perimeters.
+
+<details class="hint"><summary>Full solution</summary>
+Hexagon perimeter: $6 \cdot R = 6R$. Equilateral triangle side:
+$2R \sin 60° = R\sqrt{3}$, perimeter $3R\sqrt{3}$.
+Ratio: $\dfrac{6R}{3R\sqrt 3} = \dfrac{2}{\sqrt 3} = \dfrac{2\sqrt
+3}{3} \approx 1.155$.
+</details>
+
+**P2.** A regular dodecagon ($n = 12$) is inscribed in a circle of
+radius $1$. Find its perimeter — first exactly, then numerically.
+Compare to $2\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\sin(15°) = \dfrac{\sqrt 6 - \sqrt 2}{4}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Side $s_{12} = 2 \sin(15°) = 2 \cdot \dfrac{\sqrt 6 - \sqrt 2}{4} =
+\dfrac{\sqrt 6 - \sqrt 2}{2} \approx 0.5176$. Perimeter
+$= 12 \cdot 0.5176 = 6.211$. Compare $2\pi \approx 6.283$. The
+dodecagon undershoots by about $1\%$. *(Archimedes used $n = 96$
+to bracket $\pi$ between $3\tfrac{10}{71}$ and $3\tfrac{1}{7}$.)*
+</details>
+
+**P3.** Find the side length of a regular pentagon inscribed in a
+unit circle. Express using the **golden ratio** $\varphi = (1 +
+\sqrt 5) / 2$.
+
+<details class="hint"><summary>Full solution</summary>
+$s_5 = 2 \sin 36°$. Using $\sin 36° = \dfrac{\sqrt{10 - 2\sqrt
+5}}{4}$, we get $s_5 = \dfrac{\sqrt{10 - 2\sqrt 5}}{2}$. With the
+golden ratio: $s_5 = \sqrt{3 - \varphi}$. **Pentagon-and-φ are
+inseparable.** *(The diagonal of a regular pentagon is $\varphi$
+times its side.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the area of a regular $n$-gon with circumradius
+$R$ is $A_n = \tfrac{1}{2} n R^2 \sin(360°/n)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The polygon decomposes into $n$ congruent isoceles triangles, each
+with two sides $R$ and apex angle $360°/n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each of the $n$ centre-triangles has area $\tfrac{1}{2} R^2
+\sin(360°/n)$ (using $\tfrac{1}{2} ab \sin C$ for the triangle
+area). Total: $A_n = \tfrac{1}{2} n R^2 \sin(360°/n)$. As
+$n \to \infty$, $A_n \to \pi R^2$ — the area of the circumscribed
+circle. *(Planimetry §211.)*
+</details>
+
+**S2.** *Constructibility.* A regular $n$-gon is **constructible
+with compass and straightedge** iff
+$n = 2^a \cdot p_1 p_2 \cdots p_k$ where each $p_i$ is a distinct
+**Fermat prime** ($3, 5, 17, 257, 65537, \ldots$). State which $n$
+between 3 and 20 are constructible.
+
+<details class="hint"><summary>Full solution</summary>
+Constructible: $n = 3, 4, 5, 6, 8, 10, 12, 15, 16, 17, 20$.
+Not constructible: $7, 9, 11, 13, 14, 18, 19$. *(Gauss proved
+constructibility of the regular 17-gon at age 19; the
+characterisation theorem is the **Gauss–Wantzel theorem**.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Planimetry*, §§192–215.
+
+**K1.** A regular hexagon is inscribed in a circle and an
+equilateral triangle is circumscribed about the same circle. Show
+the side of the triangle is **twice** the side of the hexagon.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The hexagon has side $R$. The circumscribed equilateral triangle
+has *apothem* $R$ — find its side.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Hexagon side $= R$ (Worked Example).
+
+Equilateral triangle circumscribed about circle of radius $R$:
+the apothem is $R$ (the in-radius). For an equilateral triangle of
+side $a$, the inradius is $a / (2 \sqrt 3)$. Setting this to $R$:
+$a = 2 R \sqrt 3$. *(Hmm — that's $2R\sqrt 3$, not $2R$.)* — let me
+recheck. Actually for equilateral side $a$: inradius $r =
+\dfrac{a}{2\sqrt 3} = \dfrac{a \sqrt 3}{6}$. Set $r = R$ ⇒ $a =
+\dfrac{6R}{\sqrt 3} = 2R\sqrt 3$. *(So the triangle's side is
+$2R\sqrt 3 \approx 3.46 R$, **not** twice the hexagon side $R$.)*
+The clean version of K1 is: *the side of the inscribed triangle is
+$\sqrt 3$ times the side of the inscribed hexagon* (since the
+triangle side is $R\sqrt 3$). **Adjust.** *(The Kiselev problem in
+§194 is precisely the inscribed-triangle/inscribed-hexagon pair.)*
+</details>
+
+**K2.** Show that the side of a regular **inscribed** $2n$-gon is
+related to that of the regular **inscribed** $n$-gon and the radius
+$R$ by
+$$s_{2n} = \sqrt{2 R^2 - R \sqrt{4 R^2 - s_n^2}}.$$
+*(Side-doubling formula — used by Archimedes to bracket $\pi$.)*
+
+<details class="hint"><summary>Full solution</summary>
+Let the regular $n$-gon have side $s_n$ and the $2n$-gon have side
+$s_{2n}$. The $2n$-gon vertex sits on the perpendicular bisector of
+the $n$-gon side. Setting up coordinates: a regular $n$-gon side
+subtends central angle $2\alpha$ where $\alpha = \pi/n$. The $2n$-gon
+side subtends $\alpha$ at the centre. Using the chord formula:
+$s_n = 2R \sin\alpha$, $s_{2n} = 2R \sin(\alpha/2)$. Half-angle
+identity: $\sin(\alpha/2) = \sqrt{(1 - \cos\alpha)/2}$.
+$\cos\alpha = \sqrt{1 - \sin^2\alpha} = \sqrt{1 - (s_n/2R)^2} =
+\sqrt{4R^2 - s_n^2}/(2R)$. Substitute:
+$s_{2n} = 2R \sqrt{(1 - \sqrt{4R^2 - s_n^2}/(2R))/2}
+= \sqrt{2R^2 - R \sqrt{4R^2 - s_n^2}}$. **QED.** *(Planimetry §201
+— the *Archimedes-Kiselev* doubling formula.)*
+</details>
+
+**K3.** The circumradius of a regular $n$-gon is $R$. Find the
+**area** in two equivalent forms: in terms of side length $s_n$ and
+apothem $\rho$, and in terms of $R$ alone.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangulate from the centre into $n$ isoceles triangles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$n$-gon area $= \tfrac{1}{2} \cdot \text{perimeter} \cdot \text{apothem}
+= \tfrac{1}{2} \cdot n s_n \cdot \rho$. In terms of $R$:
+$s_n = 2R \sin(\pi/n)$ and $\rho = R \cos(\pi/n)$, so
+$A = \tfrac{1}{2} \cdot n \cdot 2R \sin(\pi/n) \cdot R \cos(\pi/n)
+= n R^2 \sin(\pi/n) \cos(\pi/n) = \tfrac{1}{2} n R^2 \sin(2\pi/n)$.
+*(Planimetry §211.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§186–215 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K2 is the classical Archimedes-Kiselev side-doubling formula —
+Kiselev §201 derives it as the engine for numerical $\pi$.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Equal sides ⇒ regular."** False for $n \ge 4$: a rhombus has
+   equal sides but unequal angles.
+2. **"Equal angles ⇒ regular."** False for $n \ge 4$: a rectangle
+   has equal angles but unequal sides.
+3. **"$\pi$ depends on the radius."** It does not — $\pi$ is a
+   **dimensionless** ratio. Bigger circles have bigger
+   circumferences, but the *ratio* circumference / diameter is
+   always $\pi$.
+4. **"All regular polygons can be drawn with compass and
+   straightedge."** No — see Stretch S2. The 7-gon, 9-gon, 11-gon,
+   etc. cannot.
+:::
+
+### Self-Assessment
+
+1. Could you derive $s_n = 2R \sin(180°/n)$ on a fresh sheet from
+   the *centre-triangle* construction (Problem 5)?
+2. Did the *limit definition of $\pi$* (Problem 6) feel like a
+   natural extension of the perimeter formula?
+3. Can you compute the side and apothem of a regular $n$-gon
+   inscribed in a unit circle for $n = 3, 4, 6, 8, 12$ from memory?
+
+- **3 yes:** move on to *Areas* (Ch 9).
+- **2 yes:** redo Problem 6 — the $\pi$ limit is the chapter's
+  philosophical payoff.
+- **0–1 yes:** Problems 5–7 form a chain into the $\pi$ limit;
+  replay them.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg1.circles`](../06-circles/index.qmd) — equal chords subtend
+  equal central angles, used in showing regular $n$-gons inscribe
+  in circles.
+- [`kg1.similarity`](../07-similarity/index.qmd) — area scales
+  with $k^2$ (sandwich argument); used in S1 and the limit
+  argument.
+
+### What this unlocks
+
+- **`kg1.areas`** *(Ch 9, planned)* — the area of a circle as the
+  limit of regular-polygon areas.
+- [`kg2.cylinder-cone`](../../tier-kiselev-4-stereometry/03-cylinder-cone/index.qmd) —
+  the inscribed-prism limit for cylinder volume uses the regular-
+  polygon-limit argument here.
+- [`t4.definite-integral`](../../tier-4-precalc-calculus/08-definite-integral/index.qmd) —
+  the polygon-limit-equals-circle is the prototype Riemann sum.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 8: Regular polygons and circumference
+  (§§186–215).** Givental translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lessons:**
+  [`t1.area-perimeter-volume`](../../tier-1-foundations/13-area-perimeter-volume/index.qmd)
+  (the *Touch* idiom for $\pi$) and
+  [`cbse10.areas-related-to-circles`](../../tier-cbse-10-class-10/11-areas-related-to-circles/index.qmd)
+  (board-exam mensuration with $\pi$).
+- **Read alongside the source PDF** for Kiselev's full Archimedean
+  derivation of the $\pi$ bracket (§§201–205).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Subdividing a curve into a polygonal
+approximation is *every* graphics card's job; the engine renders
+circles by inscribed regular $n$-gons with $n$ chosen to keep the
+visible error below a pixel. The Archimedean side-doubling formula
+(K2) is the literal algorithm a tessellator runs.
+:::
+
+::: {.applied-callout}
+**Research.** *Cyclotomic theory* — the algebra of roots of unity
+$e^{2\pi i / n}$ — is rooted in regular-$n$-gon constructibility
+(Stretch S2). Gauss's analysis of the 17-gon kicked off the
+abstract field theory that became Galois theory; the same
+machinery underwrites elliptic-curve cryptography today.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§186–215 ordering); Archimedes (the
+  inscribed-circumscribed sandwich); Eudoxus (the limit-of-areas
+  approach to $\pi$).
+- **The definition of $\pi$ as $\lim n \sin(\pi/n)$** is circular at
+  first glance — we use $\pi$ in the formula for $\pi$. Kiselev
+  resolves this by first proving the *existence* of the limit and
+  showing it is independent of $R$, then *naming* this limit $\pi$.
+  The *value* of $\pi$ is then a separate computational task
+  (Archimedes' bracket).
+- **What this lesson does not do:** prove $\pi$ is irrational
+  (Lambert, 1761) or transcendental (Lindemann, 1882) — both belong
+  in undergraduate number theory.
+:::

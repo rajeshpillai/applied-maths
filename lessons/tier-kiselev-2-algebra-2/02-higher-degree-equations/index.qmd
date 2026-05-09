@@ -1,0 +1,558 @@
+---
+title: "Ch 2 — Higher-Degree Equations"
+subtitle: "Cubic, quartic, and the rational-root test — and the Fundamental Theorem of Algebra in one sentence"
+lesson-id: "ka2.higher-degree-equations"
+tier: "ka2"
+kiselev-book: "Algebra, Part II"
+kiselev-chapter: 2
+kiselev-chapter-title: "Higher-degree equations"
+kiselev-sections: "§§15–35 (rational-root theorem, depressed cubic, Cardano's formula, biquadratic)"
+prerequisites: [ka1.quadratic-equations, ka2.complex-numbers]
+unlocks: []
+applied-domains: [research, ai-ml, encryption, game-dev]
+estimated-minutes: 55
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are quadratic-equation methods automatic — factoring, completing
+   the square, the formula? See
+   [`ka1.quadratic-equations`](../../tier-kiselev-1-algebra-1/09-quadratic-equations/index.qmd).
+2. Are you comfortable with $i^2 = -1$ and complex-arithmetic basics?
+   See [`ka2.complex-numbers`](../01-complex-numbers/index.qmd).
+3. Can you do polynomial long division reliably? See
+   [`ka1.polynomials`](../../tier-kiselev-1-algebra-1/02-polynomials/index.qmd).
+4. Do you remember the **factor theorem**: $(x - r) \mid P(x) \iff
+   P(r) = 0$? See
+   [`ka1.factoring`](../../tier-kiselev-1-algebra-1/03-factoring/index.qmd).
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A polynomial $P(x) = x^3 - 6 x^2 + 11 x - 6$. Try integer values
+of $x$ — at $x = 1, 2, 3$ the polynomial is **zero**. So $P(x) =
+(x - 1)(x - 2)(x - 3)$.
+
+```{ojs}
+viewof xtest = Inputs.range([-2, 6], {value: 2, step: 1, label: "x"})
+```
+
+```{ojs}
+{
+  const P = xtest ** 3 - 6 * xtest ** 2 + 11 * xtest - 6;
+  const tag = P === 0 ? " ← **root!** (x − " + xtest + ") is a factor." : "";
+  return `**P(${xtest}) = ${xtest}³ − 6·${xtest}² + 11·${xtest} − 6 = ${P}**${tag}`;
+}
+```
+
+A cubic has at most **three** roots — and finding even one of them
+factors the polynomial down to a quadratic, which we already know
+how to solve.
+
+## Wonder
+
+1. A *quadratic* has at most $2$ roots. A *cubic* has at most $3$.
+   What's the pattern?
+2. To factor a cubic, we need *one* root — then divide and solve
+   the resulting quadratic. **How** do we find that first root?
+3. The cubic $x^3 + p x + q = 0$ — is there a *formula* for its
+   roots, like the quadratic formula? *(Spoiler: yes, but it's
+   wild.)*
+4. The equation $x^4 - 5 x^2 + 4 = 0$ looks degree-4 but factors
+   "in disguise". **How?**
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) A polynomial of degree $n$ has *at most $n$* real roots — and
+exactly $n$ complex roots, counted with multiplicity (the
+*Fundamental Theorem of Algebra*). (2) The **rational-root theorem**
+is the standard first attempt: integer roots divide the constant
+term. (3) **Cardano's formula** for the cubic — discovered in the
+1500s and far harder than the quadratic formula. (4)
+*Biquadratic*: substitute $u = x^2$ to get a quadratic in $u$.
+:::
+
+## Discover
+
+### Problem 1 — The rational-root theorem
+
+Suppose $P(x) = a_n x^n + \cdots + a_1 x + a_0$ has integer
+coefficients. Show that any **rational root** $p/q$ (in lowest
+terms) satisfies $p \mid a_0$ and $q \mid a_n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $x = p/q$ and clear denominators. Each side must be
+divisible by $p$ and by $q^n$ separately.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Substitute and multiply by $q^n$:
+$$a_n p^n + a_{n-1} p^{n-1} q + \cdots + a_1 p q^{n-1} + a_0 q^n =
+0.$$
+
+Move $a_0 q^n$ to the right: every term on the left has a factor
+$p$, so $p \mid a_0 q^n$. Since $\gcd(p, q) = 1$, $p \mid a_0$.
+Symmetrically, every term except $a_n p^n$ has a factor $q$, so
+$q \mid a_n p^n$, hence $q \mid a_n$.
+
+**QED.** *(Algebra II §17 — the **rational-root theorem**, the first
+algorithm for finding rational roots.)*
+</details>
+
+### Problem 2 — Apply rational-root to find a cubic root
+
+Use the rational-root theorem to find a root of $2 x^3 - x^2 - 7 x
++ 6 = 0$, then factor completely.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Possible $p/q$: $p \in \{\pm 1, \pm 2, \pm 3, \pm 6\}$, $q \in
+\{\pm 1, \pm 2\}$. So candidates: $\pm 1, \pm 2, \pm 3, \pm 6,
+\pm 1/2, \pm 3/2$. Test each.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Test $x = 1$: $2 - 1 - 7 + 6 = 0$. ✓ So $(x - 1)$ is a factor.
+
+Divide: $2 x^3 - x^2 - 7 x + 6 = (x - 1)(2 x^2 + x - 6)$.
+
+Factor the quadratic: $2 x^2 + x - 6 = (2 x - 3)(x + 2)$.
+
+**$2 x^3 - x^2 - 7 x + 6 = (x - 1)(2 x - 3)(x + 2) = 0$**, with
+roots $x = 1, \dfrac{3}{2}, -2$.
+</details>
+
+### Problem 3 — The biquadratic substitution
+
+Solve $x^4 - 5 x^2 + 4 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $u = x^2$. The equation becomes a quadratic in $u$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $u = x^2$: $u^2 - 5 u + 4 = 0$, factoring $(u - 1)(u - 4) = 0$,
+so $u = 1$ or $u = 4$.
+
+Back-substitute: $x^2 = 1$ ⟹ $x = \pm 1$. $x^2 = 4$ ⟹ $x = \pm 2$.
+
+**Four real roots: $\pm 1, \pm 2$.**
+</details>
+
+### Problem 4 — Depressed cubic via substitution
+
+Show that the substitution $x = y - \dfrac{b}{3 a}$ removes the
+$x^2$ term from $a x^3 + b x^2 + c x + d = 0$, giving a
+**depressed cubic** $y^3 + p y + q = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+Substitute $x = y - b/(3a)$ into $a x^3 + b x^2 + c x + d$. The
+coefficient of $y^2$ in the expansion is $a \cdot 3 (-b/(3a)) + b
+= -b + b = 0$. ✓
+
+The polynomial becomes $a y^3 + (\cdots) y + (\cdots)$, a cubic
+with no $y^2$ term. *(Algebra II §22 — the **Tschirnhaus
+substitution**, the engine for Cardano's formula.)*
+</details>
+
+### Problem 5 — Cardano's formula (sketch)
+
+For the depressed cubic $y^3 + p y + q = 0$, set $y = u + v$.
+Imposing $3 u v = -p$ leads to a *quadratic* in $u^3$ whose
+solution gives the cubic's root.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute and use the cube identity: $(u + v)^3 = u^3 + v^3 + 3
+u v (u + v)$. Setting $3 u v = -p$ kills the $(u + v)$ term.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(u + v)^3 + p (u + v) + q = u^3 + v^3 + 3 u v (u + v) + p (u + v)
++ q = 0$.
+
+Choose $3 u v = -p$, i.e. $u v = -p/3$. The equation becomes $u^3
++ v^3 + q = 0$, so $u^3 + v^3 = -q$.
+
+Also $u^3 v^3 = (u v)^3 = -p^3 / 27$.
+
+So $u^3$ and $v^3$ are *the two roots* of the quadratic $t^2 + q t
+- p^3/27 = 0$:
+$$u^3, v^3 = -\dfrac{q}{2} \pm \sqrt{\dfrac{q^2}{4} + \dfrac{p^3}
+{27}}.$$
+
+The cubic's root is $y = u + v$ where $u, v$ are appropriate cube
+roots of the above. **This is *Cardano's formula*** (Cardano 1545,
+following del Ferro and Tartaglia).
+
+*(For real cubics with three real roots, the formula necessarily
+involves complex cube roots that combine to give a real answer —
+the *casus irreducibilis*. This historical paradox forced the
+acceptance of complex numbers.)*
+</details>
+
+### Problem 6 — Vieta for cubics
+
+Show that for $a x^3 + b x^2 + c x + d = 0$ with roots $x_1, x_2,
+x_3$:
+$$x_1 + x_2 + x_3 = -\dfrac{b}{a}, \quad
+x_1 x_2 + x_2 x_3 + x_3 x_1 = \dfrac{c}{a}, \quad
+x_1 x_2 x_3 = -\dfrac{d}{a}.$$
+
+<details class="hint"><summary>Full solution</summary>
+$a (x - x_1)(x - x_2)(x - x_3)$. Expand and match coefficients with
+$a x^3 + b x^2 + c x + d$.
+
+The result follows. *(Algebra II §28 — generalisation of Vieta.)*
+</details>
+
+### Problem 7 — Fundamental Theorem of Algebra (statement)
+
+State the **Fundamental Theorem of Algebra**: every non-constant
+polynomial with complex coefficients has at least one complex
+root. *(Hence every polynomial of degree $n$ has exactly $n$
+complex roots, counted with multiplicity.)*
+
+<details class="hint"><summary>Full solution</summary>
+**Theorem (Gauss 1799).** Every polynomial $P(x) = a_n x^n + \cdots
++ a_0$ with $a_n \ne 0$ and complex coefficients has at least one
+root $r \in \mathbb C$.
+
+**Corollary.** By the factor theorem, $P(x) = (x - r) Q(x)$ where
+$Q$ has degree $n - 1$. Apply the theorem again to $Q$, and so on.
+After $n$ steps: $P(x) = a_n (x - r_1)(x - r_2) \cdots (x - r_n)$
+— a complete factorisation into linear factors.
+
+*The proof requires complex analysis (Liouville's theorem) or
+topology — out of scope for school. The statement, however, is the
+*organising fact* of polynomial theory.*
+
+*(Algebra II §35 — Kiselev states the theorem and gives examples.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Higher-degree equation:** $a_n x^n + \cdots + a_1 x + a_0 = 0$
+with $n \ge 3$.
+
+**Strategies (in roughly increasing difficulty).**
+
+1. **Factor obvious common parts.** GCF, grouping, biquadratic
+   substitution.
+2. **Rational-root theorem.** Test rational candidates $p/q$ with
+   $p \mid a_0, q \mid a_n$. One root reduces the degree by 1.
+3. **Long division.** Once a root is known, divide out $(x - r)$
+   and solve the lower-degree quotient.
+4. **Cubic: Cardano's formula** (depressed cubic + $u + v$
+   substitution).
+5. **Quartic: Ferrari's method** (reduces to a cubic, in turn
+   solvable).
+6. **Quintic and higher:** in general **no formula in radicals**
+   exists (Abel-Ruffini, 1824); numerical methods only.
+
+**Vieta's formulas (general).** For $a_n x^n + \cdots + a_0 = 0$:
+the *sum of roots* is $-a_{n-1}/a_n$, *sum of products of pairs*
+is $a_{n-2}/a_n$, ..., *product of all roots* is $(-1)^n a_0/a_n$.
+
+**Fundamental Theorem of Algebra (Gauss).** Every degree-$n$
+polynomial over $\mathbb C$ has exactly $n$ roots in $\mathbb C$
+(counted with multiplicity).
+
+:::
+
+A verse:
+
+> *Rational-root first — divisors of constant over leading coefficient.*
+> *One root in hand, divide and conquer the rest with deficit.*
+> *Cardano for cubics, Ferrari for quartics — formulas exist by name.*
+> *But quintic and beyond yield only numerics — Abel-Ruffini's claim.*
+
+## Apply
+
+### Worked example
+
+> Solve $x^3 - 4 x^2 + x + 6 = 0$.
+
+**Rational candidates:** $\pm 1, \pm 2, \pm 3, \pm 6$.
+- $P(1) = 1 - 4 + 1 + 6 = 4$. ✗
+- $P(-1) = -1 - 4 - 1 + 6 = 0$. ✓
+
+So $(x + 1)$ is a factor. Divide:
+$x^3 - 4 x^2 + x + 6 = (x + 1)(x^2 - 5 x + 6) = (x + 1)(x - 2)(x - 3)$.
+
+**Roots: $x = -1, 2, 3$.**
+
+### Practice — Warm
+
+**W1.** Find a rational root of $x^3 - x^2 - x + 1 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(1) = 0$. ✓ So $x = 1$ is a root. *(In fact $P(x) = (x - 1)^2
+(x + 1)$ — but for this question we only needed *one* root.)*
+</details>
+
+**W2.** Solve $x^4 - 13 x^2 + 36 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Biquadratic.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$u = x^2$: $u^2 - 13 u + 36 = (u - 4)(u - 9) = 0$, so $u = 4, 9$.
+$x = \pm 2, \pm 3$.
+</details>
+
+**W3.** Find the sum of the roots of $2 x^3 - 6 x^2 + 5 x - 1 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+By Vieta: sum $= 6/2 = 3$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $x^3 + 3 x^2 - 4 x - 12 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+Group: $x^2 (x + 3) - 4 (x + 3) = (x + 3)(x^2 - 4) = (x + 3)(x - 2)
+(x + 2)$. Roots: $x = -3, 2, -2$.
+</details>
+
+**P2.** A cubic has roots $1, 2, 3$. Find the cubic with leading
+coefficient $1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(x) = (x - 1)(x - 2)(x - 3)$. Expand, or use Vieta directly.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 1)(x - 2)(x - 3) = (x^2 - 3 x + 2)(x - 3) = x^3 - 6 x^2 +
+11 x - 6$. *(The same polynomial that opened the lesson.)*
+</details>
+
+**P3.** Solve $x^4 - 6 x^3 + 11 x^2 - 6 x = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor out $x$ first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x (x^3 - 6 x^2 + 11 x - 6) = x (x - 1)(x - 2)(x - 3)$. Roots:
+$x = 0, 1, 2, 3$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the cubic $x^3 - 3 x + 2 = 0$ has a *double*
+root and find all roots.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try rational roots; if a polynomial $P$ and its derivative $P'$
+share a root, that root is *repeated*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(1) = 1 - 3 + 2 = 0$. ✓
+$P'(x) = 3 x^2 - 3$. $P'(1) = 0$. ✓ So $x = 1$ is a *double root*.
+
+Divide: $P(x) = (x - 1)^2 (x + 2)$. Roots: $x = 1$ (double) and
+$x = -2$.
+</details>
+
+**S2.** Show that the quartic $x^4 + 4 = 0$ has **no real roots**
+and find all *complex* roots.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the Sophie Germain factorisation: $x^4 + 4 = (x^2 + 2 x + 2)
+(x^2 - 2 x + 2)$. Then quadratic-formula each factor.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sophie Germain: $x^4 + 4 = (x^2 + 2)^2 - (2 x)^2 = (x^2 + 2 + 2 x)
+(x^2 + 2 - 2 x) = (x^2 + 2 x + 2)(x^2 - 2 x + 2)$.
+
+Each quadratic has discriminant $4 - 8 = -4$, so complex roots:
+- $x^2 + 2 x + 2 = 0$: $x = -1 \pm i$.
+- $x^2 - 2 x + 2 = 0$: $x = 1 \pm i$.
+
+**Four complex roots: $\pm 1 \pm i$.** No real roots.
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra II*, §§20–35.
+
+**K1.** Solve $x^3 - 6 x + 4 = 0$ using Cardano's formula.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Already depressed: $p = -6, q = 4$. Discriminant: $q^2/4 + p^3/27
+= 4 + (-216)/27 = 4 - 8 = -4 < 0$. **Casus irreducibilis** — three
+*real* roots, but Cardano's formula uses complex cube roots that
+combine to real values.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$u^3, v^3 = -q/2 \pm \sqrt{-4} = -2 \pm 2 i$. So $u^3 = -2 + 2 i$,
+$v^3 = -2 - 2 i$.
+
+In polar form: $-2 + 2 i = 2\sqrt 2 (\cos 135° + i \sin 135°)$.
+Cube roots: $\sqrt[3]{2\sqrt 2} = \sqrt 2$, angle $45°$ (and
+$+120°, -120°$ for the three branches).
+
+Adding $u + v$ for each pair (with $u v = -p/3 = 2$ real
+constraint), we recover three real roots — they happen to be
+$\sqrt 2 \cdot 2 \cos(\theta)$ for three angles $\theta$.
+
+*(Numerically: $x \approx 2.214, 0.794, -3.008$ — three real roots;
+verify by polynomial evaluation.)*
+
+**A famous historical example** demonstrating the need for complex
+numbers even when seeking real solutions.
+</details>
+
+**K2.** Find a polynomial with integer coefficients having $\sqrt 2
++ \sqrt 3$ as a root.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $x = \sqrt 2 + \sqrt 3$. Square: $x^2 = 5 + 2\sqrt 6$. Isolate
+the irrational part and square again.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 = 5 + 2\sqrt 6$. So $x^2 - 5 = 2\sqrt 6$. Square:
+$(x^2 - 5)^2 = 24$, i.e. $x^4 - 10 x^2 + 25 = 24$, so
+$x^4 - 10 x^2 + 1 = 0$.
+
+**The polynomial $x^4 - 10 x^2 + 1$ has $\sqrt 2 + \sqrt 3$ as a
+root** (and also $\pm \sqrt 2 \pm \sqrt 3$, the four sign
+combinations). *(A classical algebraic-number-theory technique.)*
+</details>
+
+**K3.** A polynomial $P(x)$ has integer coefficients. Show that if
+$P(0) = 5$ and $P(1) = 7$, then $P$ has *no* integer roots.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For integer $r$: $P(r) - P(0)$ is divisible by $r$ (since
+polynomial differences factor). And $P(r) - P(1)$ is divisible by
+$(r - 1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For any polynomial $P$ with integer coefficients, $P(a) - P(b)$
+is divisible by $(a - b)$ when $a, b$ are integers (this follows
+from the fact $a^k - b^k$ is divisible by $a - b$).
+
+If $P(r) = 0$ for integer $r$: $P(0) = P(0) - P(r) = -P(r) + P(0)$
+is divisible by $(0 - r) = -r$, so $r \mid P(0) = 5$. Hence $r
+\in \{\pm 1, \pm 5\}$.
+
+Also $P(1) - P(r) = 7$ is divisible by $(1 - r)$, so $(1 - r) \mid
+7$, hence $1 - r \in \{\pm 1, \pm 7\}$, i.e. $r \in \{0, 2, -6, 8\}$.
+
+The two sets $\{\pm 1, \pm 5\}$ and $\{0, 2, -6, 8\}$ are
+*disjoint* — so no integer $r$ satisfies both. **No integer
+roots. QED.**
+*(Algebra II §19 — a beautiful Diophantine application of the
+rational-root theorem.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Часть вторая*
+(Fizmatlit reprint 2005), §§15–35. Russian original:
+[archive.org scan](https://archive.org/details/kiselyov-algebra-part-2-2005).
+The Sophie Germain factorisation in S2 was a Kiselev favourite,
+appearing in §32. The casus irreducibilis (K1) is §27.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A degree-$n$ polynomial has $n$ *real* roots."** It has $n$
+   *complex* roots (counted with multiplicity); the number of
+   *real* roots can be less.
+2. **"The rational-root theorem finds all roots."** It finds only
+   *rational* roots. Irrational and complex roots are missed.
+3. **"Higher-degree means harder formulas."** True up to degree 4.
+   At degree $\ge 5$, *no general formula in radicals exists* — a
+   surprising fact (Abel-Ruffini, 1824, and Galois theory).
+:::
+
+### Self-Assessment
+
+1. Could you prove the rational-root theorem (Problem 1) on a fresh
+   sheet?
+2. Did you complete the cubic-factoring (Problems 2, P1, P3) in a
+   single pass each?
+3. Can you state the Fundamental Theorem of Algebra in your own
+   words?
+
+- **3 yes:** move on to *Higher-Degree Inequalities* (Ch 3).
+- **2 yes:** redo Problem 5 — the Cardano sketch is the chapter's
+  intellectual centerpiece.
+- **0–1 yes:** the rational-root + factor-out + reduce loop
+  (Problems 1–2) is the most-used pattern; replay it.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.quadratic-equations`](../../tier-kiselev-1-algebra-1/09-quadratic-equations/index.qmd) —
+  the quadratic case; biquadratic substitution reduces to it.
+- [`ka2.complex-numbers`](../01-complex-numbers/index.qmd) —
+  complex roots in the discriminant-negative case (S2, K1).
+- [`ka1.factoring`](../../tier-kiselev-1-algebra-1/03-factoring/index.qmd) —
+  factor theorem + polynomial division for reduction.
+
+### What this unlocks
+
+- **`ka2.higher-degree-inequalities`** *(Ch 3, planned)* —
+  sign-analysis on polynomial factorisation.
+- [`t6.rings-fields`](../../tier-6-undergrad-advanced/02-rings-fields/index.qmd) —
+  *Galois theory* (the abstract algebra explaining why no quintic
+  formula exists).
+- [`t7.algebraic-number-theory`](../../tier-7-masters-tracks/12-algebraic-number-theory/index.qmd) —
+  algebraic numbers (K2) are roots of integer polynomials.
+- [`cbse10.polynomials`](../../tier-cbse-10-class-10/02-polynomials/index.qmd) —
+  CBSE 10 board treatment of cubics and the factor theorem.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part II — Chapter 2: Higher-degree equations
+  (§§15–35).** Russian original on
+  [archive.org](https://archive.org/details/kiselyov-algebra-part-2-2005).
+- **Sister synthesis lesson:**
+  [`cbse10.polynomials`](../../tier-cbse-10-class-10/02-polynomials/index.qmd) —
+  rational-root theorem in board-exam idiom.
+- **Read alongside the source PDF** for Kiselev's full development
+  of *casus irreducibilis* (§27) and Vieta for cubics (§28).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** **Bezier curves** of degree $n$ are
+parameterised by polynomials of degree $n$. Ray-curve intersection
+is a polynomial-root problem; degree-2 (quadratic Bezier) and
+degree-3 (cubic Bezier) are the standards.
+:::
+
+::: {.applied-callout}
+**Encryption.** **Polynomial commitment schemes** in modern
+cryptography (KZG commitments, used in Ethereum's data
+availability) rely on evaluating polynomials at random points and
+verifying with the rational-root-theorem-like algebra.
+:::
+
+::: {.applied-callout}
+**Research.** The **Galois group** of a polynomial encodes which
+*permutations* of its roots are algebraically permissible. Galois's
+proof that the quintic has no general radical formula uses the
+fact that $A_5$ is *simple* — a deep group-theoretic statement.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§15–35 ordering); Cardano (1545);
+  Ferrari (1540); Gauss (1799 — FTA); Abel and Galois (1820s — the
+  impossibility of a quintic formula).
+- **The historical arc** of the cubic formula — discovered, used,
+  paradoxical with complex roots, eventually accepted — is the
+  reason complex numbers exist as a mathematical object. The
+  *casus irreducibilis* (K1) is the historical pivot.
+- **What this lesson does not do:** prove the Fundamental Theorem
+  of Algebra (requires complex analysis), or treat Galois theory.
+:::

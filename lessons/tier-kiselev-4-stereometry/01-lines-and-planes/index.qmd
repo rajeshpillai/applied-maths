@@ -1,0 +1,680 @@
+---
+title: "Ch 1 — Lines and Planes in Space"
+subtitle: "Parallel, intersecting, skew — and the three positions a line can take with a plane"
+lesson-id: "kg2.lines-and-planes"
+tier: "kg2"
+kiselev-book: "Geometry, Book II (Stereometry)"
+kiselev-chapter: 1
+kiselev-chapter-title: "Lines and planes"
+kiselev-sections: "Stereometry §§373–415 (positions of lines and planes; perpendicular line to a plane; dihedral and trihedral angles)"
+prerequisites: [kg1.parallels, kg1.perpendiculars]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are the *parallel-line* theorems automatic for you in 2D? See
+   [`kg1.parallels`](../../tier-kiselev-3-planimetry/04-parallels/index.qmd).
+2. Can you state the *perpendicular-bisector locus theorem* from
+   [`kg1.perpendiculars`](../../tier-kiselev-3-planimetry/03-perpendiculars/index.qmd)?
+3. Can you visualise three points in space that are *not* on a
+   single line — and the unique plane they determine?
+4. Are you comfortable with the everyday objects: a wall (plane),
+   the floor (plane), the line where they meet (their
+   intersection)?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Two lines in space. In the plane, two distinct lines either *meet
+at a point* or are *parallel*. In space, there is a **third
+possibility**: they neither meet nor are parallel. Such lines are
+called **skew**.
+
+```{ojs}
+viewof config = Inputs.radio(
+  ["intersecting (meet at a point)", "parallel (same direction, no meeting)", "skew (no meeting, no parallel)"],
+  {value: "intersecting (meet at a point)", label: "Configuration:"}
+)
+```
+
+```{ojs}
+{
+  // simple "isometric" sketch of a cube and two highlighted lines
+  const w = 460, h = 320, padX = 40, padY = 40;
+  const xS = d3.scaleLinear().domain([-1, 7]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-1, 5]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // cube edges (8 vertices, isometric projection)
+  const project = (x, y, z) => [x + 0.5 * y, z + 0.4 * y];
+  const V = [
+    [0,0,0],[3,0,0],[3,3,0],[0,3,0],
+    [0,0,3],[3,0,3],[3,3,3],[0,3,3]
+  ];
+  const P = V.map(([x,y,z]) => project(x, y, z));
+  const edges = [
+    [0,1],[1,2],[2,3],[3,0],
+    [4,5],[5,6],[6,7],[7,4],
+    [0,4],[1,5],[2,6],[3,7]
+  ];
+  for (const [a,b] of edges) {
+    svg.append("line")
+      .attr("x1", xS(P[a][0])).attr("y1", yS(P[a][1]))
+      .attr("x2", xS(P[b][0])).attr("y2", yS(P[b][1]))
+      .attr("stroke", "#888").attr("stroke-width", 1);
+  }
+
+  // highlight two lines depending on config
+  const drawHi = (a, b, c) => {
+    svg.append("line")
+      .attr("x1", xS(P[a][0])).attr("y1", yS(P[a][1]))
+      .attr("x2", xS(P[b][0])).attr("y2", yS(P[b][1]))
+      .attr("stroke", c).attr("stroke-width", 3);
+  };
+
+  if (config.startsWith("intersecting")) {
+    // edges that share a vertex: 0-1 and 0-3 (both at vertex 0)
+    drawHi(0, 1, "#26a");
+    drawHi(0, 3, "#a26");
+    svg.append("text").attr("x", padX).attr("y", padY - 10)
+      .attr("font-size", 12).text("Two edges meeting at one vertex — intersecting lines.");
+  } else if (config.startsWith("parallel")) {
+    // 0-1 and 3-2 are parallel (opposite edges of the bottom face)
+    drawHi(0, 1, "#26a");
+    drawHi(3, 2, "#a26");
+    svg.append("text").attr("x", padX).attr("y", padY - 10)
+      .attr("font-size", 12).text("Two opposite edges of one face — parallel lines.");
+  } else {
+    // 0-1 (bottom front) and 6-7 (top back) — skew
+    drawHi(0, 1, "#26a");
+    drawHi(6, 7, "#a26");
+    svg.append("text").attr("x", padX).attr("y", padY - 10)
+      .attr("font-size", 12).text("Bottom-front edge and top-back edge — skew lines (different directions, no meeting).");
+  }
+
+  return svg.node();
+}
+```
+
+The new word is **skew**. Two skew lines have *no meeting point*
+and yet are *not parallel* — they slip past each other in space.
+
+## Wonder
+
+1. In the plane, two distinct lines must meet or be parallel. In
+   space, that is no longer true. **Why** does the third option
+   (skew) exist?
+2. A point and a line *not* through the point — how many planes
+   contain *both*?
+3. A line is *parallel to a plane* if it never meets the plane.
+   What is the *intersection* of a non-parallel line with a plane?
+4. A line is *perpendicular to a plane* if it makes a right angle
+   with **every** line in the plane through the foot. Is checking
+   *one* line enough? *(Trick question.)*
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Two lines determine a *plane* only if they meet or are
+parallel. Skew lines force a 3D-only configuration. (2) **Exactly
+one** plane contains a given line and a point not on it.
+(3) Either a single point or the whole line (if the line lies in
+the plane). (4) Checking one line is **not enough** — but checking
+*two distinct* lines through the foot **is**. The proof is one of
+the prettiest in Stereometry.
+:::
+
+## Discover
+
+### Problem 1 — Three points determine a plane
+
+Three points $A, B, C$ in space, *not* collinear, determine **exactly
+one** plane.
+
+<details class="hint"><summary>Full solution</summary>
+This is **Stereometry's first axiom** (Planimetry §3 generalised):
+*through any three non-collinear points there passes exactly one
+plane.* Existence and uniqueness are taken as foundational. *(A
+plane is essentially a 2D Euclidean copy embedded in 3D.)*
+*(Stereometry §374.)*
+</details>
+
+### Problem 2 — Three configurations of two lines
+
+Show that any two distinct lines in space fall into exactly one of
+three classes: (a) **intersecting** (meet at a point), (b) **parallel**
+(same direction, no meeting, lie in a common plane), (c) **skew**
+(no meeting, no common plane).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Two lines lie in a common plane* iff they are intersecting or
+parallel. The contrapositive is *skew = no common plane = no
+meeting*.
+</details>
+<parameter>
+<details class="hint"><summary>Full solution</summary>
+**Coplanar case.** If the two lines are in a common plane, they are
+either parallel or intersecting (the planar dichotomy from
+Planimetry).
+
+**Non-coplanar case.** If they share no plane, they cannot meet —
+since a single intersection point + the rest of either line +
+non-trivial extension forces both to lie in the plane through that
+point and any other two points (one from each line), contradiction.
+And they cannot be parallel — parallel lines lie in a common plane
+by definition.
+
+So two distinct lines are exactly one of: intersecting, parallel, or
+skew. **QED.** *(Stereometry §378.)*
+</details>
+
+### Problem 3 — Three positions of a line and a plane
+
+Classify the possible relationships between a line $\ell$ and a
+plane $\pi$.
+
+<details class="hint"><summary>Full solution</summary>
+Three cases:
+- $\ell$ **lies in** $\pi$ (every point of $\ell$ is in $\pi$).
+- $\ell$ **intersects** $\pi$ at exactly one point.
+- $\ell$ **is parallel to** $\pi$ (no intersection — $\ell$ and
+  $\pi$ have no common point).
+
+There are no other cases: a line either intersects the plane in
+the empty set (parallel), one point, or has at least two points in
+the plane (in which case the whole line is in the plane, since two
+points determine a line within a plane).
+*(Stereometry §380.)*
+</details>
+
+### Problem 4 — Line perpendicular to a plane
+
+Define: a line $\ell$ is **perpendicular to a plane** $\pi$ at a
+point $F \in \ell \cap \pi$ if $\ell$ is perpendicular to **every**
+line in $\pi$ through $F$. Show that this is equivalent to: $\ell$
+is perpendicular to **two** distinct lines in $\pi$ through $F$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*If $\ell$ is perpendicular to two distinct lines $m_1, m_2$ in
+$\pi$ through $F$, then any third line $m$ in $\pi$ through $F$ can
+be expressed as a "linear combination" of $m_1$ and $m_2$ — and the
+perpendicularity to $\ell$ is preserved by this combination.*
+</details>
+<details class="hint"><summary>Full solution</summary>
+The harder direction: *two perpendiculars suffice*. Let $\ell$ be
+perpendicular at $F$ to two distinct lines $m_1, m_2 \subset \pi$
+through $F$. Take any third line $m$ in $\pi$ through $F$.
+
+Choose points $A_1 \in m_1, A_2 \in m_2$ at unit distance from $F$.
+Any point $X$ on $m$ at unit distance from $F$ has the form
+$X = a A_1 + b A_2$ with $a^2 + b^2 = 1$ (parameterising the
+unit circle in $\pi$ in the basis $A_1, A_2$).
+
+Take any point $P$ on $\ell$, $P \ne F$. Use the *three-point
+perpendicular formula* (a coordinate / vector argument): $|PX|^2 =
+|PF|^2 + |FX|^2$ iff $\angle PFX = 90°$. The hypothesis
+$\angle PFA_1 = \angle PFA_2 = 90°$ gives $|PA_i|^2 = |PF|^2 +
+|FA_i|^2$ for $i = 1, 2$. By a careful expansion (treating $X$ as a
+linear combination), one finds $|PX|^2 = |PF|^2 + |FX|^2$,
+i.e. $\ell \perp m$ at $F$. Since $m$ was arbitrary, $\ell$ is
+perpendicular to *every* line through $F$ in $\pi$ — and so $\ell
+\perp \pi$. **QED.** *(Stereometry §389 — the **perpendicular-line-
+to-plane theorem**.)*
+</details>
+
+### Problem 5 — Existence and uniqueness of perpendicular line through a point
+
+Through a given point $P$, there exists exactly one line
+perpendicular to a given plane $\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*If $P \in \pi$:* erect two perpendiculars in $\pi$ to two
+intersecting reference lines through $P$ in $\pi$, then use Problem
+4 in reverse.
+
+*If $P \notin \pi$:* drop a perpendicular from $P$ to $\pi$ —
+existence by reflection symmetry; uniqueness by an angle-sum
+argument analogous to Planimetry §57.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Existence (point on the plane).* Let $P \in \pi$. Choose two
+distinct lines $m_1, m_2 \subset \pi$ through $P$. Erect a line
+$\ell_1$ in the plane through $P$ and $m_1$ (the "vertical plane"
+above $m_1$) perpendicular to $m_1$. Similarly $\ell_2$ in the
+plane through $P$ and $m_2$ perpendicular to $m_2$. Now
+$\ell_1$ and $\ell_2$ are two distinct lines through $P$ in the
+"vertical pencil" above $P$. By a standard argument (the perpendicular
+plane through $P$), there is a unique line $\ell$ through $P$
+perpendicular to both $m_1$ and $m_2$ in $\pi$ — and by Problem 4
+this $\ell$ is perpendicular to $\pi$.
+
+*Uniqueness.* Suppose two distinct perpendiculars $\ell_1, \ell_2$
+existed through $P$. Each is perpendicular to every line in $\pi$
+through $P$. The plane through $\ell_1$ and $\ell_2$ would intersect
+$\pi$ in some line $m$ through $P$, and both $\ell_1$ and $\ell_2$
+would be perpendicular to $m$ in this *plane through $\ell_1, \ell_2$*
+— so $\ell_1 = \ell_2$ (uniqueness of the planar perpendicular).
+*(Stereometry §391.)*
+
+The case $P \notin \pi$ is similar; one drops a perpendicular foot.
+**QED.**
+</details>
+
+### Problem 6 — The perpendicular is the shortest
+
+The perpendicular from a point $P$ to a plane $\pi$ has the
+**shortest length** among all segments from $P$ to points in $\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is exactly the planar shortest-segment theorem (Ch 3 of
+Planimetry) lifted to 3D — the same argument works on the right
+triangle formed by $P$, the perpendicular foot $F$, and any other
+point $Q \in \pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $F$ be the foot of the perpendicular from $P$ to $\pi$, and
+$Q \in \pi$ any other point. The triangle $\triangle PFQ$ has
+$\angle PFQ = 90°$ (since $\ell \perp \pi$ implies $\ell$ is
+perpendicular to *every* line in $\pi$ through $F$, including
+line $FQ$). By the planar Pythagoras: $|PQ|^2 = |PF|^2 + |FQ|^2 >
+|PF|^2$. So $|PQ| > |PF|$. **The perpendicular minimises.**
+*(Stereometry §392.)*
+</details>
+
+### Problem 7 — Dihedral angles
+
+Two half-planes sharing a common edge $\ell$ form a **dihedral
+angle**. Its measure is the planar angle one sees by intersecting
+both half-planes with a plane perpendicular to $\ell$. Show that
+this measure does not depend on the choice of the perpendicular
+plane.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two perpendicular cross-sections of the dihedral angle are
+parallel to each other (both perpendicular to $\ell$). The two
+planar angles are corresponding under that parallelism.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Take two perpendicular planes $\sigma_1$ and $\sigma_2$, both
+perpendicular to $\ell$ at points $F_1, F_2$ respectively. The two
+half-planes' intersections with $\sigma_1$ are two rays out of
+$F_1$ at some angle $\theta_1$; similarly $\theta_2$ at $F_2$. By
+construction, $\sigma_1 \parallel \sigma_2$ (both perpendicular to
+$\ell$). Each pair of rays in $\sigma_1$ and $\sigma_2$ are
+*translations* of each other along $\ell$ — so $\theta_1 =
+\theta_2$. **QED.** *(Stereometry §400 — well-defined dihedral
+measure.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions (Stereometry §§373–415).**
+
+- **Plane:** a flat 2D surface in 3D space; uniquely determined by
+  three non-collinear points.
+- **Two lines in space:** intersecting, parallel, or **skew**
+  (none of the above).
+- **Line and plane:** the line lies in the plane, intersects it at
+  one point, or is parallel to the plane.
+- **Two planes:** intersect in a line, or are parallel.
+- **Line perpendicular to plane** ($\ell \perp \pi$): $\ell$ is
+  perpendicular to every line in $\pi$ through the foot.
+  *Equivalently,* perpendicular to **two** distinct lines in $\pi$
+  through the foot (the *two-perpendiculars theorem*).
+- **Dihedral angle:** the figure formed by two half-planes sharing a
+  common edge. Its measure is the planar angle of any cross-section
+  perpendicular to the edge.
+
+**Theorems.**
+
+1. *Three non-collinear points uniquely determine a plane.*
+2. *Two lines in space are intersecting, parallel, or skew —
+   no other option.*
+3. *A line perpendicular to two distinct lines in a plane (through
+   their foot) is perpendicular to every line in the plane through
+   the foot.*
+4. *Through any point in space, there is a unique line
+   perpendicular to a given plane.*
+5. *The perpendicular from a point to a plane is the shortest
+   segment from the point to the plane.*
+6. *The dihedral-angle measure is well-defined: independent of the
+   perpendicular cross-section chosen.*
+
+:::
+
+A verse:
+
+> *In the plane, lines meet or run parallel — that's all.*
+> *In space, a third path appears — skew, two strangers passing.*
+> *Perpendicular to two lines through one foot? Perpendicular to all.*
+> *And the perpendicular is shortest, like its planar elder, never lapsing.*
+
+## Apply
+
+### Worked example
+
+> A line $\ell$ pierces a plane $\pi$ at a point $F$. Two lines
+> $m_1, m_2 \subset \pi$ both pass through $F$ and are
+> perpendicular to $\ell$. Is $\ell$ necessarily perpendicular to
+> $\pi$?
+
+If $m_1$ and $m_2$ are *distinct*, then yes — by the two-perpendicular
+theorem (Problem 4). If they are the same line, no — $\ell$ is
+perpendicular only to that one line in $\pi$, and to many other
+choices of one-line-in-$\pi$ it might not be perpendicular.
+
+**Conclusion: yes, provided $m_1 \ne m_2$.**
+
+### Practice — Warm
+
+**W1.** Two lines in space pass through the same point and are not
+parallel. Are they skew?
+
+<details class="hint"><summary>Full solution</summary>
+**No.** They meet at that point, so they are *intersecting*, not
+skew. Skew lines never meet.
+</details>
+
+**W2.** Through a given point in space and a given plane, how many
+perpendiculars to the plane through that point exist?
+
+<details class="hint"><summary>Full solution</summary>
+**Exactly one** (Problem 5). The point can be on the plane or off
+it; either way, one perpendicular.
+</details>
+
+**W3.** Two parallel planes are cut by a third plane. The
+intersections are two lines. What is their relationship?
+
+<details class="hint"><summary>Full solution</summary>
+**They are parallel.** *(Each lies in the cutting plane and is
+parallel to the same direction inherited from the parallel
+planes.)*
+</details>
+
+### Practice — Working
+
+**P1.** Show that if a line is perpendicular to a plane, then any
+plane *containing* that line is perpendicular to the original
+plane.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two planes are perpendicular iff their dihedral angle is $90°$.
+Construct the perpendicular-cross-section.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\ell \perp \pi$ at $F$, and let $\sigma$ be any plane
+containing $\ell$. The dihedral angle between $\sigma$ and $\pi$
+is measured by intersecting both with a plane perpendicular to
+their common edge (which is $\sigma \cap \pi$, a line through
+$F$). The cross-section through $F$ perpendicular to this edge
+contains $\ell$ (since $\ell \perp \pi \perp$ edge means
+$\ell$ is perpendicular to the edge — wait, let me check: $\ell$
+perpendicular to $\pi$ means $\ell$ is perpendicular to the edge,
+which lies in $\pi$. So $\ell$ is perpendicular to the edge of the
+dihedral angle, and the cross-section perpendicular to that edge
+through $F$ contains $\ell$). The cross-section also intersects
+$\pi$ in a line perpendicular to the edge (in $\pi$). The angle
+between $\ell$ and this line in $\pi$ is — by the perpendicularity
+$\ell \perp \pi$ — exactly $90°$. So the dihedral angle is $90°$,
+i.e. $\sigma \perp \pi$. **QED.** *(Stereometry §405.)*
+</details>
+
+**P2.** Show that two planes both perpendicular to a third plane
+need *not* be parallel.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at two walls of a room — they are both perpendicular to the
+floor, but they are perpendicular to **each other**, not parallel.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Consider three mutually perpendicular planes (walls and floor of a
+room). Two of the walls are both perpendicular to the floor, but
+they are perpendicular to *each other*, not parallel. Hence
+**two planes perpendicular to a third can be perpendicular,
+parallel, or even neither (intersecting at any angle other than 0°
+or 90°).**
+</details>
+
+**P3.** Show that the **distance from a point to a plane** is the
+length of the perpendicular from the point to the plane (and is
+well-defined — independent of any other configuration).
+
+<details class="hint"><summary>Full solution</summary>
+Direct application of Problem 6 (the perpendicular minimises) and
+Problem 5 (the perpendicular is unique). The minimum is achieved
+once, at the perpendicular foot.
+</details>
+
+### Practice — Stretch
+
+**S1.** *(The three-perpendiculars theorem.)* A point $P$ off a
+plane $\pi$ has perpendicular foot $F$ in $\pi$. From $F$, drop a
+perpendicular within $\pi$ to a line $\ell \subset \pi$, foot $G$.
+Show that $PG \perp \ell$ — i.e. the line from $P$ to the foot of
+the perpendicular within $\pi$ is also perpendicular to $\ell$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$PF \perp \pi$ means $PF \perp \ell$. $FG \perp \ell$ by
+construction. So $\ell$ is perpendicular to two lines $PF, FG$
+through $G$ in the plane $PFG$ — and thus perpendicular to *every*
+line in that plane through $G$, in particular $PG$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$PF \perp \pi$ ⇒ $PF \perp \ell$ (since $\ell \subset \pi$).
+$FG \perp \ell$ by construction. Hence $\ell$ is perpendicular to
+both $PF$ and $FG$, two lines in plane $PFG$ meeting at $G$. By
+Problem 4 (two-perpendiculars), $\ell \perp$ plane $PFG$, hence
+$\ell \perp PG$ (any line through $G$ in plane $PFG$).
+**QED.** *(Stereometry §394 — the **three-perpendiculars theorem**,
+the geometry-engine of every planar-shadow problem.)*
+</details>
+
+**S2.** A regular tetrahedron $ABCD$ has all four faces equilateral
+triangles of side $s$. Find the *distance from any vertex to the
+opposite face*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Drop the perpendicular from $A$ to the centroid of $\triangle BCD$.
+Use the equilateral-triangle centroid (at distance $s/\sqrt 3$ from
+each vertex) and Pythagoras.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The centroid of equilateral $\triangle BCD$ is at distance
+$\dfrac{s}{\sqrt 3}$ from each of $B, C, D$. The apex $A$ has
+$|AB| = s$. Pythagoras: $h^2 + \left(\dfrac{s}{\sqrt 3}\right)^2 =
+s^2$, so $h^2 = s^2 - \dfrac{s^2}{3} = \dfrac{2 s^2}{3}$, hence
+$h = s \sqrt{\dfrac{2}{3}} = \dfrac{s \sqrt 6}{3}$. *(A canonical
+3D-Pythagoras computation; Kiselev §403.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Stereometry*, §§385–410.
+
+**K1.** Through a point $P$ off a plane $\pi$, all the segments to
+points on a *circle* in $\pi$ have the same length. Show that the
+perpendicular from $P$ to $\pi$ lands on the **centre** of that
+circle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The set of points in $\pi$ equidistant from $P$ is the locus of
+the foot $F$'s perpendicular cone — which intersects $\pi$ in a
+circle centred at $F$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $F$ be the foot of the perpendicular from $P$ to $\pi$. For
+any point $Q \in \pi$, $|PQ|^2 = |PF|^2 + |FQ|^2$. So $|PQ|$ is a
+*monotonic* function of $|FQ|$. The set $\{Q : |PQ| = $ constant$\}$
+is therefore $\{Q : |FQ| = $ constant'$\}$ — a *circle* in $\pi$
+centred at $F$. **QED.** *(Stereometry §394.)*
+</details>
+
+**K2.** Two skew lines $\ell_1, \ell_2$ in space have a unique
+**common perpendicular** — a single line meeting both at right
+angles. Sketch this and explain why it must exist and be unique.
+
+<details class="hint"><summary>Full solution</summary>
+*Existence.* Through $\ell_1$ pass a plane $\pi_1$ parallel to
+$\ell_2$ (this exists: take any plane containing $\ell_1$ and a
+line through any point of $\ell_1$ parallel to $\ell_2$).
+$\ell_2$ projects onto a line $\ell_2'$ in $\pi_1$ parallel to
+$\ell_2$. The lines $\ell_1$ and $\ell_2'$ in $\pi_1$ either meet
+at a point $X$ or are parallel; if parallel, $\ell_1$ and $\ell_2$
+are parallel (contradiction). So they meet at $X$. The
+perpendicular to $\pi_1$ at $X$ — call it $m$ — is perpendicular to
+$\ell_1$ (since $\ell_1 \subset \pi_1$) and perpendicular to
+$\ell_2'$, hence (by translation argument) to $\ell_2$.
+
+*Uniqueness.* Two common perpendiculars would force $\ell_1$ and
+$\ell_2$ to lie in the plane of those two perpendiculars,
+contradicting "skew".
+*(Stereometry §397 — the **common-perpendicular theorem**.)*
+</details>
+
+**K3.** A point $P$ in space is *equidistant* from three given
+points $A, B, C$. Show that $P$ lies on the *perpendicular line*
+through the **circumcentre** of $\triangle ABC$ (perpendicular to
+the plane $ABC$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|PA| = |PB|$ and $|PA| = |PC|$ — interpret these as planar
+perpendicular-bisector loci, in a *3D-perpendicular-plane* sense.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|PA| = |PB|$: the locus is the *perpendicular plane* through the
+midpoint of $AB$ — i.e. the plane perpendicular to $AB$ through its
+midpoint $M_{AB}$. Similarly $|PA| = |PC|$ gives the perpendicular
+plane through $M_{AC}$. Both planes contain the perpendicular line
+through the circumcentre of $\triangle ABC$ to the plane $ABC$.
+The intersection of the two planes is exactly that perpendicular
+line. **QED.** *(Stereometry §410 — the **3D circumcentre
+theorem**, basis for the *circumsphere* of a tetrahedron.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book II — Stereometry*, §§373–415 (Sumizdat 2008). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+S1 is the *three-perpendiculars theorem*, §394 — Kiselev's
+favourite theorem of Stereometry's first chapter, used heavily
+later.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Two non-parallel lines must meet."** True in the plane;
+   *false* in space, where skew lines exist.
+2. **"A line perpendicular to one line in a plane is perpendicular
+   to the plane."** **False.** Need *two distinct* lines in the
+   plane through the foot — the two-perpendicular theorem (Problem
+   4) is about *two*, not one.
+3. **"Perpendicular planes both contain the same perpendicular
+   line."** No — *perpendicular planes* are two planes whose
+   dihedral angle is $90°$; they do not share a common perpendicular
+   line in general.
+:::
+
+### Self-Assessment
+
+1. Could you state and prove the *two-perpendicular theorem*
+   (Problem 4) — the heart of perpendicularity in space — without
+   notes?
+2. Did the *three-perpendiculars theorem* (S1) feel like one move,
+   or did you need scaffolding?
+3. Can you sketch a configuration of two skew lines and identify
+   their common perpendicular?
+
+- **3 yes:** move on to *Polyhedra* (Ch 2).
+- **2 yes:** redo Problem 4 — it is the chapter's core machinery.
+- **0–1 yes:** the four core problems (3, 4, 5, 7) form one logical
+  block; replay them.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg1.parallels`](../../tier-kiselev-3-planimetry/04-parallels/index.qmd) —
+  parallel-line theorems lifted to 3D (parallel planes,
+  parallel lines in different planes).
+- [`kg1.perpendiculars`](../../tier-kiselev-3-planimetry/03-perpendiculars/index.qmd) —
+  perpendicular-as-shortest-segment, lifted to 3D.
+
+### What this unlocks
+
+- **`kg2.polyhedra`** *(Ch 2, planned)* — prisms, pyramids, regular
+  polyhedra all rely on perpendicular-line-to-plane (for heights)
+  and dihedral angles.
+- [`kg2.cylinder-cone`](../03-cylinder-cone/index.qmd) — the axis
+  of a cylinder is perpendicular to its base; understanding
+  perpendicular lines in space is the prerequisite.
+- [`t4.vectors-2d-3d`](../../tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd) —
+  the synthetic geometry here translates directly to vector dot
+  products and cross products.
+- [`cbse12.lines-in-3d`](../../tier-cbse-12-class-12/11a-lines-in-3d/index.qmd) —
+  CBSE Class 12's coordinate version of the same theorems.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book II — Chapter 1: Lines and planes (§§373–415).**
+  Givental translation, Sumizdat 2008. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+- **Sister synthesis lessons:**
+  [`cbse11.three-d-geometry-intro`](../../tier-cbse-11-class-11/11-three-d-geometry-intro/index.qmd)
+  (CBSE 11 introduction);
+  [`cbse12.lines-in-3d`](../../tier-cbse-12-class-12/11a-lines-in-3d/index.qmd)
+  and
+  [`cbse12.planes-in-3d`](../../tier-cbse-12-class-12/11b-planes-in-3d/index.qmd)
+  (board-exam coordinate treatments).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the *three-perpendiculars theorem* (§394).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every 3D engine relies on **plane equations**,
+**ray-plane intersections**, and **perpendicular foot
+calculations**. Lighting (the *normal vector* is the perpendicular
+to a surface), collision (perpendicular distance from a point to a
+wall), and physics (resolution of forces in 3D) all use the
+synthetic theory you just built.
+:::
+
+::: {.applied-callout}
+**Research.** The **two-perpendiculars theorem** (Problem 4) is the
+synthetic seed of **linear algebra** in $\mathbb R^3$: a vector is
+orthogonal to a 2D subspace iff it is orthogonal to two
+spanning vectors. The same statement, from synthetic to vector to
+inner-product space, is one continuous arc of mathematical
+abstraction.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§373–415 ordering and the proof of
+  Problem 4); Hilbert's *Grundlagen* (which laid out 3D axioms
+  rigorously); the three-perpendiculars theorem from §394 — Kiselev's
+  favourite move.
+- **Problem 4's proof** I gave is sketched; the full proof Kiselev
+  presents uses an explicit *isosceles-triangle in the perpendicular
+  plane* argument that takes about half a page. Worth reading in
+  full.
+- **What this lesson does not do:** treat the parallel postulate's
+  3D version (the existence of parallel planes through a point off
+  a plane) as a separate axiom — it follows from the planar version
+  applied to the right cross-section.
+:::

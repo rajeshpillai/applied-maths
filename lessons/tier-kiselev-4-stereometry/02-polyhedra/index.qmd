@@ -1,0 +1,616 @@
+---
+title: "Ch 2 — Polyhedra: Prisms and Pyramids"
+subtitle: "Volumes via Cavalieri — and why the pyramid is exactly one third of the prism"
+lesson-id: "kg2.polyhedra"
+tier: "kg2"
+kiselev-book: "Geometry, Book II (Stereometry)"
+kiselev-chapter: 2
+kiselev-chapter-title: "Polyhedra"
+kiselev-sections: "Stereometry §§416–429 (prisms, pyramids, surface and volume; Cavalieri's principle)"
+prerequisites: [kg2.lines-and-planes, kg1.areas]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you state the *two-perpendicular theorem* and the
+   *three-perpendiculars theorem* from
+   [`kg2.lines-and-planes`](../01-lines-and-planes/index.qmd)?
+2. Are 2D area formulas — triangle, parallelogram, regular $n$-gon
+   — automatic for you? See [`kg1.areas`](../../tier-kiselev-3-planimetry/09-areas/index.qmd).
+3. Do you accept that *the volume of a rectangular box is
+   length × width × height*?
+4. Can you visualise *cutting a 3D solid by a plane* and getting a
+   2D cross-section?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A vertical prism: two congruent polygons (the *bases*) connected by
+rectangular sides. Slide one base — the prism becomes oblique but
+keeps the same volume. Now collapse the top base to a single point
+— you get a **pyramid**.
+
+```{ojs}
+viewof shape = Inputs.radio(
+  ["right prism", "oblique prism", "pyramid"],
+  {value: "right prism", label: "Solid:"}
+)
+```
+
+```{ojs}
+viewof basen = Inputs.range([3, 8], {value: 4, step: 1, label: "Base sides n"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 320;
+  const cx = w * 0.4, cy = h * 0.65;
+  const R = 60, hgt = 130;
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  const project = (x, y, z) => [x + 0.45 * y, -z - 0.35 * y];
+
+  // base polygon vertices
+  const baseV = [];
+  for (let i = 0; i < basen; i++) {
+    const ang = -Math.PI / 2 + (2 * Math.PI * i) / basen;
+    baseV.push([R * Math.cos(ang), R * Math.sin(ang), 0]);
+  }
+
+  let topV;
+  if (shape === "right prism") {
+    topV = baseV.map(([x, y, z]) => [x, y, hgt]);
+  } else if (shape === "oblique prism") {
+    topV = baseV.map(([x, y, z]) => [x + 50, y - 20, hgt]);
+  } else {
+    // pyramid: top is a single apex
+    topV = baseV.map(() => [0, 0, hgt]);
+  }
+
+  // project to 2D
+  const baseP = baseV.map(([x, y, z]) => {
+    const [px, py] = project(x, y, z);
+    return [cx + px, cy + py];
+  });
+  const topP = topV.map(([x, y, z]) => {
+    const [px, py] = project(x, y, z);
+    return [cx + px, cy + py];
+  });
+
+  // base
+  svg.append("polygon")
+    .attr("points", baseP.map(p => `${p[0]},${p[1]}`).join(" "))
+    .attr("fill", "#26a").attr("fill-opacity", 0.18)
+    .attr("stroke", "#26a");
+  // top
+  svg.append("polygon")
+    .attr("points", topP.map(p => `${p[0]},${p[1]}`).join(" "))
+    .attr("fill", "#a26").attr("fill-opacity", 0.18)
+    .attr("stroke", "#a26");
+  // side edges
+  for (let i = 0; i < basen; i++) {
+    svg.append("line").attr("x1", baseP[i][0]).attr("y1", baseP[i][1])
+      .attr("x2", topP[i][0]).attr("y2", topP[i][1])
+      .attr("stroke", "#888");
+  }
+
+  svg.append("text").attr("x", 30).attr("y", 22)
+    .attr("font-size", 13).text(`shape: ${shape}`);
+  svg.append("text").attr("x", 30).attr("y", 38)
+    .attr("font-size", 11).attr("fill", "#666")
+    .text(`base: regular ${basen}-gon (radius ${R})`);
+
+  return svg.node();
+}
+```
+
+A **prism** has two congruent parallel bases connected by
+parallelograms. A **pyramid** has one polygonal base and an apex.
+Volumes:
+$$
+V_{\text{prism}} = (\text{base area}) \cdot h,
+\qquad V_{\text{pyramid}} = \tfrac{1}{3} (\text{base area}) \cdot h.
+$$
+
+## Wonder
+
+1. Why is the *oblique* prism (slid sideways) the same volume as
+   the right prism? **Visually** — what stays constant?
+2. The pyramid is exactly **one third** of the prism on the same
+   base and height. Why one-third? *(In 2D, the triangle is
+   one-half of the parallelogram; this is the 3D version.)*
+3. A *regular* tetrahedron has all four faces congruent equilateral
+   triangles. How many regular polyhedra exist in 3D? *(Trick
+   question — surprisingly few.)*
+4. Cut a prism diagonally: each piece is a **prism with triangular
+   base** (a *triangular prism*). Could three congruent triangular
+   pyramids tile a single triangular prism?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Cavalieri's principle:** if every cross-section parallel to
+the base has the same area, the total volume is the same. (2)
+Three pyramids of equal volume can tile one triangular prism — and
+they're each $1/3$ of the prism. The proof uses Cavalieri (or
+similar-pyramid scaling). (3) **Exactly five** regular polyhedra:
+tetrahedron, cube, octahedron, dodecahedron, icosahedron. *(Plato.)*
+(4) Yes — the answer to (4) is the proof of (2).
+:::
+
+## Discover
+
+### Problem 1 — Volume of a rectangular box
+
+Show that the volume of a rectangular box with dimensions
+$a \times b \times c$ is $abc$.
+
+<details class="hint"><summary>Full solution</summary>
+**Working axiom** — Kiselev takes this as a foundational fact (the
+*unit cube has unit volume*; volume scales with each of the three
+dimensions). Just as area $b \cdot h$ is foundational in Planimetry,
+volume $abc$ is foundational here. *(Stereometry §416.)*
+</details>
+
+### Problem 2 — Volume of a right prism
+
+Show that the volume of a right prism (with congruent parallel
+polygonal bases of area $A$ and lateral edges of length $h$
+perpendicular to the base) is $V = A h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangulate the base into triangles. Each triangular piece extrudes
+into a *triangular prism*. By the same argument used for area,
+each triangular prism's volume scales linearly in base area and
+height.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Triangulate the base polygon into triangles $T_1, \ldots, T_m$ of
+areas $A_1, \ldots, A_m$ summing to $A$. Each $T_i$ extrudes into a
+triangular prism of volume $A_i h$ (this is taken as known for
+triangular prisms — provable by sandwiching a triangular prism in a
+rectangular box and using Problem 1). Sum: $V = h \sum A_i = A h$.
+**QED.** *(Stereometry §417.)*
+</details>
+
+### Problem 3 — Cavalieri's principle
+
+Two solids lie between the same two parallel planes. Every plane
+parallel to those two slices both solids in regions of equal area.
+Show that the two solids have **equal volume**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is *Cavalieri's principle*. Approximation: slice both solids
+into thin parallel slabs; in the limit the slab volumes equal the
+cross-section areas times the slab thickness. Equal cross-sections
+⇒ equal slab volumes ⇒ equal totals.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Slice both solids by $n$ equally-spaced parallel planes between the
+bounding planes, splitting each into $n$ "slabs" of equal
+thickness $h/n$. By the equal-cross-section hypothesis, the $i$-th
+slab of solid 1 and solid 2 have approximately equal volume (each
+is approximately the cross-section area times $h/n$). Sum and let
+$n \to \infty$: total volumes equal. **QED.**
+*(Stereometry §418 — Cavalieri's principle, the key tool. Bonaventura
+Cavalieri 1635.)*
+</details>
+
+### Problem 4 — Volume of an oblique prism
+
+Show that the volume of an *oblique* prism (lateral edges *not*
+perpendicular to the base) is also $A h$, where $h$ is the
+*perpendicular* distance between the parallel bases.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply Cavalieri's principle: every cross-section parallel to the
+base has area $A$ (by the parallel-line theorems in space).
+</details>
+<details class="hint"><summary>Full solution</summary>
+For both right and oblique prisms with the same base area $A$ and
+same perpendicular height $h$, every cross-section parallel to the
+base is congruent to the base — hence area $A$. By Cavalieri, the
+volumes are equal. The right-prism volume is $Ah$, so the oblique-
+prism volume is also $Ah$. **QED.** *(Stereometry §419.)*
+</details>
+
+### Problem 5 — Volume of a triangular pyramid (one third of the prism)
+
+Three congruent triangular pyramids tile a triangular prism. Sketch
+the construction and conclude that each pyramid has volume
+$\tfrac{1}{3} A h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take a triangular prism $A B C / A' B' C'$ (top primes). Three
+pyramids: (i) $A B C A'$, (ii) $B B' A' C'$ ... err, let me state
+this carefully.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Take a triangular prism with bottom $\triangle ABC$ and top
+$\triangle A'B'C'$. Slice along plane $BA'C'$ and along plane $BCC'$.
+This produces three tetrahedra: $T_1 = ABCA'$, $T_2 = BCC'A'$,
+$T_3 = BC'B'A'$. Two of them — $T_1$ and $T_2$ — share base
+$\triangle ABC$ and apex $A'$ vs. $C'$ respectively — wait, they
+share the *opposite face*. Let me re-organise:
+
+The three tetrahedra are pairwise *equivolumetric*: each pair shares
+a base triangle (and the apex projects to the same height to the
+opposite base). By Cavalieri, each pair has equal volume — and the
+three together fill the prism. So each is $\tfrac{1}{3}$ of the
+prism. **Pyramid volume $= \tfrac{1}{3} A h$.** *(Stereometry §425
+— the **prism-into-three-pyramids** dissection. Euclid XII proved
+this in the 3rd century BCE.)*
+</details>
+
+### Problem 6 — Volume of any pyramid
+
+Show that the volume of *any* pyramid (with polygonal base of area
+$A$ and perpendicular height $h$) is $\tfrac{1}{3} A h$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangulate the base; each triangular piece becomes a triangular
+pyramid sharing the same apex. Sum.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Triangulate the polygonal base into triangles $T_1, \ldots, T_m$
+of areas $A_i$. Each triangulated piece together with the apex
+forms a triangular pyramid of volume $\tfrac{1}{3} A_i h$ (Problem
+5). Sum: $V = \tfrac{1}{3} h \sum A_i = \tfrac{1}{3} A h$.
+**QED.** *(Stereometry §426.)*
+</details>
+
+### Problem 7 — Lateral surface of a regular pyramid
+
+A *regular* pyramid has a regular polygonal base and the apex
+directly above the centre of the base. The lateral surface
+consists of $n$ congruent isosceles triangles (the *slant faces*).
+Find the lateral surface area in terms of base perimeter $P$ and
+*slant height* $\ell$ (the perpendicular from the apex to a base
+edge).
+
+<details class="hint"><summary>Full solution</summary>
+Each slant face is an isosceles triangle with base = side of the
+$n$-gon and altitude $\ell$. Its area is
+$\tfrac{1}{2} (\text{side}) \cdot \ell$. Sum over $n$ faces:
+$\tfrac{1}{2} P \cdot \ell$ where $P$ is the base perimeter.
+**Lateral area = $\tfrac{1}{2} P \ell$.** *(Stereometry §428 — the
+**regular-pyramid lateral surface formula**.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Prism:** a polyhedron with two parallel congruent polygonal
+  bases connected by parallelograms. *Right* prism: lateral edges
+  perpendicular to the base. *Regular* prism: right prism with
+  regular polygonal base.
+- **Pyramid:** a polyhedron with one polygonal base and an apex
+  point. *Regular* pyramid: regular polygonal base + apex directly
+  above the centre.
+- **Cavalieri's principle:** if two solids between parallel planes
+  have equal cross-section areas at every level, they have equal
+  volumes.
+
+**Theorems (Stereometry §§416–429).**
+
+| Solid | Volume | Surface |
+|-------|--------|---------|
+| Rectangular box, $a \times b \times c$ | $abc$ | $2(ab + bc + ca)$ |
+| Prism (right or oblique), base area $A$, height $h$ | $Ah$ | $A_{\text{lat}} + 2A$ |
+| Pyramid, base area $A$, height $h$ | $\tfrac{1}{3} Ah$ | $A_{\text{lat}} + A$ |
+| Regular $n$-gon prism, perimeter $P$, height $h$ | $A h$ | $Ph + 2A$ (lateral = $Ph$) |
+| Regular pyramid, perim $P$, slant height $\ell$ | $\tfrac{1}{3} A h$ | $\tfrac{1}{2} P \ell + A$ |
+
+:::
+
+A verse:
+
+> *Box, prism, pyramid — three solids, three formulas, one rule.*
+> *Volume is base times height — that's the prism's tool.*
+> *One third of that for the pyramid — three of them tile one prism.*
+> *Cavalieri stitches it all: equal slices, equal volumes, no schism.*
+
+## Apply
+
+### Worked example
+
+> A right rectangular prism has base $4 \times 5$ and height $9$.
+> Find the volume and total surface area.
+
+$V = 4 \cdot 5 \cdot 9 = 180$ cubic units.
+$S = 2(4 \cdot 5 + 5 \cdot 9 + 9 \cdot 4) = 2(20 + 45 + 36) =
+2 \cdot 101 = 202$ square units.
+
+**$V = 180,\quad S = 202.$**
+
+### Practice — Warm
+
+**W1.** A pyramid has square base of side $6$ and height $8$. Find
+the volume.
+
+<details class="hint"><summary>Full solution</summary>
+$V = \tfrac{1}{3} \cdot 36 \cdot 8 = 96$.
+</details>
+
+**W2.** A regular hexagonal prism has base side $3$ and height $10$.
+Find the volume.
+
+<details class="hint"><summary>Full solution</summary>
+Hexagon area: $\tfrac{3\sqrt 3}{2} \cdot 9 = \tfrac{27\sqrt 3}{2}$.
+$V = \tfrac{27\sqrt 3}{2} \cdot 10 = 135 \sqrt 3 \approx 233.83$.
+</details>
+
+**W3.** A right square pyramid has base $4 \times 4$ and slant
+height $5$. Find the lateral surface area.
+
+<details class="hint"><summary>Full solution</summary>
+Base perimeter $16$. Lateral $= \tfrac{1}{2} \cdot 16 \cdot 5 = 40$.
+</details>
+
+### Practice — Working
+
+**P1.** A regular tetrahedron of side $s$ has all four faces
+equilateral triangles. Find its volume.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the height $h = s\sqrt{2/3}$ from Ch 1 Stretch S2. Base area
+$\dfrac{\sqrt 3}{4} s^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$V = \tfrac{1}{3} \cdot \dfrac{\sqrt 3}{4} s^2 \cdot \dfrac{s
+\sqrt 6}{3} = \dfrac{s^3 \sqrt{18}}{36} = \dfrac{s^3 \sqrt 2}{12}$.
+</details>
+
+**P2.** A pyramid has square base of side $6$ and lateral edges
+all equal to $5$. Find the height.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The diagonal of the square base is $6\sqrt 2$. The lateral edge,
+the half-diagonal, and the height form a right triangle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Half-diagonal of base: $3\sqrt 2$. By Pythagoras:
+$h^2 + (3\sqrt 2)^2 = 5^2 \Rightarrow h^2 = 25 - 18 = 7
+\Rightarrow h = \sqrt 7$.
+</details>
+
+**P3.** Two pyramids have congruent bases and the same height, but
+the apex of the second is shifted horizontally (so it's *not*
+directly above the centre of the base). Show the volumes are equal.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cavalieri.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At every height $z$ above the base, the cross-section is similar
+to the base (with linear factor $(h - z)/h$ in both pyramids). The
+*shape* of the cross-section depends on apex position, but the
+*area* depends only on the linear factor — hence is the same in
+both pyramids. By Cavalieri, the volumes are equal. **QED.** *(The
+shifted-apex pyramid has the same volume as the regular one.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the volume of a *frustum* (truncated pyramid with
+parallel bases of areas $A_1, A_2$ and perpendicular distance $h$
+between them) is
+$$V = \tfrac{h}{3}(A_1 + A_2 + \sqrt{A_1 A_2}).$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Extend the frustum into the full pyramid; subtract the small
+pyramid that was cut off.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let the full pyramid have base $A_1$, height $H$. The cut-off
+pyramid has similar shape with base $A_2$ and height $H - h$.
+Linear scale: $\sqrt{A_2 / A_1}$. So $H - h = H \sqrt{A_2 / A_1}$,
+giving $H = h / (1 - \sqrt{A_2/A_1})$. Frustum volume:
+$\tfrac{1}{3} A_1 H - \tfrac{1}{3} A_2 (H - h)$. Substituting and
+simplifying (multiplying through by appropriate forms of
+$\sqrt{A_2/A_1}$) yields the stated formula. *(Standard frustum
+volume; Stereometry §427.)*
+</details>
+
+**S2.** Show that the volumes of three pyramids on the same base
+with apexes lying on the **same plane parallel to the base** are
+equal — and conclude that the *centroid* of a tetrahedron divides
+the line from any vertex to the centroid of the opposite face in
+ratio $3:1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First half: same base, apexes at the same height ⇒ equal volumes
+(Cavalieri).
+Second half: in a tetrahedron, the four medians (vertex to
+centroid of opposite face) concur at the **centroid**, dividing
+each in ratio $3:1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First half is direct Cavalieri.
+
+Second half: in tetrahedron $ABCD$, the median from $A$ goes to
+the centroid $G_A$ of $\triangle BCD$. By a similarity-style
+argument using the centroid construction (see Planimetry Stretch
+S1), the four medians concur at the *3D centroid* $G$, and
+$|AG| : |GG_A| = 3 : 1$. **QED.** *(Stereometry §429 — the
+*tetrahedron centroid theorem*.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Stereometry*, §§417–429.
+
+**K1.** Show that the volume of a *regular tetrahedron* of side $s$
+is $\dfrac{s^3 \sqrt 2}{12}$, and that of a *cube* of side $s$ is
+$s^3$. Compute the ratio of their volumes when both are inscribed
+in the same sphere.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A cube of side $s$ inscribes in a sphere of diameter $s\sqrt 3$
+(space diagonal). A regular tetrahedron of side $s$ inscribes in
+a sphere of radius $\dfrac{s \sqrt 6}{4}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Tetrahedron volume:* P1 above gives $\dfrac{s^3\sqrt 2}{12}$.
+
+For the cube: side = $s$, volume $s^3$, circumsphere radius
+$\dfrac{s\sqrt 3}{2}$.
+
+Inscribed in sphere of radius $R$:
+- Cube side: $s_{\text{cube}} = \dfrac{2R}{\sqrt 3}$, volume
+  $\left(\dfrac{2R}{\sqrt 3}\right)^3 = \dfrac{8 R^3}{3\sqrt 3}$.
+- Tetrahedron side: $s_{\text{tet}} = \dfrac{4R}{\sqrt 6}$, volume
+  $\dfrac{1}{12} \sqrt 2 \cdot \left(\dfrac{4R}{\sqrt 6}\right)^3
+  = \dfrac{8 R^3}{9\sqrt 3}$.
+
+Ratio: tetrahedron / cube $= 1/3$. **The inscribed tetrahedron is
+$\tfrac{1}{3}$ the volume of the inscribed cube.**
+</details>
+
+**K2.** A pyramid is *cut by a plane parallel to its base*, halfway
+up. The resulting two pieces are a small pyramid (top) and a
+frustum (bottom). Show the small pyramid has $\tfrac{1}{8}$ the
+volume of the original.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Linear scale halves; volume scales by the cube.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The small pyramid is similar to the whole with linear ratio
+$\tfrac{1}{2}$. Volume ratio: $(\tfrac{1}{2})^3 = \tfrac{1}{8}$.
+**QED.** *(The frustum has $\tfrac{7}{8}$.)*
+*(Stereometry §427 corollary.)*
+</details>
+
+**K3.** A regular hexagonal prism has all edges equal to $s$
+(both base edges and lateral edges). Find the volume and the total
+surface area.
+
+<details class="hint"><summary>Full solution</summary>
+Hexagon area: $\dfrac{3\sqrt 3}{2} s^2$. Volume: $\dfrac{3\sqrt 3}
+{2} s^3$. Lateral surface: $6$ rectangles each $s \times s$, area
+$6 s^2$. Two hexagonal bases: $2 \cdot \dfrac{3\sqrt 3}{2} s^2 =
+3\sqrt 3 s^2$. **Total surface: $(6 + 3\sqrt 3) s^2 \approx
+11.196 s^2$.** *(Stereometry §417 example.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book II — Stereometry*, §§416–429 (Sumizdat 2008). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+The *prism-into-three-pyramids* dissection (Problem 5) is Kiselev's
+§425, following Euclid XII.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Slant height equals lateral edge."** They are different.
+   The *slant height* is the perpendicular from the apex to a base
+   edge (used in lateral surface). The *lateral edge* is from the
+   apex to a base vertex (used in pyramid height calculations).
+2. **"The pyramid volume formula needs a regular pyramid."** It does
+   not. Any pyramid with base area $A$ and perpendicular height $h$
+   has volume $\tfrac{1}{3} A h$, *regardless* of where the apex
+   is over the base (Problem 6, P3 above).
+3. **"Cavalieri requires the cross-sections to be congruent, not
+   just equal in area."** Equal area is enough — that is precisely
+   the strength of Cavalieri's principle (P3 demonstrates this).
+:::
+
+### Self-Assessment
+
+1. Could you prove the prism-volume formula (Problem 2) by base
+   triangulation, on a fresh sheet?
+2. Did the *prism-into-three-pyramids* dissection (Problem 5) feel
+   like one move?
+3. Can you explain Cavalieri's principle to a friend in two
+   sentences, with an everyday example (a leaning stack of coins
+   has the same volume as a straight stack)?
+
+- **3 yes:** continue to *Cylinder and Cone* (Ch 3, the pilot).
+- **2 yes:** redo Problem 5 — the dissection is the chapter's
+  centrepiece.
+- **0–1 yes:** Problems 4–6 form the volume-of-pyramid chain;
+  re-walk them.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg2.lines-and-planes`](../01-lines-and-planes/index.qmd) —
+  perpendicular line to a plane (defines pyramid height); plane
+  positions (defines parallel cross-sections for Cavalieri).
+- [`kg1.areas`](../../tier-kiselev-3-planimetry/09-areas/index.qmd) —
+  every prism / pyramid volume formula bottoms out in a 2D base-
+  area formula.
+
+### What this unlocks
+
+- [`kg2.cylinder-cone`](../03-cylinder-cone/index.qmd) — cylinders
+  and cones are *limits* of regular prisms and pyramids as the
+  number of base sides $n \to \infty$. The pilot uses this directly.
+- **`kg2.sphere`** *(Ch 4, planned)* — Cavalieri's principle
+  used to compute sphere volume against a cylinder + double-cone
+  comparison.
+- **`kg2.regular-polyhedra`** *(Ch 5, planned)* — the five
+  Platonic solids are special pyramidal / dipyramidal
+  configurations.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book II — Chapter 2: Polyhedra (§§416–429).**
+  Givental translation, Sumizdat 2008. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+- **Sister synthesis lessons:**
+  [`cbse9.surface-areas-and-volumes`](../../tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd)
+  (introductory mensuration) and
+  [`cbse10.surface-areas-and-volumes`](../../tier-cbse-10-class-10/12-surface-areas-and-volumes/index.qmd)
+  (combined-solid mensuration).
+- **Read alongside the source PDF** for Kiselev's full prism-into-
+  three-pyramids dissection (§425).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every 3D mesh is ultimately a **polyhedron**
+— made of triangular or polygonal faces. Volume queries (for
+buoyancy, mass, fluid simulation) use the same dissection-into-
+prisms idea, applied to triangulated meshes via the *signed
+volume of a tetrahedron from origin to triangle*.
+:::
+
+::: {.applied-callout}
+**Research.** Cavalieri's principle is the *integration-by-slicing*
+intuition that becomes Riemann's $\int A(z) dz$ formula in
+multivariable calculus. The pyramid-as-one-third-of-prism is the
+discrete dissection version; calculus is the continuous version.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §416–429 ordering); Cavalieri
+  (1635); Euclid (Books XI–XII for the original prism dissections).
+- **The prism-into-three-pyramids dissection (Problem 5)** is
+  surprisingly subtle — Kiselev's clean version requires checking
+  that *each pair* of the three pyramids has equal volume by
+  Cavalieri, which is non-trivial.
+- **What this lesson does not do:** prove **Hilbert's third problem**
+  — that *not every two equal-volume polyhedra are scissors-
+  congruent*. That is a 20th-century result (Dehn 1900) belonging
+  to a measure-theory or representation-theory course.
+:::

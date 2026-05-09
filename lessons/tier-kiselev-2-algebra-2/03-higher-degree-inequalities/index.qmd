@@ -1,0 +1,518 @@
+---
+title: "Ch 3 — Higher-Degree Inequalities"
+subtitle: "Sign-analysis on factorisation — and reading off intervals from a polynomial's roots"
+lesson-id: "ka2.higher-degree-inequalities"
+tier: "ka2"
+kiselev-book: "Algebra, Part II"
+kiselev-chapter: 3
+kiselev-chapter-title: "Inequalities of higher degree"
+kiselev-sections: "§§36–50 (sign-charts, rational inequalities, AM-GM and friends)"
+prerequisites: [ka1.linear-inequalities, ka2.higher-degree-equations]
+unlocks: []
+applied-domains: [research, ai-ml, databases]
+estimated-minutes: 45
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are linear-inequality manipulations (especially the *flip* on
+   negative multiplication) automatic? See
+   [`ka1.linear-inequalities`](../../tier-kiselev-1-algebra-1/07-linear-inequalities/index.qmd).
+2. Can you factor a polynomial into linear factors? See
+   [`ka2.higher-degree-equations`](../02-higher-degree-equations/index.qmd).
+3. Are you comfortable with *interval notation* — open and closed
+   intervals, unions?
+4. Can you reason about the *sign* of a product? *(Even number of
+   negatives ⇒ positive product.)*
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+The polynomial $p(x) = (x - 1)(x - 3)$. It is *zero* at $x = 1, 3$,
+*positive* outside $[1, 3]$, and *negative* between them.
+
+```{ojs}
+viewof xtest = Inputs.range([-2, 6], {value: 2, step: 0.5, label: "x"})
+```
+
+```{ojs}
+{
+  const p = (xtest - 1) * (xtest - 3);
+  let region;
+  if (p === 0) region = "zero (root)";
+  else if (p > 0) region = "positive";
+  else region = "negative";
+  return `**p(${xtest}) = (${xtest} − 1)(${xtest} − 3) = ${p}** — ${region}.`;
+}
+```
+
+The roots split the number line into intervals; the sign is constant
+within each interval and *flips* at each *simple* root.
+
+## Wonder
+
+1. Each *simple* root flips the sign. What about a *double* root —
+   does the sign flip there too?
+2. The inequality $p(x) > 0$ — how do we describe its solution
+   set in interval notation?
+3. The expression $\dfrac{x - 1}{x + 2}$ — its sign depends on
+   *both* numerator and denominator. **Where** is it undefined?
+4. The expression $|x - 1| < 3$ — what's the geometric description?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **A double root does *not* flip the sign** — both factors of
+$(x - r)$ contribute, and even-power factors keep the sign.
+(2) The solution is the *union* of intervals where $p$ is positive.
+(3) Undefined where the denominator is zero ($x = -2$); sign-flips
+at *both* numerator and denominator zeros (one each side of the
+"undefined" point). (4) An *interval* of half-width $3$ centred at
+$1$, namely $(-2, 4)$.
+:::
+
+## Discover
+
+### Problem 1 — Sign-chart for a quadratic
+
+Solve $x^2 - 5 x + 6 < 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor: $(x - 2)(x - 3)$. The product is negative when one factor
+is positive and the other negative.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 2)(x - 3) < 0$ iff $2 < x < 3$. **Solution: $(2, 3)$.**
+</details>
+
+### Problem 2 — Sign-chart for a cubic
+
+Solve $(x + 1)(x - 2)(x - 4) > 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three roots split $\mathbb R$ into four intervals. Test one point
+in each.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Roots: $-1, 2, 4$. Intervals: $(-\infty, -1), (-1, 2), (2, 4),
+(4, \infty)$.
+
+Sign at $x = 0$: $(0 + 1)(0 - 2)(0 - 4) = 1 \cdot (-2) \cdot (-4) =
+8 > 0$. So in $(-1, 2)$: positive.
+
+Signs *alternate* across simple roots: $(-\infty, -1)$ negative,
+$(-1, 2)$ positive, $(2, 4)$ negative, $(4, \infty)$ positive.
+
+**Solution: $(-1, 2) \cup (4, \infty)$.**
+</details>
+
+### Problem 3 — Double-root sign
+
+Solve $(x + 1)^2 (x - 2) > 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(x + 1)^2 \ge 0$ always, with equality only at $x = -1$. So the
+sign of the product is the sign of $(x - 2)$ — except at $x = -1$,
+where the product is $0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $x \ne -1$: $(x + 1)^2 > 0$, so the product has the sign of
+$(x - 2)$ — positive when $x > 2$, negative when $x < 2$.
+
+At $x = -1$: product is $0$ (not $> 0$).
+
+**Solution: $x > 2$, i.e. $(2, \infty)$.**
+
+*(Notice: the double root at $-1$ does **not** create a sign-flip;
+the sign is the same on both sides of $x = -1$.)*
+</details>
+
+### Problem 4 — Rational inequality
+
+Solve $\dfrac{x - 1}{x + 2} > 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A fraction is positive iff numerator and denominator have the
+same sign. Two roots / undefined points: $x = 1$ (numerator $= 0$)
+and $x = -2$ (denominator $= 0$).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Both positive: $x > 1$. Both negative: $x < -2$. (Excluding the
+points where each is zero — particularly $x = -2$, where the
+fraction is undefined.)
+
+**Solution: $(-\infty, -2) \cup (1, \infty)$.**
+</details>
+
+### Problem 5 — Combining strict and non-strict
+
+Solve $(x - 1)(x - 3) \le 0$.
+
+<details class="hint"><summary>Full solution</summary>
+The product is $\le 0$ in $[1, 3]$ (negative inside; zero at
+endpoints). **Solution: $[1, 3]$.**
+
+(Strict $<$ would have given $(1, 3)$; the non-strict $\le$
+includes the endpoints where the product *equals* $0$.)
+</details>
+
+### Problem 6 — A *biquadratic* inequality
+
+Solve $x^4 - 5 x^2 + 4 \le 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $u = x^2$: $u^2 - 5 u + 4 \le 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$u^2 - 5 u + 4 = (u - 1)(u - 4) \le 0$ for $u \in [1, 4]$.
+
+Back-substitute: $1 \le x^2 \le 4$, i.e. $1 \le |x| \le 2$.
+
+**Solution: $-2 \le x \le -1$ or $1 \le x \le 2$, i.e. $[-2, -1]
+\cup [1, 2]$.**
+</details>
+
+### Problem 7 — AM-GM inequality (general form)
+
+Show that for non-negative $a, b$:
+$\dfrac{a + b}{2} \ge \sqrt{ab}$, with equality iff $a = b$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(a - b)^2 \ge 0$ always. Expand and rearrange.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a - b)^2 \ge 0 \Rightarrow a^2 - 2 a b + b^2 \ge 0 \Rightarrow
+a^2 + b^2 \ge 2 a b \Rightarrow (a + b)^2 \ge 4 a b \Rightarrow
+\dfrac{a + b}{2} \ge \sqrt{a b}$ (taking square roots; valid for
+$a, b \ge 0$).
+
+Equality iff $(a - b)^2 = 0$ iff $a = b$. **QED.** *(Algebra II
+§45 — **arithmetic-geometric mean inequality** in two variables.
+Generalises to $n$ variables by induction or other arguments.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Polynomial inequality:** $P(x) > 0, \ge 0, < 0, \le 0$, where $P$
+is a polynomial.
+
+**Sign-chart method.**
+
+1. Factor $P(x)$ over the reals as far as possible.
+2. Find the real roots and their multiplicities.
+3. Split $\mathbb R$ into intervals at the roots.
+4. Test one point in each interval (or note the alternation rule).
+5. Read off the solution set.
+
+**Sign-flip rule.** A simple root *flips* the sign. A double root
+*does not* flip the sign. A triple root *flips* the sign. (More
+generally, an odd-multiplicity root flips; even-multiplicity does
+not.)
+
+**Rational-inequality method.** $\dfrac{P(x)}{Q(x)} > 0$ — combine
+into one rational expression, find roots of $P$ and zeros of $Q$,
+build the sign-chart with both numerator and denominator zeros
+(remembering the *undefined* points where $Q = 0$).
+
+**AM-GM (two variables):** $\dfrac{a + b}{2} \ge \sqrt{a b}$, with
+equality iff $a = b$. *(Generalises to $n$ variables.)*
+
+:::
+
+A verse:
+
+> *Factor first, find the roots, walk the line.*
+> *Each simple root flips the sign; the doubled ones decline.*
+> *Test one point per interval, or use the alternation pattern.*
+> *And AM-GM bounds the geometric mean from above by the arithmetic
+> Saturn.*
+
+## Apply
+
+### Worked example
+
+> Solve $x^3 - 6 x^2 + 11 x - 6 \le 0$.
+
+Factor (using the lesson's earlier polynomial): $(x - 1)(x - 2)
+(x - 3) \le 0$.
+
+Roots $1, 2, 3$. Sign-chart:
+- $x < 1$: all three factors negative ⟹ product negative ✓
+- $1 < x < 2$: one positive, two negative ⟹ positive ✗
+- $2 < x < 3$: two positive, one negative ⟹ negative ✓
+- $x > 3$: all positive ⟹ positive ✗
+
+Including the boundary roots: **Solution: $(-\infty, 1] \cup [2, 3]$.**
+
+### Practice — Warm
+
+**W1.** Solve $(x - 2)(x + 5) > 0$.
+
+<details class="hint"><summary>Full solution</summary>
+Roots $2, -5$. Outside the interval: $x < -5$ or $x > 2$. **Solution:
+$(-\infty, -5) \cup (2, \infty)$.**
+</details>
+
+**W2.** Solve $x^2 + 4 < 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^2 \ge 0$ always, so $x^2 + 4 \ge 4 > 0$ always. **No solution.**
+</details>
+
+**W3.** Solve $x^2 \ge 9$.
+
+<details class="hint"><summary>Full solution</summary>
+$|x| \ge 3$ ⟹ $x \le -3$ or $x \ge 3$. **$(-\infty, -3] \cup
+[3, \infty)$.**
+</details>
+
+### Practice — Working
+
+**P1.** Solve $\dfrac{2 x - 3}{x + 1} \ge 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Move everything to one side: $\dfrac{2 x - 3}{x + 1} - 1 \ge 0$.
+Combine.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{2 x - 3 - (x + 1)}{x + 1} \ge 0 \Rightarrow \dfrac{x - 4}
+{x + 1} \ge 0$.
+
+Sign-chart: zeros at $x = 4$ (numerator) and $x = -1$ (denominator,
+undefined).
+
+- $x < -1$: $(x - 4) < 0$, $(x + 1) < 0$, ratio positive ✓
+- $-1 < x < 4$: $(x - 4) < 0$, $(x + 1) > 0$, ratio negative ✗
+- $x > 4$: both positive ✓
+
+Including $x = 4$ (numerator $= 0$, ratio $= 0$, OK) but excluding
+$x = -1$ (undefined). **Solution: $(-\infty, -1) \cup [4, \infty)$.**
+</details>
+
+**P2.** Solve $|2 x - 1| > 3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|y| > 3 \Leftrightarrow y > 3$ or $y < -3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2 x - 1 > 3$ ($x > 2$) or $2 x - 1 < -3$ ($x < -1$). **Solution:
+$(-\infty, -1) \cup (2, \infty)$.**
+</details>
+
+**P3.** Solve $x^4 - 16 \ge 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor: $x^4 - 16 = (x^2 - 4)(x^2 + 4) = (x - 2)(x + 2)(x^2 + 4)$.
+$(x^2 + 4) > 0$ always, so sign depends on $(x - 2)(x + 2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 2)(x + 2) \ge 0$ outside $(-2, 2)$. **Solution: $(-\infty,
+-2] \cup [2, \infty)$.**
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve $\dfrac{x^2 - 1}{x^2 - 4} \ge 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor: $\dfrac{(x - 1)(x + 1)}{(x - 2)(x + 2)} \ge 0$. Four
+critical points: $x = -2, -1, 1, 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Zeros: $\pm 1$. Undefined: $\pm 2$. Sign-chart on five intervals:
+
+- $x < -2$: positive
+- $-2 < x < -1$: negative
+- $-1 < x < 1$: positive
+- $1 < x < 2$: negative
+- $x > 2$: positive
+
+Including roots $\pm 1$ but excluding $\pm 2$: **Solution: $(-\infty,
+-2) \cup [-1, 1] \cup (2, \infty)$.**
+</details>
+
+**S2.** Show that for any positive $a, b, c$:
+$\dfrac{a + b + c}{3} \ge \sqrt[3]{a b c}$ (the *three-variable
+AM-GM*).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reduces to two applications of the two-variable case, by clever
+choice. Or: use the identity $a^3 + b^3 + c^3 - 3 a b c = (a + b
++ c)(a^2 + b^2 + c^2 - ab - bc - ca)$ from Algebra I Ch 3 S2 — and
+note that the second factor is $\frac{1}{2} \cdot \text{(sum of
+squares of differences)}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Use the identity $a^3 + b^3 + c^3 - 3 a b c = (a + b + c) \cdot
+\frac{1}{2} [(a - b)^2 + (b - c)^2 + (c - a)^2] \ge 0$ (since
+positive sum of squares is non-negative).
+
+So $a^3 + b^3 + c^3 \ge 3 a b c$. Substituting $a = \alpha^{1/3},
+b = \beta^{1/3}, c = \gamma^{1/3}$: $\alpha + \beta + \gamma \ge
+3 (\alpha \beta \gamma)^{1/3}$, i.e. $\dfrac{\alpha + \beta +
+\gamma}{3} \ge \sqrt[3]{\alpha \beta \gamma}$. **QED.**
+
+*(The general $n$-variable AM-GM follows by an induction or a
+similar substitution; the proof here is one of Cauchy's classical
+arguments.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra II*, §§40–50.
+
+**K1.** Find all real $x$ such that $\dfrac{x^2 - x - 6}{x^2 -
+5 x + 6} > 0$.
+
+<details class="hint"><summary>Full solution</summary>
+Factor: $\dfrac{(x - 3)(x + 2)}{(x - 2)(x - 3)} > 0$.
+
+For $x \ne 3$: cancel $(x - 3)$, getting $\dfrac{x + 2}{x - 2}
+> 0$. By P1's logic: $x < -2$ or $x > 2$, **excluding $x = 3$**.
+
+**Solution: $(-\infty, -2) \cup (2, 3) \cup (3, \infty)$.**
+
+*(The cancelled $(x - 3)$ creates a *removable singularity* at
+$x = 3$ — undefined in the original, but otherwise sign-irrelevant.)*
+</details>
+
+**K2.** Show that for all real $x$: $x^4 + 1 \ge 2 x^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$x^4 + 1 - 2 x^2 = (x^2 - 1)^2 \ge 0$, with equality iff $x = \pm
+1$. **QED.**
+</details>
+
+**K3.** Solve $\sqrt{x + 7} > x - 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two cases: (a) RHS negative ($x < 1$): inequality holds whenever
+LHS is defined; (b) RHS non-negative: square both sides, but be
+careful.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Domain:** $x \ge -7$.
+
+**Case (a):** $x < 1$. RHS $< 0 \le$ LHS. So inequality holds for
+$-7 \le x < 1$.
+
+**Case (b):** $x \ge 1$. Both sides non-negative; square:
+$x + 7 > (x - 1)^2 = x^2 - 2 x + 1$. Rearrange: $x^2 - 3 x - 6 <
+0$. Discriminant $9 + 24 = 33$. Roots $\dfrac{3 \pm \sqrt{33}}{2}
+\approx \dfrac{3 \pm 5.745}{2}$, so $\approx -1.37, 4.37$. Strict
+inequality holds for $-1.37 < x < 4.37$. Combined with $x \ge 1$:
+$1 \le x < (3 + \sqrt{33})/2$.
+
+**Combined: $-7 \le x < (3 + \sqrt{33})/2$, approximately $[-7,
+4.37)$.**
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Часть вторая*
+(Fizmatlit reprint 2005), §§36–50. Russian original:
+[archive.org scan](https://archive.org/details/kiselyov-algebra-part-2-2005).
+The AM-GM inequality (Problem 7 and S2) is §45.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\dfrac{a}{b} > 0 \Leftrightarrow a > 0$ and $b > 0$."**
+   *Wrong.* Also when **both are negative**. The full statement:
+   $\dfrac{a}{b} > 0$ iff $a, b$ have the *same sign*.
+2. **"Sign flips at every root."** Only at *odd-multiplicity* roots.
+   At even-multiplicity roots, the sign does *not* flip (Problem
+   3).
+3. **"Squaring an inequality preserves direction."** Only if both
+   sides are *non-negative*. $-3 < 1$ but $9 \not< 1$. Be careful.
+:::
+
+### Self-Assessment
+
+1. Could you build a sign-chart from a factored polynomial without
+   notes?
+2. Did the double-root case (Problem 3) feel like a special-case
+   exception, or like a natural consequence of the structure?
+3. Can you prove the AM-GM in two variables (Problem 7) on a
+   fresh sheet?
+
+- **3 yes:** move on to *Exponentials and Logarithms* (Ch 4).
+- **2 yes:** redo Problem 6 — the biquadratic substitution unifies
+  Algebra I and II.
+- **0–1 yes:** practise W1, W2, W3 with several variations of
+  signs and multiplicities.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.linear-inequalities`](../../tier-kiselev-1-algebra-1/07-linear-inequalities/index.qmd) —
+  the same operations + the new sign-chart machinery for products.
+- [`ka2.higher-degree-equations`](../02-higher-degree-equations/index.qmd) —
+  factoring polynomials to apply the sign-chart.
+
+### What this unlocks
+
+- **`ka2.exponentials-logarithms`** *(Ch 4, planned)* — $\log$ is
+  monotone, so log-inequalities reduce to sign analysis on the
+  argument.
+- [`t6.convex-optimization`](../../tier-6-undergrad-advanced/09-convex-optimization/index.qmd) —
+  inequality constraints define convex regions; sign-chart logic
+  is the entry point.
+- [`cbse11.linear-inequalities`](../../tier-cbse-11-class-11/05-linear-inequalities/index.qmd) —
+  CBSE 11 board treatment.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part II — Chapter 3: Inequalities of higher degree
+  (§§36–50).** Russian original on
+  [archive.org](https://archive.org/details/kiselyov-algebra-part-2-2005).
+- **Sister synthesis lessons:**
+  [`t2.linear-inequalities`](../../tier-2-prealgebra/03-linear-inequalities/index.qmd)
+  and
+  [`cbse11.linear-inequalities`](../../tier-cbse-11-class-11/05-linear-inequalities/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of AM-GM and Cauchy-Schwarz (§§45–50).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** **Loss landscapes** are usually inequality-bounded:
+predictions must lie in a probability simplex (each $p_i \ge 0$,
+$\sum p_i = 1$), gradient updates clip to a constraint set. Sign-
+chart logic at the boundary is exactly this lesson's machinery.
+:::
+
+::: {.applied-callout}
+**Databases.** **Range queries** like `WHERE age BETWEEN 18 AND 65
+AND status != 'inactive'` are systems of polynomial-style
+inequalities (literal *boolean* polynomials over $\{\text{TRUE},
+\text{FALSE}\}$). Query planners exploit sign-chart-like logic
+when choosing index strategies.
+:::
+
+::: {.applied-callout}
+**Research.** The **AM-GM inequality** (Problem 7 and S2) is one
+of the most-used inequalities in mathematics. It generalises to
+*Hölder*, *Minkowski*, *Cauchy-Schwarz* — a whole web of named
+inequalities.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§36–50 ordering); Cauchy (the
+  AM-GM induction proof); Minkowski (the inequality web).
+- **The sign-chart method (Problem 2)** is the most-used tool in
+  this lesson — practise it until it's second nature.
+- **What this lesson does not do:** treat Cauchy-Schwarz or Hölder
+  in full; those belong to undergraduate analysis.
+:::

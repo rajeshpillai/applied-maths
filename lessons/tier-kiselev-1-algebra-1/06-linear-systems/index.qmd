@@ -1,0 +1,545 @@
+---
+title: "Ch 6 — Systems of Linear Equations"
+subtitle: "Substitution, elimination, and Cramer's rule — three roads to the same point"
+lesson-id: "ka1.linear-systems"
+tier: "ka1"
+kiselev-book: "Algebra, Part I"
+kiselev-chapter: 6
+kiselev-chapter-title: "Systems of linear equations"
+kiselev-sections: "§§96–112 (substitution, elimination, Cramer's rule for 2×2, classification of systems)"
+prerequisites: [ka1.linear-equations]
+unlocks: []
+applied-domains: [research, ai-ml, game-dev, databases]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you solve $a x + b = 0$ for $x$? See
+   [`ka1.linear-equations`](../05-linear-equations/index.qmd).
+2. Can you substitute one expression for another and simplify?
+3. Are you comfortable with two unknowns $x, y$ — and the idea
+   that *one* equation in two unknowns has *infinitely many*
+   solutions?
+4. Can you check whether $(x, y) = (2, 3)$ satisfies $5 x - 2 y = 4$
+   by substitution?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Two equations, two unknowns. Each equation is a *line* in the
+$(x, y)$ plane. The two lines either: meet at a point (one
+solution); are parallel and distinct (no solution); or are the
+same line (infinitely many solutions).
+
+```{ojs}
+viewof a1 = Inputs.range([-3, 3], {value: 1, step: 1, label: "a₁"})
+```
+
+```{ojs}
+viewof b1 = Inputs.range([-3, 3], {value: 1, step: 1, label: "b₁"})
+```
+
+```{ojs}
+viewof c1 = Inputs.range([-10, 10], {value: 5, step: 1, label: "c₁"})
+```
+
+```{ojs}
+viewof a2 = Inputs.range([-3, 3], {value: 2, step: 1, label: "a₂"})
+```
+
+```{ojs}
+viewof b2 = Inputs.range([-3, 3], {value: -1, step: 1, label: "b₂"})
+```
+
+```{ojs}
+viewof c2 = Inputs.range([-10, 10], {value: 4, step: 1, label: "c₂"})
+```
+
+```{ojs}
+{
+  const det = a1 * b2 - a2 * b1;
+  if (det !== 0) {
+    const x = (c1 * b2 - c2 * b1) / det;
+    const y = (a1 * c2 - a2 * c1) / det;
+    return `**System:**  ${a1}x + ${b1}y = ${c1};  ${a2}x + ${b2}y = ${c2}.
+
+Determinant $a_1 b_2 - a_2 b_1 = ${det}$ ≠ 0  →  **unique solution**
+$(x, y) = (${x.toFixed(3)}, ${y.toFixed(3)})$.`;
+  }
+  // det = 0
+  // check consistency: c1 b2 - c2 b1 = 0 ?
+  const consistent = (c1 * b2 - c2 * b1 === 0) && (a1 * c2 - a2 * c1 === 0);
+  return `**System:**  ${a1}x + ${b1}y = ${c1};  ${a2}x + ${b2}y = ${c2}.
+
+Determinant = ${det} (zero) — the two lines are **parallel**. ${consistent ? "Same line: **infinitely many** solutions." : "Distinct: **no** solution."}`;
+}
+```
+
+The determinant $a_1 b_2 - a_2 b_1$ tells you everything.
+**Non-zero:** unique solution. **Zero:** parallel — either no
+solution or infinitely many.
+
+## Wonder
+
+1. Two lines in the plane — one solution if they cross. **Why** does
+   the determinant control whether they cross?
+2. The methods of *substitution* and *elimination* both work. Are
+   they actually the same method dressed differently?
+3. *Cramer's rule* expresses each unknown as a ratio of two
+   determinants. Does this generalise to three or more unknowns?
+4. A system of three equations in two unknowns — is there always
+   a solution? Sometimes? Never?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Determinant $= 0$ ⇔ the second equation is a *scalar multiple*
+of the first — same line in disguise. (2) Yes — both reduce the
+system to one equation in one unknown; the difference is just the
+order of operations. (3) **Yes** — Cramer's rule generalises to
+$n \times n$ systems via $n \times n$ determinants. (4) Almost
+never has a solution unless the third equation is a *consequence*
+of the first two (over-determined system, *least-squares* in
+applications).
+:::
+
+## Discover
+
+### Problem 1 — Substitution method
+
+Solve the system
+$$\begin{cases} 2 x + y = 7 \\ 3 x - 2 y = 0 \end{cases}$$
+by *substitution*: solve one equation for one variable, substitute
+into the other.
+
+<details class="hint"><summary>Full solution</summary>
+From the first: $y = 7 - 2 x$. Substitute into the second:
+$3 x - 2(7 - 2 x) = 0$, i.e. $3 x - 14 + 4 x = 0$, so $7 x = 14$,
+$x = 2$. Then $y = 7 - 4 = 3$.
+
+**Solution: $(x, y) = (2, 3)$.**
+</details>
+
+### Problem 2 — Elimination method
+
+Solve the same system by *elimination*: combine the equations to
+eliminate one variable.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply the first equation by $2$ to make the $y$-coefficients
+opposite: $4 x + 2 y = 14$. Add to $3 x - 2 y = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4 x + 2 y = 14$ added to $3 x - 2 y = 0$: $7 x = 14$, so $x = 2$.
+Substitute back: $y = 3$. **Same answer.**
+</details>
+
+### Problem 3 — Cramer's rule (2×2 case)
+
+For the system
+$$\begin{cases} a_1 x + b_1 y = c_1 \\ a_2 x + b_2 y = c_2
+\end{cases}$$
+with $D = a_1 b_2 - a_2 b_1 \ne 0$, show that
+$$
+x = \dfrac{c_1 b_2 - c_2 b_1}{D}, \quad
+y = \dfrac{a_1 c_2 - a_2 c_1}{D}.
+$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use elimination: multiply the first by $b_2$ and the second by
+$b_1$, then subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a_1 b_2 x + b_1 b_2 y = c_1 b_2$
+$a_2 b_1 x + b_1 b_2 y = c_2 b_1$
+Subtract: $(a_1 b_2 - a_2 b_1) x = c_1 b_2 - c_2 b_1$.
+Hence $x = \dfrac{c_1 b_2 - c_2 b_1}{D}$. Similarly $y$.
+**QED.** *(Algebra I §103 — **Cramer's rule** for 2×2; Cramer
+1750.)*
+</details>
+
+### Problem 4 — Three cases
+
+Classify the system by checking the determinant and consistency:
+
+(a) $\begin{cases} x + 2 y = 3 \\ 2 x + 4 y = 6 \end{cases}$
+
+(b) $\begin{cases} x + 2 y = 3 \\ 2 x + 4 y = 7 \end{cases}$
+
+(c) $\begin{cases} x + 2 y = 3 \\ 3 x - y = 1 \end{cases}$
+
+<details class="hint"><summary>Full solution</summary>
+(a) $D = 4 - 4 = 0$. Second equation is twice the first — *same
+line*, **infinitely many** solutions.
+
+(b) $D = 0$ but $7 \ne 2 \cdot 3 = 6$ — *parallel and distinct*,
+**no solution**.
+
+(c) $D = -1 - 6 = -7 \ne 0$ — **unique** solution.
+$x = \dfrac{(3)(-1) - (1)(2)}{-7} = \dfrac{-5}{-7} = \dfrac{5}{7}$;
+$y = \dfrac{(1)(1) - (3)(3)}{-7} = \dfrac{-8}{-7} = \dfrac{8}{7}$.
+</details>
+
+### Problem 5 — Three unknowns
+
+Solve $\begin{cases} x + y + z = 6 \\ 2 x - y + z = 3 \\ x + 2 y -
+z = 2 \end{cases}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Eliminate one variable by combining equations pairwise.
+</details>
+<details class="hint"><summary>Full solution</summary>
+From equation 1: $z = 6 - x - y$. Substitute into equation 2 and 3:
+- Eq 2: $2 x - y + (6 - x - y) = 3$, i.e. $x - 2 y = -3$.
+- Eq 3: $x + 2 y - (6 - x - y) = 2$, i.e. $2 x + 3 y = 8$.
+
+Solve the 2×2: from $x = -3 + 2 y$, substitute: $2(-3 + 2 y) +
+3 y = 8$, so $7 y = 14$, $y = 2$. Then $x = 1$ and $z = 3$.
+
+**$(x, y, z) = (1, 2, 3)$.**
+</details>
+
+### Problem 6 — Word problem (mixture)
+
+Two solutions of the same chemical: one $30\%$ pure, the other
+$60\%$ pure. How many litres of each must you mix to get $10$
+litres of $48\%$ solution?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two unknowns: $x$ litres of $30\%$, $y$ litres of $60\%$. Two
+equations: total volume and total pure-chemical content.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x + y = 10$ (volume); $0.3 x + 0.6 y = 0.48 \cdot 10 = 4.8$
+(content). Multiply the second by $10$: $3 x + 6 y = 48$, i.e.
+$x + 2 y = 16$. Subtract first equation: $y = 6$. Then $x = 4$.
+**$4$ L of $30\%$, $6$ L of $60\%$.**
+</details>
+
+### Problem 7 — Parametric system
+
+For what value of $k$ does the system $\begin{cases} 2 x + 3 y = 5
+\\ 4 x + k y = 10 \end{cases}$ have *infinitely many* solutions?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two equations must be proportional. Coefficients ratios:
+$\dfrac{4}{2} = \dfrac{k}{3} = \dfrac{10}{5}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{4}{2} = 2$ and $\dfrac{10}{5} = 2$ — both consistent.
+For the equations to be proportional, $\dfrac{k}{3} = 2$, giving
+$k = 6$. *(Then both equations become the same line: $2 x + 3 y =
+5$.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**System of linear equations** in $n$ unknowns: $n$ or more linear
+equations to be solved *simultaneously*.
+
+**Three solution methods (2×2 case).**
+
+1. **Substitution:** solve one equation for one variable; substitute
+   into the others; reduce to one variable.
+2. **Elimination:** scale equations and add / subtract to eliminate
+   one variable; reduce to one equation in one unknown.
+3. **Cramer's rule:** for $a_1 x + b_1 y = c_1, a_2 x + b_2 y = c_2$:
+   $$x = \dfrac{c_1 b_2 - c_2 b_1}{a_1 b_2 - a_2 b_1}, \quad
+   y = \dfrac{a_1 c_2 - a_2 c_1}{a_1 b_2 - a_2 b_1}$$
+   provided $D = a_1 b_2 - a_2 b_1 \ne 0$.
+
+**Three classifications by determinant $D = a_1 b_2 - a_2 b_1$.**
+
+- $D \ne 0$: **unique** solution (lines cross).
+- $D = 0$, equations proportional: **infinitely many** (same line).
+- $D = 0$, equations not proportional: **no** solution (parallel
+  lines).
+
+:::
+
+A verse:
+
+> *Two lines, two equations — substitute, eliminate, or determinant.*
+> *D non-zero — one point. D zero — either always or never, no
+> remnant.*
+> *Three unknowns? Reduce one out, then a 2×2 emerges from the rest.*
+> *And Cramer's ratios scale with the dimension — that's a Ch 12
+> quest.*
+
+## Apply
+
+### Worked example
+
+> Solve $\begin{cases} 5 x + 3 y = 19 \\ 2 x - y = 4 \end{cases}$.
+
+By substitution: $y = 2 x - 4$ from the second. Substitute:
+$5 x + 3 (2 x - 4) = 19$, i.e. $11 x = 31$, $x = \dfrac{31}{11}$.
+Then $y = \dfrac{62}{11} - 4 = \dfrac{18}{11}$.
+
+**$(x, y) = \left(\dfrac{31}{11}, \dfrac{18}{11}\right)$.**
+
+### Practice — Warm
+
+**W1.** Solve $\begin{cases} x + y = 5 \\ x - y = 1 \end{cases}$.
+
+<details class="hint"><summary>Full solution</summary>
+Add: $2 x = 6$, $x = 3$. $y = 2$.
+</details>
+
+**W2.** Solve $\begin{cases} 2 x + y = 8 \\ x + 3 y = 9 \end{cases}$.
+
+<details class="hint"><summary>Full solution</summary>
+From eq 2: $x = 9 - 3 y$. Substitute: $2(9 - 3 y) + y = 8$, so
+$18 - 5 y = 8$, $y = 2$. $x = 3$.
+</details>
+
+**W3.** Use Cramer's rule on $\begin{cases} 3 x + 2 y = 7 \\ x - y = 4
+\end{cases}$.
+
+<details class="hint"><summary>Full solution</summary>
+$D = 3 \cdot (-1) - 1 \cdot 2 = -5$. $x = \dfrac{7 \cdot (-1) - 4
+\cdot 2}{-5} = \dfrac{-15}{-5} = 3$. $y = \dfrac{3 \cdot 4 - 1
+\cdot 7}{-5} = \dfrac{5}{-5} = -1$. **$(3, -1)$.**
+</details>
+
+### Practice — Working
+
+**P1.** Solve $\begin{cases} \dfrac{x}{2} + \dfrac{y}{3} = 5 \\
+\dfrac{x}{3} - \dfrac{y}{2} = 1 \end{cases}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply each equation by 6 to clear fractions.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3 x + 2 y = 30$ and $2 x - 3 y = 6$. Cramer or elimination:
+$D = -9 - 4 = -13$. $x = \dfrac{30 \cdot (-3) - 6 \cdot 2}{-13} =
+\dfrac{-102}{-13} = \dfrac{102}{13}$ — let me re-check: actually
+multiply first eq by 3, second by 2: $9x + 6y = 90$ and $4x - 6y =
+12$. Add: $13x = 102$, $x = \dfrac{102}{13}$. Then $y$ via eq 1:
+$3 (\dfrac{102}{13}) + 2y = 30$, so $2 y = 30 - \dfrac{306}{13} =
+\dfrac{84}{13}$, $y = \dfrac{42}{13}$. **$\left(\dfrac{102}{13},
+\dfrac{42}{13}\right)$.**
+</details>
+
+**P2.** Solve $\begin{cases} x + y + z = 1 \\ x + 2 y + 3 z = 4 \\
+x + 4 y + 9 z = 16 \end{cases}$.
+
+<details class="hint"><summary>Full solution</summary>
+Eq 2 - eq 1: $y + 2 z = 3$. Eq 3 - eq 1: $3 y + 8 z = 15$.
+From the first: $y = 3 - 2 z$. Substitute: $3(3 - 2 z) + 8 z = 15$,
+i.e. $9 + 2 z = 15$, $z = 3$. Then $y = -3$ and $x = 1$.
+**$(x, y, z) = (1, -3, 3)$.**
+</details>
+
+**P3.** Two friends share $₹120$. After one gives the other $₹15$,
+they have equal amounts. Originally how much did each have?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set up two equations: total = 120, and (giver - 15) = (receiver +
+15).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let original amounts be $x, y$ with $x + y = 120$. After transfer:
+$x - 15 = y + 15$, so $x - y = 30$. Solve: $x = 75, y = 45$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve in terms of parameters $a, b$: $\begin{cases} a x +
+b y = 1 \\ b x + a y = 1 \end{cases}$ (with $a^2 \ne b^2$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$D = a^2 - b^2$. By Cramer.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = a^2 - b^2$. $x = \dfrac{a - b}{a^2 - b^2} = \dfrac{1}{a + b}$.
+$y = \dfrac{a - b}{a^2 - b^2} = \dfrac{1}{a + b}$. **$x = y =
+\dfrac{1}{a + b}$**, valid for $a + b \ne 0$ and $a \ne b$.
+*(Symmetric system gives symmetric solution.)*
+</details>
+
+**S2.** Show that the system $\begin{cases} a_1 x + b_1 y = c_1 \\
+a_2 x + b_2 y = c_2 \\ a_3 x + b_3 y = c_3 \end{cases}$ has a
+common solution iff
+$\begin{vmatrix} a_1 & b_1 & c_1 \\ a_2 & b_2 & c_2 \\ a_3 & b_3 &
+c_3 \end{vmatrix} = 0$ (the $3\times 3$ determinant). *(Three
+equations in two unknowns: over-determined.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve any two of the three equations for $(x, y)$ via Cramer.
+Substitute into the third — the consistency condition is exactly
+the vanishing $3\times 3$ determinant.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Solving equations 1 and 2 for $(x, y)$ via Cramer gives
+$x = (c_1 b_2 - c_2 b_1)/D, y = (a_1 c_2 - a_2 c_1)/D$ with
+$D = a_1 b_2 - a_2 b_1$ (assumed non-zero). Substitute into
+equation 3:
+$a_3 \cdot \dfrac{c_1 b_2 - c_2 b_1}{D} + b_3 \cdot \dfrac{a_1 c_2
+- a_2 c_1}{D} = c_3$.
+Multiply through by $D$ and rearrange — the condition is exactly
+$\det \begin{pmatrix} a_1 & b_1 & c_1 \\ a_2 & b_2 & c_2 \\ a_3 &
+b_3 & c_3 \end{pmatrix} = 0$. **QED.** *(This is the *coplanarity*
+condition for three points in 2D — and the entry to **linear
+algebra**.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra I*, §§100–112.
+
+**K1.** A boat travels $30$ km downstream in $2$ hours and the
+return $30$ km upstream in $5$ hours. Find the speed of the boat
+in still water and the speed of the current.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $b$ = boat speed, $c$ = current speed. Downstream: $b + c =
+15$. Upstream: $b - c = 6$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$b + c = 15, b - c = 6$. Add: $2 b = 21$, $b = 10.5$ km/h.
+Subtract: $2 c = 9$, $c = 4.5$ km/h.
+**Boat: $10.5$ km/h. Current: $4.5$ km/h.** *(Algebra I §107 —
+classical *boat-and-current* problem.)*
+</details>
+
+**K2.** Find $x$ and $y$ such that $\begin{cases} x + y = a + b \\
+x \cdot y = a b \end{cases}$, where $a, b$ are given parameters.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x, y$ are the two roots of the quadratic $t^2 - (a + b) t + ab =
+0$, by Vieta.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x, y$ are roots of $t^2 - (a + b) t + ab = (t - a)(t - b) = 0$.
+So **$\{x, y\} = \{a, b\}$** (in either order).
+*(A nice link from Vieta back to systems.)*
+</details>
+
+**K3.** A two-digit number has the property that swapping its
+digits *increases* the value by $9$. The sum of the digits is $11$.
+Find the number.
+
+<details class="hint"><summary>Full solution</summary>
+Let tens digit $a$, units digit $b$. The number is $10 a + b$;
+swapped is $10 b + a$. Conditions: $a + b = 11$ and $(10 b + a) -
+(10 a + b) = 9$, i.e. $9 (b - a) = 9$, so $b - a = 1$. From
+$a + b = 11$ and $b - a = 1$: $a = 5, b = 6$.
+**The number is $56$ (and indeed $56 + 9 = 65$, with digit-sum
+$11$).**
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Ч.1*
+(Fizmatlit reprint 2006), §§96–112. Russian original:
+[archive.org scan](https://archive.org/details/1_kiselev_algebra).
+Cramer's rule (Problem 3) is §103; the classification (Problem 4)
+is §105.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Substitution and elimination give different answers."** They
+   do not. Both methods, correctly applied, give the same answer.
+   If you get different answers, you've made an arithmetic error.
+2. **"Parallel lines means *no* solution."** Only if they're
+   *distinct*. Coincident parallel lines (the same line written
+   two different ways) have *infinitely many* solutions.
+3. **"More equations means more solutions."** Usually it means
+   *fewer*. An over-determined system (more equations than
+   unknowns) typically has *no* exact solution; *least-squares*
+   finds the best approximation.
+:::
+
+### Self-Assessment
+
+1. Could you solve a 2×2 system by all three methods (substitution,
+   elimination, Cramer) on the same problem and confirm they agree?
+2. Did the three-classification logic (Problem 4) feel like a
+   single principle (the determinant) plus consistency check?
+3. Can you set up a word problem (mixture, boat-and-current, or
+   age) into a 2×2 system from a verbal description?
+
+- **3 yes:** move on to *Linear Inequalities* (Ch 7).
+- **2 yes:** redo the parametric system (Problem 7) — parameter
+  handling is a chapter highlight.
+- **0–1 yes:** practise W1–W3 until the mechanics are automatic.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.linear-equations`](../05-linear-equations/index.qmd) —
+  one-equation-one-unknown manipulation; the operations preserving
+  solution sets carry over.
+
+### What this unlocks
+
+- **`ka1.linear-inequalities`** *(Ch 7, planned)* — systems of
+  inequalities, with a sign-flip rule.
+- [`t5.linear-systems-gaussian`](../../tier-5-undergrad-core/02-linear-systems-gaussian/index.qmd) —
+  Gaussian elimination is the algorithmic generalisation to
+  $n \times n$ systems.
+- [`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd) —
+  matrix form $A \mathbf{x} = \mathbf{b}$.
+- [`cbse10.pair-linear-equations`](../../tier-cbse-10-class-10/03-pair-linear-equations/index.qmd) —
+  CBSE 10 board-exam treatment of 2×2 systems.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part I — Chapter 6: Systems of linear equations
+  (§§96–112).** Russian original on
+  [archive.org](https://archive.org/details/1_kiselev_algebra).
+- **Sister synthesis lessons:**
+  [`t2.systems-linear-equations`](../../tier-2-prealgebra/06-systems-linear-equations/index.qmd)
+  and
+  [`cbse10.pair-linear-equations`](../../tier-cbse-10-class-10/03-pair-linear-equations/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full word-problem
+  taxonomy (§§108–112).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** **Linear regression** finds the best linear fit by
+solving a system of *normal equations* — a square linear system
+whose unknown is the vector of regression coefficients. Every ML
+prediction is, at heart, this lesson scaled up.
+:::
+
+::: {.applied-callout}
+**Game development.** **Inverse kinematics** — given a target hand
+position, find the joint angles — solves a system of equations
+(usually nonlinear, but linearised) iteratively. The 2×2 case
+gives the *closed-form* solution for two-joint arms; higher
+dimensions need numerical methods.
+:::
+
+::: {.applied-callout}
+**Databases.** **Query optimisation** uses *constraint propagation*
+— rewriting WHERE conditions into systems of equations / inequalities
+and solving. The same elimination logic shows up in commercial
+optimisers like PostgreSQL's planner.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§96–112 ordering); Cramer (1750 —
+  the determinant rule); Bhāskara (the boat-and-current problem
+  appeared in *Līlāvatī*, 12th century).
+- **The over-determined system (S2)** is the seed of *least-
+  squares fitting* — the most-used statistical technique in
+  applied math and the heart of empirical regression.
+- **What this lesson does not do:** introduce **matrices** as a
+  shorthand. That's a Tier 5 topic (linear algebra).
+:::

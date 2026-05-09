@@ -1,0 +1,729 @@
+---
+title: "Ch 5 — Regular Polyhedra and Similar Solids"
+subtitle: "Why only five Platonic solids exist — and how volume scales as the cube of length"
+lesson-id: "kg2.regular-polyhedra"
+tier: "kg2"
+kiselev-book: "Geometry, Book II (Stereometry)"
+kiselev-chapter: 5
+kiselev-chapter-title: "Regular polyhedra and similarity"
+kiselev-sections: "Stereometry §§491–530 (regular polyhedra, Euler's formula, similar solids)"
+prerequisites: [kg2.polyhedra, kg2.sphere]
+unlocks: []
+applied-domains: [game-dev, research, ai-ml]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are prism, pyramid, sphere formulas in your active memory? See
+   [`kg2.polyhedra`](../02-polyhedra/index.qmd) and
+   [`kg2.sphere`](../04-sphere/index.qmd).
+2. Can you state the *similarity-area-cube* rule from Planimetry's
+   similarity chapter?
+3. Are you comfortable with the names *cube*, *tetrahedron*,
+   *octahedron* — even if you've never met *dodecahedron* or
+   *icosahedron*?
+4. Can you compute the interior angle of a regular pentagon
+   ($108°$)?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Five solids — and **only** five — have the property that every face
+is the same regular polygon, and the same number of faces meet at
+every vertex. Drag through them.
+
+```{ojs}
+viewof solid = Inputs.radio(
+  ["tetrahedron (4)", "cube (6)", "octahedron (8)", "dodecahedron (12)", "icosahedron (20)"],
+  {value: "cube (6)", label: "Platonic solid (faces):"}
+)
+```
+
+```{ojs}
+{
+  const w = 380, h = 320, padX = 30, padY = 30;
+  const cx = w / 2, cy = h / 2;
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // simple isometric-ish 2D projections of each Platonic solid (schematic)
+  const project = (x, y, z) => [cx + x + 0.45 * y, cy - z - 0.35 * y];
+
+  const drawCube = () => {
+    const s = 60;
+    const V = [
+      [-s,-s,-s],[s,-s,-s],[s,s,-s],[-s,s,-s],
+      [-s,-s,s],[s,-s,s],[s,s,s],[-s,s,s]
+    ].map(p => project(...p));
+    const E = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+    for (const [a,b] of E) svg.append("line")
+      .attr("x1", V[a][0]).attr("y1", V[a][1]).attr("x2", V[b][0]).attr("y2", V[b][1])
+      .attr("stroke", "#26a").attr("stroke-width", 1.5);
+  };
+
+  const drawTet = () => {
+    const s = 80;
+    const V = [[0,0,s],[s,0,-s/2],[-s/2,s,-s/2],[-s/2,-s,-s/2]].map(p => project(...p));
+    const E = [[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]];
+    for (const [a,b] of E) svg.append("line")
+      .attr("x1", V[a][0]).attr("y1", V[a][1]).attr("x2", V[b][0]).attr("y2", V[b][1])
+      .attr("stroke", "#26a").attr("stroke-width", 1.5);
+  };
+
+  const drawOct = () => {
+    const s = 80;
+    const V = [[s,0,0],[-s,0,0],[0,s,0],[0,-s,0],[0,0,s],[0,0,-s]].map(p => project(...p));
+    const E = [[0,2],[2,1],[1,3],[3,0],[0,4],[1,4],[2,4],[3,4],[0,5],[1,5],[2,5],[3,5]];
+    for (const [a,b] of E) svg.append("line")
+      .attr("x1", V[a][0]).attr("y1", V[a][1]).attr("x2", V[b][0]).attr("y2", V[b][1])
+      .attr("stroke", "#26a").attr("stroke-width", 1.5);
+  };
+
+  // dodecahedron and icosahedron — schematic outlines (not full vertex networks)
+  const drawDodec = () => {
+    // simplified: draw a regular pentagon front + back + connectors
+    const r = 70;
+    const pent = (cx0, cy0, sign) => {
+      const pts = [];
+      for (let i = 0; i < 5; i++) {
+        const ang = -Math.PI / 2 + 2 * Math.PI * i / 5;
+        pts.push([cx0 + r * Math.cos(ang), cy0 + sign * r * Math.sin(ang)]);
+      }
+      return pts;
+    };
+    const front = pent(cx, cy, 1);
+    svg.append("polygon").attr("points", front.map(p => `${p[0]},${p[1]}`).join(" "))
+      .attr("fill", "none").attr("stroke", "#26a").attr("stroke-width", 1.5);
+    svg.append("text").attr("x", cx).attr("y", cy + r + 16).attr("text-anchor", "middle")
+      .attr("font-size", 11).attr("fill", "#666").text("(schematic — full dodecahedron has 12 pentagons)");
+  };
+
+  const drawIcos = () => {
+    // schematic: triangulated pentagonal antiprism approximation
+    const r = 70;
+    const cx0 = cx, cy0 = cy;
+    for (let i = 0; i < 5; i++) {
+      const a1 = -Math.PI/2 + 2*Math.PI*i/5;
+      const a2 = -Math.PI/2 + 2*Math.PI*(i+1)/5;
+      const x1 = cx0 + r * Math.cos(a1), y1 = cy0 + r * Math.sin(a1);
+      const x2 = cx0 + r * Math.cos(a2), y2 = cy0 + r * Math.sin(a2);
+      svg.append("line").attr("x1", x1).attr("y1", y1).attr("x2", x2).attr("y2", y2)
+        .attr("stroke", "#26a").attr("stroke-width", 1.5);
+      svg.append("line").attr("x1", x1).attr("y1", y1).attr("x2", cx0).attr("y2", cy0)
+        .attr("stroke", "#26a").attr("stroke-width", 0.8);
+    }
+    svg.append("text").attr("x", cx).attr("y", cy + r + 16).attr("text-anchor", "middle")
+      .attr("font-size", 11).attr("fill", "#666").text("(schematic — full icosahedron has 20 triangles)");
+  };
+
+  if (solid.startsWith("cube")) drawCube();
+  else if (solid.startsWith("tet")) drawTet();
+  else if (solid.startsWith("oct")) drawOct();
+  else if (solid.startsWith("dodec")) drawDodec();
+  else drawIcos();
+
+  // V, E, F counts per Platonic solid
+  const VEF = {
+    "tetrahedron (4)":  [4, 6, 4],
+    "cube (6)":         [8, 12, 6],
+    "octahedron (8)":   [6, 12, 8],
+    "dodecahedron (12)":[20, 30, 12],
+    "icosahedron (20)": [12, 30, 20]
+  };
+  const [V, E, F] = VEF[solid];
+  svg.append("text").attr("x", padX).attr("y", padY - 10)
+    .attr("font-size", 12)
+    .text(`${solid}:  V=${V}, E=${E}, F=${F}.   V−E+F = ${V - E + F}`);
+  return svg.node();
+}
+```
+
+Five solids: **tetrahedron** (4 triangles), **cube** (6 squares),
+**octahedron** (8 triangles), **dodecahedron** (12 pentagons),
+**icosahedron** (20 triangles). For every one of them,
+$V - E + F = 2$. *Euler's formula.*
+
+## Wonder
+
+1. Why exactly **five** regular polyhedra? Could there be a sixth?
+2. The five Platonic solids have $V - E + F = 2$. Is this special
+   to them, or true for *any* convex polyhedron?
+3. Two solids similar with linear ratio $k$. The volumes are in
+   ratio $k^3$, which everyone knows. Why $k^3$ and not, say, $k^2$
+   or $k^{2.5}$?
+4. The square-cube law: a giant ant cannot exist. What does that
+   have to do with the geometry of similar solids?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) The proof of the **5-Platonic-solids theorem** — that no sixth
+exists — is one of the most elegant in geometry; it falls out of
+$V - E + F = 2$ and the angle constraint at each vertex. (2)
+**Euler's formula holds for every convex polyhedron** — and indeed
+for every polyhedron that is topologically a sphere. (3) Volume is
+length cubed because volume is a triple integral — three
+length-dimensions, one each for $x, y, z$. (4) Doubling a creature's
+size multiplies its mass (∝ volume) by $8$ but its leg-cross-section
+(∝ area) by only $4$. The legs cannot bear the doubled weight.
+:::
+
+## Discover
+
+### Problem 1 — Definition of regular polyhedron
+
+A **regular polyhedron** is a convex polyhedron such that:
+(a) every face is the same regular polygon;
+(b) the same number of faces meet at every vertex.
+Show that this also forces all *dihedral angles* to be equal and
+all *edges* to be the same length.
+
+<details class="hint"><summary>Full solution</summary>
+By (a), all face edges have the same length (regular faces of the
+same shape). Since adjacent faces share an edge, all edges of the
+polyhedron have the same length.
+
+For dihedral angles: at any edge, two faces meet. By (a) and the
+constancy of vertex configuration, the local geometry near every
+edge is *congruent* to the local geometry near every other edge —
+hence the dihedral angle is the same. **QED.**
+*(Stereometry §492.)*
+</details>
+
+### Problem 2 — Euler's formula
+
+Show that for any **convex** polyhedron with $V$ vertices, $E$
+edges, $F$ faces,
+$$V - E + F = 2.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Cauchy's proof.* Remove one face, flatten the remaining shell onto
+the plane (no creasing — pretend it's elastic). The flattened
+result is a *connected planar graph* on $V$ vertices, $E$ edges,
+and $F - 1$ "regions" (the missing face becomes the outside).
+Apply Euler's formula for *planar graphs*: $V - E + (F - 1) = 1$,
+i.e. $V - E + F = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Cauchy's proof, sketched* (Stereometry §494):
+
+Remove one face from the polyhedron, leaving a shell with a hole.
+Stretch the shell flat onto the plane — the hole becomes the
+infinite region. The result is a *connected planar graph* with
+$V$ vertices, $E$ edges, and $F - 1$ bounded regions plus one
+infinite region (= $F$ total regions, but the infinite one is the
+"removed" face we had taken away).
+
+For any connected planar graph, **Euler's formula for planar
+graphs** asserts $V - E + F_{\text{regions}} = 2$. Since
+$F_{\text{regions}} = F$ here (counting the infinite region in
+place of the removed face), we get $V - E + F = 2$.
+
+The planar-graph version of Euler's formula is proved by induction:
+on a single edge, $2 - 1 + 1 = 2$. Adding an edge that creates a
+new region preserves $V - E + F$ (loses 1 from $E$, gains 1 from
+$F$). Adding an edge that connects to a new vertex preserves it
+too (gains 1 from $V$, gains 1 from $E$, no new region). **QED.**
+*(Stereometry §494 — the celebrated **Euler-Cauchy formula**.)*
+</details>
+
+### Problem 3 — Only five regular polyhedra
+
+Suppose every face is a regular $p$-gon and exactly $q$ faces meet
+at each vertex. Show that $(p, q)$ must be one of the five pairs:
+$(3, 3), (4, 3), (3, 4), (5, 3), (3, 5)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Vertex-angle constraint:* the $q$ face-angles meeting at a vertex
+have measures summing to *less than* $360°$ (since the polyhedron
+is convex). Each face-angle is the interior angle of a regular
+$p$-gon, $(p - 2) \cdot 180° / p$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At each vertex, $q$ regular $p$-gon corners meet, total angle
+$q \cdot \dfrac{(p - 2) \cdot 180°}{p} < 360°$ (convexity).
+Simplify: $q (p - 2) < 2p$, i.e. $\dfrac{1}{p} + \dfrac{1}{q} >
+\dfrac{1}{2}$.
+
+Both $p \ge 3$ and $q \ge 3$ (need at least 3 sides per face, at
+least 3 faces per vertex). Solutions:
+
+| $(p, q)$ | $\tfrac{1}{p} + \tfrac{1}{q}$ | Solid |
+|----------|------|-------|
+| $(3, 3)$ | $\tfrac{2}{3} > 1/2$ | Tetrahedron |
+| $(3, 4)$ | $\tfrac{7}{12}$ | Octahedron |
+| $(3, 5)$ | $\tfrac{8}{15}$ | Icosahedron |
+| $(4, 3)$ | $\tfrac{7}{12}$ | Cube |
+| $(5, 3)$ | $\tfrac{8}{15}$ | Dodecahedron |
+| $(3, 6)$ | $\tfrac{1}{2}$ — **fails** | (degenerate flat tiling) |
+| $(4, 4)$ | $\tfrac{1}{2}$ — fails | (square tiling) |
+| $(6, 3)$ | $\tfrac{1}{2}$ — fails | (hex tiling) |
+
+Five — no more. **QED.** *(Stereometry §493 — *the Platonic
+classification*. Plato's *Timaeus* names them; Euclid's *Elements*
+proves the count in Book XIII.)*
+</details>
+
+### Problem 4 — Volume of similar solids scales as $k^3$
+
+Two similar solids have linear ratio $k$. Show that their volumes
+are in ratio $k^3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For *cubes*, scaling each side by $k$ multiplies volume by $k^3$.
+For arbitrary solids, decompose into small cubes and take a limit
+(a 3D analogue of the polygon-into-triangles argument from Ch 9 of
+Planimetry).
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Cube case.** Cube of side $s$: volume $s^3$. Cube scaled by $k$:
+volume $(ks)^3 = k^3 s^3$.
+
+**General case.** Approximate the solid by a union of small cubes
+of side $\epsilon$. Volume of the union $\approx N \epsilon^3$
+where $N$ is the cube count. The scaled solid is approximated by
+the same union of cubes, each scaled to side $k\epsilon$ — total
+volume $\approx N (k\epsilon)^3 = k^3 N \epsilon^3$. The ratio is
+$k^3$ for every $\epsilon$; in the limit $\epsilon \to 0$, the
+ratio remains $k^3$. **QED.** *(Stereometry §502 — *the cube-of-
+linear-ratio scaling*.)*
+</details>
+
+### Problem 5 — Surface area scales as $k^2$
+
+Show that the surface area of similar solids scales as $k^2$.
+
+<details class="hint"><summary>Full solution</summary>
+The same argument as for area in 2D (Ch 7 of Planimetry): each
+face scales by $k^2$ in area, and surface is the sum of face
+areas. **QED.**
+</details>
+
+### Problem 6 — Volumes of the Platonic solids
+
+Compute the volumes of all five Platonic solids of edge length $1$,
+in closed form.
+
+<details class="hint"><summary>Full solution</summary>
+| Solid | Volume (edge $= 1$) |
+|-------|---------------------|
+| Tetrahedron | $\dfrac{\sqrt 2}{12} \approx 0.1178$ |
+| Cube | $1$ |
+| Octahedron | $\dfrac{\sqrt 2}{3} \approx 0.4714$ |
+| Dodecahedron | $\dfrac{15 + 7\sqrt 5}{4} \approx 7.6631$ |
+| Icosahedron | $\dfrac{5(3 + \sqrt 5)}{12} \approx 2.1817$ |
+
+The tetrahedron formula was derived in Ch 2 P1. The cube is
+trivial. Octahedron: think of it as two square pyramids glued at
+their square bases — each pyramid has square base of side $1$ and
+height $\sqrt{2}/2$, giving volume $\sqrt 2 / 6$ each, total
+$\sqrt 2 / 3$. The dodecahedron and icosahedron involve the golden
+ratio $\varphi = (1 + \sqrt 5)/2$ and require careful coordinate
+computation. *(Stereometry §498 — see Givental for the dodecahedron
+and icosahedron derivations.)*
+</details>
+
+### Problem 7 — Square-cube law
+
+A creature is scaled up uniformly by factor $k$. Mass scales by
+$k^3$ (volume). Bone cross-section scales by $k^2$ (area). Stress
+on bone (force per area) scales by what?
+
+<details class="hint"><summary>Full solution</summary>
+Force per area $= $ (mass $\cdot$ gravity) / (cross-section area)
+$\propto k^3 / k^2 = k$. *(Stress increases linearly with size.)*
+
+A doubled creature has *doubled* bone stress — and bone material
+strength is fixed. At some scaling factor, bones break under their
+own weight. *(Galileo, *Two New Sciences*, 1638 — the square-cube
+law explains why elephants have proportionally thicker legs than
+mice.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Regular polyhedron:** convex polyhedron with congruent regular
+  polygonal faces and the same number of faces meeting at each
+  vertex.
+- **Schläfli symbol** $\{p, q\}$: regular polyhedron with $p$-gon
+  faces, $q$ faces at each vertex.
+
+**The five Platonic solids.**
+
+| Solid | $\{p, q\}$ | $V$ | $E$ | $F$ |
+|-------|------------|-----|-----|-----|
+| Tetrahedron | $\{3, 3\}$ | 4 | 6 | 4 |
+| Cube | $\{4, 3\}$ | 8 | 12 | 6 |
+| Octahedron | $\{3, 4\}$ | 6 | 12 | 8 |
+| Dodecahedron | $\{5, 3\}$ | 20 | 30 | 12 |
+| Icosahedron | $\{3, 5\}$ | 12 | 30 | 20 |
+
+**Theorems (Stereometry §§491–530).**
+
+1. *Euler's formula:* for every convex polyhedron, $V - E + F = 2$.
+2. *Five Platonic solids:* exactly five regular polyhedra exist,
+   characterised by $\tfrac{1}{p} + \tfrac{1}{q} > \tfrac{1}{2}$.
+3. *Similarity scaling:* solids similar with linear ratio $k$ have
+   surfaces in ratio $k^2$ and volumes in ratio $k^3$.
+4. *Square-cube law:* uniform scaling makes mass grow as $k^3$ but
+   structural cross-section as $k^2$ — stresses scale as $k$.
+
+:::
+
+A verse:
+
+> *Five solids — Plato saw them, Euclid proved them, no sixth exists.*
+> *Tetrahedron, cube, octahedron — and dodecahedron, icosahedron persist.*
+> *V minus E plus F is two, for every convex polyhedron known.*
+> *Linear k cubes the volume — the law that grows everything you've grown.*
+
+## Apply
+
+### Worked example
+
+> Verify Euler's formula for a triangular prism: a 3D shape with
+> two triangular bases and three rectangular sides.
+
+$V = 6$ (3 corners on each base), $E = 9$ (3 base edges per
+triangle, plus 3 lateral edges) — wait, $E = 3 + 3 + 3 = 9$.
+$F = 5$ (2 bases + 3 sides).
+
+$V - E + F = 6 - 9 + 5 = 2$. ✓
+
+**Euler's formula holds.**
+
+### Practice — Warm
+
+**W1.** A cube has edge length $5$. Find its volume and surface
+area.
+
+<details class="hint"><summary>Full solution</summary>
+$V = 125$, $S = 6 \cdot 25 = 150$.
+</details>
+
+**W2.** Two cubes have edge ratio $1 : 3$. Find the ratio of their
+volumes.
+
+<details class="hint"><summary>Full solution</summary>
+$1 : 27$.
+</details>
+
+**W3.** Verify Euler's formula for an octahedron ($V = 6, E = 12,
+F = 8$).
+
+<details class="hint"><summary>Full solution</summary>
+$6 - 12 + 8 = 2$. ✓
+</details>
+
+### Practice — Working
+
+**P1.** A football (soccer ball) is made of $12$ regular pentagonal
+patches and $20$ regular hexagonal patches. Each pentagon shares
+its $5$ edges with $5$ hexagons; each hexagon shares $3$ edges with
+pentagons and $3$ with other hexagons. Compute $V$, $E$, $F$, and
+verify Euler's formula.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$F = 12 + 20 = 32$. Each edge is shared by $2$ faces, so
+$E = (12 \cdot 5 + 20 \cdot 6)/2$. Each vertex is shared by $3$
+faces (the standard *truncated icosahedron* configuration).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$F = 32$. $E = (60 + 120)/2 = 90$. Vertices: each is shared by 3
+faces (1 pentagon + 2 hexagons), and each face contributes its
+vertices counted once per shared face:
+$V = (12 \cdot 5 + 20 \cdot 6)/3 = 60$.
+
+Check: $V - E + F = 60 - 90 + 32 = 2$. ✓
+
+This is the **truncated icosahedron** — the world's most famous
+*Archimedean solid* (and the geometry of fullerene C60).
+</details>
+
+**P2.** A regular dodecahedron has edge length $a$. Find the
+ratio of its surface area to that of a cube of edge $a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Dodecahedron: $12$ regular pentagons of side $a$. Pentagon area:
+$\dfrac{a^2 \sqrt{25 + 10\sqrt 5}}{4}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Dodecahedron surface: $12 \cdot \dfrac{a^2 \sqrt{25 + 10\sqrt 5}}{4}
+= 3 a^2 \sqrt{25 + 10\sqrt 5}$.
+Cube surface: $6 a^2$.
+Ratio: $\dfrac{3 \sqrt{25 + 10\sqrt 5}}{6} = \dfrac{\sqrt{25 + 10
+\sqrt 5}}{2} \approx 3.4377$.
+**Dodecahedron has about $3.44$ times the cube's surface for the
+same edge.**
+</details>
+
+**P3.** A regular tetrahedron and a cube have *the same surface
+area*. Find the ratio of their volumes.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set surface areas equal: $\sqrt 3 a_{\text{tet}}^2 = 6
+a_{\text{cube}}^2$, where $a_{\text{tet}}$ is tetrahedron edge.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt 3 a_{\text{tet}}^2 = 6 a_{\text{cube}}^2$, so
+$a_{\text{tet}}^2 / a_{\text{cube}}^2 = 6 / \sqrt 3 = 2\sqrt 3$.
+Volumes: $V_{\text{tet}} = \dfrac{a_{\text{tet}}^3 \sqrt 2}{12}$,
+$V_{\text{cube}} = a_{\text{cube}}^3$. Ratio:
+$\dfrac{V_{\text{tet}}}{V_{\text{cube}}} = \dfrac{\sqrt 2}{12}
+\cdot (2\sqrt 3)^{3/2} = \dfrac{\sqrt 2}{12} \cdot 2 \sqrt{12} \cdot
+\sqrt{2\sqrt 3} \approx 0.7264$. **Tetrahedron volume $\approx
+72.6\%$ of the cube's** when surface areas match. *(Confirms
+intuition: the cube is "more efficient" at enclosing volume per
+surface; the sphere is the most efficient.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the **dual** of each Platonic solid (formed by
+placing a vertex at each face centre and connecting vertices of
+adjacent faces) is again a Platonic solid:
+- Tetrahedron ↔ Tetrahedron (self-dual)
+- Cube ↔ Octahedron
+- Dodecahedron ↔ Icosahedron
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The dual of a polyhedron with Schläfli symbol $\{p, q\}$ has
+symbol $\{q, p\}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+| Original | Schläfli | Dual Schläfli | Dual solid |
+|----------|----------|---------------|------------|
+| Tetrahedron $\{3,3\}$ | $(3, 3)$ | $(3, 3)$ | **Tetrahedron** (self-dual) |
+| Cube $\{4,3\}$ | $(4, 3)$ | $(3, 4)$ | **Octahedron** |
+| Dodecahedron $\{5,3\}$ | $(5, 3)$ | $(3, 5)$ | **Icosahedron** |
+
+By Problem 3, $\{q, p\}$ is also a valid Platonic Schläfli symbol
+iff $\{p, q\}$ is. So the duals are all Platonic. **QED.**
+*(Duality is a deep theme in geometry, group theory, and physics.)*
+</details>
+
+**S2.** *Sphere packing.* The densest packing of identical spheres
+in 3D is the **face-centred cubic (FCC)** arrangement, which fills
+$\dfrac{\pi}{3\sqrt 2} \approx 74\%$ of space. Verify this density
+for the FCC lattice.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+In the FCC unit cell (a cube of side $a$), there are $4$ spheres
+each of diameter $a / \sqrt 2$ (touching across the face diagonal).
+Volume of $4$ spheres / volume of cube.
+</details>
+<details class="hint"><summary>Full solution</summary>
+FCC unit cell: a cube of edge $a$. Spheres at $8$ corners (each
+contributing $1/8$) plus $6$ face centres (each $1/2$): total
+$8 \cdot 1/8 + 6 \cdot 1/2 = 4$ full spheres per unit cell.
+
+Spheres touch across face diagonals: face diagonal $= 4r$, so
+$a \sqrt 2 = 4r$, giving $r = a \sqrt 2 / 4 = a / (2\sqrt 2)$.
+
+Total sphere volume: $4 \cdot \dfrac{4}{3}\pi r^3 = \dfrac{16}{3}
+\pi \cdot \dfrac{a^3}{16 \sqrt 2} = \dfrac{\pi a^3}{3 \sqrt 2}$.
+
+Density: $\dfrac{\pi a^3 / (3\sqrt 2)}{a^3} = \dfrac{\pi}{3\sqrt 2}
+\approx 0.7405$. **Verified.** *(Kepler's conjecture, finally
+proved by Hales 1998–2017.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Stereometry*, §§493–530.
+
+**K1.** Show that the **centres** of the six faces of a cube of
+side $a$ are the vertices of an **octahedron**, and find that
+octahedron's edge length.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The face-centre points of a cube are at $(\pm a/2, 0, 0)$,
+$(0, \pm a/2, 0)$, $(0, 0, \pm a/2)$ — six points symmetric about
+the cube's centre. Each pair of "adjacent" face centres is at
+distance...
+</details>
+<details class="hint"><summary>Full solution</summary>
+The six face centres are at $(\pm a/2, 0, 0)$, $(0, \pm a/2, 0)$,
+$(0, 0, \pm a/2)$ relative to the cube's centre. Adjacent face
+centres (e.g. $(a/2, 0, 0)$ and $(0, a/2, 0)$) are at distance
+$\sqrt{(a/2)^2 + (a/2)^2} = a / \sqrt 2$. The six points form a
+regular octahedron of edge $a / \sqrt 2 \approx 0.707 a$.
+**Octahedron edge $= a / \sqrt 2$.** *(Stereometry §495 — *cube
+and octahedron are duals*.)*
+</details>
+
+**K2.** A regular tetrahedron of edge $a$ is inscribed in a cube
+of edge $a' = a / \sqrt 2$. *(I.e., the tetrahedron's vertices are
+4 of the cube's 8 vertices, no two adjacent.)* Verify this and
+find the volume ratio.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+4 cube vertices: $(0,0,0), (a',a',0), (a',0,a'), (0,a',a')$ — check
+they form a regular tetrahedron of edge $a' \sqrt 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Pairwise distances: $\sqrt{(a')^2 + (a')^2} = a' \sqrt 2$. So the
+inscribed tetrahedron has edge $a' \sqrt 2$. With $a = a' \sqrt 2$,
+$a' = a / \sqrt 2$ — confirmed.
+
+Volume ratio: $V_{\text{tet}} = \dfrac{a^3 \sqrt 2}{12}$,
+$V_{\text{cube}} = (a')^3 = \dfrac{a^3}{2\sqrt 2}$.
+Ratio $V_{\text{tet}} / V_{\text{cube}} = \dfrac{\sqrt 2 / 12}
+{1 / (2\sqrt 2)} = \dfrac{\sqrt 2 \cdot 2\sqrt 2}{12} = \dfrac{4}{12}
+= \dfrac{1}{3}$. **The inscribed tetrahedron is $\tfrac{1}{3}$ of
+the cube's volume.** *(Stereometry §496 exercise.)*
+</details>
+
+**K3.** Show that the area of an equilateral triangle of side $s$
+is $\dfrac{s^2 \sqrt 3}{4}$, and use it to derive the volume of a
+regular tetrahedron of side $s$ as $\dfrac{s^3 \sqrt 2}{12}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Equilateral triangle area: drop the altitude, use Pythagoras.
+Tetrahedron volume: $\tfrac{1}{3}$ base × height; height $=
+s \sqrt{2/3}$ (Ch 1 S2 in this tier).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Equilateral triangle area: altitude $h = s \sqrt 3 / 2$. Area
+$= \tfrac{1}{2} s \cdot s\sqrt 3 / 2 = \dfrac{s^2 \sqrt 3}{4}$.
+
+Tetrahedron volume: $V = \tfrac{1}{3} \cdot \dfrac{s^2 \sqrt 3}{4}
+\cdot s\sqrt{2/3} = \dfrac{s^3 \sqrt 3 \cdot \sqrt 2}{12 \sqrt 3}
+= \dfrac{s^3 \sqrt 2}{12}$. **QED.** *(Stereometry §498.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book II — Stereometry*, §§491–530 (Sumizdat 2008). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+The five-Platonic-solids classification (Problem 3) is Kiselev's
+§493 — directly following Euclid Book XIII.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Euler's formula is $V + E + F = 2$."** It is *minus* in the
+   middle: $V - E + F = 2$. The minus is essential — the
+   alternating sum is what makes the topology come out right
+   (it generalises to the *Euler characteristic*).
+2. **"There are six Platonic solids."** No — there are **exactly
+   five** in 3D. *(Six in 4D, three in dimensions $\ge 5$ — but
+   that's a different topic.)*
+3. **"Volume scales by $k^2$ for similar solids."** No — by **$k^3$**.
+   Surface area scales by $k^2$; volume by $k^3$. Mixing them up is
+   the most common error in this area.
+:::
+
+### Self-Assessment
+
+1. Could you prove the *5-Platonic-solids* theorem (Problem 3) on a
+   fresh sheet, deriving the angle inequality
+   $\tfrac{1}{p} + \tfrac{1}{q} > \tfrac{1}{2}$?
+2. Did *Euler's formula* (Problem 2) feel like a planar-graph
+   argument once stretched flat?
+3. Can you state the three scaling laws — linear $k$, area $k^2$,
+   volume $k^3$ — and explain the *square-cube law* (Problem 7)?
+
+- **3 yes:** **You have completed Kiselev *Stereometry* in
+  Russian-classical style.** The four-tier Kiselev geometry track
+  is now in place.
+- **2 yes:** redo Problem 3 — the Platonic classification is the
+  chapter's centrepiece.
+- **0–1 yes:** the trio Problems 2, 3, 4 form one big idea (Euler
+  + classification + scaling); replay them.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg2.polyhedra`](../02-polyhedra/index.qmd) — vertex / edge /
+  face vocabulary; volume formulas for prisms and pyramids.
+- [`kg2.sphere`](../04-sphere/index.qmd) — the sphere as the
+  $n \to \infty$ limit of a regular $n$-hedron, and the comparison
+  point for shape-efficiency arguments.
+
+### What this unlocks
+
+- [`t6.groups`](../../tier-6-undergrad-advanced/01-groups/index.qmd) —
+  the symmetries of each Platonic solid form a *finite group*
+  (the *icosahedral group* of order $120$ is one of the great
+  finite simple groups).
+- [`t7.langlands-program`](../../tier-7-masters-tracks/15-langlands-program/index.qmd) —
+  the dihedral, tetrahedral, octahedral, icosahedral groups are
+  the simplest *Galois representations*.
+- [`t6.spectral-graph-theory`](../../tier-6-undergrad-advanced/14-spectral-graph-theory/index.qmd) —
+  Euler's formula generalises to the *Euler characteristic* of any
+  surface, the gateway to topology.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book II — Chapter 5: Regular polyhedra and similarity
+  (§§491–530).** Givental translation, Sumizdat 2008. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+- **Sister synthesis lessons:**
+  [`cbse9.surface-areas-and-volumes`](../../tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd)
+  (computational mensuration);
+  [`cbse10.surface-areas-and-volumes`](../../tier-cbse-10-class-10/12-surface-areas-and-volumes/index.qmd)
+  (combined solids).
+- **Read alongside the source PDF** for Kiselev's full development
+  of *Cauchy's rigidity theorem* (every convex polyhedron is rigid)
+  in the appendix.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Game engines render Platonic solids as
+*primitives* — the icosahedron is the standard *low-poly sphere*
+because it has the highest face-symmetry-to-face-count ratio. Dual
+relationships (cube↔octahedron) are exploited in *normal-map
+encoding* and *cubemap projection*.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Graph neural networks** generalise the Euler-formula
+intuition: structure flows along edges, with vertex-edge-face
+incidences encoded as adjacency matrices. The Platonic solids are
+the canonical small *vertex-transitive* graphs — natural test
+cases for symmetry-aware architectures.
+:::
+
+::: {.applied-callout}
+**Research.** **Cauchy's rigidity theorem** (1813): every convex
+polyhedron is rigid — its shape is determined by its face shapes
+and combinatorial structure. This was the first major theorem in
+*combinatorial geometry* and is still the gateway to questions in
+mechanism theory and protein folding.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Plato (*Timaeus* — the cosmological role of the
+  five solids); Euclid (*Elements* Book XIII — first complete
+  classification proof); Cauchy (*Mémoire sur les polygones et les
+  polyèdres* — the rigidity theorem and the polyhedron-flatten
+  proof of Euler).
+- **The argument $\tfrac{1}{p} + \tfrac{1}{q} > \tfrac{1}{2}$**
+  (Problem 3) is one of the cleanest classifications in mathematics
+  — three lines, total certainty. Worth memorising.
+- **What this lesson does not do:** classify the Archimedean
+  solids (semi-regular: same vertex configuration, but different
+  face polygons). There are 13 of them; that's a separate topic
+  worth its own lesson.
+- **Kiselev *Stereometry* — track complete.** Five chapters, all
+  aligned to Givental's English translation. Together with
+  Planimetry's nine chapters, the Kiselev geometry track is in
+  place from definitions to the Platonic classification.
+:::

@@ -1,0 +1,522 @@
+---
+title: "Ch 7 — Limits and Continued Fractions"
+subtitle: "What sequences approach as $n \\to \\infty$ — and how Euler's $e$ falls out of compound interest"
+lesson-id: "ka2.limits"
+tier: "ka2"
+kiselev-book: "Algebra, Part II"
+kiselev-chapter: 7
+kiselev-chapter-title: "Limits"
+kiselev-sections: "§§116–135 (limits of sequences, the number e, continued fractions, applications)"
+prerequisites: [ka2.sequences-progressions, ka2.combinatorics-binomial]
+unlocks: []
+applied-domains: [research, ai-ml, encryption]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are infinite-GP sums automatic? See
+   [`ka2.sequences-progressions`](../05-sequences-progressions/index.qmd).
+2. Can you compute $\binom{n}{k}$ for small $n, k$? See
+   [`ka2.combinatorics-binomial`](../06-combinatorics-binomial/index.qmd).
+3. Are you comfortable with $\sum$ notation extending to infinity?
+4. Can you reason about a sequence "getting arbitrarily close" to
+   a value — even if it never *exactly* reaches?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+The sequence $a_n = (1 + 1/n)^n$. As $n$ grows, $a_n$ creeps toward
+a number that is *not* rational — toward Euler's $e \approx
+2.71828\ldots$.
+
+```{ojs}
+viewof n = Inputs.range([1, 1000], {value: 10, step: 1, label: "n"})
+```
+
+```{ojs}
+{
+  const a = Math.pow(1 + 1 / n, n);
+  return `**(1 + 1/${n})^${n} = ${a.toFixed(6)}**.
+
+Limit as n → ∞ is **e ≈ 2.71828**.`;
+}
+```
+
+Sequences can *converge* to a limit they never exactly hit. The
+existence of such limits is the foundation of all calculus.
+
+## Wonder
+
+1. The sequence $1/n$ for $n = 1, 2, 3, \ldots$ — what is its
+   *limit*?
+2. The sequence $(-1)^n$ alternates: $-1, 1, -1, 1, \ldots$. Does
+   it have a limit?
+3. The sequence $(1 + 1/n)^n$ approaches a specific number. **What
+   is that number?**
+4. Some irrational numbers can be expressed as **continued
+   fractions** like $\sqrt 2 = 1 + \dfrac{1}{2 + \dfrac{1}{2 +
+   \cdots}}$. **Why** does this representation exist?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Zero** — the terms get arbitrarily small. (2) **No limit** —
+the sequence oscillates between $-1$ and $+1$ forever, never
+settling. (3) **$e \approx 2.71828\ldots$**, *Euler's number*, the
+base of the natural logarithm. (4) Continued fractions correspond
+to the *Euclidean algorithm* applied iteratively to ratios; they
+exist for every real number, terminating for rationals, infinite
+(periodic for quadratic irrationals) otherwise.
+:::
+
+## Discover
+
+### Problem 1 — Definition of limit (informal)
+
+A sequence $a_n$ has **limit** $L$ (written $\lim_{n \to \infty}
+a_n = L$) if $a_n$ becomes *arbitrarily close* to $L$ for *all
+sufficiently large* $n$. Argue informally that $\lim_{n \to \infty}
+1/n = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+For any *desired* closeness $\epsilon > 0$, we need $|1/n - 0| <
+\epsilon$, i.e. $n > 1/\epsilon$. So once $n$ is large enough
+(specifically, $n > 1/\epsilon$), the terms are within $\epsilon$
+of zero. Since this works for *every* $\epsilon > 0$, the limit
+is $0$. **(Algebra II §117 — informal limit; full $\epsilon$-$N$
+definition belongs to undergraduate analysis.)**
+</details>
+
+### Problem 2 — Squeeze theorem (informal)
+
+If $b_n \le a_n \le c_n$ for all sufficiently large $n$, and
+$\lim b_n = \lim c_n = L$, then $\lim a_n = L$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a_n$ is "trapped" between two sequences that converge to $L$, so
+$a_n$ must too.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For any $\epsilon > 0$, eventually $|b_n - L| < \epsilon$ and
+$|c_n - L| < \epsilon$, so $b_n, c_n \in (L - \epsilon, L +
+\epsilon)$, hence $a_n \in (L - \epsilon, L + \epsilon)$ too. The
+sequence is squeezed. *(Algebra II §119 — the **squeeze theorem**.)*
+</details>
+
+### Problem 3 — Sum of an infinite GP
+
+Use the limit definition to verify the formula
+$\sum_{n=0}^\infty r^n = \dfrac{1}{1 - r}$ for $|r| < 1$ (already
+shown in Ch 5 Problem 3).
+
+<details class="hint"><summary>Full solution</summary>
+$S_N = \dfrac{1 - r^{N+1}}{1 - r}$. As $N \to \infty$, $r^{N+1}
+\to 0$ (since $|r| < 1$), so $S_N \to \dfrac{1}{1 - r}$. ✓
+</details>
+
+### Problem 4 — The number $e$
+
+Show that the sequence $a_n = (1 + 1/n)^n$ is *increasing* and
+*bounded above*, hence has a limit. *(That limit is named $e$.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Increasing: AM-GM applied to $n$ copies of $(1 + 1/n)$ and one
+copy of $1$ gives $a_n^{1/(n+1)} < $ average, etc. Alternatively
+use binomial expansion to show monotonicity. Bounded above:
+expand using the binomial theorem and bound each term.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Bounded above.* Expand by binomial theorem:
+$$a_n = \sum_{k=0}^n \binom{n}{k} \dfrac{1}{n^k} = \sum_{k=0}^n
+\dfrac{n!}{k! (n-k)! n^k} = \sum_{k=0}^n \dfrac{1}{k!} \cdot
+\dfrac{n!}{(n-k)! n^k}.$$
+
+The factor $\dfrac{n!}{(n-k)! n^k} = \dfrac{n(n-1) \cdots (n-k+1)}
+{n^k} = (1)(1 - 1/n)(1 - 2/n) \cdots (1 - (k-1)/n) \le 1$.
+
+So $a_n \le \sum_{k=0}^n \dfrac{1}{k!} \le \sum_{k=0}^\infty \dfrac
+{1}{k!} = 1 + 1 + \dfrac{1}{2!} + \dfrac{1}{3!} + \cdots$, which
+converges (each term $\le 1/2^{k-1}$ from $k = 2$ onward). So $a_n$
+is bounded above by some constant $\le 3$.
+
+*Increasing:* the bound $\dfrac{n(n-1)\cdots(n-k+1)}{n^k}$
+*increases* with $n$ (each factor approaches 1 from below). So
+each term in the sum increases, and additional terms are added.
+
+By the **monotone convergence theorem** (any increasing bounded
+sequence has a limit), $a_n$ has a limit, called **$e$**.
+
+$$e = \lim_{n \to \infty} \left(1 + \dfrac{1}{n}\right)^n =
+\sum_{k=0}^\infty \dfrac{1}{k!} \approx 2.71828\ldots$$
+
+**QED.** *(Algebra II §125 — Euler's definition of $e$.)*
+</details>
+
+### Problem 5 — Continued-fraction expansion
+
+Compute the first few convergents of the continued fraction
+$1 + \dfrac{1}{2 + \dfrac{1}{2 + \cdots}}$ (period 2).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Truncate at successive depths and simplify.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Depth 1: $1$.
+Depth 2: $1 + 1/2 = 3/2 = 1.5$.
+Depth 3: $1 + 1/(2 + 1/2) = 1 + 1/(5/2) = 1 + 2/5 = 7/5 = 1.4$.
+Depth 4: $1 + 1/(2 + 1/(2 + 1/2)) = 1 + 1/(2 + 2/5) = 1 + 5/12 =
+17/12 \approx 1.4167$.
+Depth 5: ...
+
+The convergents alternate around $\sqrt 2 \approx 1.41421$, getting
+closer.
+
+In fact $\sqrt 2 = 1 + \dfrac{1}{2 + \dfrac{1}{2 + \cdots}}$ is the
+canonical continued fraction. *(Algebra II §132 — periodic
+continued fractions ↔ quadratic irrationals.)*
+</details>
+
+### Problem 6 — Limits of rational functions
+
+Compute $\lim_{n \to \infty} \dfrac{3 n^2 + 5 n - 2}{2 n^2 + n + 1}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide both numerator and denominator by $n^2$, the highest power.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{3 + 5/n - 2/n^2}{2 + 1/n + 1/n^2}$. As $n \to \infty$,
+each $1/n$ and $1/n^2$ term $\to 0$. Limit: $\dfrac{3}{2}$.
+**Answer: $\dfrac{3}{2}$.**
+</details>
+
+### Problem 7 — Limit form of $e$ for compound interest
+
+A bank pays $r\%$ continuously compounded interest. Show that the
+amount $A(t)$ after time $t$ years on principal $P$ is $A = P
+e^{r t / 100}$.
+
+<details class="hint"><summary>Full solution</summary>
+With $n$ compounding periods per year, the amount after $t$ years
+is $P (1 + r/(100 n))^{n t}$. Let $m = 100 n / r$, so $r/(100 n)
+= 1/m$ and $n t = m \cdot (r t / 100)$. So:
+$$A = P (1 + 1/m)^{m \cdot (r t / 100)} = P \left[(1 + 1/m)^m
+\right]^{r t / 100}.$$
+
+As $n \to \infty$ ($m \to \infty$), the bracketed expression $\to
+e$. Hence $A \to P e^{r t / 100}$. **QED.** *(Algebra II §128 —
+the *continuous-compounding limit*.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Limit (informal).** $\lim_{n \to \infty} a_n = L$ if for any
+desired closeness $\epsilon > 0$, $|a_n - L| < \epsilon$ for all
+sufficiently large $n$.
+
+**Convergent vs. divergent.** A sequence with a limit is
+*convergent*; otherwise *divergent*. Diverging sequences may go to
+$+\infty$, $-\infty$, or oscillate without settling.
+
+**Squeeze theorem.** If $b_n \le a_n \le c_n$ and $\lim b_n =
+\lim c_n = L$, then $\lim a_n = L$.
+
+**Monotone convergence.** Any increasing sequence bounded above
+has a limit. (Same for decreasing bounded below.)
+
+**Euler's $e$:**
+$$e = \lim_{n \to \infty} \left(1 + \dfrac{1}{n}\right)^n =
+\sum_{k=0}^\infty \dfrac{1}{k!} \approx 2.71828\ldots$$
+
+**Continuous compounding:**
+$A = P e^{r t}$ (with $r$ as decimal annual rate).
+
+**Continued fraction:** $a_0 + \dfrac{1}{a_1 + \dfrac{1}{a_2 +
+\cdots}}$ — every real has one (terminating for rationals, periodic
+for quadratic irrationals).
+
+:::
+
+A verse:
+
+> *Limits trap a sequence between fading errors and fixed bounds.*
+> *Monotone and bounded yields convergence — the analyst's confound.*
+> *And the sequence $(1 + 1/n)^n$ creeps to $e$ as $n$ flies to
+> infinity.*
+> *Continuous compounding rewards $e^{r t}$ — Euler's gift to the
+> trinity.*
+
+## Apply
+
+### Worked example
+
+> Compute $\lim_{n \to \infty} \dfrac{n^2 - 1}{n^2 + 1}$.
+
+$\dfrac{1 - 1/n^2}{1 + 1/n^2} \to \dfrac{1 - 0}{1 + 0} = 1$.
+
+**Limit $= 1$.**
+
+### Practice — Warm
+
+**W1.** Compute $\lim_{n \to \infty} \dfrac{1}{n + 1}$.
+
+<details class="hint"><summary>Full solution</summary>
+$0$.
+</details>
+
+**W2.** Compute $\lim_{n \to \infty} \dfrac{2 n + 3}{n}$.
+
+<details class="hint"><summary>Full solution</summary>
+$2 + 3/n \to 2$. **Limit $= 2$.**
+</details>
+
+**W3.** Does $a_n = (-1)^n$ have a limit?
+
+<details class="hint"><summary>Full solution</summary>
+**No** — it alternates between $-1$ and $+1$.
+</details>
+
+### Practice — Working
+
+**P1.** Compute $\lim_{n \to \infty} \dfrac{\sqrt{n^2 + 1}}{n}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Factor $n$ out of the square root: $\sqrt{n^2 + 1} = n \sqrt{1 +
+1/n^2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{n \sqrt{1 + 1/n^2}}{n} = \sqrt{1 + 1/n^2} \to 1$.
+</details>
+
+**P2.** Compute $\lim_{n \to \infty} (\sqrt{n + 1} - \sqrt n)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply and divide by the conjugate: $\sqrt{n + 1} + \sqrt n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{n + 1} - \sqrt n = \dfrac{(n + 1) - n}{\sqrt{n + 1} + \sqrt
+n} = \dfrac{1}{\sqrt{n + 1} + \sqrt n} \to 0$.
+</details>
+
+**P3.** *Continuous compound interest.* Principal $₹10,000$ at $4\%$
+continuously compounded for $5$ years. Final amount?
+
+<details class="hint"><summary>Full solution</summary>
+$A = 10000 \cdot e^{0.04 \cdot 5} = 10000 \cdot e^{0.2} \approx
+10000 \cdot 1.2214 \approx ₹12,214$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that $\sum_{n=1}^\infty \dfrac{1}{n^2}$ converges.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare with $\sum \dfrac{1}{n(n+1)}$ which telescopes (Ch 5 S2).
+$\dfrac{1}{n^2} \le \dfrac{1}{(n-1) n}$ for $n \ge 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sum_{n=2}^\infty \dfrac{1}{(n-1) n}$ telescopes to $1$ (by Ch 5
+S2 reasoning). Each term of $\sum 1/n^2$ for $n \ge 2$ is bounded
+by the corresponding telescoping term: $1/n^2 \le 1/((n-1) n)$.
+By the comparison test, $\sum 1/n^2$ converges. *(In fact the sum
+equals $\pi^2/6$ — the famous **Basel problem** solved by Euler in
+1735.)*
+</details>
+
+**S2.** Compute $\lim_{n \to \infty} \left(1 - \dfrac{1}{n}
+\right)^n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Connect to the $e$-limit. Try writing $1 - 1/n = (n - 1)/n =
+1/(n/(n-1))$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\left(1 - \dfrac{1}{n}\right)^n = \left(\dfrac{n-1}{n}\right)^n =
+\dfrac{1}{(n/(n-1))^n} = \dfrac{1}{(1 + 1/(n-1))^n}$.
+
+The denominator: $(1 + 1/(n-1))^{n-1} \cdot (1 + 1/(n-1)) \to e
+\cdot 1 = e$. So the limit is $1/e$.
+
+**$\lim_{n \to \infty} (1 - 1/n)^n = 1/e \approx 0.3679$.**
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra II*, §§125–135.
+
+**K1.** Show that $\lim_{n \to \infty} \dfrac{a^n}{n!} = 0$ for any
+fixed real $a$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick $N > |a|$. For $n > N$, write $\dfrac{a^n}{n!} = \dfrac{a^N}
+{N!} \cdot \dfrac{a^{n - N}}{(N+1)(N+2) \cdots n}$. The first
+factor is fixed; the second has each factor $|a|/k < 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For $n > N := \lceil |a| \rceil$, write $\dfrac{a^n}{n!} = \dfrac{a^N}
+{N!} \cdot \prod_{k = N+1}^n \dfrac{a}{k}$. Each factor $|a|/k < 1$,
+and there are $n - N$ such factors with product $\to 0$ as $n \to
+\infty$. Hence the whole product $\to 0$. **QED.** *(Algebra II
+§134 — *factorial growth dominates exponential growth*.)*
+</details>
+
+**K2.** Show that $e$ is **irrational**. *(Sketch.)*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose $e = p/q$. Multiply $e = \sum 1/k!$ by $q!$ and analyse
+the *fractional* part of the resulting expression — it is positive
+but bounded above by a sum that contradicts integrality.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Sketch (Fourier 1815).* Suppose $e = p/q$ rational. Multiply
+$e = \sum_{k=0}^\infty 1/k!$ by $q!$:
+$$q! \cdot e = q! \cdot p / q = (q - 1)! \cdot p \in \mathbb Z.$$
+
+Also $q! \cdot e = \underbrace{\sum_{k=0}^q q!/k!}_{\text{integer}}
++ \underbrace{\sum_{k=q+1}^\infty q!/k!}_{\text{fractional}}$.
+
+The fractional part: $\sum_{k=q+1}^\infty q!/k! = \dfrac{1}{q+1} +
+\dfrac{1}{(q+1)(q+2)} + \cdots < \dfrac{1}{q+1} + \dfrac{1}{(q+1)^2}
++ \cdots = \dfrac{1/(q+1)}{1 - 1/(q+1)} = \dfrac{1}{q}$.
+
+So $q! \cdot e$ is the sum of an integer and a positive fraction
+*less than* $1/q \le 1$ — hence not an integer. **Contradiction.**
+
+**$e$ is irrational.** *(Algebra II §126 — *Fourier's proof*, beautifully short.)*
+</details>
+
+**K3.** Show that $\sqrt 2$'s continued-fraction expansion is
+$[1; \overline{2}] = 1 + \dfrac{1}{2 + \dfrac{1}{2 + \cdots}}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $x = 1 + \dfrac{1}{2 + \dfrac{1}{2 + \cdots}}$. Then $x - 1 =
+\dfrac{1}{1 + x}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $x = 1 + \dfrac{1}{2 + \dfrac{1}{2 + \cdots}}$. The pattern
+after the leading $1$ is itself $1 + x$, so $x = 1 + \dfrac{1}{1 +
+x}$. Multiply by $(1 + x)$: $(1 + x) x = (1 + x) + 1$, so $x + x^2 =
+2 + x$, giving $x^2 = 2$, i.e. $x = \sqrt 2$. **QED.**
+*(Algebra II §132 — *periodic continued fractions and quadratic
+irrationals*.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Часть вторая*
+(Fizmatlit reprint 2005), §§116–135. Russian original:
+[archive.org scan](https://archive.org/details/kiselyov-algebra-part-2-2005).
+The proof of $e$'s irrationality (K2) is §126 — Kiselev presents
+Fourier's proof verbatim.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\lim a_n = L$ means $a_n = L$ for some $n$."** No — the
+   sequence may *never* exactly equal $L$. The limit is *what it
+   approaches*, not what it reaches.
+2. **"All increasing sequences converge."** Only if **bounded
+   above**. The sequence $1, 2, 3, \ldots$ is increasing but
+   diverges (no upper bound).
+3. **"$\infty$ is a number."** It is *not* a real number. Notation
+   like $\lim a_n = \infty$ means "the sequence grows without
+   bound" — a *non-existence* of a limit, with a particular
+   character.
+:::
+
+### Self-Assessment
+
+1. Could you compute $\lim \dfrac{p(n)}{q(n)}$ for polynomials $p,
+   q$ of equal degree without consulting hints?
+2. Did the binomial-expansion proof of the $e$-limit (Problem 4)
+   feel like one move, or like a sequence of estimates?
+3. Can you state the *monotone convergence theorem* and explain
+   why it's the foundation of $e$?
+
+- **3 yes:** **You have completed Kiselev *Algebra Part II* in
+  Russian-classical style.** The Kiselev track is now fully
+  authored.
+- **2 yes:** redo Problem 4 — the existence of $e$ is the chapter's
+  philosophical centre.
+- **0–1 yes:** Problems 1, 4, 6 form a chain (limit definition →
+  $e$ → rational-function limits); replay them.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka2.sequences-progressions`](../05-sequences-progressions/index.qmd) —
+  infinite GP sums; the closed form of partial sums.
+- [`ka2.combinatorics-binomial`](../06-combinatorics-binomial/index.qmd) —
+  the binomial expansion is what shows $(1 + 1/n)^n$ is bounded.
+
+### What this unlocks
+
+- [`t4.limits`](../../tier-4-precalc-calculus/01-limits/index.qmd) —
+  the formal $\epsilon$-$N$ definition; calculus.
+- [`t5.sequences-series-convergence`](../../tier-5-undergrad-core/14-sequences-series-convergence/index.qmd) —
+  rigorous convergence theory.
+- [`t6.fourier-series`](../../tier-6-undergrad-advanced/12-fourier-series/index.qmd) —
+  the Basel problem and other infinite-series identities.
+- [`cbse11.limits`](../../tier-cbse-11-class-11/12a-limits/index.qmd) —
+  CBSE 11 introduction.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part II — Chapter 7: Limits (§§116–135).** Russian
+  original on
+  [archive.org](https://archive.org/details/kiselyov-algebra-part-2-2005).
+- **Sister synthesis lessons:**
+  [`t4.limits`](../../tier-4-precalc-calculus/01-limits/index.qmd);
+  [`cbse11.limits`](../../tier-cbse-11-class-11/12a-limits/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the *Cauchy criterion* and continued-fraction convergents
+  (§§133–135).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** **Convergence of stochastic gradient descent** is
+fundamentally a sequence-convergence question. Each iteration
+produces a new parameter vector; we want this sequence to
+*converge* to a (local) minimum. The $\epsilon$-machinery of
+limits underwrites the proof.
+:::
+
+::: {.applied-callout}
+**Encryption.** **Continued-fraction expansions** were used in
+**Wiener's attack** on RSA: when the private exponent is small,
+the continued-fraction convergents to $e/N$ recover the secret key.
+This lesson's machinery is the literal cryptanalytic tool.
+:::
+
+::: {.applied-callout}
+**Research.** **Real analysis** — the rigorous study of
+limits — was born from this chapter's content (Cauchy 1820s,
+Weierstrass 1850s) and underwrites all of modern mathematics.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§116–135 ordering); Euler (the
+  number $e$ and the Basel problem); Cauchy and Weierstrass (the
+  rigorous limit theory, formalised from Kiselev-style intuitions).
+- **The proof of $e$'s irrationality (K2)** is one of the most
+  beautiful proofs in elementary mathematics — a half-page of
+  algebra defeats a number's "rationality assumption."
+- **What this lesson does not do:** prove the *transcendence* of
+  $e$ (Hermite 1873), which requires more advanced machinery.
+- **Algebra Part II — track complete.** Seven chapters, all
+  aligned to Kiselev's Russian original. Together with Algebra I
+  (9 chapters), Planimetry (9), and Stereometry (5), the full
+  Kiselev track now spans **30 lessons**.
+:::

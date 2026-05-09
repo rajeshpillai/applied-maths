@@ -1,0 +1,578 @@
+---
+title: "Ch 4 — The Sphere"
+subtitle: "Archimedes' two great theorems — surface $4\\pi r^2$ and volume $\\tfrac{4}{3}\\pi r^3$"
+lesson-id: "kg2.sphere"
+tier: "kg2"
+kiselev-book: "Geometry, Book II (Stereometry)"
+kiselev-chapter: 4
+kiselev-chapter-title: "The sphere"
+kiselev-sections: "Stereometry §§461–490 (sphere surface, volume; spherical caps and zones)"
+prerequisites: [kg2.cylinder-cone, kg1.areas]
+unlocks: []
+applied-domains: [game-dev, research, ai-ml]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are cylinder and cone formulas automatic for you? See
+   [`kg2.cylinder-cone`](../03-cylinder-cone/index.qmd).
+2. Do you know that $\pi$ is defined as the limit of regular-polygon
+   perimeters / diameter — and that the area of a circle is
+   $\pi r^2$? See
+   [`kg1.areas`](../../tier-kiselev-3-planimetry/09-areas/index.qmd).
+3. Are you comfortable applying Cavalieri's principle?
+4. Can you state the *Pythagorean theorem* and use it on a right
+   triangle in space?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+A sphere of radius $R$. Inscribe it inside a cylinder of base radius
+$R$ and height $2R$. Now consider any horizontal slice at height
+$z$ above the equator. The slice through the sphere is a circle of
+radius $\sqrt{R^2 - z^2}$; the slice through the cylinder is a
+circle of radius $R$. **And the slice through a cone** of suitable
+shape is a circle of radius $z$.
+
+```{ojs}
+viewof zheight = Inputs.range([-1, 1], {value: 0.5, step: 0.05, label: "Slice height z (in units of R)"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 280;
+  const cx = w / 2, cy = h / 2;
+  const R = 110;
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // cylinder outline (left)
+  const cyl_x = 90;
+  svg.append("rect").attr("x", cyl_x - R).attr("y", cy - R)
+    .attr("width", 2 * R).attr("height", 2 * R)
+    .attr("fill", "none").attr("stroke", "#26a");
+  // sphere outline (centre)
+  const sph_x = w / 2;
+  svg.append("circle").attr("cx", sph_x).attr("cy", cy).attr("r", R)
+    .attr("fill", "none").attr("stroke", "#a26");
+  // cone outline (right) — apex at top, base at bottom (or vice versa); use double cone
+  const cone_x = w - 90;
+  svg.append("polygon")
+    .attr("points", `${cone_x},${cy} ${cone_x - R},${cy - R} ${cone_x + R},${cy - R} ${cone_x},${cy} ${cone_x - R},${cy + R} ${cone_x + R},${cy + R}`)
+    .attr("fill", "none").attr("stroke", "#262");
+
+  // horizontal slice line
+  const z = -zheight * R; // SVG y is inverted
+  svg.append("line").attr("x1", 30).attr("x2", w - 30)
+    .attr("y1", cy + z).attr("y2", cy + z)
+    .attr("stroke", "#888").attr("stroke-dasharray", "3,2");
+
+  // slice cross-sections (drawn as small circles to the right of each shape)
+  // cylinder cross-section: radius R, area πR²
+  // sphere cross-section: radius √(R² - z²), area π(R² - z²)
+  // cone cross-section: radius |z|, area πz²
+  // Sphere + cone = cylinder area? Check: π(R²-z²) + πz² = πR² ✓
+  svg.append("text").attr("x", cyl_x).attr("y", cy + R + 14)
+    .attr("text-anchor", "middle").attr("font-size", 11).attr("fill", "#26a")
+    .text(`cylinder slice: π R²`);
+  svg.append("text").attr("x", sph_x).attr("y", cy + R + 14)
+    .attr("text-anchor", "middle").attr("font-size", 11).attr("fill", "#a26")
+    .text(`sphere slice: π(R² - z²)`);
+  svg.append("text").attr("x", cone_x).attr("y", cy + R + 14)
+    .attr("text-anchor", "middle").attr("font-size", 11).attr("fill", "#262")
+    .text(`cone slice: π z²`);
+  svg.append("text").attr("x", w / 2).attr("y", 22)
+    .attr("text-anchor", "middle").attr("font-size", 12)
+    .text(`sphere slice + cone slice = cylinder slice  →  by Cavalieri, vol(sphere) + vol(double cone) = vol(cylinder).`);
+  return svg.node();
+}
+```
+
+The relation $(R^2 - z^2) + z^2 = R^2$ is just algebra. Cavalieri
+turns it into a volume identity: **sphere + double cone = cylinder**.
+
+## Wonder
+
+1. The volume of a sphere is something nice involving $\pi$ and
+   $R$. **Guess the form.**
+2. The surface area of a sphere is *also* something nice involving
+   $\pi$ and $R$. Guess that too.
+3. A *cap* (the piece cut off a sphere by a plane) — how does its
+   volume depend on the depth of the cut?
+4. A *zone* (the band on a sphere's surface between two parallel
+   slicing planes) — how does its area depend on the perpendicular
+   distance between the planes?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **$V = \tfrac{4}{3} \pi R^3$.** (2) **$S = 4 \pi R^2$.** (3)
+Cap volume $V_{\text{cap}} = \tfrac{\pi h^2 (3R - h)}{3}$, where
+$h$ is the cap height. (4) **Astonishing** — the area of a zone
+between two parallel planes is $2 \pi R \cdot h$ where $h$ is the
+*perpendicular distance* between the planes — *independent* of
+where on the sphere they cut! (Archimedes' theorem.)
+:::
+
+## Discover
+
+### Problem 1 — Volume of a sphere via Archimedes
+
+Use the configuration in *Touch* (sphere inscribed in cylinder of
+radius $R$, height $2R$, with a double cone of apex at the centre)
+and Cavalieri's principle to show that the sphere's volume is
+$V = \tfrac{4}{3} \pi R^3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At every height $z$ (with $|z| \le R$), the cross-section areas
+satisfy: (sphere) + (cone) = (cylinder).
+</details>
+<details class="hint"><summary>Full solution</summary>
+At height $z \in [-R, R]$ above the equator:
+
+- **Cylinder slice area:** $\pi R^2$ (constant).
+- **Sphere slice area:** $\pi (R^2 - z^2)$ (cross-section is a
+  circle of radius $\sqrt{R^2 - z^2}$).
+- **Double-cone slice area:** $\pi z^2$ (the double cone has apex
+  at the centre, opening to circles of radius $|z|$ at the top
+  and bottom).
+
+Identity: $\pi R^2 = \pi (R^2 - z^2) + \pi z^2$ at every $z$.
+
+By Cavalieri,
+$\text{vol}(\text{cyl}) = \text{vol}(\text{sphere}) +
+\text{vol}(\text{double cone})$.
+$\pi R^2 \cdot 2R = V_{\text{sphere}} + 2 \cdot \tfrac{1}{3} \pi
+R^2 \cdot R$.
+$2\pi R^3 = V + \tfrac{2}{3} \pi R^3$.
+$V = 2\pi R^3 - \tfrac{2}{3} \pi R^3 = \tfrac{4}{3} \pi R^3$.
+**QED.** *(Stereometry §470 — Archimedes' celebrated proof, the
+result on his tombstone.)*
+</details>
+
+### Problem 2 — Surface of a sphere via the cylinder
+
+Show that the *surface area* of a sphere of radius $R$ is the same
+as the lateral area of a cylinder of radius $R$ and height $2R$:
+namely, $S = 4 \pi R^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Archimedes' projection theorem:* the radial projection from the
+sphere's axis to the inscribed cylinder is *area-preserving*.
+This is Archimedes' surprising 2nd-century-BCE discovery.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Archimedes' projection theorem.* Let the sphere of radius $R$ be
+centred at the origin, and let the cylinder of radius $R$ and
+height $2R$ be its inscribed companion. The radial projection from
+the sphere's axis maps each sphere point $(x, y, z)$ on the sphere
+to the cylinder point $(x', y', z)$ at the same height $z$ on the
+cylinder.
+
+*Key claim:* this projection preserves area. To see why:
+consider an infinitesimal "rectangle" on the sphere at height $z$,
+of horizontal width $w$ (along the latitude) and slant height
+$\Delta s$ (along the meridian). The projection stretches the
+horizontal width by $R / r$ (where $r = \sqrt{R^2 - z^2}$ is the
+radius at that latitude — projecting from $r$ out to $R$) and
+compresses the slant height by $r / R$ (because the meridian on
+the sphere is *steeper* than vertical at that height — by exactly
+the factor $r/R$). The two factors *cancel*, so area is preserved.
+
+Therefore: sphere surface area = cylinder lateral surface area =
+$2\pi R \cdot 2R = 4 \pi R^2$. **QED.**
+*(Stereometry §475 — Archimedes' theorem on the sphere and the
+cylinder.)*
+</details>
+
+### Problem 3 — The zone surface formula
+
+Show that the surface area of a *spherical zone* between two
+parallel cuts at heights $z_1 < z_2$ is $2 \pi R \cdot (z_2 - z_1)$.
+
+<details class="hint"><summary>Full solution</summary>
+By Archimedes' projection (Problem 2), the zone's surface
+corresponds to a *cylindrical band* of height $z_2 - z_1$ on the
+inscribed cylinder. The band area is $2\pi R \cdot (z_2 - z_1)$.
+**QED.** *(Stereometry §476.)*
+
+*Striking corollary:* zones at different latitudes (same height
+difference) have the **same** surface area. A polar cap of height
+$h$ has the same area as an equatorial band of height $h$.
+</details>
+
+### Problem 4 — Volume of a spherical cap
+
+Show that the volume of a spherical cap of height $h$ (cut off a
+sphere of radius $R$ by a plane at distance $R - h$ from the
+centre) is
+$$V_{\text{cap}} = \tfrac{\pi h^2 (3R - h)}{3}.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Integrate $\pi (R^2 - z^2)$ from $z = R - h$ to $z = R$ (or use
+the slicing decomposition).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sliced into thin discs at height $z$, the cap is the integral
+$\int_{R - h}^{R} \pi (R^2 - z^2) dz = \pi \left[R^2 z -
+\frac{z^3}{3}\right]_{R-h}^{R}$. Evaluate:
+$\pi \left[R^3 - \frac{R^3}{3} - R^2 (R - h) + \frac{(R-h)^3}{3}
+\right]$.
+Algebraic simplification gives $\dfrac{\pi h^2 (3R - h)}{3}$.
+**QED.** *(Stereometry §480 — *spherical cap volume*.)*
+
+*Sanity check:* $h = 2R$ gives the full sphere, $V = \tfrac{\pi
+\cdot 4R^2 (3R - 2R)}{3} = \tfrac{4 \pi R^3}{3}$. ✓
+</details>
+
+### Problem 5 — Surface of a spherical cap
+
+Show that the surface area of a spherical cap of height $h$ is
+$2 \pi R h$.
+
+<details class="hint"><summary>Full solution</summary>
+A cap is a special zone with $z_2 = R$ (the pole) and $z_1 = R - h$.
+By Problem 3, area $= 2 \pi R \cdot h$. **QED.**
+*(Stereometry §477.)*
+</details>
+
+### Problem 6 — Sphere similarity scaling
+
+Two spheres have radii $R$ and $kR$. Show that their surface areas
+are in ratio $k^2$ and their volumes in ratio $k^3$.
+
+<details class="hint"><summary>Full solution</summary>
+$S = 4\pi R^2$ and $S' = 4\pi (kR)^2 = k^2 \cdot 4\pi R^2 = k^2 S$.
+Similarly $V' = \tfrac{4}{3}\pi(kR)^3 = k^3 V$.
+**QED.** *(Stereometry §483 — sphere is the simplest example of
+**3D similarity** scaling: linear $k$, area $k^2$, volume $k^3$.)*
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Sphere of radius $R$ centred at $O$:** the locus of points in
+space at distance $R$ from $O$.
+
+**Theorems (Stereometry §§461–490).**
+
+| Object | Quantity |
+|--------|----------|
+| Sphere of radius $R$ | volume $V = \tfrac{4}{3} \pi R^3$ |
+| Sphere of radius $R$ | surface $S = 4 \pi R^2$ |
+| Spherical cap, height $h$, sphere radius $R$ | volume $\tfrac{\pi h^2 (3R - h)}{3}$ |
+| Spherical cap, height $h$ | curved surface $2\pi R h$ |
+| Spherical zone between parallel planes at heights $z_1, z_2$ | curved surface $2\pi R \cdot (z_2 - z_1)$ |
+| Sphere similarity, linear ratio $k$ | $S' = k^2 S$, $V' = k^3 V$ |
+
+**Archimedes' theorem.** The sphere of radius $R$, the inscribed
+double cone (apex at centre), and the circumscribed cylinder
+(radius $R$, height $2R$) have volumes in ratio $2 : 1 : 3$.
+
+**Archimedes' projection theorem.** The radial projection of the
+sphere onto the inscribed cylinder is **area-preserving** —
+sphere and cylinder lateral surface have the same area
+($4 \pi R^2$).
+
+:::
+
+A verse:
+
+> *Sphere meets cylinder in a contest both ancient and grand —*
+> *Volume two parts to three — Archimedes' last command.*
+> *Surface stretched as a cylinder — that's how four π R squared appears.*
+> *Zones, caps, and slices: every height of h gives a $2 \pi R h$ tier.*
+
+## Apply
+
+### Worked example
+
+> A sphere has volume $36\pi$ cubic units. Find its radius and
+> surface area.
+
+$\tfrac{4}{3}\pi R^3 = 36\pi \Rightarrow R^3 = 27 \Rightarrow R = 3$.
+
+$S = 4\pi \cdot 9 = 36\pi$. *(Pleasing accident: same number for
+volume and surface in these units, but different physical
+quantities.)*
+
+**$R = 3, S = 36\pi$.**
+
+### Practice — Warm
+
+**W1.** A sphere has radius $7$. Find its surface and volume.
+
+<details class="hint"><summary>Full solution</summary>
+$S = 4\pi \cdot 49 = 196\pi$. $V = \tfrac{4}{3}\pi \cdot 343 =
+\tfrac{1372}{3}\pi$.
+</details>
+
+**W2.** A sphere has surface $100\pi$. Find its radius.
+
+<details class="hint"><summary>Full solution</summary>
+$4\pi R^2 = 100\pi \Rightarrow R^2 = 25 \Rightarrow R = 5$.
+</details>
+
+**W3.** A spherical cap of height $1$ on a sphere of radius $4$.
+Find its curved surface area.
+
+<details class="hint"><summary>Full solution</summary>
+$2\pi R h = 2\pi \cdot 4 \cdot 1 = 8\pi$.
+</details>
+
+### Practice — Working
+
+**P1.** A hemisphere has the same diameter as a cylinder, with the
+hemisphere's flat face on the cylinder's top. The cylinder has
+height $h$. The total volume of the combined solid is twice that
+of the cylinder alone. Find $h$ in terms of the radius $r$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Hemisphere volume $\tfrac{1}{2} \cdot \tfrac{4}{3}\pi r^3 =
+\tfrac{2}{3}\pi r^3$. Total = cylinder + hemisphere = 2 × cylinder.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi r^2 h + \tfrac{2}{3}\pi r^3 = 2 \pi r^2 h$, so $\pi r^2 h =
+\tfrac{2}{3}\pi r^3$, giving $h = \tfrac{2}{3} r$.
+</details>
+
+**P2.** A sphere of radius $R$ is inscribed in a cube. Find the
+ratio of their volumes.
+
+<details class="hint"><summary>Full solution</summary>
+Cube side: $2R$, volume $8R^3$. Sphere volume: $\tfrac{4}{3}\pi
+R^3$.
+Ratio: $\dfrac{(4/3)\pi R^3}{8 R^3} = \dfrac{\pi}{6} \approx 0.524$.
+**The inscribed sphere fills about $52\%$ of the cube.**
+</details>
+
+**P3.** A spherical cap is one-half a hemisphere by volume. Find
+the cap's height in terms of the sphere's radius $R$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Half a hemisphere = $\tfrac{1}{4}$ of the full sphere = $\tfrac{1}
+{3}\pi R^3$. Set the cap-volume formula equal to this and solve
+for $h$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\tfrac{\pi h^2 (3R - h)}{3} = \tfrac{\pi R^3}{3}$, so $h^2 (3R - h)
+= R^3$, i.e. $h^3 - 3R h^2 + R^3 = 0$. Numerical root: $h \approx
+0.6527 R$. (No clean closed form — this is *Cardano cubic
+territory*.) **Approximately $h = 0.653 R$.**
+</details>
+
+### Practice — Stretch
+
+**S1.** A *spherical lune* is the region of a sphere's surface
+between two great-circle arcs meeting at antipodal poles. Show
+that the area of a lune of *dihedral angle* $\theta$ (radians) is
+$2 R^2 \theta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The full sphere is the lune of dihedral angle $2\pi$ (going all
+the way around). Lune area scales linearly with $\theta$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By rotational symmetry, the area of a lune is proportional to its
+dihedral angle. Total sphere is the lune of $\theta = 2\pi$ with
+area $4\pi R^2$. So area-per-radian is $4\pi R^2 / (2\pi) = 2 R^2$,
+hence lune area $= 2 R^2 \theta$. **QED.** *(Used in the area
+formula for *spherical triangles*: area $= R^2 (\alpha + \beta +
+\gamma - \pi)$, the *spherical excess*.)*
+</details>
+
+**S2.** Two spheres intersect in a circle. The two sphere radii
+are $R_1$ and $R_2$, and the distance between their centres is
+$d$. Find the radius of the intersection circle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The intersection circle is perpendicular to the line of centres.
+Use Pythagoras twice — for each sphere, the radius, the distance
+from the centre to the intersection plane, and the intersection-
+circle radius form a right triangle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $r$ be the intersection-circle radius and $d_1, d_2$ the
+distances from each sphere's centre to the intersection plane,
+with $d_1 + d_2 = d$. Pythagoras: $R_1^2 = d_1^2 + r^2$ and
+$R_2^2 = d_2^2 + r^2$. Subtract: $R_1^2 - R_2^2 = d_1^2 - d_2^2 =
+(d_1 - d_2) d$. So $d_1 - d_2 = (R_1^2 - R_2^2)/d$, and combined
+with $d_1 + d_2 = d$: $d_1 = (d^2 + R_1^2 - R_2^2)/(2d)$. Then
+$r^2 = R_1^2 - d_1^2$, computable explicitly. *(Generalises the
+*intersecting-spheres* problem; Stereometry §488.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Stereometry*, §§470–490.
+
+**K1.** Show that a *cylinder* and a *sphere* of the same radius
+$R$ have **the same lateral surface area** when the cylinder's
+height equals the sphere's diameter.
+
+<details class="hint"><summary>Full solution</summary>
+Cylinder lateral area: $2\pi R \cdot h$. With $h = 2R$:
+$2\pi R \cdot 2R = 4\pi R^2$. Sphere surface: $4\pi R^2$. **Equal.**
+*(This is *Archimedes' projection theorem* in surface form;
+Stereometry §475.)*
+</details>
+
+**K2.** Two spheres are inscribed in a cylinder of radius $R$ —
+one at each end, each touching the cylinder's bottom or top and
+the other sphere. Find the *minimum* height of the cylinder.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each sphere has radius $R$ (since they fit *inside* the cylinder
+of radius $R$ and touch the curved wall). They sit at the two ends
+and touch each other in the middle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each sphere has radius $R$. The bottom sphere's centre is at height
+$R$ from the bottom; the top sphere's centre is at height $h - R$.
+For the spheres to touch each other, the distance between centres
+equals $2R$: $h - R - R = 2R \Rightarrow h = 4R$. **Minimum cylinder
+height $= 4R$.**
+</details>
+
+**K3.** *Archimedes' tombstone problem.* A cone, a sphere, and a
+cylinder all have the same height $2R$ and the same maximum radius
+$R$ (the cone is inscribed in the cylinder, the sphere is too).
+Verify Archimedes' celebrated **3 : 2 : 1** ratio of volumes for
+the cylinder, sphere, and cone.
+
+<details class="hint"><summary>Full solution</summary>
+Cylinder: $\pi R^2 \cdot 2R = 2\pi R^3$.
+Sphere: $\tfrac{4}{3}\pi R^3$.
+Cone (single cone of height $2R$, base $R$, *not* the double cone):
+$\tfrac{1}{3}\pi R^2 \cdot 2R = \tfrac{2}{3}\pi R^3$.
+
+Ratios (divide by $\tfrac{2}{3}\pi R^3$):
+$\dfrac{2\pi R^3}{(2/3)\pi R^3} : \dfrac{(4/3)\pi R^3}{(2/3)\pi R^3}
+: 1 = 3 : 2 : 1.$
+**QED.** *(Stereometry §471 — the ratio Archimedes asked to be
+inscribed on his gravestone, found by Cicero a century later.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book II — Stereometry*, §§461–490 (Sumizdat 2008). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+The Archimedes-projection-theorem proof of the sphere surface
+(Problem 2) is Kiselev's §475 — and the canonical proof of one of
+the most beautiful theorems in classical geometry.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Sphere volume is $\pi R^3$."** No — it's
+   $\tfrac{4}{3} \pi R^3$. The factor $\tfrac{4}{3}$ comes from
+   the integration / Cavalieri argument and is *exact*, not an
+   approximation.
+2. **"Sphere surface is $\pi R^2$."** No — that's a *circle's*
+   area. Sphere surface is **four** times that: $4 \pi R^2$.
+   *(Hint to remember: sphere is "four circles wrapped".)*
+3. **"Spherical zones at high latitudes are smaller in area than at
+   the equator."** **They are not.** Archimedes' projection theorem
+   says zones of equal *height* have equal area, regardless of
+   latitude. *Counter-intuitive but true.*
+:::
+
+### Self-Assessment
+
+1. Could you prove $V = \tfrac{4}{3}\pi R^3$ via the cylinder-cone
+   sandwich (Problem 1) on a fresh sheet?
+2. Did Archimedes' projection (Problem 2 surface argument) feel
+   like one elegant move, or like an algebra slog?
+3. Can you state the three Archimedes ratios (cylinder : sphere :
+   cone = 3 : 2 : 1) from memory and sketch the configuration?
+
+- **3 yes:** continue to *Regular Polyhedra* (Ch 5).
+- **2 yes:** redo Problems 1 and 2 — Archimedes' two great
+  arguments are the heart of the chapter.
+- **0–1 yes:** the proof structure of Cavalieri-on-cross-sections
+  is the pattern; replay Problems 1, 3, 4.
+
+## Connect
+
+### Prerequisites used
+
+- [`kg2.cylinder-cone`](../03-cylinder-cone/index.qmd) — cylinder
+  and cone formulas; Cavalieri's principle.
+- [`kg1.areas`](../../tier-kiselev-3-planimetry/09-areas/index.qmd) —
+  area of a circle ($\pi r^2$) used in cross-sections.
+
+### What this unlocks
+
+- **`kg2.regular-polyhedra`** *(Ch 5, planned)* — sphere is the
+  *limiting case* of regular $n$-hedra as $n \to \infty$.
+- [`t6.spectral-theorem`](../../tier-6-undergrad-advanced/15-spectral-theorem/index.qmd) —
+  the sphere is the unit ball of the inner-product space; the
+  geometry here is the seed.
+- [`t7.differential-geometry`](../../tier-7-masters-tracks/07-differential-geometry/index.qmd) —
+  the sphere is the simplest non-trivial *Riemannian manifold*;
+  every result here generalises to curved spaces.
+- [`cbse9.surface-areas-and-volumes`](../../tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd) —
+  CBSE 9 covers sphere mensuration; this lesson is the
+  proof-discipline version.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book II — Chapter 4: The sphere (§§461–490).**
+  Givental translation, Sumizdat 2008. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/%5BKiselev,Givental%5DKiselev's_Geom2.pdf).
+- **Sister synthesis lessons:**
+  [`cbse9.surface-areas-and-volumes`](../../tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd)
+  and
+  [`cbse10.surface-areas-and-volumes`](../../tier-cbse-10-class-10/12-surface-areas-and-volumes/index.qmd) —
+  computational sphere mensuration in board-exam idiom.
+- **Read alongside the source PDF** for Kiselev's full development
+  of *spherical excess* and the Girard formula (§§485–490).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** **Bounding spheres** are the simplest
+collision primitive in 3D — and `4 / 3 * π * r * r * r` is run
+millions of times per second. Sphere-sphere intersection (S2) is
+the literal `sqrt((dx)² + (dy)² + (dz)²) < r1 + r2` test.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Spherical embeddings** — vectors normalised to unit
+length on the unit sphere — are the standard preprocessing step
+for *cosine-similarity* search and modern transformer
+architectures. The sphere's geometry is what makes the dot product
+a *meaningful* angular measure.
+:::
+
+::: {.applied-callout}
+**Research.** Archimedes' projection theorem (Problem 2) is a
+**measure-preserving map** from sphere to cylinder — the historical
+seed of *symplectic geometry* (volume-preserving Hamiltonian
+flows) and the foundation of all *map projections* in cartography
+that preserve area.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§461–490 ordering and the
+  Cavalieri proof of sphere volume); Archimedes (everything in
+  this chapter, by 250 BCE).
+- **The Archimedes-projection proof** of $4\pi R^2$ (Problem 2) is
+  worth memorising — it is not just one of the prettiest in
+  geometry but the historical root of map-projection theory.
+- **What this lesson does not do:** prove the *isoperimetric
+  inequality* in 3D — the sphere is the unique solid maximising
+  volume for fixed surface — which belongs in calculus of
+  variations, not school Stereometry.
+:::

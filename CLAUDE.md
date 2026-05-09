@@ -227,6 +227,103 @@ When a lesson's `lesson-id` starts with `cbseN.`, also verify:
       a working link to the sister synthesis lesson (or a clear note if
       no synthesis lesson covers this idea).
 
+## Kiselev Lesson Additions
+
+Kiselev-track lessons (any lesson whose `lesson-id` starts with `ka1.`,
+`ka2.`, `kg1.`, or `kg2.`) follow the same six-beat contract above and
+add **two extras**, parallel to the CBSE additions. Do not invent a
+seventh beat — both extras live inside existing beats.
+
+### 1. Frontmatter
+
+In addition to the standard fields, a Kiselev lesson sets:
+
+```yaml
+lesson-id: "kg1.parallels"
+tier: "kg1"                                          # string, not integer
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 4
+kiselev-chapter-title: "Parallels"
+kiselev-sections: "§§78–95"                          # author-verified
+```
+
+The four book-prefixes:
+
+- `ka1` — Kiselev *Algebra, Part I*
+- `ka2` — Kiselev *Algebra, Part II*
+- `kg1` — Kiselev *Geometry, Book I (Planimetry)*
+- `kg2` — Kiselev *Geometry, Book II (Stereometry)*
+
+### 2. Inside `## Apply` — Kiselev-style problems
+
+After Warm / Working / Stretch, add a **Kiselev-style problems**
+sub-section: three problems chosen or adapted from Kiselev's own
+exercise set for this section, in his terse classical style. Every
+problem still gets graduated hints + a full worked solution. End
+with a callout pointing at the source section.
+
+```markdown
+### Kiselev-style problems
+
+Three problems in Kiselev's terse classical style, adapted from
+Givental, *Planimetry*, §§78–95.
+
+**K1.** ...
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§78–95. Free PDF on cimat.mx.
+**Note on transcription.** Adapt in your own words; do not paste
+Givental's English translation.
+:::
+```
+
+### 3. Inside `## Connect` — Kiselev chapter alignment
+
+Add a sub-section between *What this unlocks* and *Where this matters*:
+
+```markdown
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 4: Parallels (§§78–95).**
+  Givental translation, Sumizdat 2006. Free PDF on cimat.mx.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`cbse9.lines-and-angles`](../../tier-cbse-09-class-9/06-lines-and-angles/index.qmd).
+- **Read alongside the source PDF** for the canonical proofs;
+  this lesson adds the widget, the wonder, and the connect-to-applications.
+```
+
+### 4. Citation, not transcription
+
+Givental's English translations of Kiselev's *Geometry* are
+**copyrighted** (Sumizdat). Kiselev's Russian originals are
+public domain. The contract:
+
+- **Cite freely.** Chapter and section numbers, theorem names,
+  problem-shapes — these are facts, not text, and are not
+  copyrightable.
+- **Adapt, never transcribe.** Re-state every problem and proof in
+  your own words. The exercise wording in your lesson must not
+  match Givental's prose.
+- **Point to the source PDF**, do not vendor it. The PDFs stay
+  external, accessed via the URL in `_curriculum.yml`'s `source:`
+  field and in the lesson's *Kiselev chapter alignment* sub-section.
+
+### Kiselev-specific items in the "Done" checklist
+
+When a lesson's `lesson-id` starts with `ka1.`, `ka2.`, `kg1.`, or
+`kg2.`, also verify:
+
+- [ ] Frontmatter sets `kiselev-book`, `kiselev-chapter`,
+      `kiselev-chapter-title`, `kiselev-sections`.
+- [ ] *Apply* contains a **Kiselev-style problems** block with at
+      least three problems, each with graduated hints and full
+      solution, plus a source-pointer callout.
+- [ ] *Connect* contains a **Kiselev chapter alignment** sub-section
+      with a working link to the sister synthesis lesson.
+- [ ] No verbatim copy of Givental's translation. Author has
+      adapted every problem statement in their own words.
+
 ## Voice and Style
 
 - **Address the learner directly.** "You" not "the student" or "one."

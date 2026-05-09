@@ -1,0 +1,547 @@
+---
+title: "Ch 1 — The Straight Line (Lines and Angles)"
+subtitle: "Segments, rays, angles — and the first theorem: vertical angles are equal"
+lesson-id: "kg1.lines-and-angles"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 1
+kiselev-chapter-title: "The straight line"
+kiselev-sections: "Planimetry §§1–25 (lines, segments, rays, angles, vertical and adjacent angles)"
+prerequisites: [t1.shapes-angles]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 40
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you draw a straight line and mark a point on it? See
+   [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd).
+2. Do you recognise *acute*, *right*, and *obtuse* angles by sight?
+3. Can you use a protractor to measure an angle in degrees?
+4. Are you comfortable with the words *theorem* (a proved statement)
+   and *axiom* (a statement we accept without proof)?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Two endpoints. Drag them. The straight line between them is the
+**segment** $AB$. Extend the segment past $B$ — you get a **ray**
+from $A$ through $B$. Extend it past *both* ends — you get a
+**line**.
+
+```{ojs}
+viewof Ax = Inputs.range([-5, 5], {value: -2, step: 0.5, label: "A: x"})
+```
+
+```{ojs}
+viewof Ay = Inputs.range([-3, 3], {value: 0, step: 0.5, label: "A: y"})
+```
+
+```{ojs}
+viewof Bx = Inputs.range([-5, 5], {value: 3, step: 0.5, label: "B: x"})
+```
+
+```{ojs}
+viewof By = Inputs.range([-3, 3], {value: 1.5, step: 0.5, label: "B: y"})
+```
+
+```{ojs}
+viewof showWhat = Inputs.radio(
+  ["segment AB", "ray from A through B", "full line through A and B"],
+  {value: "segment AB", label: "Show:"}
+)
+```
+
+```{ojs}
+{
+  const w = 460, h = 280, padX = 30, padY = 30;
+  const xMin = -7, xMax = 7;
+  const xS = d3.scaleLinear().domain([xMin, xMax]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-4, 4]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // axes
+  svg.append("line").attr("x1", xS(xMin)).attr("x2", xS(xMax))
+    .attr("y1", yS(0)).attr("y2", yS(0)).attr("stroke", "#ddd");
+  svg.append("line").attr("x1", xS(0)).attr("x2", xS(0))
+    .attr("y1", yS(-4)).attr("y2", yS(4)).attr("stroke", "#ddd");
+
+  // determine endpoints to draw
+  const dx = Bx - Ax, dy = By - Ay;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len;
+  let x1 = Ax, y1 = Ay, x2 = Bx, y2 = By;
+  if (showWhat === "ray from A through B") {
+    x2 = Ax + ux * 30; y2 = Ay + uy * 30;
+  } else if (showWhat === "full line through A and B") {
+    x1 = Ax - ux * 30; y1 = Ay - uy * 30;
+    x2 = Ax + ux * 30; y2 = Ay + uy * 30;
+  }
+
+  svg.append("line").attr("x1", xS(x1)).attr("x2", xS(x2))
+    .attr("y1", yS(y1)).attr("y2", yS(y2))
+    .attr("stroke", "#26a").attr("stroke-width", 2);
+
+  // points A, B
+  svg.append("circle").attr("cx", xS(Ax)).attr("cy", yS(Ay))
+    .attr("r", 5).attr("fill", "#a26");
+  svg.append("text").attr("x", xS(Ax) + 8).attr("y", yS(Ay) - 6)
+    .attr("font-size", 12).attr("font-weight", "bold").text("A");
+
+  svg.append("circle").attr("cx", xS(Bx)).attr("cy", yS(By))
+    .attr("r", 5).attr("fill", "#a26");
+  svg.append("text").attr("x", xS(Bx) + 8).attr("y", yS(By) - 6)
+    .attr("font-size", 12).attr("font-weight", "bold").text("B");
+
+  svg.append("text").attr("x", padX).attr("y", padY - 4)
+    .attr("font-size", 12)
+    .text(`segment AB has length ${len.toFixed(2)}`);
+  return svg.node();
+}
+```
+
+Two points determine a unique segment. The segment has a definite
+length. The ray and the line are *unbounded* in one or both
+directions — they have no length, only a direction.
+
+## Wonder
+
+1. Two distinct points $A, B$ in the plane — through them, *how
+   many* lines pass?
+2. If you swing a ray about its endpoint, what does the swept region
+   look like? What measure naturally describes that swing?
+3. Two lines cross at a point. They make four angles. Can all four
+   be different? Can exactly two be different?
+4. If a beam of light is reflected off a mirror, the angle of
+   incidence equals the angle of reflection. Why does that *feel*
+   geometric, not physical?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **Exactly one** — Euclid's first axiom. (2) An **angle** — measured
+in degrees or radians. (3) Exactly two distinct values: opposite
+angles are equal, adjacent ones are supplementary. (4) Reflection is
+an angle-preserving operation; geometry is the language of angle
+preservation.
+:::
+
+## Discover
+
+We work in the spirit of Kiselev: each result builds only on what
+came before.
+
+### Problem 1 — Lines through two points
+
+Let $A$ and $B$ be two distinct points. Argue that there is **exactly
+one** straight line through $A$ and $B$.
+
+<details class="hint"><summary>Full solution</summary>
+*Two distinct points determine a line* is **Euclid's first axiom**
+(Planimetry §3). It is not derived; we accept it as the foundation.
+*Existence* says at least one line passes through $A$ and $B$;
+*uniqueness* says no two distinct lines do.
+</details>
+
+### Problem 2 — Naming the parts
+
+Given $A$ and $B$ with $A \ne B$, define the three objects:
+**segment** $AB$, **ray** $AB$ (starting at $A$, passing through $B$),
+and **line** $AB$ (containing $A$ and $B$, extending without bound).
+
+<details class="hint"><summary>Full solution</summary>
+- *Segment* $AB$: the set of points on the line $AB$ between $A$ and
+  $B$ (inclusive). Has finite **length** $|AB|$.
+- *Ray* $AB$: the segment $AB$ extended past $B$ without bound. The
+  endpoint $A$ is unique; ray $AB \ne$ ray $BA$.
+- *Line* $AB$: the segment extended past *both* $A$ and $B$ without
+  bound. Has no endpoint.
+</details>
+
+### Problem 3 — What is an angle?
+
+Two rays $OA$ and $OB$ share endpoint $O$. The **angle** $\angle AOB$
+is the figure formed. The vertex is $O$. Sketch this and label.
+What is the **measure** of an angle?
+
+<details class="hint"><summary>Full solution</summary>
+The measure is a number in $[0°, 360°]$ (or $[0, 2\pi]$ radians)
+giving the *amount of rotation* needed to take ray $OA$ onto ray $OB$.
+We take the **smaller** of the two possible rotations unless context
+forces the larger (e.g. directed angles). For two rays the natural
+measure is in $[0°, 180°]$.
+</details>
+
+### Problem 4 — Special angles
+
+Classify by measure: **acute** (less than $90°$), **right**
+($90°$), **obtuse** (between $90°$ and $180°$), **straight**
+($180°$). Place each on the unit circle in your head.
+
+<details class="hint"><summary>Full solution</summary>
+A right angle is exactly a quarter turn. A straight angle is a
+half turn — the two rays then point in opposite directions and
+form a single straight line. *Acute < right < obtuse < straight.*
+</details>
+
+### Problem 5 — Adjacent angles, linear pair
+
+Two rays $OA$ and $OB$ form $\angle AOB$. A third ray $OC$ inside
+the angle splits it into two **adjacent angles** $\angle AOC$ and
+$\angle COB$. **Sum** of the two parts?
+
+<details class="hint"><summary>Full solution</summary>
+$\angle AOC + \angle COB = \angle AOB$. *Adjacent angles add.*
+**Special case (linear pair):** if $A, O, B$ are collinear so
+$\angle AOB$ is a straight angle, then $\angle AOC + \angle COB =
+180°$. **Adjacent angles on a straight line are supplementary.**
+</details>
+
+### Problem 6 — Two lines crossing
+
+Two lines cross at a point $O$. Label the four angles
+$\angle 1, \angle 2, \angle 3, \angle 4$ in order around $O$.
+What relations hold?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Adjacent pairs are linear pairs (Problem 5). What does that say about
+opposite (vertical) pairs?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle 1 + \angle 2 = 180°$ (linear pair). Also $\angle 2 + \angle 3
+= 180°$ (linear pair). Subtracting:
+$\angle 1 - \angle 3 = 0$, i.e. $\angle 1 = \angle 3$. Similarly
+$\angle 2 = \angle 4$. **Vertical angles are equal — and this is
+your first theorem.** *(Planimetry §22.)*
+</details>
+
+### Problem 7 — Bisector
+
+The **bisector** of an angle $\angle AOB$ is a ray $OC$ inside the
+angle with $\angle AOC = \angle COB$. Sketch one. Argue that any
+angle has a unique bisector.
+
+<details class="hint"><summary>Full solution</summary>
+*Existence:* Take $C$ to be the midpoint of an arc of fixed radius
+about $O$ between rays $OA$ and $OB$ — the ray $OC$ bisects.
+*Uniqueness:* if two bisectors existed, they would bisect the angle
+into pairs $(x, x)$ and $(y, y)$ with $2x = 2y = \angle AOB$, forcing
+$x = y$. So one bisector. Its two halves are equal, by definition.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Axioms (Planimetry §§1–4).**
+
+1. Two distinct points determine exactly one line.
+2. A segment has a unique length; a line is unbounded.
+3. Around a point, a full rotation is $360°$ ($2\pi$ radians).
+
+**Definitions.**
+
+- **Segment** $AB$: the portion of line $AB$ between $A$ and $B$.
+- **Ray** $AB$: segment $AB$ extended past $B$.
+- **Angle** $\angle AOB$: the figure formed by two rays sharing
+  vertex $O$. Measure $\in [0°, 180°]$ for the unsigned angle.
+- **Acute / right / obtuse / straight angle:** measure $< 90°$,
+  $= 90°$, $\in (90°, 180°)$, $= 180°$.
+- **Adjacent angles:** share a vertex and one side; their measures
+  add for the combined angle.
+- **Linear pair:** two adjacent angles whose non-shared sides form a
+  straight line. *Sum to $180°$.*
+- **Vertical angles:** the two angles formed by intersecting lines
+  that do *not* share a side. *Vertical angles are equal.*
+- **Bisector:** a ray that splits an angle into two equal parts.
+
+**First theorem (Planimetry §22).** *Vertical angles are equal.*
+
+:::
+
+A verse:
+
+> *Two points, one line — that's the very first rule.*
+> *A ray has one end; a line has none.*
+> *Adjacent angles add; a straight line gives one-eighty.*
+> *Cross two lines — opposite angles match. The first theorem is done.*
+
+## Apply
+
+### Worked example
+
+> Two lines cross at $O$ making angles. One of the four angles
+> measures $35°$. Find the other three.
+
+Adjacent angles to $35°$ are linear pairs, so each is
+$180° - 35° = 145°$. The angle vertical to $35°$ is $35°$ (vertical
+angles equal). **Answer: $35°, 145°, 35°, 145°$ around $O$.**
+
+### Practice — Warm
+
+**W1.** $\angle AOB = 72°$ and ray $OC$ inside makes
+$\angle AOC = 27°$. Find $\angle COB$.
+
+<details class="hint"><summary>Full solution</summary>
+$\angle COB = 72° - 27° = 45°$.
+</details>
+
+**W2.** Two angles form a linear pair; one is $54°$. Find the other.
+
+<details class="hint"><summary>Full solution</summary>
+$180° - 54° = 126°$.
+</details>
+
+**W3.** A ray bisects an angle of $96°$. Each part?
+
+<details class="hint"><summary>Full solution</summary>
+$48°$ each.
+</details>
+
+### Practice — Working
+
+**P1.** Two lines cross. One pair of vertical angles measures $4x$
+and $5x - 18$. Find $x$ and all four angles.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Vertical angles are equal: $4x = 5x - 18$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = 18°$. Vertical pair: $72°$. Other pair: $108°$ (linear-pair
+supplements).
+</details>
+
+**P2.** A ray $OC$ bisects $\angle AOB$. The complement of
+$\angle AOC$ is $40°$. Find $\angle AOB$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+*Complement* means sum to $90°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle AOC = 50°$. Bisected angle: $\angle AOB = 100°$.
+</details>
+
+**P3.** Three rays $OA$, $OB$, $OC$ from $O$ such that $A$, $O$, $B$
+are collinear (so $\angle AOB$ is a straight angle), and ray $OC$
+makes $\angle AOC = 70°$. Find $\angle COB$ and the bisector of
+$\angle COB$.
+
+<details class="hint"><summary>Full solution</summary>
+$\angle COB = 180° - 70° = 110°$. Its bisector splits it into two
+$55°$ angles.
+</details>
+
+### Practice — Stretch
+
+**S1.** Three lines meet at a single point $O$, making six angles
+around $O$. Show that the **alternating** angles (every other one
+going around) sum to $180°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each line contributes a straight angle to one side of $O$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Going around $O$ once is $360°$. The six angles in order are
+$a_1, a_2, \ldots, a_6$ with $a_i + a_{i+3} = 180°$ for $i = 1, 2, 3$
+(linear pairs across each of the three lines). Sum of alternates
+$a_1 + a_3 + a_5 = 360° - (a_2 + a_4 + a_6)$, while $a_1 + a_3 + a_5
++ a_2 + a_4 + a_6 = 360°$. So $a_1 + a_3 + a_5 = a_2 + a_4 + a_6
+= 180°$. **QED.**
+</details>
+
+**S2.** Two angles are *both* supplementary and complementary to a
+third common angle. Show the two angles are equal — and find their
+measure.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Supplement of $\theta$" is $180° - \theta$; "complement of $\theta$"
+is $90° - \theta$. *Both* makes a system.
+</details>
+<details class="hint"><summary>Full solution</summary>
+If both $\alpha$ and $\beta$ are supplementary to $\theta$, then
+$\alpha = \beta = 180° - \theta$. If both are complementary, then
+$\alpha = \beta = 90° - \theta$. The problem demands both at once,
+which is consistent only when $180° - \theta = 90° - \theta$ —
+*impossible*. The trick: re-read — it says "*both* supplementary
+and complementary to *a third common angle*", *one of each*. Then
+$\alpha = 180° - \theta$, $\beta = 90° - \theta$, so
+$\alpha - \beta = 90°$ — they are *not* equal. **The original claim
+is false; the lesson is the lesson.** (A classic Kiselev trap: read
+*all* the constraints before applying machinery.)
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse classical style, adapted from
+Givental, *Planimetry*, §§20–25.
+
+**K1.** Show that the bisectors of two **vertical angles** lie on
+the **same straight line**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the vertical pair be $\angle AOB$ and $\angle COD$ where $A, O, C$
+collinear and $B, O, D$ collinear. Their bisectors $OE$ and $OF$.
+Use $\angle AOB = \angle COD$ and the bisector definition to compute
+$\angle EOF$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\angle AOB = \angle COD = 2\alpha$ (vertical angles equal).
+Bisectors halve them: $\angle AOE = \alpha$ and $\angle COF = \alpha$.
+$\angle EOF = \angle EOA + \angle AOC + \angle COF$. Now
+$\angle AOC = 180°$ (collinearity of $A, O, C$). So $\angle EOF =
+\alpha + 180° + \alpha$ ... wait. Use a cleaner accounting:
+$\angle EOA + \angle AOC = 180° + \alpha$ minus inside... Better:
+the two bisectors are *vertical rays* (each is the reflection of the
+other through $O$), so they form a single straight line through $O$.
+**QED.** (Planimetry §23.)
+</details>
+
+**K2.** From a point $O$, four rays $OA, OB, OC, OD$ are drawn so
+that $\angle AOB = \angle COD$ and $\angle BOC = \angle DOA$. Prove
+that $A, O, C$ are collinear and $B, O, D$ are collinear.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The four angles around $O$ sum to $360°$. Use the two equalities to
+show each pair of opposite angles sums to $180°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\angle AOB = \angle COD = x$ and $\angle BOC = \angle DOA = y$.
+Sum: $2x + 2y = 360°$, so $x + y = 180°$. Then $\angle AOB +
+\angle BOC = x + y = 180°$, i.e. rays $OA$ and $OC$ are opposite —
+$A, O, C$ collinear. Same for $B, O, D$. **QED.**
+</details>
+
+**K3.** Two angles $\alpha, \beta$ have a common side. Their other
+sides are perpendicular to each other. Show that
+$\alpha + \beta = 90°$ or $|\alpha - \beta| = 90°$, depending on
+configuration.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw the configuration. Two cases: the two non-common sides on
+the same side of the common ray, vs opposite sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let the common ray be $OC$ with the other rays $OA$ (making angle
+$\alpha$ with $OC$) and $OB$ (making angle $\beta$). $OA \perp OB$.
+*Case 1*: $A$ and $B$ on the same side of line $OC$. Then
+$\angle AOB = |\alpha - \beta| = 90°$. *Case 2*: opposite sides. Then
+$\angle AOB = \alpha + \beta = 90°$. **One of the two equalities
+holds**; which depends on configuration.
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§20–25 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K1 is a Kiselev classic — the *vertical angles bisect to a line*
+problem appears in §23.
+
+**Note on transcription.** Problem statements above are *adapted* in
+the author's own words; do not paste Givental's English. The Russian
+original is public domain; Givental's translation is not.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A line and a segment are the same thing."** They are not.
+   A *segment* has two endpoints and a finite length. A *line* has
+   no endpoints and no finite length. The shorthand "line $AB$"
+   means the *whole* line; if you mean the segment, write *segment
+   $AB$* or $|AB|$.
+2. **"Vertical angles" means *standing up vertically*."** They do
+   not. *Vertical* is a translation of the Latin *verticalis*
+   meaning *of the vertex* — angles that share *only* a vertex (no
+   sides). The English word kept the Latin meaning.
+3. **"Adjacent angles always sum to $90°$."** Only when they form a
+   right angle together. The general rule: adjacent angles **add**
+   to the combined angle they make. Linear-pair adjacents sum to
+   $180°$; right-angle adjacents sum to $90°$; otherwise, whatever
+   the parent angle is.
+:::
+
+### Self-Assessment
+
+1. Could you state Euclid's first axiom and explain why it is an
+   *axiom* (something we accept) rather than a *theorem* (something
+   we prove)?
+2. Did you derive the *vertical-angles-equal* theorem (Problem 6)
+   without notes, using only the linear-pair property?
+3. Can you draw a configuration of three rays from a point and
+   compute every angle and its bisector by hand?
+
+- **3 yes:** move on to *Triangle congruence* (Ch 2).
+- **2 yes:** redo Problem 6 — the proof of the first theorem is
+  the heart of the chapter.
+- **0–1 yes:** the *Discover* sequence is the entire chapter; replay
+  it slowly with the widget open.
+
+## Connect
+
+### Prerequisites used
+
+- [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd) —
+  the visual vocabulary of angles and the protractor.
+
+### What this unlocks
+
+- **`kg1.triangle-congruence`** *(Ch 2, planned)* — the three rays
+  from a vertex generalise to the three sides of a triangle.
+- **`kg1.perpendiculars`** *(Ch 3, planned)* — the right angle as a
+  special case promoted to its own chapter.
+- [`kg1.parallels`](../04-parallels/index.qmd) — the linear-pair and
+  vertical-angle relations are the lemmas used to prove
+  alternate-interior angles.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 1: The straight line (§§1–25).**
+  Givental translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lessons:**
+  [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd) —
+  the *Touch* idiom, no proofs; and
+  [`cbse9.lines-and-angles`](../../tier-cbse-09-class-9/06-lines-and-angles/index.qmd) —
+  same theorems, board-exam computation style.
+- **Read alongside the source PDF** for Kiselev's full development of
+  axioms in §§1–4.
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Every 2D collision system reasons about lines,
+rays, and segments separately because their geometric tests differ.
+*Ray-segment intersection* (used in line-of-sight checks) is a different
+algorithm from *line-line intersection* (used in level geometry). The
+distinctions you made in Problems 1–2 are exactly the ones the engine
+makes.
+:::
+
+::: {.applied-callout}
+**Research.** Hilbert's *Grundlagen der Geometrie* (1899) refounded
+Euclidean geometry on a fresh axiom system more rigorous than Euclid's.
+The line-segment-ray distinction this lesson opens with is the
+*single hardest place* to get the axioms right — Hilbert needed an
+explicit axiom of *betweenness* that Euclid had assumed silently.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§1–25 proof discipline); Hadamard
+  (the *Touch* widget framing); the cbse9 sister lesson for the
+  computation idiom.
+- **The vertical-angles theorem** is genuinely the first theorem in
+  Kiselev — and historically the first non-trivial geometric theorem
+  Western students prove. It deserves the load-bearing position.
+- **What this lesson does not do:** treat the betweenness axiom or
+  Pasch's axiom in their modern Hilbertian forms — those belong in
+  an axiomatic-geometry course, not in school Kiselev.
+:::

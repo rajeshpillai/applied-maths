@@ -1,0 +1,543 @@
+---
+title: "Ch 4 — Parallels"
+subtitle: "When two lines never meet — and why every triangle has 180°"
+lesson-id: "kg1.parallels"
+tier: "kg1"
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 4
+kiselev-chapter-title: "Parallels"
+kiselev-sections: "Planimetry §§75–96 (parallels, transversals, the angle sum)"
+prerequisites: [kg1.perpendiculars, kg1.triangle-congruence]
+unlocks: []
+applied-domains: [game-dev, research]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Can you name the angles formed when two lines cross — adjacent,
+   vertical, supplementary? See
+   [`cbse9.lines-and-angles`](../../tier-cbse-09-class-9/06-lines-and-angles/index.qmd).
+2. Do you accept that two lines crossing make **vertical angles
+   equal**?
+3. Can you describe what *parallel* means in everyday language —
+   railway tracks, ruled lines on a page?
+4. Are you comfortable with the word *theorem* meaning "a statement
+   we prove from the axioms and earlier theorems"?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+Two horizontal lines, drawn close together. A third line — the
+**transversal** — cuts across both. Drag the transversal: watch the
+eight angles update.
+
+```{ojs}
+viewof slope = Inputs.range([-3, 3], {value: 1.2, step: 0.1, label: "Transversal slope"})
+```
+
+```{ojs}
+viewof xshift = Inputs.range([-2, 2], {value: 0, step: 0.1, label: "Transversal offset"})
+```
+
+```{ojs}
+{
+  const w = 460, h = 320, padX = 40, padY = 40;
+  const xMin = -5, xMax = 5;
+  const xS = d3.scaleLinear().domain([xMin, xMax]).range([padX, w - padX]);
+  const yS = d3.scaleLinear().domain([-3, 3]).range([h - padY, padY]);
+  const svg = d3.create("svg").attr("width", w).attr("height", h)
+    .style("background", "#fafafa").style("border", "1px solid #ddd");
+
+  // two parallel horizontal lines at y = -1 and y = 1
+  for (const y of [-1, 1]) {
+    svg.append("line").attr("x1", xS(xMin)).attr("x2", xS(xMax))
+      .attr("y1", yS(y)).attr("y2", yS(y))
+      .attr("stroke", "#26a").attr("stroke-width", 2);
+  }
+  svg.append("text").attr("x", padX + 5).attr("y", yS(1) - 5)
+    .attr("font-size", 11).text("line a");
+  svg.append("text").attr("x", padX + 5).attr("y", yS(-1) - 5)
+    .attr("font-size", 11).text("line b");
+
+  // transversal: y = slope * (x - xshift), drawn long
+  const xL = xMin, xR = xMax;
+  const yL = slope * (xL - xshift), yR = slope * (xR - xshift);
+  svg.append("line").attr("x1", xS(xL)).attr("x2", xS(xR))
+    .attr("y1", yS(yL)).attr("y2", yS(yR))
+    .attr("stroke", "#a26").attr("stroke-width", 2);
+  svg.append("text").attr("x", w - padX - 60).attr("y", yS(yR) - 5)
+    .attr("font-size", 11).text("transversal");
+
+  // mark intersection points
+  const ix1 = xshift + 1 / slope;   // y = 1 cut
+  const ix2 = xshift - 1 / slope;   // y = -1 cut
+  const angleDeg = Math.round(Math.atan(slope) * 180 / Math.PI * 10) / 10;
+
+  if (Math.abs(slope) > 0.05) {
+    svg.append("circle").attr("cx", xS(ix1)).attr("cy", yS(1))
+      .attr("r", 4).attr("fill", "#333");
+    svg.append("circle").attr("cx", xS(ix2)).attr("cy", yS(-1))
+      .attr("r", 4).attr("fill", "#333");
+    svg.append("text").attr("x", xS(ix1) + 8).attr("y", yS(1) - 8)
+      .attr("font-size", 11).text(`A`);
+    svg.append("text").attr("x", xS(ix2) + 8).attr("y", yS(-1) - 8)
+      .attr("font-size", 11).text(`B`);
+  }
+
+  svg.append("text").attr("x", padX).attr("y", padY - 10)
+    .attr("font-size", 13)
+    .text(`Transversal angle (with horizontal): ${angleDeg}°`);
+  svg.append("text").attr("x", padX).attr("y", padY + 8)
+    .attr("font-size", 12)
+    .text(`The four "upper" angles at A equal the four "lower" angles at B.`);
+  return svg.node();
+}
+```
+
+The two horizontal lines never meet — they are **parallel**. The
+transversal makes the same angle at $A$ as at $B$.
+
+## Wonder
+
+1. Suppose I drew two lines that *look* parallel. How could I be
+   *sure* they are parallel — without extending them to infinity?
+2. The transversal cuts angles at $A$ and at $B$. Some are equal,
+   some sum to $180°$. **Can you spot a pattern in which is which?**
+3. If the four upper angles at $A$ have measures $\alpha, \beta,
+   \gamma, \delta$, do the four at $B$ have the same multiset of
+   measures? Why?
+4. Consider any triangle. Drag a parallel through one vertex — what
+   do you notice about the three angles of the triangle and the
+   straight angle at that vertex?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(2) **Alternate-interior** and **corresponding** angles are equal;
+**co-interior** angles sum to $180°$. (3) Yes — the transversal
+makes the same set of four angles at each crossing of a parallel.
+(4) The three triangle-angles together fill the straight angle —
+this is the proof of the *triangle-angle-sum theorem*.
+:::
+
+## Discover
+
+We work in classical Euclidean style: each step uses only earlier
+results.
+
+### Problem 1 — Definition
+
+**State precisely** what *parallel* means. Two phrasings are
+candidates: *(a)* lines that never meet; *(b)* lines that are
+everywhere the same distance apart. Are they equivalent?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Both are tempting. Equivalence requires a proof — and that proof
+needs the angle theory we are about to develop.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Kiselev takes **(a)** as the definition: *parallel lines are two lines
+in the same plane that do not meet, however far they are extended.*
+He then **proves** (b) as a theorem (Planimetry §86): parallels are
+equidistant. The two phrasings are equivalent in Euclidean geometry,
+but only after a proof.
+</details>
+
+### Problem 2 — A construction of parallels
+
+Given a line $\ell$ and a point $P$ not on $\ell$, **construct** a
+line through $P$ that does not meet $\ell$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Drop a perpendicular from $P$ to $\ell$. Then erect a perpendicular
+to *that* perpendicular at $P$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Drop perpendicular $PF$ from $P$ to $\ell$ ($F \in \ell$). Through
+$P$, erect a line $m$ perpendicular to $PF$. Then $m$ does not meet
+$\ell$ — for if it did, at some point $Q$, the triangle $PFQ$ would
+have **two right angles** ($\angle PFQ$ and $\angle FPQ$), giving
+$180°$ between just two angles, leaving none for $\angle PQF$.
+**Existence is proved.** (Planimetry §76.)
+</details>
+
+### Problem 3 — The parallel postulate (Euclid V)
+
+The construction above produces *one* line through $P$ that does not
+meet $\ell$. **Could there be more than one?**
+
+<details class="hint"><summary>Full solution</summary>
+**Euclid's Fifth Postulate** asserts: *exactly one* parallel through
+$P$. This is independent of the other axioms — there are non-Euclidean
+geometries (hyperbolic, with infinitely many parallels; spherical,
+with none) in which it fails. In *this* lesson we accept the Fifth
+Postulate as a working axiom; everything that follows depends on it.
+</details>
+
+### Problem 4 — Alternate-interior angles
+
+A transversal cuts parallel lines $a$ and $b$ at $A$ and $B$. Number
+the four angles at $A$ as $1, 2, 3, 4$ and at $B$ as $5, 6, 7, 8$,
+matching the figure below. Show that **alternate-interior angles are
+equal:** $\angle 3 = \angle 6$.
+
+```
+              1 \\ 2
+        ───────A────── (line a)
+              4 \\ 3
+                 \\
+              5 \\ 6
+        ───────B────── (line b)
+              8 \\ 7
+```
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Argue by contradiction. Suppose $\angle 3 \ne \angle 6$. Then one of
+the angles (say $\angle 3$) is larger; rotate the transversal at $B$
+to make $\angle 6$ equal $\angle 3$, and see what goes wrong.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Suppose $\angle 3 \ne \angle 6$. WLOG $\angle 3 > \angle 6$. Then a
+line $b'$ at $B$ making angle $\angle 3$ with the transversal would
+*also* not meet $a$ (by the same argument as Problem 2 generalised),
+contradicting the **uniqueness** of the parallel through $B$. So
+$\angle 3 = \angle 6$. *(Kiselev's classical proof; Planimetry §80.)*
+</details>
+
+### Problem 5 — Corresponding angles
+
+Show that **corresponding angles** are equal: $\angle 2 = \angle 6$
+in the same figure.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\angle 2$ and $\angle 3$ are vertical (or supplementary, depending
+on labelling) — link via Problem 4.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\angle 2 = \angle 4$ (vertical angles, from earlier chapter).
+$\angle 4$ and $\angle 3$ are supplementary
+($\angle 4 + \angle 3 = 180°$). Likewise $\angle 6 + \angle 7 =
+180°$ and $\angle 6 = \angle 8$ (vertical). From Problem 4,
+$\angle 3 = \angle 6$, hence $\angle 4 = \angle 7$, etc. The
+*corresponding* pair $\angle 2 = \angle 6$ falls out.
+</details>
+
+### Problem 6 — Triangle-angle-sum
+
+Let $\triangle ABC$ be any triangle. Prove that
+$\angle A + \angle B + \angle C = 180°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Through the vertex $C$, draw a line parallel to $AB$. Use Problem 4
+twice.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $m$ be the line through $C$ parallel to $AB$ (exists by Problem
+2; unique by Problem 3). The angles on one side of $m$ at $C$ are
+three: an angle equal to $\angle A$ (alternate interior with the
+transversal $AC$); the original $\angle C$ of the triangle; an angle
+equal to $\angle B$ (alternate interior with the transversal $BC$).
+The three together form a **straight angle** along $m$, so
+$\angle A + \angle B + \angle C = 180°$. **QED.**
+*(Kiselev's classical proof; Planimetry §89.)*
+</details>
+
+### Problem 7 — A converse
+
+Suppose two lines $a$ and $b$ are cut by a transversal so that
+**alternate-interior angles are equal**. Prove that $a \parallel b$.
+
+<details class="hint"><summary>Full solution</summary>
+If $a$ and $b$ met at some point $Q$, the transversal together with
+$a$ and $b$ would form a triangle with two given equal alternate-
+interior angles. By the exterior-angle theorem (earlier in Kiselev,
+§78), an exterior angle of a triangle is *strictly greater* than the
+remote interior angle — contradicting the equality the hypothesis
+gives. Hence $a$ and $b$ never meet — i.e., $a \parallel b$.
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definition.** Two lines $a, b$ in a plane are **parallel**
+($a \parallel b$) if they do not meet, however far extended.
+
+**Postulate (Euclid V).** Through a point not on a given line, there
+is **exactly one** parallel to that line.
+
+**Theorem (alternate-interior angles).** If $a \parallel b$ and a
+transversal cuts them, then alternate-interior angles are equal.
+*Conversely*, if alternate-interior angles are equal then
+$a \parallel b$.
+
+**Theorem (triangle-angle-sum).** The three angles of any triangle
+sum to a straight angle ($180°$).
+
+:::
+
+A verse:
+
+> *Two lines never meeting — that's parallel, and one rule reigns.*
+> *Through a point off a line, one such line, no more, remains.*
+> *A transversal makes alternates equal, that's how we agree —*
+> *And the three angles of any triangle sum to one-eighty.*
+
+## Apply
+
+### Worked example
+
+> In the figure below, $AB \parallel CD$. The transversal $EF$ cuts
+> $AB$ at $G$ and $CD$ at $H$. If $\angle AGE = 65°$, find every
+> angle at $G$ and at $H$.
+
+At $G$: $\angle AGE = 65°$, so its **vertical** angle $\angle BGF =
+65°$. Its **supplements** are $\angle AGF = \angle BGE = 115°$.
+
+At $H$: corresponding to $\angle AGE$ is $\angle CHG = 65°$ (parallels
++ transversal). Then the four angles at $H$ are $65°, 115°, 65°, 115°$
+in the same arrangement.
+
+**All eight angles** are either $65°$ or $115°$.
+
+### Practice — Warm
+
+**W1.** Two parallel lines are cut by a transversal. One acute angle
+formed is $42°$. List all eight angles.
+
+<details class="hint"><summary>Full solution</summary>
+Each crossing has angles $42°, 138°, 42°, 138°$. Both crossings have
+the same set, by Problems 4–5 above.
+</details>
+
+**W2.** A triangle has angles $40°$ and $75°$. Find the third.
+
+<details class="hint"><summary>Full solution</summary>
+$180° - 40° - 75° = 65°$.
+</details>
+
+**W3.** Two angles of a triangle are equal, and the third is $50°$.
+Find the equal pair.
+
+<details class="hint"><summary>Full solution</summary>
+$180° - 50° = 130°$, split equally: $65°$ each.
+</details>
+
+### Practice — Working
+
+**P1.** In a triangle the second angle is twice the first, and the
+third is three times the first. Find all three.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the first be $x$. Sum: $x + 2x + 3x = 6x = 180°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = 30°$. Angles: $30°, 60°, 90°$ — a $30$–$60$–$90$ triangle.
+</details>
+
+**P2.** Two parallel lines are cut by a transversal so that the two
+**co-interior** angles are in ratio $2 : 3$. Find them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Co-interior angles sum to $180°$ (use the alt-interior theorem +
+linear pair).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2x + 3x = 180°$, so $x = 36°$. Angles $72°$ and $108°$.
+</details>
+
+**P3.** Show that the **exterior angle** of a triangle equals the sum
+of the two remote interior angles.
+
+<details class="hint"><summary>Full solution</summary>
+At a vertex $C$, the exterior angle is $180° - \angle C$. By the
+angle-sum theorem, $\angle A + \angle B = 180° - \angle C$. Equate:
+exterior angle at $C$ $= \angle A + \angle B$. (*This is the
+exterior-angle theorem in its sharper form*; Planimetry §90.)
+</details>
+
+### Practice — Stretch
+
+**S1.** $ABCD$ is a quadrilateral. Prove that the sum of its four
+interior angles is $360°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Draw a diagonal — say $AC$ — splitting the quadrilateral into two
+triangles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Diagonal $AC$ produces $\triangle ABC$ and $\triangle ACD$. Each
+has angle sum $180°$. Total $360°$. The four interior angles of
+$ABCD$ partition into the angles of these two triangles
+(no overlap, no leftover). Hence $\angle A + \angle B + \angle C +
+\angle D = 360°$. **QED.**
+</details>
+
+**S2.** Prove the converse of the corresponding-angles theorem: if a
+transversal makes equal corresponding angles with two lines, the
+lines are parallel.
+
+<details class="hint"><summary>Full solution</summary>
+Equal corresponding angles + supplementary linear pair $\Rightarrow$
+equal alternate-interior angles. Then by Problem 7 the lines are
+parallel.
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's classical style, adapted from
+Givental, *Planimetry*, §§88–94.
+
+**K1.** In a triangle, the angles are in arithmetic progression.
+Show that the **middle** angle is exactly $60°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the three angles be $a - d, a, a + d$. Sum to $180°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(a - d) + a + (a + d) = 3a = 180°$, so $a = 60°$. The middle angle
+is $60°$ regardless of $d$. (For $d = 0$ the triangle is
+equilateral.)
+</details>
+
+**K2.** Two lines $\ell_1$ and $\ell_2$ intersect a third line $m$
+at points $P$ and $Q$. The interior angle at $P$ on one side of $m$
+is $58°$; the interior angle at $Q$ on the **same** side of $m$ is
+$122°$. Are $\ell_1$ and $\ell_2$ parallel?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"Same side" interior angles are co-interior. For parallels they
+sum to $180°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$58° + 122° = 180°$. Yes — $\ell_1 \parallel \ell_2$. (This is the
+co-interior-angles converse, a corollary of Problem 7.)
+</details>
+
+**K3.** $ABCD$ is a quadrilateral with $AD \parallel BC$ but
+$AB \not\parallel CD$ (a *trapezoid*). Show that the angles at $A$
+and at $B$ — adjacent to the same parallel side $AB$ — sum to $180°$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Treat $AB$ as a transversal of the parallels $AD$ and $BC$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Side $AB$ is a transversal of $AD$ and $BC$. The angle at $A$ is
+$\angle DAB$ (interior, on the $D$-side of $AB$); the angle at $B$
+is $\angle ABC$ (interior, on the $C$-side of $AB$). These two are
+**co-interior** angles relative to the parallels $AD \parallel BC$,
+and so sum to $180°$.
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§88–94 (Sumizdat 2006). Free PDF on
+[cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+K3 is the standard *trapezoid co-interior* problem; Kiselev returns
+to it when classifying quadrilaterals.
+
+**Note on transcription.** Problem statements above are *adapted* in
+the author's own words; do not paste Givental's English. The Russian
+original is public domain — Givental's translation is not.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Two lines that *look* parallel are parallel."** Visually
+   suggestive isn't proof. To declare $a \parallel b$ you need either
+   a construction (Problem 2) or an angle-equality (Problem 7).
+2. **"The triangle-angle-sum is obvious."** It is *true* in Euclidean
+   geometry; on a sphere, the angles of a triangle sum to *more* than
+   $180°$. The theorem rests on the parallel postulate — change the
+   postulate, change the theorem.
+3. **"Co-interior angles are always supplementary."** Only when the
+   two lines being cut are parallel. Otherwise the two angles sum to
+   something else, depending on how the lines diverge.
+:::
+
+### Self-Assessment
+
+1. Could you give Kiselev's proof of the triangle-angle-sum theorem
+   (Problem 6) from scratch, drawing the auxiliary line yourself?
+2. Did Problem 7 (the converse) feel like a *consequence* of the
+   exterior-angle theorem, or did you have to look up the chain?
+3. Can you tell, from a figure with marked angles, whether two
+   given lines are parallel — and *justify* your answer with a
+   theorem name?
+
+- **3 yes:** move on. The geometric machinery is in place.
+- **2 yes:** the *proof* of Problem 6 is the heart of the chapter —
+  re-walk it.
+- **0–1 yes:** revisit the *Discover* sequence with the widget open;
+  the visual + the proof together is the whole point.
+
+## Connect
+
+### Prerequisites used
+
+- [`t1.shapes-angles`](../../tier-1-foundations/12-shapes-angles/index.qmd) —
+  vocabulary of angles (acute, right, straight) and the protractor.
+- [`cbse9.lines-and-angles`](../../tier-cbse-09-class-9/06-lines-and-angles/index.qmd) —
+  vertical angles, linear pair, supplementary / complementary
+  angles.
+
+### What this unlocks
+
+- **`kg1.quadrilaterals`** *(planned)* — using parallels to classify
+  parallelograms, trapezoids, rectangles.
+- **`kg1.similarity`** *(planned)* — Thales' theorem on intercepts
+  cut by a family of parallels.
+- **`kg2.lines-and-planes`** — parallels generalised to three
+  dimensions in Stereometry.
+
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 4: Parallels (§§75–96).** Givental
+  translation, Sumizdat 2006. Free PDF on
+  [cimat.mx](https://www.cimat.mx/ciencia_para_jovenes/bachillerato/libros/kiselev/%5Bkiselev%5Dbook1_planimetry.pdf).
+- **Sister synthesis lesson:**
+  [`cbse9.lines-and-angles`](../../tier-cbse-09-class-9/06-lines-and-angles/index.qmd) —
+  same theorems, board-exam treatment with more emphasis on
+  computation than on proof discipline.
+- **Read alongside the source PDF** for Kiselev's full proof of the
+  parallel-construction (§76) and his treatment of the parallel
+  postulate (§79).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Parallel projection (orthographic camera) and
+parallax-scrolling backgrounds depend on the property that **parallel
+lines stay parallel under translation**. The proof here justifies why
+those engines can pre-compute alignment once.
+:::
+
+::: {.applied-callout}
+**Research.** The triangle-angle-sum theorem is the cleanest example
+of a result that **fails** in non-Euclidean geometry — and that
+failure is the seed of differential geometry, general relativity, and
+the modern theory of curved spaces. *Where the angle sum lands tells
+you what world you are in.*
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the proof discipline — Problems 2, 4, 6
+  follow §76, §80, §89 directly); Hadamard (the exterior-angle
+  approach to Problem 7); 3Blue1Brown (the *Touch* widget framing).
+- **Auxiliary line in Problem 6** — drawing the parallel through the
+  apex — is *the* canonical move in Euclidean geometry. It deserves
+  its own *Wonder* prompt.
+- **What this lesson does not do:** treat the parallel postulate's
+  *independence* (the existence of non-Euclidean models). That is
+  noted in the *Common confusions* but is properly an undergraduate
+  topic.
+:::

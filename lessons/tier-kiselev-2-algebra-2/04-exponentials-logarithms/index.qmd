@@ -1,0 +1,473 @@
+---
+title: "Ch 4 — Exponentials and Logarithms"
+subtitle: "$a^x$ and $\\log_a x$ — inverses that turn multiplication into addition"
+lesson-id: "ka2.exponentials-logarithms"
+tier: "ka2"
+kiselev-book: "Algebra, Part II"
+kiselev-chapter: 4
+kiselev-chapter-title: "Exponentials and logarithms"
+kiselev-sections: "§§51–75 (definition, laws, change of base, equations, inequalities)"
+prerequisites: [ka1.powers-roots, ka2.higher-degree-inequalities]
+unlocks: []
+applied-domains: [research, ai-ml, encryption, databases]
+estimated-minutes: 50
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are exponent rules ($a^m \cdot a^n = a^{m + n}$, $(a^m)^n =
+   a^{m n}$, fractional and negative exponents) automatic? See
+   [`ka1.powers-roots`](../../tier-kiselev-1-algebra-1/08-powers-roots/index.qmd).
+2. Can you do polynomial-style sign analysis from
+   [`ka2.higher-degree-inequalities`](../03-higher-degree-inequalities/index.qmd)?
+3. Are you comfortable with the idea of a *function* and an
+   *inverse function*?
+4. Can you compute $2^{10} = 1024$ and recognise that $\log_2 1024
+   = 10$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+The exponential function $f(x) = 2^x$. Its inverse is $\log_2$ —
+the *power to which $2$ must be raised* to give the input.
+
+```{ojs}
+viewof base = Inputs.range([1.5, 10], {value: 2, step: 0.1, label: "base a"})
+```
+
+```{ojs}
+viewof xval = Inputs.range([-3, 6], {value: 3, step: 0.1, label: "x"})
+```
+
+```{ojs}
+{
+  const f = Math.pow(base, xval);
+  const log = Math.log(f) / Math.log(base);
+  return `**a^x:**  ${base.toFixed(2)}^${xval.toFixed(2)} = ${f.toFixed(4)}.
+
+**log_a:**  log_${base.toFixed(2)} ${f.toFixed(4)} = ${log.toFixed(4)}.
+
+The two undo each other.`;
+}
+```
+
+The exponential and logarithm are **inverses**: $\log_a (a^x) = x$
+and $a^{\log_a y} = y$ (for $y > 0$).
+
+## Wonder
+
+1. The product rule for exponents is $a^{x + y} = a^x \cdot a^y$.
+   What does this say about the *logarithm* of a product?
+2. The number $\log_2 8 = 3$ because $2^3 = 8$. What is $\log_2
+   \frac{1}{8}$? And $\log_2 1$?
+3. *Change of base.* Can $\log_2 x$ be computed using $\log_{10}$?
+4. The function $a^x$ — is it always *increasing*? What about
+   $\log_a x$?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) **$\log_a (xy) = \log_a x + \log_a y$** — turns multiplication
+into addition. This is the *fundamental property* of logarithms.
+(2) $\log_2 \frac{1}{8} = -3$ (since $2^{-3} = 1/8$); $\log_2 1 =
+0$ (since $2^0 = 1$). (3) Yes — *change-of-base formula*: $\log_a
+x = \dfrac{\log_b x}{\log_b a}$. (4) $a^x$ is increasing iff
+$a > 1$ (and decreasing iff $0 < a < 1$). The same for $\log_a x$.
+:::
+
+## Discover
+
+### Problem 1 — Definition of the logarithm
+
+Define: for $a > 0, a \ne 1$, and $y > 0$, $\log_a y$ is the
+unique real number $x$ with $a^x = y$. Argue uniqueness.
+
+<details class="hint"><summary>Full solution</summary>
+The function $x \mapsto a^x$ is *strictly monotonic* (increasing
+if $a > 1$, decreasing if $0 < a < 1$), continuous, and onto
+$(0, \infty)$. So for each $y > 0$, there is exactly one $x$ with
+$a^x = y$.
+
+Define this unique $x$ to be $\log_a y$. **The logarithm is
+single-valued and well-defined for $y > 0$.** *(Algebra II §52.)*
+</details>
+
+### Problem 2 — The product law
+
+Show that $\log_a (x y) = \log_a x + \log_a y$ for $x, y > 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $u = \log_a x, v = \log_a y$, i.e. $a^u = x$ and $a^v = y$.
+Then $x y = a^u \cdot a^v = a^{u + v}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a^u \cdot a^v = a^{u + v}$. So $\log_a (a^u \cdot a^v) = u + v$
+(by definition of logarithm). I.e. $\log_a (xy) = \log_a x + \log_a
+y$. **QED.** *(Algebra II §54 — the **product law**.)*
+</details>
+
+### Problem 3 — Quotient and power laws
+
+Show that $\log_a (x/y) = \log_a x - \log_a y$ and $\log_a (x^p) =
+p \log_a x$.
+
+<details class="hint"><summary>Full solution</summary>
+*Quotient:* $a^{u - v} = a^u / a^v = x/y$. So $\log_a (x/y) =
+u - v = \log_a x - \log_a y$.
+
+*Power:* $(a^u)^p = a^{u p} = x^p$. So $\log_a (x^p) = u p =
+p \log_a x$.
+
+**(Algebra II §55.)**
+</details>
+
+### Problem 4 — Change of base
+
+Show that $\log_a x = \dfrac{\log_b x}{\log_b a}$ for any
+permissible bases $a, b$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $y = \log_a x$, so $a^y = x$. Take $\log_b$ of both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a^y = x$. Take $\log_b$: $y \log_b a = \log_b x$ (by Problem 3).
+Solve: $y = \dfrac{\log_b x}{\log_b a}$, i.e. $\log_a x =
+\dfrac{\log_b x}{\log_b a}$. **QED.** *(Algebra II §57.)*
+</details>
+
+### Problem 5 — Solving an exponential equation
+
+Solve $3^{x + 1} = 27$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$27 = 3^3$. Equate exponents.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$3^{x + 1} = 3^3$ ⟹ $x + 1 = 3$ ⟹ $x = 2$.
+</details>
+
+### Problem 6 — Solving by logarithm
+
+Solve $2^x = 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $\log_2$ of both sides.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = \log_2 5 \approx 2.322$. *(Equivalently, $x = \dfrac{\ln 5}
+{\ln 2}$ via change of base.)*
+</details>
+
+### Problem 7 — Logarithmic equation
+
+Solve $\log_2 x + \log_2 (x - 6) = 4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combine into a single logarithm: $\log_2 (x (x - 6)) = 4$, then
+exponentiate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x (x - 6) = 16$ ⟹ $x^2 - 6 x - 16 = 0$. Quadratic formula:
+$x = \dfrac{6 \pm \sqrt{36 + 64}}{2} = \dfrac{6 \pm 10}{2}$, so
+$x = 8$ or $x = -2$.
+
+**Check the domain.** $\log_2 x$ requires $x > 0$; $\log_2 (x - 6)$
+requires $x > 6$. So *only $x = 8$* works. ($x = -2$ is *spurious*
+— created by the squaring/multiplying.)
+
+**$x = 8$.**
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Definitions.**
+
+- **Exponential function:** $f(x) = a^x$ for $a > 0, a \ne 1$.
+  Domain $\mathbb R$; range $(0, \infty)$.
+- **Logarithm:** $\log_a y$ is the unique $x$ with $a^x = y$, for
+  $y > 0$. Domain $(0, \infty)$; range $\mathbb R$.
+
+**Three laws of logarithms.**
+
+$$
+\log_a (x y) = \log_a x + \log_a y, \quad
+\log_a \dfrac{x}{y} = \log_a x - \log_a y, \quad
+\log_a (x^p) = p \log_a x.
+$$
+
+**Inverses.**
+
+$$
+\log_a (a^x) = x, \quad a^{\log_a y} = y.
+$$
+
+**Change of base.**
+$$\log_a x = \dfrac{\log_b x}{\log_b a}.$$
+
+**Special bases.** $\ln x = \log_e x$ (natural log, $e \approx
+2.718$); $\log x$ usually means $\log_{10} x$ (common log) or
+$\log_e x$ (in higher math).
+
+**Monotonicity.** $a > 1$: both $a^x$ and $\log_a x$ are *strictly
+increasing*. $0 < a < 1$: both are *strictly decreasing*.
+
+:::
+
+A verse:
+
+> *Exponentials grow and decay; logs invert them, base by base.*
+> *Multiplication becomes addition — that's the law that built the
+> trace.*
+> *$\log a^p = p \log a$, change base by ratio of logs.*
+> *And the natural log, base $e$, is calculus's hidden cog.*
+
+## Apply
+
+### Worked example
+
+> Solve $4^x - 2^{x+1} - 3 = 0$.
+
+Notice $4^x = (2^2)^x = 2^{2 x} = (2^x)^2$ and $2^{x + 1} = 2 \cdot
+2^x$.
+
+Let $u = 2^x > 0$. Equation becomes $u^2 - 2 u - 3 = 0$, factoring
+$(u - 3)(u + 1) = 0$. So $u = 3$ or $u = -1$. Reject $u = -1$
+(must be positive).
+
+$2^x = 3$ ⟹ $x = \log_2 3 \approx 1.585$.
+
+**$x = \log_2 3$.**
+
+### Practice — Warm
+
+**W1.** Compute $\log_2 16$ and $\log_3 81$.
+
+<details class="hint"><summary>Full solution</summary>
+$\log_2 16 = 4$ ($2^4 = 16$). $\log_3 81 = 4$ ($3^4 = 81$).
+</details>
+
+**W2.** Solve $5^x = 125$.
+
+<details class="hint"><summary>Full solution</summary>
+$125 = 5^3$, so $x = 3$.
+</details>
+
+**W3.** Compute $\log_2 5 + \log_2 4 - \log_2 10$.
+
+<details class="hint"><summary>Full solution</summary>
+$= \log_2 (5 \cdot 4 / 10) = \log_2 2 = 1$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve $\log_3 x + \log_3 (x + 2) = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$\log_3 (x (x + 2)) = 1$ ⟹ $x (x + 2) = 3$ ⟹ $x^2 + 2 x - 3 = 0$
+⟹ $(x + 3)(x - 1) = 0$. So $x = 1$ or $x = -3$.
+
+Domain: $x > 0$ and $x + 2 > 0$, so $x > 0$. **Only $x = 1$.**
+</details>
+
+**P2.** Solve $9^x - 4 \cdot 3^x + 3 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $u = 3^x$, so $9^x = u^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$u^2 - 4 u + 3 = 0$ ⟹ $(u - 1)(u - 3) = 0$, so $u = 1$ or $u = 3$.
+$3^x = 1$ ⟹ $x = 0$. $3^x = 3$ ⟹ $x = 1$.
+
+**$x = 0$ or $x = 1$.**
+</details>
+
+**P3.** *Compound interest.* A bank pays $5\%$ interest per year,
+compounded annually. How long for $₹10,000$ to double?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$10000 \cdot (1.05)^t = 20000$, so $(1.05)^t = 2$, i.e. $t = \log
+_{1.05} 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$t = \dfrac{\ln 2}{\ln 1.05} = \dfrac{0.693}{0.0488} \approx 14.21$
+years. *(The famous **rule of 72**: at $r\%$ per year, doubling
+time is approximately $72/r$ years. Here: $72/5 = 14.4$ — close
+to the exact $14.21$.)*
+</details>
+
+### Practice — Stretch
+
+**S1.** Solve $\log_2 (\log_3 (\log_4 x)) = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Work outward: $\log_2 \text{(something)} = 0 \Leftrightarrow
+\text{something} = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\log_3 (\log_4 x) = 1$ ⟹ $\log_4 x = 3$ ⟹ $x = 4^3 = 64$.
+
+**$x = 64$.**
+</details>
+
+**S2.** Show that $\log_a b \cdot \log_b c \cdot \log_c a = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use change-of-base on each factor.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\log_a b = \dfrac{\ln b}{\ln a}$, $\log_b c = \dfrac{\ln c}{\ln
+b}$, $\log_c a = \dfrac{\ln a}{\ln c}$.
+
+Product: $\dfrac{\ln b}{\ln a} \cdot \dfrac{\ln c}{\ln b} \cdot
+\dfrac{\ln a}{\ln c} = 1$ (telescoping). **QED.**
+
+*(A famous "*log-cyclic*" identity.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra II*, §§55–75.
+
+**K1.** Solve $\log_x 2 + \log_x 4 = 3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Combine: $\log_x 8 = 3$ ⟹ $x^3 = 8$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\log_x (2 \cdot 4) = \log_x 8 = 3$ ⟹ $x^3 = 8$ ⟹ $x = 2$.
+
+(Domain: $x > 0, x \ne 1$. $x = 2$ is fine.)
+</details>
+
+**K2.** Show that $7^{\log 5} = 5^{\log 7}$ (where $\log$ denotes
+the natural logarithm or any common base).
+
+<details class="hint"><summary>Full solution</summary>
+$7^{\log 5} = e^{(\log 5)(\log 7)}$ (using $a = e^{\log a}$). By
+symmetry the same equals $5^{\log 7}$. **QED.** *(A pretty identity
+showing logarithm symmetry.)*
+</details>
+
+**K3.** *Inequality.* Solve $\log_{1/2} (x - 1) > -1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Base $1/2 < 1$ — log is *decreasing*. So the inequality $\log_{1/2}
+y > -1$ is equivalent to $y < (1/2)^{-1} = 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Since base $< 1$, the log is decreasing, so $\log_{1/2} (x - 1)
+> -1 \iff x - 1 < 2 \iff x < 3$.
+Combined with the domain $x > 1$ (logarithm needs positive
+argument): **$1 < x < 3$.**
+
+*(The flip when the log base is less than $1$ is a common
+gotcha.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Часть вторая*
+(Fizmatlit reprint 2005), §§51–75. Russian original:
+[archive.org scan](https://archive.org/details/kiselyov-algebra-part-2-2005).
+The compound-interest application (P3) is §73 — Kiselev includes
+several financial examples.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\log (a + b) = \log a + \log b$."** *Wrong* — that would be
+   for *products*, not sums. Logarithms have *no* sum identity.
+2. **"$\log_a x$ exists for any $x$."** Only for $x > 0$. Logs of
+   negatives or zero are undefined in real-valued contexts.
+3. **"Base $0 < a < 1$ logs work the same as $a > 1$."** They are
+   *decreasing* instead of increasing — flip inequalities when
+   manipulating.
+:::
+
+### Self-Assessment
+
+1. Could you derive the product, quotient, and power laws from the
+   exponent rules?
+2. Did you remember to *check the domain* on Problem 7 (and reject
+   the spurious root)?
+3. Can you solve a compound-interest doubling-time problem in your
+   head using the rule of 72?
+
+- **3 yes:** move on to *Sequences and Progressions* (Ch 5).
+- **2 yes:** redo Problem 7 — the *spurious-root from log
+  manipulations* is a chapter highlight.
+- **0–1 yes:** the three log laws (Problems 2, 3, 4) form the
+  chapter's spine; replay them.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.powers-roots`](../../tier-kiselev-1-algebra-1/08-powers-roots/index.qmd) —
+  exponent rules; the master rule extends to real exponents.
+- [`ka2.higher-degree-inequalities`](../03-higher-degree-inequalities/index.qmd) —
+  log-inequality manipulations (especially K3 base-flip).
+
+### What this unlocks
+
+- **`ka2.sequences-progressions`** *(Ch 5, planned)* — geometric
+  progressions are *exponential*; their sum involves logs in the
+  decay-rate analysis.
+- [`t3.exp-log-functions`](../../tier-3-algebra2-geometry-trig/06-exp-log-functions/index.qmd) —
+  $a^x$ as a continuous function; calculus.
+- [`t6.information-theory`](../../tier-6-undergrad-advanced/11-information-theory/index.qmd) —
+  *Shannon entropy* uses $\log_2$.
+- [`cbse11.relations-and-functions`](../../tier-cbse-11-class-11/02-relations-and-functions/index.qmd) —
+  inverse functions in CBSE 11.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part II — Chapter 4: Exponentials and logarithms
+  (§§51–75).** Russian original on
+  [archive.org](https://archive.org/details/kiselyov-algebra-part-2-2005).
+- **Sister synthesis lessons:**
+  [`t3.logarithms`](../../tier-3-algebra2-geometry-trig/05-logarithms/index.qmd)
+  and
+  [`t3.exp-log-functions`](../../tier-3-algebra2-geometry-trig/06-exp-log-functions/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of the natural log $e$ and its limit definition (§70).
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** **Cross-entropy loss** in classification is a sum of
+$-\log$ terms. **Softmax** uses $e^{x_i} / \sum e^{x_j}$. Every
+modern neural network is exponential at heart.
+:::
+
+::: {.applied-callout}
+**Encryption.** The **discrete logarithm problem** (find $x$ given
+$g^x \equiv h \pmod p$) is *easy to compute forward*, *hard to
+invert* — and that asymmetry secures Diffie-Hellman key exchange
+and ElGamal encryption.
+:::
+
+::: {.applied-callout}
+**Databases.** **B-tree indices** have query complexity $O(\log_B
+n)$ where $B$ is the branching factor. The *log* in the running
+time is literally this lesson's logarithm.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§51–75 ordering); Napier (1614 —
+  the invention of logarithms); Euler (the constant $e$).
+- **The natural log $e$** deserves its own treatment via limits;
+  Kiselev introduces it carefully in §70 as $\lim (1 + 1/n)^n$.
+- **What this lesson does not do:** prove that $\lim (1 + 1/n)^n$
+  exists (a calculus result; covered in Algebra II Ch 7).
+:::

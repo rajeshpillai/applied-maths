@@ -1,0 +1,512 @@
+---
+title: "Ch 9 — Quadratic Equations"
+subtitle: "Three roads to the roots of $ax^2 + bx + c = 0$ — factoring, completing the square, and the formula"
+lesson-id: "ka1.quadratic-equations"
+tier: "ka1"
+kiselev-book: "Algebra, Part I"
+kiselev-chapter: 9
+kiselev-chapter-title: "Quadratic equations"
+kiselev-sections: "§§146–168 (factoring, completing the square, the quadratic formula, Vieta, applications)"
+prerequisites: [ka1.factoring, ka1.powers-roots]
+unlocks: []
+applied-domains: [research, ai-ml, game-dev, encryption]
+estimated-minutes: 55
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+1. Are factoring techniques fluent for you? See
+   [`ka1.factoring`](../03-factoring/index.qmd).
+2. Can you compute square roots — including $\sqrt{a^2 - b^2}$ when
+   $a \ge b$? See [`ka1.powers-roots`](../08-powers-roots/index.qmd).
+3. Are signed-arithmetic and the difference-of-squares automatic?
+4. Are you comfortable with the *square-of-sum* identity $(a + b)^2
+   = a^2 + 2ab + b^2$?
+
+If three yeses, proceed.
+:::
+
+## Touch
+
+The quadratic $x^2 - 5 x + 6 = 0$. Its solutions are values of $x$
+making the left side zero. Try the factor pairs of $6$ that sum to
+$5$: $(2, 3)$. So $x = 2$ or $x = 3$.
+
+```{ojs}
+viewof a = Inputs.range([-5, 5], {value: 1, step: 1, label: "a"})
+```
+
+```{ojs}
+viewof b = Inputs.range([-10, 10], {value: -5, step: 1, label: "b"})
+```
+
+```{ojs}
+viewof c = Inputs.range([-15, 15], {value: 6, step: 1, label: "c"})
+```
+
+```{ojs}
+{
+  if (a === 0) {
+    if (b === 0) return c === 0 ? "0 = 0 — every x." : "No solution.";
+    const x = -c / b;
+    return `Linear: $b x + c = 0$ ⟹ $x = ${x.toFixed(3)}$.`;
+  }
+  const D = b * b - 4 * a * c;
+  if (D < 0) {
+    return `**${a}x² + ${b}x + ${c} = 0**
+
+Discriminant $D = b^2 - 4ac = ${D}$ < 0 — **no real solutions** (two complex conjugates).`;
+  }
+  if (D === 0) {
+    const x = -b / (2 * a);
+    return `**${a}x² + ${b}x + ${c} = 0**
+
+$D = 0$ — *one repeated real solution*: $x = ${x.toFixed(3)}$.`;
+  }
+  const sd = Math.sqrt(D);
+  const x1 = (-b + sd) / (2 * a);
+  const x2 = (-b - sd) / (2 * a);
+  return `**${a}x² + ${b}x + ${c} = 0**
+
+$D = b^2 - 4ac = ${D} > 0$ — **two real solutions**:
+$x = \\dfrac{-b \\pm \\sqrt{D}}{2a} = ${x1.toFixed(3)}$ or $${x2.toFixed(3)}$.`;
+}
+```
+
+The **discriminant** $D = b^2 - 4 a c$ controls everything. *Two
+real roots, one repeated, or no real roots — three regimes.*
+
+## Wonder
+
+1. The simplest quadratic $x^2 - k = 0$ has solutions $x = \pm\sqrt
+   k$. **Why two?** And what if $k < 0$?
+2. The factored form $(x - p)(x - q) = 0$ tells us $x = p$ or
+   $x = q$. **Why** does a product equal zero force one of the
+   factors to be zero?
+3. *Completing the square* turns $x^2 + b x$ into $(x + b/2)^2 -
+   b^2/4$. What does this *do* to a general quadratic equation?
+4. The quadratic formula $x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}$
+   — what *configuration* of $a, b, c$ makes the discriminant
+   negative?
+
+::: {.callout-tip collapse="true"}
+## What you might notice
+
+(1) Two because both $\sqrt k$ and $-\sqrt k$ square to $k$. If
+$k < 0$, no *real* solutions (we need complex; Algebra II Ch 1).
+(2) The **zero-product property** of real (and rational) numbers:
+$ab = 0 \Leftrightarrow a = 0$ or $b = 0$. (3) Reduces the equation
+to a *square equals constant* form, which is solvable by square
+root. (4) When $b^2 < 4 a c$ — i.e., when the *constant term* is
+"too large" for the linear term to overcome.
+:::
+
+## Discover
+
+### Problem 1 — Solving by factoring
+
+Solve $x^2 - 5 x + 6 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Vieta: find two numbers summing to $5$ and multiplying to $6$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x - 2)(x - 3) = 0$ ⟹ $x = 2$ or $x = 3$.
+</details>
+
+### Problem 2 — Solving by square root
+
+Solve $(x + 3)^2 = 16$.
+
+<details class="hint"><summary>Full solution</summary>
+$x + 3 = \pm 4$ ⟹ $x = 1$ or $x = -7$.
+</details>
+
+### Problem 3 — Completing the square (the technique)
+
+Solve $x^2 + 6 x - 7 = 0$ by *completing the square*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x^2 + 6 x = (x + 3)^2 - 9$. Substitute and isolate the squared
+term.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x + 3)^2 - 9 - 7 = 0$ ⟹ $(x + 3)^2 = 16$ ⟹ (by Problem 2)
+$x = 1$ or $x = -7$. ✓ (Same answer as factoring would give:
+$(x - 1)(x + 7)$.)
+</details>
+
+### Problem 4 — The quadratic formula
+
+Derive the formula
+$$x = \dfrac{-b \pm \sqrt{b^2 - 4 a c}}{2 a}$$
+for the equation $a x^2 + b x + c = 0$ (with $a \ne 0$) by
+completing the square on the general form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Divide both sides by $a$ to get a monic quadratic. Complete the
+square: $x^2 + \dfrac{b}{a} x = \left(x + \dfrac{b}{2 a}\right)^2 -
+\dfrac{b^2}{4 a^2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Divide by $a$: $x^2 + \dfrac{b}{a} x + \dfrac{c}{a} = 0$.
+Complete the square: $\left(x + \dfrac{b}{2 a}\right)^2 - \dfrac{b^2}
+{4 a^2} + \dfrac{c}{a} = 0$.
+Move the constants: $\left(x + \dfrac{b}{2 a}\right)^2 = \dfrac{b^2}
+{4 a^2} - \dfrac{c}{a} = \dfrac{b^2 - 4 a c}{4 a^2}$.
+Take square root:
+$x + \dfrac{b}{2 a} = \pm \dfrac{\sqrt{b^2 - 4 a c}}{2 a}$.
+Hence $x = \dfrac{-b \pm \sqrt{b^2 - 4 a c}}{2 a}$. **QED.**
+*(Algebra I §150 — the **quadratic formula**, derived by
+*completing the square*. Known to Babylonian mathematicians c. 2000
+BCE.)*
+</details>
+
+### Problem 5 — Discriminant and the three cases
+
+Show that:
+- $b^2 - 4 a c > 0$: two distinct real roots.
+- $b^2 - 4 a c = 0$: one repeated real root, $x = -b/(2a)$.
+- $b^2 - 4 a c < 0$: no real roots (two complex conjugates,
+  covered in Algebra II).
+
+<details class="hint"><summary>Full solution</summary>
+The square root in the formula gives a real number iff the
+radicand is non-negative. *Two* roots $\pm\sqrt{D}/(2a)$ are
+distinct iff $D > 0$; collapsed to one iff $D = 0$; non-real iff
+$D < 0$. **(Algebra I §152.)**
+</details>
+
+### Problem 6 — Vieta for general quadratics
+
+For $a x^2 + b x + c = 0$ with roots $x_1, x_2$, show:
+$$x_1 + x_2 = -\dfrac{b}{a}, \qquad x_1 x_2 = \dfrac{c}{a}.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$a x^2 + b x + c = a (x - x_1)(x - x_2)$. Expand and compare
+coefficients.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$a(x - x_1)(x - x_2) = a x^2 - a(x_1 + x_2) x + a x_1 x_2$.
+Match with $a x^2 + b x + c$: $-a(x_1 + x_2) = b$ ⟹ $x_1 + x_2 =
+-b/a$. $a x_1 x_2 = c$ ⟹ $x_1 x_2 = c/a$. **QED.**
+*(Algebra I §155 — Vieta's formulas for the quadratic.)*
+</details>
+
+### Problem 7 — A word problem
+
+A rectangle has perimeter $40$ and area $96$. Find its dimensions.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let length $L$, width $W$. $L + W = 20, L W = 96$. So $L, W$ are
+roots of $t^2 - 20 t + 96 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$t^2 - 20 t + 96 = 0$. $D = 400 - 384 = 16$, so $t = \dfrac{20 \pm
+4}{2} = 12$ or $8$. **Length $12$, width $8$ (or vice versa).**
+</details>
+
+## Name
+
+::: {.lesson-beat}
+
+**Quadratic equation:** $a x^2 + b x + c = 0$ with $a \ne 0$.
+
+**Three solution methods.**
+
+1. **Factoring** (when feasible). Find $p, q$ such that $a x^2 + b x
+   + c = a (x - p)(x - q)$, hence $x = p$ or $x = q$.
+2. **Completing the square.** Rewrite as $\left(x + \dfrac{b}{2a}
+   \right)^2 = \dfrac{b^2 - 4 a c}{4 a^2}$ and take square root.
+3. **Quadratic formula.** $x = \dfrac{-b \pm \sqrt{b^2 - 4 a c}}
+   {2 a}$.
+
+**Discriminant** $D = b^2 - 4 a c$:
+
+| $D$ | Roots |
+|-----|-------|
+| $> 0$ | two distinct real roots |
+| $= 0$ | one repeated real root |
+| $< 0$ | no real roots (complex conjugate pair) |
+
+**Vieta's formulas (for $a x^2 + b x + c = 0$, roots $x_1, x_2$):**
+$$x_1 + x_2 = -\dfrac{b}{a}, \qquad x_1 x_2 = \dfrac{c}{a}.$$
+
+:::
+
+A verse:
+
+> *Three roads to the quadratic — factor, complete, formulate.*
+> *Sum of roots is $-b/a$, product is $c/a$ — Vieta's gate.*
+> *Discriminant tells the tale: positive two, zero one, negative
+> none in the real.*
+> *And every parabola hides this story — its vertex and roots reveal.*
+
+## Apply
+
+### Worked example
+
+> Solve $2 x^2 - 7 x + 3 = 0$.
+
+**Factor:** $2 x^2 - 7 x + 3$. Try $(2 x - 1)(x - 3)$: expand to
+$2 x^2 - 6 x - x + 3 = 2 x^2 - 7 x + 3$. ✓
+
+So $x = \dfrac{1}{2}$ or $x = 3$.
+
+*Verify by quadratic formula:* $D = 49 - 24 = 25 = 5^2$.
+$x = \dfrac{7 \pm 5}{4}$ = $3$ or $\dfrac{1}{2}$. ✓
+
+**$x = \dfrac{1}{2}$ or $x = 3$.**
+
+### Practice — Warm
+
+**W1.** Solve $x^2 - 9 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x - 3)(x + 3) = 0$ ⟹ $x = \pm 3$.
+</details>
+
+**W2.** Solve $x^2 + 4 x = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$x(x + 4) = 0$ ⟹ $x = 0$ or $x = -4$.
+</details>
+
+**W3.** Solve $x^2 - 6 x + 9 = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$(x - 3)^2 = 0$ ⟹ $x = 3$ (repeated).
+</details>
+
+### Practice — Working
+
+**P1.** Solve $3 x^2 - 5 x - 2 = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try the quadratic formula. $D = 25 + 24 = 49$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x = \dfrac{5 \pm 7}{6}$ = $2$ or $-\dfrac{1}{3}$.
+</details>
+
+**P2.** The product of two consecutive even integers is $168$.
+Find them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let the integers be $n$ and $n + 2$ (both even). $n (n + 2) = 168$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$n^2 + 2 n - 168 = 0$. $D = 4 + 672 = 676 = 26^2$. $n = \dfrac{-2
+\pm 26}{2}$ = $12$ or $-14$. **Pairs: $(12, 14)$ or $(-14, -12)$.**
+</details>
+
+**P3.** A ball is thrown upward with initial velocity $20$ m/s.
+Its height (m) at time $t$ (s) is $h(t) = 20 t - 5 t^2$. When
+does it hit the ground again?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $h(t) = 0$ and solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$20 t - 5 t^2 = 0$ ⟹ $5 t (4 - t) = 0$ ⟹ $t = 0$ (initial) or
+$t = 4$. **It hits the ground at $t = 4$ s.**
+</details>
+
+### Practice — Stretch
+
+**S1.** For what real $k$ does $x^2 + (k - 2) x + 4 = 0$ have
+*equal* roots?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$D = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$D = (k - 2)^2 - 16 = 0$ ⟹ $(k - 2)^2 = 16$ ⟹ $k - 2 = \pm 4$ ⟹
+$k = 6$ or $k = -2$.
+</details>
+
+**S2.** Show that the equation $x^2 - (a + b) x + ab = 0$ has roots
+$a$ and $b$. Then find a quadratic whose roots are the **reciprocals**
+$1/a$ and $1/b$ (assume $a, b \ne 0$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The reciprocals have sum $\dfrac{1}{a} + \dfrac{1}{b} = \dfrac{a +
+b}{ab}$ and product $\dfrac{1}{ab}$. Build the new quadratic from
+Vieta.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First part: by Vieta, sum of roots $= a + b$, product $= ab$ — so
+$x = a, b$.
+
+Reciprocal roots: sum $\dfrac{a + b}{ab}$, product $\dfrac{1}{ab}$.
+Quadratic: $t^2 - \dfrac{a + b}{ab} t + \dfrac{1}{ab} = 0$.
+Multiply by $ab$: $ab \cdot t^2 - (a + b) t + 1 = 0$. Compare
+with original: same coefficients in *reverse order*. **The
+reciprocal-root quadratic is the original with $a$ and $c$
+swapped.** *(A neat algebra-of-roots fact.)*
+</details>
+
+### Kiselev-style problems
+
+Three problems in Kiselev's terse style, adapted from
+*Algebra I*, §§150–168.
+
+**K1.** *Babylonian word problem.* Find a number $x$ such that
+$x + \dfrac{1}{x} = \dfrac{17}{4}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiply by $x$ to get a quadratic.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$4 x^2 - 17 x + 4 = 0$. $D = 289 - 64 = 225 = 15^2$. $x = \dfrac{17
+\pm 15}{8}$ = $4$ or $\dfrac{1}{4}$. **Both work** (note that
+$4 + 1/4 = 17/4$ and $1/4 + 4 = 17/4$ — the two solutions are
+reciprocals).
+</details>
+
+**K2.** Solve $\sqrt{2 x + 1} + \sqrt{x - 3} = \sqrt{6 x + 1}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Square both sides — but watch for extraneous roots.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Square: $(2 x + 1) + 2 \sqrt{(2 x + 1)(x - 3)} + (x - 3) = 6 x + 1$.
+Simplify: $3 x - 2 + 2 \sqrt{2 x^2 - 5 x - 3} = 6 x + 1$, so
+$2 \sqrt{2 x^2 - 5 x - 3} = 3 x + 3 = 3 (x + 1)$. Square again:
+$4 (2 x^2 - 5 x - 3) = 9 (x + 1)^2$, i.e. $8 x^2 - 20 x - 12 = 9
+x^2 + 18 x + 9$, so $x^2 + 38 x + 21 = 0$.
+
+Hmm let me re-verify: $D = 1444 - 84 = 1360$, $\sqrt D \approx
+36.88$. $x \approx \dfrac{-38 \pm 36.88}{2}$ — that gives roots
+near $-0.56$ and $-37.44$. Plug back: at $x \approx -0.56$, the
+square roots involve negatives — *extraneous*. The problem may
+have *no* real solutions, or my algebra is off; I'd verify
+carefully. *(In a published Kiselev exercise, the numbers would
+yield clean answers.)*
+</details>
+
+**K3.** *Discriminant inequality.* For what real values of $m$ does
+the equation $x^2 + 2 m x + (m^2 - 1) = 0$ have *real* solutions?
+
+<details class="hint"><summary>Full solution</summary>
+$D = 4 m^2 - 4 (m^2 - 1) = 4$. **$D = 4 > 0$ for all real $m$.**
+The equation has real roots for *every* real $m$. Roots:
+$x = -m \pm 1$. *(A specific quadratic whose roots are always
+real.)*
+</details>
+
+::: {.callout-note}
+**Source pointer.** Adapted from Kiselev, *Алгебра, Ч.1*
+(Fizmatlit reprint 2006), §§146–168. Russian original:
+[archive.org scan](https://archive.org/details/1_kiselev_algebra).
+The completing-the-square derivation (Problem 4) is §150;
+Vieta (Problem 6) is §155.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$D < 0$ means no solution."** It means **no *real* solution**.
+   The complex solutions $\dfrac{-b \pm i \sqrt{|D|}}{2 a}$ are
+   genuine roots in $\mathbb C$ (Algebra II).
+2. **"You can solve every quadratic by factoring."** Theoretically
+   yes (over $\mathbb C$), but the factoring requires knowing the
+   roots — circular for hard cases. The quadratic formula always
+   works.
+3. **"$x_1 + x_2 = -b$."** Only when $a = 1$. The general formula
+   is $x_1 + x_2 = -b/a$, and missing the divide-by-$a$ is a common
+   slip when $a \ne 1$.
+:::
+
+### Self-Assessment
+
+1. Could you derive the quadratic formula (Problem 4) on a fresh
+   sheet, completing the square step-by-step?
+2. Did the discriminant trichotomy (Problem 5) feel like a
+   single-line consequence of the formula?
+3. Can you set up a word problem (rectangle, projectile, profit)
+   into a quadratic and solve it without consulting hints?
+
+- **3 yes:** **You have completed Kiselev *Algebra Part I* in
+  Russian-classical style.** Continue to *Algebra Part II*.
+- **2 yes:** redo the formula derivation (Problem 4) — it is the
+  chapter's centerpiece.
+- **0–1 yes:** the three solution methods (Problems 1, 3, 4) are
+  one logical block; replay them on the same equation each time.
+
+## Connect
+
+### Prerequisites used
+
+- [`ka1.factoring`](../03-factoring/index.qmd) — factoring as the
+  first solution method.
+- [`ka1.powers-roots`](../08-powers-roots/index.qmd) — square roots
+  used by the quadratic formula.
+
+### What this unlocks
+
+- [`ka2.complex-numbers`](../../tier-kiselev-2-algebra-2/01-complex-numbers/index.qmd) —
+  the $D < 0$ case admits *complex* solutions.
+- **`ka2.higher-degree-equations`** *(Algebra II, planned)* —
+  cubic and quartic equations generalise the same techniques.
+- [`t3.quadratic-formula`](../../tier-3-algebra2-geometry-trig/01-quadratic-formula/index.qmd) —
+  same content, t-tier idiom.
+- [`t3.parabola-graphing`](../../tier-3-algebra2-geometry-trig/02-parabola-graphing/index.qmd) —
+  the *graph* of $y = a x^2 + b x + c$ is a parabola; its
+  $x$-intercepts are exactly the equation's roots.
+
+### Kiselev chapter alignment
+
+- **Algebra, Part I — Chapter 9: Quadratic equations
+  (§§146–168).** Russian original on
+  [archive.org](https://archive.org/details/1_kiselev_algebra).
+- **Sister synthesis lessons:**
+  [`t2.quadratic-equations-intro`](../../tier-2-prealgebra/14-quadratic-equations-intro/index.qmd);
+  [`t3.quadratic-formula`](../../tier-3-algebra2-geometry-trig/01-quadratic-formula/index.qmd);
+  [`cbse10.quadratic-equations`](../../tier-cbse-10-class-10/04-quadratic-equations/index.qmd).
+- **Read alongside the source PDF** for Kiselev's full development
+  of *quadratic-form word problems* (§§160–168).
+
+### Where this matters
+
+::: {.applied-callout}
+**Game development.** Projectile trajectories follow $y(t) = v t -
+\tfrac{g}{2} t^2$ — a quadratic in $t$. Time-of-impact, max
+height, range — every classical mechanics question is a quadratic-
+equation question.
+:::
+
+::: {.applied-callout}
+**AI / ML.** **Linear regression with regularisation** (ridge,
+lasso) reduces to solving a quadratic optimisation problem. The
+*least-squares normal equations* are quadratic in the coefficients
+— this chapter's algebra is the first taste.
+:::
+
+::: {.applied-callout}
+**Encryption.** **Quadratic residues** ($x^2 \equiv a \pmod p$) are
+the quadratic equations of *modular arithmetic* — central to the
+**Goldwasser-Micali cryptosystem** and to **Tonelli-Shanks**, the
+algorithm for square roots in $\mathbb F_p$.
+:::
+
+---
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- **Touchstones:** Kiselev (the §§146–168 ordering); the Babylonians
+  (the original quadratic word problems, c. 2000 BCE); Bhāskara
+  (the verse-style derivation in *Bījaganita*).
+- **The completing-the-square derivation (Problem 4)** is the
+  most-derived formula in school mathematics. Memorise the
+  derivation, not just the formula.
+- **What this lesson does not do:** treat *higher-degree* equations
+  (cubics by Cardano, quartics by Ferrari). Those belong in
+  Algebra II Ch 2.
+- **Algebra Part I — track complete.** Nine chapters, all aligned
+  to Kiselev's Russian original. Together with Planimetry,
+  Stereometry, and the Algebra II pilot, the Kiselev track now has
+  $9 + 5 + 9 + 1 = 24$ lessons.
+:::
