@@ -160,6 +160,51 @@ Slerp gives:
 Used in: every modern animation system, character rigging, IK solvers.
 </details>
 
+::: {.fun-fact}
+**Hamilton spent fifteen years stuck on the same problem before the
+answer hit him on a walk.** Since 1828 **William Rowan Hamilton** —
+Astronomer Royal of Ireland, fluent in thirteen languages by his
+teens, the man who recast classical mechanics as the *Hamiltonian*
+formalism — had been trying to extend the multiplication of complex
+numbers from the plane to space. Every attempt foundered: the *triplets*
+$a + bi + cj$ refused to multiply consistently, because there was no
+way to define $ij$ without breaking either norm or distributivity.
+On the morning of **16 October 1843**, walking with his wife along
+the Royal Canal in Dublin towards a meeting of the Royal Irish
+Academy, the missing trick suddenly arrived: *give up commutativity,
+add a fourth dimension*. He stopped at **Brougham Bridge** (now
+Broom Bridge) and carved $i^2 = j^2 = k^2 = ijk = -1$ into the
+stonework with his penknife — the carving has long since worn away,
+but a plaque now marks the spot. Hamilton spent the rest of his life
+arguing — wrongly, it turned out — that quaternions would replace
+vectors in physics. Vectors won the textbook battle in the 1880s,
+and quaternions languished for nearly a century. Then in **April 1970**
+the Apollo 13 service module suffered an attitude control crisis in
+which the spacecraft's gimbal-mounted IMU came within a degree of
+**gimbal lock** — a singularity inherent to the three-Euler-angle
+representation, in which two rotation axes align and one degree of
+freedom vanishes. Modern flight software, every modern game engine
+(Unity, Unreal, Godot), every CGI animation pipeline, and the
+attitude control of every modern satellite stores rotations as
+quaternions for exactly this reason: $S^3$ has no singularities, so
+gimbal lock cannot happen. Hamilton's dead-end notation became the
+working representation of three-dimensional rotation in the digital
+age.
+:::
+
+::: {.key-insight}
+A quaternion is a rotation written so that *composition becomes
+multiplication and there are no singularities* — at the price of
+non-commutativity (which is the right price, because rotations in
+3D do not commute either) and a curious **double cover**: $q$ and
+$-q$ are the same rotation, so a 360° turn in space corresponds to
+travelling halfway around the quaternion sphere $S^3$, and only at
+720° do you return to where you started. The half-angle in
+$q = \cos(\theta/2) + \sin(\theta/2)\hat u$ is not a notational quirk
+— it is a record of that doubling, the same doubling that physics
+calls *spin* and animation calls *the reason slerp works*.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -318,6 +363,25 @@ of separate rotation + translation interpolation.
 3. **"Half-angle is a hack."** It's deep — ties to the double cover
    $S^3 \to SO(3)$. The half is *necessary*.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A [quaternion](/glossary.qmd#quaternion) is four real numbers
+   $a + bi + cj + dk$ obeying $i^2 = j^2 = k^2 = ijk = -1$** — and
+   the consequent non-commutativity ($ij = -ji = k$) is exactly
+   what is needed to encode the non-commutativity of 3D rotation.
+2. **Unit quaternions form $S^3$ and double-cover the rotation
+   [group](/glossary.qmd#group) $SO(3)$** — both $q$ and $-q$ act
+   the same way via $\vec v \mapsto q\vec v\bar q$, so a full 360°
+   rotation lands on $-1$, and only 720° gets you home (the
+   *belt trick*).
+3. **Composition becomes multiplication and interpolation becomes
+   slerp** — quaternions store a rotation in 4 numbers instead of
+   the 9 entries of a [matrix](/glossary.qmd#matrix), avoid the
+   gimbal-lock singularities of Euler angles, and slide along
+   geodesics of $S^3$ when you blend two orientations smoothly.
 
 ### Self-Assessment
 

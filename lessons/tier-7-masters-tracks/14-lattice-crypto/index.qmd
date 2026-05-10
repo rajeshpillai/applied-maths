@@ -174,6 +174,45 @@ What's the NIST PQC standardization outcome?
 classical+PQC TLS).
 </details>
 
+::: {.fun-fact}
+**The two papers that bracket post-quantum crypto.** In **1994**,
+**Peter Shor** — then at Bell Labs — published *Algorithms for
+Quantum Computation: Discrete Logarithms and Factoring*, a paper that
+showed a sufficiently large quantum computer could factor integers
+and break discrete-log in polynomial time, instantly threatening
+**RSA**, **Diffie-Hellman**, and **ECC** the moment such a machine
+existed. Two years later, in **1996**, a young Hungarian
+mathematician named **Miklós Ajtai** quietly published *Generating
+Hard Instances of Lattice Problems* — which proved a previously
+unimaginable result: **breaking lattice problems on average is at
+least as hard as solving them in the worst case**. No other crypto
+candidate has anything like this guarantee. **Oded Regev**'s 2005
+paper on **Learning With Errors (LWE)** then made the average-case
+problem look like noisy linear algebra, suitable for actual schemes.
+**NIST**'s **Post-Quantum Cryptography** competition (2016-2024)
+finished by standardising **CRYSTALS-Kyber** (FIPS 203) and
+**CRYSTALS-Dilithium** (FIPS 204) in **2024** — both lattice-based,
+both descendants of Ajtai's worst-case-to-average-case reduction
+from 1996. The "harvest now, decrypt later" threat means every TLS
+connection today should already be migrating: adversaries are
+storing encrypted traffic in the bet that quantum will arrive
+sometime in the next decade.
+:::
+
+::: {.key-insight}
+**Lattice crypto runs on a single asymmetry: a "good" basis makes
+finding the closest lattice point easy, a "bad" basis makes it
+hopeless** — even though both bases describe the *same* lattice. The
+public key is a deliberately ugly basis; the private key is an
+orthogonal-ish one only you know. Add small noise (LWE) to a linear
+system and recovery becomes a CVP-style problem, and Regev's
+worst-case-to-average-case reduction promises that *every* random
+LWE instance is at least as hard as the worst lattice problem in
+that dimension. **This is the only crypto family with that kind of
+guarantee** — and it's why the post-quantum standards bet
+humanity's encrypted future on geometry.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -346,6 +385,24 @@ the reduced lattice." Central to algorithmic number theory.
 3. **"Quantum already breaks crypto."** Not yet — Shor needs many
    logical qubits. But cryptographic agility now is essential.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A [lattice](/glossary.qmd#lattice) is integer combinations of
+   basis vectors**, and a single lattice has *many* bases — some
+   easy (orthogonal, CVP trivial), some hard (skewed, CVP NP-hard).
+2. **LWE reduces "find $s$ from $b = As + e \pmod q$" to a
+   lattice problem**, and Regev's worst-case-to-average-case
+   reduction means the average instance you receive is as hard as
+   the worst lattice in that dimension — uniquely strong among
+   crypto candidates.
+3. **Post-quantum security comes from problems Shor's algorithm
+   doesn't crack**: lattice problems have no known polynomial-time
+   quantum algorithm, which is why **CRYSTALS-Kyber** and
+   **CRYSTALS-Dilithium** are now NIST's [post-quantum
+   cryptography](/glossary.qmd#post-quantum-cryptography) standards.
 
 ### Self-Assessment
 

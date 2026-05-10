@@ -166,6 +166,34 @@ Aggregates (SUM, COUNT) extend RA — modern SQL is "SQL/92 RA + bag
 semantics + aggregates + recursion."
 </details>
 
+::: {.fun-fact}
+**The paper that nobody wanted to publish.** In June 1970 **Edgar F.
+"Ted" Codd**, a mathematician working at IBM's San Jose lab, published
+*A Relational Model of Data for Large Shared Data Banks* in *CACM* —
+thirteen pages that quietly invented relational algebra. IBM was
+already deeply invested in **IMS**, a hierarchical database, and
+internal reception was lukewarm; Codd had to fight inside the company
+for years before IBM committed to building **System R** (1974), which
+in turn inspired Larry Ellison to start **Oracle** by reading the IBM
+papers Codd had pushed into the open. The query language that came out
+of System R was first called **SEQUEL**, then renamed **SQL** when an
+airline trademarked the original name. Codd received the **Turing
+Award in 1981**; even then, he kept publishing increasingly stern
+"twelve rules" complaining that no commercial SQL implementation —
+including IBM's own — was actually relational. He was, by all
+accounts, right and unhappy about it for the rest of his career.
+:::
+
+::: {.key-insight}
+A SQL query is not a recipe — it's an **algebraic expression** the
+optimiser is free to rewrite. *What* you ask and *how* the database
+gets it are two completely different objects, joined only by a set of
+equivalences ($\sigma$ commutes with $\bowtie$, joins reorder, etc.).
+The single most powerful idea in databases is **predicate pushdown**:
+filter early, join late. Everything else — indexes, hash joins, cost
+models — is engineering on top of that one algebraic identity.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -338,6 +366,21 @@ generalise but the ALGEBRA is being extended.
 3. **"More indexes = faster."** Indexes speed reads but slow writes.
    And the optimiser must *choose* to use them.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A table is a [set](/glossary.qmd#set) of tuples and a SQL query
+   is an algebra expression** over five primitive operators —
+   $\sigma, \pi, \times, \cup, -$ — plus the derived $\bowtie$.
+2. **Equivalences let the optimiser rewrite the expression**, and the
+   single most valuable rewrite is **predicate pushdown**: push
+   $\sigma$ inside $\bowtie$ to filter before you join.
+3. **Codd's theorem says relational algebra equals first-order
+   [logic](/glossary.qmd#proof) over finite structures** — which is
+   exactly what's missing for "find all ancestors" (transitive
+   closure) and why SQL needed `WITH RECURSIVE`.
 
 ### Self-Assessment
 

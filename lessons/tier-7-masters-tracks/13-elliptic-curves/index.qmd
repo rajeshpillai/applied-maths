@@ -176,6 +176,40 @@ ECDSA, ECDH, ed25519: all variants. **Ubiquitous** in TLS, SSH, crypto
 wallets.
 </details>
 
+::: {.fun-fact}
+**The 350-year-old problem that fell to elliptic curves.** In **1922**
+**Louis Mordell** proved that the rational points on an elliptic
+curve over $\mathbb{Q}$ form a *finitely generated* abelian group —
+the **Mordell-Weil theorem**, later extended by André Weil to number
+fields. For seventy years this lived as beautiful pure mathematics.
+Then in **1985** **Gerhard Frey** noticed that any hypothetical
+counterexample to **Fermat's Last Theorem**, $a^p + b^p = c^p$, would
+yield an elliptic curve $y^2 = x(x - a^p)(x + b^p)$ with such weird
+arithmetic properties that it could not possibly be **modular**.
+**Ken Ribet** made this rigorous in 1990, and on **23 June 1993**, at
+a Cambridge conference, **Andrew Wiles** announced he had proved the
+Modularity Theorem for semistable elliptic curves — therefore Fermat.
+A gap was found in the proof that summer; Wiles spent another year
+patching it with **Richard Taylor**, and the corrected proof was
+published in **1995**. The same elliptic-curve group law that the
+chord-and-tangent widget shows you also factors integers
+(**Hendrik Lenstra, 1987**) and signs every Bitcoin transaction
+(secp256k1, 2009) — three completely different applications of one
+$y^2 = x^3 + ax + b$.
+:::
+
+::: {.key-insight}
+The chord-and-tangent picture is doing something genuinely magical:
+**a geometric construction (draw a line, find the third intersection,
+reflect)** is silently defining an **abelian group** — associativity
+and all — on a one-dimensional curve. Crypto exploits this twice
+over: the group has $\sim p$ elements (Hasse), and discrete log on
+*this* group is harder than discrete log on $\mathbb{Z}_p^*$ because
+**no index-calculus attack is known**. That hardness gap — no
+sub-exponential algorithm — is the entire reason a 256-bit ECC key
+gives you the same security as a 3072-bit RSA key.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -351,6 +385,23 @@ Langlands generalises (T7 L15).
    too. ECC is broken by quantum computers (T7 L14: lattice crypto for
    PQ).
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **An elliptic curve $y^2 = x^3 + ax + b$ (with $\Delta \ne 0$)
+   carries a [group](/glossary.qmd#group) law** built from chords and
+   tangents — and Mordell's theorem says the rational points form a
+   finitely generated abelian group.
+2. **ECDLP is harder than $\mathbb{Z}_p^*$ DLP** because no
+   sub-exponential algorithm (no index calculus) is known on
+   elliptic-curve groups, which is why 256-bit ECC matches
+   3072-bit [RSA](/glossary.qmd#rsa) for security.
+3. **The same curves that secure TLS, Bitcoin, and Signal also
+   anchor Wiles's proof of Fermat's Last Theorem** — modularity
+   says every elliptic curve over $\mathbb{Q}$ corresponds to a
+   modular form, the first major case of the Langlands program.
 
 ### Self-Assessment
 

@@ -162,6 +162,37 @@ Stochastic calculus (Tier 7+++ for finance), conditional expectation,
 martingales — all rest on this foundation.
 </details>
 
+::: {.fun-fact}
+**Lebesgue's 1902 doctoral thesis** *Intégrale, longueur, aire* (Paris)
+was, by his own admission, the result of trying to give a rigorous answer
+to "what is the area under a curve?" — and finding Riemann's reply
+inadequate. Within three years, his student **Giuseppe Vitali**
+(1905) used the freshly minted *axiom of choice* to construct a subset
+of $[0, 1]$ that *has no Lebesgue measure at all* — pick one
+representative from each coset of $\mathbb{Q}$ in $\mathbb{R}$ and you
+get a set whose measure cannot be 0 (the countable translates would
+still measure 0, contradicting $\mu([0, 1]) = 1$) and cannot be
+positive (the translates would have infinite total measure). It was the
+first warning that on $\mathbb{R}$ "every set" is too much to ask for —
+Lebesgue's $\sigma$-algebra was not a convenience, it was a necessity.
+Two decades later **Banach and Tarski** (1924) sharpened the warning
+into legend: in $\mathbb{R}^3$, a solid ball can be cut into five
+non-measurable pieces and reassembled into two solid balls of the
+original size. The pieces are not measurable, so no volume is preserved
+— the paradox is a theorem about the axiom of choice, not about
+geometry.
+:::
+
+::: {.key-insight}
+A **measure** is the rule "the size of a whole equals the sum of the
+sizes of disjoint pieces" — promoted from finite to *countably*
+infinite. Once you commit to that one rule for *all* the sets you'll
+ever use, integration stops being a fragile limit of rectangles and
+becomes a robust sum-against-a-measure: every limit you wanted to swap
+with an integral, you now can — and probability is just the special
+case where the total is 1.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -318,6 +349,25 @@ possible.
    Lebesgue + axiom of choice (Vitali set). Tier 7+++ explores
    non-measurable sets.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A [measure](/glossary.qmd#measure) is just "size adds when you
+   chop into countably many disjoint pieces"** — that one σ-additivity
+   axiom rebuilds length, area, volume, and
+   [probability](/glossary.qmd#probability) on the same footing.
+2. **The [Lebesgue integral](/glossary.qmd#lebesgue-integral)
+   integrates the [function](/glossary.qmd#function) by slicing the
+   *output* axis, not the input** — which is why it handles wild
+   functions the [Riemann integral](/glossary.qmd#definite-integral)
+   chokes on, and why limit-and-integral can finally be swapped (DCT,
+   MCT, Fatou).
+3. **Kolmogorov's axiomatisation says probability *is* measure theory
+   with $P(\Omega) = 1$** — random variables are measurable
+   functions, expectations are integrals, and every modern result in
+   stochastic processes lives downstream of that one identification.
 
 ### Self-Assessment
 

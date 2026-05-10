@@ -181,6 +181,45 @@ The "optimism in face of uncertainty" principle: be optimistic about
 unexplored options.
 </details>
 
+::: {.fun-fact}
+**Richard Bellman invented the name "dynamic programming" to hide
+the math from his bosses.** Working at the RAND Corporation in the
+early 1950s under Secretary of Defense Charles Wilson — who, Bellman
+later wrote, had "a pathological fear and hatred of the word
+*research*" — Bellman needed a label for his new theory of optimal
+sequential decision-making that would not look like mathematics on
+a budget line. He chose "dynamic" because "it's impossible to use
+the word *dynamic* in a pejorative sense" and "programming" because
+in the 1950s a *program* was a schedule, not yet a piece of code.
+"Thus I thought *dynamic programming* was a good name. It was
+something not even a Congressman could object to. So I used it as
+an umbrella for my activities" (*Eye of the Hurricane*, 1984). The
+**Bellman equation** you used in Discover P2 is the deliberately
+unobjectionable face of a deep mathematical idea: *the optimal
+value function is the unique fixed point of an operator that's a
+$\gamma$-contraction in sup-norm.* Three decades later, **Sutton and
+Barto** in the early 1980s noticed that animals — and TD-Gammon, and
+later AlphaGo — could solve the same equation by sampling, without
+knowing the transition probabilities, giving us the **temporal-
+difference** algorithms that drive modern RL. The 1999
+**Sutton-McAllester-Singh-Mansour** policy gradient theorem closed
+the loop for the continuous-action setting that powers PPO, RLHF, and
+the post-training of every contemporary LLM.
+:::
+
+::: {.key-insight}
+The whole of reinforcement learning is one observation, repeated:
+*the value of being somewhere now equals the immediate reward plus
+the (discounted) value of where you end up next.* That is the
+**Bellman equation**. Once you accept it, value iteration, policy
+iteration, Q-learning, SARSA, TD($\lambda$), DQN, actor-critic, PPO,
+and even MuZero are all just different ways of finding the fixed
+point of a $\gamma$-contraction — some with the model in hand, some
+by sampling, some with a neural network in place of the lookup table.
+The exploration-exploitation question is the price you pay for not
+knowing the transition probabilities up front.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -325,6 +364,25 @@ Modern AI's training stack rests on RL theory.
 3. **"Reward is the goal."** Specifying reward correctly (reward
    hacking, mesa-optimizers) is hard. Reward design ≠ goal alignment.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **The [Bellman equation](/glossary.qmd#bellman-equation) is the
+   one law of RL** — value-now equals reward-now plus discounted
+   [expected value](/glossary.qmd#expected-value) of value-next —
+   and the discount factor $\gamma$ is what makes the operator a
+   contraction with a unique fixed point.
+2. **Q-learning solves the optimality equation by sampling** — no
+   model of the transition [probability](/glossary.qmd#probability)
+   needed, just a learning-rate schedule satisfying
+   $\sum \alpha_t = \infty$, $\sum \alpha_t^2 < \infty$ and visiting
+   every state-action infinitely often.
+3. **You cannot avoid the explore-vs-exploit trade-off** — UCB,
+   $\epsilon$-greedy, and Thompson sampling are all attempts to be
+   optimistic about the unknown without paying more than $\sqrt{T}$
+   regret over the long run.
 
 ### Self-Assessment
 

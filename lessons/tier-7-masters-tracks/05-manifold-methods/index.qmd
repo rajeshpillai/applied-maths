@@ -154,6 +154,43 @@ only neighbourhood structure is. So they're for visualization, not
 geometric measurement.
 </details>
 
+::: {.fun-fact}
+**The word "manifold" was invented for one lecture, in front of an
+audience that almost certainly did not understand it.** On 10 June
+1854, in Göttingen, the 27-year-old **Bernhard Riemann** delivered
+his *Habilitationsvortrag* — the trial lecture required to become a
+*Privatdozent* — titled *Über die Hypothesen, welche der Geometrie zu
+Grunde liegen* ("On the hypotheses which lie at the foundations of
+geometry"). The talk had to be accessible, so Riemann had been told
+to choose the easiest of three submitted topics; Gauss, on the
+committee, chose the hardest. In the next sixty minutes Riemann
+introduced the concept of an *n-fold extended quantity* — what we now
+call an n-manifold — defined the metric tensor $g_{ij}$, sketched
+sectional curvature, and remarked, in passing, that physical space
+*might be curved on the very large or very small*. Sixty-one years
+later, **Einstein** built general relativity directly on Riemann's
+machinery; a century later, statisticians realised image and word
+data live on low-dimensional Riemannian manifolds inside their
+high-dimensional ambient spaces. Riemann never published the lecture
+in his lifetime — Dedekind found it among his papers after Riemann's
+death from tuberculosis at age 39, and printed it in 1868. Every
+manifold-learning algorithm in this lesson — Isomap, Laplacian
+Eigenmaps, t-SNE, UMAP, diffusion models — is a numerical
+descendant of that lecture.
+:::
+
+::: {.key-insight}
+The manifold hypothesis is the bet that *high-dimensional data is
+secretly low-dimensional*. Pixels of a face image live in
+$\mathbb{R}^{10^6}$, but the meaningful variation — pose, expression,
+lighting, identity — is a few dozen numbers. If that bet is right,
+*Euclidean distance lies* and you must replace it by **geodesic
+distance along the manifold**, which the spectral and graph methods
+in Discover compute as a finite-sample approximation to the
+Laplace-Beltrami operator. Every manifold-aware embedding is doing
+the same thing: refusing to pretend the data is flat.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -305,6 +342,25 @@ dimension $\sim 10^2$ within ambient $\sim 10^6$.
 3. **"t-SNE distances are meaningful."** Local yes, global no. Two
    far-apart clusters in t-SNE may be near in original space.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **The [manifold hypothesis](/glossary.qmd#manifold-hypothesis)
+   says real data lives near a low-dimensional curved surface inside
+   a high-dimensional ambient [vector space](/glossary.qmd#vector-space)** —
+   so the *intrinsic* [dimension](/glossary.qmd#dimension) is far
+   smaller than the number of features.
+2. **On a curved manifold, [Euclidean distance](/glossary.qmd#dot-product)
+   lies; geodesic distance tells the truth** — Isomap, Laplacian
+   Eigenmaps, and diffusion maps are all approximations to that
+   true distance, computed from local neighbourhoods.
+3. **The [graph Laplacian](/glossary.qmd#graph-laplacian) is the
+   discrete shadow of the Laplace-Beltrami operator** — its smallest
+   [eigenvectors](/glossary.qmd#eigenvector) are the "smoothest
+   non-trivial functions" on the data, which is why spectral
+   embeddings preserve neighbourhood structure for free.
 
 ### Self-Assessment
 

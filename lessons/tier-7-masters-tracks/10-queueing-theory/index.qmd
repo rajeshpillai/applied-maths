@@ -160,6 +160,36 @@ Practical implication: capacity-plan for $\rho \leq 0.7-0.8$. Saturated
 systems see super-linear latency growth.
 </details>
 
+::: {.fun-fact}
+**Queueing theory was invented to keep telephones working.** In **1909**
+**Agner Krarup Erlang**, a Danish mathematician working for the
+Copenhagen Telephone Company, published *The Theory of Probabilities
+and Telephone Conversations* — the first paper to model call arrivals
+as a **Poisson process** and to derive the formula now known as
+**Erlang B** for sizing trunk lines. The unit of telephone traffic is
+named the *erlang* in his honour. Half a century later, in **1961**,
+**John Little** at MIT proved the deceptively simple identity
+$L = \lambda W$ — *Little's Law* — and the proof was so general it
+felt suspicious; the result has since been re-proven independently at
+least four times, in increasing levels of generality (Stidham 1974,
+Brumelle 1971, Heyman-Stidham 1980), each author convinced earlier
+proofs must have hidden assumptions. They didn't. The law really does
+hold for *any* stationary system — no Markov, no Poisson, no
+distributional assumption at all.
+:::
+
+::: {.key-insight}
+The wait time on a queue isn't linear in load — it's **hyperbolic**.
+At 50% utilisation a request waits about as long as it takes to
+serve. At 90%, it waits **nine times longer**. At 99%, **ninety-nine
+times**. There is no smooth degradation; there is only the cliff at
+$\rho \to 1$. That single curve, $\rho/(1-\rho)$, is why every
+production system in the world is provisioned at 70-80% load instead
+of 99% — not because engineers are wasteful, but because **variance
+plus high utilisation equals catastrophe**, and queueing theory is
+the math that tells you how close to the edge you really are.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -321,6 +351,21 @@ Heavy traffic + large-deviations theory → modern performance modelling
    is bursty, may not be enough.
 3. **"Little's law needs Markov."** No — pure conservation law.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Little's Law $L = \lambda W$ is a conservation identity** — it
+   needs no [probability](/glossary.qmd#probability) distribution
+   assumption, only that the system reaches steady state.
+2. **M/M/1 wait time is $\rho/(1-\rho)$** — a hyperbola that explodes
+   as utilisation approaches 100%, which is why "knee of the curve"
+   capacity planning targets $\rho \le 0.8$.
+3. **Variance hurts**: the Pollaczek-Khinchine formula scales wait
+   with $1 + C_v^2$, so a single fat-tailed
+   [random variable](/glossary.qmd#expected-value) in service times
+   can blow up your tail latency even at modest load.
 
 ### Self-Assessment
 

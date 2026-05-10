@@ -166,6 +166,40 @@ Cross-validation, regularisation, early stopping all act on this trade-
 off.
 </details>
 
+::: {.fun-fact}
+**The two papers that founded learning theory came from opposite sides
+of the iron curtain, thirteen years apart.** In 1971, in Moscow,
+**Vladimir Vapnik and Alexey Chervonenkis** published "On the uniform
+convergence of relative frequencies of events to their probabilities"
+— a slim probability paper introducing the combinatorial quantity
+that came to bear their initials, **VC dimension**, and proving the
+first uniform-convergence law for arbitrary hypothesis classes. The
+paper was largely ignored in the West for years; Vapnik did not visit
+the United States until 1990, and the *support vector machine* (his
+practical translation of the same theory) only landed in 1992. Then
+in 1984, at Harvard, **Leslie Valiant** published "A Theory of the
+Learnable" in *Communications of the ACM* — written from a complexity-
+theorist's angle, framing learning as polynomial-time computation
+under a probability-and-confidence guarantee. Valiant called the
+guarantee **Probably Approximately Correct (PAC)**, won the 2010
+Turing Award for it, and gave learning theory the half of its name
+that wasn't already Russian. The Blumer-Ehrenfeucht-Haussler-Warmuth
+paper of 1989 finally bolted the two halves together: a class is PAC
+learnable iff its VC dimension is finite — the Fundamental Theorem you
+used in Discover P4.
+:::
+
+::: {.key-insight}
+Generalisation is not about how many parameters you have — it is about
+how many *fundamentally different functions* your class can express on
+finite samples. VC dimension counts that capacity directly: it is the
+largest set of points your class can label every possible way. Once
+you fix that count, the rest is plumbing — Hoeffding plus a union
+bound — and the punchline is that the gap between training and test
+error shrinks like $\sqrt{\text{capacity}/n}$, regardless of what
+the data, the loss, or the algorithm look like.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -309,6 +343,25 @@ Connects to game theory (no-regret dynamics → Nash) and bandits
 3. **"PAC bounds are tight in practice."** Worst-case; often loose by
    orders of magnitude. Rademacher and PAC-Bayes bounds are tighter.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **[VC dimension](/glossary.qmd#vc-dimension) measures how many
+   essentially different label-patterns your hypothesis class can
+   produce** — it is *the* capacity number that determines whether
+   training error tracks test error.
+2. **A class is [PAC learnable](/glossary.qmd#pac-learning) iff its
+   VC dimension is finite** — that one biconditional is the
+   Fundamental Theorem of Statistical Learning, and it gives you the
+   honest [probability](/glossary.qmd#probability) guarantee
+   "with confidence $1 - \delta$, the gap is at most
+   $O(\sqrt{d/n})$."
+3. **Big model plus small data has no provable guarantee** —
+   so every successful learner (CNNs, transformers, kernels) wins
+   by encoding *prior structure* that quietly shrinks effective
+   capacity below the parameter count.
 
 ### Self-Assessment
 

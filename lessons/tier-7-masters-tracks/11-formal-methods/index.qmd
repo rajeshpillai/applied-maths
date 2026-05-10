@@ -167,6 +167,44 @@ predicate abstraction tools (BLAST, SLAM). Microsoft's SLAM verified
 Windows drivers.
 </details>
 
+::: {.fun-fact}
+**Hilbert wanted a machine that could decide all of mathematics. Two
+mathematicians killed the dream.** In **1900** at the International
+Congress of Mathematicians in Paris, **David Hilbert** posed his
+**second problem**: prove that the axioms of arithmetic are
+consistent. By the 1920s this had become **Hilbert's Programme** — a
+plan to formalise *all* of mathematics into a finite, complete,
+consistent system whose theorems could be mechanically derived. In
+**1931**, a 25-year-old logician named **Kurt Gödel** published *On
+Formally Undecidable Propositions of Principia Mathematica and
+Related Systems*, which contained two **incompleteness theorems**
+showing the programme was impossible: any sufficiently expressive
+formal system must contain true statements it cannot prove, and
+cannot prove its own consistency. Five years later, in **1936**,
+**Alan Turing**'s *On Computable Numbers* delivered the
+computational sequel — the **halting problem** is undecidable, so no
+algorithm can verify all programs. Formal methods today live in the
+gap Gödel and Turing left open: *finite-state* systems are decidable
+(model checking), and for *infinite-state* systems we accept
+human-guided proof (Coq, Lean, Isabelle). Hilbert's dream was
+mathematically dead by 1936; the engineering descendant is alive and
+verifying microkernels.
+:::
+
+::: {.key-insight}
+The deep idea behind model checking is that **a temporal logic
+formula and a finite automaton are the same object viewed from two
+sides**. You write a spec like $\mathbf{G}(\text{req} \to
+\mathbf{F}\,\text{served})$; the tool compiles it into a Büchi
+automaton accepting exactly the *bad* infinite traces; then takes
+the product with your system and asks "is there a reachable cycle?"
+A *yes* is a bug, complete with a counterexample trace you can
+replay. **The shift from testing to verification is the shift from
+"I tried 10,000 inputs" to "I have proved no input behaves badly"** —
+and that shift is what makes seL4 trustworthy and TLA+ pay for
+itself at AWS.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -339,6 +377,24 @@ growing rapidly.
    model checkers run in seconds, theorem provers help write proofs,
    SMT solvers solve millions of constraints.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A spec in [temporal logic](/glossary.qmd#proof) plus a
+   finite-state model is enough to *prove* correctness** — model
+   checking decides $M \models \phi$ algorithmically, not by sampling
+   inputs but by exhausting reachable states.
+2. **Every property decomposes as safety ∧ liveness** (Lamport):
+   safety violations are finite traces ("bad happened"), liveness
+   violations are infinite ("good never happened"), and tools check
+   each via a different graph algorithm.
+3. **Formal verification has paid off industrially** — TLA+ caught
+   real DynamoDB and S3 bugs at AWS, CompCert eliminated compiler
+   bugs that gcc and clang still have, and seL4 ships with a
+   machine-checked [proof](/glossary.qmd#proof) of correctness for
+   every line of its kernel.
 
 ### Self-Assessment
 
