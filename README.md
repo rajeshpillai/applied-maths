@@ -16,7 +16,11 @@ world*, reached incrementally.
   Indian Bhāskara sūtra style.
 - **No teacher required.** Every lesson includes a pre-flight check, multiple
   representations of every idea, graduated hints on every exercise, full worked
-  solutions, a "common confusions" callout, and a self-assessment.
+  solutions, a "common confusions" callout, a one-line "key insight" aha, a
+  short three-bullet *Takeaways* recap, and a self-assessment.
+- **Site-wide [glossary](glossary.qmd).** Every term any lesson formally names
+  has a plain-English entry, with a link back to the lesson where it was first
+  introduced. Forget what an *intercept* is six tiers later? One click.
 - **One dependency graph, many paths.** The curriculum is a directed graph, not
   a linear textbook. Arrive curious about cryptography? Start at the end and
   follow the arrows back to the prerequisites you need.

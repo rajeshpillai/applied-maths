@@ -88,6 +88,10 @@ a graded practice set:
 **Every problem has graduated hints and a full worked solution** (see Self-Study
 Guarantees below).
 
+After Stretch (and after the tier-specific extras for CBSE / Kiselev), every
+lesson closes Apply with a **required `### Takeaways` block followed by a
+required `### Self-Assessment` block** — see *Required closing blocks* below.
+
 ### 6. Connect — Curriculum-wide
 
 This beat has three required sub-sections:
@@ -99,6 +103,66 @@ This beat has three required sub-sections:
 - **Where this matters.** At least one applied-domain callout — a single
   sentence per domain — explaining how this idea is used in the real world. Use
   the `.applied-callout` class.
+
+## Required Callouts
+
+Every lesson uses six callout classes. Four are documented further below
+(`.preflight-check`, `.common-confusion`, `.applied-callout`, `details.hint`).
+The remaining two — `.fun-fact` and `.key-insight` — are required additions
+that surface what the prose tends to hide.
+
+### `.fun-fact` — historical / origin hook (required, 1+ per lesson)
+
+A short, scannable amber callout for the human story behind the idea: who
+named it, when, why. The applied-maths curriculum is unusually rich in
+history (al-Khwarizmi naming "al-jabr"; Brahmagupta defining zero; Newton
+and Leibniz inventing calculus independently; Pascal and Fermat founding
+probability over a gambling problem; Florence Nightingale as a pioneering
+statistician). Surface that history visually instead of burying it in
+collapsed `## Author's notes` or in prose inside Discover solutions.
+
+```markdown
+::: {.fun-fact}
+The word "algebra" comes from the Arabic *al-jabr*, "reunion of broken
+parts," coined by the 9th-century mathematician al-Khwarizmi — whose name
+also gave us the word *algorithm*.
+:::
+```
+
+**Where to place it.** Inside `## Discover` (after a problem reveals the
+idea) or inside `## Connect` (alongside applied-callouts). **Never** in
+`## Touch` or `## Wonder` — those are vocabulary-free by contract.
+
+**Cap.** At least one per lesson, at most two. One is the norm.
+
+### `.key-insight` — the *intuitive* aha (required, exactly 1 per lesson)
+
+A teal callout that surfaces the single intuitive sentence the lesson is
+secretly built around. This is **different** from `.lesson-beat` (the
+formal, Bhāskara-style definition that lives inside `## Name`):
+
+- `.lesson-beat` says: *"A natural number is the answer to 'how many?'"*
+  (formal — the rule)
+- `.key-insight` says: *"The number lives above the things it counts."*
+  (intuitive — the aha)
+
+Both are valuable. The formal definition is what the learner can quote on
+an exam; the intuitive aha is what makes it stick.
+
+```markdown
+::: {.key-insight}
+The number lives *above* the things it counts. Three apples, three fish,
+three minutes — the things vanish when you do the arithmetic. The number
+does not.
+:::
+```
+
+**Where to place it.** Once per lesson, typically at the **end of
+`## Discover`** (the moment the idea crystallises in the learner's head)
+or immediately before `## Name`. Never two; if you have two candidate
+insights, the second probably belongs in `## Connect` as prose.
+
+**Cap.** Exactly one. Not optional.
 
 ## Self-Study Guarantees
 
@@ -137,7 +201,27 @@ Because the learner has no teacher to ask, every lesson must include:
    misconceptions a learner typically forms about this topic, with a short
    explanation of why each is wrong.
 
-6. **Self-assessment.** At the very bottom, before `## Connect`, three honest
+6. **Takeaways.** Above `### Self-Assessment` and below all practice (Warm /
+   Working / Stretch / tier-specific extras), every lesson must include a
+   short bulleted recap the learner can re-read in 30 seconds. Exactly three
+   bullets, each one sentence, no equations beyond the most essential. The
+   point is a take-away card, not a summary of the lesson.
+
+   ```markdown
+   ### Takeaways
+
+   If you remember nothing else from this lesson, remember these:
+
+   1. **The core idea, one sentence.**
+   2. **The technique or rule, one sentence.**
+   3. **What it unlocks or where it lives, one sentence.**
+   ```
+
+   Each bullet should be *intuitive*, not formal. If a Takeaway reads like
+   the `## Name` definition word-for-word, rewrite it to focus on the aha
+   or the unlock instead. Self-Assessment immediately follows Takeaways.
+
+7. **Self-assessment.** At the very bottom, before `## Connect`, three honest
    questions the learner answers themselves, with a recommendation. Example:
 
    ```markdown
@@ -154,6 +238,36 @@ Because the learner has no teacher to ask, every lesson must include:
    - **2 yes:** do the Stretch problems again, then move on.
    - **0–1 yes:** re-read Discover and Apply; the idea hasn't landed yet.
    ```
+
+8. **Glossary cross-reference.** Every term the lesson formally introduces
+   in `## Name` must also have an entry in the site-wide
+   [glossary.qmd](glossary.qmd). The lesson does **not** need to inline-link
+   to the glossary every time the term appears; the glossary is the canonical
+   reference, and the lesson is where the term is first **named** with its
+   full pedagogical context.
+
+   When you write or upgrade a lesson:
+
+   - Identify every term that appears bolded inside the `.lesson-beat` block
+     in `## Name`.
+   - For each, add (or update) an entry in `glossary.qmd` of the form:
+
+     ```markdown
+     ### Term name {#term-anchor}
+
+     Plain-English one-liner. No jargon. No symbols beyond the unavoidable.
+
+     **First named in:** [Tier N, Lesson M — Title](path/to/lesson/index.qmd)
+     ```
+
+   - The anchor (`{#term-anchor}`) must be lower-case-kebab and stable —
+     other lessons may link to it as `[term](/glossary.qmd#term-anchor)`.
+   - If the term is a refinement of an earlier one (e.g. *natural number* vs.
+     *number*), give it its own entry; do not collapse two distinct terms
+     into one.
+
+   The glossary is the **canonical** reference: definitions live there in
+   plain English; the lesson supplies the *why* and the *how*.
 
 ## CBSE / NCERT Lesson Additions
 
@@ -429,7 +543,16 @@ A lesson is not done until **every box** is checked.
 - [ ] Graduated hints (Hint 1, 2, 3, Full solution) on every exercise.
 - [ ] Worked solution for every exercise.
 - [ ] Common-confusions callout.
+- [ ] **Takeaways block (3 bullets, intuitive)** sits between Stretch (or
+      tier-specific extras) and Self-Assessment.
 - [ ] Self-assessment block above `## Connect`.
+
+### Required Callouts
+- [ ] At least one `.fun-fact` callout (max two), placed in `## Discover` or
+      `## Connect`. Never in `## Touch` or `## Wonder`.
+- [ ] Exactly one `.key-insight` callout, placed at end of `## Discover` or
+      immediately before `## Name`. Distinct from the `.lesson-beat` formal
+      definition — the key insight is intuitive, the lesson beat is formal.
 
 ### Curriculum Hygiene
 - [ ] YAML front matter present and matches `_curriculum.yml`.
@@ -437,6 +560,9 @@ A lesson is not done until **every box** is checked.
 - [ ] At least one applied-domain callout in `## Connect`.
 - [ ] Reviewable against at least one design touchstone (named in a comment or
       footnote).
+- [ ] Every term formally introduced in `## Name` has an entry in
+      [`glossary.qmd`](glossary.qmd) with a stable anchor and a "First named
+      in" link back to this lesson.
 
 ### Build
 - [ ] `quarto render` succeeds with no warnings.
