@@ -236,6 +236,30 @@ $k = 6$. *(Then both equations become the same line: $2 x + 3 y =
 5$.)*
 </details>
 
+::: {.fun-fact}
+The earliest surviving solution of a [system of linear
+equations](/glossary.qmd#system-of-linear-equations) is in the *Nine
+Chapters on the Mathematical Art* (九章算術), a Chinese mathematical
+classic compiled by the 1st century CE. Chapter 8, *Fangcheng*
+("rectangular arrays"), solves three-equation systems by a tabular
+elimination procedure that is **literally Gaussian elimination**, more
+than 1800 years before Gauss. Liu Hui's 3rd-century commentary even
+introduces *negative numbers* — needed when subtracting larger from
+smaller during elimination — using red and black counting rods.
+Cramer's 1750 determinant formula was the European rediscovery of an
+idea Asia already had.
+:::
+
+::: {.key-insight}
+**Two lines, one [determinant](/glossary.qmd#determinant) — that is
+the whole story.** The number $D = a_1 b_2 - a_2 b_1$ is *zero*
+exactly when the two equations describe the same line direction
+(parallel or coincident), and *non-zero* exactly when they cross at one
+point. Substitution and elimination are *bookkeeping* for the same
+geometric fact; [Cramer's rule](/glossary.qmd#cramers-rule) just writes
+the answer down in closed form.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -458,6 +482,24 @@ is §105.
    unknowns) typically has *no* exact solution; *least-squares*
    finds the best approximation.
 :::
+
+### Takeaways
+
+If you remember nothing else from this chapter, remember these:
+
+1. **Three methods, one answer.** [Substitution](/glossary.qmd#substitution-method),
+   [elimination](/glossary.qmd#elimination-method), and
+   [Cramer's rule](/glossary.qmd#cramers-rule) are three packagings of
+   the same logic — reduce to one equation in one unknown. Pick the
+   one that minimises arithmetic on the problem in front of you.
+2. **The determinant tells you the regime before you solve.** If
+   $D \ne 0$ you'll get a unique point; if $D = 0$ check
+   proportionality of constants — same line (infinite solutions) or
+   parallel-distinct (none).
+3. **Reduction is what scales.** A 3×3 system reduces to 2×2; an $n
+   \times n$ system reduces to $(n-1) \times (n-1)$. The mechanical
+   loop you just learned is how every linear-algebra package on Earth
+   actually computes — Gaussian elimination is this lesson, scaled.
 
 ### Self-Assessment
 
