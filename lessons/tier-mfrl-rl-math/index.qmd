@@ -1,0 +1,135 @@
+---
+title: "00 · Introduction"
+subtitle: "Tier MFRL — Mathematics for Reinforcement Learning · 38 lessons deriving every modern RL algorithm from the Bellman equation"
+---
+
+## What this tier is for
+
+This tier walks Shiyu Zhao's *Mathematical Foundations of Reinforcement
+Learning* (Springer 2025) lesson by lesson. Unlike the seven synthesis
+tiers — which give you the *math* — this tier shows how the math
+*combines* into the algorithms that drive modern RL.
+
+By the end of the tier you can:
+
+- **Define an MDP** and derive its **Bellman equation** in both
+  scalar and matrix-vector form.
+- **Solve a small MDP** in closed form via $v = (I - \gamma P_\pi)^{-1} r_\pi$.
+- **Prove** that the Bellman optimality equation has a unique
+  solution, via the contraction-mapping theorem.
+- **Implement** value iteration, policy iteration, and truncated PI
+  from first principles.
+- **Run model-free** Monte Carlo control with exploring starts or ε-greedy.
+- **Understand** Robbins-Monro and Dvoretzky as the convergence
+  engines of every iterative RL method.
+- **Derive** TD(0), Sarsa, n-step Sarsa, Q-learning, and expected
+  Sarsa as one update with different targets.
+- **Recognise the deadly triad** (bootstrapping × off-policy × FA)
+  and how DQN tames it.
+- **Derive** the policy gradient theorem and write down REINFORCE.
+- **Understand** A2C, off-policy AC, and the deterministic PG (DDPG)
+  as the modern actor-critic family.
+
+## How to read this tier
+
+**Strict prerequisite chain.** Each lesson depends on the previous
+one by design. The prerequisite graph in `_curriculum.yml` is the
+source of truth — if a lesson links to a synthesis prerequisite
+(e.g. `t5.matrices` for the matrix-vector Bellman lesson), that
+external prereq is also required.
+
+**Read alongside Zhao's PDF.** [Free download](https://github.com/MathFoundationRL/Book-Mathematical-Foundation-of-Reinforcement-Learning) of every chapter from the author's GitHub. This tier adds the
+*Touch* widget, the *Wonder* questions, the graduated hints, the
+glossary cross-links, and the prerequisite scaffolding Zhao's
+compactness leaves to the reader.
+
+**Compare with the Tier 7 sister synthesis lesson** ([`t7.rl-theory`](../tier-7-masters-tracks/06-rl-theory/index.qmd))
+when you want the high-level take. Tier 7 gives you the
+single-paragraph view; this tier gives you the full derivation.
+
+## The lessons by part
+
+```{mermaid}
+flowchart LR
+    A[Part 1: Tools<br/>L01-22<br/>MDPs through SGD]
+    B[Part 2: Algorithms<br/>L23-38<br/>TD through DDPG]
+    A --> B
+```
+
+### Part 1 — Basic Tools (lessons 1-22)
+
+#### Chapter 1 — Basic Concepts
+
+1. [**01 · What is an MDP? Grid-World Foundations**](01-mdp-and-grid-world/index.qmd)
+2. [**02 · State Transitions and the Markov Property**](02-state-transitions/index.qmd)
+3. [**03 · Policies as Conditional Distributions**](03-policy/index.qmd)
+4. [**04 · Trajectories, Returns, and the Discount**](04-trajectories-returns-episodes/index.qmd)
+
+#### Chapter 2 — State Values and Bellman Equation
+
+5. [**05 · State Values: Expected Return**](05-state-values/index.qmd)
+6. [**06 · The Bellman Equation, Derived**](06-bellman-equation/index.qmd)
+7. [**07 · Matrix-Vector Bellman and Closed-Form Solution**](07-bellman-matrix-form/index.qmd)
+8. [**08 · From State Values to Action Values**](08-action-values/index.qmd)
+
+#### Chapter 3 — Optimal Values and the BOE
+
+9. [**09 · Optimal Policies and Optimal Values**](09-optimal-policies/index.qmd)
+10. [**10 · The Bellman Optimality Equation (BOE)**](10-bellman-optimality-equation/index.qmd)
+11. [**11 · The Banach Fixed-Point Theorem**](11-contraction-mapping-theorem/index.qmd)
+12. [**12 · The BOE is a Contraction; v\* is Its Unique Fixed Point**](12-boe-uniqueness/index.qmd)
+
+#### Chapter 4 — Value and Policy Iteration
+
+13. [**13 · Value Iteration**](13-value-iteration/index.qmd)
+14. [**14 · Policy Iteration**](14-policy-iteration/index.qmd)
+15. [**15 · Truncated Policy Iteration**](15-truncated-policy-iteration/index.qmd)
+
+#### Chapter 5 — Monte Carlo Methods
+
+16. [**16 · Mean Estimation from Samples**](16-mean-estimation-from-samples/index.qmd)
+17. [**17 · MC Basic: Model-Free Policy Iteration**](17-mc-basic/index.qmd)
+18. [**18 · Sample Efficiency: Every-Visit MC and Exploring Starts**](18-mc-exploring-starts/index.qmd)
+19. [**19 · ε-Greedy: Exploration without Exploring Starts**](19-epsilon-greedy/index.qmd)
+
+#### Chapter 6 — Stochastic Approximation
+
+20. [**20 · Robbins-Monro: Solving g(w)=0 from Noisy Samples**](20-robbins-monro/index.qmd)
+21. [**21 · Dvoretzky's Convergence Theorem**](21-dvoretzky-convergence/index.qmd)
+22. [**22 · SGD: Gradient Descent with Sampled Gradients**](22-stochastic-gradient-descent/index.qmd)
+
+### Part 2 — Algorithms (lessons 23-38)
+
+#### Chapter 7 — Temporal-Difference Methods
+
+23. [**23 · TD(0): Bootstrapped Value Learning**](23-td-state-values/index.qmd)
+24. [**24 · Sarsa: TD for Action Values, On-Policy**](24-sarsa/index.qmd)
+25. [**25 · n-Step Sarsa: Bridging TD(0) and Monte Carlo**](25-n-step-sarsa/index.qmd)
+26. [**26 · Q-Learning: TD for Optimal Action Values, Off-Policy**](26-q-learning/index.qmd)
+27. [**27 · TD Methods Unified: Sarsa, Q, Expected Sarsa**](27-td-unified-view/index.qmd)
+
+#### Chapter 8 — Value Function Methods
+
+28. [**28 · From Table to Function: Why Function Approximation?**](28-from-table-to-function/index.qmd)
+29. [**29 · TD with Function Approximation: Semi-Gradient TD**](29-td-with-function-approximation/index.qmd)
+30. [**30 · Q-Learning with FA, and the Deadly Triad**](30-q-learning-with-fa/index.qmd)
+31. [**31 · Deep Q-Network: Target Networks and Replay Buffers**](31-deep-q-network/index.qmd)
+
+#### Chapter 9 — Policy Gradient Methods
+
+32. [**32 · Parameterising Policies: Softmax and Gaussian**](32-policy-parameterization/index.qmd)
+33. [**33 · The Policy Gradient Theorem**](33-policy-gradient-theorem/index.qmd)
+34. [**34 · REINFORCE: Monte Carlo Policy Gradient**](34-reinforce/index.qmd)
+
+#### Chapter 10 — Actor-Critic Methods
+
+35. [**35 · QAC: The Simplest Actor-Critic**](35-actor-critic-qac/index.qmd)
+36. [**36 · A2C: Advantage Estimation and Baseline Invariance**](36-advantage-actor-critic/index.qmd)
+37. [**37 · Off-Policy Actor-Critic and Importance Sampling**](37-off-policy-actor-critic/index.qmd)
+38. [**38 · Deterministic Policy Gradient (DPG) and DDPG**](38-deterministic-actor-critic/index.qmd)
+
+::: {.callout-note}
+This page reflects the snapshot of `_curriculum.yml` at the time of
+build. Lesson statuses there are the source of truth — `done`,
+`drafted`, or `planned`.
+:::

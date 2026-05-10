@@ -1,0 +1,157 @@
+---
+title: "RL Math — Mathematics for Reinforcement Learning"
+subtitle: "Shiyu Zhao's *Mathematical Foundations of Reinforcement Learning* (Springer 2025), lesson by lesson — derive every modern RL algorithm from the Bellman equation."
+---
+
+## Why this track exists
+
+The seven synthesis tiers cover probability (T3, T5), linear algebra
+(T5), gradient descent (T6), and a single-paragraph view of
+reinforcement learning (T7.06). What the synthesis tiers *don't* do
+is show how those ingredients combine to produce every algorithm in
+modern RL — Q-learning, DQN, REINFORCE, A2C, DDPG — with the math
+worked out in full.
+
+This track is the **bridge**. It takes one carefully-chosen reference
+(Shiyu Zhao's *Mathematical Foundations of Reinforcement Learning*,
+Springer 2025) and walks lesson by lesson from "what is an MDP?" to
+"deterministic policy gradient." Every algorithm is *derived* from
+the Bellman equation. Every convergence proof is included. By the
+end, the "RL algorithm zoo" feels like one optimisation recursion
+specialised many ways — because that's what it is.
+
+## What this track is for
+
+Use this track if you want:
+
+- **Derivations, not recipes.** Every algorithm is reached from
+  first principles via the Bellman equation. You will know *why*
+  Q-learning works and *why* DQN needs a target network — not just
+  the pseudo-code.
+- **Convergence proofs.** Robbins-Monro, Dvoretzky, Banach
+  fixed-point — the real foundations of why iterative RL methods
+  converge at all.
+- **The unified view.** Sarsa, Q-learning, expected Sarsa,
+  REINFORCE, A2C, DDPG — all are written in one pattern with
+  one knob (the target). The algorithm zoo collapses to a tree.
+- **Strict prerequisite discipline.** Each lesson depends on the
+  previous one *and* declares its prerequisites in the synthesis
+  tiers. Arrive without probability? You'll be sent to T3.13.
+  Arrive without gradient descent? T6.10.
+
+## Source
+
+[**Shiyu Zhao** — *Mathematical Foundations of Reinforcement Learning*, Springer 2025](https://link.springer.com/book/9789819739431)
+
+The author's [GitHub repo](https://github.com/MathFoundationRL/Book-Mathematical-Foundation-of-Reinforcement-Learning)
+hosts free PDFs of the chapters, the lecture slides, and the grid-world
+code used throughout.
+
+::: {.callout-note}
+**Citation, not transcription.** Per the same rule that governs the
+Kiselev track, this track cites Zhao freely (chapter and section
+numbers, theorem statements, structural choices) but does *not* paste
+his prose. Examples are re-stated in our own words. The grid-world
+example is used as a shared visual anchor — that idea is in the public
+domain.
+:::
+
+## How a `mfrl` lesson is structured
+
+The **same six-beat contract** as every other lesson in this repo
+(*Touch* → *Wonder* → *Discover* → *Name* → *Apply* → *Connect*),
+plus the four required callouts every lesson now carries:
+
+- One `.fun-fact` (history / origin hook)
+- One `.key-insight` (the intuitive aha)
+- A `### Takeaways` block (3 bullets, intuitive)
+- Inline glossary cross-links
+
+Unlike CBSE and Kiselev, this track has no per-lesson tier-specific
+addition (no "Board-Pattern Practice" or "Kiselev-style problems"
+block). The shared visual anchor — the grid-world — appears in
+*Touch* widgets across many lessons, not as a structural beat.
+
+See [CLAUDE.md](https://github.com/rajeshpillai/applied-maths/blob/main/CLAUDE.md)
+for the full authoring contract.
+
+## Track structure
+
+The track follows the book's two-part division:
+
+### Part 1 — Basic Tools (lessons 1-22)
+
+Foundations: MDPs, Bellman equations, contraction mapping, value/policy
+iteration, Monte Carlo, stochastic approximation. These chapters earn
+the right to *all later algorithms* — they are not optional.
+
+| # | Topic | Chapter |
+|---|---|---|
+| 1-4 | MDP foundations: states, actions, transitions, policies, returns | Ch 1 |
+| 5-8 | State values, Bellman equation, action values | Ch 2 |
+| 9-12 | Optimal policies, BOE, contraction mapping, uniqueness of $v^*$ | Ch 3 |
+| 13-15 | Value iteration, policy iteration, truncated PI | Ch 4 |
+| 16-19 | Monte Carlo: mean estimation, MC Basic, exploring starts, ε-greedy | Ch 5 |
+| 20-22 | Stochastic approximation: Robbins-Monro, Dvoretzky, SGD | Ch 6 |
+
+### Part 2 — Algorithms (lessons 23-38)
+
+Where the foundations cash out into the algorithms that drive modern
+RL: TD learning, value-function approximation, policy gradient,
+actor-critic.
+
+| # | Topic | Chapter |
+|---|---|---|
+| 23-27 | TD learning: TD(0), Sarsa, n-step Sarsa, Q-learning, unified view | Ch 7 |
+| 28-31 | Value function approximation: linear FA, semi-gradient TD, the deadly triad, Deep Q-Network | Ch 8 |
+| 32-34 | Policy gradient: parameterisation, the policy gradient theorem, REINFORCE | Ch 9 |
+| 35-38 | Actor-critic: QAC, A2C, off-policy AC, deterministic PG / DDPG | Ch 10 |
+
+## Prerequisites from the synthesis curriculum
+
+Every `mfrl` lesson declares its math prerequisites by linking back
+into the T-tiers. The complete list:
+
+| Prerequisite | What it gives us |
+|---|---|
+| [`t3.basic-probability`](../lessons/tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd) | Sample space, events, $P(A)$ |
+| [`t3.conditional-probability`](../lessons/tier-3-algebra2-geometry-trig/14-conditional-probability/index.qmd) | Conditioning, Bayes |
+| [`t3.discrete-distributions`](../lessons/tier-3-algebra2-geometry-trig/15-discrete-distributions/index.qmd) | PMF, expected value |
+| [`t3.sequences-series`](../lessons/tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd) | Geometric series for the discounted return |
+| [`t5.matrices`](../lessons/tier-5-undergrad-core/01-matrices/index.qmd) | Matrix–vector form of the Bellman equation |
+| [`t5.linear-systems-gaussian`](../lessons/tier-5-undergrad-core/02-linear-systems-gaussian/index.qmd) | Closed-form policy evaluation |
+| [`t5.partial-derivatives`](../lessons/tier-5-undergrad-core/05-partial-derivatives/index.qmd) | Gradients of value / policy parameterisations |
+| [`t5.continuous-distributions`](../lessons/tier-5-undergrad-core/08-continuous-distributions/index.qmd) | Expectation as integral, PDFs |
+| [`t5.variance-clt`](../lessons/tier-5-undergrad-core/09-variance-clt/index.qmd) | Law of Large Numbers (justifies sample averages) |
+| [`t5.sequences-series-convergence`](../lessons/tier-5-undergrad-core/14-sequences-series-convergence/index.qmd) | Convergence of stochastic sequences |
+| [`t5.real-analysis-foundation`](../lessons/tier-5-undergrad-core/15-real-analysis-foundation/index.qmd) | Cauchy sequences, completeness for Banach FPT |
+| [`t5.sets-logic-proofs`](../lessons/tier-5-undergrad-core/11-sets-logic-proofs/index.qmd) | Proof discipline for the convergence proofs |
+| [`t6.gradient-methods`](../lessons/tier-6-undergrad-advanced/10-gradient-methods/index.qmd) | SGD variants, learning rate schedules |
+| [`t7.topology`](../lessons/tier-7-masters-tracks/02-topology/index.qmd) | Compactness for fixed-point existence |
+| [`t7.rl-theory`](../lessons/tier-7-masters-tracks/06-rl-theory/index.qmd) | The single-paragraph synthesis view (linked from every Connect) |
+
+If any of these prerequisites is missing or under-sized for the new
+track, that's a hint to add coverage in the synthesis tier rather
+than duplicate inside `mfrl`.
+
+## How to read this track
+
+- **Read in order.** Each lesson depends on the previous one by
+  design. Skipping forward will leave gaps that the prerequisite
+  graph cannot patch.
+- **Compare with `t7.rl-theory`** when you want the high-level
+  picture — Tier 7's RL lesson is the single-paragraph version of
+  this entire track.
+- **Read alongside Zhao's PDF** (free at the GitHub repo). This
+  track adds the *Touch* widget, the *Wonder* questions, the
+  graduated hints, and the prerequisite scaffolding Zhao's
+  graduate-textbook compactness leaves to the reader.
+
+## Track status
+
+**Skeleton built. Lesson content drafted in batches.** The
+prerequisite graph is fully declared in `_curriculum.yml`; lesson
+content is being authored against the six-beat contract.
+
+See the [tier index](../lessons/tier-mfrl-rl-math/index.qmd) for
+the per-lesson list with status indicators.
