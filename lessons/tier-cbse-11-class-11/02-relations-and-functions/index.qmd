@@ -110,6 +110,32 @@ $B \times A = \{(x,1),(x,2),(y,1),(y,2),(z,1),(z,2)\}$ — six pairs.
 They have the same *number* of elements but are **not equal**:
 $(1,x) \ne (x,1)$. Order matters in the pair, so the product depends on
 which set is "first".
+
+So $A \times B = B \times A$ only in the trivial cases $A = B$ or one of
+them is empty.
+</details>
+
+### Problem 1b — Counting and recovering
+
+(a) If $n(A) = m$ and $n(B) = n$, how many ordered pairs are in
+$A \times B$? How many distinct *relations* from $A$ to $B$?
+
+(b) You are told $n(A \times A) = 9$ and that $(-1, 0)$ and $(0, 1)$
+both lie in $A \times A$. What is $A$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For (a), each first coordinate has $n$ choices for second. A relation
+is *any* subset of $A \times B$.
+
+For (b), every coordinate seen must lie in $A$, and $n(A \times A) = n(A)^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) $n(A \times B) = mn$. Since a relation is *any* subset, the number
+of distinct relations is $2^{mn}$.
+
+(b) $n(A \times A) = 9 \Rightarrow n(A) = 3$. The visible coordinates
+$\{-1, 0, 1\}$ must all lie in $A$, and there are exactly three of
+them. Hence $A = \{-1, 0, 1\}$.
 </details>
 
 ### Problem 2 — Domain and range of a relation
@@ -266,6 +292,47 @@ How a competent solver thinks:
    ranges over $[1/2, \infty)$.
 5. **Range** $= [1/2, \infty)$.
 
+### Trap-table — domain restrictions in one glance
+
+When a real-valued formula is handed to you, scan the expression for
+these three "danger sites" and intersect the safe regions.
+
+| Sub-expression in $f(x)$ | Restriction it imposes |
+|:--|:--|
+| $\dfrac{1}{g(x)}$ | $g(x) \ne 0$ |
+| $\sqrt{g(x)}$ (any even root) | $g(x) \ge 0$ |
+| $\dfrac{1}{\sqrt{g(x)}}$ | $g(x) > 0$ (strict) |
+| $\log g(x)$ | $g(x) > 0$ |
+| $\tan x$, $\sec x$ | $\cos x \ne 0$ |
+
+The domain of the whole formula is the **intersection** of all the safe
+regions.
+
+### Special-function quick reference
+
+A handful of "named" real functions show up everywhere — know each one
+by its rule, its graph, and its range.
+
+| Function | Rule | Graph | Range |
+|:--|:--|:--|:--|
+| Identity | $f(x) = x$ | line at 45° through origin | $\mathbb{R}$ |
+| Constant | $f(x) = c$ | horizontal line at height $c$ | $\{c\}$ |
+| Modulus | $f(x) = \lvert x \rvert$ | V-shape, vertex at origin | $[0, \infty)$ |
+| Signum | $\operatorname{sgn}(x) = \begin{cases}1 & x>0\\0 & x=0\\-1 & x<0\end{cases}$ | three flat pieces at $\pm 1$ and $0$ | $\{-1, 0, 1\}$ |
+| Floor | $f(x) = \lfloor x \rfloor$ | staircase, jumps at every integer | $\mathbb{Z}$ |
+| Polynomial | $a_n x^n + \dots + a_0$ | smooth curve | depends on $f$ |
+| Rational | $\dfrac{p(x)}{q(x)}$ | curves with vertical asymptotes at zeros of $q$ | depends on $f$ |
+
+::: {.callout-warning}
+**Floor trap.** $\lfloor -2.5 \rfloor = -3$, *not* $-2$. The greatest
+integer $\le -2.5$ is $-3$ — picture the number line and step *left*.
+
+**Signum trap.** Outside $0$, $\operatorname{sgn}(x) = \lvert x \rvert / x$.
+But you cannot substitute $x = 0$ into $\lvert x \rvert / x$ (it is
+$0/0$, undefined); the value $\operatorname{sgn}(0) = 0$ is *defined
+separately* as part of the rule.
+:::
+
 ### Practice — Warm
 
 **W1.** If $f(x) = x^2 + 1$, compute $f(-1)$, $f(0)$, $f(3)$.
@@ -324,6 +391,37 @@ Set the two expressions equal and solve.
 $3x + 5 = 2x + 11 \Rightarrow x = 6$.
 </details>
 
+**P4.** Algebra of functions. Let $f(x) = x + 1$ (domain $\mathbb{R}$)
+and $g(x) = \sqrt{x}$ (domain $[0, \infty)$). Write down
+$(f + g)(x)$ and $(f / g)(x)$, and state the domain of each.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The new function is defined only where *both* $f$ and $g$ are defined.
+For the quotient, also exclude points where $g(x) = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(f + g)(x) = x + 1 + \sqrt{x}$. Both $f$ and $g$ must be defined, so
+the domain is $\mathbb{R} \cap [0, \infty) = [0, \infty)$.
+
+$(f / g)(x) = \dfrac{x + 1}{\sqrt{x}}$. We additionally need
+$\sqrt{x} \ne 0$, i.e. $x \ne 0$. Domain $= (0, \infty)$.
+
+Moral: the sum of two functions inherits the *intersection* of their
+domains, not the union.
+</details>
+
+**P5.** Find the domain of
+$f(x) = \dfrac{x^2 + 3x + 5}{x^2 - 5x + 4}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A rational function is undefined exactly where its denominator is zero.
+Factor.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x^2 - 5x + 4 = (x - 1)(x - 4)$. Forbidden values: $x = 1$ and $x = 4$.
+Domain $= \mathbb{R} \setminus \{1, 4\}$.
+</details>
+
 ### Practice — Stretch
 
 **S1.** Let $f(x) = \dfrac{x}{1 + x^2}$. Show that the range is
@@ -358,6 +456,27 @@ Two equations in two unknowns.
 $a + b = 4$, $3a + b = 10$. Subtract: $2a = 6$, so $a = 3$, $b = 1$.
 
 $f(x) = 3x + 1$.
+</details>
+
+**S3.** Equality of functions, the trap. Let
+$f(x) = \dfrac{x^2}{x}$ and $g(x) = x$. Are $f$ and $g$ equal as
+functions? Justify carefully.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two functions are equal iff (i) they have the same domain *and*
+(ii) they agree at every point of that domain.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Find the natural domain of each. Compare.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Domain of $f$: $\mathbb{R} \setminus \{0\}$ (the formula $x^2/x$ is
+undefined at $x = 0$). Domain of $g$: $\mathbb{R}$.
+
+Since the domains differ, $f \ne g$. The simplification
+$x^2/x = x$ holds *only* on the smaller domain — it does not
+manufacture a value at $x = 0$ for $f$. The graph of $f$ is the line
+$y = x$ with a hole at the origin.
 </details>
 
 ### Board-Pattern Practice
@@ -447,7 +566,23 @@ If you remember nothing else from this lesson, remember these:
    would not be a function.
 3. **"Every relation is a function."** No. Relations are arbitrary
    subsets of $A \times B$. Functions are the special ones where each
-   input maps to exactly one output.
+   input maps to exactly one output. (Conversely, *every* function is a
+   relation — but not vice versa.)
+4. **"$(a, b) = \{a, b\}$."** No. The ordered pair $(a, b)$ records
+   *order*; the set $\{a, b\}$ does not. So $(1, 2) \ne (2, 1)$ but
+   $\{1, 2\} = \{2, 1\}$.
+5. **"$A \times B = B \times A$."** Same *cardinality*, different
+   *elements*: $(1, x) \in A \times B$ but $(1, x) \notin B \times A$
+   (unless $1 \in B$ and $x \in A$ as well). Equality holds only when
+   $A = B$.
+6. **"Image and pre-image are the same word."** If $f(a) = b$, then $b$
+   is the **image** of $a$, and $a$ is a **pre-image** of $b$. A given
+   $a$ has *one* image; a given $b$ may have several pre-images.
+7. **"$(f + g)$ is defined wherever $f$ *or* $g$ is defined."** No — it
+   needs *both*. The new domain is the **intersection** $\operatorname{dom}(f) \cap \operatorname{dom}(g)$,
+   with the further exclusion of zeros of $g$ for the quotient.
+8. **"$\lfloor -2.5 \rfloor = -2$."** No — it is $-3$. The floor steps
+   *left* on the number line, not toward zero.
 :::
 
 ### Self-Assessment

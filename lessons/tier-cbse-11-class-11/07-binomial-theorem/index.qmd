@@ -174,6 +174,14 @@ $6 - 2r = 0 \Rightarrow r = 3$. $T_4 = \binom{6}{3} = 20$.
 The constant term is $\mathbf{20}$.
 </details>
 
+::: {.callout-tip}
+**The "indices add to $n$" check.** In every term $\binom{n}{r} a^{n-r} b^r$,
+the exponents on $a$ and $b$ must sum to $n$. Use this as a free sanity
+check after every general-term calculation. In Problem 6, $(6 - r) + r = 6$
+even after the $1/x$ became $x^{-r}$ — the underlying $b$-power is still
+$r$, which is what matters.
+:::
+
 You have just used the [binomial theorem](/glossary.qmd#binomial-theorem),
 the **general term**, the **middle term**, and the **independent-of-x
 trick**. Now we name them.
@@ -241,7 +249,7 @@ A short verse:
 
 ## Apply
 
-### Worked example
+### Worked example 1 — coefficient of a specific power
 
 > Find the coefficient of $x^4$ in the expansion of $(1 + 2x)^7$.
 
@@ -253,6 +261,50 @@ How a competent solver thinks:
 3. $T_5 = \binom{7}{4} 2^4 x^4 = 35 \cdot 16 \cdot x^4 = 560 x^4$.
 
 **Coefficient: $560$.**
+
+### Worked example 2 — numerical evaluation by binomial
+
+> Evaluate $(99)^5$ by hand.
+
+The trick: pick a base near a round number. Write $99 = 100 - 1$ and apply
+$(a - b)^n$ with $a = 100, b = 1, n = 5$:
+
+$$(100 - 1)^5 = \sum_{r=0}^{5} (-1)^r \binom{5}{r} 100^{5-r}.$$
+
+Term by term,
+$$\binom{5}{0} 100^5 - \binom{5}{1} 100^4 + \binom{5}{2} 100^3 - \binom{5}{3} 100^2 + \binom{5}{4} 100 - \binom{5}{5}$$
+$$= 10{,}000{,}000{,}000 - 500{,}000{,}000 + 10{,}000{,}000 - 100{,}000 + 500 - 1$$
+$$= 9{,}509{,}900{,}499.$$
+
+The same trick handles $(101)^4 = (100 + 1)^4$, $(998)^3 = (1000 - 2)^3$,
+and so on. **Lead with the round number; let $b$ be the small correction.**
+
+### Worked example 3 — divisibility (the "$1 + k$" trick)
+
+> Show that $9^{n+1} - 8n - 9$ is divisible by $64$ for every positive
+> integer $n$.
+
+The structural idea: rewrite $9 = 1 + 8$ so the binomial expansion
+exposes a factor of $8^2 = 64$.
+
+$9^{n+1} = 9 \cdot 9^n = 9 \cdot (1 + 8)^n.$ Expand:
+
+$$(1 + 8)^n = 1 + 8n + \binom{n}{2} 8^2 + \binom{n}{3} 8^3 + \cdots + 8^n.$$
+
+So
+$$9 \cdot 9^n = 9 + 72n + 9\!\left[\binom{n}{2} 8^2 + \binom{n}{3} 8^3 + \cdots\right].$$
+
+Subtract $8n + 9$:
+$$9^{n+1} - 8n - 9 = (9 - 9) + (72n - 8n) + 9\!\left[\binom{n}{2} 8^2 + \cdots\right]$$
+$$= 64n + 9 \cdot 64 \left[\binom{n}{2} + \binom{n}{3} \cdot 8 + \cdots\right] = 64 \cdot k,$$
+for some positive integer $k$. Hence $64 \mid (9^{n+1} - 8n - 9)$. $\blacksquare$
+
+::: {.callout-tip}
+**The "$1 + k$" rewrite is the master move for divisibility.** Want to
+show something is divisible by $k^2$? Rewrite the base as $1 + k$ (so
+$7 = 1 + 6$, $11 = 1 + 10$, $9 = 1 + 8$), expand, and the first two
+terms are $1$ and $nk$ — everything beyond carries $k^2$ as a factor.
+:::
 
 ### Practice — Warm
 
@@ -435,6 +487,18 @@ If you remember nothing else from this lesson, remember these:
    case.
 3. **"Middle term position."** For $n$ even there is one middle term at
    $r = n/2$; for $n$ odd there are two, at $r = (n-1)/2$ and $r = (n+1)/2$.
+4. **Off-by-one on the term index.** $T_{r+1}$ — not $T_r$ — equals
+   $\binom{n}{r} a^{n-r} b^r$. So "find the 6th term" means $r = 5$, not
+   $r = 6$. Mis-reading $T_r$ vs $T_{r+1}$ is the single most common
+   error in JEE binomial questions.
+5. **Dropping the sign in $(a - b)^n$.** When the binomial is $(a - b)^n$,
+   every odd-$r$ term is negative. Always carry the $(-1)^r$ explicitly,
+   especially when only the *coefficient* (not the term) is asked for.
+6. **Forgetting parentheses on negative bases.** $(-2x)^3 = -8x^3$, but
+   $-2x^3$ is something else entirely. Always bracket the negative base
+   *before* raising to the power.
+7. **"Term" vs "coefficient".** The 6th *term* of $(2 + 3x)^{13}$ includes
+   the $x$-power; the *coefficient* is just the numerical part.
 :::
 
 ### Self-Assessment

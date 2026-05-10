@@ -108,8 +108,16 @@ Solve $-2x + 5 > 1$.
 <details class="hint"><summary>Hint 1 — a nudge</summary>
 $-2x > -4$. Now divide by $-2$ — and remember to flip the inequality.
 </details>
+<details class="hint"><summary>Hint 2 — why the flip?</summary>
+A concrete check. The statement $3 < 5$ is true. Multiply both sides by
+$-1$: the left becomes $-3$, the right becomes $-5$. Is $-3 < -5$? No —
+$-3$ sits to the *right* of $-5$ on the number line, so $-3 > -5$. The
+direction reverses every time you multiply or divide by a negative.
+</details>
 <details class="hint"><summary>Full solution</summary>
 $-2x > -4 \Rightarrow x < 2$ (dividing by $-2$ flips $>$ to $<$).
+
+Solution set: $(-\infty, 2)$.
 </details>
 
 ### Problem 3 — Combined inequality
@@ -163,9 +171,34 @@ $2x + 3y \le 24$, plus $x \ge 0$, $y \ge 0$ (you can't produce negative
 units).
 </details>
 
+### Problem 7 — Same inequation, different universe
+
+Solve $-12x > 30$ for (i) $x \in \mathbb{N}$, (ii) $x \in \mathbb{Z}$,
+(iii) $x \in \mathbb{R}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve once over the reals; then *filter* the answer to the universe the
+question asks about. Watch the flip: you are dividing by $-12$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Dividing by $-12$ flips $>$ to $<$, giving $x < -2.5$. Now read off the
+naturals, then the integers, then write the real-valued interval.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Divide by $-12$ and **flip**: $x < -2.5$.
+
+- (i) Naturals less than $-2.5$: **none**. The solution set is empty.
+- (ii) Integers less than $-2.5$: $\{\ldots, -5, -4, -3\}$.
+- (iii) Reals less than $-2.5$: $(-\infty, -2.5)$.
+
+The same inequation can have wildly different solution sets depending
+on the universe. Always check what the question asks for.
+</details>
+
 You have just used **flipping the sign on negative multiplication**,
-**combined inequalities**, **half-plane graphs**, and the **boundary
-line solid/dashed convention**. Now we name them.
+**combined inequalities**, **half-plane graphs**, the **boundary line
+solid/dashed convention**, and the **solution-set-depends-on-universe**
+distinction. Now we name them.
 
 ::: {.fun-fact}
 The symbols $<$ and $>$ are surprisingly young. They were introduced by
@@ -213,6 +246,21 @@ Operating rules (carry the inequality through unchanged, **except** rule 4):
 A **system of linear inequalities** has the **intersection** of the
 half-planes as its solution. This region is always convex and is the
 seed of *linear programming* (Class 12).
+
+**Solution sets in one variable — the four notations:**
+
+| Inequality | Number line | Interval |
+|:--|:--|:--|
+| $x < a$ | open circle at $a$, arrow left  | $(-\infty,\ a)$ |
+| $x \le a$ | filled circle at $a$, arrow left | $(-\infty,\ a]$ |
+| $x > a$ | open circle at $a$, arrow right | $(a,\ \infty)$ |
+| $x \ge a$ | filled circle at $a$, arrow right | $[a,\ \infty)$ |
+| $a < x < b$ | open circles at $a$ and $b$ | $(a,\ b)$ |
+| $a \le x \le b$ | filled circles at $a$ and $b$ | $[a,\ b]$ |
+
+A **round bracket** `(` or `)` excludes the endpoint; a **square
+bracket** `[` or `]` includes it. Infinity always gets a round
+bracket — you cannot reach $\infty$.
 
 :::
 
@@ -285,7 +333,31 @@ Vertices of the region: $(0, 0), (3, 0), (2, 2), (0, 3)$ — a
 quadrilateral.
 </details>
 
-**P3.** A man wants to cut three lengths from a $91$-cm board. The
+**P3.** Solve the compound inequality $-3 \le 4 - \dfrac{7x}{2} \le 18$
+over the reals, and write the answer in interval notation.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Manipulate all three parts simultaneously. Subtract first, then clear
+the fraction, then divide.
+</details>
+<details class="hint"><summary>Hint 2 — the flip</summary>
+When you divide by $-7$, you must flip *both* inequality signs at once.
+After flipping, rewrite the chain so the smaller bound is on the left.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$-3 \le 4 - \dfrac{7x}{2} \le 18$.
+
+Subtract $4$ throughout: $-7 \le -\dfrac{7x}{2} \le 14$.
+
+Multiply by $2$ (positive — no flip): $-14 \le -7x \le 28$.
+
+Divide by $-7$ — **flip both**: $2 \ge x \ge -4$, i.e. $-4 \le x \le 2$.
+
+Solution: $[-4,\ 2]$. Filled circles at both endpoints, segment between
+them shaded.
+</details>
+
+**P4.** A man wants to cut three lengths from a $91$-cm board. The
 second is to be $3$ cm longer than the first; the third is to be twice
 as long as the first. What are the possible lengths of the first piece?
 
@@ -413,11 +485,22 @@ If you remember nothing else from this lesson, remember these:
    Multiplying by a *negative* flips the sign. Multiplying by a variable
    of unknown sign is forbidden without case analysis.
 2. **"$\le$ and $<$ give the same picture."** They give the same shaded
-   region but a different boundary: $\le$ is solid, $<$ is dashed.
-   Boards mark this distinction.
+   region but a different boundary: $\le$ is solid, $<$ is dashed; on
+   the number line, $\le$ is a filled circle and $<$ is open; in interval
+   notation, $\le$ gets a square bracket $[$ and $<$ gets a round bracket
+   $($. Boards mark this distinction at the endpoint.
 3. **"$|x| < c$ means $x < c$."** No. $|x| < c$ means $-c < x < c$ (for
    $c > 0$). The absolute value translates into a *bounded* interval,
    not a half-line.
+4. **"Use $[$ for $\pm\infty$."** Never. Infinity always gets a round
+   bracket; it isn't a number you can include.
+5. **"Naturals include $0$."** Not in NCERT. $\mathbb{N} = \{1, 2, 3,
+   \ldots\}$, integers $\mathbb{Z} = \{\ldots, -1, 0, 1, \ldots\}$. If
+   the question says *"x is a natural number"* and your interval is
+   $(-\infty, 4)$, the answer is $\{1, 2, 3\}$, not $\{0, 1, 2, 3\}$.
+6. **"Leave $x$ with a negative coefficient."** You can — just remember
+   to flip when dividing. But the habit of rearranging so $x$ ends up
+   with a *positive* coefficient on the left side prevents most slip-ups.
 :::
 
 ### Self-Assessment
@@ -426,7 +509,7 @@ Be honest with yourself.
 
 1. Could you solve a one-variable inequality including a negative
    coefficient without notes?
-2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+2. Did you solve at least 5 of the 7 *Discover* problems and 6 of the 8
    practice problems without peeking past Hint 1?
 3. Can you sketch a system of two or three inequalities and identify the
    corner points?

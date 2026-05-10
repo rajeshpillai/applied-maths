@@ -94,7 +94,7 @@ where one rotation gets quietly removed.
 
 ## Discover
 
-### Problem 1 — Multiplication principle
+### Problem 1 — Multiplication principle (AND)
 
 A menu has 3 starters, 4 mains, 2 desserts. How many different 3-course
 meals?
@@ -104,6 +104,24 @@ Choose starter, then main, then dessert. Multiply.
 </details>
 <details class="hint"><summary>Full solution</summary>
 $3 \times 4 \times 2 = 24$ meals.
+</details>
+
+### Problem 1b — Addition principle (OR)
+
+A college lets you take **either** one of $5$ science electives **or**
+one of $3$ humanities electives. You must take exactly one elective. How
+many choices do you have?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two paths are mutually exclusive — you cannot do both. So the totals
+*add*, they do not multiply.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$5 + 3 = 8$ choices.
+
+**Rule of thumb.** "AND" between independent stages → multiply. "OR"
+between mutually exclusive alternatives → add. Most counting blunders
+start with mixing these two up.
 </details>
 
 ### Problem 2 — Factorial
@@ -214,10 +232,15 @@ correction term layered on top of that one decision.
 ::: {.lesson-beat}
 
 **Factorial.** $n! = n \times (n-1) \times \cdots \times 2 \times 1$,
-with $0! = 1$.
+with $0! = 1$ (forced by the recursion $1! = 1 \cdot 0!$ — see *why* below).
 
-**Multiplication principle.** If task A has $m$ outcomes and task B has
-$n$ outcomes, the joint task has $mn$ outcomes.
+**Multiplication principle (AND).** If task A has $m$ outcomes and task
+B has $n$ outcomes, the joint task has $mn$ outcomes. Generalises to
+$k$ stages: $n_1 \cdot n_2 \cdots n_k$.
+
+**[Addition principle (OR)](/glossary.qmd#addition-principle-counting).**
+If a task can be done by *either* method A ($m$ ways) *or* method B ($n$
+ways) and the two are **mutually exclusive**, the total is $m + n$.
 
 **Permutations** (order matters):
 $$ P(n, r) = {}^nP_r = \dfrac{n!}{(n-r)!} = n(n-1)\cdots(n-r+1). $$
@@ -228,13 +251,35 @@ Special cases:
 - Around a **circle** of $n$ seats: $(n-1)!$.
 - With repeats $n_1, n_2, \ldots, n_k$ identical:
   $\dfrac{n!}{n_1! n_2! \cdots n_k!}$.
+- With **repetition allowed** ($r$ slots, each filled freely from $n$):
+  $n^r$.
 
 **Combinations** (order does not matter):
 $$ C(n, r) = {}^nC_r = \binom{n}{r} = \dfrac{n!}{r!\,(n-r)!}. $$
 
-**Key identities:**
-$$ \binom{n}{r} = \binom{n}{n-r}, \quad \binom{n}{r} + \binom{n}{r-1} = \binom{n+1}{r}. $$
+**Bridge between the two.** Each combination of $r$ items can be ordered
+in $r!$ ways, so
+$$ {}^nP_r = {}^nC_r \cdot r! \quad\Longleftrightarrow\quad \binom{n}{r} = \dfrac{{}^nP_r}{r!}. $$
 
+**Key identities:**
+$$ \binom{n}{r} = \binom{n}{n-r}, \qquad \binom{n}{r} + \binom{n}{r-1} = \binom{n+1}{r}, $$
+$$ \binom{n}{0} + \binom{n}{1} + \cdots + \binom{n}{n} = 2^n. $$
+
+The middle identity is **[Pascal's identity](/glossary.qmd#pascals-identity)**
+— the rule that builds [Pascal's triangle](/glossary.qmd#pascals-triangle)
+row by row. The last identity counts the total number of subsets of an
+$n$-element set: each element is independently in or out, $2 \cdot 2 \cdots 2 = 2^n$.
+
+:::
+
+::: {.callout-note collapse="true"}
+## Why $0! = 1$ — the boundary check
+
+The recursion $n! = n \cdot (n-1)!$ must keep working at $n = 1$:
+$1! = 1 \cdot 0!$. Since $1! = 1$, we are *forced* to set $0! = 1$.
+It is a convention that makes formulas behave at the edges — e.g.
+${}^nC_n = \tfrac{n!}{n!\,0!} = 1$ (one way to choose all of them) and
+${}^nC_0 = \tfrac{n!}{0!\,n!} = 1$ (one way to choose none).
 :::
 
 A short verse:
@@ -246,7 +291,7 @@ A short verse:
 
 ## Apply
 
-### Worked example
+### Worked example 1 — restricted permutations
 
 > How many different $4$-digit numbers, with no digit repeated, can be
 > formed from $\{1, 2, 3, 4, 5, 6, 7\}$? Among these, how many are even?
@@ -260,6 +305,26 @@ How a competent solver thinks:
 4. Total even: $3 \times 120 = 360$.
 
 **Answers:** $840$ total, $360$ even.
+
+### Worked example 2 — identical objects, with a sub-question
+
+> Find the number of distinct arrangements of the letters of
+> *PERMUTATIONS*. Among these, how many begin with $P$ and end with $S$?
+
+The word has $12$ letters. Inventory: $P, E, R, M, U, T, A, T, I, O, N, S$
+— only $T$ repeats (twice). All others are distinct.
+
+1. **All arrangements.** With one pair of identical letters,
+   $$ \dfrac{12!}{2!} = \dfrac{479\,001\,600}{2} = 239\,500\,800. $$
+2. **Begin with $P$, end with $S$.** Fix $P$ in position $1$ and $S$ in
+   position $12$. The remaining $10$ letters (still containing the two
+   $T$s) are permuted in the middle $10$ slots:
+   $$ \dfrac{10!}{2!} = \dfrac{3\,628\,800}{2} = 1\,814\,400. $$
+
+**Lesson.** "Identical objects" always shows up as a *division* by the
+factorial of each repeat. If you forget the divisor you over-count by
+exactly the factor $2!\cdot 4! \cdots$ that distinguishes labelled
+duplicates from indistinguishable ones.
 
 ### Practice — Warm
 
@@ -309,6 +374,50 @@ $\binom{13}{5} = 1287$.
 
 <details class="hint"><summary>Full solution</summary>
 $(10-1)! = 9! = 362880$.
+</details>
+
+**P4.** How many diagonals does a convex polygon with $n$ sides have?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A diagonal joins two non-adjacent vertices. Start by counting *all* pairs
+of vertices, then subtract the ones that are sides.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Pairs of vertices: $\binom{n}{2}$. Of these, exactly $n$ are sides of
+the polygon.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$ \binom{n}{2} - n = \dfrac{n(n-1)}{2} - n = \dfrac{n(n-3)}{2}. $$
+
+Check: a hexagon ($n=6$) has $\tfrac{6 \cdot 3}{2} = 9$ diagonals. ✓
+</details>
+
+**P5.** How many $4$-digit *even* numbers can be formed from
+$\{0, 1, 2, 3, 4, 5\}$ with no digit repeated?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The leading digit cannot be $0$ (otherwise it isn't a $4$-digit number).
+The units digit must be even: $0$, $2$, or $4$. Split on whether the
+units digit is $0$ or non-zero — they trigger different leading-digit
+constraints.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+**Case A: units = $0$.** Now any of the remaining $5$ non-zero digits
+can lead. **Case B: units $\in \{2, 4\}$.** Now the leading slot must
+avoid both $0$ *and* the chosen units digit.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Case A (units = 0).** The remaining $3$ slots are filled from
+$\{1, 2, 3, 4, 5\}$ with no repeats:
+${}^5P_3 = 5 \cdot 4 \cdot 3 = 60$.
+
+**Case B (units $\in \{2, 4\}$, so $2$ choices).** The thousands slot
+takes one of the $4$ remaining non-zero digits (we cannot reuse the
+units digit, and we cannot use $0$). The middle two slots take any $2$
+of the $4$ remaining digits in order: ${}^4P_2 = 12$. Sub-total:
+$2 \cdot 4 \cdot 12 = 96$.
+
+**Total** $= 60 + 96 = 156$ four-digit even numbers.
 </details>
 
 ### Practice — Stretch
@@ -423,6 +532,20 @@ If you remember nothing else from this lesson, remember these:
    repeats.
 3. **"Circular arrangements of $n$ are $n!$."** No — they are $(n-1)!$,
    because rotations of the same arrangement should be counted once.
+4. **"$n$-digit numbers from $\{0, 1, \ldots, 9\}$ with no repeats are
+   ${}^{10}P_n$."** Not quite — the *leading* digit cannot be $0$, so
+   you have one fewer choice in the first slot than in the rest. Always
+   handle the leading slot separately.
+5. **"Handshakes among $n$ people are $n^2$ (or $n(n-1)$)."** Each
+   handshake is shared between two people, so the count is $\binom{n}{2}$,
+   not $n^2$. Pairs are unordered.
+6. **"Treat the bunch as one object — done."** When you glue a group
+   together (e.g. "all vowels stay together"), you must *also* multiply
+   by the internal arrangements of the bunch. Forgetting the internal
+   $k!$ is the single most common slip in JEE-style problems.
+7. **AND vs OR.** Independent stages of one task → multiply. Mutually
+   exclusive alternatives → add. "$3$-course menu" multiplies; "science
+   *or* humanities elective" adds.
 :::
 
 ### Self-Assessment
@@ -483,6 +606,18 @@ a query will produce — is built on combinatorial identities.
 **Research.** Combinatorics is a subject in its own right. The
 **Catalan numbers** $C_n = \dfrac{1}{n+1}\binom{2n}{n}$ count, for
 example, the number of valid bracket sequences of length $2n$.
+:::
+
+::: {.fun-fact}
+"Pascal's" triangle was *not* discovered by Pascal. The Indian prosodist
+**Pingala** (c. 200 BCE) used the same triangular array — under the name
+*Meruprastāra* — to count metrical patterns in Sanskrit verse. The
+Persian polymath **Omar Khayyám** (11th century) and the Chinese
+mathematician **Yang Hui** (13th century) both knew it well. Pascal's
+contribution (1654) was the systematic study of its identities and the
+link to probability — but the triangle itself is over two thousand years
+old, and was a counting tool for poets long before it was one for
+gamblers.
 :::
 
 ---

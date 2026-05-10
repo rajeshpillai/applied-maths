@@ -96,7 +96,42 @@ both in *Discover*.
 
 ## Discover
 
-### Problem 1 — Roster vs rule
+### Problem 1 — Vague vs precise
+
+Decide which of these are *sets* in the precise sense:
+
+(a) The collection of **good cricket players** of India.
+(b) The collection of all **months of the year beginning with the letter J**.
+(c) The collection of **most dangerous animals** in the world.
+(d) The collection of **prime divisors of $60$**.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For each, ask: *given any candidate, would every careful person give the
+same yes/no answer to "is it in the collection?"*
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) **Not a set.** "Good" is a vague adjective — your shortlist and mine
+can legitimately differ.
+
+(b) **A set.** Anyone in any country agrees: $\{$January, June, July$\}$.
+
+(c) **Not a set.** "Most dangerous" is subjective — measured by what?
+Deaths per year, force of bite, venom toxicity? Different criteria yield
+different lists.
+
+(d) **A set.** Prime divisors of $60$ are $\{2, 3, 5\}$, unambiguous.
+
+**Write-up convention.** In NCERT-style answers do not just say "yes"
+or "no" — justify:
+
+> *"The term 'good' is a vague (not well-defined) adjective, therefore
+> this collection is not a set."*
+>
+> *"The given collection consists of definite objects, therefore it is
+> a set."*
+</details>
+
+### Problem 2 — Roster vs rule
 
 Write the set of single-digit positive odd numbers in two ways:
 (i) by listing all elements (roster form), and
@@ -117,22 +152,58 @@ Both name the same set. Sets are equal when they have exactly the same
 elements, regardless of how those elements are described.
 </details>
 
-### Problem 2 — Membership
+### Problem 3 — Membership vs subset (the trap table)
 
-Let $A = \{1, 2, \{3, 4\}, 5\}$. Is $3 \in A$? Is $\{3, 4\} \in A$?
+Let $A = \{1, 2, \{3, 4\}, 5\}$. For each statement, decide **True** or
+**False**, and say *why*:
+
+(i) $3 \in A$
+(ii) $\{3, 4\} \in A$
+(iii) $\{3, 4\} \subseteq A$
+(iv) $\{\{3, 4\}\} \subseteq A$
+(v) $1 \subseteq A$
+(vi) $\{1\} \subseteq A$
 
 <details class="hint"><summary>Hint 1 — a nudge</summary>
 Look at the elements of $A$ one by one. The third element is itself a set.
+For $\subseteq$, every element of the *left* side must be an element of $A$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\in$ asks "is the left thing **listed** inside $A$?" $\subseteq$ asks
+"is every element of the left **set** listed inside $A$?" If the left
+thing isn't a set, $\subseteq$ doesn't even make sense.
 </details>
 <details class="hint"><summary>Full solution</summary>
-$3 \notin A$ — the number 3 is not directly listed in $A$. But
-$\{3, 4\} \in A$ — the *set* $\{3, 4\}$ is the third element of $A$.
 
-Sets can have other sets as elements. Membership and being-a-subset are
-different relationships.
+(i) **False.** The number $3$ is **inside** the inner brace $\{3, 4\}$ —
+   it is not a top-level element of $A$.
+
+(ii) **True.** $\{3, 4\}$ *is* the third element of $A$, treated as a
+   single object.
+
+(iii) **False.** For $\{3, 4\} \subseteq A$ we would need both $3 \in A$
+   and $4 \in A$ — neither holds (see (i)).
+
+(iv) **True.** $\{\{3, 4\}\}$ is the singleton set whose only element is
+   $\{3, 4\}$. Since $\{3, 4\} \in A$, this singleton is a subset.
+
+(v) **False.** $1$ is an element, not a set. The symbol $\subseteq$ is a
+   relation between **sets**.
+
+(vi) **True.** $\{1\}$ is a one-element set; since $1 \in A$, every element
+   of $\{1\}$ is in $A$.
+
+**Mnemonic.** To turn an *element* into a *subset*, wrap it in another
+pair of braces. $1$ is an element $\Rightarrow$ $\{1\}$ is the matching
+singleton subset. The exception is $\varnothing$: it is a subset of
+*every* set without needing braces.
+
+Sets can have other sets as elements. Membership ($\in$) and
+being-a-subset ($\subseteq$) live on different floors of the same
+building, and the most common error in this chapter is confusing the two.
 </details>
 
-### Problem 3 — Subsets
+### Problem 4 — Subsets
 
 How many subsets does $\{a, b, c\}$ have? List them.
 
@@ -151,7 +222,7 @@ In general, a set with $n$ elements has $2^n$ subsets. The collection of
 all subsets of $A$ is called the **power set**, written $\mathcal{P}(A)$.
 </details>
 
-### Problem 4 — Union, intersection, difference
+### Problem 5 — Union, intersection, difference
 
 Let $A = \{1, 2, 3, 4, 5\}$ and $B = \{4, 5, 6, 7\}$. Compute
 $A \cup B$, $A \cap B$, $A - B$, $B - A$.
@@ -170,7 +241,7 @@ Notice $|A \cup B| = |A| + |B| - |A \cap B| = 5 + 4 - 2 = 7$. The overlap
 must not be counted twice — that's the inclusion–exclusion idea.
 </details>
 
-### Problem 5 — Venn for three sets
+### Problem 6 — Venn for three sets
 
 In a class of 50, every student plays exactly one or more of cricket,
 football, hockey. Cricket: 30, Football: 25, Hockey: 18. Cricket and
@@ -195,7 +266,7 @@ Exactly three: $4$.
 Exactly one $= 50 - 15 - 4 = \mathbf{31}$.
 </details>
 
-### Problem 6 — Empty and universal
+### Problem 7 — Empty and universal
 
 Is $\{0\}$ the same as $\varnothing$? Is $\{\varnothing\}$ empty?
 
@@ -279,6 +350,55 @@ Three pictures of the same idea:
 | Set-builder (rule) | $A = \{x : x \in \mathbb{N},\ x \text{ even},\ x < 10\}$ |
 | Venn diagram | a labelled circle inside the universal rectangle |
 
+### The standard number sets
+
+You will see these symbols on every NCERT page from now on. Memorise the
+inclusion chain — it is the spine of the real number system.
+
+| Symbol | Stands for | Roster / description |
+|:--|:--|:--|
+| $\mathbb{N}$ | Natural numbers | $\{1, 2, 3, 4, \dots\}$ |
+| $W$ | Whole numbers | $\{0, 1, 2, 3, \dots\}$ |
+| $\mathbb{Z}$ | Integers | $\{\dots, -2, -1, 0, 1, 2, \dots\}$ |
+| $\mathbb{Q}$ | Rational numbers | $\{p/q : p, q \in \mathbb{Z},\ q \ne 0\}$ |
+| $T$ | Irrational numbers | non-terminating, non-repeating decimals ($\sqrt{2},\ \pi,\ \dots$) |
+| $\mathbb{R}$ | Real numbers | rationals $\cup$ irrationals |
+| $\mathbb{R}^{+}$ | Positive reals | $\{x \in \mathbb{R} : x > 0\}$ |
+
+The inclusion chain:
+
+$$\mathbb{N} \subset W \subset \mathbb{Z} \subset \mathbb{Q} \subset \mathbb{R}.$$
+
+Independently, $T \subset \mathbb{R}$ with $\mathbb{R} = \mathbb{Q} \cup T$
+and $\mathbb{Q} \cap T = \varnothing$.
+
+**The real-number trap.** Unlike $\mathbb{N}$, the set $\mathbb{R}$ has
+no roster form — between any two distinct reals lie infinitely many more
+with no recognisable pattern. Always describe $\mathbb{R}$ in
+set-builder form: $\mathbb{R} = \{x : x \text{ is a real number}\}$.
+
+### [Intervals](/glossary.qmd#interval) as subsets of $\mathbb{R}$
+
+For real numbers $a < b$, an **interval** is a contiguous chunk of the
+number line between $a$ and $b$. Four flavours, distinguished by which
+endpoint(s) are included:
+
+| Notation | Set-builder | Endpoints | Type |
+|:--|:--|:--|:--|
+| $(a, b)$ | $\{x : a < x < b\}$ | both excluded | open interval |
+| $[a, b]$ | $\{x : a \le x \le b\}$ | both included | closed interval |
+| $[a, b)$ | $\{x : a \le x < b\}$ | $a$ in, $b$ out | half-open (left-closed) |
+| $(a, b]$ | $\{x : a < x \le b\}$ | $a$ out, $b$ in | half-open (right-closed) |
+
+**Bracket rule.** A *round* bracket means "excluded" (strict inequality);
+a *square* bracket means "included" ($\le$ or $\ge$). On a number line,
+draw an **open circle** $\circ$ for excluded endpoints, a **filled circle**
+$\bullet$ for included endpoints. Infinite endpoints always get a round
+bracket: $(-\infty, 5]$, $[3, \infty)$. You will see intervals everywhere
+once you reach **[Linear Inequalities](../05-linear-inequalities/index.qmd)**,
+**[Relations and Functions](../02-relations-and-functions/index.qmd)** (domains
+and ranges), and the entire calculus track.
+
 ## Apply
 
 ### Worked example
@@ -318,6 +438,23 @@ $A'$ and $|A'|$.
 $A' = \{1,3,5,7,9\}$, $|A'| = 5$.
 </details>
 
+**W4.** Write the set of *distinct letters* in the words (i) **TRIGONOMETRY**
+and (ii) **BETTER** in roster form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sets ignore repetition. Walk through the word letter by letter and keep
+only the first occurrence of each.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(i) TRIGONOMETRY has letters T, R, I, G, O, N, O, M, E, T, R, Y. Drop
+repeats: $\{T, R, I, G, O, N, M, E, Y\}$ — nine letters.
+
+(ii) BETTER: $\{B, E, T, R\}$ — four letters.
+
+A common error is to write the multiplicity (e.g. $\{T, T, T, R, R, I, \dots\}$).
+A set has no repeated members.
+</details>
+
 ### Practice — Working
 
 **P1.** If $|A| = 30$, $|B| = 20$, $|A \cap B| = 8$, find $|A \cup B|$ and
@@ -352,6 +489,54 @@ $2^n = 32$.
 </details>
 <details class="hint"><summary>Full solution</summary>
 $32 = 2^5$, so $n = 5$.
+</details>
+
+**P4.** Write each of these in **set-builder form**:
+
+(i) $\{5, 25, 125, 625\}$
+(ii) $\{1, 4, 9, 16, \ldots, 100\}$
+(iii) $\{17, 26, 35, 44, 53, 62, 71, 80\}$ — the two-digit natural
+numbers whose digits sum to $8$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Spot the pattern. In (i) every term is a power of $5$; in (ii) every term
+is a perfect square; in (iii) read the description.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Once you spot the rule, name the parameter $n$, write the formula, and
+state **both** $n \in \mathbb{N}$ *and* the bound on $n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(i) $\{x : x = 5^{n},\ n \in \mathbb{N},\ 1 \le n \le 4\}$.
+
+(ii) $\{x : x = n^{2},\ n \in \mathbb{N},\ 1 \le n \le 10\}$.
+
+(iii) $\{x : x \text{ is a two-digit natural number whose digits sum to } 8\}$.
+
+**Pitfall.** If you forget $n \in \mathbb{N}$, the parameter could be
+$n = 1.5$ and the set would silently contain non-integers. The bound
+$1 \le n \le k$ pins down which terms count.
+</details>
+
+**P5.** Convert each interval to set-builder form, and the set-builder
+expression to interval notation:
+
+(i) $(-3, 0)$ &nbsp;&nbsp; (ii) $[-23, 5)$ &nbsp;&nbsp;
+(iii) $\{x \in \mathbb{R} : 6 \le x \le 12\}$ &nbsp;&nbsp;
+(iv) $\{x \in \mathbb{R} : -1 \le x < 10\}$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Round bracket $\leftrightarrow$ strict inequality. Square bracket
+$\leftrightarrow$ inequality with equality.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(i) $\{x \in \mathbb{R} : -3 < x < 0\}$.
+
+(ii) $\{x \in \mathbb{R} : -23 \le x < 5\}$.
+
+(iii) $[6, 12]$.
+
+(iv) $[-1, 10)$.
 </details>
 
 ### Practice — Stretch
@@ -470,13 +655,29 @@ If you remember nothing else from this lesson, remember these:
 
 1. **"$\varnothing$ and $\{\varnothing\}$ are the same."** They are not.
    The first is empty; the second contains one element (which happens to
-   be the empty set).
+   be the empty set). And $\mathcal{P}(\varnothing) = \{\varnothing\}$
+   has *one* subset, not zero — power sets are never empty.
 2. **"$\subseteq$ and $\in$ mean the same thing."** No. $a \in A$ says
    "$a$ is an element"; $A \subseteq B$ says "every element of $A$ is also
-   an element of $B$".
+   an element of $B$". To turn an element into a subset, wrap it in
+   braces: $a \in A \Rightarrow \{a\} \subseteq A$.
 3. **"In $A \cup B$ I should count the overlap twice."** No — a set has
-   no repeated elements. Inclusion–exclusion explicitly subtracts the
-   overlap.
+   no repeated elements. Inclusion–exclusion explicitly *subtracts* the
+   overlap once to undo the double count.
+4. **"$A - B$ is the same as $B - A$."** Almost never. $A - B$ is what
+   is in $A$ but not $B$; $B - A$ is what is in $B$ but not $A$. They
+   share no elements (the two pieces sit on opposite sides of the
+   Venn-diagram overlap). They are equal only when $A = B$, in which
+   case both are $\varnothing$.
+5. **"Repetition or order in roster form matter."** Neither does.
+   $\{1, 1, 2, 3\}$, $\{3, 2, 1\}$, and $\{1, 2, 3\}$ all describe the
+   *same* set. Always reduce to distinct elements in any convenient
+   order.
+6. **"Three dots and four dots mean the same thing."** Only **three**
+   dots $\ldots$ are conventional, meaning "and so on by the obvious
+   pattern". Writing $\{1, 3, 5, 7, \ldots\ldots\}$ has no formal
+   meaning. The three dots must be preceded by enough terms for the
+   pattern to be unambiguous.
 :::
 
 ### Self-Assessment
@@ -485,7 +686,7 @@ Be honest with yourself.
 
 1. Could you explain the difference between $\in$ and $\subseteq$ to a
    friend, without notes?
-2. Did you solve at least 5 of the 6 *Discover* problems and 5 of the 7
+2. Did you solve at least 5 of the 7 *Discover* problems and 5 of the 7
    *Practice* problems without peeking past Hint 1?
 3. Can you draw a three-set Venn diagram and label all 8 regions on
    demand?

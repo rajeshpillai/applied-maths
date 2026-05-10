@@ -84,6 +84,13 @@ viewof p2y = Inputs.range([-5, 5], {value: 5, step: 0.1, label: "y₂"})
 Move the sliders. Two facts — a point and a direction, or two points —
 pin every line uniquely.
 
+Try two extreme cases by hand. Set both points so $y_1 = y_2$: the line
+goes flat and the slope reads $0$. Now set $x_1 = x_2$ instead: the
+widget refuses to give a number — the slope is *undefined*, not zero,
+not infinity. Those are the two special cases that the slope formula
+$m = (y_2 - y_1)/(x_2 - x_1)$ politely warns you about every time the
+denominator threatens to vanish.
+
 ## Wonder
 
 Sit with these.
@@ -183,6 +190,41 @@ $y$-intercept $4$.
 \Rightarrow \dfrac{x}{-3} + \dfrac{y}{4} = 1$. So $a = -3, b = 4$.
 </details>
 
+### Problem 8 — Slope from an inclination
+
+Find the slope of a line that makes an angle of $30°$ with the *positive
+$y$-axis*, measured anticlockwise.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Slope is $\tan\theta$ where $\theta$ is the angle with the positive
+$x$-axis, not the $y$-axis.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Convert the angle: from the positive $y$-axis to the positive $x$-axis
+adds another $90°$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Inclination with the $x$-axis: $\theta = 90° + 30° = 120°$. Then
+$$ m = \tan 120° = \tan(180° - 60°) = -\tan 60° = -\sqrt{3}. $$
+Negative slope — the line falls to the right, as expected of a line
+tilted past the vertical.
+</details>
+
+### Problem 9 — Collinearity by slopes
+
+Show that $A(1, 2)$, $B(3, 6)$, $C(5, 10)$ are collinear *without*
+using the area formula.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three points are collinear iff $\text{slope}\,AB = \text{slope}\,BC$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\text{slope}\,AB = (6 - 2)/(3 - 1) = 2$.
+$\text{slope}\,BC = (10 - 6)/(5 - 3) = 2$.
+Equal — so $A$, $B$, $C$ are collinear. (The "$\text{area} = 0$" test
+from Class 10 says the same thing in different language.)
+</details>
+
 You have just used [slope](/glossary.qmd#slope), **point-slope**,
 **two-point**, **slope-intercept**, **intercept**, the **angle formula**,
 and the [point-line distance formula](/glossary.qmd#distance-formula).
@@ -242,6 +284,20 @@ $$ d = \dfrac{|A x_0 + B y_0 + C|}{\sqrt{A^2 + B^2}}. $$
 $Ax + By + C_2 = 0$:
 $$ d = \dfrac{|C_1 - C_2|}{\sqrt{A^2 + B^2}}. $$
 
+**Special lines** (don't force point-slope onto these — write them
+directly):
+
+| Line | Equation |
+|:--|:--|
+| $x$-axis | $y = 0$ |
+| $y$-axis | $x = 0$ |
+| Horizontal through $(0, k)$ | $y = k$ |
+| Vertical through $(h, 0)$ | $x = h$ |
+| Through origin with slope $m$ | $y = mx$ |
+
+**From general form** $Ax + By + C = 0$ with $B \ne 0$: slope $= -A/B$,
+$y$-intercept $= -C/B$, $x$-intercept (if $A \ne 0$) $= -C/A$.
+
 :::
 
 A short verse:
@@ -266,6 +322,28 @@ How a competent solver thinks:
 4. Multiply by $4$: $4y - 12 = -5x + 10$, i.e. $5x + 4y - 22 = 0$.
 
 **Answer:** $5x + 4y - 22 = 0$.
+
+### Worked example — form conversion
+
+> Take the line $2x + 3y - 12 = 0$. Write it in (a) slope-intercept
+> form and (b) intercept form, and read off its slope, $y$-intercept,
+> and $x$-intercept.
+
+How a competent solver thinks:
+
+1. **General $\to$ slope-intercept.** Solve for $y$:
+   $3y = -2x + 12 \Rightarrow y = -\dfrac{2}{3}x + 4$.
+   Slope $m = -2/3$, $y$-intercept $c = 4$.
+2. **General $\to$ intercept.** Move the constant to the right and
+   divide:
+   $2x + 3y = 12 \Rightarrow \dfrac{x}{6} + \dfrac{y}{4} = 1$.
+   So $a = 6$ (the $x$-intercept), $b = 4$ (the $y$-intercept).
+3. **Sanity check.** From the general form directly: slope $= -A/B
+   = -2/3$ ✓, $y$-intercept $= -C/B = 4$ ✓, $x$-intercept $= -C/A
+   = 6$ ✓.
+
+The same line; three faces. Pick whichever makes the next step
+shortest.
 
 ### Practice — Warm
 
@@ -334,6 +412,27 @@ Slope of joining line: $(-3 - 1)/(5 - 2) = -4/3$.
 
 Through $(3, -2)$ with slope $-4/3$:
 $y + 2 = -\dfrac{4}{3}(x - 3) \Rightarrow 3y + 6 = -4x + 12 \Rightarrow 4x + 3y - 6 = 0$.
+</details>
+
+**P4 — linear model.** When milk costs $\textsf{Rs}\,14$ per litre, the
+daily demand is $980$ litres; at $\textsf{Rs}\,16$ per litre, demand
+falls to $1220$ litres. Wait — *falls?* Real demand curves slope down,
+but the data says otherwise; treat the numbers as given and assume
+demand $D$ is a linear function of price $P$. Find $D(P)$ and estimate
+the demand at $\textsf{Rs}\,17$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You have two data points $(P, D) = (14, 980)$ and $(16, 1220)$. Use
+the two-point form.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Compute the slope first; then plug into point-slope.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Slope $= (1220 - 980)/(16 - 14) = 240/2 = 120$.
+Point-slope through $(14, 980)$:
+$D - 980 = 120(P - 14) \Rightarrow D = 120P - 700$.
+At $P = 17$: $D = 120 \cdot 17 - 700 = 1340$ litres.
 </details>
 
 ### Practice — Stretch
@@ -449,14 +548,25 @@ If you remember nothing else from this lesson, remember these:
 ::: {.common-confusion}
 ### Common confusions
 
-1. **"Vertical lines have slope $0$."** They have **undefined** slope.
-   Horizontal lines have slope $0$.
+1. **"Vertical lines have slope $0$."** They have **undefined** slope
+   (it's $\tan 90°$, which blows up). Horizontal lines have slope $0$.
+   The two cases are not interchangeable.
 2. **"Perpendicular means $m_1 + m_2 = 0$."** It means $m_1 m_2 = -1$.
    Sum-to-zero would be $m_2 = -m_1$ — that's the *reflection* across
-   the $y$-axis.
+   the $y$-axis, not perpendicularity.
 3. **"Distance from a point to a line is the distance to the closest
    $x$-intercept."** No — the perpendicular distance is the unique
    shortest path. The formula handles all cases.
+4. **Slope sign-flip from inconsistent labelling.** Always set up
+   $(y_2 - y_1)/(x_2 - x_1)$ with the *same* point as "$2$" in both
+   numerator and denominator. Mixing them ($y_2 - y_1$ on top but
+   $x_1 - x_2$ on the bottom) silently flips the sign of $m$.
+5. **Intercept form for a line through the origin.** If both intercepts
+   are zero, $x/a + y/b = 1$ is meaningless — there is no $a$, no $b$.
+   Use $y = mx$ (or $Ax + By = 0$) instead.
+6. **"$2$ units to the left of the origin" $\to x = 2$.** No — left
+   means negative, so $x = -2$. Drawing a quick number line before
+   substituting prevents this.
 :::
 
 ### Self-Assessment

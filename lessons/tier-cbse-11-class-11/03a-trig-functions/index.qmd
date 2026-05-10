@@ -202,10 +202,33 @@ for any integer $n$. At those angles $\sin\theta = \pm 1$ and division
 blows up.
 </details>
 
+### Problem 8 — Arc length on a circle
+
+A circle has radius $r = 21$ cm. A central angle of $60°$ cuts off an
+arc. How long is the arc?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The formula $\ell = r\theta$ requires $\theta$ in **radians**, not
+degrees. Convert $60°$ first.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$60° = \pi/3$ rad. Then $\ell = r\theta = 21 \cdot \pi/3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\theta = 60° = \pi/3$ radians.
+
+$\ell = r\theta = 21 \cdot \dfrac{\pi}{3} = 7\pi \approx 22$ cm
+(using $\pi \approx 22/7$).
+
+This is the second reason radians are the natural unit: the formula
+$\ell = r\theta$ is *false* if $\theta$ is in degrees, and there is no
+fix that doesn't reintroduce $\pi/180$.
+</details>
+
 You have just used **radians**, the **unit-circle definitions**,
 **quadrant signs**, **reference angles**, **periodicity**, the
-**Pythagorean identity**, and the **domain of tangent**. Now we name
-them.
+**Pythagorean identity**, the **domain of tangent**, and the
+**arc-length formula**. Now we name them.
 
 ::: {.fun-fact}
 The Indian astronomer **Āryabhaṭa** (5th century CE) tabulated what he
@@ -251,6 +274,10 @@ $\cos(-\theta) = \cos\theta$ (even).
 
 **Conversion:** $180° = \pi$ rad. Multiply by $\pi/180$ to go deg → rad.
 
+**Arc length:** for a central angle $\theta$ (in **radians**) on a
+circle of radius $r$, the arc cut off has length
+$$\ell = r\theta.$$
+
 :::
 
 A short verse:
@@ -283,6 +310,28 @@ How a competent solver thinks:
 3. $\tan\theta = \sin\theta / \cos\theta = (4/5) / (-3/5) = -4/3$.
 
 **Answers:** $\sin\theta = 4/5$, $\tan\theta = -4/3$.
+
+::: {.callout-tip}
+### The two-rule system for $\sin(90° \pm \theta)$, $\cos(180° \pm \theta)$, …
+
+These **allied-angle** identities (a.k.a. *reduction formulas*) come
+out of two independent rules — apply them in sequence:
+
+1. **Function changes** when the reference is an *odd multiple of
+   $\pi/2$* (i.e. $90°$, $270°$): $\sin \leftrightarrow \cos$,
+   $\tan \leftrightarrow \cot$, $\sec \leftrightarrow \csc$.
+   **Function stays the same** when the reference is a *multiple of
+   $\pi$* ($180°$, $360°$).
+2. **Sign** is fixed by the quadrant of the *resulting* angle, using
+   ASTC.
+
+*Example.* $\cos(90° + \theta)$. Reference $90°$ is an odd multiple
+of $\pi/2$, so the function flips: $\cos \to \sin$. The angle
+$90° + \theta$ lives in Q II, where cosine is *negative*. Combine:
+$\cos(90° + \theta) = -\sin\theta$.
+
+The two rules are independent — never collapse them into one step.
+:::
 
 ### Practice — Warm
 
@@ -339,6 +388,27 @@ $-5\pi/6$ is the same point as $-5\pi/6 + 2\pi = 7\pi/6$.
 <details class="hint"><summary>Full solution</summary>
 $\sin(-5\pi/6) = -1/2$, $\cos(-5\pi/6) = -\sqrt{3}/2$,
 $\tan(-5\pi/6) = 1/\sqrt{3}$, and reciprocals follow.
+</details>
+
+**P4.** Convert $47°\,30'$ to radians (exact form).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The apostrophe is *minutes of arc* — angle subdivision, not time.
+$1' = (1/60)°$, so $30' = 0.5°$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Convert the whole angle to a single decimal (or improper fraction) of
+degrees first, then multiply by $\pi/180$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$47°\,30' = 47.5° = \dfrac{95}{2}°$.
+
+Multiply by $\pi/180$:
+$\dfrac{95}{2} \cdot \dfrac{\pi}{180} = \dfrac{95\pi}{360} = \dfrac{19\pi}{72}$ rad.
+
+**General method (radian → D-M-S):** multiply by $180/\pi$. If the
+result is fractional, multiply the fractional part by $60$ to get
+minutes; multiply the new fraction by $60$ to get seconds.
 </details>
 
 ### Practice — Stretch
@@ -440,12 +510,20 @@ If you remember nothing else from this lesson, remember these:
 
 1. **"Radians are just smaller degrees."** They are a different unit. A
    radian is *the* natural angle measure; calculus only behaves nicely
-   for trig functions if you use radians.
+   for trig functions if you use radians. The arc-length formula
+   $\ell = r\theta$ is *false* in degrees.
 2. **"$\sin^{-1}\theta$ means $1/\sin\theta$."** No. $\sin^{-1}$ is the
    inverse function (we meet it in Class 12). The reciprocal of $\sin$
    is $\csc$.
 3. **"$\sin(A + B) = \sin A + \sin B$."** Definitely not. The compound
    angle formula is the topic of Lesson 3b.
+4. **"In allied-angle problems, just apply one rule."** No — the
+   *function-change* rule and the *quadrant-sign* rule are
+   **independent**. Decide the function first (does it flip?), then
+   the sign (which quadrant is the resulting angle in?). Skip either
+   step and the answer is wrong half the time.
+5. **"$\sin 765°$ has no nice value."** Reduce mod $360°$ first:
+   $765° = 2 \cdot 360° + 45°$, so $\sin 765° = \sin 45° = 1/\sqrt 2$.
 :::
 
 ### Self-Assessment
