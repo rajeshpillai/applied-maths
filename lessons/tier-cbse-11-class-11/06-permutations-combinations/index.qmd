@@ -183,9 +183,31 @@ $\dfrac{5!}{5} = 4! = 24$. In general, $n$ objects around a circle
 arrange in $(n-1)!$ ways.
 </details>
 
-You have just used the **multiplication principle**, **factorial
-notation**, **permutations**, **combinations**, and the **division
+You have just used the [multiplication principle](/glossary.qmd#multiplication-principle), [factorial](/glossary.qmd#factorial)
+notation, [permutations](/glossary.qmd#permutation), [combinations](/glossary.qmd#combination), and the **division
 trick** for repetitions and circular arrangements. Now we name them.
+
+::: {.fun-fact}
+**Cardano's *Liber de Ludo Aleae*** ("Book on Games of Chance",
+written ~1564, printed 1663) is the first systematic treatise on
+counting arrangements — and it was written so Cardano could *win at
+dice*. He worked out the number of equally-likely outcomes of one,
+two, and three dice and reasoned through bets the way a modern
+combinatorics student does. Almost a century later **Pascal and
+Fermat** corresponded over a similar gambling puzzle (the "problem of
+points"), and probability was born. Counting arrangements is older
+than calculus, and was invented by people who wanted to win money.
+:::
+
+::: {.key-insight}
+The whole chapter compresses into a single question you should ask
+*before* writing anything: **does the order matter?** If yes, you are
+in [permutation](/glossary.qmd#permutation) territory and divisions
+are forbidden. If no, you are in [combination](/glossary.qmd#combination)
+territory and you must divide by $r!$ to wash out the orderings of each
+chosen group. Every other twist — repeats, circles, restrictions — is a
+correction term layered on top of that one decision.
+:::
 
 ## Name
 
@@ -381,6 +403,14 @@ $k$ girls" matches the 5-mark item.
 **JEE pointer:** the gap method (Stretch S2) appears almost verbatim
 in JEE Main.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Ask "does order matter?" first, formulas second.** That single question routes you to ${}^nP_r$ (yes) or $\binom{n}{r}$ (no). Every counting blunder I have ever marked starts with skipping this question.
+2. **${}^nP_r = n(n-1)(n-2)\cdots(n-r+1)$ has exactly $r$ falling factors,** and $\binom{n}{r} = {}^nP_r / r!$ — the $r!$ removes the over-counting of each group's internal orderings. The two formulas are a single object viewed from two angles.
+3. **Repeats, circles, restrictions are correction layers.** Identical letters: divide by the factorials of the repeats. Circular seating: divide by $n$ rotations, giving $(n-1)!$. "At least $k$ of": split into cases and add. The skeleton is always permutation-or-combination — the rest is bookkeeping.
 
 ::: {.common-confusion}
 ### Common confusions
