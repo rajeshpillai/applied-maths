@@ -7,87 +7,411 @@ prerequisites: ["mfrl.state-values"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.state-values"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. From [Lesson 5](../05-state-values/index.qmd), can you write
+   $v_\pi(s) = \mathbb{E}_\pi[G_t \mid s_t = s]$?
+2. From [Lesson 4](../04-trajectories-returns-episodes/index.qmd), do
+   you remember the recursion $G_t = r_{t+1} + \gamma G_{t+1}$?
+3. Are you comfortable with **linearity of expectation**:
+   $\mathbb{E}[X + Y] = \mathbb{E}[X] + \mathbb{E}[Y]$?
+
+If a "no" appears, briefly revisit lessons 4–5.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Picture two columns of cells, one labelled "now" and one labelled "next."
+Between every cell on the left and every cell on the right, draw a thin
+arrow weighted by a probability — the chance of going from $s$ to $s'$ in
+one step. Above each arrow, write the immediate reward $r$ you collected
+in transit.
+
+Now imagine a number above each cell — the *value* $v(s)$. Pick any cell
+on the left. Its number ought to be tied to the numbers of the cells it
+points at: today's value is *something today* plus *something tomorrow*.
+
+The "something" is the bridge this lesson builds.
+
+```{ojs}
+viewof p = Inputs.range([0, 1], {value: 0.7, step: 0.05, label: "P(go right)"})
+```
+
+```{ojs}
+{
+  // Two-state world: X→Y gives reward 1; X→X gives reward 0; Y→Y absorbs (reward 0).
+  // Value of X under "go right with prob p, stay with prob 1-p":
+  // v(X) = p(1 + γ v(Y)) + (1-p)(0 + γ v(X)),  v(Y) = 0.
+  const gamma = 0.9;
+  const vX = p / (1 - (1 - p) * gamma);
+  return html`<pre style="font-size: 0.95rem;">
+v(Y) = 0    (absorbing, no reward)
+v(X) = p · (1 + γ · v(Y))  +  (1 − p) · (0 + γ · v(X))
+     = p · 1               +  (1 − p) · γ · v(X)
+solving for v(X) = p / (1 − (1 − p)γ) ≈ ${vX.toFixed(3)}
+</pre>`;
+}
+```
+
+Caption: a 2-state stochastic world, with the value of $X$ written as a
+self-referential equation. Drag $p$; watch $v(X)$ climb as the
+"go-to-reward" probability rises.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The value at $X$ in the widget refers to the value at $X$ on its right
+   side. Is that *circular*? Why does the equation still have a unique
+   answer?
+2. If the future is "one step away" — what is *that step* in terms of $P$
+   and $R$? What does the agent average over?
+3. Could you compute $v(s)$ if you only knew $v(s')$ for the next states?
+   What other ingredients would you need?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — The trajectory recursion
+
+From lesson 4, recall $G_t = r_{t+1} + \gamma G_{t+1}$. Take this as
+given. Take $\mathbb{E}_\pi[\cdot \mid s_t = s]$ on both sides.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use linearity of expectation. The discount $\gamma$ comes out as a
+constant.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{E}_\pi[G_t \mid s_t = s] = \mathbb{E}_\pi[r_{t+1} \mid s_t = s] + \gamma \mathbb{E}_\pi[G_{t+1} \mid s_t = s]$.
+
+The left side is $v_\pi(s)$. Two terms on the right: the *expected
+immediate reward*, and the *expected discounted future return*.
+</details>
+
+### Problem 2 — Expand the immediate reward
+
+The first term, $\mathbb{E}_\pi[r_{t+1} \mid s_t = s]$, depends on the
+random action $a$ and the random next state $s'$. Expand it as a sum.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Average over $a \sim \pi(\cdot \mid s)$, then over $s' \sim P(\cdot \mid s, a)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$\mathbb{E}_\pi[r_{t+1} \mid s_t = s] = \sum_{a} \pi(a \mid s) \sum_{s'} P(s' \mid s, a) R(s, a, s').$$
+The reward depends on $(s, a, s')$, hence the double sum.
+</details>
+
+### Problem 3 — Expand the future-return term
+
+The second term, $\mathbb{E}_\pi[G_{t+1} \mid s_t = s]$, requires
+knowing the *next state* $s_{t+1}$ — and from $s_{t+1}$ the future is by
+definition $v_\pi(s_{t+1})$. Use the Markov property to express it as a
+sum.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Condition on $s_{t+1} = s'$ and average. The Markov property kills the
+dependence on the past.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$\mathbb{E}_\pi[G_{t+1} \mid s_t = s] = \sum_{a, s'} \pi(a \mid s) P(s' \mid s, a) \mathbb{E}_\pi[G_{t+1} \mid s_{t+1} = s'].$$
+The inner expectation is just $v_\pi(s')$ by definition. So
+$$\mathbb{E}_\pi[G_{t+1} \mid s_t = s] = \sum_{a, s'} \pi(a \mid s) P(s' \mid s, a) v_\pi(s').$$
+The Markov property is what lets us write $\mathbb{E}[G_{t+1} \mid s_{t+1} = s'] = v_\pi(s')$
+*without* conditioning on $s_t$ as well — the past is gone.
+</details>
+
+### Problem 4 — Assemble the Bellman equation
+
+Combine Problems 1, 2, 3. Write the result.
+
+<details class="hint"><summary>Full solution</summary>
+$$\boxed{\,v_\pi(s) = \sum_{a} \pi(a \mid s) \sum_{s'} P(s' \mid s, a) \big[ R(s, a, s') + \gamma v_\pi(s') \big]\,}$$
+
+This is the **Bellman equation** for $v_\pi$. One equation per state $s$.
+The unknowns are $v_\pi(s)$ for every $s$. It is a *system of $|S|$
+linear equations in $|S|$ unknowns* — linear because $v_\pi$ appears
+once, untouched by any non-linearity, on each side.
+</details>
+
+### Problem 5 — Verify on a 3-state cycle
+
+For the cycle $1 \to 2 \to 3 \to 1$ from lesson 5 P2 (deterministic,
+single action), write down the three Bellman equations and confirm that
+your earlier solutions satisfy them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+With deterministic policy and dynamics, the sums collapse to single
+terms.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v(1) = 0 + 0.9 v(2)$, $v(2) = 0 + 0.9 v(3)$, $v(3) = 1 + 0.9 v(1)$.
+
+Plug in $v(1) \approx 2.989, v(2) \approx 3.321, v(3) \approx 3.690$:
+- $0.9 \cdot 3.321 = 2.989$. Match.
+- $0.9 \cdot 3.690 = 3.321$. Match.
+- $1 + 0.9 \cdot 2.989 = 1 + 2.690 = 3.690$. Match.
+
+The Bellman equation *is* the system that lesson 5 solved by hand.
+</details>
+
+::: {.key-insight}
+The future is *one step away*. The Bellman equation says: today's value
+equals (the expected reward for the next step) plus $\gamma$ times (the
+expected value of where you end up). A simple swap — take expectations
+of the trajectory recursion — and an *infinite* sum collapses into a
+*one-step* sum that references itself. That self-reference is what makes
+value learning possible from samples (lesson 23).
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+The **[Bellman equation](/glossary.qmd#bellman-equation)** for state
+values under a policy $\pi$ is, for every $s \in S$,
+$$v_\pi(s) = \mathbb{E}_\pi\!\left[r_{t+1} + \gamma v_\pi(s_{t+1}) \mid s_t = s\right] = \sum_{a, s'} \pi(a \mid s) P(s' \mid s, a) \big[ R(s, a, s') + \gamma v_\pi(s') \big].$$
+It is a system of $|S|$ linear equations in the $|S|$ unknowns $v_\pi(s)$.
+
+:::
+
+A verse to remember it by:
+
+> *Today's value equals tomorrow's,*
+> *one step away, by $\gamma$ shrunk.*
+> *Plus what the next step pays you —*
+> *and the recursion is sunk.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — solve the 2-state Bellman by hand
+
+States $\{X, Y\}$. Single action. Kernel $P(Y \mid X) = 1$, $P(X \mid Y) = 1$.
+Reward $R(X, \cdot, Y) = 0$, $R(Y, \cdot, X) = 1$. $\gamma = 0.9$.
+
+**Step 1 — write the two Bellman equations.**
+$v(X) = 0 + 0.9 v(Y)$
+$v(Y) = 1 + 0.9 v(X)$
+
+**Step 2 — substitute.** Plug the first into the second:
+$v(Y) = 1 + 0.9 (0.9 v(Y)) = 1 + 0.81 v(Y)$
+$\Rightarrow (1 - 0.81) v(Y) = 1 \Rightarrow v(Y) = 1/0.19 \approx 5.263$.
+
+**Step 3 — back-substitute.** $v(X) = 0.9 \cdot 5.263 \approx 4.737$.
+
+**Step 4 — sanity-check by Monte Carlo.** Simulate 10,000 trajectories
+from $X$ for 100 steps, record discounted returns, average — you'll get
+$\approx 4.74$. The Bellman equation gave you the *exact* answer in two
+lines.
+
+### Practice — Warm
+
+**W1.** A one-state MDP with $R = c$ on every step, $\gamma$ given. Write
+and solve the Bellman equation for $v(X)$.
+
+<details class="hint"><summary>Full solution</summary>
+$v(X) = c + \gamma v(X) \Rightarrow v(X) = c / (1 - \gamma)$.
+For $c = 1, \gamma = 0.9$: $v(X) = 10$. The geometric series shows up
+without an infinite sum — the Bellman equation packaged it for us.
+</details>
+
+**W2.** For the worked-example MDP, what is $v(Y) - v(X)$? Match against
+$\gamma$ and $v(X)$.
+
+<details class="hint"><summary>Full solution</summary>
+$v(Y) - v(X) = 5.263 - 4.737 = 0.526$. Algebraically, $v(Y) = 1 + 0.9 v(X)$
+and $v(X) = 0.9 v(Y)$, so $v(Y) - v(X) = (1 + 0.9 v(X)) - 0.9 v(Y) = 1 - 0.9(v(Y) - v(X))$,
+giving $v(Y) - v(X) = 1/1.9 \approx 0.526$. The single +1 reward is split
+between the two states by the discount.
+</details>
+
+**W3.** State why the Bellman equation does *not* directly tell you the
+optimal policy.
+
+<details class="hint"><summary>Full solution</summary>
+The Bellman equation is **for a fixed policy $\pi$**. It computes
+$v_\pi(s)$, not $v^*(s)$. Optimality requires the *Bellman optimality
+equation* (lesson 10), which replaces $\sum_a \pi(a \mid s) \cdots$ with
+$\max_a \cdots$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve the Bellman equations for the 3-state cycle from lesson 5
+P2 by Gaussian elimination. Confirm against the substitution method.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three equations, three unknowns. Use $\gamma = 0.9$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\begin{aligned} v(1) - 0.9 v(2) &= 0 \\ v(2) - 0.9 v(3) &= 0 \\ -0.9 v(1) + v(3) &= 1 \end{aligned}$
+
+Substitute $v(1) = 0.9 v(2) = 0.81 v(3)$ into the third:
+$-0.9 \cdot 0.81 v(3) + v(3) = 1 \Rightarrow 0.271 v(3) = 1 \Rightarrow v(3) \approx 3.690$.
+Then $v(2) \approx 3.321, v(1) \approx 2.989$. Same answers.
+</details>
+
+**P2.** A 2-state MDP with a *stochastic* policy. $\pi(a \mid X) = 0.5$,
+$\pi(b \mid X) = 0.5$. $P(Y \mid X, a) = 1$, $P(X \mid X, b) = 1$. Reward
+$R(X, a, Y) = 1$, others 0. $Y$ absorbing with $v(Y) = 0$. Solve for $v(X)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$v(X) = 0.5 \cdot (1 + \gamma v(Y)) + 0.5 \cdot (0 + \gamma v(X))$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v(X) = 0.5 + 0.5 \gamma v(X) \Rightarrow v(X) = 0.5 / (1 - 0.5 \gamma)$.
+At $\gamma = 0.9$: $v(X) = 0.5 / 0.55 \approx 0.909$. Less than the
+deterministic-$a$ value $1$ — randomness hurts when the optimal action
+is clear.
+</details>
+
+**P3.** *Verifying a guess.* Someone claims that for a 2-state MDP
+$\{X, Y\}$ with deterministic $X \to Y \to X$ cycle, reward
+$R(X, \cdot, Y) = 1$, $R(Y, \cdot, X) = 1$, and $\gamma = 0.9$, the answer
+is $v(X) = v(Y) = 1/(1 - 0.9) = 10$. Check by plugging into the Bellman
+equation.
+
+<details class="hint"><summary>Full solution</summary>
+$v(X) \stackrel{?}{=} 1 + 0.9 v(Y) = 1 + 0.9 \cdot 10 = 10$. Match.
+$v(Y) \stackrel{?}{=} 1 + 0.9 v(X) = 1 + 9 = 10$. Match. The guess is
+correct: every step gives +1, so the value at any state is the geometric
+sum of +1's, which is $10$. The Bellman equation gives you a fast way to
+*verify* a candidate solution.
+</details>
+
+### Practice — Stretch
+
+**S1.** *Existence and uniqueness in 2 lines.* Write the Bellman equation
+in matrix form $v = r + \gamma P v$ where $P$ is the policy-induced
+kernel. Show $(I - \gamma P)$ is invertible (hint: $\|\gamma P\|_\infty = \gamma < 1$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A matrix $M$ with $\|M\| < 1$ has $I - M$ invertible by the Neumann
+series.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P$ is row-stochastic, so $\|P\|_\infty = \max_s \sum_{s'} P(s' \mid s) = 1$.
+Hence $\|\gamma P\|_\infty = \gamma < 1$. The Neumann series
+$(I - \gamma P)^{-1} = I + \gamma P + \gamma^2 P^2 + \ldots$ converges in
+operator norm, so $I - \gamma P$ is invertible.
+
+The Bellman equation has a **unique** solution
+$v = (I - \gamma P)^{-1} r$ — exactly the closed form lesson 7 will
+develop.
+</details>
+
+**S2.** Show that the Bellman *operator* $T_\pi v := r_\pi + \gamma P^\pi v$
+is a $\gamma$-contraction in $\ell_\infty$ norm:
+$\|T_\pi v - T_\pi w\|_\infty \le \gamma \|v - w\|_\infty$. Conclude that
+*iterating* $T_\pi$ from any starting vector converges to $v_\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T_\pi v - T_\pi w = \gamma P^\pi (v - w)$. Use $\|P^\pi\|_\infty = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\|T_\pi v - T_\pi w\|_\infty = \gamma \|P^\pi (v - w)\|_\infty \le \gamma \|P^\pi\|_\infty \|v - w\|_\infty = \gamma \|v - w\|_\infty$.
+By Banach FPT (lesson 11) on the complete space $\mathbb{R}^{|S|}$, the
+iteration $v_{k+1} = T_\pi v_k$ converges to the unique fixed point —
+which is $v_\pi$. This is **iterative policy evaluation**, the workhorse
+of lessons 14–15.
+</details>
+
+::: {.fun-fact}
+Bellman called his equation **the principle of optimality** in his 1957
+book *Dynamic Programming* — though as a "principle" it predates the
+equation: an optimal policy has the property that, whatever the initial
+state and decision, the remaining decisions must constitute an optimal
+policy *with regard to the state resulting from the first decision*. The
+recursive form first appeared in Howard's 1960 PhD thesis on policy
+iteration, where he made the equation $|S| \times |S|$ linear and
+*solved it directly* with Gaussian elimination.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"The Bellman equation gives you the optimal policy."** No — it gives
+   you the *value of a fixed policy*. The optimality equation (lesson 10)
+   gives the optimal value.
+2. **"Bellman is iterative."** The equation itself is a *system of linear
+   equations*; you can solve it in closed form (lesson 7) or iteratively
+   (lessons 13–14). Both work.
+3. **"It only applies to finite MDPs."** It applies to any MDP with
+   bounded rewards and $\gamma < 1$; the linear-system view assumes
+   finite $|S|$, but the *operator* view (S2) works for infinite state
+   spaces too.
+:::
+
+### Takeaways
+
+1. The [Bellman equation](/glossary.qmd#bellman-equation) is the
+   fixed-policy recursion: $v_\pi(s) = \mathbb{E}[r + \gamma v_\pi(s') \mid s]$.
+   It packages an infinite future into a one-step sum.
+2. It is a **linear system** in the unknowns $v_\pi(s)$ — solvable by
+   substitution (small) or matrix methods (lesson 7).
+3. The derivation has three pieces: trajectory recursion + linearity of
+   expectation + Markov property. Drop any one and the equation
+   collapses.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you, on a blank sheet, derive the Bellman equation from
+   $G_t = r_{t+1} + \gamma G_{t+1}$ in three or four lines?
+2. Did you finish W1–S1 without peeking past *Hint 1*?
+3. Can you solve the 2-state Bellman in your head by substitution?
+
+- **3 yes:** continue to lesson 7 (matrix form).
+- **2 yes:** redo S2 — the contraction view is the bridge to lessons
+  11–13.
+- **0–1 yes:** re-read *Discover*. Problems 1–4 are the derivation.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.state-values"]
+- **`mfrl.state-values`** — for $v_\pi(s)$ as $\mathbb{E}_\pi[G_t \mid s_t = s]$.
+- Implicitly: lesson 2's Markov property and lesson 4's trajectory
+  recursion.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 7 — Matrix-Vector Bellman.** Stack the equations and solve in
+  closed form.
+- **Lesson 8 — Action Values.** Same recursion, now indexed over $(s, a)$.
+- **Lesson 11 — Contraction.** The operator $T_\pi$ is a contraction;
+  iterating it converges to $v_\pi$.
+- **Lesson 23 — TD(0).** Bellman holds *in expectation*; sample-based TD
+  uses noisy versions of it as targets.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every value-based RL algorithm — TD(0), Q-learning, SARSA,
+DQN, fitted Q-iteration — is solving (a sample-based version of) a
+Bellman equation. The equation is the optimisation target.
+:::
+
+::: {.applied-callout}
+**Research / operations research.** Stochastic dynamic programming —
+inventory control, portfolio optimisation, scheduling — uses Bellman
+equations every day. Bellman's 1957 framing is unchanged.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view; the Bellman equation is the heart of
+that paragraph.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §06. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 2 §2-3. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Russian school (Discover *is* the derivation in
+  five problems), Better Explained ("the future is one step away" framing).
 :::

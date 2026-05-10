@@ -7,72 +7,422 @@ prerequisites: ["mfrl.from-table-to-function", "t6.gradient-methods"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.from-table-to-function", "t6.gradient-methods"].
+Be honest before you read on.
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Can you state TD(0) for the *tabular* case — how each $v(s)$ is updated
+   from one transition?
+2. Do you know what a [gradient](/glossary.qmd#gradient) is, and how to take
+   $\nabla_w$ of a scalar function of $w$?
+3. Can you write a linear value approximator $\hat v(s; w) = \phi(s)^\top w$
+   and say what $\phi(s)$ and $w$ are?
+4. Are you comfortable with one step of gradient descent
+   $w \leftarrow w - \eta \nabla_w L(w)$ on a quadratic loss?
+
+If any answer is no, revisit the previous lesson on
+[function approximation](../28-from-table-to-function/index.qmd) and the
+gradient lessons before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+You have a 5-state chain. The true state values $v_\pi$ are unknown to you;
+you only see one transition at a time: a state $s$, a reward $r$, and the next
+state $s'$.
+
+The table approach kept one number per state. We've thrown it out. Instead we
+keep just **two numbers**, $w_1$ and $w_2$, and we estimate the value of state
+$s$ as
+
+$$\hat v(s; w) = \phi_1(s)\, w_1 + \phi_2(s)\, w_2,$$
+
+with two simple features: $\phi_1(s) = 1$ for every $s$ (a bias) and
+$\phi_2(s) = s$ (the state index).
+
+Imagine a slider that controls a learning rate $\alpha$ and a button labelled
+"do one TD step". Each click reads one transition and nudges $(w_1, w_2)$ a
+little. Watch the trace of $w$ in the 2-D plane.
+
+::: {.lesson-beat}
+You only see *one* transition at a time. You only have *two* knobs to turn.
+But you have to make $\hat v$ correct on average across all five states.
+:::
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+Sit with these. Don't write yet.
+
+1. The TD target $r + \gamma \hat v(s'; w)$ depends on $w$. Doesn't that
+   make it a *moving* target?
+2. If you could see the true $v_\pi(s)$, you would know exactly what to fit.
+   You can't. So what *are* you actually fitting?
+3. In the tabular case, an update at state $s$ changes only the entry $v(s)$.
+   With two parameters and five states, what happens to the estimates at
+   *other* states when you nudge $w$?
+4. Standard gradient descent minimises a fixed objective $L(w)$. Is that what
+   you are doing here?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Work through these in order. Each is small.
+
+### Problem 1 — what we'd fit if we knew the truth
+
+Suppose, magically, you knew $v_\pi(s)$ for every $s$. A natural thing to
+optimise is the *mean square value error*:
+
+$$J(w) \;=\; \sum_s \mu(s)\, \bigl(v_\pi(s) - \hat v(s; w)\bigr)^2,$$
+
+where $\mu(s)$ is how often the policy visits $s$. Compute $\nabla_w J(w)$
+when $\hat v(s; w) = \phi(s)^\top w$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The $v_\pi(s)$ part doesn't depend on $w$. Treat it as a constant.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Use the chain rule. The derivative of $(v_\pi(s) - \hat v(s; w))^2$ with
+respect to $w$ is $2(v_\pi(s) - \hat v(s; w)) \cdot (-\nabla_w \hat v(s; w))$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$\nabla_w J(w) \;=\; -2 \sum_s \mu(s)\,\bigl(v_\pi(s) - \hat v(s; w)\bigr)\,\nabla_w \hat v(s; w).$$
+
+For linear FA, $\nabla_w \hat v(s; w) = \phi(s)$. So the full-gradient update
+points "toward $v_\pi(s)$" weighted by the visit distribution $\mu$.
+</details>
+
+### Problem 2 — sample one transition
+
+You don't have $v_\pi$. You have one observed transition $(s, r, s')$ drawn by
+following $\pi$. Replace $v_\pi(s)$ by the TD target $r + \gamma \hat v(s'; w)$
+inside the gradient from Problem 1. Drop the sum over $s$ — you only have one
+sample.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You're constructing an estimator. The visit weight $\mu(s)$ is implicit because
+$s$ was sampled from $\mu$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$w \;\leftarrow\; w + \alpha\,\bigl[r + \gamma \hat v(s'; w) - \hat v(s; w)\bigr]\,\nabla_w \hat v(s; w).$$
+
+This is the **semi-gradient TD** update. The bracket is the
+[TD error](/glossary.qmd#td-error); the trailing $\nabla_w \hat v(s; w)$ is
+the only gradient we actually computed.
+</details>
+
+### Problem 3 — what was *not* differentiated
+
+Look closely at the update from Problem 2. The TD target
+$r + \gamma \hat v(s'; w)$ contains $w$. If we were doing honest gradient
+descent on a fixed objective, we would also have differentiated the target
+through its $w$-dependence.
+
+What gradient term did we *drop*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Imagine you set $L(w) = \tfrac12 (r + \gamma \hat v(s'; w) - \hat v(s; w))^2$
+and computed $\nabla_w L$ by the chain rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The honest gradient would include $-\gamma \nabla_w \hat v(s'; w)$ inside the
+bracket. Semi-gradient TD throws that term away — the target is treated as if
+it did not depend on $w$. That is what the prefix *semi-* means: only half of
+the gradient is taken.
+</details>
+
+::: {.fun-fact}
+Sutton's 1988 paper introducing TD($\lambda$) noted the semi-gradient catch
+but did not have a rigorous convergence proof for the function-approximation
+case. The matter sat open for nearly a decade before
+**Tsitsiklis and Van Roy (1997)** proved that semi-gradient TD with **linear**
+function approximation, **on-policy** sampling, and a decreasing step size
+converges to a unique fixed point. For non-linear FA or off-policy data, no
+such guarantee exists — and divergence is real, as we'll see in
+[Lesson 30](../30-q-learning-with-fa/index.qmd).
+:::
+
+### Problem 4 — when it's safe
+
+Tsitsiklis–Van Roy gives convergence under three conditions: linear FA,
+on-policy sampling, and Robbins–Monro step sizes
+($\sum \alpha_t = \infty,\ \sum \alpha_t^2 < \infty$). Which of these three
+were already familiar from earlier lessons?
+
+<details class="hint"><summary>Full solution</summary>
+The **step-size schedule** is exactly the Robbins–Monro condition you met in
+the [stochastic approximation](../20-robbins-monro/index.qmd) lesson. The
+**on-policy** part says the sampling distribution $\mu$ matches the policy
+whose value you're estimating — this matters because semi-gradient TD only
+"chases the right fixed point" when $\mu$ is the stationary distribution of
+$\pi$. **Linear FA** ensures the projection is non-expansive in the
+$\mu$-weighted norm.
+</details>
+
+::: {.key-insight}
+**Semi-gradient TD ignores how the target depends on $w$.** Mathematically
+that means there is no fixed scalar objective $J(w)$ that this iteration
+minimises by exact gradient descent. Empirically it works — and is provably
+convergent for linear FA on-policy. The "semi" is the price of being able to
+bootstrap: learning $\hat v(s)$ from $\hat v(s')$ before either is correct.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+For a parameterised value function $\hat v(s; w)$, the **semi-gradient TD(0)**
+update on a single transition $(s, r, s')$ is
+
+$$w \;\leftarrow\; w + \alpha\,\delta_t\,\nabla_w \hat v(s; w),
+\qquad \delta_t \;=\; r + \gamma \hat v(s'; w) - \hat v(s; w).$$
+
+It is called **semi-gradient** because it differentiates the prediction
+$\hat v(s; w)$ but *not* the bootstrapped target $\hat v(s'; w)$, even though
+both depend on $w$.
+
+:::
+
+In one line of mnemonic:
+
+> *The error is full; the gradient is half.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — 3-state chain, linear features
+
+States $\{1, 2, 3\}$. The policy walks deterministically right; reward $r=0$
+on each transition; $\gamma = 1$ for simplicity. The terminal value at state 3
+is taken to be 0.
+
+Linear FA: $\phi(s) = (1, s)^\top$, so $\hat v(s; w) = w_1 + w_2 \cdot s$.
+Initial $w = (0, 0)^\top$. Step size $\alpha = 0.1$. Reward sequence: every
+transition has $r = 0$ in this episode-free toy.
+
+Suppose we observe the transition $s=1,\ r=0,\ s'=2$.
+
+1. $\hat v(1; w) = 0$, $\hat v(2; w) = 0$.
+2. $\delta = 0 + 1 \cdot 0 - 0 = 0$.
+
+So after one zero-reward transition, $w$ doesn't move. Now consider a chain
+where the terminal transition $s=2,\ r=1,\ s'=3$ pays out, and $\hat v(3; w)$
+is forced to 0 (terminal).
+
+1. $\hat v(2; w) = 0$, $\hat v(3; w) = 0$.
+2. $\delta = 1 + 0 - 0 = 1$.
+3. $\nabla_w \hat v(2; w) = \phi(2) = (1, 2)^\top$.
+4. $w \leftarrow (0, 0) + 0.1 \cdot 1 \cdot (1, 2)$ $= (0.1,\ 0.2)$.
+
+Now $\hat v(1; w) = 0.1 + 0.2 \cdot 1 = 0.3$, $\hat v(2; w) = 0.5$. **One
+update at state 2 has changed the estimate at state 1 too** — that's
+generalisation by feature sharing, the whole point of FA.
+
+### Practice — Warm
+
+**W1.** With $\hat v(s; w) = w_1 + w_2 s$, write down $\nabla_w \hat v(s; w)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Differentiate with respect to $w_1$ and $w_2$ separately.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\partial \hat v / \partial w_1 = 1,\ \partial \hat v / \partial w_2 = s$, so
+$\nabla_w \hat v(s; w) = (1, s)^\top = \phi(s)$.
+</details>
+
+**W2.** State the TD error $\delta_t$ on a transition $(s, r, s')$ for the
+linear FA in W1, with $\gamma = 0.9$ and current $w = (1, 0.5)^\top$, given
+$s=2$, $r=3$, $s'=4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plug into $\delta = r + \gamma \hat v(s'; w) - \hat v(s; w)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\hat v(2; w) = 1 + 0.5 \cdot 2 = 2$. $\hat v(4; w) = 1 + 0.5 \cdot 4 = 3$.
+$\delta = 3 + 0.9 \cdot 3 - 2 = 3.7$.
+</details>
+
+**W3.** Using W2, compute the next $w$ with $\alpha = 0.1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply $w \leftarrow w + \alpha \delta \nabla_w \hat v(s; w)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Update direction: $\delta \cdot \phi(s) = 3.7 \cdot (1, 2) = (3.7,\ 7.4)$.
+New $w = (1, 0.5) + 0.1 \cdot (3.7, 7.4) = (1.37,\ 1.24)$.
+</details>
+
+### Practice — Working
+
+**P1.** Repeat the chain example from "Worked example" but starting from
+$w = (1, 0)^\top$, observing the same single transition $(s=2, r=1, s'=3,
+\gamma=1, \alpha=0.1)$. Show the new $w$ and compare $\hat v(1)$ before and
+after.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $\hat v(2; w)$ first; then $\delta$, then the update.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Don't forget the bias feature $\phi_1(s) = 1$ in $\phi(2) = (1, 2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\hat v(2; w) = 1$, $\hat v(3; w) = 1$ (terminal value forced to 0 in the
+worked example, but here we treat $s=3$ as a normal state for illustration —
+adjust as needed). With $\hat v(3) = 0$ for a true terminal:
+$\delta = 1 + 0 - 1 = 0$, no update. With $\hat v(3) = 1$ (no terminal
+forcing): $\delta = 1 + 1 - 1 = 1$; new $w = (1, 0) + 0.1 \cdot 1 \cdot (1, 2)
+= (1.1, 0.2)$. Before: $\hat v(1) = 1$. After: $\hat v(1) = 1.1 + 0.2 = 1.3$.
+The estimate at state 1 moved even though we didn't visit state 1.
+</details>
+
+**P2.** A student claims: "Semi-gradient TD is just SGD on the loss
+$L(w) = \tfrac12 \delta^2$." Refute this claim in one short paragraph.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What does honest SGD on $L(w) = \tfrac12 (r + \gamma \hat v(s'; w) -
+\hat v(s; w))^2$ produce when you do the chain rule?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Honest SGD on that $L$ would yield
+$\nabla_w L = \delta \cdot (\gamma \nabla_w \hat v(s'; w) - \nabla_w \hat v(s; w))$,
+which contains an extra $\gamma \nabla_w \hat v(s'; w)$ term that semi-gradient
+TD discards. So semi-gradient TD is not SGD on this loss. (The variant that
+*does* keep the target's gradient is called the **residual gradient** method;
+it has its own pathologies — slower learning and a tendency to find the wrong
+fixed point.)
+</details>
+
+**P3.** Suppose you have $|S| = 5$ states and use a **one-hot** feature vector
+$\phi(s) = e_s$ — the $s$-th standard basis vector. Show that the
+semi-gradient TD update reduces to the *tabular* TD(0) update.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For one-hot features, $w$ has 5 entries and $\hat v(s; w) = w_s$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Compute $\nabla_w \hat v(s; w)$ when $\phi(s) = e_s$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\nabla_w \hat v(s; w) = e_s$, so the update only changes the $s$-th entry of
+$w$: $w_s \leftarrow w_s + \alpha \delta$. Since $\hat v(s; w) = w_s$ this
+*is* the tabular TD(0) update. One-hot FA is the special case where
+"function approximation" approximates nothing — every state has its own
+parameter and there is no generalisation. So tabular TD is a special case of
+semi-gradient TD.
+</details>
+
+### Practice — Stretch
+
+**S1.** State (without proof) why semi-gradient TD with **non-linear** FA
+loses the convergence guarantee. Give one intuitive reason.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The Tsitsiklis–Van Roy proof relies on the fact that linear FA defines a
+non-expansive projection in a particular norm.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The proof rests on showing that the composition of the Bellman operator with
+the *projection onto the linear subspace* is a contraction in the
+$\mu$-weighted norm. For non-linear FA the projection isn't a true projection,
+isn't necessarily a contraction, and the composed operator can have multiple
+fixed points or none. Intuitively: a neural network's representation can
+*move* under updates, so chasing $\hat v(s'; w)$ can drag the function in a
+direction that doesn't decrease error elsewhere. We see this fail in
+[Lesson 30](../30-q-learning-with-fa/index.qmd).
+</details>
+
+**S2.** Re-derive the semi-gradient TD update for a **non-linear** FA
+$\hat v(s; w) = \tanh(w^\top \phi(s))$. What changes? What stays the same?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Only the gradient changes; the structure of the update does not.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The update is
+$w \leftarrow w + \alpha \delta \nabla_w \hat v(s; w)$
+with $\nabla_w \hat v(s; w) = (1 - \tanh^2(w^\top \phi(s)))\,\phi(s)$ by the
+[chain rule](/glossary.qmd#chain-rule). The shape — TD error times the gradient
+of the prediction — is unchanged. What changes is that the convergence theorem
+no longer applies.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Semi-gradient TD is SGD on the squared TD error."** No — see P2. The
+   target depends on $w$ but is treated as if it doesn't. Calling this SGD is
+   a category error.
+2. **"Semi-gradient is just sloppy."** Also no. Including the missing target
+   gradient (the *residual gradient* method) gives valid SGD, but it tends to
+   converge to the wrong place when the model is mis-specified, and learns
+   much more slowly. Semi-gradient is the empirically better choice; it just
+   has weaker theory.
+3. **"Linear FA is a toy."** It's not — linear FA over hand-crafted or learned
+   features (tile-coding, RBFs, the penultimate layer of a frozen network) is
+   the regime in which semi-gradient TD is *provably* well-behaved. Modern
+   deep RL chooses non-linear FA and accepts the theoretical loss in exchange
+   for representational power.
+:::
+
+### Takeaways
+
+1. **Linear FA + on-policy ⇒ semi-gradient TD converges** to a unique fixed
+   point (Tsitsiklis–Van Roy 1997). Outside that regime, all bets are off.
+2. The update is **TD error × prediction gradient**:
+   $w \leftarrow w + \alpha \delta \nabla_w \hat v(s; w)$. Memorise this
+   shape — every variant in this track plugs different pieces in.
+3. The "semi" matters: **the bootstrapped target's $w$-dependence is ignored.**
+   Honest SGD on the squared TD error gives a different (and worse-performing)
+   algorithm.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain to a friend why semi-gradient TD is not exact SGD on a
+   fixed objective?
+2. Did you derive the semi-gradient TD update yourself in *Discover* before
+   reading the *Name* beat?
+3. Could you implement one step of semi-gradient TD on a 5-state chain with
+   a 2-feature linear approximator from scratch?
+
+- **3 yes:** continue to [Lesson 30 — Q-Learning with FA and the Deadly
+  Triad](../30-q-learning-with-fa/index.qmd).
+- **2 yes:** redo S2, then move on.
+- **0–1 yes:** re-derive the update in *Discover* by hand.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.from-table-to-function", "t6.gradient-methods"]
+- **[mfrl.from-table-to-function](../28-from-table-to-function/index.qmd)** —
+  parameterised value functions $\hat v(s; w)$.
+- **t6.gradient-methods** — basic SGD and the Robbins–Monro step-size
+  schedule.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[Q-Learning with Function Approximation](../30-q-learning-with-fa/index.qmd)** —
+  the off-policy variant where things can go wrong.
+- **[DQN](../31-deep-q-network/index.qmd)** — the engineering fixes that
+  defeat the deadly triad.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Almost every modern RL agent that estimates a value function
+runs some form of semi-gradient update — DQN, A2C, PPO, SAC. The "semi"
+catch reappears every time someone proposes a new value-based algorithm and
+has to argue convergence informally.
+:::
+
+::: {.applied-callout}
+**Research.** The 1997 Tsitsiklis–Van Roy paper is one of the most-cited
+results in the theory of approximate dynamic programming. Its conditions
+delineate the safe regime, and every subsequent theoretical paper on RL with
+function approximation cites it.
 :::
 
 ::: {.applied-callout}
@@ -84,10 +434,10 @@ track expands into 38 lessons.
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §29. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §8 (function approximation, semi-gradient TD). Cite
+  freely; never transcribe Zhao's prose.
+- Touchstones honoured: Russian school problem-first sequencing (Discover
+  derives the update before *Name* states it), Better Explained "Aha!"
+  framing (the key-insight callout: the error is full, the gradient is half).
 :::

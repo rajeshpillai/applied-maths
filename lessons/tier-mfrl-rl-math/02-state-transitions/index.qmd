@@ -7,87 +7,422 @@ prerequisites: ["mfrl.mdp-and-grid-world", "t3.conditional-probability"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.mdp-and-grid-world", "t3.conditional-probability"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. From [Lesson 1](../01-mdp-and-grid-world/index.qmd), can you list the
+   five components of an MDP?
+2. Do you know what
+   [conditional probability](/glossary.qmd#conditional-probability)
+   $P(B \mid A)$ means — "probability of $B$ given $A$ happened"?
+3. Can you read the bar in $P(s' \mid s, a)$ as "$s'$ given $s$ and $a$"?
+
+If a "no" appears, return briefly to
+[T3 — Conditional Probability](../../tier-3-algebra2-geometry-trig/14-conditional-probability/index.qmd)
+or to lesson 1.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Two grids, side by side. Same start cell, same chosen action ("up"). Different
+worlds.
+
+**World A — clean lab.** From cell $(2, 1)$, "up" lands you in $(1, 1)$ every
+single time.
+
+**World B — icy floor.** From cell $(2, 1)$, "up" lands you in $(1, 1)$ with
+probability $0.7$, in $(1, 0)$ with probability $0.15$, and in $(1, 2)$ with
+probability $0.15$.
+
+Picture both grids on graph paper. In World A you can draw a single arrow.
+In World B you need three arrows of different thickness, each labelled with a
+number.
+
+```{ojs}
+viewof slipProb = Inputs.range([0, 0.5], {value: 0.15, step: 0.01, label: "Slip probability (each side)"})
+```
+
+```{ojs}
+{
+  const intended = 1 - 2 * slipProb;
+  return html`<div style="font-family: monospace; font-size: 1rem;">
+    <div>P(up → intended) = ${intended.toFixed(2)}</div>
+    <div>P(up → slip-left) = ${slipProb.toFixed(2)}</div>
+    <div>P(up → slip-right) = ${slipProb.toFixed(2)}</div>
+    <div>sum = ${(intended + 2 * slipProb).toFixed(2)}</div>
+  </div>`;
+}
+```
+
+Caption: drag the slider to change how slippery the floor is. The "intended"
+probability shrinks as the slip grows.
+
+Set the slip to 0 — that is World A. Set it to 0.15 — that is World B.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. Suppose the slip is 0.49. Is it still meaningful to call "up" the
+   *intended* action?
+2. In World B, do you need to remember that two turns ago you slipped left?
+   Or is the current cell enough to decide what to do next?
+3. If you walked the same path in World B ten thousand times, would the
+   *fraction* of times you ended at $(1, 1)$ on the first step approach
+   anything specific?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — The kernel as a row of a table
+
+For one fixed $(s, a)$ pair, list every cell that could come next, with its
+probability. Show this is exactly **one row of a probability distribution**
+over $S$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Re-read the slippery example. Three possible next cells, three numbers.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\,\cdot \mid s, a)$ assigns a probability to every $s' \in S$. For a small
+grid, most of those probabilities are 0; only the reachable cells get
+non-zero entries. Concretely for $s = (2,1)$, $a = \text{up}$, slip = 0.15:
+$$P((1,1) \mid s, a) = 0.7, \quad P((1,0) \mid s, a) = 0.15, \quad P((1,2) \mid s, a) = 0.15.$$
+Every other cell gets 0. The non-zeros sum to 1 — it is a proper
+distribution.
+</details>
+
+### Problem 2 — Verify the row sums to 1
+
+For *every* $(s, a)$ in any MDP, $\sum_{s'} P(s' \mid s, a) = 1$. Why must
+this be true?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"After you act, *something* must happen." That sentence is the answer in
+words.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\,\cdot \mid s, a)$ is a probability distribution. By the very axioms of
+probability, the total probability of *some* outcome is 1. The agent always
+ends up *somewhere* — even bouncing off a wall counts. So the row sums to 1.
+
+If a row of $P$ summed to less than 1 you would have non-conservation of
+probability, which means your model is broken.
+</details>
+
+### Problem 3 — Compose two transitions
+
+You are at $s$. You take $a$, land at some $s'$. Then at $s'$ you take $a'$,
+landing at some $s''$. Write the probability of *both* steps together:
+
+$$P(s'' \mid s, a, a') = ?$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You don't know $s'$ — you have to *sum* over every cell it could have been.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Total probability: $P(s'' \mid s, a, a') = \sum_{s'} P(s'' \mid s', a') P(s' \mid s, a)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$P(s'' \mid s, a, a') = \sum_{s'} P(s' \mid s, a) \cdot P(s'' \mid s', a').$$
+This is the *Chapman–Kolmogorov* identity for an MDP. The composition is a
+sum-of-products, exactly like multiplying two stochastic matrices.
+
+Notice what is *missing* on the right: there is no dependence on what
+happened *before* state $s$. The first step's history is gone.
+</details>
+
+### Problem 4 — That hidden assumption
+
+In Problem 3 you wrote $P(s'' \mid s', a')$ — not $P(s'' \mid s, a, s', a')$.
+What did you silently assume to do that?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You assumed that, given $s'$ and $a'$, the past $(s, a)$ is irrelevant for
+predicting $s''$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+You used the **Markov property**:
+$$P(s_{t+1} \mid s_0, a_0, s_1, a_1, \ldots, s_t, a_t) = P(s_{t+1} \mid s_t, a_t).$$
+Once you know the current state-action pair, the past tells you *nothing
+new* about the next state. Without this property, the Chapman–Kolmogorov
+identity gains a wrinkle for every prior step, and value functions are no
+longer well-defined.
+</details>
+
+::: {.key-insight}
+The Markov property is not a deep claim about reality — it is a claim about
+your *state representation*. If "next-state given current-state-and-action"
+genuinely depends on the past, your state is **too coarse**. Enlarge it
+(add the deck composition; add the velocity; add the timer) until the past
+stops mattering. Markov is a contract you arrange between your model and
+your world.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+The **state-transition kernel** of an MDP is the conditional distribution
+$$P : S \times A \to \Delta(S), \qquad P(s' \mid s, a) \ge 0, \quad \sum_{s'} P(s' \mid s, a) = 1.$$
+
+It satisfies the **Markov property**: for every history $(s_0, a_0, \ldots, s_t, a_t)$,
+$$P(s_{t+1} \mid s_0, a_0, \ldots, s_t, a_t) = P(s_{t+1} \mid s_t, a_t).$$
+The past, given the present, is irrelevant.
+
+:::
+
+A verse to remember it by:
+
+> *One row per (state, action), summing to one.*
+> *The past, once spoken, is already done.*
+> *Where you are and what you choose:*
+> *those two alone the future use.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — a 2-step transition
+
+Take a 1-D corridor of three cells $\{1, 2, 3\}$. The only action is "right"
+with slip:
+
+$$P(s+1 \mid s, R) = 0.8, \quad P(s \mid s, R) = 0.2,$$
+
+with the convention $P(3+1 \mid 3, R) = 0$ and $P(3 \mid 3, R) = 1$ (you
+cannot leave cell 3).
+
+**Question.** Starting at $s = 1$, take "right" twice. What is
+$P(s_2 = 3 \mid s_0 = 1)$?
+
+**Step 1 — list candidate intermediate cells.** From $s_0 = 1$ the next cell
+$s_1$ is either $2$ (with $P = 0.8$) or $1$ (with $P = 0.2$).
+
+**Step 2 — apply the Chapman–Kolmogorov sum.**
+$$P(s_2 = 3 \mid s_0 = 1) = P(s_2 = 3 \mid s_1 = 2) \cdot P(s_1 = 2 \mid s_0 = 1)
++ P(s_2 = 3 \mid s_1 = 1) \cdot P(s_1 = 1 \mid s_0 = 1).$$
+
+**Step 3 — fill in numbers.**
+- $P(s_1 = 2 \mid s_0 = 1) = 0.8$, $P(s_2 = 3 \mid s_1 = 2) = 0.8$.
+- $P(s_1 = 1 \mid s_0 = 1) = 0.2$, $P(s_2 = 3 \mid s_1 = 1) = 0$ (you can't
+  reach $3$ from $1$ in one step).
+
+So $P(s_2 = 3 \mid s_0 = 1) = 0.8 \cdot 0.8 + 0.2 \cdot 0 = 0.64$.
+
+**Step 4 — sanity check.** The only way to reach 3 in two steps from 1 is
+"no slip both times," which has probability $0.8 \cdot 0.8 = 0.64$. Match.
+
+### Practice — Warm
+
+**W1.** A 2-cell MDP $\{A, B\}$ with one action. $P(B \mid A) = 0.5$,
+$P(A \mid A) = 0.5$, $P(A \mid B) = 1$, $P(B \mid B) = 0$. Confirm both rows
+sum to 1.
+
+<details class="hint"><summary>Full solution</summary>
+Row for $A$: $0.5 + 0.5 = 1$. Row for $B$: $1 + 0 = 1$. Both rows valid.
+This is a tiny Markov chain.
+</details>
+
+**W2.** From the worked example, what is $P(s_1 = 2 \mid s_0 = 1)$?
+
+<details class="hint"><summary>Full solution</summary>
+$0.8$. Read off the kernel directly.
+</details>
+
+**W3.** From the slippery 5×5 grid, list the cells reachable in *one* step
+from $(1, 1)$ via the action "left," with their probabilities. (Slip = 0.15
+each side.)
+
+<details class="hint"><summary>Full solution</summary>
+"Left" intends $(1, 0)$. Slips perpendicular: $(0, 0)$ and $(2, 0)$.
+$P((1,0) \mid (1,1), \text{left}) = 0.7$, $P((0,0) \mid (1,1), \text{left}) = 0.15$,
+$P((2,0) \mid (1,1), \text{left}) = 0.15$.
+</details>
+
+### Practice — Working
+
+**P1.** In the worked-example corridor, compute $P(s_2 = 2 \mid s_0 = 1)$
+two ways: directly by summing, and by computing $1 - P(s_2 = 1) - P(s_2 = 3)$.
+Confirm they match.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direct: routes ending at 2 in two steps are $1 \to 2 \to 2$ and $1 \to 1 \to 2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Direct.** $1 \to 2 \to 2$ has probability $0.8 \cdot 0.2 = 0.16$.
+$1 \to 1 \to 2$ has $0.2 \cdot 0.8 = 0.16$. Sum: $0.32$.
+
+**Complement.** $P(s_2 = 1) = 0.2 \cdot 0.2 = 0.04$. $P(s_2 = 3) = 0.64$.
+Total $= 0.04 + 0.32 + 0.64 = 1.00$. Match.
+</details>
+
+**P2.** *Designing for Markov.* Consider a stoplight that stays green for
+exactly 30 seconds, then yellow for 5, then red for 25. Suppose your state
+is just the colour. Is the process Markov? If not, what minimal extra info
+makes it Markov?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What governs *how much longer* the colour stays?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Not Markov. From "green," the time-to-yellow depends on how long it has
+been green — which the colour alone does not record. Add a *seconds-since-this-colour-began*
+counter; the enlarged state $(\text{colour}, \text{elapsed})$ is Markov,
+because the next state is fully determined by the rule "increment the
+counter; flip colour at the threshold."
+
+This is the lesson's key insight in action: **enlarge the state until the
+past stops mattering.**
+</details>
+
+**P3.** A Markov chain has rows
+$P(\,\cdot \mid 1) = [0.6, 0.3, 0.1]$,
+$P(\,\cdot \mid 2) = [0.2, 0.5, 0.3]$,
+$P(\,\cdot \mid 3) = [0.1, 0.4, 0.5]$.
+Compute $P(s_2 = 1 \mid s_0 = 2)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sum over the intermediate state $s_1$: $\sum_{s_1} P(s_2 = 1 \mid s_1) P(s_1 \mid s_0 = 2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(s_2 = 1 \mid s_0 = 2) = P(1 \mid 1) P(1 \mid 2) + P(1 \mid 2) P(2 \mid 2) + P(1 \mid 3) P(3 \mid 2)$
+$= 0.6 \cdot 0.2 + 0.2 \cdot 0.5 + 0.1 \cdot 0.3 = 0.12 + 0.10 + 0.03 = 0.25$.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the Chapman–Kolmogorov identity for $n$ steps is
+*equivalent* to "the $n$-step transition matrix is the $n$-th power of the
+1-step transition matrix" (when there is a single action and finite $S$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Stack $P(\,\cdot \mid s)$ as the $s$-th row of a matrix $P$. Compute $(P^2)_{ss''}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(P^2)_{s, s''} = \sum_{s'} P_{s, s'} P_{s', s''}$, which is exactly
+$P(s_2 = s'' \mid s_0 = s)$ from Chapman–Kolmogorov. By induction $P^n$
+gives the $n$-step kernel. So *matrix powers* and *step-composition* are
+the same operation. This is why the matrix-vector form of Bellman (lesson
+7) is so natural.
+</details>
+
+**S2.** Find a real-world process that *appears* non-Markov in its raw form
+but becomes Markov after a clever state redesign. Outline the redesign.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Think traffic, weather, finance, language.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*A 4-gram language model.* "Predict the next word given just the previous
+word" is not Markov in any useful sense — natural language has long-range
+structure. Enlarge the state to "(previous 3 words)" and you have a 4-gram
+Markov chain that is genuinely Markov on the enlarged state. (Modern
+transformers do this with the entire prefix as the state, exploding the
+state space astronomically — but the trick is the same.)
+</details>
+
+::: {.fun-fact}
+Andrey Markov introduced his "chains" in 1906 — but not in physics or
+biology. He was settling a public argument about whether *Eugene Onegin*
+by Pushkin obeyed the law of large numbers. He counted 20,000 letters by
+hand, classified each as vowel or consonant, and used his new chain
+machinery to show consonants and vowels are *not* independent: a vowel is
+much more likely to follow a consonant than another vowel. The Markov
+property was born from a quarrel about Russian poetry.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"The Markov property says the future is deterministic."** No — it says
+   the future is *conditionally* independent of the past *given the
+   present*. The present itself can produce a stochastic future.
+2. **"$P(s' \mid s, a)$ tells you what happens."** It tells you a
+   distribution over what happens. Reading off "the most likely next state"
+   is fine for intuition, but the maths uses the whole row.
+3. **"A non-Markov process can never be RL'd."** It usually can — by
+   *making it Markov* through state augmentation (memory, history,
+   recurrent hidden state). POMDPs and recurrent policies are the formal
+   toolkits. The Markov property is a *modelling choice*, not a fact about
+   the world.
+:::
+
+### Takeaways
+
+1. The
+   [transition kernel](/glossary.qmd#state-transition-kernel)
+   $P(s' \mid s, a)$ is a row of a probability distribution — one row per
+   $(s, a)$ pair, summing to 1.
+2. The **Markov property** says given the present $(s, a)$, the past adds
+   nothing. This is what makes value functions even definable.
+3. Composing two transitions is a sum-of-products
+   (Chapman–Kolmogorov) — the same operation as multiplying two
+   stochastic matrices, which is why the matrix view in lesson 7 will
+   work so cleanly.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you sketch a row of $P(\,\cdot \mid s, a)$ on a grid world from
+   memory and explain why it sums to 1?
+2. Did you finish all of P1–S1 without peeking past *Hint 1*?
+3. Can you explain the lesson's key insight — "Markov is a property of
+   your state representation, not the world" — in one paragraph?
+
+- **3 yes:** move on to lesson 3.
+- **2 yes:** redo P2 and S2 — the state-redesign question is the
+  load-bearing skill.
+- **0–1 yes:** re-read *Discover*. Problems 3 and 4 together produce the
+  Chapman–Kolmogorov identity and the Markov property.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.mdp-and-grid-world", "t3.conditional-probability"]
+- **`mfrl.mdp-and-grid-world`** — for the five-tuple $(S, A, P, R, \gamma)$
+  and the grid-world running example.
+- **`t3.conditional-probability`** — for $P(s' \mid s, a)$ and the
+  composition-by-summing trick.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 3 — Policies as Conditional Distributions.** Layer the agent's
+  strategy on top of $P$ to get a Markov chain.
+- **Lesson 7 — Matrix-Vector Bellman.** The Chapman–Kolmogorov identity
+  *is* matrix multiplication; lesson 7 cashes that in.
+- **Every later lesson** uses the Markov property silently. If you ever
+  see "$P(s_{t+1} \mid s_t, a_t)$" without an apology for ignoring history,
+  this lesson is the apology.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Model-based RL (Dyna, MuZero, world-model agents) literally
+*learns* a transition kernel $\hat P$ from data and plans inside it. The
+quality of $\hat P$ caps the quality of any policy you can extract.
+:::
+
+::: {.applied-callout}
+**Research / robotics.** Sensor-noise models in Kalman filters, particle
+filters, and SLAM are all Markov transition kernels. Markov-chain Monte
+Carlo (MCMC) is built on the same machinery — sample by simulating a
+Markov chain whose stationary distribution is the target.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view; the Markov property earns one of those
+sentences.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §02. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 1 §3-4. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Russian school (Discover *is* the
+  Chapman–Kolmogorov derivation), Better Explained ("Markov is about your
+  state representation, not the world").
 :::

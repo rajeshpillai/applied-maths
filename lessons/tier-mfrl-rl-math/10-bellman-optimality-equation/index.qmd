@@ -7,87 +7,446 @@ prerequisites: ["mfrl.optimal-policies"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.optimal-policies"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. From [Lesson 6](../06-bellman-equation/index.qmd), can you write the
+   policy-Bellman equation
+   $v_\pi(s) = \sum_a \pi(a \mid s) \sum_{s'} P(s' \mid s, a)[R + \gamma v_\pi(s')]$?
+2. From [Lesson 9](../09-optimal-policies/index.qmd), can you state
+   $v^*(s) = \max_\pi v_\pi(s)$ and explain why $\pi^*$ exists?
+3. Are you comfortable with the operation $\max_a f(a)$ over a finite set
+   of actions?
+
+If a "no" appears, briefly revisit lessons 6 and 9.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Imagine the same grid world. The agent is at $s$. Above $s$, on a small
+sticky note, are the four action values: $q^*(s, \text{up}) = 7$,
+$q^*(s, \text{down}) = 5$, $q^*(s, \text{left}) = 6$, $q^*(s, \text{right}) = 3$.
+
+What is $v^*(s)$? Pick the largest sticky note: $v^*(s) = 7$.
+
+That is the entire content of the Bellman optimality equation. The optimal
+policy puts all its weight on the action with the highest $q^*$. So
+$v^*(s) = \max_a q^*(s, a)$ — the optimal value at $s$ is the *maximum*
+expected return over actions, not an average.
+
+```{ojs}
+viewof showOpt = Inputs.toggle({label: "Show optimal pick"})
+```
+
+```{ojs}
+{
+  const qs = [7, 5, 6, 3];
+  const labels = ["up", "down", "left", "right"];
+  const opt = qs.indexOf(Math.max(...qs));
+  const lines = ["Action sticky-notes at state s:"];
+  for (let i = 0; i < 4; i++) {
+    const marker = (showOpt && i === opt) ? "  ←★ optimal" : "";
+    lines.push(`  q*(s, ${labels[i]}) = ${qs[i]}${marker}`);
+  }
+  if (showOpt) {
+    lines.push(`v*(s) = max_a q*(s,a) = ${Math.max(...qs)}`);
+    lines.push(`π*(s) = ${labels[opt]}`);
+  }
+  return html`<pre style="font-size:1rem;">${lines.join("\n")}</pre>`;
+}
+```
+
+Caption: four action values at one cell. The optimal policy reads off the
+largest. The BOE is the recursive form of "take the max."
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The Bellman equation in lesson 6 had a $\sum_a \pi(a \mid s)$ averaging
+   over the policy. The BOE replaces that with $\max_a$. What's the
+   smallest *change* between the two equations?
+2. The optimal policy must take *some* action at each state. Why is the
+   optimal policy *deterministic* in finite MDPs?
+3. Once $v^*$ replaces $v_\pi$, the equation becomes *non-linear* in
+   $v^*$. Why does that matter for solving it?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — Start from the policy-Bellman for $\pi^*$
+
+Take the Bellman equation from lesson 6 with $\pi = \pi^*$:
+$$v^*(s) = \sum_a \pi^*(a \mid s) \sum_{s'} P(s' \mid s, a)[R(s, a, s') + \gamma v^*(s')].$$
+What does the inner sum represent for a fixed action $a$?
+
+<details class="hint"><summary>Full solution</summary>
+For a fixed $a$:
+$\sum_{s'} P(s' \mid s, a)[R(s, a, s') + \gamma v^*(s')] = q^*(s, a)$.
+
+This is the action-value formula from lesson 8 applied to $\pi^*$. So
+the policy-Bellman equation for $\pi^*$ becomes
+$v^*(s) = \sum_a \pi^*(a \mid s) q^*(s, a)$ — a policy-weighted average
+of $q^*$.
+</details>
+
+### Problem 2 — Where does $\pi^*$ put its mass?
+
+If $\pi^*$ is to *maximise* the average $\sum_a \pi^*(a \mid s) q^*(s, a)$
+subject to $\pi^*(a \mid s) \ge 0$ and $\sum_a \pi^*(a \mid s) = 1$,
+where should $\pi^*$ put its probability?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A weighted average is maximised when *all* weight goes to the largest
+input.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi^*(a \mid s) = 1$ for some $a \in \arg\max_a q^*(s, a)$, and 0
+otherwise. (If multiple actions tie, $\pi^*$ can put all its mass on any
+one of them — hence the non-uniqueness from lesson 9.)
+
+The optimal policy is **deterministic**, supported on the argmax.
+</details>
+
+### Problem 3 — The BOE in $v$
+
+Combine Problems 1 and 2: the average over $\pi^*$ of $q^*$ becomes the
+*max* over $a$ of $q^*$. Write the result.
+
+<details class="hint"><summary>Full solution</summary>
+$$\boxed{\,v^*(s) = \max_{a} \sum_{s'} P(s' \mid s, a)[R(s, a, s') + \gamma v^*(s')]\,}$$
+
+This is the **Bellman optimality equation (BOE)** in $v^*$. One equation
+per state. The unknown is $v^*(s)$ for every $s$.
+
+Compare with lesson 6's Bellman equation:
+$v_\pi(s) = \sum_a \pi(a \mid s) [\ldots]$.
+Single change: the $\sum_a \pi(a \mid s)$ becomes $\max_a$.
+</details>
+
+### Problem 4 — The BOE in $q$
+
+Now derive the analogous equation for $q^*$:
+$$q^*(s, a) = \sum_{s'} P(s' \mid s, a) \!\left[ R(s, a, s') + \gamma \max_{a'} q^*(s', a') \right].$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $v^*(s') = \max_{a'} q^*(s', a')$ from Problem 2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+From lesson 8: $q_\pi(s, a) = \sum_{s'} P(s' \mid s, a)[R(s, a, s') + \gamma v_\pi(s')]$.
+Set $\pi = \pi^*$:
+$q^*(s, a) = \sum_{s'} P(s' \mid s, a)[R(s, a, s') + \gamma v^*(s')] = \sum_{s'} P(s' \mid s, a)[R + \gamma \max_{a'} q^*(s', a')]$.
+
+The same shape as the policy-$q$ Bellman equation, with the inner
+$\sum_{a'} \pi(a' \mid s')$ replaced by $\max_{a'}$.
+</details>
+
+### Problem 5 — Why the BOE is non-linear
+
+The BOE in $v^*$ is
+$v^*(s) = \max_a [\sum_{s'} P(s' \mid s, a)(R + \gamma v^*(s'))]$. Why is
+this *not* a linear system in $v^*$? What does that imply for solving it?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\max$ is not a linear operation: $\max(a + b, c + d) \ne \max(a, c) + \max(b, d)$ in general.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\max_a$ is non-linear. Two solutions $v_1, v_2$ to the BOE do not
+combine linearly into a third — you cannot scale or add. The matrix-form
+trick of lesson 7 ($v = (I - \gamma P^\pi)^{-1} r^\pi$) **fails** for
+the BOE.
+
+To solve the BOE we need the contraction-mapping theorem (lesson 11):
+*iterate* the BOE operator from any starting vector and let it converge
+to the unique fixed point. That's value iteration (lesson 13).
+</details>
+
+::: {.key-insight}
+The BOE has the **same shape** as the Bellman equation from lesson 6,
+with one tiny change: $\sum_a \pi(a \mid s)$ becomes $\max_a$. That
+single substitution captures *the entire content of optimality*. It also
+breaks linearity, which is why we need contraction arguments instead of
+matrix inversion. The whole second half of this track exists to handle
+that one $\max$.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+The **[Bellman optimality equation](/glossary.qmd#bellman-optimality-equation)
+(BOE)** for a finite MDP with $\gamma < 1$ is, for every $s \in S$,
+$$v^*(s) = \max_{a \in A} \sum_{s'} P(s' \mid s, a)\!\left[R(s, a, s') + \gamma v^*(s')\right],$$
+or equivalently $v^*(s) = \max_a q^*(s, a)$. In $q^*$ form,
+$$q^*(s, a) = \sum_{s'} P(s' \mid s, a) \!\left[R(s, a, s') + \gamma \max_{a'} q^*(s', a')\right].$$
+The BOE has a *unique* solution (lessons 11–12), and the greedy policy
+$\pi^*(s) = \arg\max_a q^*(s, a)$ is optimal.
+
+:::
+
+A verse to remember it by:
+
+> *Average becomes maximum;*
+> *the policy collapses to argmax.*
+> *Linear becomes non-linear;*
+> *contraction the only way back.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — solve the BOE for a 2-state MDP by inspection
+
+States $\{X, Y\}$, two actions $\{a, b\}$. Transitions deterministic:
+
+- $a$ at $X$ stays: $P(X \mid X, a) = 1$.
+- $b$ at $X$ moves to $Y$: $P(Y \mid X, b) = 1$.
+- $a$ at $Y$ moves to $X$: $P(X \mid Y, a) = 1$.
+- $b$ at $Y$ stays: $P(Y \mid Y, b) = 1$.
+
+Rewards: $R(X, b, Y) = 1$, $R(Y, a, X) = 1$, all others 0.
+Discount $\gamma = 0.9$.
+
+**Step 1 — write the BOE.**
+$v^*(X) = \max\{\, 0 + 0.9 v^*(X), \quad 1 + 0.9 v^*(Y)\,\}$
+$v^*(Y) = \max\{\, 1 + 0.9 v^*(X), \quad 0 + 0.9 v^*(Y)\,\}$
+
+**Step 2 — guess the optimal action at each state.** "Move to the other
+state" gives reward 1; "stay" gives 0. So the optimal policy probably
+alternates: $\pi^*(X) = b, \pi^*(Y) = a$.
+
+**Step 3 — under the guess, the BOE becomes the policy-Bellman.**
+$v^*(X) = 1 + 0.9 v^*(Y)$
+$v^*(Y) = 1 + 0.9 v^*(X)$.
+
+By symmetry $v^*(X) = v^*(Y)$, call it $v$. Then $v = 1 + 0.9 v \Rightarrow v = 10$.
+
+**Step 4 — verify the max.** $v^*(X) = 10$. Check the other action:
+$0 + 0.9 \cdot 10 = 9 < 10$. Yes, $b$ wins. Symmetric for $Y$. The guess
+was right.
+
+**Step 5 — read $\pi^*$.** $\pi^*(X) = b, \pi^*(Y) = a$. Both states
+worth $10$.
+
+### Practice — Warm
+
+**W1.** A 1-state MDP, two actions. $R(X, a, X) = 5$, $R(X, b, X) = 3$.
+$\gamma = 0.9$. Write the BOE for $v^*(X)$ and solve.
+
+<details class="hint"><summary>Full solution</summary>
+$v^*(X) = \max\{5 + 0.9 v^*(X), 3 + 0.9 v^*(X)\} = 5 + 0.9 v^*(X)$
+$\Rightarrow v^*(X) = 50$.
+
+$\pi^*(X) = a$ (the higher-reward action).
+</details>
+
+**W2.** What is $v^*$ for a terminal state $s_T$?
+
+<details class="hint"><summary>Full solution</summary>
+$v^*(s_T) = 0$. After termination there is no future reward to maximise.
+</details>
+
+**W3.** Modify W1 so the actions tie: $R(X, a, X) = R(X, b, X) = 5$. How
+many optimal policies are there?
+
+<details class="hint"><summary>Full solution</summary>
+$v^*(X) = 50$ regardless. Both actions achieve the max. **Infinitely
+many optimal policies** — any mixture of $a$ and $b$ works. $v^*$ is
+unique; $\pi^*$ is not.
+</details>
+
+### Practice — Working
+
+**P1.** Take the worked-example MDP and consider the *suboptimal* policy
+$\pi(X) = a, \pi(Y) = b$ (always stay). Compute $v_\pi(X), v_\pi(Y)$
+under $\gamma = 0.9$ and confirm $v_\pi \le v^*$ pointwise.
+
+<details class="hint"><summary>Full solution</summary>
+"Always stay" gives reward 0 forever from either state. $v_\pi(X) = v_\pi(Y) = 0$.
+Strictly less than $v^*(X) = v^*(Y) = 10$. The optimal policy
+dominates as expected.
+</details>
+
+**P2.** Apply the BOE iteratively (one round): start from $v_0(s) = 0$,
+compute $v_1(s) = \max_a [\text{reward} + 0.9 v_0(\text{next state})]$.
+Then compute $v_2$ from $v_1$. Compare $v_2$ to $v^*$ for the worked
+example.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$v_1(X) = \max\{0 + 0, 1 + 0\} = 1$. Continue.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Iteration 1.** $v_1(X) = \max\{0 + 0.9 \cdot 0, 1 + 0.9 \cdot 0\} = 1$.
+$v_1(Y) = \max\{1 + 0.9 \cdot 0, 0 + 0.9 \cdot 0\} = 1$.
+
+**Iteration 2.** $v_2(X) = \max\{0 + 0.9 \cdot 1, 1 + 0.9 \cdot 1\} = 1.9$.
+$v_2(Y) = \max\{1 + 0.9 \cdot 1, 0 + 0.9 \cdot 1\} = 1.9$.
+
+After 2 iterations $v_2 = (1.9, 1.9)$; the limit is $v^* = (10, 10)$.
+Convergence is geometric — this preview of value iteration (lesson 13).
+</details>
+
+**P3.** *Sanity check the greedy.* For the worked example, compute $q^*(s, a)$
+for all 4 (state, action) pairs from the optimal $v^* = (10, 10)$.
+Confirm $\pi^*(s) = \arg\max_a q^*(s, a)$ matches your guess.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$q^*(s, a) = R(s, a, s') + \gamma v^*(s')$ where $s'$ is the deterministic
+next state.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $q^*(X, a) = 0 + 0.9 \cdot 10 = 9$.
+- $q^*(X, b) = 1 + 0.9 \cdot 10 = 10$.
+- $q^*(Y, a) = 1 + 0.9 \cdot 10 = 10$.
+- $q^*(Y, b) = 0 + 0.9 \cdot 10 = 9$.
+
+$\arg\max_a q^*(X, a) = b$, $\arg\max_a q^*(Y, a) = a$. Same as Step 5
+of the worked example. $\pi^*$ matches.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the **BOE operator**
+$T^* v(s) := \max_a \sum_{s'} P(s' \mid s, a)[R + \gamma v(s')]$ is a
+$\gamma$-contraction in $\ell_\infty$ norm:
+$$\|T^* v - T^* w\|_\infty \le \gamma \|v - w\|_\infty.$$
+(Hint: use the elementary fact $|\max_a f(a) - \max_a g(a)| \le \max_a |f(a) - g(a)|$.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For each $s$, the difference $|T^* v(s) - T^* w(s)|$ is bounded by
+$\max_a |Q_v(s, a) - Q_w(s, a)|$ where $Q_v(s, a) = \sum_{s'} P(\ldots)[R + \gamma v(s')]$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|T^* v(s) - T^* w(s)| = |\max_a Q_v(s, a) - \max_a Q_w(s, a)| \le \max_a |Q_v(s, a) - Q_w(s, a)|$
+$= \max_a \gamma |\sum_{s'} P(s' \mid s, a)(v(s') - w(s'))|$
+$\le \gamma \max_a \sum_{s'} P(s' \mid s, a)|v(s') - w(s')|$
+$\le \gamma \|v - w\|_\infty \cdot \max_a \sum_{s'} P(s' \mid s, a) = \gamma \|v - w\|_\infty$.
+
+Take $\sup_s$ on both sides: $\|T^* v - T^* w\|_\infty \le \gamma \|v - w\|_\infty$.
+$T^*$ is a $\gamma$-contraction. **By Banach FPT (lesson 11)**, the BOE
+has a unique solution and value iteration converges.
+</details>
+
+**S2.** Why does $\gamma = 1$ break the BOE story? (Two answers wanted:
+algebraic and operational.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Algebraic: contraction constant becomes 1. Operational: returns can
+diverge.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Algebraic.** $\|T^* v - T^* w\|_\infty \le \gamma \|v - w\|_\infty$.
+At $\gamma = 1$, this becomes $\le 1 \cdot \|v - w\|_\infty$ — a
+*non-strict* inequality. $T^*$ is no longer a contraction; the
+fixed-point theorem fails to give uniqueness. There can be multiple
+solutions or none.
+
+**Operational.** With $\gamma = 1$, returns $G_t = \sum_k r_{t+k+1}$ can
+be infinite, so $v^*$ may be undefined (or $+\infty$). Average-reward
+formulations (Howard 1960) replace the discount with a different
+optimisation criterion; the BOE story rebuilds with $h(s)$ relative
+values instead of $v^*(s)$. Lessons 25-onward touch on this.
+</details>
+
+::: {.fun-fact}
+The **single change** from Bellman equation to Bellman *optimality*
+equation — $\sum_a \pi(a \mid s) \to \max_a$ — turns a linear system
+into a non-linear one. Bellman called this "the principle of
+optimality" in 1957. Critically, it also turns "easy to solve" (matrix
+inverse) into "needs an iterative algorithm" — value iteration. So that
+single $\max$ is the reason the entire contraction-mapping section of
+this track exists. Without optimality, lessons 11–13 would be
+unnecessary; with it, they are unavoidable.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"BOE is the policy-Bellman with $\pi = \pi^*$."** Subtly wrong.
+   The policy-Bellman with $\pi = \pi^*$ is *linear in $v^*$*. The BOE
+   uses $\max$, which is non-linear. The two equations have the same
+   *solution*, but different *form*.
+2. **"BOE always has a unique solution."** Yes, *for $\gamma < 1$ on a
+   finite MDP*. At $\gamma = 1$ uniqueness can fail (S2).
+3. **"BOE gives you $\pi^*$ directly."** No — it gives you $v^*$ (or
+   $q^*$). The optimal policy is *extracted* afterward via
+   $\pi^*(s) = \arg\max_a q^*(s, a)$.
+:::
+
+### Takeaways
+
+1. The [BOE](/glossary.qmd#bellman-optimality-equation) replaces
+   $\sum_a \pi(a \mid s)$ in the Bellman equation with $\max_a$. That
+   single change captures all of optimality.
+2. The BOE is **non-linear**: $\max$ does not interact with linear
+   combinations. This is why we cannot solve it by matrix inversion.
+3. The BOE operator $T^*$ is a $\gamma$-contraction in $\ell_\infty$.
+   This is the seed of value iteration's convergence proof, which
+   lesson 11 makes formal.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you write the BOE in both $v^*$ and $q^*$ forms from memory and
+   identify the single change from the policy-Bellman equation?
+2. Did you finish W1–S1 without peeking past *Hint 1*?
+3. Can you state in one sentence why solving the BOE requires
+   contraction-mapping theory rather than linear algebra?
+
+- **3 yes:** continue to lesson 11 (Banach fixed-point theorem) — already
+  drafted, your next stop.
+- **2 yes:** redo S1 — the contraction proof is the bridge to lessons
+  11–13.
+- **0–1 yes:** re-read *Discover*. Problem 5 captures why "max breaks
+  linearity" matters.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.optimal-policies"]
+- **`mfrl.optimal-policies`** — for the existence of $\pi^*$ and the
+  uniqueness of $v^*$, both used in deriving the BOE.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 11 — Contraction mapping theorem.** The tool we need to prove
+  the BOE has a unique solution.
+- **Lesson 12 — BOE uniqueness.** Apply contraction to the BOE
+  specifically.
+- **Lesson 13 — Value iteration.** Solve the BOE by iterating
+  $v_{k+1} = T^* v_k$.
+- **Lesson 26 — Q-learning.** A model-free, sample-based version of the
+  BOE iteration in $q^*$.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Q-learning, DQN, AlphaZero's planning loop — all are
+algorithmic descendants of the BOE. The $\max_{a'}$ inside Q-learning's
+target is *literally* the BOE operator applied to the network's current
+$q$-estimates.
+:::
+
+::: {.applied-callout}
+**Research / control.** The Hamilton–Jacobi–Bellman (HJB) equation in
+continuous-time optimal control is the BOE's continuous analogue. The
+$\max_a$ becomes a $\sup$ over an action set; the recursion becomes a
+PDE; the rest of the structure is identical.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view; the BOE and its non-linear $\max$ are
+the headline.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §10. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 3 §3-4. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Russian school (Discover *derives* the BOE in
+  five problems), Better Explained ("$\sum$ becomes $\max$ — that's the
+  whole change").
 :::

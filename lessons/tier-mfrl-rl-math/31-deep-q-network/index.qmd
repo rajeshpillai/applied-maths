@@ -7,72 +7,386 @@ prerequisites: ["mfrl.q-learning-with-fa"]
 unlocks: []
 applied-domains: ["ai-ml", "game-dev"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.q-learning-with-fa"].
+Be honest:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Can you state the [Q-learning](/glossary.qmd#q-learning)-with-FA update
+   from [Lesson 30](../30-q-learning-with-fa/index.qmd)?
+2. Can you name the three ingredients of the **deadly triad**?
+3. Do you know what a *neural network* is, well enough to picture one as a
+   parameterised function $f(x; w)$?
+4. Are you comfortable with mini-batch SGD on a squared loss?
+
+If not, revisit the previous lesson and the gradient lessons.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Imagine the screen of an Atari game — *Breakout*, say — at 84×84 grayscale,
+four frames stacked. That's $84 \times 84 \times 4 = 28{,}224$ raw pixel
+inputs. The state space — every possible such image — has more than $10^{67}$
+elements. There is no table that fits.
+
+Now imagine a small convolutional network that takes those four frames in and
+emits 18 numbers, one per joystick action: $\hat q(s, a; w)$. Click "play
+one episode" and the agent uses these Q-values to pick moves. Click "train
+one batch" and a chunk of past transitions, sampled randomly from a
+**replay buffer**, is fed into the network to update $w$.
+
+The whole thing is Q-learning with neural-network FA. Lesson 30 told us
+that's the deadly triad — divergence is on the menu. And yet this very setup,
+in 2013, learnt to play seven Atari games at human level, from raw pixels.
+
+::: {.lesson-beat}
+The math says it should diverge. The engineering makes it not.
+:::
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The replay buffer holds millions of past transitions and we sample
+   randomly. Why would *not* using the most recent transition possibly help?
+2. The "target network" is a frozen copy of the Q-network, updated only every
+   few thousand steps. What problem could a *frozen* copy possibly solve?
+3. Tabular Q-learning was provably stable. We've added neural networks and
+   off-policy data — every triad ingredient. So why does any of this work?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Work in order.
+
+### Problem 1 — write the loss
+
+We want to do gradient steps on a Q-network. Pretend, for a moment, that the
+target $r + \gamma \max_{a'} \hat q(s', a'; w)$ is a fixed scalar $y$. Write
+the squared-error loss for a transition $(s, a, r, s')$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Standard regression loss between the prediction $\hat q(s, a; w)$ and the
+target $y$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$L(w) \;=\; \tfrac12 \bigl(y - \hat q(s, a; w)\bigr)^2,
+\qquad y \;=\; r + \gamma \max_{a'} \hat q(s', a'; w).$$
+
+If $y$ were genuinely fixed, $\nabla_w L = -(y - \hat q(s,a;w)) \nabla_w \hat q(s, a; w)$
+— this is plain SGD. The trouble is $y$ depends on the *same* $w$.
+</details>
+
+### Problem 2 — freeze the target
+
+Suppose we keep a *second* copy of the network, $\hat q(\cdot; w^-)$, and let
+the target use it: $y = r + \gamma \max_{a'} \hat q(s', a'; w^-)$. We
+**don't** update $w^-$ each step — we update $w$ each step, then once every
+$C$ steps we copy $w$ into $w^-$.
+
+What does this buy us?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Now $y$ doesn't move during the $C$ steps. The loss has a fixed target.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For the duration of $C$ steps, the regression problem
+$L(w) = \tfrac12(y - \hat q(s, a; w))^2$ has a *fixed* target $y$. SGD on a
+fixed-target regression is well-understood — no semi-gradient pathology, no
+chasing-your-tail dynamics. We get $C$ honest gradient steps before the
+target moves.
+
+This is the **target network**. The "deadly" part of bootstrapping was that
+the target shifted under us; freezing it for $C$ steps damps that.
+</details>
+
+### Problem 3 — break sample correlation
+
+In an episode, consecutive transitions are highly correlated: if you're in
+the upper-left of the screen, you're likely still there a frame later.
+Standard SGD assumes IID samples. Heavily correlated mini-batches make the
+gradient noisy in a structured way that biases learning.
+
+What if we kept a buffer of the last $N$ transitions and sampled mini-batches
+*uniformly at random* from it?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sampling from a large pool of past transitions roughly de-correlates them.
+Each sample is from a different episode, time-step, and behaviour-policy
+era.
+</details>
+<details class="hint"><summary>Full solution</summary>
+This is the **replay buffer** (Lin 1992; Mnih et al. 2013). Three benefits:
+
+1. **De-correlation** — consecutive batches don't share strong temporal
+   structure.
+2. **Data efficiency** — each transition is replayed many times, not used
+   once and discarded.
+3. **Smoothing the data distribution** — the effective $\mu$ is an average
+   over many recent behaviour policies, which is closer to stationary
+   than any single policy's distribution.
+</details>
+
+### Problem 4 — what about the deadly triad?
+
+DQN still has all three triad ingredients: bootstrapping, off-policy,
+neural-network FA. Have we *fixed* the math?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Has Tsitsiklis–Van Roy 1997 been extended to non-linear FA? Has anyone
+proved DQN converges?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**No.** There is still no general convergence proof for DQN. Replay buffers
+and target networks are *engineering stabilisers* — they make the bad
+behaviour rare in practice, but they don't break the triad. DQN can still
+diverge or oscillate, and it does in some workloads. The honest framing:
+*we found two tricks that make Q-learning + neural network FA empirically
+trainable on most tasks anyone has tried, even though the underlying
+algorithm is not theoretically sound.*
+</details>
+
+::: {.fun-fact}
+**DeepMind, December 2013, NeurIPS Deep Learning workshop:** Mnih et al.'s
+"Playing Atari with Deep Reinforcement Learning" introduced DQN, achieving
+human-level scores on seven Atari 2600 games **from raw pixels**. The
+follow-up *Nature* paper in 2015 extended to 49 games, and is widely cited
+as the moment modern deep RL began. Two engineering tricks — replay
+buffer and target network — and the field broke open.
+:::
+
+::: {.key-insight}
+**DQN is Q-learning with a replay buffer (decorrelates samples) and a
+target network (stabilises the bootstrap target).** It does not break the
+deadly triad — it engineers around it. Convergence is not guaranteed; what
+is guaranteed is that the algorithm trains stably on most workloads
+practitioners care about.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Deep Q-Network (DQN).** A neural-network function approximator
+$\hat q(s, a; w)$ trained by minimising
+
+$$L(w) \;=\; \mathbb{E}_{(s, a, r, s') \sim \mathcal D}\!\left[\bigl(r + \gamma \max_{a'} \hat q(s', a'; w^-) - \hat q(s, a; w)\bigr)^2\right]$$
+
+where:
+
+- $\mathcal D$ is a **replay buffer** of past transitions.
+- $w^-$ is a **target network**: a frozen copy of $w$, updated $w^- \leftarrow w$
+  every $C$ steps.
+
+The behaviour policy is $\varepsilon$-greedy on $\hat q(\cdot; w)$ for
+exploration.
+
+:::
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — DQN training loop
+
+A single iteration of DQN, in pseudo-code:
+
+1. **Act.** From state $s_t$, choose $a_t = \arg\max_a \hat q(s_t, a; w)$
+   with probability $1-\varepsilon$, else uniform random.
+2. **Observe.** Receive reward $r_t$ and next state $s_{t+1}$. Append the
+   tuple $(s_t, a_t, r_t, s_{t+1})$ to the replay buffer $\mathcal D$.
+3. **Sample.** Draw a mini-batch of $B$ transitions
+   $\{(s_i, a_i, r_i, s'_i)\}_{i=1}^B$ uniformly from $\mathcal D$.
+4. **Build targets.** For each $i$,
+   $y_i \;=\; r_i + \gamma \max_{a'} \hat q(s'_i, a'; w^-)$.
+5. **Update.**
+   $w \leftarrow w - \eta \nabla_w \sum_{i=1}^B \tfrac12 (y_i - \hat q(s_i, a_i; w))^2$.
+6. **Sync.** Every $C$ steps, set $w^- \leftarrow w$.
+
+Two engineering tricks. Otherwise it is just Q-learning with a neural net.
+
+### Practice — Warm
+
+**W1.** In the loss above, are we differentiating $w^-$? Why or why not?
+
+<details class="hint"><summary>Full solution</summary>
+**No.** $w^-$ is treated as a constant (it's the frozen target network).
+That is exactly what makes the inner regression a well-posed
+fixed-target SGD problem during the $C$ steps between syncs. (In code, this
+is usually `target_q = target_net(s_next).max(dim=1).detach()`.)
+</details>
+
+**W2.** Why is replay sampling uniform rather than always the most recent
+transition?
+
+<details class="hint"><summary>Full solution</summary>
+The most recent transition is highly correlated with the previous batch.
+Uniform sampling from a pool of $N$ past transitions de-correlates the
+data and gives more effectively-IID gradients. (Prioritised replay, a 2016
+refinement, samples non-uniformly by TD-error magnitude — but uniform is
+the original DQN choice and the right place to start.)
+</details>
+
+**W3.** State the relationship between $\hat q$ and $\hat q(\cdot; w^-)$
+right after a target-network sync.
+
+<details class="hint"><summary>Full solution</summary>
+They are identical: $w^- = w$. Over the next $C$ updates $w$ drifts, while
+$w^-$ stays fixed; then they are forced equal again at the next sync.
+</details>
+
+### Practice — Working
+
+**P1.** What goes wrong if you set $C = 1$ (sync the target network every
+step)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$C = 1$ means $w^- = w$ at all times. The target network has zero effect.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The target $y_i = r_i + \gamma \max_{a'} \hat q(s'_i, a'; w)$ now depends
+on the *current* $w$. You're back to the unstabilised semi-gradient update
+that caused divergence in Lesson 30. The whole point of the target network
+is the *delay*; eliminating the delay eliminates the trick.
+</details>
+
+**P2.** What goes wrong if you set $C$ very large (sync every million steps)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You learn fast against an outdated target.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Slow, biased learning. Between syncs your target reflects the network as it
+was a million steps ago — wildly out of date. You need the target to refresh
+fast enough that improvements in $\hat q$ feed back into the target. Typical
+choices: $C$ between $10^3$ and $10^4$ for Atari.
+</details>
+
+**P3.** Is DQN with a tiny replay buffer (say $N = 1$, the most recent
+transition) different from vanilla Q-learning with FA?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Run the DQN loop with $N = 1$ in your head.
+</details>
+<details class="hint"><summary>Full solution</summary>
+With $N = 1$, every "mini-batch" is just the single most recent transition,
+exactly like vanilla Q-learning with FA. You lose the de-correlation
+benefit. So yes — empirically, very small replay buffers behave like the
+unstabilised version, and you risk divergence (Lesson 30).
+</details>
+
+### Practice — Stretch
+
+**S1.** **Soft target updates** are an alternative: instead of copying $w$
+into $w^-$ every $C$ steps, do
+$w^- \leftarrow \tau w + (1 - \tau) w^-$ at *every* step with $\tau \ll 1$
+(say $\tau = 0.005$). Argue why this is morally equivalent to the hard
+sync.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute the effective time scale on which $w^-$ tracks $w$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Soft updates make $w^-$ an exponential moving average of $w$ with effective
+time-constant $\sim 1/\tau$. Choosing $\tau = 1/C$ gives the same average
+lag as a hard sync every $C$ steps. The tracking is smoother (no
+discontinuous jumps) but the stabilising mechanism is identical: the target
+$y_i$ uses a slowly-moving copy of $w$ that does not chase the current
+parameters. DDPG (Lesson 38) prefers soft updates; DQN as published uses
+the hard sync.
+</details>
+
+**S2.** Skim the DQN architecture: 84×84×4 input, two convolutional layers,
+one fully-connected layer, output head with 18 (Atari) action-values.
+Approximately how many parameters does this network have? (Order of
+magnitude is enough.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The fully-connected layer dominates. Estimate its size first.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The 2015 DQN architecture is ~1.7 million parameters, of which the
+final fully-connected layer (3136 → 512) dominates. The replay buffer
+holds ~1 million transitions. Memory cost: comfortably under 1 GB.
+Training to human level on a single Atari game takes ~10 million frames,
+which is ~50 hours of game-play.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"DQN solved RL."** No — DQN is one *value-based* algorithm; it works
+   well for discrete-action tasks with rich observations and *enough* data,
+   but it is brittle, sample-inefficient, and has no convergence guarantee.
+   Continuous-action problems and many real-robot tasks need the
+   actor-critic family covered in Lessons 35–38.
+2. **"The target network is the same as a frozen network."** Half-right.
+   The target network *is* frozen for $C$ steps — but then it gets refreshed
+   from the current $w$. The point is the *delay*, not permanent freezing.
+3. **"Replay buffers are off-policy correction."** No — they don't reweight
+   anything. They are a *de-correlation* trick. True off-policy correction
+   uses [importance sampling](/glossary.qmd) (Lesson 37), which DQN
+   ignores. This is fine because Q-learning's $\max_{a'}$ target doesn't
+   depend on the behaviour policy at all.
+:::
+
+### Takeaways
+
+1. **DQN = Q-learning + replay buffer + target network.** The first two
+   come straight from Lesson 30; the latter two are the engineering layer
+   that makes neural-net Q-learning empirically trainable.
+2. **The target network turns the bootstrap target into a fixed regression
+   target** for $C$ steps. This is the deepest trick: it converts a
+   chasing-your-tail problem into a sequence of well-posed regressions.
+3. **The replay buffer de-correlates samples** and re-uses each transition
+   many times. Samples are off-policy in the strictest sense (the
+   behaviour policy that generated them is no longer current), but
+   Q-learning's $\max_{a'}$ target is invariant to behaviour, so we don't
+   need importance correction.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you write the DQN loss from memory, including the role of $w^-$?
+2. Could you explain to a friend why $C = 1$ defeats the purpose of the
+   target network?
+3. Do you understand that DQN does not *prove* the deadly triad away — it
+   *engineers around* it?
+
+- **3 yes:** continue to [Lesson 32 — Policy Parameterisation](../32-policy-parameterization/index.qmd).
+- **2 yes:** redo P1 and P2.
+- **0–1 yes:** re-read *Discover*, especially Problem 4.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.q-learning-with-fa"]
+- **[mfrl.q-learning-with-fa](../30-q-learning-with-fa/index.qmd)** — the
+  deadly triad and the divergence DQN must defeat.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[Policy Parameterisation](../32-policy-parameterization/index.qmd)** —
+  swap value-based learning for direct policy optimisation, which DQN
+  cannot do for continuous actions.
+- The actor-critic family (Lessons 35–38), which adopts DQN's stabilisers
+  and adds policy gradients.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** DQN is the algorithm that opened the door to modern deep RL.
+Every value-based deep agent since 2015 — Double DQN, Dueling DQN,
+Distributional DQN (C51), Rainbow, IQN — extends this skeleton. Even
+actor-critic methods (DDPG, TD3, SAC) borrow the replay buffer and target
+network nearly verbatim.
+:::
+
+::: {.applied-callout}
+**Game development.** DQN-style agents are how studios research
+super-human play in deterministic-environment games (board games, Atari,
+many puzzle games) and difficulty-tuning bots for action games. The
+sample efficiency is poor, but the wall-clock cost of running games at
+1000× speed is low.
 :::
 
 ::: {.applied-callout}
@@ -84,10 +398,12 @@ track expands into 38 lessons.
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §31. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §8 (DQN). Original references: Mnih et al. (2013),
+  *Playing Atari with Deep Reinforcement Learning*, NeurIPS workshop;
+  Mnih et al. (2015), *Human-level control through deep reinforcement
+  learning*, Nature 518.
+- Touchstones honoured: Better Explained "Aha!" framing (the key insight
+  that DQN doesn't *break* the triad, it engineers around it); 3Blue1Brown
+  visual framing (the Atari frame stack as a concrete state).
 :::

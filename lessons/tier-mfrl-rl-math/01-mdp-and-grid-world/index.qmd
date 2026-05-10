@@ -7,87 +7,459 @@ prerequisites: ["t3.basic-probability", "t5.sets-logic-proofs"]
 unlocks: []
 applied-domains: ["ai-ml", "game-dev", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["t3.basic-probability", "t5.sets-logic-proofs"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Can you write a [set](/glossary.qmd#set) like $\{a, b, c\}$ and say what
+   "$a \in S$" means?
+2. Can you read $P(A) = 0.3$ as "the [probability](/glossary.qmd#axiomatic-probability)
+   of event $A$ is 30%"?
+3. Are you comfortable with a small lookup table — rows for inputs, columns
+   for outputs?
+
+If a "no" appears, take ten minutes with
+[T3 — Basic Probability](../../tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd)
+or [T5 — Sets, Logic, Proofs](../../tier-5-undergrad-core/11-sets-logic-proofs/index.qmd)
+before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Imagine a 5-by-5 board, drawn on graph paper. One square is **green** — your
+target. One square is **red** — a pit you want to avoid. The other twenty-three
+are blank. A small token sits on one of the blank squares.
+
+Picture the rules of the game written on an index card:
+
+- Each turn, you push the token one step **up**, **down**, **left**, or
+  **right**.
+- If you walk off the board, the token bounces back where it was.
+- If you land on green, the game gives you **+1**. Land on red, **−1**. Any
+  other square, **0**.
+
+That is it. No vocabulary yet — just a game on a grid.
+
+```{ojs}
+viewof gridDemo = {
+  const w = 320, n = 5;
+  const cell = w / n;
+  const target = [4, 4], forbid = [2, 2];
+  const svg = DOM.svg(w, w);
+  const g = d3.select(svg);
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      const fill = (r === target[0] && c === target[1]) ? "#bbf7d0"
+        : (r === forbid[0] && c === forbid[1]) ? "#fecaca" : "#f8fafc";
+      g.append("rect").attr("x", c * cell).attr("y", r * cell)
+        .attr("width", cell).attr("height", cell)
+        .attr("fill", fill).attr("stroke", "#94a3b8");
+    }
+  }
+  g.append("circle").attr("cx", 0.5 * cell).attr("cy", 0.5 * cell)
+    .attr("r", cell * 0.25).attr("fill", "#1e3a8a");
+  return svg;
+}
+```
+
+Caption: a 5×5 grid with start (top-left blue token), target (green), and
+forbidden cell (red). Every other cell is blank.
+
+Push your finger from cell to cell and play a few turns mentally. You may not
+yet know the *purpose* of the game — but you can already make moves.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+Sit with these. No answers yet.
+
+1. To decide your next push, what information do you actually need? The square
+   you're standing on? The whole list of squares you've visited? Something
+   else?
+2. Suppose the floor is mildly slippery — sometimes "push up" lands you in the
+   square you wanted, sometimes one to the side. Can you still plan?
+3. The +1 lives on green and the −1 on red. Could two players following
+   different turn-by-turn habits both reach the green square — but one of them
+   collect more total +1s along the way?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Five problems. Work them in order — each is a piece of the definition that
+follows.
+
+### Problem 1 — List the playing field
+
+Number the rows and columns of a 3×3 grid from 0 to 2. Write the 9 cells as
+ordered pairs $(r, c)$, collected into a single set $S$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A set just means "list the elements once each, separated by commas, inside
+braces."
+</details>
+<details class="hint"><summary>Full solution</summary>
+$S = \{(0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (2,0), (2,1), (2,2)\}$.
+
+This $S$ is what we will later call the **state space** — the collection of
+every situation the agent can find itself in.
+</details>
+
+### Problem 2 — List the moves
+
+For the cell $(1, 1)$ (the centre), list every move you might try. Then for
+the cell $(0, 0)$ (a corner), list the same set of *attempted* moves — even
+the ones that bounce off the edge.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Moves you *attempt* and moves that *succeed* are different things. List the
+attempts.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = \{\text{up}, \text{down}, \text{left}, \text{right}\}$, the same four
+attempts at every cell. From $(0, 0)$, "up" is legal to attempt — it just
+leaves you where you started. We deliberately keep $A$ the same at every
+state; it makes the maths uniform later.
+
+This $A$ is the **action space**.
+</details>
+
+### Problem 3 — Apply a clean rule
+
+Define "up" as: $(r, c) \mapsto (r - 1, c)$, but if $r = 0$ then stay at
+$(r, c)$. Starting at $(1, 2)$, where do you land after "up"? After "up,
+up"? After "up, up, up"?
+
+<details class="hint"><summary>Full solution</summary>
+$(1, 2) \xrightarrow{\text{up}} (0, 2) \xrightarrow{\text{up}} (0, 2)
+\xrightarrow{\text{up}} (0, 2)$. The bounce-back keeps you safely inside
+$S$.
+
+Notice: the next cell only needed the **current cell** and the **chosen
+move** — nothing about how you got to $(1, 2)$ in the first place.
+</details>
+
+### Problem 4 — Add a slip
+
+Now make the floor slippery. "Up" still *intends* $(r, c) \mapsto (r-1, c)$,
+but the actual outcome is
+
+- intended cell with probability $0.8$,
+- one step left of intended with probability $0.1$,
+- one step right of intended with probability $0.1$.
+
+Starting at $(1, 1)$ with action "up", list every cell you could end up in
+and its probability. Verify the probabilities sum to 1.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three possible next cells, three probabilities. Add them.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $(0, 1)$ with probability $0.8$ (intended).
+- $(0, 0)$ with probability $0.1$ (left of intended).
+- $(0, 2)$ with probability $0.1$ (right of intended).
+
+Sum: $0.8 + 0.1 + 0.1 = 1.0$. Good. We have just written
+$P(s' \mid s = (1,1), a = \text{up})$ as a row of a probability table.
+</details>
+
+### Problem 5 — Add a payout
+
+Add the rule: landing on green pays +1; landing on red pays −1; anything
+else pays 0. Take green = $(2, 2)$ and red = $(1, 2)$. From $(2, 1)$
+attempt "right" (deterministic). What is the immediate reward?
+
+<details class="hint"><summary>Full solution</summary>
+"right" from $(2, 1)$ lands you at $(2, 2)$, which is green. Reward = +1.
+
+The reward depends on where you started, what you tried, and where you
+ended — three pieces of information. We will write that as $R(s, a, s')$.
+</details>
+
+::: {.key-insight}
+The whole game is captured by **five things**: the cells $S$, the moves $A$,
+the slip-rule $P$ that says where each move actually lands, the payout
+rule $R$, and a number $\gamma$ that we will meet in lesson 4. Once those
+five are pinned down, *every* question about how to play well is now a maths
+question.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+A **Markov Decision Process** (MDP) is a tuple $(S, A, P, R, \gamma)$ where
+$S$ is a [set](/glossary.qmd#set) of *states*, $A$ is a set of *actions*,
+$P(s' \mid s, a)$ is a [conditional probability](/glossary.qmd#conditional-probability)
+giving the next-state distribution, $R(s, a, s')$ is the *immediate reward*,
+and $\gamma \in [0, 1)$ is the *discount factor*.
+
+It is called *Markov* because $P$ and $R$ depend only on the **current**
+state-action pair — never on the history.
+
+:::
+
+A verse to remember it by:
+
+> *States, actions, kernel, reward, discount —*
+> *five tokens, the world is bounded.*
+> *Memory hides in the state alone;*
+> *the past, once spoken, is rounded.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — write the MDP for a 3×3 grid
+
+Take the 3×3 grid with green at $(2, 2)$ and red at $(2, 1)$. Movement is
+**deterministic**: each push goes where intended unless it would leave the
+board, in which case the agent stays put.
+
+**Step 1 — write $S$.** $S = \{(0,0), \ldots, (2,2)\}$, nine cells.
+
+**Step 2 — write $A$.** $A = \{\text{up}, \text{down}, \text{left}, \text{right}\}$.
+
+**Step 3 — write a row of $P$.** From $s = (1, 0)$ with $a = \text{right}$:
+$P((1,1) \mid (1,0), \text{right}) = 1$, all other next states have
+probability $0$.
+
+**Step 4 — write a row of $R$.** $R((1,0), \text{right}, (1,1)) = 0$
+(blank cell). But $R((2, 0), \text{right}, (2, 1)) = -1$ (lands on red),
+and $R((1, 2), \text{down}, (2, 2)) = +1$ (lands on green).
+
+**Step 5 — fix $\gamma$.** Pick $\gamma = 0.9$ for now; lesson 4 explains
+the choice.
+
+That is the entire MDP. It fits on one page.
+
+### Practice — Warm
+
+**W1.** For the 3×3 grid above, write the **action space at the corner
+$(0, 0)$**. Are any actions disallowed there?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Re-read Problem 2 of Discover.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = \{\text{up}, \text{down}, \text{left}, \text{right}\}$. Nothing is
+*disallowed* — "up" and "left" simply leave the agent at $(0, 0)$ via the
+bounce-back. Keeping $A$ the same at every state makes the maths uniform.
+</details>
+
+**W2.** From $(0, 1)$ with $a = \text{down}$ (deterministic), name $s'$ and
+the reward $R(s, a, s')$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+"down" means $(r, c) \mapsto (r+1, c)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$s' = (1, 1)$, a blank cell. Reward $= 0$.
+</details>
+
+**W3.** Write the size of $S$ and $A$ for the 5×5 grid in the Touch widget.
+
+<details class="hint"><summary>Full solution</summary>
+$|S| = 25$, $|A| = 4$.
+</details>
+
+### Practice — Working
+
+**P1.** Switch on slippery floor (the rule from Problem 4). From the centre
+$(1, 1)$ with action $\text{down}$, write the row of $P(s' \mid s, a)$ as a
+small table. Confirm the row sums to 1.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three possible landings: intended, left of intended, right of intended.
+</details>
+<details class="hint"><summary>Full solution</summary>
+"down" intends $(2, 1)$ (red). Left of intended: $(2, 0)$; right of
+intended: $(2, 2)$.
+$P((2,1) \mid (1,1), \text{down}) = 0.8$,
+$P((2,0) \mid (1,1), \text{down}) = 0.1$,
+$P((2,2) \mid (1,1), \text{down}) = 0.1$. Sum = 1.0.
+
+Notice the slip can either save you (landing on green) or doom you (landing
+on red). Stochastic transitions are why planning is non-trivial.
+</details>
+
+**P2.** Same slippery floor. With the rewards green = +1, red = −1, blank = 0,
+compute the **expected immediate reward** for the same state-action of P1.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expected reward $= \sum_{s'} P(s' \mid s, a) R(s, a, s')$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0.8 \cdot (-1) + 0.1 \cdot 0 + 0.1 \cdot (+1) = -0.7$.
+
+Even though the *intended* action heads straight onto red, the slip
+contributes a +1 with probability 0.1, raising the expectation slightly.
+</details>
+
+**P3.** A second action **stay** is added to $A$: the agent does nothing,
+$P(s \mid s, \text{stay}) = 1$, $R(s, \text{stay}, s) = 0$. Does this change
+the *Markov property*? Why or why not?
+
+<details class="hint"><summary>Full solution</summary>
+No. The Markov property says next-state probabilities depend only on the
+current state-action pair, not history. Adding a new action that itself
+satisfies that rule keeps the MDP Markov.
+</details>
+
+### Practice — Stretch
+
+**S1.** *Modify the world.* Make a 4×4 grid with green at $(3, 3)$, red at
+$(2, 2)$ and $(2, 3)$, and bounce-back walls. With deterministic movement,
+write $P((s', s, a))$ for $s = (2, 1)$ and *all four* actions. Use a small
+table.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Four rows, one per action; each row has a single entry equal to 1 because
+movement is deterministic.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Action  | Next state $s'$ |
+|---------|-----------------|
+| up      | $(1, 1)$        |
+| down    | $(3, 1)$        |
+| left    | $(2, 0)$        |
+| right   | $(2, 2)$ (red!) |
+
+Each row of $P$ is a single 1 with the rest 0. The *right* action lands you
+on red — the table itself does not punish you, but the *reward* function
+will: $R((2,1), \text{right}, (2,2)) = -1$.
+</details>
+
+**S2.** Pick a real-world example that *fails* the Markov property as
+written, then redesign the state to *make* it Markov. Aim for one paragraph.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Think of a card game. "Where the deck is now" depends on what has been
+played.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Blackjack with one shoe is *not* Markov if the state is just "your current
+hand total" — what comes next depends on which cards have already left the
+deck. Fix it by enlarging the state to "(hand total, full count of
+remaining cards)". Now next-card probabilities are fixed by the state
+alone, and the process is Markov.
+
+This is the design principle of lesson 2's key insight: when in doubt,
+expand the state until the past stops mattering.
+</details>
+
+::: {.fun-fact}
+Richard Bellman invented the term *dynamic programming* in 1953 at RAND
+Corporation. He did not pick it for accuracy — he picked it because his
+boss, Charles E. Wilson, "had a pathological fear and hatred of the word
+*research*." Bellman wrote in his autobiography that *dynamic* sounded
+"impossible to use in a pejorative sense" and would survive the budget
+review. The maths in this lesson is one of the things he was hiding behind
+that name.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"States are positions on the board."** Sometimes — in the grid world,
+   yes. In general a *state* is whatever data is sufficient to predict the
+   future of the system. In a card game it includes the deck composition;
+   in a physics sim it includes velocities; in a video game it might
+   include hidden timers. Position alone is rarely enough.
+2. **"Reward is part of the agent."** No. Reward is part of the *world*,
+   not the agent. The agent observes a reward; it does not choose its
+   value. (The agent chooses its actions, hoping to *cause* large rewards.)
+3. **"$\gamma$ is just a hyperparameter."** It looks like one, but it
+   shapes what counts as "good." Lesson 4 will make this concrete: with
+   $\gamma$ small, the agent is myopic; with $\gamma$ near 1, it plans
+   long.
+:::
+
+### Takeaways
+
+1. An [MDP](/glossary.qmd#markov-decision-process) is **five things**:
+   states $S$, actions $A$, transition kernel $P$, reward $R$, discount
+   $\gamma$. Pin those down and you have specified the world.
+2. *Markov* means: the next state and reward depend only on the **current**
+   state-action pair. No memory of the path is required — the state is the
+   memory.
+3. Stochastic transitions ($P$ is a distribution, not a function) are what
+   make planning interesting. Without them, the agent's life is a fixed
+   trajectory.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you, on a blank sheet, write down the five components of an MDP
+   and say what each one is in plain English?
+2. Did you complete W1–P3 without peeking at the *Full solution*?
+3. Can you name a real-world process that is *not* Markov as written, and
+   describe how you would redesign the state to make it Markov?
+
+- **3 yes:** move on to lesson 2 (state transitions and the Markov
+  property in detail).
+- **2 yes:** redo S1 and S2 — they are the tightest test of "do I really
+  see the structure?".
+- **0–1 yes:** re-read *Discover*. The five problems together build the
+  whole definition.
 
 ## Connect
 
 ### Prerequisites used
 
-["t3.basic-probability", "t5.sets-logic-proofs"]
+- **`t3.basic-probability`** — for $P(s' \mid s, a)$ as a row of a
+  probability table summing to 1.
+- **`t5.sets-logic-proofs`** — for the comfort with "let $S$ be the set
+  of states" notation.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 2 — State Transitions and the Markov Property.** Zoom into $P$
+  alone; show the Markov property is *load-bearing* for everything that
+  follows.
+- **Lesson 3 — Policies as Conditional Distributions.** Introduce the
+  agent's strategy on top of the world.
+- All later lessons in the track sit on top of this one. The MDP is the
+  alphabet; the rest of the track is the literature.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every modern reinforcement-learning system — game-playing
+agents (AlphaZero, MuZero), robotics control loops, dialogue policies in
+RLHF, recommendation systems, traffic-signal control — frames its
+environment as some flavour of MDP. The framework is the lingua franca of
+sequential decision-making.
+:::
+
+::: {.applied-callout}
+**Game development.** NPC behaviour ("how should the goblin react when the
+hero is two squares away?"), procedural difficulty ("how hard should the
+next level be given the player's history?"), and matchmaking are all
+decision processes that an MDP cleanly models.
+:::
+
+::: {.applied-callout}
+**Research / control.** Operations research (inventory control,
+scheduling), epidemiology (vaccination policy under uncertainty), and
+classical control theory (the LQR is a continuous-state MDP) all share
+this skeleton. The five-tuple is older than RL by decades.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning that this track
+expands across 38 lessons. Read it now for orientation; come back here
+for depth.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §01. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 1. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Pestalozzi (the grid is the *Anschauung*), Russian
+  problem-first (Discover builds the definition before *Name* states it),
+  Better Explained ("five things" is the Aha! framing).
 :::

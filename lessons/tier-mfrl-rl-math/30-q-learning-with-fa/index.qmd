@@ -7,72 +7,389 @@ prerequisites: ["mfrl.td-with-function-approximation"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.td-with-function-approximation"].
+Before you read on, can you:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. State **tabular** [Q-learning](/glossary.qmd#q-learning) — the
+   $\max_{a'}$ update rule?
+2. State **semi-gradient TD** with linear function approximation
+   from [Lesson 29](../29-td-with-function-approximation/index.qmd)?
+3. Define **on-policy** versus **off-policy** sampling in your own words?
+
+If any answer is no, return to those lessons before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Picture seven states arranged like the spokes of a partial fan: states 1
+through 6 each have a single action that always sends you to state 7. State
+7 has two actions: a "dashed" action that takes you back to a uniformly
+random state in $\{1, \ldots, 6\}$, and a "solid" action that returns you to
+state 7. Reward is zero everywhere; $\gamma = 0.99$.
+
+This is **Baird's counterexample**, due to Leemon Baird (1995). The true
+value of every state is zero — every reward is zero, so $v_\pi \equiv 0$. We
+will use Q-learning with linear function approximation to *estimate* these
+values from data sampled by a behaviour policy that always picks the dashed
+action.
+
+Now imagine a button labelled **"do one Q-learning step with linear FA"**. You
+click it once. Then again. Then again. Watch the magnitudes of the parameter
+vector $w$ on a log scale.
+
+::: {.lesson-beat}
+The true value is $0$. The features are linear. The data is plentiful.
+The update has been used safely a thousand times in the tabular case.
+And yet $\|w\|$ blows up to infinity.
+:::
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+Don't write yet — just feel out the puzzle.
+
+1. In the tabular case Q-learning is one of the most well-behaved algorithms
+   in RL. What feature of the tabular case made it safe?
+2. Q-learning bootstraps (its target uses $\hat q$). It is off-policy (the
+   $\max_{a'}$ doesn't follow the behaviour policy). And here we add function
+   approximation. What does each ingredient *individually* contribute?
+3. If you removed any one of the three, would the divergence stop?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Work through these in order.
+
+### Problem 1 — write down Q-learning with FA
+
+For tabular Q-learning the update on $(s, a, r, s')$ is
+$q(s, a) \leftarrow q(s, a) + \alpha[r + \gamma \max_{a'} q(s', a') - q(s, a)]$.
+Translate this to function approximation with $\hat q(s, a; w)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Re-use the semi-gradient pattern from Lesson 29.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$w \;\leftarrow\; w + \alpha\,\bigl[r + \gamma \max_{a'} \hat q(s', a'; w) - \hat q(s, a; w)\bigr]\,\nabla_w \hat q(s, a; w).$$
+
+The TD error uses $\max_{a'}$ — that's what makes it Q-learning rather than
+Sarsa. Same semi-gradient catch as before: the target's $w$-dependence
+through both $\hat q(s', \cdot; w)$ and the implicit $\arg\max$ is ignored.
+</details>
+
+### Problem 2 — what makes a tabular update safe?
+
+In tabular Q-learning, an update at $(s, a)$ changes only the entry
+$q(s, a)$. Why does that matter for stability?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Could a single update damage estimates at *other* state-action pairs?
+</details>
+<details class="hint"><summary>Full solution</summary>
+No interference. An update at $(s, a)$ leaves every other $q(s', a')$ alone,
+so the contraction property of the Bellman optimality operator passes
+through cleanly: every entry moves toward its target by a $(1-\alpha)$
+fraction. With function approximation, an update at $(s, a)$ moves $w$ —
+and that changes $\hat q$ at *every* state-action pair. Updates interfere.
+</details>
+
+### Problem 3 — and what makes off-policy worse?
+
+In on-policy methods, the sampling distribution $\mu$ matches what the
+policy you're evaluating actually visits. In off-policy methods (Q-learning
+included), $\mu$ is whatever the behaviour policy generates, which can be
+*very* different from the distribution that the greedy policy would induce.
+
+Why does this mismatch matter when you also have FA?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Recall Lesson 29: the convergence proof depends on the projection being a
+contraction in the $\mu$-weighted norm — and $\mu$ has to be the right
+distribution.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The Bellman-optimality operator is a contraction in the $\sup$-norm. The
+projection onto a linear subspace is a contraction in the
+$\mu$-weighted norm. The two norms agree only when $\mu$ matches the
+policy. With off-policy data, the composition (projection ∘ Bellman) is no
+longer guaranteed to be a contraction in any single norm — and the iteration
+can have eigenvalues with magnitude > 1, i.e., it diverges.
+</details>
+
+::: {.fun-fact}
+**Leemon Baird's 1995 paper** "Residual Algorithms" presented a 7-state
+linear FA where Q-learning's parameters grow without bound. It was the
+slap-in-the-face that forced the RL community to take stability seriously
+under function approximation — and motivated the engineering tricks
+(replay, target networks) that DQN would adopt 18 years later.
+:::
+
+### Problem 4 — name the three ingredients
+
+You have been circling around three properties of the algorithm. Name them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What do *Q-learning + FA* combine that semi-gradient TD-on-policy with linear
+FA does not?
+</details>
+<details class="hint"><summary>Full solution</summary>
+1. **Bootstrapping** — the target uses $\hat q$ at the next state.
+2. **Off-policy** — the data comes from a policy different from the one
+   being learnt about (here, the greedy policy implicit in $\max_{a'}$).
+3. **Function approximation** — $\hat q$ is parameterised, so updates
+   interfere.
+
+These three together are the **deadly triad**. Take any *one* away and
+divergence stops being generic; have all three and divergence is on the table.
+</details>
+
+### Problem 5 — break the triad
+
+For each of the three ingredients, name an existing algorithm in this track
+that already removes it.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You learnt one each in lessons 17, 24, and the tabular chapter of lesson 26.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- Remove **bootstrapping** → Monte Carlo policy evaluation
+  ([Lesson 17](../17-mc-basic/index.qmd)). Uses full episode returns;
+  no $\hat q$ in the target.
+- Remove **off-policy** → on-policy
+  [Sarsa](/glossary.qmd#sarsa) ([Lesson 24](../24-sarsa/index.qmd)). Same
+  policy generates data and is evaluated.
+- Remove **function approximation** → tabular Q-learning
+  ([Lesson 26](../26-q-learning/index.qmd)). One entry per $(s, a)$.
+
+Each of these is provably convergent under standard step-size conditions.
+The trouble starts only when all three are stacked together.
+:::
+</details>
+
+::: {.key-insight}
+**The deadly triad: bootstrapping + off-policy + FA can diverge.** Each
+ingredient on its own is fine. Together, they break the contraction
+arguments that guarantee stability in the tabular or on-policy or MC cases.
+This is not a sign of a buggy algorithm — it's a real mathematical hazard
+that motivates every "trick" in modern deep RL.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Q-learning with function approximation.** For parameterised
+$\hat q(s, a; w)$ and a transition $(s, a, r, s')$,
+
+$$w \;\leftarrow\; w + \alpha\,\bigl[r + \gamma \max_{a'} \hat q(s', a'; w) - \hat q(s, a; w)\bigr]\,\nabla_w \hat q(s, a; w).$$
+
+**The deadly triad.** *Bootstrapping*, *off-policy* sampling, and *function
+approximation*. Combining all three can cause the iteration above to diverge,
+even with linear FA, even on a small finite MDP. Baird's counterexample is
+the canonical demonstration.
+
+:::
+
+A mnemonic, in three words:
+
+> *Boot. Off. Approx. — pick at most two safely.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — sketch of Baird's divergence
+
+Baird's MDP has 7 states and a single action that, regardless of which
+state, sends you uniformly into states 1–6. State 7 is special. Linear FA
+uses 8 features per state, chosen so that one feature in particular acts as
+a "bias" present in every state. The behaviour policy always selects the
+non-greedy ("dashed") action.
+
+The crucial fact: with this feature design, the linear update matrix
+implicit in semi-gradient Q-learning has an eigenvalue greater than 1 in
+magnitude. Iterating the update therefore *amplifies* certain components of
+$w$ exponentially. After a few hundred steps the parameters reach
+$10^{20}$ and beyond, even though the true value is identically zero.
+
+You don't need the algebra. You need the lesson: this is not a bug, this is
+not pathological floating-point — it's the analytic behaviour of
+(Bellman-optimality ∘ projection) when $\mu$ doesn't match $\pi$ and the
+projection isn't a contraction in the relevant norm.
+
+### Practice — Warm
+
+**W1.** Does tabular Q-learning suffer the deadly triad? Justify.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Walk through the three ingredients.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Tabular Q-learning is off-policy (the target uses $\max_{a'}$, not the
+behaviour policy) and bootstraps. It is **not** function approximation —
+each state-action pair has its own entry. So only two of the three
+ingredients are present, and tabular Q-learning is provably convergent.
+</details>
+
+**W2.** Is on-policy semi-gradient TD with linear FA in the deadly triad?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Which of the three ingredients are present?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Bootstrapping ✓; FA ✓; off-policy ✗. So only two ingredients — and the
+Tsitsiklis–Van Roy theorem (Lesson 29) guarantees convergence.
+</details>
+
+**W3.** Q-learning with FA — even *linear* FA — can diverge. True or false?
+
+<details class="hint"><summary>Full solution</summary>
+**True.** Baird's counterexample uses linear FA. Non-linearity isn't the
+culprit; off-policy + bootstrapping + interference is enough.
+</details>
+
+### Practice — Working
+
+**P1.** A practitioner says: "I'll just clip $\|w\|$ to bound it." Does that
+solve Baird's problem?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Clipping prevents overflow, but does the *direction* converge to anything
+sensible?
+</details>
+<details class="hint"><summary>Full solution</summary>
+No. Clipping prevents numerical overflow but the iteration still doesn't
+converge to the correct fixed point — it bounces around inside the clip
+ball. The true values are zero; clipped Q-learning still produces wrong
+predictions and inconsistent policy improvement. Clipping is a symptom
+treatment, not a cure.
+</details>
+
+**P2.** Which of the three deadly-triad ingredients does **DQN** eliminate?
+Spoiler hint allowed: none — DQN keeps all three. Then how does DQN cope?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+DQN is the next lesson. Skim its title.
+</details>
+<details class="hint"><summary>Full solution</summary>
+None of the three. DQN is bootstrapping, off-policy, *and* uses neural
+network FA — every triad ingredient is present and amplified. DQN's trick
+is **engineering**: a slowly-updated *target network* that decouples the
+target from the current $w$ (so it doesn't shift under us during a batch),
+and a *replay buffer* that decorrelates samples. These don't break the
+triad — they tame it. See [Lesson 31](../31-deep-q-network/index.qmd).
+</details>
+
+**P3.** Why does the deadly triad strike at **off-policy** specifically and
+not, e.g., on-policy actor-critic with FA?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What happens to the projection norm when $\mu$ matches the policy?
+</details>
+<details class="hint"><summary>Full solution</summary>
+On-policy means $\mu$ is the stationary distribution of the policy whose
+value you're estimating. The projection is then a non-expansion in the
+$\mu$-weighted norm, and the composition of (projection ∘ Bellman) inherits
+contraction. Off-policy breaks the matching: the projection lives in one
+norm, the Bellman operator contracts in another. The composition can have
+eigenvalues > 1.
+</details>
+
+### Practice — Stretch
+
+**S1.** Construct a *minimal* version of Baird's argument: name the smallest
+number of states for which the deadly triad can produce divergence with
+linear FA, and explain in one sentence why fewer states wouldn't work.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You need enough states for the projection's distortion to manifest *and* for
+the off-policy mismatch to do work.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Baird's 7-state example is famously minimal among the well-known
+constructions. The essential ingredient is the asymmetry between the
+behaviour distribution (which avoids state 7) and the greedy policy (which
+prefers state 7). With 2 or 3 states there isn't enough room for the
+features to interfere in the required way. (Counterexamples with fewer
+states exist in the literature; the *teaching* example most often cited is
+the 7-state one.)
+</details>
+
+**S2.** Read the update rule for Q-learning with FA aloud. Identify the
+location in that one-line formula where **off-policy** enters.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the bracketed bootstrap target.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The $\max_{a'} \hat q(s', a'; w)$ — that maximum is the *greedy* policy's
+value, but the data $(s, a, r, s')$ may have been sampled under any
+behaviour policy. The off-policy mismatch is baked into this single
+operator: target uses one policy, data comes from another.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Divergence means the algorithm has bugs."** No — Baird's example is
+   pure mathematics. The iteration's matrix has eigenvalues > 1.
+2. **"Linear FA is always safe."** Linear FA is safe under on-policy
+   semi-gradient TD (Lesson 29). With off-policy + bootstrapping it isn't.
+3. **"DQN solved the deadly triad."** DQN *tames* it with engineering
+   stabilisers; it doesn't *resolve* it theoretically. There is still no
+   convergence guarantee for DQN. People run it because it works in
+   practice on most tasks they care about — and sometimes it doesn't.
+:::
+
+### Takeaways
+
+1. **Q-learning with FA = semi-gradient TD with the bootstrap maximum.**
+   The structure of the update is what you'd expect from Lesson 29 with
+   $\max_{a'}$ pasted in.
+2. **The deadly triad is bootstrapping + off-policy + FA.** Any two are
+   safe. All three can diverge. This is mathematics, not folklore.
+3. **Baird's 7-state counterexample is the textbook proof.** It is the
+   reason DQN exists in its current form.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you name the three ingredients of the deadly triad and one
+   algorithm that drops each?
+2. Did you, in *Discover*, work out the role of off-policy mismatch *before*
+   reading the *Name* beat?
+3. Could you sketch why removing FA (i.e., going tabular) makes the same
+   off-policy bootstrapped update safe?
+
+- **3 yes:** continue to [Lesson 31 — DQN](../31-deep-q-network/index.qmd).
+- **2 yes:** redo P3 and S2.
+- **0–1 yes:** re-read *Discover*, especially Problem 3.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.td-with-function-approximation"]
+- **[mfrl.td-with-function-approximation](../29-td-with-function-approximation/index.qmd)** —
+  semi-gradient TD with linear FA and the convergence guarantee that
+  Q-learning with FA *loses*.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[DQN](../31-deep-q-network/index.qmd)** — the engineering attack on
+  the deadly triad.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every deep value-based agent (DQN, Double DQN, Rainbow,
+distributional Q-learning, IQN) lives in the deadly triad. Their
+collective track record of *occasionally* diverging or saturating in
+real workloads — Atari games where DQN never escapes the first room,
+robotics where Q-values blow up after a buffer flush — is the deadly
+triad biting. Engineers add stabilisers; theorists try to break the
+triad properly. Both are still active research directions in 2026.
 :::
 
 ::: {.applied-callout}
@@ -84,10 +401,11 @@ track expands into 38 lessons.
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §30. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §8 (Q-learning with FA, deadly triad). Cite freely;
+  never transcribe Zhao's prose. Baird's counterexample originates in
+  Baird (1995), "Residual Algorithms".
+- Touchstones honoured: Russian school (Discover walks the learner into
+  the divergence puzzle problem-first); 3Blue1Brown (the eigenvalue-> 1
+  framing for *why* divergence is mathematical, not numerical).
 :::

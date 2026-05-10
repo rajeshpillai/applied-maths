@@ -7,87 +7,478 @@ prerequisites: ["mfrl.epsilon-greedy", "t5.sequences-series-convergence"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.epsilon-greedy", "t5.sequences-series-convergence"].
+Before you start, you should be able to say *yes* to all three:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Can you read the iteration $w_{k+1} = w_k - \alpha_k \, y_k$ and explain in
+   words what each symbol does? — see [MFRL — 16, Mean Estimation from Samples](../16-mean-estimation-from-samples/index.qmd).
+2. Do you know what it means for an infinite series $\sum_k a_k$ to *converge*
+   versus *diverge*? — see [Tier 5, Lesson 14 — Sequences, Series, and Convergence](../../tier-5-undergrad-core/14-sequences-series-convergence/index.qmd).
+3. Are you comfortable with the idea that a sample average estimates an
+   expectation $\mathbb{E}[X]$? — same prerequisite.
+
+If any answer is *no*, follow the link before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+You want to find a number $w^\*$ where some hidden function $g$ vanishes:
+$g(w^\*) = 0$. The catch: every time you ask for $g(w)$, a malicious assistant
+adds noise before handing the value back. You only ever see
+$y = g(w) + \text{noise}$.
+
+Drag the slider. The blue dots are noisy samples of $g$ at the $w$ you pick;
+the dashed grey line is the true (hidden) $g$.
+
+```{ojs}
+viewof wprobe = Inputs.range([-2, 4], {value: 0.5, step: 0.05, label: "Probe at w ="})
+viewof noiseStd = Inputs.range([0, 1.5], {value: 0.6, step: 0.05, label: "Noise σ ="})
+viewof rngSeed = Inputs.range([1, 100], {value: 7, step: 1, label: "Reseed:"})
+```
+
+```{ojs}
+{
+  // Hidden true root: g(w) = w - 1.7 (so w* = 1.7)
+  const wstar = 1.7;
+  const trueG = w => w - wstar;
+
+  // mulberry32 PRNG so the slider doesn't churn samples on tiny moves
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = a;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(rngSeed * 1000 + Math.floor(wprobe * 100));
+
+  // Box-Muller normal noise
+  const u1 = rand(), u2 = rand();
+  const z = Math.sqrt(-2 * Math.log(u1 + 1e-12)) * Math.cos(2 * Math.PI * u2);
+  const sample = trueG(wprobe) + noiseStd * z;
+
+  // Curve points for the dashed truth
+  const xs = d3.range(-2, 4.05, 0.05);
+  const truth = xs.map(w => ({w, g: trueG(w)}));
+
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return Plot.plot({
+    width: 540, height: 280,
+    x: {label: "w", domain: [-2, 4]},
+    y: {label: "g(w) (and noisy sample)", domain: [-4, 4]},
+    marks: [
+      Plot.ruleY([0]),
+      Plot.line(truth, {x: "w", y: "g", stroke: "#999", strokeDasharray: "4 3"}),
+      Plot.dot([{w: wprobe, y: sample}], {x: "w", y: "y", fill: "steelblue", r: 6}),
+      Plot.text([{w: wprobe, y: sample}], {x: "w", y: "y", text: d => `y = ${d.y.toFixed(2)}`, dy: -14, fontSize: 11})
+    ]
+  });
+}
+```
+
+The hidden truth is $g(w) = w - 1.7$, so the answer you are after is
+$w^\* = 1.7$. But you can never see the dashed line — only the noisy blue dot.
+
+Your only handle on the world is the noisy sample. *How would you build a
+sequence of probes that homes in on $w^\*$?*
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+Sit with these for a moment.
+
+1. If a probe at some $w_k$ returns $y_k > 0$, what does that *suggest* about
+   whether $w_k$ is to the left or right of $w^\*$? Does the noise change your
+   answer?
+2. Suppose you nudge $w_{k+1} = w_k - \alpha \, y_k$ with a fixed step $\alpha$.
+   What happens once you arrive near $w^\*$ but the noise keeps wobbling $y_k$?
+3. What if instead $\alpha$ shrank with $k$ — say $\alpha_k = 1/k$? Could the
+   sequence still *make progress*, or would it freeze too soon?
+4. Is there an in-between: shrink fast enough to kill the noise but slowly
+   enough to keep moving?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Five short problems. Each one cracks open one piece of the algorithm.
+
+### Problem 1 — the goal
+
+You want $w^\*$ with $g(w^\*) = 0$, but every query returns
+$y = g(w) + \eta$ for some zero-mean noise $\eta$. Why can't you simply solve
+$y = 0$ by setting $g(w) = 0$ and inverting?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You don't have $g$. You have *one* noisy number per query.
+</details>
+<details class="hint"><summary>Full solution</summary>
+You don't know $g$ as a formula — only as a black box you can poke. A single
+sample carries noise, so even at the right $w$ you'd see $y \neq 0$. You need
+*many* samples and a way to average their information.
+</details>
+
+### Problem 2 — sign tells direction
+
+Suppose $g$ is increasing. If $y_k = g(w_k) + \eta_k$ comes back positive (on
+average), where is $w^\*$ relative to $w_k$? What if $y_k$ is negative?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Increasing $g$ means $g(w) > 0$ when $w$ is *above* the root.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For increasing $g$: $y > 0 \Rightarrow w > w^\*$ (move *down*); $y < 0 \Rightarrow w < w^\*$ (move *up*). So the natural update is
+$$w_{k+1} = w_k - \alpha_k \, y_k.$$
+Subtracting a positive $y$ moves $w$ down — exactly the direction of $w^\*$.
+</details>
+
+### Problem 3 — what a constant $\alpha$ buys you
+
+Try the update $w_{k+1} = w_k - \alpha \, y_k$ with $\alpha = 0.1$ on
+$g(w) = w - 1.7$ and noise $\eta_k \sim \mathcal{N}(0, 1)$. Will $w_k$
+*converge* to $1.7$, or will it bounce around it forever?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At $w = 1.7$, the update becomes $w_{k+1} = 1.7 - 0.1 \cdot \eta_k$. What does
+that look like in the long run?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Compute the variance of $w_{k+1}$ given $w_k = w^\*$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+A constant $\alpha$ can only *contract* the bias; it cannot kill the noise.
+Even sitting on $w^\*$, the next step jumps by $-\alpha \eta_k$, which has
+variance $\alpha^2 \sigma^2$. So $w_k$ wanders forever in a cloud of radius
+$\sim \alpha \sigma$. **Constant step ⇒ bouncing, not convergence.**
+</details>
+
+### Problem 4 — a shrinking $\alpha_k$
+
+Try $\alpha_k = 1/k$. At step 1 the step is huge; by step 100 it's $0.01$.
+Two opposing forces appear. Name them.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+One force lets the iteration *travel*. The other lets it *settle*.
+</details>
+<details class="hint"><summary>Full solution</summary>
+*Travel:* the steps must add up to enough total motion to reach $w^\*$ even
+from a far-away start. That requires $\sum_k \alpha_k = \infty$.
+*Settle:* the noise injected at each step, $\alpha_k \eta_k$, must sum to
+something finite — otherwise it never stops jiggling. That requires
+$\sum_k \alpha_k^2 < \infty$.
+
+The choice $\alpha_k = 1/k$ satisfies both: $\sum 1/k = \infty$ but
+$\sum 1/k^2 = \pi^2/6 < \infty$.
+</details>
+
+### Problem 5 — apply it to the mean
+
+Take $g(w) = w - \mathbb{E}[X]$, where $X$ is some random variable you can
+sample. Then $g(w^\*) = 0$ has solution $w^\* = \mathbb{E}[X]$. The Robbins-Monro
+update with $\alpha_k = 1/k$ becomes:
+$$w_{k+1} = w_k - \frac{1}{k}(w_k - X_k) = \left(1 - \frac{1}{k}\right) w_k + \frac{1}{k} X_k.$$
+
+Why is the right-hand side just the running mean of $X_1, \ldots, X_k$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand $w_{k+1}$ recursively starting from $w_1 = X_1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Unrolling: $w_{k+1} = \frac{1}{k}\sum_{i=1}^k X_i$. The classical sample mean
+*is* a Robbins-Monro iteration in disguise. So the famous law-of-large-numbers
+estimator is the simplest member of an enormous family.
+</details>
+
+::: {.key-insight}
+Stochastic root-finding works when the step sequence does two contradictory
+things at once: $\sum_k \alpha_k = \infty$ (still moving) and
+$\sum_k \alpha_k^2 < \infty$ (eventually still). The harmonic schedule
+$\alpha_k = 1/k$ is the canonical example.
+:::
+
+::: {.fun-fact}
+Herbert **Robbins** and Sutton **Monro** were a Columbia statistician and a
+graduate student when they published their 1951 paper in the *Annals of
+Mathematical Statistics*. The seven-page note received almost no attention for
+twenty years; today it is one of the most-cited statistics papers of the
+twentieth century, because every machine-learning optimiser is a descendant.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Robbins-Monro algorithm.** Given a black-box function $g: \mathbb{R} \to
+\mathbb{R}$ with unknown root $w^\*$, accessed only through noisy samples
+$y_k = g(w_k) + \eta_k$ with $\mathbb{E}[\eta_k \mid w_k] = 0$, the iteration
+$$
+w_{k+1} = w_k - \alpha_k \, y_k
+$$
+converges almost surely to $w^\*$ provided
+
+- **(R1) Step sums:** $\sum_{k=1}^\infty \alpha_k = \infty$ and
+  $\sum_{k=1}^\infty \alpha_k^2 < \infty$.
+- **(R2) $g$ regularity:** $g$ is monotonic and has bounded slope around
+  $w^\*$.
+- **(R3) Noise bound:** $\mathbb{E}[\eta_k^2 \mid w_k]$ is bounded.
+
+:::
+
+A short verse to memorise the step conditions, in the spirit of Bhāskara's
+*Līlāvatī*:
+
+> *Sum of steps must be unbounded — to walk all the way home.*
+> *Sum of squares must be finite — to silence the noise.*
+> *Both at once: the harmonic step $\alpha_k = 1/k$.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — running-mean estimation by RM
+
+> A sensor returns noisy readings $X_1, X_2, X_3, \ldots$ of a fixed but
+> unknown temperature $\mu$. Estimate $\mu$ on the fly using Robbins-Monro
+> with $\alpha_k = 1/k$. Read out the estimate after 4 samples
+> $X_1 = 19, X_2 = 21, X_3 = 22, X_4 = 18$.
+
+A competent solver thinks like this:
+
+1. Set up: I want $\mu = \mathbb{E}[X]$, so let $g(w) = w - \mu$. The noisy
+   sample of $g(w)$ is $w - X_k$. The RM update becomes
+   $w_{k+1} = w_k - \frac{1}{k}(w_k - X_k)$.
+2. Initialise $w_1 = X_1 = 19$.
+3. Step $k=1$: $w_2 = 19 - 1 \cdot (19 - 21) = 19 + 2 = 21$. (Wait — for the
+   simple unrolling identity I want to start the index so that $w_{k+1}$
+   uses $\alpha_k = 1/k$ with $w_1 = X_1$ as the seed; that's the convention
+   used in the Discover sequence above.)
+4. Re-check by the running-mean formula: $w_2 = (X_1+X_2)/2 = 20$.
+5. So the careful update from $w_1=19, X_2=21$ with $\alpha_1 = 1/2$ is
+   $w_2 = 19 - \tfrac{1}{2}(19 - 21) = 20$. **Lesson: the index where you
+   *start* counting $k$ matters. Pick a convention and stick with it.**
+6. Continuing with $\alpha_k = 1/(k+1)$: $w_3 = w_2 - \tfrac{1}{3}(w_2 - X_3) = 20 - \tfrac{1}{3}(20 - 22) = 20.667$. $w_4 = 20.667 - \tfrac{1}{4}(20.667 - 18) = 20$.
+
+**Estimate after 4 samples: $\hat\mu = 20.0$.**
+
+A sanity check: $(19 + 21 + 22 + 18)/4 = 20$. The iteration matches the sample
+mean exactly, as it must.
+
+### Practice — Warm
+
+**W1.** For each schedule, decide whether (R1) holds:
+$\alpha_k = 1$, $\alpha_k = 1/k$, $\alpha_k = 1/k^{0.6}$, $\alpha_k = 1/k^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the *p-series* test: $\sum 1/k^p$ converges iff $p > 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $\alpha_k = 1$: $\sum \alpha_k = \infty$ ✓ but $\sum \alpha_k^2 = \infty$ ✗.
+- $\alpha_k = 1/k$: $\sum 1/k = \infty$ ✓ and $\sum 1/k^2 < \infty$ ✓. **Both hold.**
+- $\alpha_k = 1/k^{0.6}$: $\sum 1/k^{0.6} = \infty$ ✓; $\sum 1/k^{1.2} < \infty$ ✓. **Both hold.**
+- $\alpha_k = 1/k^2$: $\sum 1/k^2 < \infty$ ✗ (steps die too fast).
+</details>
+
+**W2.** A friend proposes $\alpha_k = 0.1$ (constant). Will RM converge?
+
+<details class="hint"><summary>Full solution</summary>
+No. $\sum \alpha_k^2 = \infty$, so (R1) fails. The iterate bounces around
+$w^\*$ in a cloud of radius $\sim \alpha \sigma$ forever. Constant step is
+common in practice for *non-stationary* targets, where you *want* to keep
+tracking — but it does not satisfy the RM convergence theorem.
+</details>
+
+**W3.** State the Robbins-Monro update for finding the root of $g(w) = w^3 - 8$
+(noise-free). Run two steps from $w_1 = 1$ with $\alpha_k = 1/k$.
+
+<details class="hint"><summary>Full solution</summary>
+$w_2 = 1 - 1\cdot(1 - 8) = 1 - (-7) = 8$. $w_3 = 8 - \tfrac12 (8^3 - 8) = 8 - \tfrac12 \cdot 504 = -244$. **The iteration explodes** — because $g$ is steep
+and $\alpha_1$ is too large. Lesson: RM theory needs $g$'s slope to be
+bounded; in practice you also clip steps.
+</details>
+
+### Practice — Working
+
+**P1.** You sample $X_k$ from a Bernoulli(0.3) distribution (so $X_k \in \{0,1\}$,
+$\mathbb{E}[X] = 0.3$). Run RM for the mean with $w_1 = 0.5$ and
+$\alpha_k = 1/(k+1)$ on the sequence $X_1, X_2, X_3 = 0, 1, 0$. Compute $w_2,
+w_3, w_4$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$g(w) = w - X$; update $w_{k+1} = w_k - \alpha_k(w_k - X_k)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$w_2 = 0.5 - \tfrac12(0.5 - 0) = 0.25$.
+$w_3 = 0.25 - \tfrac13(0.25 - 1) = 0.5$.
+$w_4 = 0.5 - \tfrac14(0.5 - 0) = 0.375$.
+The estimate drifts toward $0.3$ as more samples come in.
+</details>
+
+**P2.** Suppose $g(w) = w - 5$ and the noise $\eta_k$ is *biased*: $\mathbb{E}[\eta_k] = 1$ instead of $0$. What does RM converge to (if anything)?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At convergence, $\mathbb{E}[y_k] = 0$. Solve for $w^\*$ when the noise has a
+non-zero mean.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The condition becomes $g(w^\*) + 1 = 0$, i.e., $w^\* - 5 + 1 = 0$, so
+$w^\* = 4$. **Bias in the noise produces a bias in the answer.** This is why
+ε-greedy targets in TD must be *unbiased* estimators of the Bellman target —
+otherwise the converged value will be wrong.
+</details>
+
+**P3.** Use RM to estimate $\sqrt{2}$ as the root of $g(w) = w^2 - 2$, starting
+from $w_1 = 1.5$ with $\alpha_k = 0.3 / k$. Compute $w_2, w_3, w_4$
+(noise-free).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The noise-free RM iteration becomes $w_{k+1} = w_k - \alpha_k (w_k^2 - 2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$w_2 = 1.5 - 0.3 \cdot (2.25 - 2) = 1.5 - 0.075 = 1.425$.
+$w_3 = 1.425 - 0.15 \cdot (1.425^2 - 2) = 1.425 - 0.15 \cdot 0.0306 = 1.4204$.
+$w_4 = 1.4204 - 0.1 \cdot (1.4204^2 - 2) = 1.4204 - 0.0175 = 1.4179$.
+The exact answer is $1.41421\ldots$. RM is converging — slowly, because we
+chose a small constant in front of $\alpha_k$ to keep things stable.
+</details>
+
+### Practice — Stretch
+
+**S1.** *Why must the step sums diverge?* Suppose $\sum_k \alpha_k = C < \infty$.
+Show that the RM iterate cannot, in general, reach a target that is more than
+$C \cdot \sup_k |y_k|$ away from $w_1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Bound $|w_{k+1} - w_1|$ by a sum of step sizes times sample sizes.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Triangle inequality on the recursion.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By the triangle inequality,
+$|w_{n+1} - w_1| \le \sum_{k=1}^n \alpha_k |y_k| \le \sup_k |y_k| \cdot \sum_k \alpha_k \le C \sup_k |y_k|$.
+So the iterate is *trapped* within a ball of finite radius around the start.
+If $w^\*$ is outside that ball, you can never reach it. **Divergent step sums
+are the price of being able to travel any finite distance.**
+</details>
+
+**S2.** RM solves $g(w) = 0$. Show that minimising $f$ via $g(w) = \nabla f(w)$
+turns RM into [stochastic gradient descent](#sgd-preview). What does the noisy
+sample $y_k$ become?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What's the analogue of "noisy $g$" when $g$ is a gradient?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Pick any unbiased estimator $\hat\nabla_k$ of $\nabla f(w_k)$ — for instance,
+the gradient on a single training example. Then $y_k = \hat\nabla_k$, and the
+RM update becomes $w_{k+1} = w_k - \alpha_k \hat\nabla_k$. This is **SGD**.
+RM and SGD are the same algorithm with two different stories. We expand this
+identification in **[Lesson 22 — SGD](../22-stochastic-gradient-descent/index.qmd)**.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Constant step size is fine in practice, so the conditions don't
+   matter."** Constant $\alpha$ gives an iterate that *tracks* the target
+   with bias-variance tradeoff $\sim \alpha \sigma$. That's useful for
+   *non-stationary* problems (where the target is drifting) but it does not
+   satisfy the convergence theorem.
+2. **"$\alpha_k = 1/k^2$ should be even better than $1/k$ since it's
+   smaller."** No — it dies too fast. The iterate freezes before reaching
+   $w^\*$. Both conditions in (R1) matter; the *travel* condition fails for
+   $\alpha_k = 1/k^2$.
+3. **"RM needs an unbiased noise."** The theorem demands
+   $\mathbb{E}[\eta_k \mid w_k] = 0$. If the noise is biased, RM converges
+   to the wrong root (Working P2).
+:::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Robbins-Monro turns a noisy black-box into a root-finder.** One iteration:
+   $w_{k+1} = w_k - \alpha_k y_k$.
+2. **Step sums must diverge; step-square sums must converge.** $\alpha_k = 1/k$
+   is the canonical schedule.
+3. **The sample mean is a special case of RM.** And so are SGD, TD learning,
+   Sarsa, and Q-learning — every one of them is a root-finder in disguise.
+   This is the central insight that powers the rest of this chapter and the
+   next.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain to a friend, without notes, *why* both step conditions
+   matter — what each one prevents?
+2. Did you solve at least 5 of the 8 practice problems without peeking past
+   *Hint 1*?
+3. Can you spot the running mean as a Robbins-Monro iteration when you see
+   $w_{k+1} = (1 - 1/k) w_k + (1/k) X_k$?
+
+- **3 yes:** move on to **[Lesson 21 — Dvoretzky's Theorem](../21-dvoretzky-convergence/index.qmd)**.
+- **2 yes:** redo Stretch S1 — the triangle-inequality argument is the
+  intuition for *every* convergence proof in this track.
+- **0–1 yes:** re-read *Discover* Problem 4 (the two forces) and the worked
+  example. The bias/variance dance has not landed yet.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.epsilon-greedy", "t5.sequences-series-convergence"]
+- **[MFRL — 19, ε-Greedy](../19-epsilon-greedy/index.qmd)** — the ε-greedy
+  policy gives the sampling distribution we will eventually use to drive RM
+  for value learning.
+- **[Tier 5, Lesson 14 — Sequences, Series, and Convergence](../../tier-5-undergrad-core/14-sequences-series-convergence/index.qmd)** — the p-series test we
+  used in W1, and the general idea of divergent versus convergent infinite
+  sums.
+- **[MFRL — 16, Mean Estimation from Samples](../16-mean-estimation-from-samples/index.qmd)** — the running-mean update is the simplest RM iteration.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[MFRL — 21, Dvoretzky's Convergence Theorem](../21-dvoretzky-convergence/index.qmd)** — the generalisation that subsumes RM and applies to TD,
+  Q-learning, and SGD.
+- **[MFRL — 22, SGD](../22-stochastic-gradient-descent/index.qmd)** — RM applied
+  to $g(w) = \nabla f(w) = 0$.
+- **[MFRL — 23, TD(0)](../23-td-state-values/index.qmd)** — RM applied to the
+  Bellman equation.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every iterative optimiser used to train modern neural networks —
+SGD, momentum, Adam, RMSProp — is a Robbins-Monro descendant. The
+[learning rate](/glossary.qmd#learning-rate) schedule you choose is exactly
+the $\alpha_k$ sequence; understanding (R1) is why warmup-then-decay schedules
+work and constant learning rates do not converge.
+:::
+
+::: {.applied-callout}
+**Research.** Stochastic approximation underlies online learning, adaptive
+control, recursive estimation in Kalman filters, and the convergence proofs
+of every TD method. Almost any infinite-time learning theorem reduces, after
+peeling, to "this is RM in disguise."
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning that this track
+expands into 38 lessons.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §20. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- **Source:** Shiyu Zhao, *Mathematical Foundations of Reinforcement
+  Learning* (Springer 2025), Chapter 6 §6.1. Cited freely; never transcribed.
+- **Touchstones honoured:** Russian school problem-first sequencing
+  (Discover before Name), Better Explained "Aha!" framing (the noisy
+  black-box metaphor), Bhāskara verse-style mnemonic for the step
+  conditions.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (widget, formula, English) ✓, graduated hints ✓, worked solutions ✓,
+  common-confusions ✓, self-assessment ✓.
 :::

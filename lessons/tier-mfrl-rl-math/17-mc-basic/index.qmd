@@ -7,87 +7,522 @@ prerequisites: ["mfrl.mean-estimation-from-samples"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.mean-estimation-from-samples"].
+1. Can you state policy iteration's two steps from Lesson 14?
+2. Do you understand from Lesson 16 that
+   $\hat v_n(s) = (1/n)\sum_i G^{(i)} \to v_\pi(s)$ a.s.\ for trajectories
+   from $s$ under $\pi$?
+3. Can you compute a [discounted return](/glossary.qmd#discounted-return)
+   $G_t = \sum_{k} \gamma^k R_{t+k}$ from a sequence of rewards?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+If shaky, revisit Lessons 14, 16, and 4 (returns).
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+You've just learned that sample averages converge to expectations
+(Lesson 16). PI's evaluation step asks for $v_\pi$ — an expectation. The
+obvious move: **replace exact evaluation with sample averages of returns**.
+That's MC Basic.
+
+Below is a 2×2 grid. Goal at $(1, 1)$, reward $+1$ (absorbing). Pick a
+state-action pair $(s, a)$. The widget rolls out $N$ trajectories starting
+from $(s, a)$ and averages the returns. As $N$ grows, $\hat q_\pi(s, a)$
+homes in on the true value (red line).
+
+```{ojs}
+viewof startState = Inputs.select(["(0,0)", "(0,1)", "(1,0)"], {label: "Start state s"})
+```
+
+```{ojs}
+viewof startAction = Inputs.select(["up", "down", "left", "right"], {label: "Start action a"})
+```
+
+```{ojs}
+viewof Nrollouts = Inputs.range([1, 200], {value: 30, step: 1, label: "Number of rollouts N"})
+```
+
+```{ojs}
+{
+  const N = 2;
+  const goal = [1, 1];
+  const gamma = 0.9;
+  const next = (i, j, a) => {
+    if (i === goal[0] && j === goal[1]) return [i, j];
+    let ni = i, nj = j;
+    if (a === 0 && i > 0) ni = i - 1;
+    if (a === 1 && i < N - 1) ni = i + 1;
+    if (a === 2 && j > 0) nj = j - 1;
+    if (a === 3 && j < N - 1) nj = j + 1;
+    return [ni, nj];
+  };
+  const reward = (i, j) => (i === goal[0] && j === goal[1] ? 1 : 0);
+  // Policy: for this widget, fixed greedy policy "go to goal" (down/right)
+  const policy = (i, j) => {
+    if (i < goal[0]) return 1;     // down
+    if (j < goal[1]) return 3;     // right
+    return 1;                       // anything (terminal)
+  };
+  const ssMap = {"(0,0)": [0,0], "(0,1)": [0,1], "(1,0)": [1,0]};
+  const aMap = {"up": 0, "down": 1, "left": 2, "right": 3};
+  const [si, sj] = ssMap[startState];
+  const a0 = aMap[startAction];
+
+  // Rollouts
+  function rollout(seed) {
+    let [i, j] = [si, sj];
+    let a = a0;
+    let G = 0, gpow = 1;
+    for (let t = 0; t < 50; t++) {
+      const [ni, nj] = next(i, j, a);
+      const r = reward(ni, nj);
+      G += gpow * r;
+      gpow *= gamma;
+      if (ni === goal[0] && nj === goal[1]) break;
+      i = ni; j = nj;
+      a = policy(i, j);
+    }
+    return G;
+  }
+  const Gs = [];
+  let sum = 0;
+  const points = [];
+  for (let n = 1; n <= Nrollouts; n++) {
+    const G = rollout(n);
+    Gs.push(G);
+    sum += G;
+    points.push({n: n, avg: sum / n});
+  }
+  // True q (computable here): just simulate one rollout (deterministic)
+  const trueQ = rollout(1);
+
+  const w = 600, h = 220, ml = 50, mr = 30, mt = 20, mb = 30;
+  const xs = n => ml + (n - 1) / Math.max(1, Nrollouts - 1) * (w - ml - mr);
+  const ymin = Math.min(0, trueQ - 0.2);
+  const ymax = Math.max(1.5, trueQ + 0.2);
+  const ys = a => h - mb - (a - ymin) / (ymax - ymin) * (h - mt - mb);
+  const path = "M " + points.map(p => `${xs(p.n)},${ys(p.avg)}`).join(" L ");
+  const trueLine = `M ${ml},${ys(trueQ)} L ${w - mr},${ys(trueQ)}`;
+  return html`<div>
+    <svg width=${w} height=${h} style="background:#fafafa; border:1px solid #ccc;">
+      <path d=${trueLine} stroke="red" stroke-dasharray="4,4" fill="none"/>
+      <path d=${path} stroke="steelblue" stroke-width="1.5" fill="none"/>
+      <text x=${w - mr - 130} y=${ys(trueQ) - 5} fill="red" font-size="11">true q ≈ ${trueQ.toFixed(3)}</text>
+      <text x=${ml} y=${h - 5} font-size="11">N = number of rollouts</text>
+      <text x=${5} y=${ys(0)} font-size="11">0</text>
+      <text x=${5} y=${ys(1)} font-size="11">1</text>
+    </svg>
+    <div style="font-size:0.9rem; color:#666; margin-top:0.5rem;">Running average of returns from (${startState}, ${startAction}). Rollouts are deterministic in this widget, so the average locks immediately — but with a stochastic environment you'd see the wobble.</div>
+  </div>`;
+}
+```
+
+Notice: this widget never *uses* the transition function $P$ to compute $q$.
+It just rolls trajectories and averages.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The widget's environment is deterministic, so every rollout from $(s, a)$
+   gives the same return. The "average" is exact. What changes when the
+   environment is stochastic?
+2. To do greedy improvement at state $s$, you need $\hat q(s, a)$ for
+   *every* action $a$. If your policy never selects action $a$ at state
+   $s$, how do you estimate $\hat q(s, a)$?
+3. Why estimate $q$ rather than $v$? (Hint: which one lets you act
+   greedily *without* knowing $P$?)
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — Why $q$, not $v$?
+
+In PI, greedy improvement uses $\arg\max_a [r(s, a) + \gamma \sum_{s'} P(s'|s, a) v_\pi(s')]$.
+Show that this requires knowledge of $P$. What's the equivalent
+expression in terms of $q$, and does it require $P$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$q_\pi(s, a) = \mathbb{E}[G_t \mid S_t = s, A_t = a]$ — the expected
+return of taking $a$ once and then following $\pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**With $v$.** $\arg\max_a [r(s, a) + \gamma \sum_{s'} P(s'|s, a) v_\pi(s')]$.
+You need $r$ and $P$ — the model.
+
+**With $q$.** $\arg\max_a q_\pi(s, a)$. *No model required.* Just compare
+the $q$-values directly.
+
+This is the entire reason model-free RL targets $q$ rather than $v$:
+**greedy improvement w.r.t.\ $q$ is purely lookup.** This insight is from
+Watkins (1989), who introduced Q-learning.
+</details>
+
+### Problem 2 — MC estimate of $q$
+
+Suppose you fix policy $\pi$, state $s$, and action $a$. To estimate
+$q_\pi(s, a) = \mathbb{E}[G_t \mid S_t = s, A_t = a, \pi]$, what trajectories
+do you need? Specifically, what's the *first* state-action pair of each
+trajectory?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The conditional expectation conditions on starting at $(s, a)$. So all
+sample trajectories must start with that pair.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Each trajectory must start with $(S_0, A_0) = (s, a)$. From there, follow
+$\pi$ for some number of steps and observe the return $G_0 = \sum_{t \ge 0} \gamma^t R_t$.
+Average $N$ such returns to get $\hat q_\pi(s, a) \approx q_\pi(s, a)$ (LLN).
+**You need a way to *force* the trajectory to start at $(s, a)$.** This is
+exactly the "exploring starts" assumption of MC Basic.
+</details>
+
+### Problem 3 — The MC Basic algorithm
+
+Combine the *outer loop* of PI with the *inner step* of MC estimation.
+Write the algorithm in pseudocode in 6-8 lines.
+
+<details class="hint"><summary>Full solution</summary>
+```
+initialize π_0 arbitrarily (e.g. random deterministic policy)
+for k = 0, 1, 2, ...:
+   for each (s, a):                              # estimate q
+      generate N trajectories starting from (s, a), following π_k
+      compute returns G^(1), ..., G^(N)
+      q̂(s, a) ← (1/N) Σ G^(i)
+   for each s:                                   # improve
+      π_{k+1}(s) ← argmax_a q̂(s, a)
+   stop if π_{k+1} = π_k
+return π_k
+```
+**That's MC Basic.** It is *exactly* PI with one substitution: exact
+evaluation → MC sample averages.
+</details>
+
+### Problem 4 — Computational cost
+
+For a finite MDP with $|S|$ states, $|A|$ actions per state, and $N$
+trajectories per $(s, a)$ each of length $T$, what's the per-iteration
+cost of MC Basic?
+
+<details class="hint"><summary>Full solution</summary>
+Trajectories per outer iteration: $|S| \cdot |A| \cdot N$. Each trajectory
+has $T$ steps. Total cost: $\Theta(|S| \cdot |A| \cdot N \cdot T)$.
+
+For comparison, PI is $\Theta(|S|^3 + |S|^2 |A|)$ per iteration. MC Basic
+is much *more* expensive in raw flops — but it never inverts a matrix
+and never uses $P$. **You trade computational efficiency for the freedom
+to operate without a model.**
+</details>
+
+### Problem 5 — The exploration problem
+
+If $\pi_k$ is deterministic and $\pi_k(s) = a^*$, then trajectories
+following $\pi_k$ from $s$ never take action $a' \ne a^*$. So $\hat q(s, a')$
+cannot be estimated from "follow $\pi_k$" trajectories. How does MC Basic
+solve this?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The pseudocode says "starting from $(s, a)$" — so even if $\pi_k$ doesn't
+pick $a$, you *force* the first action to be $a$, then follow $\pi_k$
+afterwards.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Exploring starts.** MC Basic *requires* the ability to choose any
+$(s, a)$ as the starting state-action pair. This is a strong assumption —
+in many real systems you can't restart from arbitrary states (e.g.\ a
+physical robot). Lessons 18-19 progressively relax this:
+- Lesson 18: every-visit MC + exploring starts (still assumes the start
+  freedom).
+- Lesson 19: $\varepsilon$-greedy (drops exploring starts entirely; uses
+  random action choice instead).
+</details>
+
+::: {.key-insight}
+MC Basic = PI with the model removed. The architecture (alternate
+evaluate-improve) is identical; the only change is *how* the evaluation
+step works (sample averages instead of $(I - \gamma P_\pi)^{-1} r_\pi$).
+This single substitution defines model-free RL.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**[MC Basic](/glossary.qmd#mc-basic).** Initialise any deterministic policy
+$\pi_0$. Repeat for $k = 0, 1, \ldots$:
+
+1. **Policy evaluation (MC).** For each $(s, a)$ pair:
+   - Generate $N$ episodes starting from $(s, a)$, following $\pi_k$
+     thereafter, and observe returns $G^{(1)}, \ldots, G^{(N)}$.
+   - $\hat q(s, a) \leftarrow (1/N) \sum_{i=1}^N G^{(i)}$.
+2. **Policy improvement.** For each $s$:
+   - $\pi_{k+1}(s) \leftarrow \arg\max_a \hat q(s, a)$.
+
+Stop when $\pi_{k+1} = \pi_k$. Return $\pi_k$.
+
+**Assumption (exploring starts).** Every $(s, a)$ pair can be selected as
+the initial state-action.
+
+By LLN, as $N \to \infty$, $\hat q \to q_{\pi_k}$ and MC Basic reduces to
+PI; convergence to an optimal policy follows.
+
+:::
+
+A verse:
+
+> *Roll out, average, improve, repeat.*
+> *Sample takes the place of model;*
+> *Greedy lookup of q*
+> *Replaces matrix solves.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — MC Basic on a 2-state MDP
+
+Same MDP as Lesson 14's worked example. States $\{s_1, s_2\}$, actions
+$\{a, b\}$, $\gamma = 0.5$. Recall:
+
+| s | action | r | s' |
+|:-:|:-:|:-:|:-:|
+| $s_1$ | $a$ | 0 | $s_1$ |
+| $s_1$ | $b$ | 1 | $s_2$ |
+| $s_2$ | $a$ | 0 | $s_2$ |
+| $s_2$ | $b$ | 2 | $s_1$ |
+
+Start with $\pi_0 = (a, a)$ — both stay. $N = 100$ rollouts per $(s, a)$.
+(In a deterministic MDP every rollout from the same $(s, a)$ gives the
+same return; in a stochastic one, $N$ matters.)
+
+**Iter 1 — MC eval.** For each $(s, a)$, roll out:
+- $(s_1, a)$ then follow $\pi_0$: stay at $s_1$ forever, $G = 0$. $\hat q(s_1, a) = 0$.
+- $(s_1, b)$ then follow $\pi_0$: $r_0 = 1$, then $s_2 \to s_2 \to \cdots$ with $r = 0$. $G = 1$. $\hat q(s_1, b) = 1$.
+- $(s_2, a)$ then follow $\pi_0$: stay at $s_2$ forever, $G = 0$. $\hat q(s_2, a) = 0$.
+- $(s_2, b)$ then follow $\pi_0$: $r_0 = 2$, then $s_1 \to s_1 \to \cdots$ with $r = 0$. $G = 2$. $\hat q(s_2, b) = 2$.
+
+**Iter 1 — Improve.** $\pi_1(s_1) = b$ ($1 > 0$). $\pi_1(s_2) = b$ ($2 > 0$).
+
+**Iter 2 — MC eval.** With $\pi_1 = (b, b)$:
+- $(s_1, a)$ then $\pi_1$: $r_0 = 0$, $s_1 \to s_2$ via $b$, $r_1 = 1$, then $s_2 \to s_1$ via $b$ giving $r_2 = 2$, oscillates between 1 and 2. $G = 0 + 0.5 \cdot 1 + 0.25 \cdot 2 + 0.125 \cdot 1 + \cdots$. Geometric-cycling sum $= 0 + 0.5(1 + 0.25 \cdot 2 + 0.0625 \cdot 1 + \cdots)$. Converges to $\hat q(s_1, a) \approx 1.33$.
+- $(s_1, b)$ then $\pi_1$: $r_0 = 1$, then alternates. $\hat q(s_1, b) \approx 8/3 \approx 2.67$.
+- $(s_2, a)$ then $\pi_1$: $r_0 = 0$, then $s_2 \to s_1 \to s_2 \to \cdots$. $\hat q(s_2, a) \approx 1.67$.
+- $(s_2, b)$ then $\pi_1$: $r_0 = 2$, then alternates. $\hat q(s_2, b) \approx 10/3 \approx 3.33$.
+
+**Iter 2 — Improve.** Same as before: $\pi_2 = (b, b) = \pi_1$. **Stop.**
+
+**Result.** $\pi^* = (b, b)$, $q$-values match Lesson 14's. **Same answer
+as PI, no model used.** With $N \to \infty$ this is exact; for finite $N$
+in a stochastic MDP, you'd have noise around these values.
+
+### Practice — Warm
+
+**W1.** In MC Basic with $N = 1$ rollout per $(s, a)$, what goes wrong?
+
+<details class="hint"><summary>Full solution</summary>
+$\hat q$ is the *return of one trajectory* — a single sample of a random
+variable. Variance $\sigma_G^2$ instead of $\sigma_G^2 / N$. The greedy
+improvement is then based on noisy estimates: it can pick a worse action
+than the true greedy by chance. PI's monotonic improvement guarantee
+fails. **Always need $N \gg 1$ unless the environment is deterministic.**
+</details>
+
+**W2.** Why does MC Basic require *episodes* — i.e., trajectories of
+finite length — to compute returns?
+
+<details class="hint"><summary>Full solution</summary>
+$G_t = \sum_{k=0}^\infty \gamma^k R_{t+k}$ is an infinite sum, but the
+return must be computable from observed rewards. Two cases:
+(i) **Episodic MDPs:** trajectories naturally terminate (e.g.\ at the goal).
+(ii) **Truncated rollouts:** chop at $T$ steps; bias is $\le \gamma^T R_{\max}/(1 - \gamma)$, which is small if $\gamma^T \ll 1$.
+
+MC methods (this chapter) assume episodes. TD methods (Lesson 23) use
+*bootstrapped* returns — no need to wait for an episode to end.
+</details>
+
+**W3.** Why can't MC Basic be used in a continuing (non-episodic) task
+without modification?
+
+<details class="hint"><summary>Full solution</summary>
+$G_t$ is undefined (or infinite) without termination. You can either
+(a) introduce artificial termination at $T$ steps and accept truncation
+bias, or (b) move to TD methods, which use one-step bootstrapping
+$G_t \approx R_t + \gamma \hat v(S_{t+1})$ rather than full returns.
+**This is one of the main motivations for TD over MC.**
+</details>
+
+### Practice — Working
+
+**P1.** *Stochastic environment.* Modify the worked example so that action
+$b$ from $s_1$ has 80% chance of going to $s_2$ (reward 1) and 20% of
+staying at $s_1$ (reward 0). Estimate $q_\pi(s_1, b)$ under
+$\pi = (b, b)$ via 1000 rollouts. (Sketch.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each rollout gives a different first transition; subsequent steps under
+$\pi$ alternate. Average over rollouts.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Per-rollout: with prob 0.8, $r_0 = 1$ then alternate as before. With prob
+0.2, $r_0 = 0, s_1$ self-loop, then resample $b$, etc. The expected
+return $q_\pi(s_1, b)$ requires Bellman:
+$q(s_1, b) = 0.8(1 + 0.5 v(s_2)) + 0.2(0 + 0.5 v(s_1))$ where
+$v$ is from the stochastic $\pi = (b, b)$. Solving gives
+$q(s_1, b) \approx 2.45$ (rough). With 1000 samples, the empirical
+estimate has SE $\sim \sigma_G / \sqrt{1000}$ — typically $\pm 0.05$ or so.
+**Stochastic transitions add variance and require larger $N$.**
+</details>
+
+**P2.** Show that MC Basic with $N \to \infty$ converges to PI's
+trajectory exactly. (Why?)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+LLN: as $N \to \infty$, $\hat q_\pi \to q_\pi$ a.s. The greedy
+improvement step is identical.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By LLN, $\hat q(s, a) \to q_\pi(s, a)$ a.s.\ as $N \to \infty$. So
+$\arg\max_a \hat q(s, a) \to \arg\max_a q_\pi(s, a) = $ greedy w.r.t.\ $v_\pi$.
+Both algorithms produce the same policy at every iteration (up to ties).
+**MC Basic is unbiased.** Its limit is exactly PI's behaviour.
+</details>
+
+**P3.** *Sample efficiency thought experiment.* A 100-state MDP with 4
+actions per state. Each rollout takes $T = 50$ steps. To get
+$\hat q$ within $\pm 0.05$ at every $(s, a)$ with 95% confidence
+(assuming $\sigma_G \approx 1$), how many trajectories per outer iteration?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$N \ge (1.96 \cdot \sigma_G / 0.05)^2$ per $(s, a)$, then multiply by
+$|S| \cdot |A|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$N \ge 1537$ per $(s, a)$. With 100 states × 4 actions = 400 pairs,
+total trajectories per outer iteration $\approx 615{,}000$. Each
+trajectory $\approx 50$ steps, so $\approx 3 \times 10^7$ environment
+interactions per outer iteration. **For 5 outer iterations to
+convergence, $\approx 1.5 \times 10^8$ samples.** This is why naive MC
+RL is *much* slower than model-based PI when a model is available — and
+why later lessons obsess over sample efficiency.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the MC Basic estimate $\hat q$ is *unbiased*:
+$\mathbb{E}[\hat q(s, a)] = q_\pi(s, a)$ for any $N \ge 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$\hat q(s, a) = (1/N) \sum_{i=1}^N G^{(i)}$ where each $G^{(i)}$ has
+$\mathbb{E}[G^{(i)} \mid S_0 = s, A_0 = a, \pi] = q_\pi(s, a)$.
+Linearity of expectation: $\mathbb{E}[\hat q(s, a)] = q_\pi(s, a)$.
+**Unbiased for any $N$ — variance is the only issue.** This is the
+strongest possible statistical property; TD methods (Lesson 23) trade
+unbiasedness for lower variance.
+</details>
+
+**S2.** Suppose you have a *single* very long trajectory rather than
+$|S| \cdot |A| \cdot N$ short ones. Sketch how you'd modify MC Basic to
+use it. What's the catch?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A long trajectory visits many $(s, a)$ pairs. Each *visit* yields a
+return — the discounted sum from that visit forward.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Sketch.** Generate one long trajectory under $\pi$. For every visit to
+$(s, a)$, record the return from that visit forward. Average across all
+visits to $(s, a)$.
+
+**The catch.** Visits to different $(s, a)$ are correlated (consecutive
+states), and rare $(s, a)$ pairs may not be visited at all (exploration
+problem). This is **every-visit MC** — the topic of Lesson 18.
+</details>
+
+::: {.fun-fact}
+"MC control" was popularised by Sutton & Barto's 1998 textbook
+*Reinforcement Learning: An Introduction*, which trained two generations
+of RL researchers. Earlier work (Singh, Jaakkola, Jordan 1994; Tsitsiklis
+1994) established convergence guarantees, but Sutton & Barto made it
+*pedagogically* accessible. The textbook is now in its second edition
+(2018) and remains the reference.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"MC Basic estimates $v$, then derives $q$."** No — it directly
+   estimates $q$, because greedy improvement with $q$ doesn't need a model.
+2. **"$N = 1$ trajectory per $(s, a)$ is enough."** Only in deterministic
+   MDPs. For stochastic, you need many to drive variance down.
+3. **"MC Basic doesn't need exploration."** It does — *exploring starts*
+   is its built-in exploration mechanism (start at every $(s, a)$).
+4. **"MC Basic and PI converge to *different* answers."** They converge to
+   the same $\pi^*$ (assuming $N \to \infty$). MC just gets noisier
+   estimates along the way.
+:::
+
+### Takeaways
+
+1. **MC Basic = PI with model removed.** Replace exact eval with sample
+   averages of returns.
+2. **Estimate $q$, not $v$.** Greedy improvement w.r.t.\ $q$ is
+   model-free.
+3. **Exploring starts** assumption: every $(s, a)$ can be the initial
+   pair. Strong assumption, relaxed in Lessons 18-19.
+4. **Sample-hungry.** Need $\Theta(|S| |A| N T)$ environment interactions
+   per outer iteration; $N$ controls variance.
+
+### Self-Assessment
+
+1. Could you write the MC Basic pseudocode without notes?
+2. Can you explain *why* it estimates $q$ rather than $v$?
+3. Did you compute the W3 sample-size question without peeking?
+
+- **3 yes:** move on to Lesson 18 (every-visit MC and exploring starts).
+- **2 yes:** redo P3 — the sample-cost realism is critical.
+- **0–1 yes:** re-read *Discover* Problems 1, 2, 3.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.mean-estimation-from-samples"]
+- **Lesson 16 (mean estimation).** LLN + sample-average framework.
+- **Lesson 14 (PI).** The evaluate-improve outer loop.
+- **Lesson 8 ($q$-values).** The right object to estimate when you don't
+  know $P$.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 18 — MC Exploring Starts.** Reuse single-trajectory samples
+  across many $(s, a)$ pairs; every-visit and first-visit variants.
+- **Lesson 19 — $\varepsilon$-greedy.** Drop the exploring-starts
+  assumption.
+- **Lessons 23-26 — TD, SARSA, Q-learning.** Replace full-episode returns
+  with one-step bootstrapped returns.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every modern RL algorithm — DQN, PPO, AlphaZero — descends
+from MC Basic. The "estimate $q$ from samples, then improve greedily"
+template is universal. PPO clips the improvement to make it stable;
+DQN uses a neural network to share information across $(s, a)$ pairs;
+AlphaZero combines MC tree search with neural-network policy/value
+estimates. MC Basic is the unsophisticated grandparent.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning. MC Basic is
+the algorithm hiding behind the words "model-free RL."
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §17. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §5.2. Cite freely; never transcribe.
+- Touchstones: Sutton & Barto Ch. 5 (the standard exposition), Watkins
+  1989 (the $q$-vs-$v$ insight).
 :::

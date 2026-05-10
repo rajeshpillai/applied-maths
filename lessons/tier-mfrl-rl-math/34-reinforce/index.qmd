@@ -7,72 +7,371 @@ prerequisites: ["mfrl.policy-gradient-theorem", "mfrl.mean-estimation-from-sampl
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.policy-gradient-theorem", "mfrl.mean-estimation-from-samples"].
+Before continuing, can you:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. State the **policy gradient theorem** ([Lesson 33](../33-policy-gradient-theorem/index.qmd)) —
+   $\nabla J(\theta) = \mathbb E[\nabla \log \pi \cdot q_\pi]$?
+2. Explain why a **Monte Carlo** mean estimator is unbiased given iid
+   samples ([Lesson 16](../16-mean-estimation-from-samples/index.qmd))?
+3. Compute $\nabla_\theta \log \pi(a \mid s; \theta)$ for a softmax
+   ([Lesson 32](../32-policy-parameterization/index.qmd))?
+4. Define the discounted return $G_t = \sum_{k \ge 0} \gamma^k r_{t+k}$?
+
+If yes to all four, continue.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Imagine a small CartPole-like task. A pole is balanced on a cart; you push
+left or right at each timestep. The agent's policy is a 2-action softmax
+network. Initially it pushes near-randomly and the pole falls in two
+seconds.
+
+A widget runs **one episode** end-to-end under the current policy, observes
+the total return $G_0$ (= number of timesteps before the pole falls), and
+nudges $\theta$. After 100 episodes the curve is jagged; after 1000 it's
+clearly improving; after 10000 it has solved the task — most of the time.
+
+::: {.lesson-beat}
+The agent never sees a "right answer". It only sees: *I tried these
+actions, and got this much return*. From that, somehow, $\theta$ improves.
+:::
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. Lesson 33 said the policy gradient is $\mathbb E[\nabla \log \pi \cdot
+   q_\pi]$. We don't know $q_\pi$. What's a sample-based unbiased substitute?
+2. The reward curve in the widget is jagged — sometimes one episode goes
+   well, the next goes badly even with the same $\theta$. Why is the
+   gradient estimate so noisy?
+3. Could you reduce the noise without making the estimator biased?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — substitute the return
+
+The policy gradient theorem says
+$\nabla J(\theta) = \mathbb E_{(s, a) \sim \pi_\theta}[\nabla \log \pi(a
+\mid s) \cdot q_\pi(s, a)]$. You don't have $q_\pi$. What is the simplest
+unbiased single-sample estimator?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What is the conditional expectation of the observed return given $(s_t,
+a_t)$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbb E[G_t \mid s_t = s, a_t = a] = q_\pi(s, a)$ by the definition of
+$q_\pi$. So substituting the observed return $G_t$ for $q_\pi(s_t, a_t)$
+is unbiased. The single-sample stochastic gradient estimator is
+
+$$\hat g_t \;=\; \nabla_\theta \log \pi(a_t \mid s_t; \theta) \cdot G_t.$$
+
+This is **REINFORCE** (Williams 1992).
+</details>
+
+### Problem 2 — the update
+
+Average $\hat g_t$ across a trajectory and turn it into a parameter update
+with step size $\alpha$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+SGD on a gradient estimator: $\theta \leftarrow \theta + \alpha \hat g$.
+We have many $\hat g_t$ along the trajectory.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$\theta \;\leftarrow\; \theta + \alpha \sum_t \nabla_\theta \log \pi(a_t \mid s_t; \theta)\,G_t.$$
+
+Per-trajectory, this is one gradient step that uses every $(s_t, a_t)$
+visited and the future return from each. Run many trajectories; this is
+SGD on $J(\theta)$ — provably unbiased, but with high variance.
+</details>
+
+### Problem 3 — why is it noisy?
+
+A single trajectory gives one estimate of $G_t$ for each $(s_t, a_t)$. How
+big can the variance get?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$G_t$ is a sum of (potentially many) random rewards. Variance is additive
+for independent terms; rewards within an episode are correlated but the
+worst-case scaling is still painful.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For an episode of length $T$ and reward variance $\sigma_r^2$ per step,
+$\text{Var}(G_t) \sim T \sigma_r^2$ in the worst case. Multiply that by
+$\|\nabla \log \pi\|^2$ and you get gradient variance that grows linearly
+with episode length — a serious problem in tasks with thousands of steps
+per episode. This is why REINFORCE is famously high-variance and slow to
+train. Variance-reduction tricks (baselines; actor-critic; advantage)
+exist precisely to fix this.
+</details>
+
+### Problem 4 — baselines
+
+Recall from [Lesson 33, S2](../33-policy-gradient-theorem/index.qmd): for
+any state-only function $b(s)$,
+$\mathbb E_{a \sim \pi(\cdot \mid s)}[\nabla \log \pi(a \mid s)\, b(s)] = 0$.
+Use this to write a *baseline-corrected* REINFORCE update:
+
+$$\theta \leftarrow \theta + \alpha \sum_t \nabla_\theta \log \pi(a_t \mid s_t; \theta)\,(G_t - b(s_t)).$$
+
+Why does subtracting $b(s_t)$ leave the expected gradient unchanged?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+By linearity of expectation, $\mathbb E[\nabla \log \pi (G_t - b)] =
+\mathbb E[\nabla \log \pi G_t] - \mathbb E[\nabla \log \pi b]$. The second
+term is zero by Lesson 33 S2.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The baseline subtracts a *signal* whose expectation is zero. So the
+expectation of $\hat g_t$ is unchanged — REINFORCE-with-baseline is still
+an unbiased estimator of $\nabla J$. But the variance can drop
+substantially: a good baseline (e.g., $b(s) = v_\pi(s)$) makes
+$G_t - b(s_t)$ closer to zero in magnitude, shrinking the gradient
+samples. This trick takes you from REINFORCE → REINFORCE-with-baseline →
+actor-critic methods.
+</details>
+
+::: {.fun-fact}
+Williams's 1992 paper "Simple Statistical Gradient-Following Algorithms
+for Connectionist Reinforcement Learning" introduced REINFORCE — and sat
+nearly unread for two decades. Deep learning's revival of policy
+optimisation in the mid-2010s rediscovered the algorithm, and PPO (2017)
+and most modern methods are direct descendants.
+:::
+
+::: {.key-insight}
+**REINFORCE is the simplest possible policy gradient: replace the
+expectation by one sample.** That's it. High variance but unbiased — and
+the foundation of every later method, which differ only in how they
+estimate $q_\pi$ (or $A_\pi$) more cheaply or with less variance.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**REINFORCE.** Stochastic gradient ascent on $J(\theta)$ using the Monte
+Carlo return as an unbiased estimator of $q_\pi$:
+
+$$\theta \;\leftarrow\; \theta + \alpha \sum_{t=0}^{T-1} \nabla_\theta \log \pi(a_t \mid s_t; \theta)\,G_t.$$
+
+With baseline $b(s)$:
+
+$$\theta \;\leftarrow\; \theta + \alpha \sum_{t=0}^{T-1} \nabla_\theta \log \pi(a_t \mid s_t; \theta)\,(G_t - b(s_t)).$$
+
+The baseline can be any function of state alone — a constant, a moving
+average, or (best) an estimate of $v_\pi(s)$.
+
+:::
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — REINFORCE on a 2-state MDP
+
+States $\{s_1, s_2\}$, actions $\{a_1, a_2\}$. State-independent softmax
+$\theta = (\theta_1, \theta_2)$. Initialise $\theta = (0, 0)$;
+$\pi = (0.5, 0.5)$.
+
+We run one trajectory under $\pi$:
+
+| $t$ | $s_t$ | $a_t$ | $r_t$ |
+|--|--|--|--|
+| 0 | $s_1$ | $a_1$ | 1 |
+| 1 | $s_2$ | $a_2$ | 0 |
+| 2 | $s_1$ | $a_2$ | 2 |
+
+With $\gamma = 1$:
+$G_0 = 1 + 0 + 2 = 3$, $G_1 = 0 + 2 = 2$, $G_2 = 2$.
+
+Score-function gradients (from the worked example in Lesson 33):
+
+- $\nabla \log \pi(a_1) = e_1 - \pi = (0.5, -0.5)$.
+- $\nabla \log \pi(a_2) = e_2 - \pi = (-0.5, 0.5)$.
+
+REINFORCE update:
+$\sum_t \nabla \log \pi(a_t) G_t = (0.5,-0.5)\cdot 3 + (-0.5,0.5)\cdot 2 + (-0.5, 0.5)\cdot 2$
+$= (1.5,-1.5) + (-1, 1) + (-1, 1) = (-0.5,\ 0.5)$.
+
+Step with $\alpha = 0.1$:
+$\theta \leftarrow (0, 0) + 0.1 \cdot (-0.5, 0.5) = (-0.05,\ 0.05)$.
+
+The probability of $a_2$ rises slightly. Notice this happened even though
+*one* of the $a_2$ steps gave a low return ($r=0$): variance is real and
+single trajectories can mislead. Averaging many trajectories tames it.
+
+### Practice — Warm
+
+**W1.** State the REINFORCE update from memory.
+
+<details class="hint"><summary>Full solution</summary>
+$\theta \leftarrow \theta + \alpha \sum_t \nabla \log \pi(a_t \mid s_t;
+\theta) G_t$. (With baseline: replace $G_t$ by $G_t - b(s_t)$.)
+</details>
+
+**W2.** Is REINFORCE biased? Justify.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take expectation of $\hat g_t$ given $(s_t, a_t)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbb E[\nabla \log \pi(a_t \mid s_t) G_t \mid s_t, a_t] = \nabla \log
+\pi(a_t \mid s_t) q_\pi(s_t, a_t)$ — that's exactly the policy gradient
+theorem's integrand. So REINFORCE is **unbiased**. Its trouble is
+variance, not bias.
+</details>
+
+**W3.** What does adding a baseline change in expectation? In variance?
+
+<details class="hint"><summary>Full solution</summary>
+**Expectation:** unchanged (the baseline's contribution to the gradient is
+zero in expectation; Lesson 33, S2). **Variance:** can be substantially
+reduced if the baseline tracks the typical magnitude of $G_t$ at $s_t$.
+The optimal state-only baseline is the value $v_\pi(s)$.
+</details>
+
+### Practice — Working
+
+**P1.** A practitioner sets $b(s) = $ a moving average of recent returns
+(state-independent). Is this still a valid baseline?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A constant is a special case of a state-only function.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes.** A constant is a (degenerate) function of state. The
+zero-expectation property of the baseline correction holds for *any*
+function of state alone (and even for time-only or constant). It does
+*not* hold for functions of action — see P2.
+</details>
+
+**P2.** Why can't the baseline depend on the *action*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Replay the proof in Lesson 33, S2: the inner sum over $a$ became zero
+because $b$ was constant in $a$. What if $b$ depends on $a$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbb E_a[\nabla \log \pi(a \mid s) b(s, a)] = \sum_a \nabla \pi(a \mid
+s) b(s, a)$, which has no reason to be zero unless $b$ is independent of
+$a$. Action-dependent baselines bias the gradient. (Some advanced
+methods *do* use action-dependent baselines and explicitly correct for
+the bias — but that's research-level.)
+</details>
+
+**P3.** Sketch pseudo-code for one episode of REINFORCE.
+
+<details class="hint"><summary>Full solution</summary>
+```
+1. Roll out trajectory τ = (s_0, a_0, r_0, s_1, a_1, r_1, ...) under π_θ.
+2. Compute returns G_t = Σ_{k≥0} γ^k r_{t+k} for each t.
+3. Compute gradient g = Σ_t ∇log π(a_t|s_t; θ) G_t.
+4. Update θ ← θ + α g.
+```
+With baseline: replace step 3 by `g = Σ_t ∇log π(a_t|s_t; θ)(G_t - b(s_t))`,
+and update $b$ separately (e.g., regress $b$ on observed returns).
+</details>
+
+### Practice — Stretch
+
+**S1.** Sketch why REINFORCE has worse sample complexity than DQN on
+discrete-action tasks like Atari.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+REINFORCE updates $\theta$ once per episode; DQN updates per timestep with
+a replay buffer.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two factors. First, REINFORCE makes one $\theta$-update per episode and
+discards the trajectory; DQN updates many times per step using replayed
+transitions. Second, REINFORCE's gradient variance scales with episode
+length, so it needs many episodes per gradient estimate. Practical
+deep-RL methods (PPO, A2C) chunk trajectories into mini-batches and
+re-use them — closing some of the gap — but REINFORCE-as-stated is rarely
+sample-competitive with value-based deep RL on discrete tasks.
+</details>
+
+**S2.** State an unbiased baseline that *depends on the time step* but not
+state. Then explain why even this can shrink variance.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Time can be encoded as part of the state — but if not, a function of $t$
+alone works as a baseline because we can integrate $\nabla \log \pi$ over
+$a$ and get zero, holding $t$ fixed.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$b(t)$ — for example, the empirical average of $G_t$ over recent episodes
+at the same time step. It's unbiased because, conditional on $t$, $b$ is a
+constant in $a$ and the zero-expectation argument goes through. It
+shrinks variance whenever returns at the same $t$ across episodes are
+correlated (which they typically are: early-episode returns are usually
+larger because the discount hasn't bitten yet).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"REINFORCE needs $q_\pi$ — and we never get to estimate it."** No —
+   the *return* $G_t$ is an unbiased single-sample substitute for $q_\pi$.
+   That's the entire trick.
+2. **"Adding a baseline biases the gradient."** No — only *action-dependent*
+   baselines do. State-only or time-only baselines preserve unbiasedness.
+3. **"REINFORCE doesn't use $v_\pi$."** Vanilla REINFORCE doesn't. But the
+   most common variant — *REINFORCE with baseline* — uses an estimate of
+   $v_\pi(s)$ as the baseline, which is essentially actor-critic with the
+   critic doing only baseline-fitting (not bootstrapping). The full
+   actor-critic family is Lessons 35–38.
+:::
+
+### Takeaways
+
+1. **REINFORCE = policy gradient with $G_t$ replacing $q_\pi(s_t, a_t)$.**
+   Unbiased, simple, high-variance.
+2. **Baselines are free variance reduction.** Subtract any function of
+   state alone; the gradient stays unbiased, variance drops.
+3. REINFORCE is the **template** for every later method: actor-critic
+   replaces $G_t$ with a TD or bootstrap estimate; A2C uses the advantage;
+   PPO uses a clipped likelihood ratio. The skeleton is REINFORCE; the
+   variations are all about better estimators of $q_\pi$ (or $A_\pi$).
+
+### Self-Assessment
+
+1. Could you implement REINFORCE on a small softmax-policy MDP from scratch?
+2. Did you derive the baseline correction in *Discover* P4 yourself?
+3. Could you explain to a friend why REINFORCE is unbiased but slow?
+
+- **3 yes:** continue to [Lesson 35 — QAC](../35-actor-critic-qac/index.qmd).
+- **2 yes:** redo Discover P3 and P4.
+- **0–1 yes:** re-read *Discover* and *Apply*.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.policy-gradient-theorem", "mfrl.mean-estimation-from-samples"]
+- **[mfrl.policy-gradient-theorem](../33-policy-gradient-theorem/index.qmd)** —
+  the identity $\nabla J = \mathbb E[\nabla \log \pi \cdot q_\pi]$.
+- **[mfrl.mean-estimation-from-samples](../16-mean-estimation-from-samples/index.qmd)** —
+  the unbiasedness of the sample mean (and of single-sample MC estimators).
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[QAC](../35-actor-critic-qac/index.qmd)** — replace $G_t$ by a
+  TD/bootstrap estimate of $q_\pi$.
+- All later actor-critic methods.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** REINFORCE is the algorithmic ancestor of every policy-based
+deep agent. PPO — the workhorse of RLHF for LLM training — is essentially
+REINFORCE with a clipped importance-sampling correction and an advantage
+estimator. The skeleton you see here is everywhere in production.
 :::
 
 ::: {.applied-callout}
@@ -84,10 +383,12 @@ track expands into 38 lessons.
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §34. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §9 (REINFORCE). Original reference: Williams (1992),
+  "Simple Statistical Gradient-Following Algorithms for Connectionist
+  Reinforcement Learning", Machine Learning 8.
+- Touchstones honoured: Russian school (the *Discover* sequence sets up
+  the substitution that becomes REINFORCE before *Name*); Better
+  Explained "Aha!" framing (the key insight that REINFORCE is just *the
+  expectation replaced by one sample*).
 :::

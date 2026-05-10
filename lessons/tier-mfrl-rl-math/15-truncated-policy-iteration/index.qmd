@@ -7,87 +7,522 @@ prerequisites: ["mfrl.policy-iteration"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.policy-iteration"].
+1. Can you state the VI iteration $v_{k+1} = T^* v_k$ (Lesson 13)?
+2. Can you state PI's two steps — exact policy evaluation
+   $v_{\pi_k} = (I - \gamma P_{\pi_k})^{-1} r_{\pi_k}$, then greedy
+   improvement (Lesson 14)?
+3. Are you comfortable with the policy-evaluation operator
+   $T^\pi$ as a $\gamma$-contraction (Lesson 12, P1)?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+If shaky, revisit Lessons 13 and 14.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+VI and PI sit at opposite ends of one knob. Here's the knob: how many
+*Bellman evaluation steps* $K$ you do per policy improvement.
+
+- $K = 1$: that's value iteration.
+- $K = \infty$: that's policy iteration.
+
+Anything in between is *truncated PI*. Slide the knob, watch convergence
+on a 3×3 grid.
+
+```{ojs}
+viewof Kvalue = Inputs.range([1, 50], {value: 5, step: 1, label: "Inner-loop steps K"})
+```
+
+```{ojs}
+viewof outerIter = Inputs.range([0, 10], {value: 5, step: 1, label: "Outer iterations"})
+```
+
+```{ojs}
+{
+  const N = 3;
+  const goal = [2, 2];
+  const gamma = 0.9;
+  const next = (i, j, a) => {
+    if (i === goal[0] && j === goal[1]) return [i, j];
+    let ni = i, nj = j;
+    if (a === 0 && i > 0) ni = i - 1;
+    if (a === 1 && i < N - 1) ni = i + 1;
+    if (a === 2 && j > 0) nj = j - 1;
+    if (a === 3 && j < N - 1) nj = j + 1;
+    return [ni, nj];
+  };
+  const reward = (i, j) => (i === goal[0] && j === goal[1] ? 1 : 0);
+
+  // Init policy "always up"
+  let policy = Array.from({length: N}, () => Array(N).fill(0));
+  let v = Array.from({length: N}, () => Array(N).fill(0));
+
+  // K Bellman evaluation steps for fixed policy
+  function evalK(policy, v, K) {
+    for (let it = 0; it < K; it++) {
+      const vn = Array.from({length: N}, () => Array(N).fill(0));
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+        const a = policy[i][j];
+        const [ni, nj] = next(i, j, a);
+        vn[i][j] = reward(ni, nj) + gamma * v[ni][nj];
+      }
+      v = vn;
+    }
+    return v;
+  }
+  function improve(v) {
+    const p = Array.from({length: N}, () => Array(N).fill(0));
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      let best = -Infinity, ba = 0;
+      for (let a = 0; a < 4; a++) {
+        const [ni, nj] = next(i, j, a);
+        const q = reward(ni, nj) + gamma * v[ni][nj];
+        if (q > best) { best = q; ba = a; }
+      }
+      p[i][j] = ba;
+    }
+    return p;
+  }
+
+  for (let outer = 0; outer < outerIter; outer++) {
+    v = evalK(policy, v, Kvalue);
+    policy = improve(v);
+  }
+
+  const arrow = a => ["↑", "↓", "←", "→"][a];
+  let vmax = 0.001;
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) vmax = Math.max(vmax, Math.abs(v[i][j]));
+  const cells = [];
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    const intensity = Math.round((Math.abs(v[i][j]) / vmax) * 200);
+    const colour = `rgb(${255 - intensity}, ${255 - intensity / 2}, 255)`;
+    const sym = (i === goal[0] && j === goal[1]) ? "★" : arrow(policy[i][j]);
+    cells.push(html`<div style="background:${colour}; width:80px; height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:monospace; border:1px solid #999;">
+      <div style="font-size: 0.85rem;">${v[i][j].toFixed(2)}</div>
+      <div style="font-size: 1.4rem;">${sym}</div>
+    </div>`);
+  }
+  return html`<div style="display:grid; grid-template-columns: repeat(${N}, 80px); gap:0; width:max-content; margin:1rem auto;">${cells}</div>
+  <div style="text-align:center; font-size:0.9rem; color:#666;">K = ${Kvalue}, after ${outerIter} outer iterations.</div>`;
+}
+```
+
+Try $K = 1$ (this is VI). Try $K = 50$ (close to PI). Try $K = 5$. The
+intermediate $K$ often gets to a usable policy in surprisingly few outer
+iterations.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. With small $K$, each outer iteration is cheap but you make many of
+   them. With large $K$, each is expensive but few suffice. Is there a
+   sweet spot? Does it depend on the MDP?
+2. With $K = 1$ you only have time for a single Bellman step before
+   improving. Why does that already work?
+3. PI has a clean termination criterion ($\pi_{k+1} = \pi_k$). VI's
+   stopping rule is $\|v_{k+1} - v_k\|_\infty < \varepsilon$. What's the
+   right rule for truncated PI?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — The two extremes
+
+Show that:
+(a) Truncated PI with $K = 1$ is *exactly* value iteration.
+(b) Truncated PI with $K = \infty$ (or "evaluate to convergence") is
+*exactly* policy iteration.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For (a), what does one Bellman evaluation step give? Then what does the
+greedy improvement do?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a)** With $K = 1$ and starting $v_0$: $v_1 = T^{\pi_0} v_0$. Then improve:
+$\pi_1 = $ greedy w.r.t.\ $v_1$. Then evaluate one step: $v_2 = T^{\pi_1} v_1$.
+Now $T^{\pi_1} v_1$ at state $s$ is
+$\sum_a \pi_1(a|s)[r + \gamma \sum P v_1] = \max_a [r + \gamma \sum P v_1] = T^* v_1$
+(because $\pi_1$ is greedy). So $v_2 = T^* v_1 = T^* T^{\pi_0} v_0$, and in
+general $v_{k+1} = T^* v_k$ — value iteration.
+
+**(b)** With $K = \infty$, the inner loop converges to $v_{\pi_k}$ (the
+exact value of the current policy by Lesson 12). That's PI.
+
+**Truncated PI is one algorithm with a knob from VI to PI.**
+</details>
+
+### Problem 2 — Why does $K \ll \infty$ still converge?
+
+Argue that for any *fixed* $K \ge 1$, truncated PI converges to $v^*$ as
+the outer iterations $\to \infty$, provided $\gamma < 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Show the outer iteration's "effective operator" — call it $\tilde T_K$ —
+is a contraction. The contraction constant might be larger than $\gamma$
+but should still be $< 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $\hat v_k$ be the value after $K$ inner steps starting from $v$ under
+the greedy policy $\pi$ of $v$. So $\hat v_k = (T^\pi)^K v$ where $\pi$ is
+greedy w.r.t.\ $v$. The outer step is $v \mapsto \hat v_k$. After improvement
+the new policy is greedy w.r.t.\ $\hat v_k$. One can show (Puterman 1994,
+§6.5) that the resulting "modified PI" iteration produces values that
+monotonically increase and converge to $v^*$ at a rate at least
+$\gamma^K$ per outer iteration. Geometrically, $K$ trades a single outer
+step against $K$ inner steps; total work is comparable. **Convergence is
+guaranteed for any $K \ge 1$.**
+</details>
+
+### Problem 3 — Per-iteration cost
+
+The cost per outer iteration of truncated PI is $\Theta(K \cdot |S|^2 |A|)$
+(approximately). The number of outer iterations to reach $\varepsilon$
+accuracy is $\Theta(\log(1/\varepsilon)/(K(1-\gamma)))$ (heuristically).
+Find the $K$ that minimises *total work*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Total work $\propto K \cdot \log(1/\varepsilon)/(K(1-\gamma)) = \log(1/\varepsilon)/(1-\gamma)$.
+The $K$ cancels — what does that mean?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Asymptotically the $K$ cancels: total work is the same for any $K$. **In
+practice** the cancellation is not exact: small $K$ wastes work because the
+greedy improvement is based on poor evaluations; large $K$ wastes work
+because the policy hasn't changed much yet. Empirically $K \in [3, 10]$
+is the sweet spot. **The truncated version usually wins**, even though the
+worst-case bound is indifferent.
+</details>
+
+### Problem 4 — Stopping criterion
+
+Suggest a stopping criterion for truncated PI that uses both the policy
+and the value.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+PI stops when $\pi$ stops changing. VI stops when $v$ stops changing.
+What if both?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Stop when **either** $\pi$ stops changing **or** $\|v_{k+1} - v_k\|_\infty < \varepsilon$.
+- Policy stability is exact: $\pi_{k+1} = \pi_k$ implies $v_k = v^*$ and we
+  could exit.
+- Value stability handles the case where $\pi$ keeps oscillating between
+  near-optimal policies (e.g.\ ties in argmax).
+
+In practice many implementations also check $\|T^* v - v\|_\infty < \varepsilon$
+(the "Bellman residual"), which directly bounds the suboptimality of the
+returned policy.
+</details>
+
+### Problem 5 — Wall-clock comparison
+
+For a 10-state MDP with $\gamma = 0.9$ and target accuracy $10^{-3}$,
+estimate the number of *Bellman backups* required by VI ($K = 1$), PI
+($K \approx 50$, single matrix solve $\sim 10^3$ Bellman backups), and
+truncated PI ($K = 5$).
+
+<details class="hint"><summary>Full solution</summary>
+- **VI.** Backups per outer = $|S|^2 |A| \approx 100 \cdot |A|$. Outer
+  iterations $\approx \log(10^{-3})/\log(0.9) \approx 65$. Total $\approx 6500\,|A|$.
+- **PI.** Each outer iteration solves an $|S| \times |S|$ system,
+  $\Theta(|S|^3) = 10^3$ backup-equivalents. Outer iterations: typically
+  3-5. Total $\approx 5000\,|A|$.
+- **Truncated PI ($K = 5$).** Inner sweeps: 5. Outer iterations:
+  $\approx 65 / 5 = 13$ (roughly). Total $\approx 13 \cdot 5 \cdot 100 |A| = 6500\,|A|$.
+
+All three are roughly comparable. With well-tuned $K$ and warm starts on
+$v$, truncated PI typically wins by 2-3× on real problems.
+</details>
+
+::: {.key-insight}
+The lesson of truncated PI is the *generalised policy iteration* template:
+**any** mix of partial evaluation and partial improvement converges, as
+long as both steps move you in the right direction. This template
+underwrites every actor-critic algorithm in modern RL.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Truncated Policy Iteration (TPI).** Choose $K \ge 1$, tolerance
+$\varepsilon$. Initialise any deterministic $\pi_0$ and any $v_0$. Repeat
+for outer iterations $k = 0, 1, 2, \ldots$:
+
+1. **$K$ Bellman evaluation steps:** for $j = 1, \ldots, K$,
+   $$v_j(s) \leftarrow r(s, \pi_k(s)) + \gamma\!\sum_{s'} P(s'\mid s, \pi_k(s))\,v_{j-1}(s')\quad \forall s,$$
+   with $v_0 = v_k$ (warm start).
+2. **Greedy improvement:**
+   $$\pi_{k+1}(s) \leftarrow \arg\max_a\!\Big[r(s, a) + \gamma\!\sum_{s'} P(s'\mid s, a)\,v_K(s')\Big].$$
+3. Set $v_{k+1} = v_K$.
+
+Stop when $\pi_{k+1} = \pi_k$ or $\|v_{k+1} - v_k\|_\infty < \varepsilon$.
+
+$K = 1$ recovers VI; $K = \infty$ recovers PI.
+
+:::
+
+A verse:
+
+> *Sweep a few times to estimate;*
+> *Then take a greedy improvement step.*
+> *VI and PI sit at the ends of one dial —*
+> *Tune K, and the rest is the same algorithm.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — Truncated PI ($K = 3$) on the 2-state MDP from Lesson 14
+
+Same MDP as Lesson 14's worked example. $\gamma = 0.5$. Initial
+$\pi_0 = (a, a)$ (both stay), $v_0 = (0, 0)$.
+
+**Outer iter 1.**
+- *Inner eval (K=3) under $\pi_0$.* Both stay, reward 0. $v_1 = v_2 = v_3 = (0, 0)$. (One specialised case: rewards are zero so values stay zero.)
+- *Improve.* Same as Lesson 14 iter 1: $\pi_1 = (b, b)$.
+
+**Outer iter 2.**
+- *Inner eval (K=3) under $\pi_1 = (b, b)$.* $v_0 = (0, 0)$.
+  $v_1(s_1) = 1 + 0.5 \cdot 0 = 1, v_1(s_2) = 2 + 0.5 \cdot 0 = 2$.
+  $v_2(s_1) = 1 + 0.5 \cdot 2 = 2, v_2(s_2) = 2 + 0.5 \cdot 1 = 2.5$.
+  $v_3(s_1) = 1 + 0.5 \cdot 2.5 = 2.25, v_3(s_2) = 2 + 0.5 \cdot 2 = 3$.
+- *Improve.* $q(s_1, a) = 0.5 \cdot 2.25 = 1.125$. $q(s_1, b) = 1 + 0.5 \cdot 3 = 2.5$. So $\pi_2(s_1) = b$.
+  $q(s_2, a) = 0.5 \cdot 3 = 1.5$. $q(s_2, b) = 2 + 0.5 \cdot 2.25 = 3.125$. So $\pi_2(s_2) = b$.
+- $\pi_2 = \pi_1 = (b, b)$ ⇒ **stop**.
+
+Final $v \approx (2.25, 3.0)$. The *exact* $v^* = (8/3, 10/3) \approx (2.67, 3.33)$.
+We're at 84% of optimal in 2 outer iterations × 3 inner sweeps = 6 backup
+ops, vs.\ PI's exact 2 outer iterations × 1 matrix solve. **The values are
+slightly off, but the policy is already optimal.** Continuing the inner
+loop further refines $v$ without changing $\pi$.
+
+### Practice — Warm
+
+**W1.** Repeat the worked example with $K = 1$ (this is VI). After 2 outer
+iterations, what's $v$ and is the policy optimal?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$K = 1$ means one Bellman step per improvement. Like the worked example
+but with the inner loop truncated to one sweep.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Outer 1: $v_0 = 0$, $\pi_0 = (a, a)$. Eval (1 step): still $(0, 0)$.
+Improve: $\pi_1 = (b, b)$. So $v_1 = (0, 0)$.
+Outer 2: Eval under $\pi_1$ (1 step): $v(s_1) = 1, v(s_2) = 2$. Improve:
+$q(s_1, b) = 1 + 0.5 \cdot 2 = 2 > q(s_1, a) = 0.5 \cdot 1 = 0.5$. $\pi_2(s_1) = b$.
+Similarly $\pi_2(s_2) = b$. **Policy already optimal after 2 outer
+iterations**, but $v = (1, 2)$ is far from $v^* = (8/3, 10/3)$.
+</details>
+
+**W2.** What does the inner loop's *warm start* (using $v_k$ rather than
+restarting from 0) buy you?
+
+<details class="hint"><summary>Full solution</summary>
+After the first outer iteration, $v_k$ is already a decent estimate of
+$v_{\pi_{k+1}}$ — the policy hasn't changed *much*. Starting the inner
+loop from $v_k$ rather than 0 means the inner loop converges in fewer
+sweeps. Warm starts are why truncated PI is fast in practice — they
+amortise across outer iterations.
+</details>
+
+**W3.** Why doesn't truncated PI need the matrix inversion that PI uses?
+
+<details class="hint"><summary>Full solution</summary>
+PI uses $v_\pi = (I - \gamma P_\pi)^{-1} r_\pi$ — matrix inversion costs
+$O(|S|^3)$ and is intractable for large $|S|$. Truncated PI replaces it
+with $K$ Bellman backups, each $O(|S|^2)$, total $O(K|S|^2) \ll O(|S|^3)$
+for small $K$. **This is what makes PI's framework usable for medium-scale
+MDPs.**
+</details>
+
+### Practice — Working
+
+**P1.** *Choose $K$ adaptively.* Suppose at outer iteration $k$ the policy
+hasn't changed for two consecutive iterations. Should you increase or
+decrease $K$? Why?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If $\pi$ has stabilised, the bottleneck is $v$. More inner sweeps will
+tighten $v$ without changing the policy.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Increase $K$.** A stable policy means greedy improvement isn't producing
+new policies — additional outer iterations are wasted. But more inner
+sweeps refine $v$ for the (now-stable) $\pi$, hastening true convergence.
+This is the heuristic behind "modified policy iteration" (Puterman 1994):
+adaptive $K$ that grows as $\pi$ stabilises.
+</details>
+
+**P2.** Run truncated PI ($K = 2$) on the 4-state corridor of Lesson 13 P1.
+Compare backup count to plain VI.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the corridor: 4 states, reward 1 at $s_3$ (absorbing), $\gamma = 0.5$.
+Start with $\pi_0 = $ "left."
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi_0 = $ "left" is the worst possible: $s_3$ stays (absorbing), but
+$s_0, s_1, s_2$ all flee away from the goal (or stuck at $s_0$).
+
+Outer 1: $v$ via 2 inner sweeps. Outcome: $v(s_3) = 1.75$ (built up over 2
+absorbing self-loops $0 + 0.5 \cdot 0 = 0$, then $1 + 0.5 \cdot 0 = 1$,
+then $1 + 0.5 \cdot 1 = 1.5$, etc. — actually 2 sweeps gives $1.5$). All
+else 0. Improve: $\pi_1 = $ "right" everywhere except trivial states.
+
+Continued. After 4-5 outer iterations × 2 inner sweeps = 10 backups, you
+reach the optimal policy and approximately $v^*$. Plain VI on this problem
+needs $\sim 12$ iterations to reach 3-digit accuracy. So truncated PI
+matches or beats VI here. **The win is bigger when $|S|$ grows.**
+</details>
+
+**P3.** Show that the convergence guarantee of truncated PI does *not*
+require the inner loop to converge — only that $T^\pi$ is a contraction
+and you do at least $K \ge 1$ steps. (Sketch.)
+
+<details class="hint"><summary>Full solution</summary>
+The outer-step operator $\tilde T_K$ defined by
+$\tilde T_K(v) = (T^{\pi_v})^K v$ where $\pi_v = $ greedy w.r.t.\ $v$,
+maps fixed points of $T^*$ to themselves and inherits the contraction-like
+properties from both $T^\pi$ and $T^*$. Specifically, one shows
+$\|\tilde T_K v - v^*\|_\infty \le \gamma \|v - v^*\|_\infty$ — the contraction is
+preserved no matter how small $K$ is, *provided* the greedy improvement
+step is exact. This is Puterman's "modified policy iteration" theorem
+(1994 §6.5.4).
+</details>
+
+### Practice — Stretch
+
+**S1.** *Asynchronous truncated PI.* Suppose you do $K$ inner sweeps but
+only update *one randomly chosen state* per sweep. Does it still converge?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+This is "Gauss-Seidel" PI. As long as every state is visited infinitely
+often, the contraction in $\ell_\infty$ still applies (proved by Bertsekas
+& Tsitsiklis 1989).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Yes, provided every state is updated infinitely often. The proof uses
+asynchronous-iteration theorems for monotone contractions — see Bertsekas
+& Tsitsiklis (1989), *Parallel and Distributed Computation*, Ch. 6.
+**This is the foundation of distributed/parallel RL planners and of
+prioritised sweeping.**
+</details>
+
+**S2.** Truncated PI with $K = 1$ is VI; with $K = \infty$ is PI. What is
+truncated PI with **fractional $K$**, e.g.\ "do half a Bellman sweep"?
+Does it converge?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Half a Bellman sweep could mean *partial state coverage*: update only
+half the states per outer iteration. That's the asynchronous case (S1)
+with one specific schedule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+"Fractional $K$" makes sense as updating a *subset of states* per outer
+iteration. The S1 result covers it: as long as every state is updated
+infinitely often, convergence holds. **In practice this is "prioritised
+sweeping" (Moore & Atkeson 1993): focus updates on states whose Bellman
+residual is largest.** It's an industrial-strength heuristic that's
+often 10× faster than vanilla VI.
+</details>
+
+::: {.fun-fact}
+The "don't fully solve the inner problem before moving on" trick appears
+in almost every alternating-optimisation algorithm in machine learning. EM
+algorithms truncate the M-step. ADMM and proximal methods do partial
+minimisations. Even gradient descent on neural networks can be viewed as
+"truncated" coordinate descent. Puterman (1994) was the first to call out
+that this is the *same trick* that gives truncated PI.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"VI and PI are different algorithms."** They're the $K = 1$ and
+   $K = \infty$ ends of one algorithm. Truncated PI is the natural
+   parameterisation.
+2. **"You need $K$ very large for convergence."** No — *any* $K \ge 1$
+   converges. Larger $K$ converges in fewer outer iterations but each is
+   more expensive.
+3. **"The contraction constant gets worse with smaller $K$."** Per outer
+   iteration, yes ($\gamma^K$ vs.\ $\gamma$). But total work is
+   comparable.
+4. **"Async updates break the convergence proof."** They don't (S1).
+   Async only requires that every state be updated infinitely often.
+:::
+
+### Takeaways
+
+1. **Truncated PI = VI ($K = 1$) and PI ($K = \infty$) on one knob.**
+2. **$K \in [3, 10]$ is the empirical sweet spot** for medium-state MDPs.
+3. **Generalised PI** template (any partial eval + any partial improve)
+   underwrites every actor-critic algorithm.
+4. **Async / prioritised sweeps** preserve convergence and often speed it
+   up by an order of magnitude.
+
+### Self-Assessment
+
+1. Could you write the truncated PI pseudocode without notes?
+2. Did you verify by hand that $K = 1$ truncated PI is *exactly* VI?
+3. Can you name two RL algorithms (later in this track) that follow the
+   generalised PI template?
+
+- **3 yes:** move on to Lesson 16. The model-based half of the track is
+  done; sample-based RL begins.
+- **2 yes:** redo P1 (adaptive $K$) — it captures the deep idea.
+- **0–1 yes:** re-read *Discover* Problems 1 and 2.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.policy-iteration"]
+- **Lesson 14 (PI).** Provides the evaluate-improve loop.
+- **Lesson 13 (VI).** Provides the special case $K = 1$.
+- **Lesson 12 (BOE contraction).** Underwrites convergence for any $K$.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **All sample-based RL methods (Lessons 17 onward).** They replace inner
+  Bellman steps with MC averages or TD updates. The outer
+  evaluate-improve template stays.
+- **Actor-critic methods (Lessons 35-37).** "Generalised policy
+  iteration" with function approximation.
+- This lesson **completes the model-based story** of Part 1. Everything
+  after assumes you don't know $P$.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** "Generalised policy iteration" is the conceptual umbrella
+under which Sutton & Barto unified the entire field. PPO, A2C, SAC, IMPALA,
+DQN — every modern algorithm sits inside this template, with different
+choices for the *evaluation* and *improvement* substeps.
+:::
+
+::: {.applied-callout}
+**Operations research / planning.** Truncated PI (under names like
+"modified PI" or "approximate PI") is the workhorse algorithm for
+medium-scale MDPs in production: power grid control, supply-chain
+planning, robotic motion planning. Its sweet spot $K \in [3, 10]$ is
+folklore.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning. The sentence
+"VI and PI are the same algorithm with different inner-loop counts"
+captures truncated PI's content.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §15. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §4.3. Cite freely; never transcribe.
+- Puterman 1994 §6.5 for the modified-PI framework and the convergence
+  proof for arbitrary $K$.
+- Touchstones: Sutton & Barto's "generalised PI" framing; Bertsekas &
+  Tsitsiklis 1989 for asynchronous iteration theorems.
 :::

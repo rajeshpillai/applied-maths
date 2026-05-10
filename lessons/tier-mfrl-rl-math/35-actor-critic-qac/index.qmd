@@ -7,72 +7,363 @@ prerequisites: ["mfrl.reinforce"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.reinforce"].
+1. Can you state **REINFORCE** ([Lesson 34](../34-reinforce/index.qmd))?
+2. Do you know the **Sarsa** update — TD on $q$ for the on-policy case
+   ([Lesson 24](../24-sarsa/index.qmd))?
+3. Are you comfortable with **semi-gradient** TD with function approximation
+   ([Lesson 29](../29-td-with-function-approximation/index.qmd))?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+If yes to all three, continue.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Picture a split window. **Left pane:** a small grid-world with a policy
+$\pi_\theta$ — coloured arrows show how likely each action is at each cell.
+**Right pane:** the action-value table $\hat q(s, a; w)$, shaded by value.
+
+Click "step". Two things happen:
+
+1. The **critic** updates $w$ from one TD-style observation: it nudges
+   $\hat q(s, a; w)$ toward $r + \gamma \hat q(s', a'; w)$.
+2. The **actor** then updates $\theta$ using the *current* $\hat q(s, a; w)$
+   in place of the unknown $q_\pi(s, a)$:
+   $\theta \leftarrow \theta + \alpha_\pi \nabla \log \pi(a \mid s; \theta)
+   \hat q(s, a; w)$.
+
+After many clicks, both panes evolve together — the critic learns the
+policy's $q$; the actor improves the policy.
+
+::: {.lesson-beat}
+Two learners, one feedback loop. The critic supplies the actor's $q$
+estimate; the actor changes the policy the critic must evaluate.
+:::
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. REINFORCE used the *return* $G_t$ as an unbiased estimate of $q_\pi$.
+   Why might a learned $\hat q(s, a; w)$ be preferable?
+2. The critic updates $\hat q$ using TD bootstrapping — biased but
+   low-variance. The actor uses $\hat q$ as if it were correct. Won't the
+   bias hurt?
+3. Both networks are learning *simultaneously*. Why doesn't this loop spin
+   out of control?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — what does the actor really need?
+
+The policy gradient theorem says
+$\nabla J = \mathbb E_{(s,a) \sim \pi}[\nabla \log \pi(a \mid s)\, q_\pi(s, a)]$.
+What's the cheapest way to estimate $q_\pi(s, a)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You have two candidates already in your toolkit: the MC return $G_t$
+(REINFORCE) and the TD bootstrap target.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two natural estimators:
+
+- **MC return $G_t$** — unbiased, high variance, requires waiting for the
+  episode to finish (REINFORCE).
+- **TD estimate $\hat q(s, a; w)$** — biased but lower variance, available
+  immediately after the next transition.
+
+The trade is the same one you saw in Lesson 27: bias for variance. A
+*learned $\hat q$* is the actor-critic answer.
+</details>
+
+### Problem 2 — train the critic with Sarsa
+
+Let $\hat q(s, a; w)$ be the critic, parameterised. On a transition
+$(s, a, r, s', a')$ where $a' \sim \pi_\theta(\cdot \mid s')$ — i.e.,
+**on-policy** — write the Sarsa-style critic update.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Reuse semi-gradient TD from Lesson 29 with the next-action sampled by the
+current policy.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$w \leftarrow w + \alpha_w\,\bigl[r + \gamma \hat q(s', a'; w) - \hat q(s, a; w)\bigr]\, \nabla_w \hat q(s, a; w).$$
+
+This is Sarsa with FA. Because $a'$ is drawn under $\pi_\theta$, the
+critic learns the *current* policy's $q$ — exactly what the actor needs.
+</details>
+
+### Problem 3 — actor update with $\hat q$
+
+The actor's update follows REINFORCE but replaces $G_t$ by the critic's
+estimate $\hat q(s, a; w)$:
+
+$$\theta \leftarrow \theta + \alpha_\theta\,\nabla_\theta \log \pi(a \mid s; \theta)\, \hat q(s, a; w).$$
+
+Why is this *biased* with respect to $\nabla J$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\hat q(s, a; w) \ne q_{\pi_\theta}(s, a)$ in general — the critic is
+itself an approximation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\hat q(s, a; w)$ is a learned approximation to $q_\pi$ — biased
+(non-zero approximation error) and itself moving (Sarsa is bootstrapping
+its own targets). Substituting it for $q_\pi$ in the policy gradient
+theorem produces a biased gradient. The hope: lower variance more than
+makes up for the bias. In practice, on most tasks, it does.
+</details>
+
+### Problem 4 — name the two roles
+
+Two parameterised functions, two updates per step. Name them.
+
+<details class="hint"><summary>Full solution</summary>
+- **Actor.** The policy $\pi_\theta(a \mid s)$ — what the agent does.
+- **Critic.** The value function $\hat q(s, a; w)$ — what the agent
+  thinks each $(s, a)$ is worth.
+
+The actor proposes; the critic evaluates. The critic learns the actor's
+current value. The actor improves itself using the critic's evaluation.
+The cycle is the **actor-critic** pattern.
+</details>
+
+::: {.fun-fact}
+The "actor-critic" name is older than Q-learning. **Barto, Sutton &
+Anderson (1983)** introduced it in their pole-balancing paper, where two
+neural networks — one outputting actions ("ACE", the actor) and one
+predicting reinforcement ("ACE-2", the critic) — split the policy and
+value roles. The terminology has stuck for forty-three years and counting.
+:::
+
+::: {.key-insight}
+**QAC is REINFORCE with TD($q$) replacing the MC return.** That's the
+entire idea. Same actor update, just a faster (biased) substitute for
+$q_\pi$. Every later actor-critic method differs only in *which estimator
+of $q_\pi$ (or $A_\pi$) the actor uses.*
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**QAC (Q Actor-Critic).** Maintain two parameterised functions and update
+them in tandem on each transition $(s, a, r, s', a')$ with $a' \sim
+\pi_\theta(\cdot \mid s')$:
+
+- **Critic (Sarsa with FA):**
+  $w \leftarrow w + \alpha_w[r + \gamma \hat q(s', a'; w) - \hat q(s, a; w)]\nabla_w \hat q(s, a; w)$.
+- **Actor (PG with critic's $\hat q$):**
+  $\theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi(a \mid s; \theta)\,\hat q(s, a; w)$.
+
+The critic estimates the *current* $q_{\pi_\theta}$; the actor consumes
+the critic's estimate inside the policy gradient.
+
+:::
+
+A mnemonic:
+
+> *Critic learns; actor steers.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — pseudo-code for QAC
+
+```
+Initialise θ, w arbitrarily; choose α_w, α_θ.
+Sample initial state s and action a ~ π_θ(·|s).
+Repeat:
+    Take action a; observe reward r and next state s'.
+    Sample next action a' ~ π_θ(·|s').
+    δ ← r + γ q̂(s', a'; w) - q̂(s, a; w)        ← TD error
+    w ← w + α_w · δ · ∇_w q̂(s, a; w)              ← critic update (Sarsa)
+    θ ← θ + α_θ · ∇_θ log π(a|s; θ) · q̂(s, a; w) ← actor update
+    s ← s'; a ← a'.
+```
+
+Two updates per transition. The critic learns the current policy's $q$;
+the actor uses it.
+
+### Practice — Warm
+
+**W1.** What estimator of $q_\pi$ does QAC use?
+
+<details class="hint"><summary>Full solution</summary>
+A learned, parameterised $\hat q(s, a; w)$ trained by Sarsa-style TD on
+the current policy's transitions.
+</details>
+
+**W2.** Is QAC on-policy or off-policy?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sarsa samples $a' \sim \pi_\theta$. So both data and target use the same
+policy.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**On-policy.** The data $(s, a, r, s', a')$ is generated by $\pi_\theta$,
+and the critic uses $a' \sim \pi_\theta$. (Off-policy actor-critic comes in
+[Lesson 37](../37-off-policy-actor-critic/index.qmd).)
+</details>
+
+**W3.** What is biased and what is unbiased about QAC?
+
+<details class="hint"><summary>Full solution</summary>
+The actor's gradient is **biased** because $\hat q$ approximates $q_\pi$
+(approximation error + bootstrap bias). The score-function form of the
+gradient identity itself is exact. Variance of the actor's gradient is
+typically **lower** than REINFORCE's because $\hat q$ is much smoother
+than the random return $G_t$.
+</details>
+
+### Practice — Working
+
+**P1.** What happens if you set the critic's step size $\alpha_w$ very
+small relative to the actor's $\alpha_\theta$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The critic stops tracking the changing policy.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The critic lags far behind the policy; $\hat q$ is the value of an
+out-of-date $\pi$. The actor's gradients become more biased and the loop
+can fail to improve. The standard rule of thumb is $\alpha_w \gtrsim
+\alpha_\theta$ — the critic should learn at least as fast as the actor
+moves.
+</details>
+
+**P2.** What goes wrong if you reverse the rule and set $\alpha_w$ much
+*larger* than $\alpha_\theta$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Could the critic itself become unstable?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two failure modes. First, the critic's TD update with a large step can
+oscillate or diverge under FA (Lessons 29–30). Second, even if it
+converges, $\hat q$ is computed against a fixed policy that's barely
+moving — fine in principle but wasteful (the critic is doing much more
+work than it has to). The good regime is moderate $\alpha_w \approx
+2\text{–}10 \times \alpha_\theta$.
+</details>
+
+**P3.** Modify the QAC pseudo-code to use **Q-learning** for the critic
+(i.e., bootstrap with $\max_{a''} \hat q(s', a''; w)$). Is the resulting
+algorithm still on-policy?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Q-learning's $\max$ doesn't follow the policy.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The critic update becomes
+$w \leftarrow w + \alpha_w[r + \gamma \max_{a''} \hat q(s', a''; w) - \hat
+q(s, a; w)]\nabla_w \hat q(s, a; w)$.
+This is **off-policy** (the bootstrap target uses the greedy action, not the
+on-policy one). The actor still uses $\hat q$ from this critic. The
+construction works but flirts with the [deadly triad](/glossary.qmd) (Lesson
+30) — bootstrapping + off-policy + FA. In practice such variants are stable
+on small tasks but not robust on large ones.
+</details>
+
+### Practice — Stretch
+
+**S1.** Compare QAC's update rule against REINFORCE-with-baseline. What
+condition would make them identical in expectation?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+REINFORCE-with-baseline subtracts $b(s)$ from $G_t$. QAC plugs in $\hat q$
+without subtracting. What if $b = 0$ and $G_t = \hat q$ in expectation?
+</details>
+<details class="hint"><summary>Full solution</summary>
+If $\mathbb E[G_t \mid s_t, a_t] = \hat q(s_t, a_t; w)$ (i.e., $\hat q$ is a
+perfect estimator of $q_\pi$) and there is no baseline, QAC and REINFORCE
+have the same expected gradient. They differ only in *variance*: QAC's
+gradient is much less noisy because $\hat q$ is a smooth function instead
+of a random return. (Adding a baseline takes you to A2C — next lesson.)
+</details>
+
+**S2.** Why doesn't the actor-critic loop spin out of control even though
+both functions are changing simultaneously?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two timescales: the critic learns fast against a slowly-changing target.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The convergence theory of two-timescale stochastic approximation (Borkar
+1997) tells us: if $\alpha_w / \alpha_\theta \to \infty$, then on the
+critic's faster timescale the policy looks frozen, so the critic
+converges to $q_{\pi_\theta}$ for the current $\theta$. On the actor's
+slower timescale, the actor sees an essentially-correct $\hat q$ and does
+clean policy gradient ascent. With both step sizes finite (as in
+practice), the dynamics are not theoretically guaranteed to converge but
+work in most cases. This is the same theory underlying [Robbins–Monro](../20-robbins-monro/index.qmd).
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Actor-critic is two algorithms running in parallel."** It's better to
+   think of it as one algorithm with two coupled updates. The critic's
+   target depends on the actor; the actor's gradient depends on the critic.
+2. **"QAC is just Sarsa for the policy."** No — Sarsa updates a value
+   *table or function*; QAC updates a *parameterised policy* using
+   Sarsa's value estimates. The mechanism is different.
+3. **"You always need a baseline in actor-critic."** No — QAC has no
+   baseline. A2C ([Lesson 36](../36-advantage-actor-critic/index.qmd))
+   adds one and gets a major variance reduction. QAC is the foundation.
+:::
+
+### Takeaways
+
+1. **QAC = REINFORCE with $\hat q$ replacing $G_t$.** Lower variance,
+   non-zero bias. The critic gets trained by Sarsa.
+2. **Critic learns the policy's $q$; actor uses it for the policy
+   gradient.** Two timescales, one feedback loop.
+3. Every later actor-critic method (A2C, off-policy AC, DDPG) differs
+   from QAC only in *which* estimator of $q_\pi$ or $A_\pi$ goes inside
+   the actor's update.
+
+### Self-Assessment
+
+1. Could you sketch the QAC pseudo-code from memory?
+2. Did you derive the actor update by substituting $\hat q$ into the PG
+   theorem yourself?
+3. Could you explain the bias-variance trade vs REINFORCE in one
+   sentence?
+
+- **3 yes:** continue to [Lesson 36 — A2C](../36-advantage-actor-critic/index.qmd).
+- **2 yes:** redo P1 and P2.
+- **0–1 yes:** re-read *Discover*.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.reinforce"]
+- **[mfrl.reinforce](../34-reinforce/index.qmd)** — the policy-gradient
+  update with the MC return as the $q$-estimator.
+- **[mfrl.sarsa](../24-sarsa/index.qmd)** — the on-policy TD update used
+  by the critic.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[A2C](../36-advantage-actor-critic/index.qmd)** — replace $\hat q$ by
+  the *advantage* $A = q - v$ for major variance reduction.
+- **[Off-policy AC](../37-off-policy-actor-critic/index.qmd)** — use a
+  behaviour policy different from the target.
+- **[Deterministic AC (DDPG)](../38-deterministic-actor-critic/index.qmd)** —
+  the deterministic-policy version of the same skeleton.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Almost every modern policy-based agent is some flavour of
+actor-critic: A2C, A3C, PPO, IMPALA, SAC, TD3, DDPG. The split between
+"learn what to do" (actor) and "learn what's worth doing" (critic) maps
+neatly onto how complex agents are typically organised. RLHF for LLM
+training is also an actor-critic system: the LLM is the actor, the
+reward model is the critic.
 :::
 
 ::: {.applied-callout}
@@ -84,10 +375,12 @@ track expands into 38 lessons.
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §35. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §10 (actor-critic). Original reference: Barto, Sutton
+  & Anderson (1983), *Neuronlike adaptive elements that can solve
+  difficult learning control problems*, IEEE TSMC 13.
+- Touchstones honoured: Russian school (Discover walks the learner from
+  REINFORCE's MC estimator to a TD substitute before *Name*); Better
+  Explained "Aha!" framing (the key insight that QAC = REINFORCE with $\hat
+  q$).
 :::

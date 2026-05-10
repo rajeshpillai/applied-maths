@@ -7,87 +7,470 @@ prerequisites: ["mfrl.td-state-values"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.td-state-values"].
+Before you start, you should be able to say *yes* to all four:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Can you state the TD(0) update for $v(s)$? — see [MFRL — 23, TD(0)](../23-td-state-values/index.qmd).
+2. Do you remember what an *action value* $q_\pi(s, a)$ measures versus a
+   *state value* $v_\pi(s)$? — see [MFRL — 08, Action Values](../08-action-values/index.qmd).
+3. Can you describe ε-greedy action selection? — see [MFRL — 19, ε-Greedy](../19-epsilon-greedy/index.qmd).
+4. Do you know what "on-policy" suggests by name?
+
+If any answer is *no*, follow the link before continuing.
+
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Below is a 4×4 grid. The agent starts at the top-left. Moving onto the bottom-
+right cell ($G$) gives reward $+1$ and ends the episode; every other step
+gives reward $-0.04$. The agent acts ε-greedy on its current $q$-table.
+$\gamma = 0.9$.
+
+The widget runs **Sarsa**: at every step, after observing $(s, a, r, s', a')$,
+update $q(s, a)$ toward $r + \gamma q(s', a')$. Watch the $q$-table heatmap.
+
+```{ojs}
+viewof sarsaEpsilon = Inputs.range([0.0, 0.5], {value: 0.1, step: 0.01, label: "ε ="})
+viewof sarsaAlpha = Inputs.range([0.05, 0.5], {value: 0.2, step: 0.01, label: "α ="})
+viewof sarsaEpisodes = Inputs.range([10, 1500], {value: 300, step: 10, label: "Episodes:"})
+viewof sarsaSeed = Inputs.range([1, 30], {value: 6, step: 1, label: "Seed:"})
+```
+
+```{ojs}
+{
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = a;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(sarsaSeed * 13);
+  const N = 4;          // 4x4 grid; goal at (3,3)
+  const A = 4;          // 0=up,1=down,2=left,3=right
+  const gamma = 0.9;
+  const q = new Array(N * N * A).fill(0);
+  function idx(r, c, a) { return (r * N + c) * A + a; }
+  function step(r, c, a) {
+    let nr = r, nc = c;
+    if (a === 0) nr = Math.max(0, r - 1);
+    if (a === 1) nr = Math.min(N - 1, r + 1);
+    if (a === 2) nc = Math.max(0, c - 1);
+    if (a === 3) nc = Math.min(N - 1, c + 1);
+    const reward = (nr === N - 1 && nc === N - 1) ? 1 : -0.04;
+    const done = (nr === N - 1 && nc === N - 1);
+    return {nr, nc, reward, done};
+  }
+  function chooseAction(r, c) {
+    if (rand() < sarsaEpsilon) return Math.floor(rand() * A);
+    let best = 0, bestQ = -Infinity;
+    for (let a = 0; a < A; a++) {
+      const v = q[idx(r, c, a)];
+      if (v > bestQ) { bestQ = v; best = a; }
+    }
+    return best;
+  }
+  for (let ep = 0; ep < sarsaEpisodes; ep++) {
+    let r = 0, c = 0;
+    let a = chooseAction(r, c);
+    for (let t = 0; t < 200; t++) {
+      const {nr, nc, reward, done} = step(r, c, a);
+      const ap = chooseAction(nr, nc);
+      const target = done ? reward : reward + gamma * q[idx(nr, nc, ap)];
+      q[idx(r, c, a)] += sarsaAlpha * (target - q[idx(r, c, a)]);
+      r = nr; c = nc; a = ap;
+      if (done) break;
+    }
+  }
+  // Build a heatmap of max_a q(r,c,a)
+  const cells = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    let v = -Infinity;
+    for (let a = 0; a < A; a++) v = Math.max(v, q[idx(r, c, a)]);
+    cells.push({r, c, v});
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return Plot.plot({
+    width: 360, height: 360,
+    color: {scheme: "viridis", legend: true, label: "max_a q(s,a)"},
+    x: {label: "col"}, y: {label: "row", reverse: true},
+    marks: [
+      Plot.cell(cells, {x: "c", y: "r", fill: "v"}),
+      Plot.text(cells, {x: "c", y: "r", text: d => d.v.toFixed(2), fill: "white"})
+    ]
+  });
+}
+```
+
+The bright cells near the goal are the high-value states. Sarsa learns the
+$q$ of *the policy it is actually following* — including the ε-randomness.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. Sarsa updates $q(s, a)$ toward $r + \gamma q(s', a')$. Why is the *action
+   actually taken* at $s'$ — not the greedy action — used in the target?
+2. If we made $a'$ the greedy action even when we acted ε-greedy, what would
+   change about what $q$ converges to?
+3. Sarsa learns the $q$ of the policy that *generated the data*. So the more
+   exploratory you are, the more "noise-aware" the learned policy. Why is
+   that a feature?
+4. What is the right way to *use* a Sarsa-learned $q$? Act greedy on it?
+   Keep ε-acting on it? Decay ε to zero?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Six problems. By the end you'll have derived Sarsa from first principles
+and know exactly what it converges to.
+
+### Problem 1 — why $q$, not $v$?
+
+Suppose you have an exact value function $v_\pi$. To act *greedily* with
+respect to $v_\pi$ at state $s$, you need $\arg\max_a \mathbb{E}[r + \gamma v_\pi(s') \mid s, a]$. What's the obstacle?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You need a *model* — the transition probabilities $P(s' \mid s, a)$ — to
+take that expectation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+You'd need the full MDP transitions $P(s'\mid s,a)$ and rewards $R(s,a)$.
+**Action values $q_\pi(s, a)$ remove that need:** $\arg\max_a q_\pi(s, a)$
+selects the best action without any model. So if you intend to act greedily
+*model-free*, you must learn $q$, not $v$.
+</details>
+
+### Problem 2 — Bellman for action values
+
+Write the Bellman equation for $q_\pi(s, a)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same shape as for $v$, but with one more layer of expectation over $a'$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$q_\pi(s, a) = \mathbb{E}_\pi\!\left[r + \gamma \, q_\pi(s', a') \,\big|\, s, a\right],$$
+where the expectation is over $r$, $s'$ (from the dynamics) and $a' \sim \pi(\cdot \mid s')$ (from the policy).
+</details>
+
+### Problem 3 — the Sarsa target
+
+Apply the same trick as TD(0): substitute the bootstrapped current estimate
+for the unknown $q_\pi$ in the Bellman equation. Write the target.
+
+<details class="hint"><summary>Full solution</summary>
+**Sarsa target:** $r + \gamma \, q(s', a')$, where $a' \sim \pi(\cdot \mid s')$
+is the *action actually taken next* under the policy. Update:
+$$q(s, a) \leftarrow q(s, a) + \alpha [r + \gamma q(s', a') - q(s, a)].$$
+</details>
+
+### Problem 4 — why "Sarsa"?
+
+Look at the data tuple needed for one Sarsa update. Spell out its name.
+
+<details class="hint"><summary>Full solution</summary>
+$(s, a, r, s', a')$ — five things. **S–A–R–S–A.** That's the name.
+</details>
+
+### Problem 5 — on-policy
+
+Sarsa updates $q(s, a)$ using the action $a' \sim \pi$ — the *same* policy
+that chose $a$. Why does that mean Sarsa learns $q_\pi$ for whichever $\pi$
+generates the data?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The Bellman equation it's solving has $a' \sim \pi$ inside the expectation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The expectation $\mathbb{E}_\pi[r + \gamma q_\pi(s', a')]$ is computed by
+*sampling* $a' \sim \pi$. So the algorithm only ever moves toward $q_\pi$
+where $\pi$ is the data-generating policy. Acting and learning use the same
+$\pi$ — that's the definition of **[on-policy](#on-policy-glossary)**.
+
+If you act ε-greedy with respect to the current $q$, then $\pi$ is the
+ε-greedy policy, and Sarsa learns $q_\pi$ for that ε-greedy $\pi$ — *not*
+$q^\*$. To get an optimal policy you must additionally drive $\varepsilon \to 0$, which is a *policy improvement* step.
+</details>
+
+### Problem 6 — convergence
+
+State a sufficient condition for tabular Sarsa to converge to $q^\*$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Standard RM step conditions, plus enough exploration, plus the policy must
+become greedy in the limit.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sufficient conditions (Singh, Jaakkola, Littman, Szepesvári 2000):
+(i) every $(s, a)$ visited infinitely often;
+(ii) $\sum_t \alpha_t = \infty$, $\sum_t \alpha_t^2 < \infty$ per $(s, a)$;
+(iii) the policy is **GLIE** — Greedy in the Limit with Infinite Exploration:
+$\pi_t \to \pi^\*$ while continuing to visit every action infinitely often.
+A common GLIE choice: ε-greedy with $\varepsilon_t = 1/t$.
+Then $q \to q^\*$ a.s., and the policy converges to $\pi^\*$.
+</details>
+
+::: {.key-insight}
+Sarsa is TD(0) for action values — same algebra, one extra index. The
+difference that *matters* is the source of $a'$: Sarsa samples it from the
+data-generating policy, so the algorithm learns $q_\pi$ rather than $q^\*$.
+On-policy is a *consequence* of the target, not a separate design choice.
+:::
+
+::: {.fun-fact}
+**Sarsa** was introduced by **Rummery & Niranjan** in their 1994 Cambridge
+technical report under the name *Modified Connectionist Q-Learning* — a
+mouthful that nobody used. **Rich Sutton** renamed it *Sarsa* in passing,
+in his 1996 book draft, because the data tuple $(s, a, r, s', a')$ spells
+the name out. The rename stuck; the original name is forgotten outside
+historians.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Sarsa — on-policy TD(0) for action values.** Given a sample tuple
+$(s_t, a_t, r_{t+1}, s_{t+1}, a_{t+1})$ collected under policy $\pi$,
+update
+$$
+q(s_t, a_t) \;\leftarrow\; q(s_t, a_t) + \alpha_t \, [\,\underbrace{r_{t+1} + \gamma q(s_{t+1}, a_{t+1})}_{\text{Sarsa target}} - q(s_t, a_t)\,].
+$$
+$\pi$ is usually ε-greedy with respect to the current $q$. Under GLIE step
+sizes and exploration, $q \to q^\*$ a.s. and $\pi \to \pi^\*$.
+
+**On-policy** []{#on-policy-glossary} = the policy used to generate data
+is the same as the policy being evaluated/improved.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *State, action, reward, state, action — the five.*
+> *Bootstrap from the action you actually took.*
+> *Learn the value of who you really are —*
+> *Including the noise that explores.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — one Sarsa step on a cliff-walk
+
+> A grid: $s_0 \to s_1$ has reward $-1$; $s_1 \to s_2$ has reward $+10$ (goal,
+> terminal). $\gamma = 0.9$, $\alpha = 0.5$. Initial $q$-table is all zero.
+> The agent acts ε-greedy with $\varepsilon = 0.1$. Suppose the trajectory is
+> $s_0 \to s_1 \to s_2$ with greedy actions $a_0 = a_1 = \text{right}$.
+> Compute the Sarsa updates.
+
+A competent solver thinks like this:
+
+1. **Step 1:** $(s_0, a_0=\text{right}, r=-1, s_1, a_1=\text{right})$.
+   Target $= -1 + 0.9 \cdot q(s_1, \text{right}) = -1 + 0 = -1$.
+   $q(s_0, \text{right}) \leftarrow 0 + 0.5 \cdot (-1 - 0) = -0.5$.
+2. **Step 2:** $(s_1, a_1=\text{right}, r=+10, s_2, \text{terminal})$.
+   Target $= 10 + 0 = 10$ (terminal next).
+   $q(s_1, \text{right}) \leftarrow 0 + 0.5 \cdot (10 - 0) = 5.0$.
+
+After one episode: $q(s_0, \text{right}) = -0.5$, $q(s_1, \text{right}) = 5.0$.
+Subsequent episodes will pull $q(s_0, \text{right})$ toward
+$-1 + 0.9 \cdot 5 = 3.5$ — the reward propagates back one state per episode,
+exactly as in TD(0).
+
+### Practice — Warm
+
+**W1.** Distinguish $q_\pi$ from $q^\*$ in one sentence each.
+
+<details class="hint"><summary>Full solution</summary>
+$q_\pi(s, a)$: expected return after taking $a$ in $s$ and *then following
+policy $\pi$* forever. $q^\*(s, a)$: same, but *then following the optimal
+policy* forever. Sarsa estimates $q_\pi$ for the data-generating $\pi$;
+Q-learning (Lesson 26) estimates $q^\*$.
+</details>
+
+**W2.** Compute one Sarsa update with $r = 0$, $\gamma = 0.95$, $\alpha = 0.1$,
+$q(s, a) = 4$, $q(s', a') = 5$.
+
+<details class="hint"><summary>Full solution</summary>
+Target $= 0 + 0.95 \cdot 5 = 4.75$. TD error $= 4.75 - 4 = 0.75$.
+$q(s, a)_{\text{new}} = 4 + 0.1 \cdot 0.75 = 4.075$.
+</details>
+
+**W3.** True or false: "Sarsa with $\varepsilon = 0$ converges to $q^\*$."
+
+<details class="hint"><summary>Full solution</summary>
+**False.** $\varepsilon = 0$ means greedy acting from the start. The agent
+will never visit some $(s, a)$ pairs; condition (i) of the convergence
+theorem fails. Without exploration, Sarsa locks onto a sub-optimal greedy
+policy.
+</details>
+
+### Practice — Working
+
+**P1.** Show that **Expected Sarsa** — the variant that uses
+$r + \gamma \sum_{a'} \pi(a'\mid s') q(s', a')$ as target — has *lower*
+variance than Sarsa.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sarsa samples one $a'$; Expected Sarsa averages over all $a'$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sarsa's target has variance from the random $a'$. Expected Sarsa replaces
+this random sample with its expectation, killing that source of variance:
+$\mathrm{Var}_{\text{ESarsa}} = \mathrm{Var}_{\text{Sarsa}} - \mathrm{Var}_{a' \sim \pi}[\gamma q(s', a')]$. Lower variance ⇒ usually faster convergence.
+We expand Expected Sarsa in [Lesson 27](../27-td-unified-view/index.qmd).
+</details>
+
+**P2.** A 2-state MDP: $s_1$ has actions {left, right}. Right gives reward
+0 and goes to $s_2$ (terminal, reward $+1$). Left gives reward $-1$ and
+self-loops. $\gamma = 0.9$, $\alpha = 0.5$, $\varepsilon = 0.5$. Initial
+$q = 0$. Run one episode where the agent takes right then terminates.
+Compute the update.
+
+<details class="hint"><summary>Full solution</summary>
+Tuple: $(s_1, \text{right}, r=0, s_2, \text{terminal})$.
+Target $= 0 + 0 = 0$ (terminal next).
+$q(s_1, \text{right}) \leftarrow 0 + 0.5 \cdot (0 - 0) = 0$. **No update!**
+The agent didn't see the reward at the goal because the terminal target
+is bootstrapped to zero. **Lesson:** the reward signal must arrive at the
+*last non-terminal* transition, where the target sees it. Some textbook
+formulations use $r$ from the *transition into* the terminal — using that
+convention, target $= 1 + 0 = 1$, $q(s_1, \text{right}) = 0.5$. Convention
+matters; pick one and stay consistent.
+</details>
+
+**P3.** Show that Sarsa is a Dvoretzky-shaped iteration (per state-action
+pair). Identify $\alpha_k$, $\beta_k$, $T_k$, $w^\*$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Repeat the Lesson-21 P3 argument for $q$ instead of $v$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$q(s, a)_{k+1} = (1 - \alpha) q(s, a)_k + \alpha [r + \gamma q(s', a')_k]$.
+So $\alpha_k = \beta_k = \alpha$, $T_k = r + \gamma q(s', a')_k$,
+$w^\* = q_\pi(s, a)$. The expected-Bellman operator is a $\gamma$-contraction;
+Dvoretzky's contracting-target form delivers convergence.
+</details>
+
+### Practice — Stretch
+
+**S1.** *Why is Sarsa preferred over Q-learning for safety-critical
+control?*
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sarsa learns the value of the policy *with its exploration noise included*.
+Q-learning learns the value of the optimal policy.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Consider a robot near a cliff with ε-greedy exploration. Q-learning learns
+$q^\*$ — the *cliff-edge optimal* path. Sarsa learns $q_\pi$ for the
+ε-greedy policy — which *includes* the random falling-off-the-cliff actions
+in its target. So the Sarsa-optimal policy will *avoid* the cliff edge,
+because falling off is a real cost it sees. This is the *cliff-walking*
+example from Sutton & Barto (Example 6.6) and is the canonical argument
+for on-policy methods in robotics and finance.
+</details>
+
+**S2.** Sarsa's data tuple has 5 things; Q-learning's has 4 (you'll see in
+Lesson 26). What's the missing one and why?
+
+<details class="hint"><summary>Full solution</summary>
+Q-learning needs $(s, a, r, s')$ — no $a'$, because the target uses
+$\max_{a'} q(s', a')$ rather than the action actually taken. So Q-learning
+is **off-policy** (data and target policies can differ). Sarsa requires the
+$a'$ because its target depends on it; that requirement *forces* Sarsa to be
+on-policy.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Sarsa converges to $q^\*$."** Only with GLIE exploration. Otherwise it
+   converges to $q_\pi$ for the data-generating $\pi$ — which may be
+   sub-optimal.
+2. **"Sarsa needs the $a'$ to be greedy."** Wrong — Sarsa needs $a'$ to be
+   sampled from $\pi$, *whatever* $\pi$ is. If your $\pi$ is ε-greedy then
+   $a'$ may be random.
+3. **"Sarsa is just Q-learning with a weaker target."** No — they target
+   different things. Sarsa targets $q_\pi$ (whatever you do); Q-learning
+   targets $q^\*$ (the best). Different fixed points.
+:::
+
+### Takeaways
+
+If you remember nothing else:
+
+1. **Sarsa update:** $q(s, a) \leftarrow q(s, a) + \alpha [r + \gamma q(s', a') - q(s, a)]$ with $a' \sim \pi$.
+2. **On-policy.** Sarsa learns the value of *the policy that produced the
+   data*. Including ε-noise in your behaviour means you learn the value of
+   a noisy policy.
+3. **GLIE for $q^\*$.** Decay ε to zero (with infinite exploration along
+   the way) to converge to $q^\*$.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you derive the Sarsa update from the action-value Bellman equation,
+   without notes?
+2. Did you solve at least 5 of the 8 practice problems without peeking past
+   *Hint 1*?
+3. Can you state, in one breath, why Sarsa is on-policy?
+
+- **3 yes:** move on to **[Lesson 25 — n-Step Sarsa](../25-n-step-sarsa/index.qmd)**.
+- **2 yes:** redo Stretch S1 — the cliff-walking intuition is what every
+  RL practitioner cites.
+- **0–1 yes:** re-read Problem 5. The "$a' \sim \pi$" step is what makes
+  Sarsa Sarsa.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.td-state-values"]
+- **[MFRL — 23, TD(0)](../23-td-state-values/index.qmd)** — the
+  state-value version we generalise.
+- **[MFRL — 08, Action Values](../08-action-values/index.qmd)** — the $q_\pi$
+  function we are now estimating.
+- **[MFRL — 19, ε-Greedy](../19-epsilon-greedy/index.qmd)** — the data-
+  generating policy.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[MFRL — 25, n-Step Sarsa](../25-n-step-sarsa/index.qmd)** — bootstrapping
+  after $n$ steps instead of one.
+- **[MFRL — 26, Q-Learning](../26-q-learning/index.qmd)** — the off-policy
+  cousin.
+- **[MFRL — 27, TD Methods Unified](../27-td-unified-view/index.qmd)** —
+  Sarsa, Q, Expected Sarsa as targets in the same formula.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** On-policy actor-critic methods (A2C, A3C, PPO) all evaluate
+their *current* policy with Sarsa-style targets and improve from there.
+PPO's value-function loss is mechanically a Sarsa-like update on a
+neural-network estimator.
+See [Bellman equation](/glossary.qmd#bellman-equation).
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning that this track
+expands into 38 lessons.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §24. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- **Source:** Shiyu Zhao, *Mathematical Foundations of Reinforcement
+  Learning* (Springer 2025), Chapter 7 §7.2. Cited freely; never transcribed.
+- **Touchstones honoured:** Russian school problem-first sequencing,
+  Better Explained "name from the tuple" framing, Bhāskara verse for the
+  Sarsa step.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (widget, recursion, English, grid) ✓, graduated hints ✓, worked
+  solutions ✓, common-confusions ✓, self-assessment ✓.
 :::

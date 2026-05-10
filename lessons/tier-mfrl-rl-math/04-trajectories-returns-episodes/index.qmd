@@ -7,87 +7,418 @@ prerequisites: ["mfrl.policy", "t3.sequences-series"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.policy", "t3.sequences-series"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. From [Lesson 3](../03-policy/index.qmd), can you describe what
+   $\pi(a \mid s)$ is and how it combines with $P$?
+2. Do you remember the **geometric series**
+   $1 + r + r^2 + r^3 + \ldots = \tfrac{1}{1 - r}$ for $|r| < 1$?
+3. Could you compute, by hand, $0.9 + 0.81 + 0.729$?
+
+If a "no" appears, refresh
+[T3 — Sequences and Series](../../tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd)
+before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Imagine the agent has just played a single game. What is left after the game
+is a strip of tape:
+
+> $s_0,\ a_0,\ r_1,\ s_1,\ a_1,\ r_2,\ s_2,\ a_2,\ r_3,\ \ldots$
+
+A sequence of states, the actions taken, and the rewards collected — in
+chronological order. Call it a *trajectory*.
+
+How do we *score* it? Add up the rewards? Take the average? Discount the
+later ones?
+
+```{ojs}
+viewof gamma = Inputs.range([0, 0.999], {value: 0.9, step: 0.01, label: "Discount γ"})
+```
+
+```{ojs}
+viewof rewardSeq = Inputs.text({
+  label: "Reward sequence (comma-separated, up to 20)",
+  value: "1, 0, 0, 1, 0, 0, 1, 0, 0, 1"
+})
+```
+
+```{ojs}
+{
+  const rs = rewardSeq.split(",").map(s => parseFloat(s.trim())).filter(x => !isNaN(x)).slice(0, 20);
+  let sum = 0, w = 1;
+  const lines = ["t=0:  G partial = 0"];
+  for (let t = 0; t < rs.length; t++) {
+    sum += w * rs[t];
+    lines.push(`t=${t+1}:  + γ^${t} · ${rs[t]} = ${sum.toFixed(4)}`);
+    w *= gamma;
+  }
+  const cap = (1 / (1 - gamma)).toFixed(2);
+  lines.push(`bound 1/(1-γ) for r∈[0,1]: ${cap}`);
+  return html`<pre style="font-size: 0.9rem;">${lines.join("\n")}</pre>`;
+}
+```
+
+Caption: feed in a reward sequence and a discount $\gamma$. Watch the
+*partial* discounted return tick up. The "bound" line shows the maximum
+the running total could ever reach if every reward were $1$.
+
+Try $\gamma = 0$ (only the first reward counts), then $\gamma = 0.9$, then
+$\gamma = 0.999$. Notice the cap explodes.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. If you could earn a reward of 1 right now or a reward of 1 in one
+   hundred steps, which do you prefer? Why does maths formalize that
+   preference with a single number $\gamma$?
+2. Why doesn't the running total just keep growing forever for a long
+   game? Or does it?
+3. The bound $1/(1 - \gamma)$ at $\gamma = 0.999$ is one thousand. Is the
+   agent really expected to plan 1000 steps ahead?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — Write down a trajectory
+
+Use the corridor $S = \{1, 2, 3\}$, deterministic "go right" policy, and
+deterministic transitions ($R$ from $s$ goes to $\min(s+1, 3)$). Reward $1$
+on every move, $0$ otherwise. Starting at $s_0 = 1$, write the first 5
+elements of the trajectory tape.
+
+<details class="hint"><summary>Full solution</summary>
+$s_0 = 1, a_0 = R, r_1 = 1, s_1 = 2, a_1 = R, r_2 = 1, s_2 = 3, a_2 = R, r_3 = 1, s_3 = 3, \ldots$.
+After arrival at 3 you stay (you're at the boundary), still earning $r = 1$
+per step.
+</details>
+
+### Problem 2 — Sum the rewards directly
+
+Try to define the "value" of this trajectory as
+$\sum_{t=1}^\infty r_t = 1 + 1 + 1 + \ldots$. What goes wrong?
+
+<details class="hint"><summary>Full solution</summary>
+The sum diverges. Every infinite trajectory with persistent positive
+reward gives $+\infty$. We cannot rank policies by an infinity. We need a
+finer instrument.
+</details>
+
+### Problem 3 — Apply the discount
+
+Define the **discounted return** from time $t$:
+$$G_t = r_{t+1} + \gamma r_{t+2} + \gamma^2 r_{t+3} + \ldots = \sum_{k=0}^\infty \gamma^k r_{t+k+1}.$$
+Compute $G_0$ for the trajectory of Problem 1 with $\gamma = 0.9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+All rewards are $1$, so $G_0 = \sum_{k=0}^\infty \gamma^k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$G_0 = \sum_{k=0}^\infty 0.9^k = \frac{1}{1 - 0.9} = 10$.
+
+A finite number. Discounting tames the infinite sum.
+</details>
+
+### Problem 4 — Bound the return
+
+Show: if $|r_t| \le R_{\max}$ for every $t$, then $|G_t| \le \frac{R_{\max}}{1 - \gamma}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Triangle inequality on the sum, then geometric series.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$|G_t| = \left|\sum_{k=0}^\infty \gamma^k r_{t+k+1}\right| \le \sum_{k=0}^\infty \gamma^k |r_{t+k+1}| \le R_{\max}\sum_{k=0}^\infty \gamma^k = \frac{R_{\max}}{1-\gamma}.$$
+The geometric series gives a *uniform* bound — every state's value is
+finite and bounded by the same constant. This is what makes value
+functions *well-defined*.
+</details>
+
+### Problem 5 — Episodes vs continuing tasks
+
+Some games end (chess, the agent reaching green in the grid world). Others
+continue forever (a robot that keeps balancing). Define an **episode** as
+a finite trajectory ending at a *terminal state*, and a **continuing
+task** as one without termination. How does $\gamma$ enter each case
+differently?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For a finite episode, the sum is already finite — discounting is optional.
+For a continuing task, discounting is the *only* way to keep $G_t$ bounded.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Episode.** $G_t = \sum_{k=0}^{T-t-1} \gamma^k r_{t+k+1}$ — the sum
+terminates. You can take $\gamma = 1$ (undiscounted episodic return) and
+the sum is still finite. $\gamma$ becomes a knob for "how myopic do I
+want my agent to be?"
+
+**Continuing task.** $G_t = \sum_{k=0}^\infty \gamma^k r_{t+k+1}$ —
+infinite. You *need* $\gamma < 1$ to make $G_t$ finite. $\gamma$ is no
+longer optional.
+
+The episodic case is a special case of the continuing case where you stick
+a "do nothing, get reward 0 forever" loop on the terminal state.
+</details>
+
+::: {.key-insight}
+The geometric series $\sum_{k=0}^\infty \gamma^k = \tfrac{1}{1 - \gamma}$
+is what makes infinite-horizon RL *possible*. Without discounting,
+returns can diverge and "the value of a state" has no meaning. With
+$\gamma < 1$, every value is finite, every value is bounded by
+$R_{\max}/(1 - \gamma)$, and the entire theory unfolds.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+A **trajectory** is a sequence
+$\tau = (s_0, a_0, r_1, s_1, a_1, r_2, s_2, \ldots)$ generated by an MDP
+under a policy $\pi$. The **discounted return** from time $t$ is
+$$G_t = \sum_{k=0}^\infty \gamma^k r_{t+k+1}, \qquad \gamma \in [0, 1).$$
+An **episode** is a trajectory that terminates at some $s_T$; a
+*continuing task* is one that runs forever.
+
+:::
+
+A verse to remember it by:
+
+> *Tape of states, actions, rewards in line;*
+> *each future step is worth $\gamma$ times the last.*
+> *Geometric series: $1/(1 - \gamma)$ —*
+> *the future is finite, however vast.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — return for a 5-step trajectory
+
+Reward sequence (after each step): $r_1 = 0, r_2 = 0, r_3 = 1, r_4 = -1, r_5 = 1$.
+Then the agent terminates. Take $\gamma = 0.9$.
+
+**Step 1 — write the formula.**
+$$G_0 = r_1 + \gamma r_2 + \gamma^2 r_3 + \gamma^3 r_4 + \gamma^4 r_5.$$
+
+**Step 2 — plug in.**
+$G_0 = 0 + 0.9 \cdot 0 + 0.81 \cdot 1 + 0.729 \cdot (-1) + 0.6561 \cdot 1$
+$= 0 + 0 + 0.81 - 0.729 + 0.6561 = 0.7371$.
+
+**Step 3 — interpret.** The reward of $+1$ at step 3 contributes $0.81$;
+the same reward at step 5 contributes only $0.6561$ — its weight has
+shrunk by a factor $\gamma^2 = 0.81$ for arriving two steps later.
+
+**Step 4 — recursive consistency.** Compute $G_1$ directly and confirm
+$G_0 = r_1 + \gamma G_1$.
+$G_1 = r_2 + \gamma r_3 + \gamma^2 r_4 + \gamma^3 r_5 = 0 + 0.9 - 0.81 + 0.729 = 0.819$.
+Check: $r_1 + \gamma G_1 = 0 + 0.9 \cdot 0.819 = 0.7371$. Match. This
+recursion will be the seed of the Bellman equation in lesson 6.
+
+### Practice — Warm
+
+**W1.** With $\gamma = 0.9$, compute $G_0$ for the reward sequence
+$1, 1, 1$ then termination.
+
+<details class="hint"><summary>Full solution</summary>
+$G_0 = 1 + 0.9 + 0.81 = 2.71$.
+</details>
+
+**W2.** With $\gamma = 0.5$, compute $G_0$ for the same $1, 1, 1$ sequence.
+
+<details class="hint"><summary>Full solution</summary>
+$G_0 = 1 + 0.5 + 0.25 = 1.75$. Smaller $\gamma$ means later rewards
+shrink faster.
+</details>
+
+**W3.** Find $G_0$ for the **infinite** sequence $r_t = 1$ for all $t$,
+with $\gamma = 0.95$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Geometric series, $a = 1$, $r = 0.95$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$G_0 = \sum_{k=0}^\infty 0.95^k = \frac{1}{1 - 0.95} = 20$.
+</details>
+
+### Practice — Working
+
+**P1.** A robot earns reward $r_t = 0$ for every step except step 100
+where $r_{100} = 1000$. With $\gamma = 0.99$, what is $G_0$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Only one term survives.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$G_0 = \gamma^{99} \cdot 1000 = 0.99^{99} \cdot 1000 \approx 369.7$.
+A reward of 1000 at step 100 is worth about 370 today. With $\gamma = 0.9$
+instead it would be $0.9^{99} \cdot 1000 \approx 0.3$ — almost nothing.
+The discount is *the* knob for time horizon.
+</details>
+
+**P2.** Write the *recursion* $G_t = r_{t+1} + \gamma G_{t+1}$ and verify
+it on your worked-example sequence by computing both sides for $t = 2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$G_2 = r_3 + \gamma r_4 + \gamma^2 r_5$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$G_2 = 1 + 0.9 \cdot (-1) + 0.81 \cdot 1 = 1 - 0.9 + 0.81 = 0.91$.
+$G_3 = -1 + 0.9 \cdot 1 = -0.1$.
+Check: $r_3 + \gamma G_3 = 1 + 0.9 \cdot (-0.1) = 0.91 = G_2$. Match.
+This is the Bellman recursion at the trajectory level.
+</details>
+
+**P3.** A trajectory pays $r_t = (-1)^t$ (alternating $\pm 1$ from $t = 1$).
+Compute $G_0$ in closed form for general $\gamma \in [0, 1)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$G_0 = -1 + \gamma - \gamma^2 + \gamma^3 - \ldots = -\sum_{k=0}^\infty (-\gamma)^k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$G_0 = \sum_{k=0}^\infty \gamma^k r_{k+1} = \sum_{k=0}^\infty \gamma^k (-1)^{k+1} = -\sum_{k=0}^\infty (-\gamma)^k = -\frac{1}{1 + \gamma}$.
+
+For $\gamma = 0.9$, $G_0 = -1/1.9 \approx -0.526$. The negative sign
+reflects "I lose first, then gain back, then lose again — net negative."
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the **half-life** of $\gamma$ — the number of steps
+$T_{1/2}$ where $\gamma^{T_{1/2}} = 1/2$ — is roughly
+$T_{1/2} \approx -\ln(2)/\ln(\gamma) \approx 0.69 / (1 - \gamma)$ for
+$\gamma$ near $1$. Compute it for $\gamma = 0.9$ and $\gamma = 0.99$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take logs: $T \ln(\gamma) = \ln(1/2)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T_{1/2} = \ln(0.5) / \ln(\gamma)$.
+$\gamma = 0.9$: $T_{1/2} = -0.693 / -0.105 \approx 6.6$ steps.
+$\gamma = 0.99$: $T_{1/2} = -0.693 / -0.01005 \approx 69$ steps.
+
+The "effective horizon" of the agent is $T_{1/2}$ steps. At $\gamma = 0.99$,
+the agent cares about events out to roughly 70 steps; at $\gamma = 0.9$,
+only 7. This is how to choose $\gamma$ in practice — match it to the
+problem's natural horizon.
+</details>
+
+**S2.** Suppose you replace the discount by a *truncation*: only count
+the first $T$ rewards, undiscounted. Show that for the worst-case
+trajectory ($r_t = R_{\max}$ for all $t$), the discounted return with
+$\gamma$ chosen so that $1/(1-\gamma) = T$ matches the *expected order of
+magnitude* of the truncated return. What $\gamma$ corresponds to $T = 100$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve $1/(1 - \gamma) = 100$ for $\gamma$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$1/(1 - \gamma) = 100 \Rightarrow \gamma = 0.99$.
+
+This is the "rule of thumb" used everywhere in practice: $\gamma = 0.99$
+corresponds to roughly a 100-step horizon. DeepMind's Atari agent used
+$\gamma = 0.99$ throughout, and the choice has propagated through most of
+the deep-RL literature for that reason.
+</details>
+
+::: {.fun-fact}
+$\gamma = 0.99$ is the magic number — it appears unchanged across
+DeepMind's Atari paper (2015), AlphaZero, Open AI's Dota agent, and most
+academic baselines. The number is not from theory; it is from "$1/(1 - \gamma)
+\approx 100$ steps feels right for video-game-shaped problems." Many
+modern continuous-control benchmarks (MuJoCo) use $\gamma = 0.99$ even
+though the natural horizon there is shorter. The constant has become
+*folklore*.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Discounting is for handling infinity."** Partly. It is *also* a
+   modelling choice: how much should I weight a reward 50 steps away
+   versus right now? In economics this number is the interest rate.
+2. **"$\gamma = 1$ is fine if the episode ends."** True for the *return*
+   to be finite, but $\gamma = 1$ destroys the contraction property in
+   lesson 11 — value iteration may not converge. For analysis, $\gamma < 1$
+   stays.
+3. **"$G_t$ is the reward at time $t$."** No — $G_t$ is the
+   *(discounted) sum of future rewards from time $t+1$ onward*. The
+   instantaneous reward is $r_{t+1}$.
+:::
+
+### Takeaways
+
+1. A [trajectory](/glossary.qmd#trajectory) is a tape of
+   $(s_t, a_t, r_{t+1})$. The
+   [discounted return](/glossary.qmd#discounted-return) $G_t$ scores it
+   by weighting each future reward by $\gamma^k$.
+2. The geometric-series identity gives the bound $|G_t| \le R_{\max} / (1 - \gamma)$ —
+   every return is finite. This is the prerequisite to defining value
+   functions.
+3. The recursion $G_t = r_{t+1} + \gamma G_{t+1}$ is the trajectory-level
+   seed of the Bellman equation we'll meet in lesson 6.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you compute $G_0$ for a 5-step reward sequence and a given
+   $\gamma$ from memory?
+2. Did you finish W1–S1 without peeking past *Hint 1*?
+3. Can you explain in one sentence *why* the geometric series is the
+   load-bearing piece?
+
+- **3 yes:** continue to lesson 5 (state values: $G_t$ in expectation).
+- **2 yes:** redo S1 — the half-life argument is how practitioners
+  actually choose $\gamma$.
+- **0–1 yes:** re-read *Discover*. The five problems together are the
+  whole derivation.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.policy", "t3.sequences-series"]
+- **`mfrl.policy`** — for the policy that generates the trajectory.
+- **`t3.sequences-series`** — for the geometric-series identity that
+  bounds $G_t$.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 5 — State Values.** $v_\pi(s) = \mathbb{E}_\pi[G_t \mid s_t = s]$
+  takes the random variable $G_t$ and averages it.
+- **Lesson 6 — Bellman Equation.** The trajectory recursion
+  $G_t = r_{t+1} + \gamma G_{t+1}$ becomes the Bellman recursion
+  $v(s) = \mathbb{E}[r + \gamma v(s')]$ once you take expectations.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every value-based RL algorithm — DQN, Q-learning, TD($\lambda$),
+SARSA — is in the business of *estimating $G_t$* from samples. The choice
+of $\gamma$ silently shapes everything: an Atari agent with $\gamma = 0.5$
+would learn very different behaviour from one with $\gamma = 0.99$.
+:::
+
+::: {.applied-callout}
+**Research / finance.** Discounted cash flow valuation in finance is the
+*same maths* as discounted return in RL: replace $\gamma$ with $1/(1 + r)$
+where $r$ is the interest rate. Bellman in 1957 borrowed the framing
+deliberately. The bond price *is* a state value.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view; the discount factor and the geometric
+series are one of those sentences.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §04. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 1 §6. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Russian school (Discover bounds the return as a
+  derivation), Better Explained ("the geometric series is what makes
+  infinite-horizon RL possible").
 :::

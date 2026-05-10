@@ -7,87 +7,458 @@ prerequisites: ["mfrl.n-step-sarsa"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.n-step-sarsa"].
+Before you start, you should be able to say *yes* to all four:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Sarsa update from memory? — see [MFRL — 24, Sarsa](../24-sarsa/index.qmd).
+2. Bellman *optimality* equation $q^\*(s, a) = \mathbb{E}[r + \gamma \max_{a'} q^\*(s', a')]$? — see [MFRL — 10, Bellman Optimality](../10-bellman-optimality-equation/index.qmd).
+3. Difference between $q_\pi$ and $q^\*$ (one is for a fixed policy, the
+   other is the best you can do)?
+4. ε-greedy policy? — see [MFRL — 19, ε-Greedy](../19-epsilon-greedy/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+A 5×5 grid with a goal at the top-right and a "lava" cell that gives
+reward $-10$. Discount $\gamma = 0.9$.
+
+The agent **acts uniformly at random** (every step picks a random direction,
+no greedy bias). Yet **Q-learning's $q$-table converges to $q^\*$** — the
+optimal action values — because Q-learning's target uses
+$\max_{a'} q(s', a')$ regardless of which action the agent actually took.
+
+Drag the slider on episodes; watch the heatmap of $\max_a q(s, a)$ light up
+near the goal and dim near the lava.
+
+```{ojs}
+viewof qEpisodes = Inputs.range([10, 1500], {value: 400, step: 10, label: "Episodes:"})
+viewof qSeed = Inputs.range([1, 30], {value: 5, step: 1, label: "Seed:"})
+```
+
+```{ojs}
+{
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = a;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(qSeed * 23);
+  const N = 5;
+  const A = 4;     // 0=up, 1=down, 2=left, 3=right
+  const gamma = 0.9, alpha = 0.2;
+  const lava = {r: 2, c: 2};
+  const goal = {r: 0, c: 4};
+  const q = new Array(N * N * A).fill(0);
+  const idx = (r, c, a) => (r * N + c) * A + a;
+  function step(r, c, a) {
+    let nr = r, nc = c;
+    if (a === 0) nr = Math.max(0, r - 1);
+    if (a === 1) nr = Math.min(N - 1, r + 1);
+    if (a === 2) nc = Math.max(0, c - 1);
+    if (a === 3) nc = Math.min(N - 1, c + 1);
+    let reward = -0.04, done = false;
+    if (nr === lava.r && nc === lava.c) { reward = -10; done = true; }
+    if (nr === goal.r && nc === goal.c) { reward = 1; done = true; }
+    return {nr, nc, reward, done};
+  }
+  for (let ep = 0; ep < qEpisodes; ep++) {
+    let r = 0, c = 0;
+    if (r === goal.r && c === goal.c) continue;
+    for (let t = 0; t < 100; t++) {
+      const a = Math.floor(rand() * A);   // FULLY RANDOM behaviour policy
+      const {nr, nc, reward, done} = step(r, c, a);
+      let maxQ = 0;
+      if (!done) {
+        maxQ = -Infinity;
+        for (let ap = 0; ap < A; ap++) maxQ = Math.max(maxQ, q[idx(nr, nc, ap)]);
+      }
+      const target = reward + gamma * maxQ;
+      q[idx(r, c, a)] += alpha * (target - q[idx(r, c, a)]);
+      r = nr; c = nc;
+      if (done) break;
+    }
+  }
+  const cells = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    let v = -Infinity;
+    for (let a = 0; a < A; a++) v = Math.max(v, q[idx(r, c, a)]);
+    cells.push({r, c, v});
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return Plot.plot({
+    width: 360, height: 360,
+    color: {scheme: "viridis", legend: true},
+    x: {label: "col"}, y: {label: "row", reverse: true},
+    marks: [
+      Plot.cell(cells, {x: "c", y: "r", fill: "v"}),
+      Plot.text(cells, {x: "c", y: "r", text: d => d.v.toFixed(1), fill: "white"})
+    ]
+  });
+}
+```
+
+The agent acts randomly. **Yet $q$ tells the story of optimal play.** That
+asymmetry — *learn one policy while following another* — is the core of
+**off-policy** learning.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. Sarsa learns $q_\pi$ for whatever $\pi$ generated the data. Q-learning
+   learns $q^\*$ regardless of the data policy. Why does swapping
+   $q(s', a')$ for $\max_{a'} q(s', a')$ buy that?
+2. The agent in the widget acts uniformly random — yet the heatmap shows
+   the *optimal* policy. So can you learn from data collected by
+   *anybody* — a human demonstrator, a bad policy, a random policy?
+3. Q-learning's target is the Bellman *optimality* equation. Why does that
+   matter? What does Sarsa's target look like in comparison?
+4. If Q-learning learns $q^\*$ from any data, why ever bother with on-policy
+   methods?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Six problems to derive Q-learning, see the off-policy magic, and feel the
+catch.
+
+### Problem 1 — Bellman optimality recap
+
+Write the Bellman optimality equation for $q^\*(s, a)$.
+
+<details class="hint"><summary>Full solution</summary>
+$$q^\*(s, a) = \mathbb{E}\!\left[r + \gamma \max_{a'} q^\*(s', a') \,\bigg|\, s, a\right].$$
+The expectation is over $r, s'$ from the dynamics — there is no policy in
+sight on the right-hand side, because the optimal policy is "do the max."
+</details>
+
+### Problem 2 — the Q-learning target
+
+Apply the Robbins-Monro recipe: a noisy sample of the right-hand side at
+$(s, a)$ is...?
+
+<details class="hint"><summary>Full solution</summary>
+A noisy sample is $r + \gamma \max_{a'} q(s', a')$, where $(r, s')$ is one
+observed transition. The bootstrap uses the *current* $q$ in place of the
+unknown $q^\*$. Update:
+$$q(s, a) \leftarrow q(s, a) + \alpha [r + \gamma \max_{a'} q(s', a') - q(s, a)].$$
+This is **Q-learning**.
+</details>
+
+### Problem 3 — what's $a'$?
+
+In Sarsa the target uses $q(s', a')$ where $a'$ is the *action actually
+taken*. In Q-learning the target uses $\max_{a'} q(s', a')$. Why does this
+make Q-learning *off-policy*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Did the agent ever take the action that achieves the max?
+</details>
+<details class="hint"><summary>Full solution</summary>
+The action $a'$ in Q-learning's target is the *greedy* action under the
+current $q$ — but the agent does not need to *take* it. The agent could
+have acted ε-greedy, fully random, by demonstration — anything. The target
+is computed from $q$ alone, not from the action taken. So the
+**data-collection policy** (called the *behaviour policy*) and the
+**evaluated policy** (the implicit greedy policy under $q$) are decoupled.
+That is the definition of **[off-policy](#off-policy-glossary)**.
+</details>
+
+### Problem 4 — why this gives $q^\*$ and not $q_\pi$
+
+Sketch why Q-learning targets $q^\*$ rather than $q_\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What is the fixed point of the operator
+$\mathbb{E}[r + \gamma \max_{a'} q(s', a') \mid s, a]$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+The expected target is exactly the Bellman *optimality* operator $\mathcal{T}^\*$:
+$(\mathcal{T}^\* q)(s, a) = \mathbb{E}[r + \gamma \max_{a'} q(s', a')]$.
+Its unique fixed point is $q^\*$. So if Q-learning's iterate converges, it
+converges to $q^\*$ — independently of the policy generating data.
+**The "max" inside the target is the BOE**; that's why Q-learning learns
+$q^\*$.
+</details>
+
+### Problem 5 — convergence
+
+State a sufficient condition for tabular Q-learning to converge to $q^\*$.
+
+<details class="hint"><summary>Full solution</summary>
+(Watkins-Dayan 1992):
+(i) every $(s, a)$ visited infinitely often;
+(ii) per-$(s,a)$ step sizes satisfy $\sum \alpha_t = \infty$,
+$\sum \alpha_t^2 < \infty$.
+Then $q \to q^\*$ a.s. **No GLIE requirement** — because Q-learning's target
+doesn't care what the data-policy is, exploration just needs to cover.
+</details>
+
+### Problem 6 — the maximisation bias
+
+A subtle catch. With finite samples, $\max_{a'} q(s', a')$ tends to
+*overestimate* the true max. Why?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Jensen's inequality: $\mathbb{E}[\max] \ge \max \mathbb{E}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{E}[\max_a q(s', a)] \ge \max_a \mathbb{E}[q(s', a)] = \max_a q^\*(s', a)$. Because we max over noisy estimates, we systematically overshoot — the
+**maximisation bias**. Double Q-learning (Hasselt 2010) fixes this by
+maintaining two $q$-tables, one to *select* the argmax action and the other
+to *evaluate* it. We won't expand here; see Hasselt's paper.
+</details>
+
+::: {.key-insight}
+The Sarsa-vs-Q-learning difference is *one symbol*: Sarsa uses
+$q(s', a')$ (the action the policy chose); Q-learning uses
+$\max_{a'} q(s', a')$ (the action the optimal policy would choose). That
+single substitution swaps on-policy for off-policy and $q_\pi$ for $q^\*$.
+:::
+
+::: {.fun-fact}
+Christopher **Watkins** introduced Q-learning in his 1989 Cambridge PhD
+thesis. He proved convergence in the same thesis — the first proof of
+its kind. The 2013 DeepMind paper that ignited deep RL used Q-learning
+with a deep neural network and called the result *Deep Q-Network (DQN)*.
+The 2015 *Nature* paper showing DQN reaching human-level Atari from raw
+pixels is, at its core, Watkins's 1989 update with two engineering tricks
+— target networks and replay buffers (covered in Lesson 31).
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Q-learning — off-policy TD(0) for optimal action values.** Given a
+sample tuple $(s_t, a_t, r_{t+1}, s_{t+1})$ collected under *any* behaviour
+policy $b$, update
+$$
+q(s_t, a_t) \;\leftarrow\; q(s_t, a_t) + \alpha_t \, [\,\underbrace{r_{t+1} + \gamma \max_{a'} q(s_{t+1}, a')}_{\text{Q-learning target}} - q(s_t, a_t)\,].
+$$
+Under (i) every $(s, a)$ visited infinitely often and (ii) RM step
+conditions, $q \to q^\*$ a.s. No constraint on $b$ except *coverage*.
+
+**Off-policy** []{#off-policy-glossary} = the data-collection (behaviour)
+policy may differ from the policy being evaluated/improved (target).
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Reward I just saw, plus the best of the next —*
+> *Not the action I took, but the action I would.*
+> *Behaviour and target part company,*
+> *And I learn the best policy from any data at all.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — Q-learning step on a tiny grid
+
+> States $s_1, s_2$. From $s_1$ actions {right} and {left}. Right goes to
+> $s_2$ (terminal, reward $+1$); left self-loops (reward $-1$). $\gamma = 0.9$,
+> $\alpha = 0.5$. Initial $q = 0$. Suppose the behaviour policy chose left,
+> giving the tuple $(s_1, \text{left}, r=-1, s_1)$. Compute the Q-learning
+> update.
+
+A competent solver thinks like this:
+
+1. **Target:** $r + \gamma \max_{a'} q(s_1, a') = -1 + 0.9 \cdot \max(q(s_1, \text{left}), q(s_1, \text{right})) = -1 + 0.9 \cdot 0 = -1$.
+2. **Update $q(s_1, \text{left})$:** $0 + 0.5 \cdot (-1 - 0) = -0.5$.
+3. **Suppose next the behaviour policy *also* chooses left**: tuple
+   $(s_1, \text{left}, r=-1, s_1)$ again.
+4. Target: $-1 + 0.9 \cdot \max(-0.5, 0) = -1 + 0 = -1$. Update
+   $q(s_1, \text{left}) = -0.5 + 0.5 \cdot (-0.5) = -0.75$.
+5. Eventually random behaviour selects right and $q(s_1, \text{right})$
+   gets updated. Even from purely **left-biased data** Q-learning would
+   *eventually* learn that right is better — *as long as* right is sampled
+   sometimes (the coverage condition).
+
+### Practice — Warm
+
+**W1.** What is the Q-learning target if $r = 2$, $\gamma = 0.95$,
+$q(s', \text{up}) = 4, q(s', \text{down}) = 7, q(s', \text{stay}) = 5$?
+
+<details class="hint"><summary>Full solution</summary>
+$\max_{a'} q(s', a') = 7$. Target $= 2 + 0.95 \cdot 7 = 8.65$.
+</details>
+
+**W2.** True or false: "Q-learning needs ε-greedy behaviour to converge."
+
+<details class="hint"><summary>Full solution</summary>
+**False — only coverage is needed.** Q-learning converges to $q^\*$ even
+under uniformly random or expert-demonstration behaviour, *as long as
+every $(s, a)$ is visited infinitely often.* The target doesn't care.
+</details>
+
+**W3.** Spot the difference: in Sarsa we required GLIE for $q \to q^\*$;
+in Q-learning we don't. Why?
+
+<details class="hint"><summary>Full solution</summary>
+Sarsa learns $q_\pi$ for the *behaviour* policy $\pi$. So you need $\pi \to \pi^\*$ (the GLIE part) to get $q_\pi \to q^\*$. Q-learning learns
+$q^\*$ directly via the BOE; the behaviour just supplies coverage.
+</details>
+
+### Practice — Working
+
+**P1.** Show that Q-learning is Dvoretzky-shaped per $(s, a)$. What plays
+the role of "contracting target"?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The expected target is the Bellman optimality operator.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$q(s,a)_{k+1} = (1 - \alpha) q(s,a)_k + \alpha [r + \gamma \max_{a'} q(s', a')_k]$. The expectation of the bracket is $(\mathcal{T}^\* q_k)(s, a)$, where
+$\mathcal{T}^\*$ is the BOE-operator and a $\gamma$-contraction in
+$\ell_\infty$ (lesson 11). So target is contracting toward $q^\*$;
+Dvoretzky's theorem applies; $q \to q^\*$ a.s.
+</details>
+
+**P2.** Sarsa under uniform-random behaviour: what does it converge to,
+and why is that *not* $q^\*$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What policy generated the $a'$ in Sarsa's target?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sarsa's target uses the actually-taken $a'$ — uniform-random in this case.
+So Sarsa learns $q_\pi$ where $\pi$ is uniform random — the *value of acting
+randomly*. That's nowhere near $q^\*$ unless the MDP is degenerate.
+**Lesson:** Sarsa's target inherits the behaviour policy; Q-learning's does
+not.
+</details>
+
+**P3.** A continuous-action problem (e.g., robot torque). Why does
+Q-learning's $\max_{a'}$ become a *practical* obstacle?
+
+<details class="hint"><summary>Full solution</summary>
+For continuous $a$, computing $\max_{a'} q(s', a')$ requires solving a
+continuous optimisation at every step. That is hopeless for arbitrary $q$
+and motivates *actor-critic* methods (Lessons 35-38), where a separate
+parameterised actor proposes the argmax action and is itself trained by
+gradient ascent on $q$.
+</details>
+
+### Practice — Stretch
+
+**S1.** *The deadly triad preview.* Name the three ingredients that, when
+combined, can cause Q-learning with function approximation to diverge.
+
+<details class="hint"><summary>Full solution</summary>
+**Bootstrapping** (TD-style targets), **off-policy** learning, and
+**function approximation** (parameterised $q$, especially neural nets).
+Tabular Q-learning has the first two but not the third — and is safe.
+Adding FA breaks the safety; this is **Baird's counterexample**, expanded
+in Lesson 30. Modern deep-RL papers use *target networks* and *replay
+buffers* to stabilise.
+</details>
+
+**S2.** *Maximisation bias quantified.* Suppose we have $K$ noisy estimators
+$\hat q_1, \ldots, \hat q_K$ of $q$, each unbiased with variance $\sigma^2$.
+Show $\mathbb{E}[\max_k \hat q_k]$ exceeds $\max_k q_k$ by at least
+$\sigma \sqrt{\log K}$ (very roughly).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Order statistics of $K$ Gaussians.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For i.i.d. $\mathcal{N}(\mu, \sigma^2)$, $\mathbb{E}[\max] \approx \mu + \sigma \sqrt{2 \log K}$ (extreme-value theory). Even if each estimator is
+unbiased *individually*, their max is biased upward by $\Theta(\sigma \sqrt{\log K})$. **Q-learning systematically over-estimates** the value of the best
+action, especially in high-action settings. Double Q-learning fixes this.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Q-learning is on-policy because the agent uses ε-greedy."** No —
+   *acting* ε-greedy doesn't make the algorithm on-policy. What matters is
+   what's in the *target*. Q-learning's target uses $\max$, not $a'$, so
+   it's off-policy regardless of how you act.
+2. **"Sarsa and Q-learning differ only by the data tuple."** Almost — Sarsa
+   needs $a'$, Q-learning doesn't. But the more important difference is the
+   *fixed point* they target ($q_\pi$ vs $q^\*$).
+3. **"Off-policy means we don't need exploration."** No. We need *coverage*
+   — every $(s, a)$ must be visited. Without coverage, you can't update some
+   $q$ entries and the algorithm can't reach $q^\*$.
+:::
+
+### Takeaways
+
+If you remember nothing else:
+
+1. **Q-learning update:** $q(s, a) \leftarrow q(s, a) + \alpha [r + \gamma \max_{a'} q(s', a') - q(s, a)]$. The "max" is the BOE.
+2. **Off-policy.** Behaviour policy and target policy can differ; only
+   coverage is required.
+3. **Targets $q^\*$ directly.** No GLIE needed — but watch out for
+   maximisation bias and the deadly triad with FA.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you derive the Q-learning update from the BOE, on a blank page?
+2. Did you solve at least 5 of the 8 practice problems without peeking past
+   *Hint 1*?
+3. Can you state, in one breath, why Q-learning is off-policy?
+
+- **3 yes:** move on to **[Lesson 27 — TD Methods Unified](../27-td-unified-view/index.qmd)**.
+- **2 yes:** redo Stretch S2 — maximisation bias is the empirical face of
+  Q-learning's failures.
+- **0–1 yes:** re-read *Discover* Problems 3 and 4. The "max in the target"
+  is the load-bearing substitution.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.n-step-sarsa"]
+- **[MFRL — 25, n-Step Sarsa](../25-n-step-sarsa/index.qmd)** — Q-learning
+  is the off-policy cousin; same algebraic shape.
+- **[MFRL — 10, Bellman Optimality Equation](../10-bellman-optimality-equation/index.qmd)** — the equation Q-learning solves.
+- **[MFRL — 11, Contraction Mapping Theorem](../11-contraction-mapping-theorem/index.qmd)** — the BOE-operator's contraction property is what makes
+  convergence possible.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[MFRL — 27, TD Methods Unified](../27-td-unified-view/index.qmd)** —
+  Q-learning, Sarsa, Expected Sarsa as targets in one formula.
+- **[MFRL — 28, From Table to Function](../28-from-table-to-function/index.qmd)** — when $q$ becomes a parameterised function.
+- **[MFRL — 31, DQN](../31-deep-q-network/index.qmd)** — Q-learning with a
+  deep network.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Q-learning is the foundation of every value-based deep-RL
+agent: DQN, Double DQN, Rainbow, IQN, R2D2, Agent57. The off-policy
+property is what enables *experience replay* — store transitions in a
+buffer and learn from them later, regardless of the current policy.
+See [Bellman equation](/glossary.qmd#bellman-equation) and
+[expected value](/glossary.qmd#expected-value).
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning that this track
+expands into 38 lessons.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §26. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- **Source:** Shiyu Zhao, *Mathematical Foundations of Reinforcement
+  Learning* (Springer 2025), Chapter 7 §7.4. Cited freely; never transcribed.
+- **Touchstones honoured:** Russian school problem-first sequencing,
+  Better Explained "one symbol changes everything" framing, Bhāskara
+  verse for the off-policy step.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (widget, recursion, English, grid) ✓, graduated hints ✓, worked
+  solutions ✓, common-confusions ✓, self-assessment ✓.
 :::

@@ -7,87 +7,447 @@ prerequisites: ["mfrl.td-unified-view", "t5.partial-derivatives"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.td-unified-view", "t5.partial-derivatives"].
+Before you start, you should be able to say *yes* to all four:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Comfortable with the master TD update from [Lesson 27](../27-td-unified-view/index.qmd)?
+2. Can you compute partial derivatives of a quadratic in many variables? — see
+   [Tier 5, Lesson 5 — Partial Derivatives and the Gradient](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd).
+3. Have you met dot products $\phi(s)^\top w = \sum_i \phi_i(s) w_i$? — see
+   [Tier 4, Lesson 14 — Dot and Cross Product](../../tier-4-precalc-calculus/14-dot-cross-product/index.qmd).
+4. Can you imagine a state space too large to enumerate (chess, Go, robot
+   joint angles, video pixels)?
+
+If any answer is *no*, follow the link before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+So far you've stored value functions in **tables**: one number per state
+(or per state-action pair). For a 5×5 grid that's $25$ entries — fine.
+
+Drag the slider on grid size below. Memory cost: $|\mathcal{S}|$ floats for
+$v(s)$.
+
+```{ojs}
+viewof gridSide = Inputs.range([5, 1000], {value: 100, step: 1, label: "Grid side N (states = N²):"})
+viewof bytesPerCell = Inputs.select([4, 8], {value: 8, label: "bytes/value (4=float32, 8=float64):"})
+```
+
+```{ojs}
+{
+  const states = gridSide * gridSide;
+  const memBytes = states * bytesPerCell;
+  const memMB = memBytes / (1024 * 1024);
+  const memGB = memMB / 1024;
+  return html`<div style="font-family: system-ui; padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+    <p><strong>States:</strong> ${states.toLocaleString()}</p>
+    <p><strong>Table memory:</strong> ${memBytes.toLocaleString()} bytes ≈ ${memMB.toFixed(2)} MB ≈ ${memGB.toFixed(4)} GB.</p>
+    <p>Now imagine continuous state spaces (any real-valued sensor) — <em>infinite</em> states. The table doesn't fit.</p>
+  </div>`;
+}
+```
+
+A 1000×1000 grid is already 8 MB — manageable, but think bigger:
+
+- A robot arm with 7 joint angles, each discretised into 100 bins: $10^{14}$
+  states. At 8 bytes each, that's **800 terabytes**.
+- Atari frames at 84×84 grayscale: $256^{7056}$ "states." Bigger than the
+  number of atoms in the universe.
+- Continuous joint torques: literally infinite states.
+
+We need a different representation. Enter **function approximation**.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. If we can't store one number per state, what *fewer* numbers might
+   summarise an entire state space?
+2. Many states are *similar* — neighbouring grid cells, similar sensor
+   readings. Can a learning system *generalise* from one state to its
+   neighbours, or must each state's value be learned in isolation?
+3. By replacing the table with $\hat v(s; w)$ — a function with parameters
+   $w$ — what do we gain? What do we lose?
+4. The TD update from Lesson 27 wrote $v(s) \leftarrow v(s) + \alpha \delta$.
+   How would you replace this with a "move $w$" update?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Six problems. By the end you'll see why function approximation is *necessary*
+for any RL problem you actually care about.
+
+### Problem 1 — table memory
+
+A continuous state space discretised to $N$ bins per dimension, with $d$
+dimensions. How many table entries?
+
+<details class="hint"><summary>Full solution</summary>
+$|\mathcal{S}| = N^d$. **Exponential in dimension** — the *curse of
+dimensionality*. For $N = 100, d = 10$: $10^{20}$ entries. Forget it.
+</details>
+
+### Problem 2 — generalisation across states
+
+In a tabular value function, what does updating $v(s_{17})$ tell you about
+$v(s_{18})$?
+
+<details class="hint"><summary>Full solution</summary>
+**Nothing.** Each state has its own table entry; updates are isolated. To
+learn $v(s_{18})$ you must visit $s_{18}$ separately and update it
+separately. **Tabular learners cannot generalise.**
+</details>
+
+### Problem 3 — the linear function approximator
+
+Define a *feature vector* $\phi(s) \in \mathbb{R}^d$ for each state — $d$
+numbers that summarise $s$ (e.g., position, velocity, distance-to-goal).
+Replace the table by
+$$\hat v(s; w) = \phi(s)^\top w = \sum_{i=1}^d \phi_i(s) w_i.$$
+Now the value function is determined by $w \in \mathbb{R}^d$. What is the
+memory cost?
+
+<details class="hint"><summary>Full solution</summary>
+$|w| = d$ floats. **Independent of $|\mathcal{S}|$.** A 5-dimensional
+linear approximator stores 5 numbers — total — for an arbitrarily large
+state space.
+</details>
+
+### Problem 4 — generalisation, again
+
+When you update $w$ to lower the error on state $s$, does $\hat v$ change at
+*other* states?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\hat v(s'; w) = \phi(s')^\top w$ — every state's value depends on the same
+$w$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Yes — automatically.** Every state $s'$ that shares features with $s$
+(non-zero $\phi(s) \cdot \phi(s')$) sees its $\hat v$ change too.
+**Generalisation is built in.** This is the great gift of function
+approximation: one update touches many states.
+</details>
+
+### Problem 5 — what you lose
+
+State-by-state updates were *exact*: you could store any value function
+exactly. With $d \ll |\mathcal{S}|$ parameters, you can no longer represent
+every possible $v$. What do we call the resulting error?
+
+<details class="hint"><summary>Full solution</summary>
+**Approximation error** (or *bias*). The function class
+$\{\phi(s)^\top w : w \in \mathbb{R}^d\}$ is a $d$-dimensional subspace of
+all possible $v: \mathcal{S} \to \mathbb{R}$. The true $v_\pi$ may not lie
+in this subspace; the best $\hat v$ in the subspace is the *projection* of
+$v_\pi$ onto the subspace, with error
+$\|v_\pi - \Pi v_\pi\|$ in some norm.
+**The trade is: less memory, more bias.** A larger $d$ (or a richer
+function class) shrinks the bias.
+</details>
+
+### Problem 6 — the new update target
+
+The tabular TD update was $v(s) \leftarrow v(s) + \alpha [r + \gamma v(s') - v(s)]$. The function-approximator analogue updates $w$, not $v$. Guess what
+the update should be (we'll derive it formally in Lesson 29).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You want to nudge $\hat v(s; w)$ toward the TD target. Use chain-rule.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$w \leftarrow w + \alpha \, [r + \gamma \hat v(s'; w) - \hat v(s; w)] \, \nabla_w \hat v(s; w).$$
+For linear FA, $\nabla_w \hat v(s; w) = \phi(s)$, so
+$$w \leftarrow w + \alpha \, [r + \gamma \phi(s')^\top w - \phi(s)^\top w] \, \phi(s).$$
+This is **gradient TD** (or *semi-gradient TD*, because the target also
+depends on $w$ — see Lesson 29 for the catch). All updates now live in
+parameter space.
+</details>
+
+::: {.key-insight}
+Function approximation buys you two things at once: **scalability** (memory
+$\sim d$ instead of $|\mathcal{S}|$) and **generalisation** (one update
+moves many states). The cost is **representational bias**: the true $v_\pi$
+may not be expressible by your function class. Linear FA is the simplest
+choice; deep neural networks are the richest.
+:::
+
+::: {.fun-fact}
+**Tesauro's TD-Gammon** (1992) was the first deep success of function
+approximation in RL. He represented $v$ with a **single-hidden-layer
+neural network** and trained it with TD(λ). Within a year of training it
+played at the level of the world's best human backgammon players. The 1995
+follow-up paper showed it had taught the human community new opening
+moves nobody had considered. **Function approximation made RL go from toy
+grids to world-champion play in three years.**
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Value function approximation.** Replace the table $v: \mathcal{S} \to \mathbb{R}$
+by a parameterised function
+$$\hat v(s; w), \qquad w \in \mathbb{R}^d, \quad d \ll |\mathcal{S}|.$$
+
+**Linear FA.** Define a feature vector $\phi(s) \in \mathbb{R}^d$ for each
+state. Then
+$$\hat v(s; w) = \phi(s)^\top w = \sum_{i=1}^d \phi_i(s) w_i.$$
+
+**Action-value FA.** Likewise, $\hat q(s, a; w) = \phi(s, a)^\top w$ for
+linear FA, or $\hat q(s, a; w) = \text{NN}(s, a; w)$ for neural FA.
+
+**Trade.** Memory: $|w| = d$ instead of $|\mathcal{S}|$. Generalisation:
+free across feature-similar states. Cost: representational bias when
+$v_\pi$ falls outside the function class.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Many states share features in common —*
+> *Update one, the others update too.*
+> *A vector of weights replaces a table —*
+> *Memory bounded, bias the price.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — a 5×5 grid with 4 features
+
+> A 5×5 grid. Goal at $(4, 4)$. We want to estimate $v_\pi(s)$ for some
+> policy $\pi$. Tabular: 25 entries. Now define 4 features per state:
+>
+> - $\phi_1(s) = 1$ (constant — the "intercept" feature)
+> - $\phi_2(s) = r/4$ (normalised row, so $\phi_2 \in [0, 1]$)
+> - $\phi_3(s) = c/4$ (normalised col)
+> - $\phi_4(s) = (|r - 4| + |c - 4|) / 8$ (normalised Manhattan distance to goal)
+>
+> So $w \in \mathbb{R}^4$. **Memory: 4 floats.**
+
+A competent solver thinks like this:
+
+1. **For state $s = (2, 1)$:** $\phi(s) = (1, 0.5, 0.25, (2 + 3)/8) = (1, 0.5, 0.25, 0.625)$.
+2. **Suppose $w = (-0.1, 0.2, 0.2, -0.5)$:**
+   $\hat v(s; w) = 1 \cdot (-0.1) + 0.5 \cdot 0.2 + 0.25 \cdot 0.2 + 0.625 \cdot (-0.5) = -0.1 + 0.1 + 0.05 - 0.3125 = -0.2625$.
+3. **For the goal $s = (4, 4)$:** $\phi(s) = (1, 1, 1, 0)$,
+   $\hat v(s; w) = -0.1 + 0.2 + 0.2 + 0 = 0.3$.
+4. **The "distance-to-goal" feature has weight $-0.5$** — capturing the
+   intuition that closer-to-goal states are higher value. After more
+   training, that weight magnitude grows.
+
+**Tabular vs FA on this grid:** 25 vs 4 numbers. For a 100×100 grid: 10,000
+vs 4 numbers. **Same 4 weights** scale to any size. That's the punchline.
+
+### Practice — Warm
+
+**W1.** Compute $\hat v(s)$ for $s = (0, 0)$ in the worked-example setup
+($w$ as above).
+
+<details class="hint"><summary>Full solution</summary>
+$\phi(0,0) = (1, 0, 0, (4+4)/8) = (1, 0, 0, 1)$.
+$\hat v = 1 \cdot (-0.1) + 0 + 0 + 1 \cdot (-0.5) = -0.6$. The corner
+furthest from the goal has the most negative value.
+</details>
+
+**W2.** A tabular table for a 7-joint robot, 50 bins per joint, costs how
+many floats?
+
+<details class="hint"><summary>Full solution</summary>
+$50^7 = 7.8 \times 10^{11}$ floats. At 4 bytes each: ~3 TB. *Per
+state-value*. Action values multiply by $|A|$. Tabular is dead for
+robotics.
+</details>
+
+**W3.** Why does the constant feature $\phi_1(s) = 1$ matter?
+
+<details class="hint"><summary>Full solution</summary>
+It lets $\hat v$ have a non-zero baseline (intercept). Without it,
+$\hat v(s)$ is forced through the origin in feature space — biased toward
+zero. **Always include a constant feature** (or the equivalent in your
+parameterisation).
+</details>
+
+### Practice — Working
+
+**P1.** Show that *tabular* learning is a special case of linear FA.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick $\phi(s)$ to be a *one-hot* vector: $\phi_i(s) = 1$ if $s$ is the
+$i$-th state, else 0.
+</details>
+<details class="hint"><summary>Full solution</summary>
+With $\phi(s) = e_s$ (one-hot indicator) and $w \in \mathbb{R}^{|\mathcal{S}|}$, $\hat v(s; w) = w_s$ — exactly the table entry. So the
+table is **linear FA with one-hot features**, and $d = |\mathcal{S}|$.
+**Linear FA strictly generalises tabular**, with the parameter count chosen
+to suit your memory budget.
+</details>
+
+**P2.** Compute the gradient $\nabla_w \hat v(s; w)$ for linear FA. Then
+for the *quadratic* approximator $\hat v(s; w) = \phi(s)^\top W \phi(s)$
+where $W$ is a $d \times d$ matrix.
+
+<details class="hint"><summary>Full solution</summary>
+Linear: $\nabla_w \hat v = \phi(s)$ (a $d$-vector).
+Quadratic: $\nabla_W \hat v = \phi(s) \phi(s)^\top$ (a $d \times d$ matrix).
+Computing the latter is $O(d^2)$ per state and gradient — not crippling for
+modest $d$, but already much costlier than linear's $O(d)$.
+</details>
+
+**P3.** Compare *generalisation* in three FA choices for a continuous 1D
+state $s \in [0, 1]$:
+(a) Tabular with 100 bins.
+(b) Linear FA with $\phi(s) = (1, s, s^2)$.
+(c) Linear FA with 10 *radial basis features* $\phi_i(s) = \exp(-(s - c_i)^2 / 0.01)$ for centres $c_i = 0.05, 0.15, \ldots, 0.95$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For each, ask: how much does updating $\hat v(s_0)$ for one $s_0$ shift
+$\hat v(s_1)$ for a far-away $s_1$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) **Tabular:** zero spillover unless $s_0$ and $s_1$ fall in the same
+bin. No generalisation.
+(b) **Polynomial linear FA:** every update moves *all* states' values
+(every $\phi_i(s)$ is non-zero everywhere). Strong, possibly excessive,
+generalisation — distant states are coupled.
+(c) **Radial basis:** each feature is non-zero only near its centre. An
+update at $s_0$ affects $\hat v$ near $s_0$ but barely at far-away $s_1$ —
+**local generalisation**, the practical sweet spot.
+
+The choice of features is the *engineering art* of classical RL. Deep nets
+*learn* good features automatically — that's what makes them attractive.
+</details>
+
+### Practice — Stretch
+
+**S1.** A function class with $d$ parameters can represent at most a
+$d$-dimensional subspace of $\mathbb{R}^{|\mathcal{S}|}$. The *projection
+distance* from $v_\pi$ to this subspace is the *approximation error
+floor* — no matter how well you optimise. State why convergence theorems
+for FA-TD only guarantee approaching this floor, not zero.
+
+<details class="hint"><summary>Full solution</summary>
+TD with linear FA on-policy converges to $\Pi v_\pi$ — the *projection* of
+$v_\pi$ onto the feature subspace, where $\Pi$ projects under the
+on-policy stationary distribution. So $\hat v$ approaches *the best linear
+approximation of $v_\pi$ in the feature space*, not $v_\pi$ itself. The
+non-zero floor $\|v_\pi - \Pi v_\pi\|$ is the *bias of the function class*
+— irreducible without enriching the features.
+</details>
+
+**S2.** Why are *neural networks* attractive even though they have *more*
+parameters than a small linear FA?
+
+<details class="hint"><summary>Full solution</summary>
+Two reasons. (i) Universal approximation: with enough hidden units, a
+neural net can represent *any* continuous function — so the
+approximation-error floor is 0 in principle. (ii) Learned features: the
+hidden layers find good features automatically, so you don't have to
+hand-craft $\phi$. The cost: optimisation is harder (non-convex loss),
+convergence theorems are weaker, and the *deadly triad* (Lesson 30) bites.
+The 2015 DQN paper (Mnih et al.) is the first really successful navigation
+of that trade.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Function approximation always introduces error."** It introduces a
+   *representation* error floor — bounded by the gap between $v_\pi$ and
+   the function class. With enough parameters / a rich-enough class, that
+   gap shrinks to (essentially) zero.
+2. **"Updating $w$ is the same as updating one $v(s)$ entry."** No — it
+   moves $\hat v$ at *every* state simultaneously. That is generalisation,
+   and it's why FA-TD can outperform tabular even on small problems.
+3. **"Linear FA can only represent linear functions of $s$."** It can
+   represent any function expressible as $\phi(s)^\top w$ — including
+   highly non-linear functions of $s$ if $\phi$ is non-linear (polynomial,
+   radial basis, etc.). "Linear in $w$, possibly non-linear in $s$."
+:::
+
+### Takeaways
+
+If you remember nothing else:
+
+1. **Tables don't scale.** Memory is $|\mathcal{S}|$, exponential in
+   dimension.
+2. **Function approximation:** $\hat v(s; w) = \phi(s)^\top w$ for linear FA;
+   neural net for non-linear. Memory $|w| = d$, often $d \ll |\mathcal{S}|$.
+3. **Generalisation is the gift, bias is the price.** One update changes
+   many states' values; the function class limits what $\hat v$ can be.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state the linear FA equation $\hat v(s; w) = \phi(s)^\top w$
+   and explain what each symbol does, without notes?
+2. Did you solve at least 5 of the 8 practice problems without peeking past
+   *Hint 1*?
+3. Can you explain why tabular RL won't get you to chess, Go, or robot
+   control?
+
+- **3 yes:** move on to **[Lesson 29 — TD with FA](../29-td-with-function-approximation/index.qmd)**.
+- **2 yes:** redo Working P3 — feature design is the practical art that
+  distinguishes good RL engineers.
+- **0–1 yes:** re-read *Discover* Problems 3 and 4. The "$d$ parameters,
+  generalisation across feature-similar states" idea is the load-bearing
+  insight.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.td-unified-view", "t5.partial-derivatives"]
+- **[MFRL — 27, TD Methods Unified](../27-td-unified-view/index.qmd)** —
+  the master TD update we'll soon promote to parameter space.
+- **[Tier 5, Lesson 5 — Partial Derivatives](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd)** — for the gradient $\nabla_w \hat v$
+  in Problem 6.
+- **[Tier 4, Lesson 14 — Dot and Cross Product](../../tier-4-precalc-calculus/14-dot-cross-product/index.qmd)** — for $\phi(s)^\top w$.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[MFRL — 29, TD with FA](../29-td-with-function-approximation/index.qmd)** — the formal derivation of the gradient-TD update.
+- **[MFRL — 30, Q-Learning with FA](../30-q-learning-with-fa/index.qmd)** —
+  the deadly triad and Baird's counterexample.
+- **[MFRL — 31, DQN](../31-deep-q-network/index.qmd)** — neural-net function
+  approximation in practice.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every modern RL agent uses function approximation. Deep
+networks are the dominant choice (DQN, A3C, PPO, SAC, IMPALA, MuZero), but
+linear FA still appears in finance, control engineering, and constrained
+embedded systems where interpretability or guarantee of convergence
+matters.
+See [gradient descent](/glossary.qmd#gradient-descent).
+:::
+
+::: {.applied-callout}
+**Systems.** Storing $|\mathcal{S}|$ values in a table — and *visiting*
+them all — is what kills tabular RL on real systems. Once $|\mathcal{S}|$
+exceeds the system's RAM, the choice of function approximator becomes
+*the* central design question for the engineer.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning that this track
+expands into 38 lessons.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §28. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- **Source:** Shiyu Zhao, *Mathematical Foundations of Reinforcement
+  Learning* (Springer 2025), Chapter 8 §8.1. Cited freely; never transcribed.
+  This lesson is the *transition* lesson — Chapter 8's deeper material is
+  expanded in lessons 29-31, authored by the next agent.
+- **Touchstones honoured:** Russian school problem-first sequencing,
+  Better Explained "memory vs generalisation" framing, Bhāskara verse
+  for the trade.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (widget, formula, English, table-vs-FA comparison) ✓, graduated hints ✓,
+  worked solutions ✓, common-confusions ✓, self-assessment ✓.
 :::

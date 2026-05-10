@@ -7,87 +7,409 @@ prerequisites: ["mfrl.state-transitions"]
 unlocks: []
 applied-domains: ["ai-ml", "game-dev"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.state-transitions"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. From [Lesson 2](../02-state-transitions/index.qmd), can you write
+   $P(s' \mid s, a)$ as a row of a probability table?
+2. Are you comfortable with **summing a probability distribution over its
+   outcomes** to get $1$?
+3. Could you draw an arrow from each cell of a 3×3 grid telling the agent
+   which way to go?
+
+If a "no" appears, glance back at lesson 2 before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+You have a 3×3 grid in front of you. The world is fixed (you have a
+transition kernel $P$). Now imagine writing instructions for a robot that
+will live in this world.
+
+**Strategy A — straight arrows.** On each cell, draw a single arrow. "If
+you find yourself in $(0, 0)$, go *right*. If $(0, 1)$, go *right*. If
+$(0, 2)$, go *down* …". One arrow per cell. Clean and predictable.
+
+**Strategy B — pie charts.** On each cell, draw a small pie chart showing
+the probability of picking each direction. "$(1, 1)$: 60% right, 20% down,
+10% up, 10% left." On any visit to $(1, 1)$ the robot rolls a 4-sided
+weighted die and acts accordingly.
+
+```{ojs}
+viewof piePolicyCell = Inputs.radio(["A — arrows", "B — pies"], {value: "A — arrows", label: "Policy style"})
+```
+
+```{ojs}
+{
+  const isPie = piePolicyCell.startsWith("B");
+  return html`<div style="font-family: sans-serif; padding: 0.5rem 0;">
+    <strong>${isPie ? "Stochastic policy" : "Deterministic policy"}</strong>:
+    ${isPie
+      ? "each cell carries a probability over actions; the agent rolls weighted dice."
+      : "each cell carries one chosen action; the agent has no choice to make at runtime."}
+  </div>`;
+}
+```
+
+Caption: switch between deterministic (Strategy A) and stochastic (Strategy
+B) policy styles.
+
+Both A and B are *policies*. The first is a special case of the second.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. Is "always go right" a valid policy on a 3×3 grid? What if "right" is
+   sometimes blocked by a wall — does the policy break?
+2. Why might a *random* policy ever be better than a *fixed* one?
+3. Once you fix a policy, the world has no more "decisions" left in it.
+   What does each turn become?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — A function from states to actions
+
+Write down a deterministic policy on the corridor $S = \{1, 2, 3\}$ with
+$A = \{L, R\}$ that pushes the agent toward cell 3. Write it as a
+*function* $\pi : S \to A$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A function gives one output per input. List the three outputs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi(1) = R, \pi(2) = R, \pi(3) = R$ (or $\pi(3) = L$ — either works since
+3 is the goal). The whole policy is three arrows.
+</details>
+
+### Problem 2 — Allow randomness
+
+Now write a stochastic policy: $\pi(a \mid s)$, the probability of picking
+action $a$ in state $s$. Pick a non-trivial example for the corridor and
+verify $\sum_a \pi(a \mid s) = 1$ for each $s$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each state needs a small probability distribution over actions.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Example: $\pi(R \mid 1) = 0.9$, $\pi(L \mid 1) = 0.1$;
+$\pi(R \mid 2) = 0.7$, $\pi(L \mid 2) = 0.3$;
+$\pi(R \mid 3) = 0.5$, $\pi(L \mid 3) = 0.5$.
+Each row sums to $1$.
+
+A *deterministic* policy is the special case where each row puts mass $1$
+on a single action.
+</details>
+
+### Problem 3 — Plug a policy into the world
+
+The world has $P(s' \mid s, a)$. The agent has $\pi(a \mid s)$. What is the
+probability that, starting at $s$, you end at $s'$ in *one step*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You don't know which $a$ will be chosen — sum over actions.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$P^\pi(s' \mid s) = \sum_a \pi(a \mid s) \cdot P(s' \mid s, a)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$P^\pi(s' \mid s) = \sum_{a \in A} \pi(a \mid s) \cdot P(s' \mid s, a).$$
+The action drops out by averaging — only the *(state, next-state)* pair
+remains. We have collapsed the MDP into a Markov chain.
+</details>
+
+### Problem 4 — A policy plus an MDP equals a Markov chain
+
+Notice the formula in Problem 3 has no $a$ on the left and no $a$ inside
+$P^\pi$. What kind of object is $P^\pi$? Why does that make every
+question about long-run behaviour easier?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P^\pi(s' \mid s)$ depends only on $(s, s')$. That is the shape of...?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P^\pi(s' \mid s)$ is the transition kernel of a *plain Markov chain* on
+$S$. The decision-making has been integrated out. From now on, "what
+happens under $\pi$" is a question about a Markov chain — for which we have
+a century of theorems (stationary distributions, mixing times, hitting
+probabilities, Perron–Frobenius). The collapse is what makes value
+functions tractable.
+</details>
+
+::: {.key-insight}
+**Policy + MDP = Markov chain.** A policy is the missing ingredient that
+turns "an environment with a decision at every step" into "a stochastic
+process that just runs." Everything else in this track — value functions,
+Bellman equations, convergence theorems — operates on this collapsed
+chain. Pick a policy, and the world flows on its own.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+A **policy** is a conditional distribution
+$$\pi(a \mid s) \ge 0, \quad \sum_{a \in A} \pi(a \mid s) = 1, \quad \forall s \in S.$$
+
+A *deterministic* policy puts probability $1$ on a single action at each
+state. The **policy-induced transition kernel** is
+$$P^\pi(s' \mid s) = \sum_a \pi(a \mid s)\,P(s' \mid s, a),$$
+turning the MDP into a Markov chain on $S$ alone.
+
+:::
+
+A verse to remember it by:
+
+> *State to action, with weights that sum to one;*
+> *roll the die, the world flows on.*
+> *Policy in the kernel, kernel in the chain —*
+> *what was a choice becomes a lane.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — induced chain on a corridor
+
+Take the corridor $S = \{1, 2, 3\}$ with actions $A = \{L, R\}$ and slip:
+
+| Action | Effect (deterministic on the corridor's edges) |
+|--------|----------|
+| $R$ at $s$ | $P(\min(s+1, 3) \mid s, R) = 0.8$, $P(s \mid s, R) = 0.2$ |
+| $L$ at $s$ | $P(\max(s-1, 1) \mid s, L) = 0.8$, $P(s \mid s, L) = 0.2$ |
+
+Take the stochastic policy $\pi(R \mid s) = 0.9$, $\pi(L \mid s) = 0.1$ for
+every $s$.
+
+**Step 1 — compute $P^\pi(s' \mid s = 2)$.** From state 2:
+
+- Under $a = R$: $P(3 \mid 2, R) = 0.8$, $P(2 \mid 2, R) = 0.2$.
+- Under $a = L$: $P(1 \mid 2, L) = 0.8$, $P(2 \mid 2, L) = 0.2$.
+
+Average over $\pi$:
+
+$$P^\pi(3 \mid 2) = 0.9 \cdot 0.8 + 0.1 \cdot 0 = 0.72,$$
+$$P^\pi(1 \mid 2) = 0.9 \cdot 0 + 0.1 \cdot 0.8 = 0.08,$$
+$$P^\pi(2 \mid 2) = 0.9 \cdot 0.2 + 0.1 \cdot 0.2 = 0.20.$$
+
+**Step 2 — verify the row sums to 1.** $0.72 + 0.08 + 0.20 = 1.00$. Good.
+
+**Step 3 — read the result.** Under this policy, from cell 2 you head
+right with probability $0.72$, sit still with $0.20$, and drift left with
+$0.08$. The MDP has been replaced by a 3-state Markov chain.
+
+### Practice — Warm
+
+**W1.** On the corridor, write the *uniformly random* policy
+$\pi(a \mid s)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi(R \mid s) = \pi(L \mid s) = 0.5$ for every $s$. Each row sums to 1.
+</details>
+
+**W2.** Write the deterministic "go right always" policy as a stochastic
+$\pi(a \mid s)$ table. Confirm rows sum to 1.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi(R \mid s) = 1, \pi(L \mid s) = 0$ for every $s$. Each row $1 + 0 = 1$.
+</details>
+
+**W3.** From the worked example, what is $P^\pi(2 \mid 1)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply the same averaging formula at $s = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At $s = 1$: under $R$, $P(2 \mid 1, R) = 0.8$, $P(1 \mid 1, R) = 0.2$.
+Under $L$, $P(1 \mid 1, L) = 1$ (you can't go below 1).
+$P^\pi(2 \mid 1) = 0.9 \cdot 0.8 + 0.1 \cdot 0 = 0.72$.
+</details>
+
+### Practice — Working
+
+**P1.** A 2-state MDP $\{X, Y\}$ with two actions $\{a, b\}$. Kernel:
+$P(X \mid X, a) = 1$, $P(Y \mid X, b) = 1$, $P(Y \mid Y, a) = 1$,
+$P(X \mid Y, b) = 1$. Take the policy $\pi(a \mid s) = 0.5$, $\pi(b \mid s) = 0.5$
+for every $s$. Compute the full $P^\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two rows, two columns. Average each (state, next-state) entry over $\pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P^\pi(X \mid X) = 0.5 \cdot 1 + 0.5 \cdot 0 = 0.5$,
+$P^\pi(Y \mid X) = 0.5 \cdot 0 + 0.5 \cdot 1 = 0.5$.
+$P^\pi(Y \mid Y) = 0.5 \cdot 1 + 0.5 \cdot 0 = 0.5$,
+$P^\pi(X \mid Y) = 0.5 \cdot 0 + 0.5 \cdot 1 = 0.5$.
+The induced chain is the symmetric 2-state coin-flip chain.
+</details>
+
+**P2.** Same MDP, but a *deterministic* policy $\pi(X) = a, \pi(Y) = b$.
+What does $P^\pi$ look like? Describe the induced dynamics in words.
+
+<details class="hint"><summary>Full solution</summary>
+$P^\pi(X \mid X) = 1$, $P^\pi(X \mid Y) = 1$, others 0.
+
+In words: from $X$ you stay at $X$ forever; from $Y$ you jump to $X$ on
+the next step and stay. The chain absorbs at $X$. A choice of policy can
+turn a chain that "bounces around" (P1) into one that "settles down"
+(this).
+</details>
+
+**P3.** *Why randomness sometimes helps.* Consider the MDP from P1 with a
+reward $R(X, b, Y) = 1$ and zero otherwise. Compare the long-run reward
+rate under (i) the always-$a$ policy and (ii) the always-$b$ policy.
+Which is better, and why might a *mixed* policy ever beat both?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Always-$a$ from $X$ keeps you at $X$ forever — but $a$ from $X$ pays nothing.
+Always-$b$ from $X$ moves you to $Y$, then $b$ from $Y$ moves you back to $X$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- Always-$a$ from $X$: stays at $X$, reward 0 forever. Reward-per-step = 0.
+- Always-$b$ from $X$: $X \to Y \to X \to Y \ldots$, reward sequence
+  $1, 0, 1, 0, \ldots$. Reward-per-step = $0.5$.
+
+Mixed policies cannot beat $0.5$ here (every visit to $X$ pays in
+expectation $\pi(b)$, which maxes at $1$ when $\pi(b) = 1$). But in
+*partially observable* problems randomness genuinely helps: it prevents
+adversaries (or symmetries) from exploiting your determinism. We will
+return to this in lesson 19 ($\epsilon$-greedy exploration).
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that for any deterministic policy $\pi$ on a finite MDP, the
+induced Markov chain has the same number of states $|S|$ but possibly fewer
+*reachable* states from a given start. Give a small example.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A policy can refuse to take certain actions, leaving certain states
+unreachable.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Example: a 2-state MDP $\{X, Y\}$ with $\pi(X) = a$ and $P(X \mid X, a) = 1$.
+Starting from $X$, the agent never visits $Y$. The chain *as a graph*
+still has $|S| = 2$ states, but the *reachable* set is $\{X\}$. This is
+why "exploration" is a separate concern from "policy" — a policy can blind
+itself to part of the world.
+</details>
+
+**S2.** A policy $\pi$ depends only on $s$ — not on the time step $t$.
+Such policies are called **stationary**. Argue why, for the infinite-horizon
+discounted-return objective on a finite MDP, restricting attention to
+stationary deterministic policies *loses no expressive power* for the
+optimal value (we will return to this in lesson 9).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Imagine the agent at $s$ at time $t$ vs at $s$ at time $t'$. What
+differs?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Under the discount $\gamma$ and the Markov property, the *future* from
+state $s$ at time $t$ is statistically identical (up to a global factor of
+$\gamma^t$) to the future from $s$ at any other time. So the optimal
+*action at $s$* is the same at every time — i.e. the optimal policy can
+be stationary. And by the Bellman optimality theorem (lesson 9), the
+optimal stationary policy can also be chosen *deterministic*. We get
+"stationary deterministic" for free.
+</details>
+
+::: {.fun-fact}
+The word *policy* entered RL via operations research in the 1950s, not
+computer science. Bellman, Howard, and Shapley were all using it before
+Sutton and Barto's first edition. Howard's 1960 book *Dynamic Programming
+and Markov Processes* used "policy" in nearly the modern sense — and
+introduced *policy iteration*, which we will meet in lesson 14.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"A policy is the agent's brain."** Closer to: a policy is the agent's
+   *output*. The brain (a neural net, a Q-table, a tree-search procedure)
+   *computes* the policy from the current state. The policy itself is
+   just a function from states to action distributions.
+2. **"Stochastic policies are sloppy versions of deterministic ones."**
+   Sometimes — but in partially observable problems, two-player games, and
+   exploration, the optimal policy is *genuinely* stochastic. Randomness
+   is a strategic tool, not a bug.
+3. **"Policy and transition kernel are the same kind of thing."** They look
+   similar (both are conditional distributions) but live in different
+   places. The kernel $P(s' \mid s, a)$ is the *world*; the policy
+   $\pi(a \mid s)$ is the *agent*.
+:::
+
+### Takeaways
+
+1. A [policy](/glossary.qmd#policy-rl) is a conditional distribution
+   $\pi(a \mid s)$ over actions given the current state. Deterministic
+   policies are the corner case where one action gets all the mass.
+2. Combining a policy with the MDP's kernel gives the **policy-induced
+   transition kernel** $P^\pi(s' \mid s)$ — a plain Markov chain.
+3. The collapse to a Markov chain is the magic that makes everything
+   tractable: a century of Markov-chain theory now applies to your agent.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you, without notes, write down both the "policy as function"
+   form and the "policy as conditional distribution" form, and explain
+   when each is the right view?
+2. Did you finish W1–S1 without peeking past *Hint 1*?
+3. Can you describe in one sentence why "policy + MDP = Markov chain"
+   simplifies the rest of RL?
+
+- **3 yes:** continue to lesson 4 (returns and the discount).
+- **2 yes:** redo P3 — the "when is randomness helpful?" question is the
+  one that recurs in every later chapter.
+- **0–1 yes:** re-read *Discover* — Problems 3 and 4 contain the lesson.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.state-transitions"]
+- **`mfrl.state-transitions`** — for the kernel $P(s' \mid s, a)$ that the
+  policy is averaged against.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 4 — Trajectories, Returns, and the Discount.** Once a policy
+  is fixed, you can sample trajectories and measure how much reward they
+  accumulate.
+- **Lesson 9 — Optimal Policies.** We will *compare* policies by the
+  values they induce.
+- **Lessons 19, 32–38** — exploration policies ($\epsilon$-greedy) and
+  parameterised policies (REINFORCE, actor-critic) are all instances of
+  the conditional-distribution view introduced here.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** A trained RL agent is, mathematically, just a policy. AlphaGo
+is a policy. ChatGPT's RLHF-finetuned response distribution is a policy.
+The neural network is the implementation; the policy is the interface.
+:::
+
+::: {.applied-callout}
+**Game development.** Difficulty levels in a video game are often
+*different policies for the same NPC*: easy = uniform-random, hard =
+near-deterministic best-response. Same MDP, different $\pi$.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view; "the agent is a policy" is one of those
+paragraphs.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §03. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 1 §5. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Russian school (Discover *is* the construction of
+  $P^\pi$), Better Explained ("policy + MDP = Markov chain" is the Aha!
+  framing).
 :::

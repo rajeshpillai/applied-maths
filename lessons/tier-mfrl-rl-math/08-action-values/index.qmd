@@ -7,87 +7,410 @@ prerequisites: ["mfrl.bellman-matrix-form"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.bellman-matrix-form"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. From [Lesson 6](../06-bellman-equation/index.qmd), can you write
+   $v_\pi(s) = \mathbb{E}_\pi[r + \gamma v_\pi(s') \mid s]$?
+2. From [Lesson 7](../07-bellman-matrix-form/index.qmd), do you know
+   how to solve $(I - \gamma P^\pi) \mathbf{v} = \mathbf{r}^\pi$?
+3. Could you average a function over actions weighted by $\pi(a \mid s)$?
+
+If any "no," briefly revisit lessons 6–7.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Stand at one cell of the grid world. So far we have written *one* number on
+each cell — the state value $v_\pi(s)$.
+
+Now imagine writing *several* numbers on each cell: one per *action*. Above
+the cell, write the value of "go up." Below it, "go down." On the left,
+"go left." On the right, "go right."
+
+Each of those numbers is the answer to a slightly more specific question:
+"If I commit to taking *this action* in this cell, then follow $\pi$
+forever after, how much reward do I expect to collect?"
+
+```{ojs}
+viewof gammaQ = Inputs.range([0, 0.99], {value: 0.9, step: 0.01, label: "Discount γ"})
+```
+
+```{ojs}
+{
+  // Two-state, two-action world. Action a from X gives reward 1 then absorbs at Y.
+  // Action b from X gives reward 0 then stays at X (cycle). Y absorbing, all rewards 0 thereafter.
+  // Policy: π(a|X)=p
+  const p = 0.5;
+  const vY = 0;
+  const vX = (p * 1 + 0) / (1 - (1 - p) * gammaQ);
+  const qXa = 1 + gammaQ * vY;
+  const qXb = 0 + gammaQ * vX;
+  return html`<pre style="font-size: 0.95rem;">
+At state X under π(a|X)=0.5, π(b|X)=0.5, γ=${gammaQ.toFixed(2)}:
+  v(X) = ${vX.toFixed(3)}
+  q(X, a) = 1 + γ·v(Y) = ${qXa.toFixed(3)}
+  q(X, b) = 0 + γ·v(X) = ${qXb.toFixed(3)}
+
+Notice: v(X) = 0.5·q(X,a) + 0.5·q(X,b) = ${(0.5*qXa + 0.5*qXb).toFixed(3)}
+</pre>`;
+}
+```
+
+Caption: a 2-state world. We have computed two action values at $X$ and the
+state value $v(X)$. The state value is exactly the policy-weighted average
+of the action values. Drag $\gamma$ — they all move together.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. With only $v$, can you tell whether *taking action $a$* from $s$ is
+   better than the policy default? With $q(s, a)$, can you?
+2. Why might you prefer to learn $q$ rather than $v$ when you don't know
+   the transition kernel $P$?
+3. There are $|S|$ values of $v$ and $|S| \cdot |A|$ values of $q$. The
+   bigger object holds more information. What does $v$ throw away that $q$
+   keeps?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — Define the action value
+
+For a fixed policy $\pi$, define
+$$q_\pi(s, a) = \mathbb{E}_\pi\!\left[G_t \mid s_t = s, a_t = a\right].$$
+In words: "expected discounted return starting from $s$, taking $a$ now,
+and following $\pi$ from then on." Compare with the definition of $v_\pi(s)$
+from lesson 5.
+
+<details class="hint"><summary>Full solution</summary>
+$v_\pi(s)$ averages over the policy's action choice at the current step.
+$q_\pi(s, a)$ *fixes* the current action, then averages over the policy
+thereafter.
+
+So $q_\pi$ is one step "more committed" than $v_\pi$.
+</details>
+
+### Problem 2 — Relate $q$ to $v$
+
+Show that
+$$v_\pi(s) = \sum_{a} \pi(a \mid s) q_\pi(s, a).$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Average the $q$ values over the policy's distribution at $s$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v_\pi(s) = \mathbb{E}_\pi[G_t \mid s_t = s]$
+$= \sum_a \pi(a \mid s) \mathbb{E}_\pi[G_t \mid s_t = s, a_t = a]$
+$= \sum_a \pi(a \mid s) q_\pi(s, a)$.
+
+The first step is conditioning on $a_t$ and averaging over the policy.
+
+So **state value = policy-weighted average of action values**. The widget
+in Touch verifies this numerically.
+</details>
+
+### Problem 3 — The Bellman equation in $q$
+
+Derive
+$$q_\pi(s, a) = \sum_{s'} P(s' \mid s, a) \big[ R(s, a, s') + \gamma v_\pi(s') \big].$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Decompose $G_t = r_{t+1} + \gamma G_{t+1}$ inside the conditional
+expectation $\mathbb{E}_\pi[\cdot \mid s_t = s, a_t = a]$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$q_\pi(s, a) = \mathbb{E}_\pi[r_{t+1} + \gamma G_{t+1} \mid s_t = s, a_t = a]$
+$= \mathbb{E}_\pi[r_{t+1} \mid s_t = s, a_t = a] + \gamma \mathbb{E}_\pi[G_{t+1} \mid s_t = s, a_t = a]$
+$= \sum_{s'} P(s' \mid s, a) R(s, a, s') + \gamma \sum_{s'} P(s' \mid s, a) v_\pi(s')$
+$= \sum_{s'} P(s' \mid s, a) [R(s, a, s') + \gamma v_\pi(s')]$.
+
+Notice we used $\mathbb{E}_\pi[G_{t+1} \mid s_{t+1} = s'] = v_\pi(s')$
+(the Markov property eats the conditioning on $s_t, a_t$).
+</details>
+
+### Problem 4 — Pure-$q$ Bellman equation
+
+Substitute the relation from Problem 2 into the equation from Problem 3 to
+get a Bellman equation in $q$ alone.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Replace $v_\pi(s')$ with $\sum_{a'} \pi(a' \mid s') q_\pi(s', a')$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$q_\pi(s, a) = \sum_{s'} P(s' \mid s, a) \!\left[ R(s, a, s') + \gamma \sum_{a'} \pi(a' \mid s') q_\pi(s', a') \right].$$
+
+A linear system in $|S| \cdot |A|$ unknowns. Same shape as the $v$
+Bellman equation, larger size.
+</details>
+
+### Problem 5 — Why $q$ is friendlier
+
+Suppose you know $q$ and you want to *act greedily* (pick the action with
+the largest expected return). Without using $P$, compute the greedy
+action.
+
+<details class="hint"><summary>Full solution</summary>
+$a_{\text{greedy}}(s) = \arg\max_a q_\pi(s, a)$. **No $P$ needed.**
+
+Try the same with $v$ alone: you would need to compute, for each candidate
+$a$, $\sum_{s'} P(s' \mid s, a) [R + \gamma v(s')]$ — and that requires
+$P$ and $R$. With $q$, the model is already baked in; you just look at
+$|A|$ numbers and pick the max. This is what makes **model-free RL**
+possible.
+</details>
+
+::: {.key-insight}
+The action value $q_\pi(s, a)$ contains everything you need to **act
+greedily without knowing the model**. Pick the action with the largest
+$q$ — that's your move. The state value $v_\pi(s)$ does *not* support
+this: extracting the greedy action from $v$ alone requires one-step
+look-ahead through $P$. That single difference is why every model-free
+RL algorithm — Q-learning, SARSA, DQN — learns $q$, not $v$.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+The **[action value](/glossary.qmd#action-value)** of $(s, a)$ under
+policy $\pi$ is
+$$q_\pi(s, a) = \mathbb{E}_\pi\!\left[G_t \mid s_t = s, a_t = a\right].$$
+It satisfies the consistency $v_\pi(s) = \sum_a \pi(a \mid s) q_\pi(s, a)$
+and the Bellman equation
+$$q_\pi(s, a) = \sum_{s'} P(s' \mid s, a) \!\left[ R(s, a, s') + \gamma \sum_{a'} \pi(a' \mid s') q_\pi(s', a') \right].$$
+
+:::
+
+A verse to remember it by:
+
+> *Commit to one action, then follow $\pi$;*
+> *the value of that bet is $q$.*
+> *State value averages, action value asks —*
+> *which move pays you most through?*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — compute $q$ from a known $v$
+
+Use the 2-state MDP $\{X, Y\}$ from lesson 6: deterministic cycle
+$X \to Y \to X$, single action $a$, $R(X, a, Y) = 0$, $R(Y, a, X) = 1$,
+$\gamma = 0.9$. We computed $v(X) \approx 4.737$, $v(Y) \approx 5.263$.
+
+**Step 1 — write the formula.**
+$q_\pi(s, a) = \sum_{s'} P(s' \mid s, a) [R(s, a, s') + \gamma v_\pi(s')]$.
+
+**Step 2 — compute $q(X, a)$.** From $X$, $P(Y \mid X, a) = 1$:
+$q(X, a) = 1 \cdot [0 + 0.9 \cdot 5.263] = 4.737$.
+
+**Step 3 — compute $q(Y, a)$.** From $Y$, $P(X \mid Y, a) = 1$:
+$q(Y, a) = 1 \cdot [1 + 0.9 \cdot 4.737] = 1 + 4.263 = 5.263$.
+
+**Step 4 — sanity check.** Single action means $\pi(a \mid s) = 1$, so
+$v_\pi(s) = q_\pi(s, a)$. Match: $v(X) = q(X, a) \approx 4.737$,
+$v(Y) = q(Y, a) \approx 5.263$.
+
+### Practice — Warm
+
+**W1.** A 1-state, 2-action MDP. $R(X, a, X) = 1$, $R(X, b, X) = 0$.
+Both actions self-loop. $\pi(a \mid X) = \pi(b \mid X) = 0.5$. Compute
+$q(X, a)$ and $q(X, b)$ for $\gamma = 0.9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First compute $v(X)$, then plug in.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v(X) = 0.5 \cdot 1 + 0.5 \cdot 0 + 0.9 \cdot v(X) \Rightarrow v(X) = 0.5/0.1 = 5$.
+$q(X, a) = 1 + 0.9 \cdot 5 = 5.5$.
+$q(X, b) = 0 + 0.9 \cdot 5 = 4.5$.
+Check: $0.5 \cdot 5.5 + 0.5 \cdot 4.5 = 5 = v(X)$. Match.
+</details>
+
+**W2.** Identify the *greedy* action from W1's $q$ values.
+
+<details class="hint"><summary>Full solution</summary>
+$a$ has $q(X, a) = 5.5 > q(X, b) = 4.5$. Greedy action: $a$. Switching
+the policy to "always $a$" would *increase* $v(X)$ from 5 to $1/(1-0.9) = 10$ —
+this is the seed of policy improvement (lesson 14).
+</details>
+
+**W3.** A terminal state $s_T$ has $q(s_T, a) = ?$ for any action.
+
+<details class="hint"><summary>Full solution</summary>
+$0$. The agent collects no further reward, so the expected return from a
+terminal state for any action is 0.
+</details>
+
+### Practice — Working
+
+**P1.** Use the 3-state cycle from lesson 5 P2. Single action.
+$v(1) \approx 2.989, v(2) \approx 3.321, v(3) \approx 3.690$. Compute
+$q(1, a), q(2, a), q(3, a)$.
+
+<details class="hint"><summary>Full solution</summary>
+Single action means $q(s, a) = v(s)$ exactly. Same numbers.
+</details>
+
+**P2.** *Two actions split the difference.* In a 1-state MDP $\{X\}$ with
+two actions, $R(X, a, X) = 2$, $R(X, b, X) = 0$, $\gamma = 0.9$. Compute
+$q(X, a)$ and $q(X, b)$ for the policy $\pi(a) = 0.7, \pi(b) = 0.3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $v(X)$ first via Bellman.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v(X) = 0.7 \cdot 2 + 0.3 \cdot 0 + 0.9 \cdot v(X) = 1.4 + 0.9 v(X) \Rightarrow v(X) = 14$.
+$q(X, a) = 2 + 0.9 \cdot 14 = 14.6$.
+$q(X, b) = 0 + 0.9 \cdot 14 = 12.6$.
+Check: $0.7 \cdot 14.6 + 0.3 \cdot 12.6 = 10.22 + 3.78 = 14$. Match.
+</details>
+
+**P3.** *Greedy improvement matters.* For P2, the greedy action is $a$
+(higher $q$). The improved policy "always $a$" gives a new $v(X) = ?$.
+Compare with the old $v(X) = 14$.
+
+<details class="hint"><summary>Full solution</summary>
+Always-$a$: $v(X) = 2 + 0.9 v(X) \Rightarrow v(X) = 20$.
+
+Switching to greedy raised the value from 14 to 20 — a 43% improvement.
+This is **policy improvement**, the engine of policy iteration (lesson
+14). The mathematical gospel: *greedy with respect to $q_\pi$ is at
+least as good as $\pi$, strictly better unless already optimal.*
+</details>
+
+### Practice — Stretch
+
+**S1.** *Action-value Bellman in matrix form.* Stack $q_\pi(s, a)$ into a
+vector of length $|S| \cdot |A|$. Show how the $q$-Bellman equation
+becomes a matrix equation $\mathbf{q} = \mathbf{r}^{SA} + \gamma P^{SA, \pi} \mathbf{q}$
+for appropriate matrix $P^{SA, \pi}$. (You don't need to write $P^{SA, \pi}$
+explicitly — describe its block structure.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Index by $(s, a)$. The "next-action's-$q$" requires summing over $s'$ and
+$a'$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The $((s, a), (s', a'))$ entry of $P^{SA, \pi}$ is
+$P(s' \mid s, a) \cdot \pi(a' \mid s')$ — the probability of landing in
+$s'$ then committing to action $a'$ under $\pi$. The system has
+$|S| \cdot |A|$ unknowns and the same closed form
+$\mathbf{q} = (I - \gamma P^{SA, \pi})^{-1} \mathbf{r}^{SA}$. Bigger
+matrix, same shape.
+</details>
+
+**S2.** *Why model-free needs $q$.* Argue that an agent with no access to
+$P$ or $R$ but a stream of $(s, a, r, s')$ samples can compute the greedy
+action *only* if it learns $q$, not $v$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+To extract greedy from $v$, you need to evaluate $\sum_{s'} P(s' \mid s, a)[R + \gamma v(s')]$
+for each $a$ — and you don't have $P$ or $R$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Greedy from $v$ requires evaluating $\arg\max_a \mathbb{E}[r + \gamma v(s') \mid s, a]$,
+which needs the model $(P, R)$. Without the model you cannot "look one
+step ahead."
+
+Greedy from $q$ requires only $\arg\max_a q(s, a)$ — values you have
+*already learned* directly from samples (Q-learning learns $q$). The
+model is implicit.
+
+This is the conceptual reason every model-free RL algorithm targets $q$.
+SARSA, Q-learning, DQN, and on through the deep-RL zoo: all $q$-learners.
+</details>
+
+::: {.fun-fact}
+Christopher Watkins introduced **Q-learning** in his 1989 PhD thesis at
+Cambridge under Richard Young. The "Q" stood for *quality* — the quality
+of taking action $a$ in state $s$. Watkins's stroke of genius was
+realising that a model-free agent could converge to $q^*$ without ever
+learning $P$ or $R$ — *if* it learned $q$ rather than $v$. The argument in
+S2 is the modern restatement of his thesis-defining insight.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$q(s, a)$ is the reward for taking $a$ in $s$."** No — it is the
+   *expected discounted return* starting from $(s, a)$, which includes
+   all future rewards as well as the immediate one.
+2. **"Knowing $q$ makes $v$ unnecessary."** Not always: $v$ is smaller
+   ($|S|$ vs $|S| \cdot |A|$ numbers), faster to estimate, and sometimes
+   the policy structure (deterministic, structured) lets you reconstruct
+   the greedy action from $v$. Both objects have their place.
+3. **"$q_\pi$ tells you the optimal $v$."** It tells you $v_\pi$ — the
+   value of the *current* policy. Optimal $q$ values come from the
+   Bellman optimality equation in lesson 10.
+:::
+
+### Takeaways
+
+1. The [action value](/glossary.qmd#action-value)
+   $q_\pi(s, a) = \mathbb{E}[G_t \mid s_t = s, a_t = a]$ is the expected
+   return from committing to $a$ in $s$ and following $\pi$ thereafter.
+2. State and action values are linked: $v_\pi(s) = \sum_a \pi(a \mid s) q_\pi(s, a)$.
+3. **$q$ enables model-free greedy improvement.** Without $P$, you cannot
+   extract the greedy action from $v$ alone. With $q$, $\arg\max_a q(s, a)$
+   is all you need.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you, on a blank sheet, derive $v_\pi(s) = \sum_a \pi(a \mid s) q_\pi(s, a)$
+   and the $q$-Bellman equation?
+2. Did you finish W1–S1 without peeking past *Hint 1*?
+3. Can you state in one sentence *why* model-free RL needs $q$ rather
+   than $v$?
+
+- **3 yes:** continue to lesson 9 (optimal policies and values).
+- **2 yes:** redo P3 — the greedy-improvement step is the bridge to
+  lesson 14.
+- **0–1 yes:** re-read *Discover*. Problem 5 is the load-bearing
+  intuition.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.bellman-matrix-form"]
+- **`mfrl.bellman-matrix-form`** — for the matrix-vector view that
+  generalises to $q$.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 9 — Optimal Policies.** The greedy step uses $q$ values to
+  rank actions.
+- **Lesson 10 — BOE.** Replace $\sum_a \pi(a \mid s)$ with $\max_a$ —
+  optimality replaces averaging.
+- **Lessons 24–26 — SARSA, Q-learning.** Learn $q$ from samples
+  directly, no model.
+- **Lessons 31, 33–38 — Deep Q-learning, actor-critic.** Same $q$,
+  learned by neural networks.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Q-learning and DQN are the workhorses of model-free deep RL.
+Atari (2015), AlphaGo's value head, Go-Explore, and most policy-gradient
+algorithms with a critic all maintain a $q$ estimate. The action-value
+function is the most-learned object in modern RL.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view; "$Q(s, a)$ enables model-free greedy
+acting" is one of those sentences.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §08. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 2 §5. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Russian school (Discover *is* the derivation),
+  Better Explained ("$q$ enables model-free greedy" is the Aha!).
 :::

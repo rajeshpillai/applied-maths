@@ -7,87 +7,420 @@ prerequisites: ["mfrl.trajectories-returns-episodes", "t5.continuous-distributio
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.trajectories-returns-episodes", "t5.continuous-distributions"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. From [Lesson 4](../04-trajectories-returns-episodes/index.qmd), can you
+   compute $G_0$ for a finite reward sequence and a discount $\gamma$?
+2. Do you know what an
+   [expected value](/glossary.qmd#expected-value) is — the
+   probability-weighted average of a random variable?
+3. Are you comfortable summing $\sum_x p(x) f(x)$ over a finite set?
+
+If a "no" appears, glance at lesson 4 or
+[T5 — Continuous Distributions](../../tier-5-undergrad-core/08-continuous-distributions/index.qmd).
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Stand at one cell of the grid world. Press *play* on a tiny simulator
+inside your head: the policy chooses an action, the world picks a next
+state, you collect a reward, repeat. After many steps, you have one number
+— the trajectory's discounted return $G_0$.
+
+Now press *play* again. Same starting cell, same policy, same world. You
+get a *different* number. The policy is stochastic. The world is
+stochastic. Two runs, two $G_0$'s.
+
+Run it 1,000 times, average. That average is settling on a single number.
+That number is *the value of the cell*.
+
+```{ojs}
+viewof gammaVal = Inputs.range([0, 0.99], {value: 0.9, step: 0.01, label: "Discount γ"})
+```
+
+```{ojs}
+viewof pSucceedVal = Inputs.range([0.5, 1], {value: 0.8, step: 0.05, label: "P(action succeeds)"})
+```
+
+```{ojs}
+{
+  // 1-D corridor of 5 cells. Reward +1 on reaching the right end (cell 4).
+  // Policy: always go right. Slip: stay with probability (1 - p).
+  const N = 5, goal = N - 1, R = 1, runs = 1000;
+  let total = 0;
+  for (let k = 0; k < runs; k++) {
+    let s = 0, G = 0, w = 1;
+    for (let t = 0; t < 200 && s !== goal; t++) {
+      const succeed = Math.random() < pSucceedVal;
+      s = succeed ? Math.min(s + 1, goal) : s;
+      const r = (s === goal) ? R : 0;
+      G += w * r;
+      w *= gammaVal;
+    }
+    total += G;
+  }
+  const avg = total / runs;
+  return html`<div style="font-family: monospace;">
+    Average G₀ over ${runs} runs from cell 0: <b>${avg.toFixed(4)}</b><br>
+    (this is an estimate of v_π(0) for the always-right policy)
+  </div>`;
+}
+```
+
+Caption: drag the sliders, then re-render. The number is the *empirical*
+state value at the leftmost cell — averaged over 1000 runs of the
+always-right policy.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. Why is *one* number ever enough to summarise "how good is this state"?
+   The future is wildly varied — what is being thrown away?
+2. Two runs starting in the same cell give different $G_0$'s. Yet their
+   long-run *average* settles. Why?
+3. If you knew the state value of every cell, could you decide where to
+   move next without simulating anything?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — One trajectory, one return
+
+Take a deterministic policy on the corridor of lesson 4 and a deterministic
+world. Compute $G_0$ for the trajectory starting at $s = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Re-use the deterministic example from lesson 4.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Reward $r_t = 1$ on every step, $\gamma = 0.9$:
+$G_0 = \sum_{k=0}^\infty 0.9^k = 10$.
+
+In the deterministic case there is *only one* possible trajectory from a
+given $s_0$ — so $G_0$ is determined, no averaging needed.
+</details>
+
+### Problem 2 — Many trajectories, many returns
+
+Now make the policy stochastic: $\pi(R \mid s) = 0.7, \pi(L \mid s) = 0.3$.
+Same deterministic world. List two distinct trajectories starting at $s = 2$
+and write their returns $G_0$ explicitly.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The policy can pick $R$ or $L$ at every step — one of many sequences.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- $\tau_1$: always $R$. Reward sequence $1, 1, 1, \ldots$, $G_0 = 10$.
+- $\tau_2$: $L, R, R, R, \ldots$. Hits left edge first (no reward
+  there), then climbs right. $G_0 = 0 + 0.9 + 0.81 + \ldots = 0.9 \cdot 10 = 9$.
+
+Different trajectories, different $G_0$. The return is now a *random
+variable*.
+</details>
+
+### Problem 3 — The expectation
+
+We want a single number to score $s$. The natural choice: average $G_0$
+over *all* trajectories the policy could produce, weighted by their
+probabilities. Define
+$$v_\pi(s) = \mathbb{E}_\pi[G_0 \mid s_0 = s].$$
+What does the subscript $\pi$ on the expectation mean?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The expectation is over the *randomness* in the trajectory. What two
+sources of randomness are there?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two sources: the **policy** (random action selection) and the **world**
+(random next-state via $P$). The subscript $\pi$ says: average over both,
+with the action distributions taken from $\pi(\cdot \mid s_t)$ at every
+step.
+
+Equivalently, fix the policy to collapse the MDP into a Markov chain
+(lesson 3), then take the chain expectation of $G_0$.
+</details>
+
+### Problem 4 — Deterministic case is just $G_0$
+
+Show that for a deterministic policy on a deterministic MDP, $v_\pi(s) = G_0$
+exactly — no averaging needed.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What is the trajectory distribution in the deterministic case?
+</details>
+<details class="hint"><summary>Full solution</summary>
+A point mass on the single possible trajectory. Expectation of a constant
+is the constant. So $v_\pi(s) = G_0(\tau_{\text{unique}})$ exactly. The
+"value" reduces to the deterministic return — the stochastic case is a
+strict generalisation.
+</details>
+
+::: {.key-insight}
+A state value $v_\pi(s)$ answers a single question: *"If I dropped you at
+$s$ and asked you to follow $\pi$ forever, on average, how much
+discounted reward would you accumulate?"* It compresses an entire
+probability distribution over infinite futures into one scalar — the
+discounted return *in expectation*. Once you have $v_\pi$ for every $s$,
+you have a complete report card on the policy.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+The **state value** of $s$ under policy $\pi$ is
+$$v_\pi(s) = \mathbb{E}_\pi\!\left[G_t \mid s_t = s\right] = \mathbb{E}_\pi\!\left[\sum_{k=0}^\infty \gamma^k r_{t+k+1} \,\Big|\, s_t = s\right].$$
+The function $v_\pi : S \to \mathbb{R}$ is bounded by $|v_\pi(s)| \le R_{\max}/(1 - \gamma)$
+and is uniquely determined by $\pi$ and the MDP.
+
+:::
+
+A verse to remember it by:
+
+> *Drop me at $s$, follow $\pi$ for ever;*
+> *every future split, every chance reward.*
+> *Average across all possible weather:*
+> *one number remains — that is your guide.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — values on a 2-state MDP
+
+States $\{X, Y\}$, single action with kernel $P(Y \mid X) = 1$, $P(X \mid Y) = 1$.
+Reward $R(X, \cdot, Y) = 0$, $R(Y, \cdot, X) = 1$. Discount $\gamma = 0.9$.
+
+Only one possible trajectory from $X$: $X, Y, X, Y, X, \ldots$. Rewards:
+$0, 1, 0, 1, 0, \ldots$.
+
+**Step 1 — write $G_0$ from $X$.**
+$G_0 = 0 + 0.9 \cdot 1 + 0.9^2 \cdot 0 + 0.9^3 \cdot 1 + \ldots$
+$= 0.9 + 0.9^3 + 0.9^5 + \ldots$
+$= 0.9 \cdot (1 + 0.9^2 + 0.9^4 + \ldots)$
+$= 0.9 \cdot \frac{1}{1 - 0.81}$
+$= 0.9 / 0.19 \approx 4.737$.
+
+**Step 2 — write $G_0$ from $Y$.** Trajectory is $Y, X, Y, X, \ldots$,
+rewards $1, 0, 1, 0, \ldots$.
+$G_0 = 1 + 0 + 0.81 \cdot 1 + 0 + \ldots$
+$= 1 + 0.81 + 0.81^2 + \ldots = \frac{1}{1 - 0.81} \approx 5.263$.
+
+**Step 3 — sanity check.** $Y$ is *just visited* by a $+1$ — its value
+should be roughly $1$ higher than $X$'s. Indeed $5.263 - 4.737 \approx 0.526$,
+which is $\gamma \cdot v(X)$? Let's check: $0.9 \cdot 4.737 = 4.263$.
+That's not the gap. The cleaner relation is the Bellman one (lesson 6):
+$v(X) = 0 + 0.9 v(Y)$. Check: $0.9 \cdot 5.263 = 4.737$. Match.
+
+### Practice — Warm
+
+**W1.** A trivial MDP with one state $\{X\}$, one action, $R = 1$ always,
+$\gamma = 0.9$. Compute $v_\pi(X)$.
+
+<details class="hint"><summary>Full solution</summary>
+$G_0 = \sum_{k=0}^\infty 0.9^k = 10$. So $v_\pi(X) = 10$.
+</details>
+
+**W2.** Same MDP but $R = 0$ always. $v_\pi(X)$?
+
+<details class="hint"><summary>Full solution</summary>
+$0$. No reward means no value.
+</details>
+
+**W3.** A two-step episode: $s_0 = X \to s_1 = Y \to \text{terminate}$
+with $r_1 = 5, r_2 = 3$. Compute $v_\pi(X)$ for $\gamma = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$v_\pi(X) = G_0 = 5 + 1 \cdot 3 = 8$. Episodic case with no discount.
+</details>
+
+### Practice — Working
+
+**P1.** Use the worked-example MDP. Re-derive $v(Y)$ using the Bellman-style
+recursion $v(X) = 0 + 0.9 v(Y)$, $v(Y) = 1 + 0.9 v(X)$. Solve the
+$2 \times 2$ linear system.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute $v(X) = 0.9 v(Y)$ into $v(Y) = 1 + 0.9 v(X)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v(Y) = 1 + 0.9 \cdot 0.9 v(Y) = 1 + 0.81 v(Y) \Rightarrow 0.19 v(Y) = 1
+\Rightarrow v(Y) = 1/0.19 \approx 5.263$. Then $v(X) = 0.9 \cdot 5.263 \approx 4.737$.
+Match the worked example. **Same answer, no infinite sum** — that is the
+power of the Bellman recursion (lesson 6).
+</details>
+
+**P2.** Take a 3-state MDP with deterministic dynamics $1 \to 2 \to 3 \to 1$,
+single action, rewards $r(1 \to 2) = 0$, $r(2 \to 3) = 0$, $r(3 \to 1) = 1$.
+Compute $v(1), v(2), v(3)$ for $\gamma = 0.9$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set up three Bellman-style equations and solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v(1) = 0 + 0.9 v(2)$, $v(2) = 0 + 0.9 v(3)$, $v(3) = 1 + 0.9 v(1)$.
+Substitute: $v(1) = 0.9 \cdot 0.9 v(3) = 0.81 v(3)$ and
+$v(3) = 1 + 0.9 \cdot 0.81 v(3) = 1 + 0.729 v(3)$
+$\Rightarrow v(3) = 1/0.271 \approx 3.690$. Then
+$v(2) = 0.9 \cdot 3.690 \approx 3.321$, $v(1) = 0.9 \cdot 3.321 \approx 2.989$.
+
+Sanity: the closer you are to the +1 reward, the higher your value.
+$v(3) > v(2) > v(1)$, as expected.
+</details>
+
+**P3.** What is $v_\pi(s)$ for a *terminal* state $s_T$ (an absorbing
+state with $R = 0$ from then on)?
+
+<details class="hint"><summary>Full solution</summary>
+$0$. After termination the agent collects no more reward, so the
+discounted future sum is zero. Terminal states always have value $0$ by
+convention.
+</details>
+
+### Practice — Stretch
+
+**S1.** A stochastic policy on a 2-state world. $S = \{X, Y\}$,
+$A = \{a, b\}$. $P(Y \mid X, a) = 1$, $P(X \mid X, b) = 1$,
+$P(Y \mid Y, \cdot) = 1$ (Y is absorbing). Reward $R(X, a, Y) = 1$,
+$R(X, b, X) = 0$, $R(Y, \cdot, Y) = 0$. Take $\pi(a \mid X) = p$,
+$\pi(b \mid X) = 1 - p$. Compute $v_\pi(X)$ as a function of $p$ and
+$\gamma$. Find the $p$ that maximises it.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$v_\pi(X) = p \cdot (1 + \gamma v_\pi(Y)) + (1 - p) \cdot (0 + \gamma v_\pi(X))$.
+And $v_\pi(Y) = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v_\pi(Y) = 0$ (absorbing, no reward).
+$v_\pi(X) = p \cdot 1 + (1 - p) \cdot \gamma v_\pi(X)$
+$\Rightarrow v_\pi(X) = p / (1 - (1 - p)\gamma)$.
+
+Take derivative w.r.t. $p$: numerator increases linearly, denominator
+decreases. The function is monotone increasing on $[0, 1]$. Max at
+$p = 1$, giving $v_\pi(X) = 1$.
+
+The lesson: in this MDP, the optimal policy is deterministic — go $a$.
+Stochasticity strictly hurts. (Compare with lesson 3 P3: stochastic
+policies don't help here either.)
+</details>
+
+**S2.** Show that for a finite MDP with $\gamma < 1$, the function $v_\pi$
+is *bounded* by $R_{\max}/(1 - \gamma)$ in absolute value. Use the bound on
+$G_t$ from lesson 4.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply the bound *inside* the expectation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|v_\pi(s)| = |\mathbb{E}_\pi[G_t \mid s_t = s]| \le \mathbb{E}_\pi[|G_t| \mid s_t = s] \le \mathbb{E}_\pi\!\left[\frac{R_{\max}}{1 - \gamma}\right] = \frac{R_{\max}}{1 - \gamma}.$
+The first inequality is Jensen / triangle ($|E[X]| \le E[|X|]$). The
+second is the lesson-4 bound on $G_t$. So *every* state value is bounded
+by the same constant — there is no "rogue" state with infinite value.
+This boundedness is the prerequisite for the contraction argument in
+lesson 11.
+</details>
+
+::: {.fun-fact}
+Bellman in 1957 chose the word *value* deliberately, by analogy with
+operations research and finance. A state value is, mathematically, the
+*present value* of an infinite stream of payments — the same maths used
+to price a perpetual bond. The number 0.9 in our examples plays the role
+of $1/(1 + r)$ where $r \approx 11\%$ per period — a nice match for an
+agent whose "interest rate on patience" is about that. The same equations
+that govern your savings account govern your robot.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$v_\pi(s)$ is the reward at $s$."** No — it is the *expected total
+   future reward* starting from $s$, not the immediate reward at $s$.
+   Immediate reward shows up only as the first term.
+2. **"Two policies with the same value at $s$ are equivalent."** Equivalent
+   *for predicting return from $s$*. They may behave totally differently
+   in the rest of the state space.
+3. **"You need to actually run trajectories to compute $v_\pi$."** No —
+   you can either solve the Bellman equation (lesson 6, exact) or
+   estimate by sampling (lessons 16–17, approximate). The sampler is
+   what RL agents use; the equation is what proofs use.
+:::
+
+### Takeaways
+
+1. The [state value](/glossary.qmd#state-value) $v_\pi(s) = \mathbb{E}_\pi[G_t \mid s_t = s]$
+   is the *expected discounted return* starting from $s$ — one number
+   per state.
+2. State values are **bounded** by $R_{\max}/(1 - \gamma)$, so the
+   function $v_\pi : S \to \mathbb{R}$ is well-defined and lives in a
+   nice space.
+3. The two-source averaging — over policy randomness *and* world
+   randomness — is what the subscript $\pi$ on the expectation tracks.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you, for a small MDP, compute $v_\pi(s)$ from scratch using the
+   recursive Bellman-style argument (P1–P2)?
+2. Did you finish all of W1–S1 without peeking past *Hint 1*?
+3. Can you say in one sentence what information $v_\pi(s)$ throws away
+   compared to the full distribution of $G_0$?
+
+- **3 yes:** continue to lesson 6 (the Bellman equation, formal
+  derivation).
+- **2 yes:** redo S1 — the policy-as-knob view is essential for the
+  optimality discussion in lesson 9.
+- **0–1 yes:** re-read *Discover* and re-do the worked example. The
+  one-state and two-state MDPs are the cleanest training ground.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.trajectories-returns-episodes", "t5.continuous-distributions"]
+- **`mfrl.trajectories-returns-episodes`** — for $G_t$ as a random
+  variable.
+- **`t5.continuous-distributions`** — for the expectation operation, the
+  comfort with $\mathbb{E}[\cdot]$ as an integral or sum.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 6 — Bellman Equation.** Take expectations of the trajectory
+  recursion $G_t = r_{t+1} + \gamma G_{t+1}$ and the value function
+  inherits the recursion.
+- **Lesson 7 — Matrix-Vector Bellman.** Stack $v_\pi(s)$ into a vector
+  and solve the linear system in one matrix inverse.
+- **Lessons 16, 23 — Sampled estimates.** Monte Carlo and TD methods
+  approximate $v_\pi(s)$ from sample trajectories — exactly what the
+  Touch widget did.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** *Value-based RL* (Q-learning, DQN, value-prediction networks
+in MuZero) is the family of algorithms that learn $v$ or its action-valued
+cousin $q$. Once values are known, the agent acts greedily.
+:::
+
+::: {.applied-callout}
+**Research / finance.** Pricing a perpetuity, computing expected
+lifetime customer value, evaluating a long-run policy in epidemiology —
+all are state values in disguise.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view; "the value function is the expected
+discounted return" is one of those sentences.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §05. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 2 §1. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Russian school (Discover constructs the value
+  from the trajectory definition), Better Explained ("one number
+  compresses an infinite future").
 :::

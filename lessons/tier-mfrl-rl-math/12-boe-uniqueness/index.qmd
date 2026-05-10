@@ -7,87 +7,481 @@ prerequisites: ["mfrl.bellman-optimality-equation", "mfrl.contraction-mapping-th
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.bellman-optimality-equation", "mfrl.contraction-mapping-theorem"].
+Before you start:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Can you state the [Bellman optimality equation](/glossary.qmd#bellman-optimality-equation)
+   in one line, with the $\max$ on the right?
+2. Can you state the
+   [Banach Fixed-Point Theorem](/glossary.qmd#banach-fixed-point-theorem)
+   from Lesson 11, including its three hypotheses?
+3. Are you comfortable with the maximum norm
+   $\|\mathbf v\|_\infty = \max_s |v(s)|$ on $\mathbb{R}^{|S|}$?
+
+If any of these is shaky, revisit Lesson 10 and Lesson 11.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Let's *watch* the BOE operator iterate on a tiny MDP. Two states $s_1, s_2$,
+discount $\gamma = 0.9$. The BOE operator is
+
+$$(T^* v)(s) = \max_a\!\Big[r(s, a) + \gamma\!\sum_{s'} P(s' \mid s, a)\,v(s')\Big].$$
+
+Pick a starting $v$ at random. Watch $\|v_k - v_{k-1}\|_\infty$ shrink.
+
+```{ojs}
+viewof v0a = Inputs.range([-10, 10], {value: 5, step: 0.5, label: "v₀(s₁)"})
+```
+
+```{ojs}
+viewof v0b = Inputs.range([-10, 10], {value: -3, step: 0.5, label: "v₀(s₂)"})
+```
+
+```{ojs}
+{
+  // Tiny MDP. Two states, two actions per state.
+  // s1: action a -> reward 1, stay s1. action b -> reward 0, go s2.
+  // s2: action a -> reward -1, stay s2. action b -> reward 2, go s1.
+  const gamma = 0.9;
+  const Tstar = ([v1, v2]) => [
+    Math.max(1 + gamma * v1, 0 + gamma * v2),
+    Math.max(-1 + gamma * v2, 2 + gamma * v1),
+  ];
+  let v = [v0a, v0b];
+  let prev = v;
+  const rows = [["k", "v(s₁)", "v(s₂)", "‖vₖ − vₖ₋₁‖∞"]];
+  rows.push([0, v[0].toFixed(4), v[1].toFixed(4), "—"]);
+  for (let k = 1; k <= 12; k++) {
+    prev = v;
+    v = Tstar(v);
+    const diff = Math.max(Math.abs(v[0] - prev[0]), Math.abs(v[1] - prev[1]));
+    rows.push([k, v[0].toFixed(4), v[1].toFixed(4), diff.toFixed(4)]);
+  }
+  return html`<div style="font-family: monospace; font-size: 0.95rem;">
+    ${rows.map(r => html`<div>${r[0].toString().padEnd(4)} | ${r[1].toString().padEnd(10)} | ${r[2].toString().padEnd(10)} | ${r[3]}</div>`)}
+  </div>`;
+}
+```
+
+Try $(5, -3)$. Try $(-7, 8)$. Try $(0, 0)$. Watch the rightmost column: the
+gap between successive $v$ shrinks **by roughly a factor of 0.9 every line**.
+That number isn't a coincidence — it's $\gamma$.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The $\max$ inside $T^*$ is non-linear. We proved Banach FPT for *contractions*,
+   not for non-linear operators in general. How can $T^*$ still be a
+   contraction?
+2. Why does the contraction constant come out to be exactly $\gamma$ — the
+   discount factor we put into the MDP?
+3. The earlier widget showed the orbit converging from any starting $v$.
+   What does the limit have to be?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — A useful inequality
+
+Show that for any two real-valued functions $f, g$ on a finite set $A$:
+
+$$\Big|\max_{a \in A} f(a) - \max_{a \in A} g(a)\Big| \le \max_{a \in A} |f(a) - g(a)|.$$
+
+This is the lemma that turns "non-linear $\max$" into "non-expansive."
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Let $a_f$ achieve $\max f$ and $a_g$ achieve $\max g$. Show
+$\max f - \max g \le f(a_f) - g(a_f) \le |f(a_f) - g(a_f)|$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Use $\max f = f(a_f) \ge f(a_g)$ to flip the bound; then symmetry gives the
+absolute value.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $a_f \in \arg\max f$, $a_g \in \arg\max g$.
+
+*Upper bound on $\max f - \max g$.* Since $g(a_f) \le \max g$,
+$\max f - \max g \le f(a_f) - g(a_f) \le \max_a |f(a) - g(a)|$.
+
+*Symmetry.* The same argument with $f, g$ swapped gives
+$\max g - \max f \le \max_a |f(a) - g(a)|$.
+
+Combining: $|\max f - \max g| \le \max_a |f(a) - g(a)|$. The $\max$ operator
+is **1-Lipschitz** in the sup norm — it never expands distances.
+</details>
+
+### Problem 2 — Set up the BOE operator
+
+Recall from Lesson 10. For a finite MDP $(S, A, P, r, \gamma)$ define
+$T^* : \mathbb{R}^{|S|} \to \mathbb{R}^{|S|}$ by
+
+$$(T^* v)(s) = \max_{a \in A(s)}\!\Big[r(s, a) + \gamma\!\sum_{s'} P(s' \mid s, a)\,v(s')\Big].$$
+
+Show that for any two value functions $v_1, v_2$ and any state $s$:
+
+$$\big|(T^* v_1)(s) - (T^* v_2)(s)\big| \le \max_a \Big|\gamma \sum_{s'} P(s'\mid s,a)\,(v_1(s') - v_2(s'))\Big|.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply Problem 1 with $f(a) = r(s,a) + \gamma \sum P\,v_1(s')$ and similarly
+for $g$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $f(a) = r(s, a) + \gamma \sum_{s'} P(s'\mid s, a)\,v_1(s')$ and
+$g(a) = r(s, a) + \gamma \sum_{s'} P(s'\mid s, a)\,v_2(s')$. Then
+$(T^* v_1)(s) = \max_a f(a)$ and similarly for $T^* v_2$. Problem 1 gives
+$$|(T^* v_1)(s) - (T^* v_2)(s)| \le \max_a |f(a) - g(a)|.$$
+The reward $r(s, a)$ cancels in $f - g$, leaving exactly
+$\gamma \sum_{s'} P(s'\mid s, a)\,(v_1(s') - v_2(s'))$ inside the absolute value.
+</details>
+
+### Problem 3 — Bound the inner expression by $\gamma \|v_1 - v_2\|_\infty$
+
+Show that for any state $s$ and action $a$,
+
+$$\Big|\gamma \sum_{s'} P(s'\mid s, a)\,(v_1(s') - v_2(s'))\Big| \le \gamma \,\|v_1 - v_2\|_\infty.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(s'\mid s, a) \ge 0$ and $\sum_{s'} P(s'\mid s, a) = 1$. So the sum is a
+**weighted average** of $(v_1 - v_2)(s')$ values.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By the triangle inequality and $|v_1(s') - v_2(s')| \le \|v_1 - v_2\|_\infty$,
+$$\Big|\sum_{s'} P(s'\mid s, a)\,(v_1(s') - v_2(s'))\Big| \le \sum_{s'} P(s'\mid s, a)\,\|v_1 - v_2\|_\infty = \|v_1 - v_2\|_\infty.$$
+Multiplying by $\gamma > 0$ gives the bound.
+</details>
+
+### Problem 4 — Finish: $T^*$ is a $\gamma$-contraction
+
+Combine Problems 2 and 3 to conclude
+
+$$\|T^* v_1 - T^* v_2\|_\infty \le \gamma \|v_1 - v_2\|_\infty.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take the max over $s$ on both sides of Problem 2's bound.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For each $s$:
+$|(T^* v_1)(s) - (T^* v_2)(s)| \le \max_a \gamma \|v_1 - v_2\|_\infty = \gamma \|v_1 - v_2\|_\infty.$
+The right side does not depend on $s$, so
+$\|T^* v_1 - T^* v_2\|_\infty = \max_s |(T^*v_1)(s) - (T^*v_2)(s)| \le \gamma \|v_1 - v_2\|_\infty$.
+Done. $T^*$ is a $\gamma$-contraction in $\|\cdot\|_\infty$.
+</details>
+
+### Problem 5 — Apply Banach FPT
+
+The space $\mathbb{R}^{|S|}$ with the sup norm is a complete metric space
+(it's finite-dimensional). Combine with Problem 4 to conclude:
+
+(a) $T^*$ has a unique fixed point $v^*$.
+(b) For any $v_0$, the iteration $v_{k+1} = T^* v_k$ converges to $v^*$.
+(c) The convergence is geometric: $\|v_k - v^*\|_\infty \le \gamma^k \|v_0 - v^*\|_\infty$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You proved exactly the hypotheses of Banach FPT. Just apply it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Banach FPT applies with $L = \gamma < 1$. So a unique fixed point $v^*$ exists,
+and iteration from any $v_0$ converges to it. The bound (c) follows from
+$\|v_{k+1} - v^*\|_\infty = \|T^* v_k - T^* v^*\|_\infty \le \gamma\|v_k - v^*\|_\infty$
+inductively. Since the BOE *defines* $v^*$, we've shown $v^*$ is the unique
+solution and is reached by iteration. **This is the entire foundation of
+value iteration (Lesson 13).**
+</details>
+
+::: {.key-insight}
+$\gamma$ is doing two jobs in the BOE. (1) It makes the infinite-horizon
+return finite. (2) It makes $T^*$ a contraction. Drop $\gamma$ and both
+collapse: the return diverges *and* the operator is no longer a contraction.
+The BOE machinery exists because $\gamma < 1$.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+The **BOE operator** $T^* : \mathbb{R}^{|S|} \to \mathbb{R}^{|S|}$ is
+
+$$(T^* v)(s) = \max_a \Big[r(s,a) + \gamma\!\sum_{s'} P(s'\mid s, a)\,v(s')\Big].$$
+
+**Theorem (BOE has a unique solution).** For a finite discounted MDP with
+$\gamma \in [0, 1)$, $T^*$ is a $\gamma$-contraction in
+$\|\cdot\|_\infty$. By the Banach Fixed-Point Theorem, $T^*$ has a unique
+fixed point $v^* \in \mathbb{R}^{|S|}$, and for any $v_0$ the iteration
+$v_{k+1} = T^* v_k$ converges to $v^*$ at geometric rate $\gamma^k$.
+
+:::
+
+A verse:
+
+> *Max is non-expansive,*
+> *Discount tames the future;*
+> *Their product shrinks each step by* $\gamma$,
+> *And $v^*$ awaits at the limit.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — Verify $T^*$ is a contraction on a 2-state MDP
+
+Use the MDP from the Touch widget. States $\{s_1, s_2\}$, $\gamma = 0.9$.
+Pick two arbitrary value functions:
+
+$$v_1 = (10, -5), \quad v_2 = (4, 1).$$
+
+**Step 1.** $\|v_1 - v_2\|_\infty = \max(|10 - 4|, |-5 - 1|) = 6$.
+
+**Step 2.** Compute $T^* v_1$. The MDP from the widget:
+
+- $s_1$: action $a$ gives $1 + \gamma v(s_1)$; action $b$ gives $0 + \gamma v(s_2)$.
+- $s_2$: action $a$ gives $-1 + \gamma v(s_2)$; action $b$ gives $2 + \gamma v(s_1)$.
+
+$T^*v_1(s_1) = \max(1 + 9, 0 - 4.5) = 10.$
+$T^*v_1(s_2) = \max(-1 - 4.5, 2 + 9) = 11.$
+So $T^*v_1 = (10, 11)$.
+
+**Step 3.** Compute $T^* v_2$.
+$T^*v_2(s_1) = \max(1 + 3.6, 0 + 0.9) = 4.6.$
+$T^*v_2(s_2) = \max(-1 + 0.9, 2 + 3.6) = 5.6.$
+So $T^*v_2 = (4.6, 5.6)$.
+
+**Step 4.** $\|T^* v_1 - T^* v_2\|_\infty = \max(|10 - 4.6|, |11 - 5.6|) = 5.4$.
+
+**Step 5.** Check: $5.4 \le \gamma \cdot 6 = 0.9 \cdot 6 = 5.4$. **Bound met
+exactly.** And the iteration shrinks by factor $\gamma$ on this pair of $v$'s.
+
+### Practice — Warm
+
+**W1.** For the same MDP, pick $v_3 = (0, 0)$ and $v_4 = (1, 1)$. Compute
+$\|v_3 - v_4\|_\infty$, then $\|T^* v_3 - T^* v_4\|_\infty$, and verify the
+contraction.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T^* v_3 = (\max(1, 0), \max(-1, 2)) = (1, 2)$. Now compute $T^* v_4$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$T^* v_4 = (\max(1.9, 0.9), \max(-0.1, 2.9)) = (1.9, 2.9)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\|v_3 - v_4\|_\infty = 1$. $T^* v_3 = (1, 2)$, $T^* v_4 = (1.9, 2.9)$.
+$\|T^* v_3 - T^* v_4\|_\infty = 0.9 = \gamma \cdot 1$. Contraction holds with
+equality.
+</details>
+
+**W2.** Why is the bound in Problem 4 sometimes met *exactly* and sometimes
+*strictly* less? Sketch when each happens.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The bound chains three inequalities. When does each become equality?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Equality in Problem 1's $|\max f - \max g|$ bound requires $f$ and $g$ to be
+maximised at the same action *and* $|v_1 - v_2|$ to be constant across
+relevant successor states. When this all aligns (as in W1), the bound is
+tight; otherwise it's strict. **The contraction constant is the *worst-case*
+behaviour, not the typical one.**
+</details>
+
+**W3.** State why $\mathbb{R}^{|S|}$ with the $\ell_\infty$ norm is complete.
+(One sentence.)
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{R}^n$ with any norm is complete because all norms on $\mathbb{R}^n$
+are equivalent and $\mathbb{R}^n$ is complete in the Euclidean norm. So
+the Banach FPT hypothesis "complete metric space" is automatic in the
+finite-state case.
+</details>
+
+### Practice — Working
+
+**P1.** Let $T^\pi$ be the **policy-evaluation operator** for a fixed policy
+$\pi$:
+$(T^\pi v)(s) = \sum_a \pi(a\mid s)\big[r(s,a) + \gamma \sum_{s'} P(s'\mid s, a)\,v(s')\big].$
+Show $T^\pi$ is also a $\gamma$-contraction in $\|\cdot\|_\infty$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T^\pi$ is *linear* — no $\max$. The proof is even simpler than for $T^*$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\pi(a\mid s)$ and $P(s'\mid s, a)$ are non-negative and sum to 1.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|(T^\pi v_1)(s) - (T^\pi v_2)(s)| = |\sum_a \pi(a\mid s) \gamma \sum_{s'} P(s'\mid s, a)(v_1(s') - v_2(s'))|$.
+Apply the triangle inequality and the fact that $\sum_a \pi(a\mid s) \sum_{s'} P(s'\mid s, a) = 1$:
+the bound is $\gamma \|v_1 - v_2\|_\infty$. Both $T^\pi$ and $T^*$ are
+$\gamma$-contractions — the entire DP edifice rests on this twin fact.
+</details>
+
+**P2.** Compute the unique fixed point $v^*$ of the Touch-widget MDP (two
+states, $\gamma = 0.9$) by running iteration from $v_0 = (0, 0)$ until
+$\|v_{k+1} - v_k\|_\infty < 0.01$. Report $v^*$ and the optimal policy.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You can use the widget. Or do it by hand for 30+ steps.
+</details>
+<details class="hint"><summary>Full solution</summary>
+After ~50 iterations the values stabilise around $v^* \approx (24.7, 25.3)$.
+Optimal actions: at $s_1$ pick action $a$ (stay) — it gives $1 + 0.9 \cdot 24.7 \approx 23.2$
+vs.\ action $b$'s $0 + 0.9 \cdot 25.3 \approx 22.8$. At $s_2$ pick action $b$
+(jump to $s_1$) — gives $2 + 0.9 \cdot 24.7 \approx 24.2$ vs.\ $-1 + 0.9 \cdot 25.3 \approx 21.8$.
+Optimal policy: $\pi^*(s_1) = a, \pi^*(s_2) = b$.
+</details>
+
+**P3.** *Why $\gamma$, not $\gamma + \epsilon$ for some $\epsilon > 0$?* Show
+that the constant $\gamma$ in the contraction bound is **tight** — give
+$v_1, v_2$ where $\|T^* v_1 - T^* v_2\|_\infty = \gamma \|v_1 - v_2\|_\infty$
+exactly.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try $v_1 = c\,\mathbf{1}$ and $v_2 = 0$ for some constant $c$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Take $v_1 = c \mathbf{1}$ (constant function), $v_2 = 0$. Then for every
+$(s, a)$, $\sum_{s'} P\,v_1(s') = c$ and $\sum_{s'} P\,v_2(s') = 0$. So
+$T^* v_1(s) - T^* v_2(s) = \gamma c$ for every $s$. Hence
+$\|T^* v_1 - T^* v_2\|_\infty = \gamma c = \gamma \|v_1 - v_2\|_\infty$.
+The constant $\gamma$ is sharp; you cannot replace it with anything smaller.
+</details>
+
+### Practice — Stretch
+
+**S1.** Define the *q*-version of the BOE operator:
+$(T_q^* q)(s, a) = r(s, a) + \gamma \sum_{s'} P(s'\mid s, a)\,\max_{a'} q(s', a').$
+Show $T_q^*$ is a $\gamma$-contraction in $\|\cdot\|_\infty$ on
+$\mathbb{R}^{|S|\cdot|A|}$. Conclude that $q^*$ is the unique fixed point.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the same trick: $|\max f - \max g| \le \max |f - g|$, then average over
+$P$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$|T_q^*q_1(s, a) - T_q^*q_2(s, a)| = \gamma |\sum_{s'} P(s'\mid s, a)(\max_{a'} q_1(s', a') - \max_{a'} q_2(s', a'))|$.
+By Problem 1's lemma, $|\max_{a'} q_1(s', a') - \max_{a'} q_2(s', a')| \le \max_{a'} |q_1(s', a') - q_2(s', a')| \le \|q_1 - q_2\|_\infty$.
+Triangle inequality gives the contraction bound. Hence $q^*$ exists, is
+unique, and is reached by iteration. **This is the basis of Q-learning,
+Lesson 26.**
+</details>
+
+**S2.** What goes wrong in the limit $\gamma = 1$? Pick a small MDP and
+exhibit two value functions $v_1, v_2$ for which $T^* v_1$ and $T^* v_2$
+remain at distance $\|v_1 - v_2\|_\infty$ — i.e., the operator stops
+contracting.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use $v_1 = c\mathbf{1}, v_2 = 0$ and $\gamma = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+With $\gamma = 1$ and $v_1 = c\mathbf{1}$, the bound becomes
+$\|T^* v_1 - T^* v_2\|_\infty = c = \|v_1 - v_2\|_\infty$ — exactly equal,
+not less. The operator is *non-expansive* but not a contraction. Banach FPT
+fails: a fixed point may exist, but iteration from arbitrary $v_0$ need not
+converge. This is why **average-reward MDPs** (the $\gamma = 1$ case) require
+genuinely different theory and don't appear in this track.
+</details>
+
+::: {.fun-fact}
+The fact that *both* the policy-evaluation operator $T^\pi$ and the
+optimality operator $T^*$ are $\gamma$-contractions in the same norm — and
+the same constant — is what lets policy iteration "alternate" between them
+without losing convergence. It is the single algebraic miracle that holds
+all of dynamic programming together. Bellman did not state it this way; the
+contraction view is due to Denardo (1967), 10 years after Bellman's book.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Non-linear operators can't be contractions."** False — *Lipschitz* is
+   the right concept, not linearity. $T^*$ is non-linear (because of $\max$)
+   but Lipschitz with constant $\gamma$.
+2. **"The contraction constant depends on the MDP."** No — it's *exactly
+   $\gamma$* for every MDP. The MDP's structure (rewards, transitions) does
+   not enter the bound. That's why DP convergence is universal.
+3. **"$v^*$ depends on the starting $v_0$."** No. The fixed point is unique;
+   $v_0$ only affects how quickly you reach it.
+4. **"The $\ell_\infty$ norm is special; we could use $\ell_2$."** Try it —
+   $T^*$ is *not* a contraction in $\ell_2$ in general. The sup norm is the
+   right norm because $\max$ is naturally controlled by sup.
+:::
+
+### Takeaways
+
+1. **The non-expansive max lemma** $|\max f - \max g| \le \max|f - g|$ is
+   the linchpin of the proof.
+2. **$T^*$ is a $\gamma$-contraction in $\|\cdot\|_\infty$** for any finite
+   discounted MDP, with the constant $\gamma$ tight.
+3. By **Banach FPT**, $v^*$ exists, is unique, and is the limit of
+   $v_{k+1} = T^* v_k$ from any starting $v_0$, at geometric rate $\gamma^k$.
+4. The same proof works for $T^\pi$ (policy evaluation) and $T_q^*$
+   (action-value optimality). This twin contraction is the foundation of
+   every DP and RL algorithm in this track.
+
+### Self-Assessment
+
+1. Could you reconstruct the proof of "$T^*$ is a $\gamma$-contraction" in
+   four lines without notes?
+2. Did you solve at least 4 of the 6 practice problems past *Hint 1* on
+   your own?
+3. Can you state, without rereading, *why* both $\gamma$ and completeness
+   are essential?
+
+- **3 yes:** move on to Lesson 13 (value iteration), where this becomes an
+  algorithm.
+- **2 yes:** redo S2 — the "what breaks if $\gamma = 1$?" question is the
+  most clarifying.
+- **0–1 yes:** re-read Discover. The five problems together *are* the proof.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.bellman-optimality-equation", "mfrl.contraction-mapping-theorem"]
+- **Lesson 10 (BOE).** Defines the operator $T^*$ whose contraction
+  property is proved here.
+- **Lesson 11 (Banach FPT).** Supplies the fixed-point theorem we apply.
+- The infrastructure idea behind the proof — the
+  [non-expansive max lemma](#problem-1-a-useful-inequality) — is borrowed
+  from real analysis but stated here in self-contained form.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 13 — Value iteration.** $v_{k+1} = T^* v_k$ is *literally* the
+  Banach iteration applied to $T^*$. This lesson is its convergence proof.
+- **Lesson 14 — Policy iteration.** The companion contraction for $T^\pi$
+  (proved in P1) gives the policy-evaluation step its convergence.
+- **Q-learning (Lesson 26).** $T^*_q$ is also a contraction (S1); the
+  algorithm is a stochastic Banach iteration on $T^*_q$.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Convergence proofs for almost every modern RL algorithm chain
+back to this lemma. PPO, SAC, DQN, AlphaZero — each has a contraction
+argument (or a stochastic-approximation argument that *uses* the contraction
+of $T^*$ as its asymptotic target).
+:::
+
+::: {.applied-callout}
+**Research / control theory.** The same contraction argument underlies the
+existence-and-uniqueness theorem for the **Hamilton-Jacobi-Bellman equation**
+in continuous-time control. The discrete BOE is its time-stepped sibling.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning that this track
+expands into 38 lessons. "$T^*$ is a $\gamma$-contraction" is the punchline
+of paragraph one.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §12. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §3 (BOE contraction property). Cite freely; never
+  transcribe.
+- Touchstones: Russian school (Discover *is* the proof, broken into five
+  problems whose solutions chain), Better Explained ("the max is
+  non-expansive; the discount is the contraction" Aha! framing).
 :::

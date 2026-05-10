@@ -43,6 +43,18 @@ The largest (max) or smallest (min) value of $f$ on a closed interval $[a, b]$; 
 
 **First named in:** [Class 12, Chapter 6 — Application of Derivatives (Maxima and Minima)](lessons/tier-cbse-12-class-12/06b-maxima-minima/index.qmd)
 
+### Action value {#action-value}
+
+$q_\pi(s, a) = \mathbb{E}_\pi[G_t \mid s_t = s, a_t = a]$ — expected return from taking $a$ in $s$ and following $\pi$ thereafter. Enables model-free greedy improvement (you can pick $\arg\max_a q$ without knowing the model).
+
+**First named in:** [MFRL — Lesson 08, From State Values to Action Values](lessons/tier-mfrl-rl-math/08-action-values/index.qmd)
+
+### Actor-critic {#actor-critic}
+
+A class of RL algorithms with two parameterised functions: an *actor* (policy $\pi_\theta$) and a *critic* (value $\hat v$ or $\hat q$). The critic is updated by TD; the actor is updated by policy gradient using the critic's value estimate.
+
+**First named in:** [MFRL — Lesson 35, QAC: The Simplest Actor-Critic](lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.qmd)
+
 ### Addition {#addition}
 
 Combining two numbers into a total — pictured on the number line as a hop to
@@ -61,6 +73,12 @@ $P(A \cup B) = P(A) + P(B) - P(A \cap B)$. The general rule for the probability 
 The transpose of the cofactor matrix; satisfies $A \cdot \text{adj}(A) = |A| \cdot I$ and gives the inverse via $A^{-1} = \tfrac{1}{|A|}\text{adj}(A)$.
 
 **First named in:** [Class 12, Chapter 4 — Matrix Inverse and Cramer's Rule](lessons/tier-cbse-12-class-12/04b-matrix-inverse-cramers/index.qmd)
+
+### Advantage function {#advantage-function}
+
+$A_\pi(s, a) = q_\pi(s, a) - v_\pi(s)$ — how much better than the policy's average action $a$ is in state $s$. Used as a low-variance, unbiased substitute for $q$ in policy-gradient updates.
+
+**First named in:** [MFRL — Lesson 36, A2C: Advantage Estimation](lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.qmd)
 
 ### Algebraic connectivity {#algebraic-connectivity}
 
@@ -148,6 +166,18 @@ Probability defined by Kolmogorov's three axioms — non-negativity, $P(S) = 1$,
 
 ## B
 
+### Baird's counterexample {#bairds-counterexample}
+
+A 7-state MDP with linear function approximation on which off-policy semi-gradient Q-learning's parameters diverge to infinity. The canonical demonstration of the deadly triad (Baird 1995).
+
+**First named in:** [MFRL — Lesson 30, Q-Learning with FA and the Deadly Triad](lessons/tier-mfrl-rl-math/30-q-learning-with-fa/index.qmd)
+
+### Banach fixed-point theorem {#banach-fixed-point-theorem}
+
+Every contraction on a non-empty complete metric space has a unique fixed point, reached by iteration from any starting point at geometric rate $L^n$. The workhorse for proving uniqueness of solutions to fixed-point equations across analysis, ODEs, and RL.
+
+**First named in:** [MFRL — Lesson 11, The Banach Fixed-Point Theorem](lessons/tier-mfrl-rl-math/11-contraction-mapping-theorem/index.qmd)
+
 ### Base {#base}
 
 Two related meanings, both about the number that "sets the scale":
@@ -158,6 +188,12 @@ Two related meanings, both about the number that "sets the scale":
 
 **First named in (place-value sense):** [Tier 1, Lesson 3 — Place Value](lessons/tier-1-foundations/03-place-value/index.qmd)
 **First named in (exponent sense):** [Tier 2, Lesson 7 — Exponents and Powers](lessons/tier-2-prealgebra/07-exponents-powers/index.qmd)
+
+### Baseline invariance {#baseline-invariance}
+
+The lemma that $\mathbb{E}_{a \sim \pi}[\nabla \log \pi(a \mid s) \cdot b(s)] = 0$ for any function $b(s)$ of state alone. Subtracting any state-only baseline from $q_\pi$ inside the policy gradient leaves the expected gradient unchanged but can reduce variance.
+
+**First named in:** [MFRL — Lesson 36, A2C: Advantage Estimation](lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.qmd)
 
 ### Basis {#basis}
 
@@ -177,6 +213,12 @@ The recursion $V(s) = \mathbb{E}[R(s,a) + \gamma V(s')]$ defining the value of a
 
 **First named in:** [Tier 7, Lesson 6 — Reinforcement Learning Theory](lessons/tier-7-masters-tracks/06-rl-theory/index.qmd)
 
+### Bellman optimality equation {#bellman-optimality-equation}
+
+$v^*(s) = \max_a \sum_{s'} P(s' \mid s, a)[R(s, a, s') + \gamma v^*(s')]$. The non-linear fixed-point equation whose unique solution is the optimal state value $v^*$.
+
+**First named in:** [MFRL — Lesson 10, The Bellman Optimality Equation (BOE)](lessons/tier-mfrl-rl-math/10-bellman-optimality-equation/index.qmd)
+
 ### Bijection {#bijection}
 
 A function that is both one-one (injective) and onto (surjective) — a perfect pairing of inputs with outputs that has an inverse.
@@ -194,6 +236,12 @@ The PMF $P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}$ counting the number of success
 The identity $(a+b)^n = \sum_{r=0}^{n} \binom{n}{r} a^{n-r} b^r$ — every term of the expansion is a binomial coefficient times a single power product.
 
 **First named in:** [Tier 3, Lesson 12 — The Binomial Theorem](lessons/tier-3-algebra2-geometry-trig/12-binomial-theorem/index.qmd)
+
+### Bootstrapping {#bootstrapping}
+
+Substituting a current value-function estimate into a target instead of waiting for the realised return; the trick that turns the Bellman equation into an iterative learning rule.
+
+**First named in:** [MFRL — Lesson 23, TD(0)](lessons/tier-mfrl-rl-math/23-td-state-values/index.qmd)
 
 ### Borrow {#borrow}
 
@@ -371,6 +419,12 @@ A function whose graph can be traced through a point (or interval) without lifti
 
 **First named in:** [Tier 4, Lesson 2 — Continuity](lessons/tier-4-precalc-calculus/02-continuity/index.qmd)
 
+### Contraction mapping {#contraction-mapping}
+
+A map $f$ on a metric space with $d(f(x), f(y)) \le L\,d(x, y)$ for some fixed $L < 1$ — it shrinks the distance between every pair of points by at least the factor $L$. The hypothesis of the Banach fixed-point theorem.
+
+**First named in:** [MFRL — Lesson 11, The Banach Fixed-Point Theorem](lessons/tier-mfrl-rl-math/11-contraction-mapping-theorem/index.qmd)
+
 ### Convergence {#convergence}
 
 A sequence $a_n$ converges to $L$ if, for every $\epsilon > 0$, there exists $N$ such that $n \ge N$ implies $|a_n - L| < \epsilon$.
@@ -451,6 +505,18 @@ A solid swept by translating a circle of radius $r$ along a perpendicular axis o
 
 ## D
 
+### DDPG (Deep Deterministic Policy Gradient) {#ddpg}
+
+Deterministic policy gradient with a neural-network actor and critic, replay buffer, soft target updates for both actor and critic, and additive exploration noise on the behaviour policy. The continuous-control workhorse of modern deep RL (Lillicrap et al. 2015).
+
+**First named in:** [MFRL — Lesson 38, DPG and DDPG](lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.qmd)
+
+### Deadly triad {#deadly-triad}
+
+The combination of bootstrapping + off-policy sampling + function approximation. Any two are safe; all three together can cause TD-style methods to diverge, even on small finite MDPs.
+
+**First named in:** [MFRL — Lesson 30, Q-Learning with FA and the Deadly Triad](lessons/tier-mfrl-rl-math/30-q-learning-with-fa/index.qmd)
+
 ### Decimal {#decimal}
 
 A number written in base-10 place value, with columns continuing to the right of a decimal point — each step right divides the value by ten.
@@ -462,6 +528,12 @@ A number written in base-10 place value, with columns continuing to the right of
 The dot that marks the boundary between the ones column and the tenths column in a decimal number. It is purely a position marker, not an operator.
 
 **First named in:** [Tier 1, Lesson 8 — Decimals](lessons/tier-1-foundations/08-decimals/index.qmd)
+
+### Deep Q-Network (DQN) {#dqn}
+
+Q-learning with a neural-network value approximator, a replay buffer that decorrelates samples, and a target network that stabilises the bootstrap target. The 2013/2015 DeepMind algorithm that started modern deep RL.
+
+**First named in:** [MFRL — Lesson 31, Deep Q-Network](lessons/tier-mfrl-rl-math/31-deep-q-network/index.qmd)
 
 ### Definite integral {#definite-integral}
 
@@ -486,6 +558,12 @@ The instantaneous rate of change of $f$ at $a$ — the limit $\lim_{h \to 0} [f(
 A scalar attached to every square matrix that equals the signed $n$-volume of the parallelepiped spanned by its columns; non-zero exactly when the matrix is invertible.
 
 **First named in:** [Class 12, Chapter 4 — Determinants](lessons/tier-cbse-12-class-12/04a-determinants/index.qmd)
+
+### Deterministic policy gradient {#deterministic-policy-gradient}
+
+For a deterministic policy $\mu(s; \theta)$, $\nabla_\theta J(\theta) = \mathbb{E}_s[\nabla_\theta \mu(s; \theta) \nabla_a q_\mu(s, a)|_{a=\mu(s;\theta)}]$. No log-derivative trick: the chain rule differentiates straight through the action (Silver et al. 2014).
+
+**First named in:** [MFRL — Lesson 38, DPG and DDPG](lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.qmd)
 
 ### Difference of squares {#difference-of-squares}
 
@@ -535,6 +613,18 @@ A fixed line used in the locus definition of a parabola: every point on the para
 
 **First named in:** [Class 11, Chapter 10 — Conic Sections (Circle and Parabola)](lessons/tier-cbse-11-class-11/10a-conic-sections-circle-parabola/index.qmd)
 
+### Discount factor {#discount-factor}
+
+The number $\gamma \in [0, 1)$ that weights future rewards in the discounted return; controls the agent's effective planning horizon $\approx 1/(1-\gamma)$.
+
+**First named in:** [MFRL — Lesson 04, Trajectories, Returns, and the Discount](lessons/tier-mfrl-rl-math/04-trajectories-returns-episodes/index.qmd)
+
+### Discounted return {#discounted-return}
+
+The weighted sum of future rewards $G_t = \sum_{k=0}^\infty \gamma^k r_{t+k+1}$, with $\gamma \in [0,1)$ ensuring finiteness via the geometric series.
+
+**First named in:** [MFRL — Lesson 04, Trajectories, Returns, and the Discount](lessons/tier-mfrl-rl-math/04-trajectories-returns-episodes/index.qmd)
+
 ### Discriminant {#discriminant}
 
 The expression $b^2 - 4ac$ that appears under the square root in the quadratic formula. Its sign tells you how many real roots the quadratic has.
@@ -582,6 +672,12 @@ The set of permitted inputs to a function. For a real function given by a formul
 A scalar built from two vectors, $a \cdot b = a_1b_1 + a_2b_2 + \cdots = |a||b|\cos\theta$. Measures alignment: positive for acute angle, zero for perpendicular, negative for obtuse.
 
 **First named in:** [Tier 4, Lesson 14 — Dot and Cross Product](lessons/tier-4-precalc-calculus/14-dot-cross-product/index.qmd)
+### Dvoretzky's convergence theorem {#dvoretzky-theorem}
+
+A stochastic-approximation theorem subsuming Robbins-Monro: the iteration $w_{k+1} = (1-\alpha_k)w_k + \beta_k T_k$ converges almost surely to $w^*$ under standard step-size, contracting-target, and bounded-variance conditions.
+
+**First named in:** [MFRL — Lesson 21, Dvoretzky's Convergence Theorem](lessons/tier-mfrl-rl-math/21-dvoretzky-convergence/index.qmd)
+
 
 ## E
 
@@ -621,11 +717,47 @@ The average number of bits needed to encode one outcome of a random variable: $H
 
 **First named in:** [Tier 6, Lesson 11 — Information Theory](lessons/tier-6-undergrad-advanced/11-information-theory/index.qmd)
 
+### Episode {#episode}
+
+A finite trajectory ending at a terminal state — in contrast to a continuing task that runs forever.
+
+**First named in:** [MFRL — Lesson 04, Trajectories, Returns, and the Discount](lessons/tier-mfrl-rl-math/04-trajectories-returns-episodes/index.qmd)
+
 ### Epsilon-delta definition {#epsilon-delta}
 
 The rigorous definition of continuity at $a$: for every $\epsilon > 0$ there exists $\delta > 0$ such that $|x - a| < \delta$ implies $|f(x) - f(a)| < \epsilon$.
 
 **First named in:** [Tier 5, Lesson 15 — Continuity and Differentiability — Rigorous Foundation](lessons/tier-5-undergrad-core/15-real-analysis-foundation/index.qmd)
+
+### Every-visit MC {#every-visit-mc}
+
+A Monte Carlo value-estimation rule that uses *every* occurrence of $(s, a)$ within a trajectory as a sample of $q_\pi(s, a)$. Unbiased; has lower variance per environment interaction than first-visit MC at the cost of correlated samples.
+
+**First named in:** [MFRL — Lesson 18, MC Exploring Starts](lessons/tier-mfrl-rl-math/18-mc-exploring-starts/index.qmd)
+
+### Expected Sarsa {#expected-sarsa}
+
+TD update with target $r + \gamma \sum_{a'} \pi(a' \mid s') q(s', a')$: averages $q(s', \cdot)$ under $\pi$ instead of sampling. Lower variance than Sarsa, same fixed point $q_\pi$.
+
+**First named in:** [MFRL — Lesson 27, TD Methods Unified](lessons/tier-mfrl-rl-math/27-td-unified-view/index.qmd)
+
+### Exploration-exploitation tradeoff {#exploration-exploitation}
+
+The tension between gathering information about poorly-known $(s, a)$ pairs (exploration) and acting on the best current estimate (exploitation). Central problem of RL; solved by ε-greedy, softmax, UCB, Thompson sampling, intrinsic motivation, and many other mechanisms.
+
+**First named in:** [MFRL — Lesson 19, ε-Greedy](lessons/tier-mfrl-rl-math/19-epsilon-greedy/index.qmd)
+
+### Exploring starts {#exploring-starts}
+
+The assumption that each MC training episode begins from a uniformly random initial state-action pair. Guarantees every $(s, a)$ pair is visited and is sufficient for MC convergence, but is unrealistic in real systems where the agent cannot teleport.
+
+**First named in:** [MFRL — Lesson 18, MC Exploring Starts](lessons/tier-mfrl-rl-math/18-mc-exploring-starts/index.qmd)
+
+### ε-greedy {#epsilon-greedy}
+
+A behaviour policy that picks the greedy action with probability $1 - \varepsilon$ and a uniformly random action with probability $\varepsilon$. Provides exploration without exploring starts; converges to $\pi^*$ when $\varepsilon \to 0$ at a GLIE schedule.
+
+**First named in:** [MFRL — Lesson 19, ε-Greedy](lessons/tier-mfrl-rl-math/19-epsilon-greedy/index.qmd)
 
 ### Equation {#equation}
 
@@ -701,6 +833,12 @@ The set of all points in the plane (or higher-dimensional space) that simultaneo
 
 **First named in:** [Class 11, Chapter 5 — Linear Inequalities](lessons/tier-cbse-11-class-11/05-linear-inequalities/index.qmd)
 
+### Feature vector {#feature-vector}
+
+A $d$-dimensional encoding $\phi(s) \in \mathbb{R}^d$ of a state, used as input to a function approximator; choice of features controls the inductive bias of the learner.
+
+**First named in:** [MFRL — Lesson 28, From Table to Function](lessons/tier-mfrl-rl-math/28-from-table-to-function/index.qmd)
+
 ### Fermat's Last Theorem {#fermats-last-theorem}
 
 The statement that $a^n + b^n = c^n$ has no positive integer solutions for any integer $n > 2$. Conjectured by Fermat in 1637 ("I have a truly marvellous proof which this margin is too narrow to contain") and proven by Andrew Wiles in 1995 via the Taniyama-Shimura conjecture on elliptic curves and modular forms.
@@ -730,6 +868,12 @@ Classify a critical point $c$ by the sign change of $f'$ across $c$: $+ \to -$ g
 Computing $f'(x)$ directly from the limit definition $\lim_{h \to 0} (f(x+h) - f(x))/h$ rather than by applying differentiation rules.
 
 **First named in:** [Class 11, Chapter 12 — Derivatives (Introduction)](lessons/tier-cbse-11-class-11/12b-derivatives-intro/index.qmd)
+
+### First-visit MC {#first-visit-mc}
+
+A Monte Carlo value-estimation rule that uses only the first occurrence of $(s, a)$ within each trajectory as a sample of $q_\pi(s, a)$. Unbiased and yields independent samples across trajectories, but uses fewer data points than every-visit MC.
+
+**First named in:** [MFRL — Lesson 18, MC Exploring Starts](lessons/tier-mfrl-rl-math/18-mc-exploring-starts/index.qmd)
 
 ### Focus (of a conic) {#focus-conic}
 
@@ -929,6 +1073,12 @@ A technique for finding $dy/dx$ from a relation $F(x, y) = 0$ by differentiating
 
 **First named in:** [Class 12, Chapter 5 — Differentiability and Rules of Differentiation](lessons/tier-cbse-12-class-12/05b-differentiability-and-rules/index.qmd)
 
+### Importance sampling {#importance-sampling}
+
+The identity $\mathbb{E}_{x \sim p}[f(x)] = \mathbb{E}_{x \sim q}[(p/q) f(x)]$ for densities $p, q$ with $q$ covering $p$. Reweights samples drawn under one distribution to estimate expectations under another — the bridge that makes off-policy learning work.
+
+**First named in:** [MFRL — Lesson 37, Off-Policy Actor-Critic](lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.qmd)
+
 ### Inclusion–exclusion {#inclusion-exclusion}
 
 The counting rule that for two finite sets, $|A \cup B| = |A| + |B| - |A \cap B|$, with a three-set version that adds back the triple overlap. Generalises to any finite number of sets.
@@ -1081,6 +1231,12 @@ A function of the form $y = mx + b$ whose graph is a straight line.
 
 **First named in:** [Tier 2, Lesson 5 — Linear Functions and Their Graphs](lessons/tier-2-prealgebra/05-linear-functions-graphs/index.qmd)
 
+### Linear function approximation {#linear-function-approximation}
+
+A value function approximator of the form $\hat v(s; w) = \phi(s)^\top w$, linear in $w$ but possibly non-linear in $s$ via the choice of features $\phi$.
+
+**First named in:** [MFRL — Lesson 28, From Table to Function](lessons/tier-mfrl-rl-math/28-from-table-to-function/index.qmd)
+
 ### Linear inequality {#linear-inequality}
 
 A statement that a linear expression is less than, greater than, or equal-or- not-equal to a number. Its solution is a region of the number line, not a single value.
@@ -1092,6 +1248,12 @@ A statement that a linear expression is less than, greater than, or equal-or- no
 Two adjacent angles whose non-shared sides form a straight line. A linear pair always sums to $180°$.
 
 **First named in:** [Class 9, Chapter 6 — Lines and Angles](lessons/tier-cbse-09-class-9/06-lines-and-angles/index.qmd)
+
+### Log-derivative trick {#log-derivative-trick}
+
+The identity $\nabla_\theta f(\theta) = f(\theta) \nabla_\theta \log f(\theta)$ for $f > 0$. Inside an expectation, it converts the gradient of a density into a sample-able expectation (also called the score-function estimator or REINFORCE trick).
+
+**First named in:** [MFRL — Lesson 33, The Policy Gradient Theorem](lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.qmd)
 
 ### Logarithm {#logarithm}
 
@@ -1125,6 +1287,18 @@ The price displayed on an item before any discount (MP). The base for computing 
 
 **First named in:** [Class 8, Chapter 7 — Comparing Quantities](lessons/tier-cbse-08-class-8/07-comparing-quantities/index.qmd)
 
+### Markov decision process {#markov-decision-process}
+
+The five-tuple $(S, A, P, R, \gamma)$ — states, actions, transition kernel, reward function, discount — that formalises a sequential decision-making environment with the Markov property.
+
+**First named in:** [MFRL — Lesson 01, What is an MDP?](lessons/tier-mfrl-rl-math/01-mdp-and-grid-world/index.qmd)
+
+### Markov property {#markov-property}
+
+The property that, given the present state-action pair, the future is independent of the past: $P(s_{t+1} \mid s_0, a_0, \ldots, s_t, a_t) = P(s_{t+1} \mid s_t, a_t)$.
+
+**First named in:** [MFRL — Lesson 02, State Transitions and the Markov Property](lessons/tier-mfrl-rl-math/02-state-transitions/index.qmd)
+
 ### Mathematical induction {#mathematical-induction}
 
 A proof technique establishing $P(n)$ for all $n \ge n_0$ by proving a base case and that $P(n)$ implies $P(n+1)$.
@@ -1136,6 +1310,12 @@ A proof technique establishing $P(n)$ for all $n \ge n_0$ by proving a base case
 A rectangular array of numbers; viewed actively, an encoded linear transformation whose columns are the images of the basis vectors.
 
 **First named in:** [Tier 5, Lesson 1 — Matrices and Matrix Operations](lessons/tier-5-undergrad-core/01-matrices/index.qmd)
+
+### MC Basic {#mc-basic}
+
+The simplest model-free policy iteration: alternate (a) Monte Carlo estimation of $q_\pi(s, a)$ from $N$ trajectories starting at each $(s, a)$ pair, with (b) greedy improvement $\pi(s) \leftarrow \arg\max_a \hat q(s, a)$. Requires the exploring-starts assumption.
+
+**First named in:** [MFRL — Lesson 17, MC Basic](lessons/tier-mfrl-rl-math/17-mc-basic/index.qmd)
 
 ### Mean {#mean}
 
@@ -1191,6 +1371,12 @@ The most frequently occurring value in a dataset. Useful for categorical data.
 
 **First named in:** [Tier 1, Lesson 14 — Data and the Average](lessons/tier-1-foundations/14-data-and-average/index.qmd)
 
+### Monte Carlo estimation {#monte-carlo-estimation}
+
+Estimating an expectation $\mathbb{E}[X]$ by averaging $n$ i.i.d. samples: $\bar X_n \to \mathbb{E}[X]$ almost surely by the law of large numbers, with standard error $\sigma/\sqrt{n}$. The foundation of every model-free RL algorithm.
+
+**First named in:** [MFRL — Lesson 16, Mean Estimation from Samples](lessons/tier-mfrl-rl-math/16-mean-estimation-from-samples/index.qmd)
+
 ### Multiple integral {#multiple-integral}
 
 A definite integral over a region in two or more dimensions, computed as iterated single integrals (Fubini's theorem) with coordinates chosen to match the region.
@@ -1222,6 +1408,12 @@ Two events $A$ and $B$ that cannot occur together: $A \cap B = \varnothing$. For
 **First named in:** [Class 11, Chapter 14 — Probability](lessons/tier-cbse-11-class-11/14-probability/index.qmd)
 
 ## N
+
+### n-step Sarsa {#n-step-sarsa}
+
+TD update with target $G_t^{(n)} = r_{t+1} + \cdots + \gamma^{n-1}r_{t+n} + \gamma^n q(s_{t+n}, a_{t+n})$; the bias-variance knob between TD(0) ($n=1$) and Monte Carlo ($n=\infty$).
+
+**First named in:** [MFRL — Lesson 25, n-Step Sarsa](lessons/tier-mfrl-rl-math/25-n-step-sarsa/index.qmd)
 
 ### Natural exponential {#natural-exponential}
 
@@ -1297,11 +1489,41 @@ One of the eight regions into which the three coordinate planes divide 3D space,
 
 **First named in:** [Class 11, Chapter 11 — Introduction to Three-Dimensional Geometry](lessons/tier-cbse-11-class-11/11-three-d-geometry-intro/index.qmd)
 
+### Off-policy {#off-policy}
+
+A learning algorithm whose target depends on a policy different from the one generating data. Only coverage of all $(s, a)$ pairs is required for convergence.
+
+**First named in:** [MFRL — Lesson 26, Q-Learning](lessons/tier-mfrl-rl-math/26-q-learning/index.qmd)
+
+### Off-policy actor-critic {#off-policy-actor-critic}
+
+Actor-critic where data is generated by a behaviour policy $\beta$ different from the target policy $\pi_\theta$. The actor's gradient is reweighted by importance ratios $\pi_\theta(a \mid s) / \beta(a \mid s)$.
+
+**First named in:** [MFRL — Lesson 37, Off-Policy Actor-Critic](lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.qmd)
+
+### On-policy {#on-policy}
+
+A learning algorithm whose target uses actions sampled from the same policy that generated the data; learns $q_\pi$ for that policy.
+
+**First named in:** [MFRL — Lesson 24, Sarsa](lessons/tier-mfrl-rl-math/24-sarsa/index.qmd)
+
 ### One-sided limit {#one-sided-limit}
 
 The value $f(x)$ approaches as $x$ tends to $a$ from one side only — written $\lim_{x \to a^+}$ (right) or $\lim_{x \to a^-}$ (left).
 
 **First named in:** [Tier 4, Lesson 1 — Limits](lessons/tier-4-precalc-calculus/01-limits/index.qmd)
+
+### Optimal policy {#optimal-policy}
+
+A policy $\pi^*$ achieving $v_{\pi^*}(s) = v^*(s)$ at every state. Exists (Bellman's theorem) and can be chosen deterministic stationary, but is not unique when greedy ties occur.
+
+**First named in:** [MFRL — Lesson 09, Optimal Policies and Optimal Values](lessons/tier-mfrl-rl-math/09-optimal-policies/index.qmd)
+
+### Optimal state value {#optimal-state-value}
+
+$v^*(s) = \max_\pi v_\pi(s)$ — the largest expected return achievable from $s$ over all policies. Unique on a finite MDP with $\gamma < 1$.
+
+**First named in:** [MFRL — Lesson 09, Optimal Policies and Optimal Values](lessons/tier-mfrl-rl-math/09-optimal-policies/index.qmd)
 
 ### Optimisation {#optimisation}
 
@@ -1479,6 +1701,36 @@ Writing a complex number as $z = re^{i\theta}$ where $r = |z|$ and $\theta = \ar
 
 **First named in:** [Tier 6, Lesson 4 — Complex Numbers](lessons/tier-6-undergrad-advanced/04-complex-numbers/index.qmd)
 
+### Policy evaluation {#policy-evaluation}
+
+Computing the value function $v_\pi$ of a fixed policy $\pi$, either by closed-form $v_\pi = (I - \gamma P_\pi)^{-1} r_\pi$ or by iterating the linear operator $T^\pi$ to convergence (also a $\gamma$-contraction).
+
+**First named in:** [MFRL — Lesson 14, Policy Iteration](lessons/tier-mfrl-rl-math/14-policy-iteration/index.qmd)
+
+### Policy gradient theorem {#policy-gradient-theorem}
+
+The identity $\nabla_\theta J(\theta) = \mathbb{E}_{(s,a) \sim \pi_\theta}[\nabla_\theta \log \pi_\theta(a \mid s)\, q_{\pi_\theta}(s,a)]$. Lets the gradient of expected return be estimated from samples without knowing the dynamics.
+
+**First named in:** [MFRL — Lesson 33, The Policy Gradient Theorem](lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.qmd)
+
+### Policy improvement {#policy-improvement}
+
+Constructing a new policy $\pi' = \arg\max_a [r + \gamma \sum P\,v_\pi]$ from the value function of an old policy $\pi$. The policy improvement theorem guarantees $v_{\pi'} \ge v_\pi$ pointwise.
+
+**First named in:** [MFRL — Lesson 14, Policy Iteration](lessons/tier-mfrl-rl-math/14-policy-iteration/index.qmd)
+
+### Policy iteration {#policy-iteration}
+
+The algorithm that alternates exact policy evaluation $v_{\pi_k} = (I - \gamma P_{\pi_k})^{-1} r_{\pi_k}$ with greedy improvement $\pi_{k+1} = \arg\max_a [r + \gamma \sum P\,v_{\pi_k}]$. Converges to $\pi^*$ in finitely many iterations on finite MDPs (Howard 1960).
+
+**First named in:** [MFRL — Lesson 14, Policy Iteration](lessons/tier-mfrl-rl-math/14-policy-iteration/index.qmd)
+
+### Policy (RL) {#policy-rl}
+
+A conditional distribution $\pi(a \mid s)$ over actions given the current state. Deterministic policies put probability 1 on a single action; combining a policy with an MDP collapses it into a Markov chain.
+
+**First named in:** [MFRL — Lesson 03, Policies as Conditional Distributions](lessons/tier-mfrl-rl-math/03-policy/index.qmd)
+
 ### Polygon {#polygon}
 
 A closed flat shape with straight sides — triangle, quadrilateral, pentagon, and so on.
@@ -1589,6 +1841,12 @@ In a right-angled triangle with legs $a, b$ and hypotenuse $c$, $a^2 + b^2 = c^2
 
 ## Q
 
+### Q-learning {#q-learning}
+
+Off-policy TD(0) for $q^*$: $q(s,a) \leftarrow q(s,a) + \alpha[r + \gamma \max_{a'} q(s',a') - q(s,a)]$; converges to optimal action values regardless of the data-generating policy.
+
+**First named in:** [MFRL — Lesson 26, Q-Learning](lessons/tier-mfrl-rl-math/26-q-learning/index.qmd)
+
 ### Quadrant {#quadrant}
 
 One of the four regions into which the two coordinate axes divide the plane, numbered I–IV counter-clockwise from the upper right.
@@ -1687,6 +1945,12 @@ A convex polygon with all sides equal AND all interior angles equal. Inscribes i
 
 **First named in:** [Kiselev Geometry Book I — Chapter 8, Regular polygons and circumference](lessons/tier-kiselev-3-planimetry/08-regular-polygons/index.qmd)
 
+### REINFORCE {#reinforce}
+
+Stochastic gradient ascent on $J(\theta)$ that uses the observed Monte Carlo return $G_t$ as an unbiased single-sample estimator of $q_{\pi_\theta}(s_t, a_t)$ inside the policy gradient theorem (Williams 1992).
+
+**First named in:** [MFRL — Lesson 34, REINFORCE](lessons/tier-mfrl-rl-math/34-reinforce/index.qmd)
+
 ### Related rates {#related-rates}
 
 A class of problems where two quantities are linked by an equation and you find one rate of change from the other by differentiating with respect to time.
@@ -1723,6 +1987,12 @@ A decimal whose digits cycle forever in a fixed pattern, written with a bar over
 
 **First named in:** [Tier 1, Lesson 8 — Decimals](lessons/tier-1-foundations/08-decimals/index.qmd)
 
+### Replay buffer {#replay-buffer}
+
+A circular buffer of past transitions $(s, a, r, s')$ from which mini-batches are sampled uniformly to train a value or actor-critic network. Decorrelates samples and reuses each transition many times.
+
+**First named in:** [MFRL — Lesson 31, Deep Q-Network](lessons/tier-mfrl-rl-math/31-deep-q-network/index.qmd)
+
 ### Residue theorem {#residue-theorem}
 
 $\oint_C f(z)\, dz = 2\pi i \sum_k \mathrm{Res}(f; a_k)$, summed over singularities inside $C$. Lets contour integrals (and many real integrals) be computed from local data at singular points.
@@ -1747,6 +2017,12 @@ A set with two operations (add and multiply): an abelian group under $+$, an ass
 
 **First named in:** [Tier 6, Lesson 2 — Rings and Fields](lessons/tier-6-undergrad-advanced/02-rings-fields/index.qmd)
 
+### Robbins-Monro algorithm {#robbins-monro-algorithm}
+
+Stochastic root-finder $w_{k+1} = w_k - \alpha_k y_k$ for solving $g(w) = 0$ from noisy samples $y_k = g(w_k) + \eta_k$; converges almost surely when $\sum\alpha_k = \infty$ and $\sum\alpha_k^2 < \infty$.
+
+**First named in:** [MFRL — Lesson 20, Robbins-Monro](lessons/tier-mfrl-rl-math/20-robbins-monro/index.qmd)
+
 ### RSA {#rsa}
 
 A widely used encryption scheme whose security rests on the difficulty of factoring a product of two large primes.
@@ -1766,6 +2042,12 @@ Given three of four quantities in a proportion $a : b = c : d$, find the fourth 
 The set of every possible outcome of a random experiment. Every probability is computed relative to it.
 
 **First named in:** [Tier 3, Lesson 13 — Basic Probability](lessons/tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd)
+
+### Sarsa {#sarsa}
+
+On-policy TD(0) for action values: $q(s,a) \leftarrow q(s,a) + \alpha[r + \gamma q(s',a') - q(s,a)]$ with $a' \sim \pi$; named after the data tuple $(s, a, r, s', a')$.
+
+**First named in:** [MFRL — Lesson 24, Sarsa](lessons/tier-mfrl-rl-math/24-sarsa/index.qmd)
 
 ### Scientific notation {#scientific-notation}
 
@@ -1802,6 +2084,12 @@ The pie-slice region of a circle bounded by two radii and the arc between them. 
 The 2D region of a circle bounded by a chord and one of the two arcs the chord cuts off. Minor-segment area = sector area $-$ triangle area.
 
 **First named in:** [Class 10, Chapter 11 — Areas Related to Circles](lessons/tier-cbse-10-class-10/11-areas-related-to-circles/index.qmd)
+
+### Semi-gradient TD {#semi-gradient-td}
+
+A TD update for a parameterised value function that differentiates the prediction but treats the bootstrapped target as constant in $w$, even though it depends on $w$. Provably convergent for linear FA on-policy (Tsitsiklis–Van Roy 1997).
+
+**First named in:** [MFRL — Lesson 29, TD with Function Approximation](lessons/tier-mfrl-rl-math/29-td-with-function-approximation/index.qmd)
 
 ### Semi-perimeter {#semi-perimeter}
 
@@ -1869,6 +2157,12 @@ A topological space that locally looks like $\mathbb{R}^n$, with overlapping coo
 
 **First named in:** [Tier 7, Lesson 7 — Differential Geometry](lessons/tier-7-masters-tracks/07-differential-geometry/index.qmd)
 
+### Softmax policy {#softmax-policy}
+
+A parameterised discrete policy $\pi(a \mid s; \theta) = \exp(h(s,a;\theta)) / \sum_{a'}\exp(h(s,a';\theta))$, where $h$ is a learnable preference. Smoothly interpolates between uniform random and greedy.
+
+**First named in:** [MFRL — Lesson 32, Parameterising Policies](lessons/tier-mfrl-rl-math/32-policy-parameterization/index.qmd)
+
 ### Solution of an equation {#solution-of-an-equation}
 
 A value of the unknown that, when substituted back in, makes both sides of the equation equal.
@@ -1910,6 +2204,18 @@ The square root of variance, $\sigma = \sqrt{\text{Var}(X)}$ — spread in the o
 The standard deviation of a sampling distribution; for a sample mean it is $\sigma/\sqrt{n}$.
 
 **First named in:** [Tier 5, Lesson 9 — Variance, Standard Deviation, and the Central Limit Theorem](lessons/tier-5-undergrad-core/09-variance-clt/index.qmd)
+
+### State-transition kernel {#state-transition-kernel}
+
+The conditional distribution $P(s' \mid s, a)$ specifying the probability of arriving in next state $s'$ when action $a$ is taken in state $s$. Each row sums to 1.
+
+**First named in:** [MFRL — Lesson 02, State Transitions and the Markov Property](lessons/tier-mfrl-rl-math/02-state-transitions/index.qmd)
+
+### State value {#state-value}
+
+$v_\pi(s) = \mathbb{E}_\pi[G_t \mid s_t = s]$ — the expected discounted return starting from state $s$ and following policy $\pi$.
+
+**First named in:** [MFRL — Lesson 05, State Values: Expected Return](lessons/tier-mfrl-rl-math/05-state-values/index.qmd)
 
 ### Substitution method {#substitution-method}
 
@@ -1961,6 +2267,24 @@ A line that meets a circle at exactly one point — the *point of contact*. The 
 
 **First named in:** [Class 10, Chapter 10 — Circles and Tangents](lessons/tier-cbse-10-class-10/10-circles-tangents/index.qmd)
 
+### Target network {#target-network}
+
+A frozen (or slowly-updated) copy of a Q-network used to compute bootstrap targets, so that the regression target does not move while the main parameters are updated. Hard sync every $C$ steps (DQN) or soft update via exponential moving average (DDPG).
+
+**First named in:** [MFRL — Lesson 31, Deep Q-Network](lessons/tier-mfrl-rl-math/31-deep-q-network/index.qmd)
+
+### TD error {#td-error}
+
+The quantity $\delta_t = r_{t+1} + \gamma v(s_{t+1}) - v(s_t)$: the gap between the bootstrapped target and the current estimate; drives every TD update.
+
+**First named in:** [MFRL — Lesson 23, TD(0)](lessons/tier-mfrl-rl-math/23-td-state-values/index.qmd)
+
+### TD(0) {#td-zero}
+
+The one-step temporal-difference update $v(s) \leftarrow v(s) + \alpha[r + \gamma v(s') - v(s)]$; estimates $v_\pi$ from sampled transitions without waiting for episode end.
+
+**First named in:** [MFRL — Lesson 23, TD(0)](lessons/tier-mfrl-rl-math/23-td-state-values/index.qmd)
+
 ### Terminating decimal {#terminating-decimal}
 
 A decimal that ends after finitely many digits — equivalently, a fraction whose reduced denominator's only prime factors are 2 and 5.
@@ -1972,6 +2296,12 @@ A decimal that ends after finitely many digits — equivalently, a fraction whos
 A choice of which subsets of a space count as "open," closed under arbitrary unions and finite intersections; that one choice is enough to define continuity, convergence, compactness, and connectedness without any reference to distance.
 
 **First named in:** [Tier 7, Lesson 2 — Topology](lessons/tier-7-masters-tracks/02-topology/index.qmd)
+
+### Trajectory {#trajectory}
+
+A sequence $(s_0, a_0, r_1, s_1, a_1, r_2, \ldots)$ generated by an MDP under a policy — the "tape" of one rollout.
+
+**First named in:** [MFRL — Lesson 04, Trajectories, Returns, and the Discount](lessons/tier-mfrl-rl-math/04-trajectories-returns-episodes/index.qmd)
 
 ### Transversal {#transversal}
 
@@ -2008,6 +2338,12 @@ An equation involving trigonometric functions of an unknown angle. Because trig 
 A function (sine, cosine, tangent, and their reciprocals) that converts an angle into a number — built from the coordinates of a point travelling around the unit circle.
 
 **First named in:** [Tier 3, Lesson 7 — Trig Ratios](lessons/tier-3-algebra2-geometry-trig/07-trig-ratios/index.qmd)
+### Truncated policy iteration {#truncated-policy-iteration}
+
+A family of algorithms parameterised by $K$ that performs $K$ Bellman evaluation steps per greedy improvement. Recovers value iteration ($K = 1$) and policy iteration ($K = \infty$) as endpoints; any $K \ge 1$ converges.
+
+**First named in:** [MFRL — Lesson 15, Truncated Policy Iteration](lessons/tier-mfrl-rl-math/15-truncated-policy-iteration/index.qmd)
+
 
 ## U
 
@@ -2036,6 +2372,18 @@ A vector of magnitude 1 — pure direction with the size stripped away. Found by
 **First named in:** [Tier 4, Lesson 13 — Vectors in 2D and 3D](lessons/tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd)
 
 ## V
+
+### Value function approximation {#value-function-approximation}
+
+Replacing the table $v(s)$ by a parameterised function $\hat v(s; w)$ with $w \in \mathbb{R}^d$, $d \ll |\mathcal{S}|$; trades exact representation for memory and built-in generalisation.
+
+**First named in:** [MFRL — Lesson 28, From Table to Function](lessons/tier-mfrl-rl-math/28-from-table-to-function/index.qmd)
+
+### Value iteration {#value-iteration}
+
+The algorithm $v_{k+1} \leftarrow T^* v_k$, repeatedly applying the Bellman optimality operator until convergence. Equivalent to Banach iteration on $T^*$; converges geometrically at rate $\gamma^k$.
+
+**First named in:** [MFRL — Lesson 13, Value Iteration](lessons/tier-mfrl-rl-math/13-value-iteration/index.qmd)
 
 ### Variable {#variable}
 

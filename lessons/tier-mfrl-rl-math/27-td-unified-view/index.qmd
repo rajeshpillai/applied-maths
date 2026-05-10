@@ -7,87 +7,438 @@ prerequisites: ["mfrl.q-learning"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.q-learning"].
+Before you start, you should be able to say *yes* to all four:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Sarsa update from memory? — see [MFRL — 24, Sarsa](../24-sarsa/index.qmd).
+2. Q-learning update from memory? — see [MFRL — 26, Q-Learning](../26-q-learning/index.qmd).
+3. The on-policy / off-policy distinction (data policy vs target policy)?
+4. n-step return $G_t^{(n)}$? — see [MFRL — 25, n-Step Sarsa](../25-n-step-sarsa/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+You already know three TD algorithms:
+
+| Algorithm | Update target |
+|:--|:--|
+| **Sarsa** (on-policy) | $r + \gamma \, q(s', a')$, $a' \sim \pi$ |
+| **Q-learning** (off-policy) | $r + \gamma \max_{a'} q(s', a')$ |
+| **Expected Sarsa** | $r + \gamma \sum_{a'} \pi(a' \mid s') q(s', a')$ |
+
+Look at this widget. Pick a *target* and a *data policy*. The widget tells
+you which algorithm you've selected and how it will behave.
+
+```{ojs}
+viewof targetType = Inputs.select(["Sarsa: q(s', a')", "Q-learning: max q(s', a')", "Expected Sarsa: E_π[q(s', a')]"], {label: "Target uses:"})
+viewof dataPolicy = Inputs.select(["ε-greedy on q", "Uniform random", "Greedy on q (no exploration)"], {label: "Data policy:"})
+```
+
+```{ojs}
+{
+  let name = "?", onpol = "?", behaviour = "?";
+  if (targetType.startsWith("Sarsa")) name = "Sarsa";
+  if (targetType.startsWith("Q-learning")) name = "Q-learning";
+  if (targetType.startsWith("Expected")) name = "Expected Sarsa";
+  if (name === "Q-learning") onpol = "Off-policy (target ignores behaviour)";
+  else if (name === "Expected Sarsa" && dataPolicy === "Uniform random") onpol = "Off-policy: target = random's q_π. Equals q^* only if π=π*.";
+  else if (name === "Expected Sarsa") onpol = "Variant of on-policy when π is the behaviour policy";
+  else onpol = "On-policy (target uses behaviour's a')";
+  if (dataPolicy === "Uniform random") behaviour = "Uniform random behaviour ⇒ maximal exploration; coverage guaranteed.";
+  else if (dataPolicy === "ε-greedy on q") behaviour = "ε-greedy ⇒ adequate exploration if ε > 0.";
+  else behaviour = "Greedy ⇒ no exploration ⇒ fails coverage in general.";
+  return html`<div style="font-family: system-ui; padding: 12px; border: 1px solid #ddd; border-radius: 6px;">
+    <p><strong>Algorithm:</strong> ${name}</p>
+    <p><strong>On/off-policy:</strong> ${onpol}</p>
+    <p><strong>Behaviour:</strong> ${behaviour}</p>
+  </div>`;
+}
+```
+
+Three algorithms, *one master formula*. The choice of "what target?" picks
+the algorithm. The choice of "what data policy?" decides whether learning
+will be on-policy, off-policy, or coverage-broken.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. Sarsa, Q-learning, Expected Sarsa look like three different algorithms in
+   most textbooks. Could they really all be **one** algorithm with a knob?
+2. The Sarsa target is a *random* draw of $a' \sim \pi$. The Expected Sarsa
+   target *averages over* $\pi$. The Q-learning target *maxes over* $a'$.
+   What do these three operations have in common — what are they all
+   *computing*?
+3. If your data policy is the same as the target policy, are Sarsa and
+   Expected Sarsa estimating the same thing? What's the difference, then?
+4. Could you imagine a *fourth* TD method — a different choice of target?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Five problems to compress three algorithms into one master formula and feel
+the design space.
+
+### Problem 1 — the master form
+
+Write all three TD updates side-by-side and find the common shape.
+
+<details class="hint"><summary>Full solution</summary>
+$$q(s, a) \;\leftarrow\; q(s, a) + \alpha \, [\,T - q(s, a)\,],$$
+where $T$ is one of:
+- **Sarsa:** $T = r + \gamma q(s', a')$, $a' \sim \pi$.
+- **Q-learning:** $T = r + \gamma \max_{a'} q(s', a')$.
+- **Expected Sarsa:** $T = r + \gamma \sum_{a'} \pi(a' \mid s') q(s', a')$.
+
+The recursion is identical; only $T$ changes.
+</details>
+
+### Problem 2 — three operations on $q(s', \cdot)$
+
+Each algorithm processes $q(s', \cdot)$ — a vector of action values at $s'$ —
+into a single number for the target. Sarsa *samples*, Q-learning *maxes*,
+Expected Sarsa *averages*. Why are these the natural three?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What does each operation correspond to under the Bellman equation?
+</details>
+<details class="hint"><summary>Full solution</summary>
+The Bellman equation has the structure $v(s) = \mathbb{E}_a[\,q(s, a)\,]$ for
+some policy distribution. Three ways to compute that expectation:
+- **Sample one $a'$** (Sarsa) — unbiased estimator of the on-policy Bellman
+  expectation.
+- **Take the average** $\sum \pi(a') q(s', a')$ (Expected Sarsa) — exact
+  expectation under $\pi$, lower variance.
+- **Take the max** (Q-learning) — exact expectation under the *optimal*
+  policy.
+
+Sample, average, max — three ways of collapsing $q(s', \cdot)$ to a number.
+</details>
+
+### Problem 3 — bias-variance ranking
+
+Order Sarsa, Q-learning, Expected Sarsa by per-step *variance*.
+
+<details class="hint"><summary>Full solution</summary>
+- **Sarsa:** randomness from $a' \sim \pi$ AND from $r, s'$ — highest
+  variance.
+- **Expected Sarsa:** averages out the $a'$ randomness — lower variance.
+- **Q-learning:** no $a'$ randomness — lowest "policy-side" variance.
+  *But* maximisation bias adds noise of its own.
+
+In practice **Expected Sarsa often wins** in tabular settings because it
+keeps Sarsa's on-policy guarantee while killing the $a'$-variance.
+</details>
+
+### Problem 4 — what target ⇒ what fixed point
+
+Sarsa converges to $q_\pi$. Q-learning converges to $q^\*$. What does
+Expected Sarsa converge to?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The expected-target operator's fixed point.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Expected Sarsa's expected target is exactly the same as Sarsa's expected
+target, *under the same $\pi$*: $\mathbb{E}[r + \gamma q(s', a')] = \mathbb{E}[r + \gamma \mathbb{E}_{a'}[q(s', a')]]$. So **Expected Sarsa
+converges to $q_\pi$** for the policy $\pi$ used in the target. If $\pi$ is
+the behaviour policy, it's on-policy; if $\pi$ is *another* policy (such as
+the greedy policy under the current $q$), it becomes a flexible *general
+policy iteration* engine.
+</details>
+
+### Problem 5 — n-step versions
+
+The n-step Sarsa update from Lesson 25 used $G_t^{(n)}$ as target.
+What are the n-step analogues of Q-learning and Expected Sarsa?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Replace the bootstrap term at step $t + n$ with the corresponding "max" or
+"expectation" operation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- **n-step Q-learning:** $G_t^{(n), Q} = r_{t+1} + \cdots + \gamma^{n-1} r_{t+n} + \gamma^n \max_{a'} q(s_{t+n}, a')$. Off-policy in the
+  *bootstrap*, but the intermediate trajectory was generated on-policy
+  — needing **importance sampling** corrections to fix this in the strict
+  off-policy case.
+- **n-step Expected Sarsa:** $G_t^{(n), \text{ESarsa}} = r_{t+1} + \cdots + \gamma^{n-1} r_{t+n} + \gamma^n \sum_{a'} \pi(a' \mid s_{t+n}) q(s_{t+n}, a')$.
+
+These appear in the literature as **Tree-Backup** and **Q($\sigma$)** with
+$\sigma$ a per-step knob between sampling and expectation. Don't worry about
+the names; the design space is one knob.
+</details>
+
+::: {.key-insight}
+Every TD method is **"target − current estimate, scaled by $\alpha$."** The
+differences are entirely in *what target you use*. The choice of target is
+the algorithm. Once you internalise this, the literature stops being a
+zoo of named algorithms and becomes a small design space.
+:::
+
+::: {.fun-fact}
+**Expected Sarsa** has an unusual history. It was independently proposed
+multiple times in the 1990s and early 2000s without becoming famous, until
+**van Seijen, van Hasselt, Whiteson, Wiering** wrote a 2009 ICML paper
+titled "A theoretical and empirical analysis of Expected Sarsa" that
+unified all the prior proposals and showed it consistently beat plain Sarsa
+on tabular benchmarks. The lesson: **good ideas without a benchmark study
+get rediscovered for a decade.** That paper finally settled it.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Master TD update.** Given $(s, a, r, s')$:
+$$
+q(s, a) \;\leftarrow\; q(s, a) + \alpha \, [\,T(s', \cdot) - q(s, a)\,],
+$$
+where $T$ is the target value. Three canonical choices:
+
+| Algorithm | Target $T$ at next state | Fixed point | On/off |
+|:--|:--|:--|:--|
+| **Sarsa** | $r + \gamma \, q(s', a')$ | $q_\pi$ | on-policy |
+| **Q-learning** | $r + \gamma \max_{a'} q(s', a')$ | $q^\*$ | off-policy |
+| **Expected Sarsa** | $r + \gamma \sum_{a'} \pi(a'\mid s') q(s', a')$ | $q_\pi$ | depends on $\pi$ |
+
+The choice of $T$ — *sample*, *max*, or *expectation* over $q(s', \cdot)$ —
+is the entire design knob.
+
+:::
+
+A short verse, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Sample one action — Sarsa is born.*
+> *Take the maximum — Q-learning rises.*
+> *Average over policy — Expected Sarsa awakens.*
+> *One recursion, three faces.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — three targets, one transition
+
+> A grid: $(s, a, r, s') = (s_3, \text{right}, +0.5, s_4)$. Action values at
+> $s_4$: $q(s_4, \text{up}) = 1$, $q(s_4, \text{down}) = 2$,
+> $q(s_4, \text{left}) = 0$, $q(s_4, \text{right}) = 3$. Policy at $s_4$:
+> $\pi(\cdot \mid s_4) = (0.1, 0.1, 0.1, 0.7)$ (greedy on right with ε=0.4
+> spread). $\gamma = 0.9$. Compute the three targets.
+
+A competent solver thinks like this:
+
+1. **Sarsa target.** Suppose the agent samples $a' = \text{right}$ (the
+   greedy pick under ε-greedy). Target $= 0.5 + 0.9 \cdot q(s_4, \text{right}) = 0.5 + 2.7 = 3.2$. (If they had sampled $a' = \text{up}$ instead, the
+   target would be $0.5 + 0.9 = 1.4$ — sample variance!)
+2. **Q-learning target.** $\max_{a'} q(s_4, a') = 3$. Target $= 0.5 + 0.9 \cdot 3 = 3.2$. Always the same; no sample.
+3. **Expected Sarsa target.** $\sum_{a'} \pi(a' \mid s_4) q(s_4, a') = 0.1 \cdot 1 + 0.1 \cdot 2 + 0.1 \cdot 0 + 0.7 \cdot 3 = 0.1 + 0.2 + 0 + 2.1 = 2.4$.
+   Target $= 0.5 + 0.9 \cdot 2.4 = 2.66$.
+
+Same transition, three different targets. Sarsa happens to match Q-learning
+in this case because the agent sampled the greedy action — but that's luck.
+Expected Sarsa is *between* the two, weighted by $\pi$.
+
+### Practice — Warm
+
+**W1.** Compute Q-learning and Expected Sarsa targets for $(r, \gamma) = (0, 0.95)$ with $q(s', \cdot) = (4, 6, 5)$ and $\pi(\cdot \mid s') = (0.5, 0.3, 0.2)$.
+
+<details class="hint"><summary>Full solution</summary>
+**Q-learning target** $= 0 + 0.95 \cdot 6 = 5.7$.
+**Expected Sarsa target** $= 0 + 0.95 \cdot (0.5 \cdot 4 + 0.3 \cdot 6 + 0.2 \cdot 5) = 0.95 \cdot 4.8 = 4.56$.
+</details>
+
+**W2.** True or false: "Expected Sarsa with the *greedy* policy as $\pi$ is
+the same as Q-learning."
+
+<details class="hint"><summary>Full solution</summary>
+**True.** If $\pi$ puts probability 1 on $\arg\max_{a'} q(s', a')$, the
+expectation $\sum \pi q$ collapses to $\max q$. So Q-learning is the
+"Expected Sarsa with greedy target" special case.
+</details>
+
+**W3.** Order the three algorithms by target *variance* on a fixed transition.
+
+<details class="hint"><summary>Full solution</summary>
+**Q-learning** (zero) ≈ **Expected Sarsa** (zero) < **Sarsa** (positive,
+from sampling $a'$). Both Q-learning and Expected Sarsa eliminate the $a'$
+variance. The remaining variance comes from $r, s'$, which all three share.
+</details>
+
+### Practice — Working
+
+**P1.** Show that **Q-learning is Expected Sarsa with $\pi$ = greedy(q)**.
+What's subtle: the $\pi$ here changes as $q$ changes.
+
+<details class="hint"><summary>Full solution</summary>
+With $\pi(\arg\max_{a'} q(s', a') \mid s') = 1$ and 0 elsewhere,
+$\sum \pi q = \max q$. So target ≡ Q-learning's. The subtle point: this
+$\pi$ is *not* a fixed policy — it's the greedy-on-$q$ policy, which
+*moves* as $q$ updates. So Q-learning's effective "target policy" is
+*always* the greedy improvement of the current $q$. That's policy iteration
+in disguise.
+</details>
+
+**P2.** Implement the three targets on a 1-step transition tuple by Python
+pseudo-code. Highlight where the algorithms differ.
+
+<details class="hint"><summary>Full solution</summary>
+```
+def sarsa_target(r, gamma, q, sp, ap):
+    return r + gamma * q[sp][ap]
+
+def qlearning_target(r, gamma, q, sp):
+    return r + gamma * max(q[sp])
+
+def expected_sarsa_target(r, gamma, q, sp, pi):
+    return r + gamma * sum(pi[sp][a] * q[sp][a] for a in range(A))
+```
+The functional difference is one line each: `q[sp][ap]` vs `max(q[sp])`
+vs `sum(pi[sp] * q[sp])`. Everything else — buffer, update, schedule — is
+identical.
+</details>
+
+**P3.** *Why is Expected Sarsa's *update* an Off-policy method when $\pi$
+is not the behaviour policy?* Sketch.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The behaviour generated $a$; the target uses an explicit policy distribution
+$\pi$ that need not match.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The target $\sum_{a'} \pi(a'\mid s') q(s', a')$ uses an *explicit* policy
+$\pi$, irrespective of which $a'$ the behaviour would have sampled. So if
+$\pi$ ≠ behaviour, the algorithm is off-policy: data from one policy,
+evaluation of another. You don't even need importance sampling for this
+form, because the sum *itself* takes care of the policy weighting. This is
+why Expected Sarsa is favoured for off-policy *evaluation* in practice.
+</details>
+
+### Practice — Stretch
+
+**S1.** *Design a fourth TD method.* Pick any operation
+$\Phi: q(s', \cdot) \to \mathbb{R}$ and write the resulting algorithm. State
+its fixed point.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try a *softmax* or a *mean of top-k* operation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Example: **Softmax-Sarsa** with target $r + \gamma \cdot \text{softmax}_\beta(q(s', \cdot))$ where $\text{softmax}_\beta(\mathbf{q}) = \tfrac{1}{\beta} \log \sum_{a'} \exp(\beta q(s', a'))$. As $\beta \to \infty$ this recovers
+Q-learning's max; as $\beta \to 0$ it recovers a uniform average. The fixed
+point is $q$ for the softmax-greedy policy with temperature $1/\beta$. This
+is **soft Q-learning** and underpins maximum-entropy RL methods like SAC.
+The design space of "what operation to apply at the bootstrap" is rich.
+</details>
+
+**S2.** *Why doesn't Sarsa's variance ruin tabular learning?* Sketch.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Variance per *update* matters; over many updates it averages out.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Sarsa's per-update variance is bounded by $\sigma_{a'}^2 \cdot \gamma^2$
+plus the inherent $r, s'$ variance. Robbins-Monro / Dvoretzky averages this
+out *across* updates, killing the variance contribution as
+$\sum \alpha_t^2 \cdot \mathrm{Var}$. Vanishing $\alpha_t$ wins in the
+limit. Expected Sarsa just *starts* with less variance, so it gets to a
+given precision with fewer updates.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Q-learning, Sarsa, Expected Sarsa are different algorithms."** They
+   are *the same* update with different targets. Pick the target that
+   matches your goal (estimate $q^\*$ vs $q_\pi$) and your variance budget.
+2. **"Expected Sarsa is always better than Sarsa."** Better in tabular when
+   variance matters. With function approximation Expected Sarsa is more
+   expensive per update (you must sum over actions); the trade is real.
+3. **"Q-learning is just Sarsa with $a'$ = greedy."** Almost — except
+   that *substitution* is what makes it off-policy. The greedy action is
+   not necessarily the action *taken*; it's the action *valued*. That
+   subtle "valued not taken" is the whole story.
+:::
+
+### Takeaways
+
+If you remember nothing else:
+
+1. **One master form:** $q \leftarrow q + \alpha [T - q]$.
+2. **Three canonical targets:** sample (Sarsa), max (Q-learning), expectation
+   (Expected Sarsa). Pick by goal and variance budget.
+3. **The literature's algorithm zoo is a small design space.** Once you
+   see the master form, every new TD variant becomes "ah, that's a
+   different choice of $T$."
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you state the master TD update and three canonical targets without
+   notes?
+2. Did you solve at least 5 of the 8 practice problems without peeking past
+   *Hint 1*?
+3. Can you spot a "new" TD algorithm in a paper and immediately identify
+   *which target* it's using?
+
+- **3 yes:** move on to **[Lesson 28 — From Table to Function](../28-from-table-to-function/index.qmd)**.
+- **2 yes:** redo Stretch S1 — designing your own TD variant tests whether
+  the master form has clicked.
+- **0–1 yes:** re-read the *Name* table. The whole lesson collapses to it.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.q-learning"]
+- **[MFRL — 24, Sarsa](../24-sarsa/index.qmd)** — sampling target.
+- **[MFRL — 26, Q-Learning](../26-q-learning/index.qmd)** — max target.
+- **[MFRL — 25, n-Step Sarsa](../25-n-step-sarsa/index.qmd)** — the
+  $n$-step extension axis.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[MFRL — 28, From Table to Function](../28-from-table-to-function/index.qmd)** — the master form survives function approximation; only $q$ is now
+  $\hat q(s, a; w)$.
+- **[MFRL — 31, DQN](../31-deep-q-network/index.qmd)** — Q-learning target
+  with deep-network $\hat q$.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Modern algorithms like Soft Actor-Critic (SAC) use a softmax
+target — *another* point in the same design space. **Maximum-entropy RL**
+is "Expected Sarsa with a softmax policy"; **DQN variants** are "Q-learning
+target with engineering tricks." The unifying view in this lesson is the
+view practitioners use when they read a new paper.
+See [Bellman equation](/glossary.qmd#bellman-equation) and
+[expected value](/glossary.qmd#expected-value).
+:::
+
+::: {.applied-callout}
+**Research.** Researchers often design new TD methods by varying the target.
+The 2018 paper *Distributional Reinforcement Learning* (Bellemare et al.)
+varies it most radically — replacing scalar $q$ with a *distribution* over
+returns and updating the distribution via a Wasserstein-style target.
+Same master form, distributional target.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning that this track
+expands into 38 lessons.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §27. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- **Source:** Shiyu Zhao, *Mathematical Foundations of Reinforcement
+  Learning* (Springer 2025), Chapter 7 §7.5. Cited freely; never transcribed.
+- **Touchstones honoured:** Russian school problem-first sequencing,
+  Better Explained "one design knob" framing, Bhāskara verse for the
+  three faces.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (table, recursion, English, code) ✓, graduated hints ✓, worked
+  solutions ✓, common-confusions ✓, self-assessment ✓.
 :::

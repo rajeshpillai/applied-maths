@@ -7,87 +7,532 @@ prerequisites: ["mfrl.value-iteration"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.value-iteration"].
+1. Can you state the [Bellman equation](/glossary.qmd#bellman-equation) for
+   $v_\pi$ (linear, with $\mathbb{E}_\pi$, no $\max$)?
+2. Can you compute $v_\pi$ for a small MDP by either iteration or the
+   matrix formula $v_\pi = (I - \gamma P_\pi)^{-1} r_\pi$?
+3. Are you comfortable extracting a greedy policy from a value function?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+If shaky, revisit Lessons 6 (Bellman equation), 7 (matrix form), and 13 (VI).
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Policy iteration alternates two boxes. Imagine them as a loop:
+
+```
+        ┌────────────────────────┐
+        ▼                        │
+  ┌──────────────┐         ┌──────────────┐
+  │  Evaluate    │         │   Improve    │
+  │   v_π for    │  ────►  │  π greedy    │
+  │  fixed π     │         │  w.r.t. v_π  │
+  └──────────────┘         └──────────────┘
+        ▲                        │
+        └────────────────────────┘
+```
+
+Below is a 3×3 grid (same as Lesson 13). Slide to step through the PI
+iterations. Each iteration shows two snapshots: $v_{\pi_k}$ (after exact
+evaluation) and the new policy $\pi_{k+1}$ (after greedy improvement).
+
+```{ojs}
+viewof piIter = Inputs.range([0, 6], {value: 0, step: 1, label: "PI iteration k"})
+```
+
+```{ojs}
+{
+  const N = 3;
+  const goal = [2, 2];
+  const gamma = 0.9;
+  const next = (i, j, a) => {
+    if (i === goal[0] && j === goal[1]) return [i, j];
+    let ni = i, nj = j;
+    if (a === 0 && i > 0) ni = i - 1;
+    if (a === 1 && i < N - 1) ni = i + 1;
+    if (a === 2 && j > 0) nj = j - 1;
+    if (a === 3 && j < N - 1) nj = j + 1;
+    return [ni, nj];
+  };
+  const reward = (i, j) => (i === goal[0] && j === goal[1] ? 1 : 0);
+  const flat = (i, j) => i * N + j;
+
+  // Start with policy "always up" — deliberately bad
+  let policy = Array.from({length: N}, () => Array(N).fill(0));
+
+  // Solve v_π by iterative evaluation (50 inner sweeps)
+  function evalPolicy(policy) {
+    let v = Array.from({length: N}, () => Array(N).fill(0));
+    for (let it = 0; it < 200; it++) {
+      const vn = Array.from({length: N}, () => Array(N).fill(0));
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+        const a = policy[i][j];
+        const [ni, nj] = next(i, j, a);
+        vn[i][j] = reward(ni, nj) + gamma * v[ni][nj];
+      }
+      v = vn;
+    }
+    return v;
+  }
+  function improve(v) {
+    const p = Array.from({length: N}, () => Array(N).fill(0));
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      let best = -Infinity, ba = 0;
+      for (let a = 0; a < 4; a++) {
+        const [ni, nj] = next(i, j, a);
+        const q = reward(ni, nj) + gamma * v[ni][nj];
+        if (q > best) { best = q; ba = a; }
+      }
+      p[i][j] = ba;
+    }
+    return p;
+  }
+
+  let v = evalPolicy(policy);
+  for (let k = 0; k < piIter; k++) {
+    policy = improve(v);
+    v = evalPolicy(policy);
+  }
+
+  const arrow = a => ["↑", "↓", "←", "→"][a];
+  const cells = [];
+  let vmax = 0.001;
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) vmax = Math.max(vmax, Math.abs(v[i][j]));
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const intensity = Math.round((Math.abs(v[i][j]) / vmax) * 200);
+      const colour = `rgb(${255 - intensity}, ${255 - intensity / 2}, 255)`;
+      const sym = (i === goal[0] && j === goal[1]) ? "★" : arrow(policy[i][j]);
+      cells.push(html`<div style="background:${colour}; width:80px; height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:monospace; border:1px solid #999;">
+        <div style="font-size: 0.85rem;">${v[i][j].toFixed(2)}</div>
+        <div style="font-size: 1.4rem;">${sym}</div>
+      </div>`);
+    }
+  }
+  return html`<div style="display:grid; grid-template-columns: repeat(${N}, 80px); gap:0; width:max-content; margin:1rem auto;">${cells}</div>
+  <div style="text-align:center; font-size:0.9rem; color:#666;">PI iteration ${piIter}: cell shows v_π(s); arrow shows current π(s).</div>`;
+}
+```
+
+Watch how each iteration produces a *much* bigger jump in the policy than VI
+does. By PI iteration 3 or 4, the policy is already optimal. PI converges
+in *finitely many steps* — not asymptotically.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. PI does *exact* policy evaluation at each step — that's much more work
+   per iteration than VI's single sweep. Yet PI converges in just a handful
+   of iterations. Where does the work-per-iteration go?
+2. After improving $\pi$ greedily w.r.t.\ $v_\pi$, why does the new policy
+   $\pi'$ have $v_{\pi'} \ge v_\pi$ pointwise? Could greedy improvement
+   ever *hurt*?
+3. There are only finitely many deterministic policies. Could PI cycle
+   between two of them?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — Solve $v_\pi$ for a fixed policy
+
+Take the 3×3 grid with the trivial policy $\pi_0(s) = $ "up" everywhere.
+What is $v_{\pi_0}(0, 0)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Under "always up," $(0, 0)$ keeps bumping into the top wall. Where do you
+end up? What's the discounted return?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(0, 0)$ tries to go up but is blocked: stays at $(0, 0)$. Reward 0
+forever. $v_{\pi_0}(0, 0) = 0$. Same for any cell that, under "up", never
+reaches the goal: most of the grid. Only the goal $(2, 2)$ has $v_{\pi_0}(2, 2) = 1/(1 - \gamma) = 10$
+(absorbing self-loop with reward 1 each step).
+
+**A bad policy gives bad values.** That's exactly the diagnosis PI's
+improvement step uses.
+</details>
+
+### Problem 2 — Greedy improvement
+
+From $v_{\pi_0}$ above, compute the greedy policy $\pi_1$. Which states
+get a different action than $\pi_0$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\pi_1(s) = \arg\max_a [r(s, a) + \gamma \sum_{s'} P(s' | s, a) v_{\pi_0}(s')]$.
+For most $s$, $v_{\pi_0}(s') = 0$, so the $\arg\max$ picks the action with
+highest *immediate* reward.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Most cells have $v_{\pi_0} = 0$. So greedy improvement at, say, $(1, 2)$:
+- "up" → $(0, 2)$, $r = 0$, $q = 0$.
+- "down" → $(2, 2)$, $r = 1$, $q = 1 + 0.9 \cdot 10 = 10$. ← winner!
+- "left" → $(1, 1)$, $q = 0$. "right" → blocked, stays, $q = 0$.
+
+So $\pi_1(1, 2) = $ "down." Similarly $\pi_1(2, 1) = $ "right." Both
+adjacent-to-goal cells now correctly point at the goal. **One step of
+greedy improvement fixes two cells.**
+
+For cells far from the goal (e.g.\ $(0, 0)$), all $q$-values are still 0;
+the greedy choice is arbitrary. PI's *next* evaluation will fix them.
+</details>
+
+### Problem 3 — The policy improvement theorem
+
+Suppose $\pi'$ is greedy w.r.t.\ $v_\pi$. Show that $v_{\pi'}(s) \ge v_\pi(s)$
+for **every** state $s$. (This is the engine of PI.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+By the greedy choice, $T^* v_\pi (s) \ge T^\pi v_\pi(s) = v_\pi(s)$. Now
+iterate the operator and use monotonicity.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$T^{\pi'} v_\pi (s) = T^* v_\pi (s) \ge v_\pi(s)$ pointwise. Apply $T^{\pi'}$
+again; it preserves pointwise $\ge$ (monotonicity). Iterate.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Step 1.** By greediness, $T^{\pi'} v_\pi(s) = \max_a [r(s, a) + \gamma \sum_{s'} P(s'|s, a) v_\pi(s')] \ge v_\pi(s)$,
+where the last inequality uses $v_\pi = T^\pi v_\pi$ and $T^\pi v_\pi \le T^* v_\pi$
+(max ≥ average).
+
+**Step 2 (monotonicity).** $T^{\pi'}$ is monotone: if $u \ge w$ pointwise,
+then $T^{\pi'} u \ge T^{\pi'} w$ (sums of non-negative weights).
+
+**Step 3 (iterate).** $v_\pi \le T^{\pi'} v_\pi \le (T^{\pi'})^2 v_\pi \le \cdots \to v_{\pi'}$.
+
+So $v_{\pi'} \ge v_\pi$ pointwise. **Greedy improvement never hurts**, and
+strictly improves at least one state unless $\pi$ was already optimal.
+</details>
+
+### Problem 4 — Termination in finite steps
+
+Use Problem 3 to argue PI terminates in finitely many iterations on a
+finite MDP.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+There are finitely many deterministic policies — at most $|A|^{|S|}$.
+Each PI iteration produces a policy with strictly larger $v_\pi$ (or stops).
+</details>
+<details class="hint"><summary>Full solution</summary>
+On a finite MDP, the set of deterministic policies has size $|A|^{|S|}$.
+Each PI iteration produces $\pi_{k+1}$ with $v_{\pi_{k+1}} \ge v_{\pi_k}$
+pointwise *and* strictly greater at some state — unless $\pi_{k+1} = \pi_k$,
+in which case the algorithm has reached a *fixed point of greedy
+improvement* and we have $v_{\pi_k} = T^* v_{\pi_k}$, i.e.\ $v_{\pi_k} = v^*$.
+
+So either $v_\pi$ strictly increases (visiting a new policy) or we stop.
+Since there are finitely many policies, we stop in at most $|A|^{|S|}$
+iterations — usually far fewer. **Finite, not asymptotic, convergence.**
+</details>
+
+### Problem 5 — Compare to VI: number of operations
+
+A VI iteration costs $O(|S|^2 |A|)$ (one sweep). A PI iteration costs
+$O(|S|^3)$ (matrix inversion for evaluation) plus $O(|S|^2 |A|)$ (greedy
+step). When does PI win?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+PI does fewer iterations but each is more expensive. Compare total work:
+$N_{\text{PI}} \cdot |S|^3$ vs. $N_{\text{VI}} \cdot |S|^2 |A|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+PI typically converges in $O(|S|/(1-\gamma))$ iterations or fewer.
+VI takes $O(\log(1/\varepsilon)/(1-\gamma))$ iterations to error $\varepsilon$.
+For small $|S|$ and $\gamma$ close to 1, PI usually wins on iteration count
+but loses per-iteration. For huge state spaces, even one PI iteration is
+infeasible (matrix inversion is $O(|S|^3)$). **VI scales; PI converges
+fewer-times-but-more-thoroughly.** Truncated PI (Lesson 15) bridges them.
+</details>
+
+::: {.key-insight}
+PI's structure — *evaluate-then-improve* — is the template for every RL
+algorithm that follows. Replace "exact evaluation" with "MC sample
+evaluation" → MC Basic. Replace it with "TD update" → SARSA / Q-learning.
+The architecture stays; only the evaluation step changes.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Policy Iteration (PI).** Initialise any deterministic policy $\pi_0$.
+Repeat for $k = 0, 1, 2, \ldots$:
+
+1. **Policy evaluation:** solve the Bellman equation
+   $$v_{\pi_k} = r_{\pi_k} + \gamma P_{\pi_k} v_{\pi_k}, \quad \text{i.e.\ } v_{\pi_k} = (I - \gamma P_{\pi_k})^{-1} r_{\pi_k},$$
+   for $v_{\pi_k}$.
+2. **[Policy improvement](/glossary.qmd#policy-improvement):**
+   $$\pi_{k+1}(s) \leftarrow \arg\max_a\!\Big[r(s, a) + \gamma\!\sum_{s'} P(s' \mid s, a)\,v_{\pi_k}(s')\Big].$$
+
+Stop when $\pi_{k+1} = \pi_k$. Return $\pi^* = \pi_k$ and $v^* = v_{\pi_k}$.
+
+**Theorem (Howard, 1960).** PI on a finite discounted MDP terminates in at
+most $|A|^{|S|}$ iterations with the optimal policy and value.
+
+:::
+
+A verse:
+
+> *Evaluate the policy you have;*
+> *Improve by going greedy on it.*
+> *No step makes you worse,*
+> *And finite policies must run out.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — PI on a 2-state MDP
+
+States $\{s_1, s_2\}$, two actions per state, $\gamma = 0.5$.
+
+| State | Action | Reward | Next state |
+|:-:|:-:|:-:|:-:|
+| $s_1$ | $a$ | 0 | $s_1$ |
+| $s_1$ | $b$ | 1 | $s_2$ |
+| $s_2$ | $a$ | 0 | $s_2$ |
+| $s_2$ | $b$ | 2 | $s_1$ |
+
+**$\pi_0(s_1) = a, \pi_0(s_2) = a$** (both "stay").
+
+**Iter 1 — Eval.** Both states stay: zero reward forever.
+$v_{\pi_0}(s_1) = v_{\pi_0}(s_2) = 0$.
+
+**Iter 1 — Improve.** $q_{\pi_0}(s_1, a) = 0, q_{\pi_0}(s_1, b) = 1 + 0.5 \cdot 0 = 1$. So $\pi_1(s_1) = b$.
+$q_{\pi_0}(s_2, a) = 0, q_{\pi_0}(s_2, b) = 2 + 0.5 \cdot 0 = 2$. So $\pi_1(s_2) = b$.
+**$\pi_1 = (b, b)$**.
+
+**Iter 2 — Eval.** Under $\pi_1$, $s_1 \xrightarrow{b} s_2$ (reward 1),
+$s_2 \xrightarrow{b} s_1$ (reward 2). Set up Bellman:
+$$v(s_1) = 1 + 0.5 v(s_2), \quad v(s_2) = 2 + 0.5 v(s_1).$$
+Substitute: $v(s_1) = 1 + 0.5(2 + 0.5 v(s_1)) = 2 + 0.25 v(s_1) \Rightarrow v(s_1) = 8/3 \approx 2.67$.
+$v(s_2) = 2 + 0.5 \cdot 8/3 = 10/3 \approx 3.33$.
+
+**Iter 2 — Improve.** $q(s_1, a) = 0 + 0.5 \cdot 8/3 = 4/3$. $q(s_1, b) = 1 + 0.5 \cdot 10/3 = 8/3$. So $\pi_2(s_1) = b$ — *unchanged*.
+$q(s_2, a) = 0 + 0.5 \cdot 10/3 = 5/3$. $q(s_2, b) = 2 + 0.5 \cdot 8/3 = 10/3$. So $\pi_2(s_2) = b$ — *unchanged*.
+
+**$\pi_2 = \pi_1$ ⇒ stop.** $\pi^* = (b, b)$, $v^* = (8/3, 10/3)$. **Two
+iterations.**
+
+### Practice — Warm
+
+**W1.** Verify the Bellman equations $v^* = (8/3, 10/3)$ from the worked
+example by direct substitution into the BOE.
+
+<details class="hint"><summary>Full solution</summary>
+$v^*(s_1) = \max(0 + 0.5 \cdot 8/3,\ 1 + 0.5 \cdot 10/3) = \max(4/3, 8/3) = 8/3$. ✓
+$v^*(s_2) = \max(0 + 0.5 \cdot 10/3,\ 2 + 0.5 \cdot 8/3) = \max(5/3, 10/3) = 10/3$. ✓
+</details>
+
+**W2.** What if we'd started with $\pi_0 = (b, b)$ in the worked example?
+How many iterations would PI need?
+
+<details class="hint"><summary>Full solution</summary>
+$\pi_0 = (b, b)$ is already optimal. Iter 1 evaluates and finds $v^* = (8/3, 10/3)$,
+then greedy improvement returns the same policy. **One iteration.** PI is
+sensitive to initial policy in the *iteration count*, but converges to the
+same $\pi^*$ either way.
+</details>
+
+**W3.** State why "$v_\pi = (I - \gamma P_\pi)^{-1} r_\pi$" is a *closed-form*
+solution rather than another iteration.
+
+<details class="hint"><summary>Full solution</summary>
+The Bellman equation for $v_\pi$ is *linear*: $v = r + \gamma P_\pi v$.
+Rearranging: $(I - \gamma P_\pi) v = r$, then $v = (I - \gamma P_\pi)^{-1} r$.
+The matrix $I - \gamma P_\pi$ is invertible because all eigenvalues of
+$\gamma P_\pi$ are $\le \gamma < 1$. So $v_\pi$ is computed by *one*
+linear system solve, not iteration. (For large $|S|$, iterative solvers
+beat direct inversion; that's the trick behind truncated PI.)
+</details>
+
+### Practice — Working
+
+**P1.** PI on a 3-state MDP. States $\{s_1, s_2, s_3\}$, two actions per
+state, $\gamma = 0.5$. Rewards/transitions:
+
+| s | a | r | s' |
+|:-:|:-:|:-:|:-:|
+| $s_1$ | $a$ | 0 | $s_1$ |
+| $s_1$ | $b$ | 0 | $s_2$ |
+| $s_2$ | $a$ | 0 | $s_2$ |
+| $s_2$ | $b$ | 0 | $s_3$ |
+| $s_3$ | $a$ | 1 | $s_3$ |
+| $s_3$ | $b$ | 1 | $s_3$ |
+
+Start with $\pi_0 = a$ everywhere. Run PI to optimality.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\pi_0$ has every state stuck. Only $s_3$ accumulates reward.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Iter 1 eval.** $v_{\pi_0}(s_3) = 1/(1 - 0.5) = 2$. Others 0.
+**Iter 1 improve.** $s_2$: $q(b) = 0 + 0.5 \cdot 2 = 1 > q(a) = 0$. So $\pi_1(s_2) = b$. $\pi_1(s_1)$ still arbitrary (both give 0). Take $a$ (no change).
+**Iter 2 eval.** $\pi_1 = (a, b, *)$. $v_{\pi_1}(s_3) = 2$, $v_{\pi_1}(s_2) = 0 + 0.5 \cdot 2 = 1$, $v_{\pi_1}(s_1) = 0$.
+**Iter 2 improve.** $s_1$: $q(b) = 0 + 0.5 \cdot 1 = 0.5 > 0 = q(a)$. So $\pi_2(s_1) = b$.
+**Iter 3 eval.** $\pi_2 = (b, b, *)$. $v(s_1) = 0.5 \cdot 1 = 0.5, v(s_2) = 1, v(s_3) = 2$.
+**Iter 3 improve.** No changes. **Stop after 3 iterations.** Optimal:
+"chain to $s_3$ as fast as possible." Information propagates one state
+per iteration, just like in VI — but here through *exact* evaluation.
+</details>
+
+**P2.** Show that if $\pi_{k+1} = \pi_k$ in PI, then $v_{\pi_k} = v^*$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\pi_{k+1} = \pi_k$ means greedy w.r.t.\ $v_{\pi_k}$ gives back $\pi_k$.
+Translate that into operators.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi_{k+1} = \pi_k$ means $T^* v_{\pi_k} = T^{\pi_k} v_{\pi_k} = v_{\pi_k}$.
+So $v_{\pi_k}$ is a fixed point of $T^*$. By Lesson 12 the fixed point of
+$T^*$ is unique, so $v_{\pi_k} = v^*$ and $\pi_k$ is optimal. **The PI
+stopping criterion ($\pi$ stops changing) is *exactly* "we've reached the
+unique fixed point of $T^*$".**
+</details>
+
+**P3.** Modify P1: add an action $c$ at $s_1$ giving reward $-10$ and
+staying at $s_1$. Does this affect $\pi^*$ or any $v_\pi$ in PI?
+
+<details class="hint"><summary>Full solution</summary>
+$\pi^*$ is unchanged: $c$ is dominated by $b$ at every iteration. $v_\pi$
+also unchanged for any $\pi$ that doesn't *select* $c$. **Adding strictly
+worse actions doesn't change PI's trajectory** — improvement is greedy and
+ignores them. (This robustness is also why we don't need to enumerate all
+policies; PI navigates the policy graph directly.)
+</details>
+
+### Practice — Stretch
+
+**S1.** *Generalised policy iteration.* Suppose at each step you only
+*partially* evaluate $v_\pi$ — say, $K$ iterations of $T^\pi$. Show that
+the greedy improvement still produces an improved policy *if $K$ is large
+enough*. (How large?)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\hat v$ approximates $v_\pi$ within $\gamma^K \|\hat v_0 - v_\pi\|_\infty$.
+For greedy w.r.t.\ $\hat v$ to match greedy w.r.t.\ $v_\pi$, recall S1 of
+Lesson 13: action gaps must dominate the approximation error.
+</details>
+<details class="hint"><summary>Full solution</summary>
+After $K$ Bellman steps, $\|\hat v - v_\pi\|_\infty \le \gamma^K \|v_0 - v_\pi\|_\infty$.
+By the same argument as VI, the greedy policy w.r.t.\ $\hat v$ matches that
+w.r.t.\ $v_\pi$ once this error falls below $\Delta_{\min}/(2\gamma)$ where
+$\Delta_{\min}$ is the smallest action gap. Solve for $K$:
+$K \ge \log(2\gamma\,\|v_0 - v_\pi\|_\infty / \Delta_{\min}) / \log(1/\gamma)$.
+**This is the seed of truncated PI (next lesson).**
+</details>
+
+**S2.** Show that PI is *equivalent to Newton's method* for finding the
+fixed point of $T^*$ when $|A| = 1$ (single action). What's the analogy
+when $|A| > 1$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+With $|A| = 1$, $T^* = T^\pi$ is linear. PI evaluates *exactly*, which is
+equivalent to inverting the Jacobian — Newton's step.
+</details>
+<details class="hint"><summary>Full solution</summary>
+With $|A| = 1$, the BOE is a linear equation $v = T^\pi v$ and PI solves it
+in one shot via $(I - \gamma P_\pi)^{-1} r_\pi$ — which is Newton's method
+applied to $F(v) = v - T^\pi v$ at $v_0$. The Jacobian $F'(v) = I - \gamma P_\pi$
+is constant (linear case), so Newton converges in one step. With $|A| > 1$,
+$T^*$ is *piecewise* linear (different "max" branches over different
+regions); PI is Newton's method *for piecewise-linear systems*: each step
+solves the current linear piece exactly, then the greedy improvement picks
+the next piece. This is Pollatschek-Avi-Itzhak / Puterman-Brumelle's
+deeper insight (1980s) — it's why PI converges *quadratically* in the
+non-degenerate case.
+</details>
+
+::: {.fun-fact}
+Ronald Howard's 1960 book *Dynamic Programming and Markov Processes*
+introduced PI and proved finite-step convergence. The result was striking:
+VI's geometric convergence is *asymptotic*, but PI hits the optimum
+exactly in finitely many steps. Howard also identified that real-world
+operations problems — equipment replacement, inventory control — needed
+just a handful of PI iterations, even for hundreds of states.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"PI requires the matrix $P$ to be small enough to invert."** Strictly,
+   yes — but iterative inner solves (Lesson 15) bypass this. The
+   *conceptual* picture stays exact-eval-then-improve.
+2. **"PI's policy can oscillate."** It cannot. Each iteration produces a
+   policy with strictly higher $v_\pi$ (or stops). No cycles possible.
+3. **"VI is just slow PI."** Almost true: VI is $K = 1$ truncated PI
+   (Lesson 15). They sit on a continuum.
+4. **"You need an *initial* good policy."** No — PI converges from any
+   starting policy. Bad starts just take a few more iterations.
+:::
+
+### Takeaways
+
+1. **PI alternates exact policy evaluation with greedy improvement.**
+2. **Policy improvement theorem.** Greedy w.r.t.\ $v_\pi$ produces $\pi'$
+   with $v_{\pi'} \ge v_\pi$ pointwise — *never* worse.
+3. **Finite termination** in $\le |A|^{|S|}$ iterations, almost always
+   far fewer in practice.
+4. **PI ≈ Newton on the BOE.** That's why each step is so powerful.
+
+### Self-Assessment
+
+1. Could you state the policy improvement theorem and sketch its proof?
+2. Did you do the worked example by hand before reading it?
+3. Can you explain *why* PI must terminate in finite steps?
+
+- **3 yes:** move on to Lesson 15 (truncated PI).
+- **2 yes:** redo P2 — it's the cleanest "why does PI converge" argument.
+- **0–1 yes:** re-read *Discover*, especially Problem 3.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.value-iteration"]
+- **Lesson 13 (VI).** Provides the BOE-iteration backbone and the greedy
+  extraction step.
+- **Lesson 7 (Bellman matrix form).** Supplies the closed-form
+  $v_\pi = (I - \gamma P_\pi)^{-1} r_\pi$.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 15 — Truncated PI.** PI ($K = \infty$) and VI ($K = 1$) are
+  endpoints of a single algorithm.
+- **All MC and TD methods (Lessons 17-26).** They replace "exact
+  policy evaluation" with sampled estimates — but keep PI's
+  evaluate-improve loop intact.
+- **Actor-critic methods (Lessons 35-37).** "Critic" estimates $v_\pi$;
+  "actor" improves $\pi$. Same architecture as PI, with function
+  approximation.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every actor-critic method (A2C, PPO, SAC) is a "soft
+generalised PI" — alternate critic-fit (≈ evaluation) and actor-update
+(≈ improvement). Howard's 1960 architecture, scaled to deep nets.
+:::
+
+::: {.applied-callout}
+**Operations research.** PI was the workhorse of MDP-based decision
+support in operations and engineering for decades — equipment
+replacement, inventory, queueing, even reservoir management. It still is,
+when state spaces are tractable.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning. PI's
+evaluate-improve loop is "policy iteration" in that view.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §14. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §4.2. Cite freely; never transcribe.
+- Howard's 1960 framing for the algorithm and termination theorem.
+- Touchstones: Sutton & Barto (the iconic loop diagram), Puterman 1994
+  (the Newton's-method connection).
 :::

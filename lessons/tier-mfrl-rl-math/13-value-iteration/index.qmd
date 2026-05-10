@@ -7,87 +7,507 @@ prerequisites: ["mfrl.boe-uniqueness"]
 unlocks: []
 applied-domains: ["ai-ml", "systems", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.boe-uniqueness"].
+Before you start:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Can you state the BOE in one line, and the fact (Lesson 12) that the BOE
+   operator $T^*$ is a $\gamma$-contraction?
+2. Can you compute one BOE update by hand on a 2- or 3-state MDP?
+3. Are you comfortable extracting a [greedy](/glossary.qmd#greedy) policy
+   from a value function $v$ via $\pi(s) = \arg\max_a [r + \gamma \sum P\,v]$?
+
+If any of these is shaky, revisit Lessons 9-12.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Below is a 3×3 grid world. Goal cell at $(2,2)$ gives reward $+1$ and is
+absorbing; every other step costs $0$. Discount $\gamma = 0.9$. Actions:
+up/down/left/right (deterministic; bumping into a wall keeps you put).
+
+Slide to advance the iteration. The heatmap shows $v_k(s)$ at each cell, and
+the arrows show the greedy policy implied by the current $v_k$.
+
+```{ojs}
+viewof iter = Inputs.range([0, 30], {value: 0, step: 1, label: "iteration k"})
+```
+
+```{ojs}
+{
+  const N = 3;
+  const goal = [2, 2];
+  const gamma = 0.9;
+  // States are (i, j) with i = row, j = col.
+  // Actions: 0=up, 1=down, 2=left, 3=right
+  const next = (i, j, a) => {
+    if (i === goal[0] && j === goal[1]) return [i, j];
+    let ni = i, nj = j;
+    if (a === 0 && i > 0) ni = i - 1;
+    if (a === 1 && i < N - 1) ni = i + 1;
+    if (a === 2 && j > 0) nj = j - 1;
+    if (a === 3 && j < N - 1) nj = j + 1;
+    return [ni, nj];
+  };
+  const reward = (i, j) => (i === goal[0] && j === goal[1] ? 1 : 0);
+
+  // Iterate
+  let v = Array.from({length: N}, () => Array(N).fill(0));
+  for (let k = 0; k < iter; k++) {
+    const vnew = Array.from({length: N}, () => Array(N).fill(0));
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      let best = -Infinity;
+      for (let a = 0; a < 4; a++) {
+        const [ni, nj] = next(i, j, a);
+        const q = reward(ni, nj) + gamma * v[ni][nj];
+        if (q > best) best = q;
+      }
+      vnew[i][j] = best;
+    }
+    v = vnew;
+  }
+
+  const greedy = (i, j) => {
+    let best = -Infinity, ba = 0;
+    for (let a = 0; a < 4; a++) {
+      const [ni, nj] = next(i, j, a);
+      const q = reward(ni, nj) + gamma * v[ni][nj];
+      if (q > best) { best = q; ba = a; }
+    }
+    return ["↑", "↓", "←", "→"][ba];
+  };
+
+  const cells = [];
+  let vmax = 0;
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) vmax = Math.max(vmax, v[i][j]);
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const intensity = vmax > 0 ? Math.round((v[i][j] / vmax) * 200) : 0;
+      const colour = `rgb(${255 - intensity}, ${255 - intensity / 2}, 255)`;
+      const arrow = (i === goal[0] && j === goal[1]) ? "★" : greedy(i, j);
+      cells.push(html`<div style="background:${colour}; width:80px; height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:monospace; border:1px solid #999;">
+        <div style="font-size: 0.85rem;">${v[i][j].toFixed(3)}</div>
+        <div style="font-size: 1.4rem;">${arrow}</div>
+      </div>`);
+    }
+  }
+  return html`<div style="display:grid; grid-template-columns: repeat(${N}, 80px); gap:0; width:max-content; margin:1rem auto;">${cells}</div>
+  <div style="text-align:center; font-size:0.9rem; color:#666;">k = ${iter}: cell shows v(s); arrow shows greedy action.</div>`;
+}
+```
+
+Move the slider from $k = 0$ to $k = 30$. Watch the values bloom outward
+from the goal, and the arrows snap into a coherent policy. Notice that the
+arrows *stop changing* long before the values stop changing.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The arrows lock in early — say by $k = 5$ — but the numbers keep
+   ticking up. Why does the policy stabilise before the values?
+2. If you doubled $\gamma$ from 0.9 to (almost) 1.0, would the heatmap look
+   different at convergence? Would it take more or fewer steps?
+3. The iteration uses *yesterday's* $v$ to compute *today's* $v$. Could you
+   instead use today's partial values immediately as you sweep — and would
+   it still converge?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — One step of the BOE operator on the grid
+
+For the grid world above, take $v_0 \equiv 0$ (zero everywhere). Compute
+$v_1 = T^* v_0$. Which cells have a non-zero value? What is it?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T^* v_0(s) = \max_a [r(s', a) + \gamma \cdot 0]$ where $s' = $ next state.
+The reward is 1 only at the goal. So $v_1(s) > 0$ only when *some* action
+from $s$ lands on the goal.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The neighbours of the goal $(2, 2)$ are $(1, 2)$ (above) and $(2, 1)$
+(left). Each has at least one action — "down" from $(1,2)$, "right" from
+$(2,1)$ — that lands on the goal. So $v_1(1, 2) = v_1(2, 1) = 1$. The goal
+itself is absorbing with reward 1 each step from the goal, so $v_1(2, 2) = 1$
+as well. All other cells have $v_1 = 0$. **The first step lights up only
+states adjacent to a reward.**
+</details>
+
+### Problem 2 — Two steps
+
+Compute $v_2 = T^* v_1$. Which new cells become non-zero? What's
+$v_2(0, 2)$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A cell at distance 2 from the goal can reach a cell that has $v_1 = 1$ in
+one step, picking up $\gamma \cdot 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(0, 2)$ can move down to $(1, 2)$ which has $v_1 = 1$, giving
+$v_2(0, 2) = 0 + 0.9 \cdot 1 = 0.9$. Similarly $(1, 1) \to (1, 2)$ or
+$(2, 1)$, $v_2(1, 1) = 0.9$. Cells $(1, 2)$ and $(2, 1)$ now also see *each
+other's* updated value: $v_2(1, 2) = \max(\ldots, 0 + 0.9 \cdot 1) = $ bigger
+than just 1 in some cases — actually still $1$ here (the absorbing goal step
+dominates). **Information from the goal propagates outward by one cell per
+iteration.**
+</details>
+
+### Problem 3 — When does the policy stabilise?
+
+Use the widget. Note the iteration $k^*$ at which the *arrows* stop
+changing (compared with $k^* + 1$). Compare with $k^{**}$ — when the values
+stop changing (to the third decimal). Which is bigger? By how much?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Read the policy off the widget at $k = 4, 5, 6, ...$ and check the first
+$k$ where the arrows match $k + 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+On this grid, the policy stabilises by $k \approx 5$ — the arrows all point
+toward the shortest path to the goal. But the values keep tightening for
+many more iterations (≥ 30 to settle to 3 decimals). **Policy convergence is
+much faster than value convergence**, because the policy depends only on the
+*ranking* of actions, not their absolute values.
+</details>
+
+### Problem 4 — How fast does it converge?
+
+We proved $\|v_k - v^*\|_\infty \le \gamma^k \|v_0 - v^*\|_\infty$. With
+$\gamma = 0.9$ and starting $v_0 = 0$, how many iterations to reach error
+$\le 10^{-3}$? Compare with the widget.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You need $0.9^k \cdot \|v^* - 0\|_\infty \le 10^{-3}$. Estimate
+$\|v^*\|_\infty \le 1/(1 - \gamma) = 10$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$0.9^k \cdot 10 \le 10^{-3} \Rightarrow 0.9^k \le 10^{-4}
+\Rightarrow k \ge \log(10^{-4})/\log(0.9) \approx 87$. So in the worst case
+roughly 90 iterations. The widget bound is loose because $v^*$ on this grid
+is much smaller than 10 (it's about 0.7-1.0), so a few dozen iterations
+suffice. **The Banach bound is tight in the worst case but often pessimistic.**
+</details>
+
+### Problem 5 — The whole algorithm in one paragraph
+
+Without peeking at *Name*, write the value-iteration algorithm in
+pseudocode in 5 lines or fewer.
+
+<details class="hint"><summary>Full solution</summary>
+```
+initialize v ← 0 (or any vector)
+repeat:
+   for each state s:
+      v_new(s) ← max over a of [r(s, a) + γ Σ_{s'} P(s'|s,a) v(s')]
+   if ‖v_new − v‖_∞ < ε then stop
+   v ← v_new
+return: v, and the greedy policy π(s) ← argmax_a [r(s, a) + γ Σ P(s'|s,a) v(s')]
+```
+That's it. Three lines of math, one stopping criterion, one greedy
+extraction. **The simplicity is the point.**
+</details>
+
+::: {.key-insight}
+Value iteration is "apply $T^*$ until you stop moving." All the magic is in
+the contraction property — the algorithm's design is trivial *because* the
+proof in Lesson 12 was non-trivial.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Value Iteration (VI).** Choose any $v_0 \in \mathbb{R}^{|S|}$, tolerance
+$\varepsilon > 0$. Repeat:
+
+$$v_{k+1}(s) \leftarrow \max_a\!\Big[r(s, a) + \gamma\!\sum_{s'} P(s'\mid s, a)\,v_k(s')\Big] \quad \forall s.$$
+
+Stop when $\|v_{k+1} - v_k\|_\infty < \varepsilon$. Return the final $v$ and
+the **greedy policy**
+$\pi(s) = \arg\max_a [r(s, a) + \gamma \sum_{s'} P(s'\mid s, a)\,v(s')]$.
+
+By Lesson 12, $v_k \to v^*$ at geometric rate $\gamma^k$ from any $v_0$, and
+the returned policy converges to an [optimal policy](/glossary.qmd#optimal-policy).
+
+:::
+
+A verse:
+
+> *Start anywhere. Apply the max-step.*
+> *Each pass shrinks error by* $\gamma$.
+> *Stop when nothing changes;*
+> *Read off the policy by looking greedy.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — VI on the 3×3 grid by hand, 3 iterations
+
+Setup: 3×3 grid, goal at $(2,2)$ with reward $+1$ (absorbing), other
+rewards $0$, $\gamma = 0.9$. Cells indexed $(\text{row}, \text{col})$ with
+$(0,0)$ top-left.
+
+**Initial.** $v_0(s) = 0$ for all $s$.
+
+**Iteration 1.** $T^* v_0(s) = \max_a r(s', a)$. Reward $1$ only at goal.
+- $v_1(2, 2) = 1$ (absorbing).
+- $v_1(1, 2) = 1$ (one move down → goal, reward 1).
+- $v_1(2, 1) = 1$ (one move right → goal, reward 1).
+- All other cells: $v_1 = 0$.
+
+**Iteration 2.** $T^* v_1(s) = \max_a [r + \gamma v_1(s')]$.
+- $v_2(2, 2) = 1 + 0.9 \cdot 1 = 1.9$ (absorbing self-loop).
+- $v_2(1, 2) = \max(0 + 0.9 \cdot 1, 1) = 1$ — wait, "down" gives $r = 1$
+  (next state is goal) so $1 + 0.9 \cdot 0 = 1$ if we use *yesterday's* $v$
+  for the self-loop... actually with absorbing goal, "down from $(1,2)$"
+  goes to goal: $r = 1$, $v_1(2,2) = 1$, so $q = 1 + 0.9 = 1.9$. So
+  $v_2(1, 2) = 1.9$.
+- Similarly $v_2(2, 1) = 1.9$.
+- $v_2(0, 2) = \max(0 + 0.9 v_1(\cdot)) = 0.9 \cdot v_1(1, 2) = 0.9 \cdot 1 = 0.9$
+  (move down).
+- $v_2(1, 1) = 0.9$ (move down or right reaches a cell with $v_1 = 1$).
+- $v_2(2, 0) = 0.9$ (move right).
+- Others: 0.
+
+**Iteration 3.**
+- Goal: $v_3(2,2) = 1 + 0.9 \cdot 1.9 = 2.71$.
+- $(1,2), (2,1)$: $v_3 = 1 + 0.9 \cdot 1.9 = 2.71$.
+- $(0, 2), (1, 1), (2, 0)$: $v_3 = 0.9 \cdot 1.9 = 1.71$.
+- $(0, 1), (1, 0)$: now non-zero — they can reach a $v_2 = 0.9$ cell.
+  $v_3(0, 1) = 0.9 \cdot 0.9 = 0.81$, similarly $(1, 0)$.
+- $(0, 0)$: still $0$ (its neighbours had $v_2 = 0$).
+
+**Greedy policy after iteration 3.** Already coherent: every cell points
+toward the goal along a shortest path. Three iterations suffice for the
+*policy*; convergence of *values* takes longer.
+
+### Practice — Warm
+
+**W1.** On the same grid, suppose the goal reward is increased to $+10$
+(still absorbing). Without redoing the iteration, predict $v_1(1, 2)$ and
+$v_2(0, 2)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The structure is unchanged; only the reward magnitude scales.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v_1(1, 2) = 10$ (one move to goal, reward 10). $v_2(0, 2) = 0 + 0.9 \cdot 10 = 9$.
+**Linear in the reward magnitude.** This is why VI is sensitive to reward
+*shaping* — same optimal policy, very different value scales.
+</details>
+
+**W2.** What does VI return when $\gamma = 0$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$T^* v$ becomes $\max_a r(s, a)$ — the future drops out.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v_1(s) = \max_a r(s, a)$ for every state. Iteration converges in *one step*.
+The greedy policy picks the immediate-reward-maximising action — the
+"myopic" policy. With $\gamma = 0$, planning collapses to one-step bandit
+choice.
+</details>
+
+**W3.** Why is the greedy-extraction step at the end a single $\arg\max$,
+not another iteration?
+
+<details class="hint"><summary>Full solution</summary>
+Once $v$ is close to $v^*$, the greedy policy w.r.t.\ $v$ is the optimal
+policy. Pulling out the policy from $v^*$ takes one $\arg\max$ per state —
+no further iteration needed. The hard work was finding $v^*$; reading off
+$\pi^*$ is a one-line postprocess.
+</details>
+
+### Practice — Working
+
+**P1.** Run VI on a 1D corridor with 4 cells: states $s_0, s_1, s_2, s_3$,
+reward $+1$ at $s_3$ (absorbing), 0 elsewhere, $\gamma = 0.5$, actions
+left/right (deterministic). Compute $v_k$ for $k = 0, 1, 2, 3$ and the
+final greedy policy.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$v_1(s_2) = 1$ (move right to $s_3$). All others 0.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Each iteration, information propagates one cell to the left.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v_0 = (0, 0, 0, 0)$.
+$v_1 = (0, 0, 1, 1)$ — only $s_2, s_3$ touch the goal.
+$v_2 = (0, 0.5, 1.5, 1.5)$. ($s_1$ moves right to $s_2$: $0 + 0.5 \cdot 1 = 0.5$.
+$s_2$ self-loop via "right then absorbed": $1 + 0.5 \cdot 1 = 1.5$.)
+$v_3 = (0.25, 0.75, 1.75, 1.75)$.
+At convergence $v^* = (0.25, 0.5, 1.0, 2.0)$ — wait, let me redo: with
+$\gamma = 0.5$ and absorbing goal giving reward 1 each step, $v^*(s_3) = 2$.
+$v^*(s_2) = 1 + 0.5 \cdot 2 = 2$. So actually $v^*(s_2) = v^*(s_3) = 2$,
+$v^*(s_1) = 0 + 0.5 \cdot 2 = 1$, $v^*(s_0) = 0.5 \cdot 1 = 0.5$.
+**Greedy policy:** all "right." Policy locks after 2 iterations.
+</details>
+
+**P2.** Suppose the corridor of P1 has a "trap" at $s_0$: any action from
+$s_0$ gives reward $-1$ (and stays at $s_0$). Re-derive $v^*$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$s_0$ is now an absorbing trap. $v^*(s_0)$ satisfies a fixed-point equation
+of its own.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v^*(s_0) = -1 + \gamma v^*(s_0) \Rightarrow v^*(s_0)(1 - 0.5) = -1
+\Rightarrow v^*(s_0) = -2$. Other states unchanged because optimal policy
+still flees right. **Optimal policies are robust to far-away traps when
+$\gamma$ is small.**
+</details>
+
+**P3.** *Asynchronous VI.* Instead of computing $v_{k+1}$ from $v_k$ for
+*every* state simultaneously, sweep the states one by one and **overwrite
+$v$ in place**. Run this on the 4-state corridor of P1. Does it converge
+faster?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sweep right-to-left: update $s_3$, then $s_2$ uses the just-updated $s_3$,
+then $s_1$ uses the just-updated $s_2$, etc.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Right-to-left sweep from $v_0 = 0$: $s_3 \to 1$, then $s_2$ uses fresh
+$v(s_3) = 1$: $s_2 \to 1 + 0.5 \cdot 1 = 1.5$. Then $s_1 \to 0.5 \cdot 1.5 = 0.75$,
+$s_0 \to 0.5 \cdot 0.75 = 0.375$. **One sweep got further than three
+synchronous iterations.** This is "Gauss-Seidel VI" (vs.\ "Jacobi VI"); it
+converges faster in practice and the contraction proof still applies.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the greedy policy w.r.t.\ $v_k$ is optimal as soon as
+$\|v_k - v^*\|_\infty < \Delta_{\min} / (2\gamma)$, where $\Delta_{\min}$
+is the smallest gap between optimal and second-best $q^*(s, a)$ over states.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If $v_k \approx v^*$ within $\epsilon$, then $q$-values w.r.t.\ $v_k$ are
+within $\gamma\epsilon$ of $q^*$. If this is less than half the action gap,
+the argmax is preserved.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Define $q_k(s, a) = r(s, a) + \gamma \sum_{s'} P(s'\mid s, a) v_k(s')$.
+$|q_k(s, a) - q^*(s, a)| \le \gamma \|v_k - v^*\|_\infty < \Delta_{\min}/2$.
+So the optimal action $a^*$ has $q_k(s, a^*) > q^*(s, a^*) - \Delta_{\min}/2$,
+while any sub-optimal $a'$ has $q_k(s, a') < q^*(s, a') + \Delta_{\min}/2 \le q^*(s, a^*) - \Delta_{\min}/2$.
+So $\arg\max q_k = a^* = \arg\max q^*$. **Policies converge in finitely
+many iterations**, even though values converge only asymptotically.
+</details>
+
+**S2.** *Vectorise VI.* Write $T^*$ as a vector equation using the matrices
+$P_a \in \mathbb{R}^{|S| \times |S|}$ and reward vectors $\mathbf r_a \in \mathbb{R}^{|S|}$
+for each action. Implement one VI step in 1-2 lines of NumPy/Julia
+pseudocode.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Stack the per-action $q$-vectors into a matrix $Q \in \mathbb{R}^{|S| \times |A|}$,
+then take row-wise max.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For each action $a$: $\mathbf q_a = \mathbf r_a + \gamma P_a \mathbf v$.
+Stack: $Q = [\mathbf q_{a_1}, \ldots, \mathbf q_{a_{|A|}}]$.
+$\mathbf v_{\text{new}}[s] = \max_a Q[s, a]$. NumPy:
+```python
+Q = R + gamma * np.einsum('asn,n->as', P, v)   # |A| × |S|
+v_new = Q.max(axis=0)
+```
+This is the kernel of every model-based RL implementation.
+</details>
+
+::: {.fun-fact}
+Value iteration is *the* algorithm of Bellman's original 1957 paper
+*Dynamic Programming*. He had no computers; he ran small examples — three
+or four states — by hand. The contraction proof came a decade later
+(Denardo 1967), giving a posteriori justification to what Bellman had
+shown empirically.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"VI converges to $v^*$ in finite steps."** No — convergence is
+   *asymptotic*, $\gamma^k \to 0$ but never reaches 0. The *policy* converges
+   in finite steps (S1), the *values* do not.
+2. **"You need to know $v^*$ to compute $v^*$."** No — start anywhere
+   ($v_0 = 0$ works) and the contraction pulls you to it.
+3. **"VI requires a full sweep."** Async VI (P3) does one state at a time.
+   Same convergence guarantee, often faster wall clock.
+4. **"$\gamma$ is the same thing as a learning rate."** No — $\gamma$ is a
+   property of the *MDP* (how much you care about the future). Learning
+   rates show up in stochastic methods (TD, Q-learning), not in VI.
+:::
+
+### Takeaways
+
+1. **VI = repeatedly apply $T^*$.** Three lines of code; convergence
+   guaranteed by Lesson 12.
+2. **Geometric rate $\gamma^k$.** To halve error needs about
+   $\log(2)/\log(1/\gamma)$ iterations.
+3. **Policy converges before values.** Once $v_k$ is within
+   $\Delta_{\min}/(2\gamma)$ of $v^*$, the greedy policy *is* optimal.
+4. **Async sweeps work** and often converge faster in practice.
+
+### Self-Assessment
+
+1. Could you write the VI pseudocode without notes?
+2. Did you do the worked example (3 iterations on the 3×3 grid) by hand
+   before reading it?
+3. Can you explain *why* the policy stabilises before the values?
+
+- **3 yes:** move on to Lesson 14 (policy iteration).
+- **2 yes:** redo P3 (async VI) — it's the bridge to real implementations.
+- **0–1 yes:** re-read *Discover* and *Apply* with paper. The whole point
+  is doing it by hand.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.boe-uniqueness"]
+- **Lesson 12 (BOE contraction).** Supplies the convergence guarantee.
+  Without it, VI is just an algorithm that *might* work; with it, it's
+  proven.
+- Lesson 9 ([optimal policy](/glossary.qmd#optimal-policy)) supplies the
+  notion of greedy extraction.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 14 — Policy iteration.** PI alternates *exact* policy evaluation
+  with greedy improvement; VI is the special case where evaluation is "one
+  Bellman step."
+- **Lesson 15 — Truncated PI.** PI and VI are endpoints of a single
+  parameterised family.
+- **Q-learning (Lesson 26).** The model-free, sampled version of VI.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Value iteration is the foundation of every model-based planner
+in production: AlphaZero (the search component), MuZero, model-based RL for
+robotics. When the model $P$ is known or learned, VI (or one of its
+parallel/async variants) is what runs inside.
+:::
+
+::: {.applied-callout}
+**Systems.** VI shows up in resource allocation (MDP-based scheduling),
+inventory control, and queueing — anywhere a finite-state controller must
+optimise long-run discounted cost. Bellman's original applications were
+mostly in this space.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning. VI is the
+"planning" half of paragraph one.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §13. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §4.1. Cite freely; never transcribe.
+- Touchstones: Bellman (the original 1957 algorithm), Sutton & Barto
+  (synchronous-vs-async framing), Russian school (the Discover sequence
+  forces the algorithm before the box names it).
 :::

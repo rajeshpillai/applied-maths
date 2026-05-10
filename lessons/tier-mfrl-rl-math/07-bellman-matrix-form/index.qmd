@@ -7,87 +7,426 @@ prerequisites: ["mfrl.bellman-equation", "t5.matrices", "t5.linear-systems-gauss
 unlocks: []
 applied-domains: ["ai-ml", "research", "systems"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.bellman-equation", "t5.matrices", "t5.linear-systems-gaussian"].
+Be honest. Are you ready for this lesson?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. From [Lesson 6](../06-bellman-equation/index.qmd), can you write the
+   Bellman equation $v_\pi(s) = \mathbb{E}[r + \gamma v_\pi(s')]$ as a
+   per-state sum?
+2. Can you read $A \mathbf{x} = \mathbf{b}$ and solve a small
+   [linear system](/glossary.qmd#system-of-linear-equations) by Gaussian
+   elimination?
+3. Are you comfortable with [matrices](/glossary.qmd#matrix), the
+   identity $I$, and what "the inverse $A^{-1}$" means when it exists?
+
+If a "no" appears, brush up on
+[T5 — Matrices](../../tier-5-undergrad-core/05-matrices/index.qmd) and
+[T5 — Linear Systems](../../tier-5-undergrad-core/06-linear-systems-gaussian/index.qmd).
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Take the 3-state cycle from lesson 5: $1 \to 2 \to 3 \to 1$ with reward
+$+1$ on the wrap-around. Lesson 6 wrote *three* Bellman equations:
+
+> $v(1) = 0 + 0.9 v(2)$,
+> $v(2) = 0 + 0.9 v(3)$,
+> $v(3) = 1 + 0.9 v(1)$.
+
+Stack the unknowns into a column $\mathbf{v} = (v(1), v(2), v(3))^T$ and the
+constants into a column $\mathbf{r} = (0, 0, 1)^T$. The "going to the next
+state" structure is itself a matrix:
+
+$$P^\pi = \begin{pmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ 1 & 0 & 0 \end{pmatrix},$$
+because state 1 always goes to state 2 (so the row for state 1 has a $1$
+in column 2), state 2 always to state 3, state 3 always to state 1.
+
+The three Bellman equations rewrite to a single matrix equation:
+$$\mathbf{v} = \mathbf{r} + 0.9\,P^\pi \mathbf{v}.$$
+Try it. Multiply the second row of $0.9 P^\pi$ into $\mathbf{v}$: you get
+$0.9 v(3)$. Add the second entry of $\mathbf{r}$ ($= 0$). The result must
+equal $v(2)$. That is the Bellman equation for state 2 — packaged in
+matrix form.
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. Once you have the matrix equation, can you "just" invert
+   $(I - 0.9 P^\pi)$ to get $\mathbf{v}$ in one step?
+2. When would the matrix $(I - \gamma P^\pi)$ be *not* invertible? Could
+   it ever be?
+3. What goes wrong as $\gamma \to 1$?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — Stack the values
+
+For an MDP with $|S| = n$ states, define the column vector
+$\mathbf{v} \in \mathbb{R}^n$ by $\mathbf{v}_s = v_\pi(s)$. What is the
+size of $\mathbf{v}$, and how does the lesson 6 equation look in this
+notation?
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbf{v}$ is $n \times 1$. Lesson 6 gives one equation per state:
+$\mathbf{v}_s = \sum_{a, s'} \pi(a \mid s) P(s' \mid s, a) [R(s, a, s') + \gamma \mathbf{v}_{s'}]$.
+
+Same equation, just notational stacking.
+</details>
+
+### Problem 2 — Stack the immediate rewards
+
+Define the *expected immediate reward vector* $\mathbf{r}^\pi \in \mathbb{R}^n$:
+$$\mathbf{r}^\pi_s = \sum_{a, s'} \pi(a \mid s) P(s' \mid s, a) R(s, a, s').$$
+Compute $\mathbf{r}^\pi$ for the worked-example 2-state MDP from lesson 6.
+
+<details class="hint"><summary>Full solution</summary>
+2-state MDP: $R(X, \cdot, Y) = 0$ (only outcome from $X$),
+$R(Y, \cdot, X) = 1$ (only outcome from $Y$). Single action, deterministic
+$P$. So $\mathbf{r}^\pi_X = 0$, $\mathbf{r}^\pi_Y = 1$.
+$\mathbf{r}^\pi = \begin{pmatrix} 0 \\ 1 \end{pmatrix}$.
+</details>
+
+### Problem 3 — Build the policy-induced kernel
+
+Define the matrix $P^\pi$ by
+$$(P^\pi)_{s, s'} = \sum_a \pi(a \mid s) P(s' \mid s, a).$$
+This is the same $P^\pi$ from lesson 3. Show that each row sums to 1 — it
+is *row-stochastic*.
+
+<details class="hint"><summary>Full solution</summary>
+$\sum_{s'} (P^\pi)_{s, s'} = \sum_{s'} \sum_a \pi(a \mid s) P(s' \mid s, a) = \sum_a \pi(a \mid s) \sum_{s'} P(s' \mid s, a) = \sum_a \pi(a \mid s) \cdot 1 = 1$.
+Each row sums to 1.
+
+Row-stochastic matrices are exactly the transition matrices of finite
+Markov chains.
+</details>
+
+### Problem 4 — Bellman in matrix form
+
+Show that the Bellman equation becomes
+$$\mathbf{v} = \mathbf{r}^\pi + \gamma P^\pi \mathbf{v}.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Substitute the definitions from Problems 2 and 3 into the per-state
+Bellman equation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbf{v}_s = \sum_{a, s'} \pi(a \mid s) P(s' \mid s, a)[R(s, a, s') + \gamma \mathbf{v}_{s'}]$
+$= \sum_{a, s'} \pi(a \mid s) P(s' \mid s, a) R(s, a, s') + \gamma \sum_{s'} (P^\pi)_{s, s'} \mathbf{v}_{s'}$
+$= \mathbf{r}^\pi_s + \gamma (P^\pi \mathbf{v})_s$.
+
+Stacking over $s$:
+$\mathbf{v} = \mathbf{r}^\pi + \gamma P^\pi \mathbf{v}$.
+</details>
+
+### Problem 5 — Solve for $\mathbf{v}$
+
+Rearrange Problem 4 to isolate $\mathbf{v}$. Write the closed form.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Move all $\mathbf{v}$'s to one side. Factor.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbf{v} - \gamma P^\pi \mathbf{v} = \mathbf{r}^\pi$
+$(I - \gamma P^\pi) \mathbf{v} = \mathbf{r}^\pi$
+$\mathbf{v} = (I - \gamma P^\pi)^{-1} \mathbf{r}^\pi$.
+
+This is the **closed-form solution** to policy evaluation. One matrix
+inverse and you have $v_\pi$ for every state simultaneously.
+</details>
+
+### Problem 6 — Why the inverse exists
+
+For $\gamma \in [0, 1)$ and $P^\pi$ row-stochastic, show $(I - \gamma P^\pi)$
+is invertible.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P^\pi$ has spectral radius $\rho(P^\pi) \le \|P^\pi\|_\infty = 1$. So
+$\rho(\gamma P^\pi) \le \gamma < 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\|P^\pi\|_\infty = \max_s \sum_{s'} |(P^\pi)_{s, s'}| = 1$ (rows sum to 1
+and entries are non-negative). The spectral radius
+$\rho(P^\pi) \le \|P^\pi\|_\infty = 1$. Therefore
+$\rho(\gamma P^\pi) \le \gamma < 1$.
+
+The Neumann series $(I - \gamma P^\pi)^{-1} = \sum_{k=0}^\infty (\gamma P^\pi)^k$
+converges in operator norm. Hence $(I - \gamma P^\pi)$ is invertible, and
+$\mathbf{v}$ exists and is unique.
+</details>
+
+::: {.key-insight}
+For small MDPs the Bellman equation is **just a linear system**. Stack
+$|S|$ unknowns into a vector, $|S|$ equations into a matrix, and invert
+once. The whole "iterative policy evaluation" machinery (lessons 13–14)
+exists only because $|S|$ is too big to invert in production. For
+analysis and small examples, a single $O(|S|^3)$ matrix solve gives the
+exact answer.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+The **matrix-vector Bellman equation** for a fixed policy $\pi$ on a
+finite MDP is
+$$\mathbf{v} = \mathbf{r}^\pi + \gamma P^\pi \mathbf{v},$$
+with closed-form solution
+$$\mathbf{v}_\pi = (I - \gamma P^\pi)^{-1} \mathbf{r}^\pi.$$
+The matrix $I - \gamma P^\pi$ is invertible whenever $\gamma < 1$, since
+$\gamma P^\pi$ has spectral radius $\le \gamma < 1$.
+
+:::
+
+A verse to remember it by:
+
+> *Stack the values, stack the rewards;*
+> *let $P^\pi$ be the chain.*
+> *Discount, subtract from $I$, invert —*
+> *the whole policy's value laid plain.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — solve a 2-state Bellman by matrix inverse
+
+Take the worked-example MDP from lesson 6: $\{X, Y\}$, deterministic cycle
+$X \to Y \to X$, reward $0$ from $X$ and $1$ from $Y$, $\gamma = 0.9$.
+
+**Step 1 — write the matrices.**
+$P^\pi = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$,
+$\mathbf{r}^\pi = \begin{pmatrix} 0 \\ 1 \end{pmatrix}$.
+
+**Step 2 — form $I - \gamma P^\pi$.**
+$I - 0.9 P^\pi = \begin{pmatrix} 1 & -0.9 \\ -0.9 & 1 \end{pmatrix}$.
+
+**Step 3 — invert.** Determinant: $1 - (-0.9)(-0.9) = 1 - 0.81 = 0.19$.
+Adjugate: $\begin{pmatrix} 1 & 0.9 \\ 0.9 & 1 \end{pmatrix}$.
+$(I - 0.9 P^\pi)^{-1} = \frac{1}{0.19} \begin{pmatrix} 1 & 0.9 \\ 0.9 & 1 \end{pmatrix}$.
+
+**Step 4 — multiply.**
+$\mathbf{v} = \frac{1}{0.19} \begin{pmatrix} 1 & 0.9 \\ 0.9 & 1 \end{pmatrix} \begin{pmatrix} 0 \\ 1 \end{pmatrix} = \frac{1}{0.19} \begin{pmatrix} 0.9 \\ 1 \end{pmatrix} \approx \begin{pmatrix} 4.737 \\ 5.263 \end{pmatrix}$.
+
+**Step 5 — confirm.** $v(X) \approx 4.737$, $v(Y) \approx 5.263$ — match
+lesson 6.
+
+### Practice — Warm
+
+**W1.** Confirm that $P^\pi = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$
+is row-stochastic.
+
+<details class="hint"><summary>Full solution</summary>
+Row 1: $0 + 1 = 1$. Row 2: $1 + 0 = 1$. Both rows non-negative and sum
+to 1. Row-stochastic.
+</details>
+
+**W2.** For a 1-state MDP with $R = 1$ and $\gamma = 0.9$, write the
+matrix Bellman equation and solve.
+
+<details class="hint"><summary>Full solution</summary>
+$P^\pi = (1)$, $\mathbf{r}^\pi = (1)$. $(1 - 0.9 \cdot 1) v = 1 \Rightarrow v = 1/0.1 = 10$.
+</details>
+
+**W3.** Let $P^\pi$ be the $3 \times 3$ matrix from the Touch section.
+Compute $\gamma P^\pi$ for $\gamma = 0.9$.
+
+<details class="hint"><summary>Full solution</summary>
+$\gamma P^\pi = \begin{pmatrix} 0 & 0.9 & 0 \\ 0 & 0 & 0.9 \\ 0.9 & 0 & 0 \end{pmatrix}$.
+</details>
+
+### Practice — Working
+
+**P1.** Solve the 3-state cycle from the Touch section by matrix inverse.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\mathbf{r}^\pi = (0, 0, 1)^T$ and $P^\pi$ given. Form $I - 0.9 P^\pi$,
+invert, multiply.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$I - 0.9 P^\pi = \begin{pmatrix} 1 & -0.9 & 0 \\ 0 & 1 & -0.9 \\ -0.9 & 0 & 1 \end{pmatrix}$.
+
+Determinant: expand along the first column. $\det = 1 \cdot (1 - 0) - 0 + (-0.9) \cdot (-0.9 \cdot -0.9 - 0) = 1 - 0.729 = 0.271$.
+
+Solve $(I - 0.9 P^\pi) \mathbf{v} = (0, 0, 1)^T$ by elimination:
+- Row 3 + 0.9 · Row 1 + 0.81 · Row 2 (after appropriate elimination)
+  — easier to substitute. Let $v_1 = 0.9 v_2$ and $v_2 = 0.9 v_3$. Then
+  $v_1 = 0.81 v_3$. Plug into row 3: $-0.9 \cdot 0.81 v_3 + v_3 = 1 \Rightarrow 0.271 v_3 = 1$
+  $\Rightarrow v_3 \approx 3.690$, $v_2 \approx 3.321$, $v_1 \approx 2.989$.
+
+Match lesson 5 P2.
+</details>
+
+**P2.** What is $\rho(P^\pi)$ for the 3-state cycle? Confirm that
+$\gamma \rho(P^\pi) < 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A permutation matrix's eigenvalues lie on the unit circle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P^\pi$ is the permutation $(1 \to 2 \to 3 \to 1)$, a cyclic 3-cycle. Its
+eigenvalues are $1, \omega, \omega^2$ where $\omega = e^{2\pi i/3}$. All
+have $|\lambda| = 1$, so $\rho(P^\pi) = 1$. $\gamma \rho(P^\pi) = 0.9 < 1$,
+so $(I - \gamma P^\pi)$ is invertible. Good.
+</details>
+
+**P3.** *Cost of inversion.* For an MDP with $|S| = 1{,}000$ states,
+direct matrix inversion is $O(|S|^3) = 10^9$ operations. For $|S| = 10^6$,
+it is $10^{18}$ — infeasible. What is the alternative?
+
+<details class="hint"><summary>Full solution</summary>
+**Iterative policy evaluation** (lesson 13): apply $T_\pi$ repeatedly,
+$\mathbf{v}_{k+1} = \mathbf{r}^\pi + \gamma P^\pi \mathbf{v}_k$, until
+convergence. Each iteration costs $O(|S|^2)$ (or $O(|S| \cdot \bar{d})$
+for sparse $P^\pi$ with average out-degree $\bar{d}$). Convergence to
+$\epsilon$-error in $\log_{1/\gamma}(1/\epsilon)$ steps. For $\gamma = 0.99$
+and $\epsilon = 10^{-6}$, that's about 1{,}400 iterations — drastically
+cheaper than $10^{18}$ for huge $|S|$.
+
+This is the moment iteration becomes mandatory.
+</details>
+
+### Practice — Stretch
+
+**S1.** *Spectral story.* Show that for $\gamma = 1$ and $P^\pi$ that has
+$\lambda = 1$ as an eigenvalue (which it does, since $P^\pi \mathbf{1} = \mathbf{1}$),
+$(I - P^\pi)$ is *singular*. What does this say about the undiscounted
+Bellman equation?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\mathbf{1}$ (all-ones) is in the null space of $I - P^\pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P^\pi \mathbf{1} = \mathbf{1}$ (rows sum to 1), so $(I - P^\pi) \mathbf{1} = 0$.
+$\mathbf{1}$ is in the null space, so the matrix is singular: not
+invertible.
+
+For $\gamma = 1$ the Bellman system is **under-determined**: the value is
+fixed only up to a constant shift. Adding any constant $c$ to every
+$v(s)$ produces another valid solution. This is why undiscounted RL on
+continuing tasks needs *average reward* formulations, not state values.
+
+Discounting $\gamma < 1$ kills the eigenvalue 1, breaks the constant
+shift, and pins down the unique value.
+</details>
+
+**S2.** *Neumann series intuition.* Expand
+$(I - \gamma P^\pi)^{-1} = \sum_{k=0}^\infty (\gamma P^\pi)^k$ and apply
+to $\mathbf{r}^\pi$. Interpret each term in words.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(P^\pi)^k$ is the $k$-step transition matrix.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbf{v} = \sum_{k=0}^\infty \gamma^k (P^\pi)^k \mathbf{r}^\pi$.
+
+The $k$-th term: $\gamma^k$ times "$k$-step transition matrix applied to
+the immediate-reward vector" — i.e. *expected reward $k$ steps from now*,
+discounted. Sum over $k$: total expected discounted reward. This *is* the
+infinite-sum definition of $v_\pi(s)$ from lesson 5, recovered from the
+matrix identity.
+
+The Neumann series is the bridge between the infinite-sum view and the
+linear-system view.
+</details>
+
+::: {.fun-fact}
+Ronald Howard, in his 1960 PhD thesis at MIT, proved that
+$(I - \gamma P^\pi)$ is invertible for $\gamma < 1$ in a single line: the
+spectral radius bound $\rho(\gamma P^\pi) \le \gamma$. With that, his
+**policy iteration** algorithm — alternating policy evaluation (this
+lesson's matrix solve) with policy improvement — converged in *finitely
+many* steps on finite MDPs, the first proof of convergence for any RL-style
+algorithm. Lesson 14 is its modern descendent.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$P^\pi$ depends on the action."** No — *the policy collapses out
+   the action*. $P^\pi(s' \mid s)$ has no $a$ in it. Lesson 3.
+2. **"You can always invert $I - \gamma P^\pi$."** Only when $\gamma < 1$.
+   At $\gamma = 1$ it is singular (S1).
+3. **"Solving the matrix system is always faster than iterating."** Only
+   for small $|S|$. The crossover where iteration wins is around
+   $|S| \approx 100$ to $1{,}000$ on modern hardware, depending on
+   sparsity.
+:::
+
+### Takeaways
+
+1. The Bellman equation for a fixed policy is a
+   [linear system](/glossary.qmd#system-of-linear-equations):
+   $\mathbf{v} = \mathbf{r}^\pi + \gamma P^\pi \mathbf{v}$.
+2. Closed form: $\mathbf{v}_\pi = (I - \gamma P^\pi)^{-1} \mathbf{r}^\pi$.
+   Existence and uniqueness follow from $\rho(\gamma P^\pi) < 1$.
+3. The Neumann series $(I - \gamma P^\pi)^{-1} = \sum_k (\gamma P^\pi)^k$
+   reveals the inverse as "expected discounted future reward over all
+   horizons."
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you write the matrix Bellman equation from scratch and identify
+   $P^\pi, \mathbf{r}^\pi$ for a small MDP?
+2. Did you finish W1–S1 without peeking past *Hint 1*?
+3. Can you explain in one sentence why $\gamma < 1$ is essential for the
+   inverse to exist?
+
+- **3 yes:** continue to lesson 8 (action values).
+- **2 yes:** redo S2 — the Neumann-series view is the most useful single
+  identity in the lesson.
+- **0–1 yes:** re-read *Discover* — it builds the matrix form from
+  scratch.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.bellman-equation", "t5.matrices", "t5.linear-systems-gaussian"]
+- **`mfrl.bellman-equation`** — the per-state equation we now stack.
+- **`t5.matrices`** — for matrix multiplication, identity matrix, inverse.
+- **`t5.linear-systems-gaussian`** — for the Gaussian-elimination method
+  used in P1.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 8 — Action Values.** Same trick, $|S| \cdot |A|$ unknowns
+  instead of $|S|$.
+- **Lesson 13 — Iterative Policy Evaluation.** When inversion is too
+  expensive, iterate $\mathbf{v}_{k+1} = \mathbf{r}^\pi + \gamma P^\pi \mathbf{v}_k$
+  to convergence.
+- **Lesson 14 — Policy Iteration.** The Howard algorithm: alternate this
+  matrix solve with policy improvement.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Inside *policy iteration* (PPO's older sibling, used in
+classical control and small-MDP planning), the policy-evaluation step
+*is* this matrix solve. Modern deep RL replaces it with a sample-based
+approximation (TD), but the maths is the same.
+:::
+
+::: {.applied-callout}
+**Systems / planning.** Stochastic shortest-path problems, scheduling
+under uncertainty, and many optimal-control problems reduce to solving
+$(I - \gamma P^\pi) \mathbf{v} = \mathbf{r}^\pi$ for the cost-to-go.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view; the matrix Bellman equation is the
+"linear-algebra version" referenced there.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §07. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), Chapter 2 §4. Cite freely; never paste Zhao's prose.
+- Touchstones honoured: Russian school (Discover *is* the linear-algebra
+  derivation), Better Explained ("the inverse is the discounted future").
 :::

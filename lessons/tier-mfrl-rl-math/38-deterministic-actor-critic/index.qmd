@@ -7,87 +7,474 @@ prerequisites: ["mfrl.off-policy-actor-critic"]
 unlocks: []
 applied-domains: ["ai-ml", "game-dev"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.off-policy-actor-critic"].
+1. Can you state **off-policy actor-critic** with importance sampling
+   ([Lesson 37](../37-off-policy-actor-critic/index.qmd))?
+2. Are you comfortable with the **chain rule** for derivatives —
+   $\nabla_x f(g(x)) = f'(g(x)) g'(x)$
+   ([glossary](/glossary.qmd#chain-rule))?
+3. Do you remember **DQN's target network and replay buffer**
+   ([Lesson 31](../31-deep-q-network/index.qmd))?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+If yes to all three, continue. This is the final lesson — the one that
+ties the track together.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Picture a robot arm with two joints. Each joint accepts a continuous
+torque between $-1$ and $1$. The state is the joint angles, joint
+velocities, and tip position — say 12 numbers. Actions are $\mathbb R^2$.
+
+A widget shows the arm's tip moving toward a target. The policy is
+**deterministic**: $\mu(s; \theta) \in \mathbb R^2$ — given a state,
+output a single action vector, no distribution. A second network is the
+critic $\hat q(s, a; w)$.
+
+Click "train one batch". The actor doesn't sample actions and reweight by
+log-probability — it differentiates the critic's $\hat q(s, \mu(s;
+\theta); w)$ *through* the action $\mu(s; \theta)$. The chain rule does
+all the work.
+
+::: {.lesson-beat}
+For continuous actions, you can do something the stochastic case can't —
+**differentiate through the action** itself. That's exactly what DPG does.
+:::
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The stochastic PG theorem needed $\nabla \log \pi$. A deterministic
+   policy puts all its mass on a single action — $\log \pi$ is $-\infty$
+   off the chosen action and $0$ at it. So the stochastic PG theorem
+   doesn't apply. What replaces it?
+2. The chain rule lets us write $\nabla_\theta q(s, \mu(s; \theta)) =
+   \nabla_\theta \mu(s; \theta) \cdot \nabla_a q(s, a)|_{a = \mu(s)}$.
+   That looks like a deterministic policy gradient. Is it valid?
+3. We never sample actions. Doesn't that kill exploration?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — write the deterministic objective
+
+For a deterministic policy $\mu(s; \theta)$, what does $J(\theta)$ look
+like?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same definition as before — expected return — but now the action is fixed
+by $\mu$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$J(\theta) \;=\; \mathbb E_{s_0 \sim d_0}[v_{\mu_\theta}(s_0)]
+\;=\; \mathbb E_{s \sim d^{\mu_\theta}}[q_{\mu_\theta}(s, \mu_\theta(s))].$$
+
+The action at every state is exactly $\mu_\theta(s)$ — no integration over
+actions, because the policy is a delta function on $\mu_\theta(s)$.
+</details>
+
+### Problem 2 — differentiate through the action
+
+The critic $q_\mu(s, a)$ is a smooth function of $a$ (assume continuous
+actions and a smooth approximator). The action $a = \mu(s; \theta)$ is a
+smooth function of $\theta$. Use the chain rule on
+$q_\mu(s, \mu(s; \theta))$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Chain rule: $\nabla_\theta q(s, \mu(s; \theta)) = ?$
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\nabla_\theta q_\mu(s, \mu(s; \theta)) = \nabla_\theta \mu(s; \theta) \cdot \nabla_a q_\mu(s, a)\big|_{a = \mu(s; \theta)}$.
+
+Here $\nabla_\theta \mu(s; \theta)$ is a Jacobian matrix (action dim × $\theta$
+dim) and $\nabla_a q$ is a vector (action dim). Their product is a vector in
+$\theta$-space — exactly a parameter gradient.
+</details>
+
+### Problem 3 — state the deterministic policy gradient theorem
+
+Putting Problem 2 inside the expectation in Problem 1 (and noting that the
+state distribution depends on $\theta$ but the gradient term that catches
+this contributes zero on the policy's stationary distribution):
+
+$$\boxed{\nabla_\theta J(\theta) \;=\; \mathbb E_{s \sim d^{\mu_\theta}}\!\left[\nabla_\theta \mu(s; \theta)\,\nabla_a q_{\mu_\theta}(s, a)\big|_{a = \mu(s; \theta)}\right]}.$$
+
+State this in your own words.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two factors: how does the policy *output* depend on $\theta$, and how does
+the critic value depend on the action?
+</details>
+<details class="hint"><summary>Full solution</summary>
+The gradient of expected return (under deterministic policy $\mu_\theta$)
+equals the expectation, over states the policy visits, of:
+the gradient of the policy's action with respect to $\theta$, times the
+gradient of the critic with respect to the action (evaluated at the policy's
+chosen action). This is the **deterministic policy gradient** of Silver et
+al. 2014.
+</details>
+
+### Problem 4 — what about exploration?
+
+A deterministic $\mu$ always picks the same action at each state. How can
+the agent explore?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Make the *behaviour* policy stochastic, even if the *target* policy is
+deterministic. Off-policy.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Use a stochastic *behaviour* policy: $\beta(s) = \mu(s; \theta) + \epsilon$,
+where $\epsilon$ is exploration noise (Gaussian, or Ornstein-Uhlenbeck for
+correlated noise in robotics). Data is gathered under $\beta$; the
+deterministic target $\mu_\theta$ is updated using a critic learned from
+the buffered transitions. **DPG is intrinsically off-policy.**
+
+A bonus: because the target policy is deterministic, *no* importance
+sampling is needed to correct the actor's gradient (the deterministic PG
+theorem is an expectation over states, not over actions). All the
+benefits of off-policy data without the variance of IS.
+</details>
+
+### Problem 5 — DDPG: the engineering layer
+
+DDPG (Lillicrap et al. 2015) combines DPG with **DQN's stabilisers**:
+- A replay buffer $\mathcal D$ of past transitions.
+- A target actor $\mu(s; \theta^-)$ and target critic $\hat q(s, a; w^-)$,
+  updated by **soft** averaging $\theta^- \leftarrow \tau \theta + (1 -
+  \tau) \theta^-$ at every step.
+
+What problem do the target networks solve here?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same problem as in DQN: bootstrap target shifting under the actor.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The critic's TD target uses both $\mu$ and $\hat q$. If both move at every
+step, the regression chases its tail. Slowly-moving target copies of both
+networks stabilise the bootstrap target — essentially the
+target-network trick from [Lesson 31](../31-deep-q-network/index.qmd),
+applied to *both* the actor and the critic.
+</details>
+
+::: {.fun-fact}
+**Silver et al.'s 2014 DPG paper was rejected from ICML before being
+accepted at the same conference's next round** — one of the
+highest-impact rejections in modern RL. The deterministic PG identity
+was considered "obvious" by some reviewers — and yet it powers every
+modern continuous-control deep RL algorithm: DDPG (2015), TD3 (2018), SAC
+(2018), HER+DDPG (2017), and the deep continuous-control variants of
+soft Q-learning.
+:::
+
+::: {.key-insight}
+**Stochastic PG averages over actions; deterministic PG differentiates
+*through* the action.** No integration, no log-derivative trick, no
+importance sampling for the actor. The chain rule does all the work. That
+is why every continuous-control method since 2014 is some
+deterministic-AC variant.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Deterministic Policy Gradient (DPG).** For deterministic
+$\mu_\theta : S \to A$ (continuous actions),
+
+$$\nabla_\theta J(\theta) \;=\; \mathbb E_{s \sim d^{\mu_\theta}}\!\left[\nabla_\theta \mu(s; \theta)\,\nabla_a q_{\mu_\theta}(s, a)\big|_{a = \mu(s; \theta)}\right].$$
+
+**DDPG (Deep DPG).** DPG with:
+
+- A neural-network actor $\mu(s; \theta)$ and critic $\hat q(s, a; w)$.
+- A replay buffer $\mathcal D$ for off-policy data.
+- Target actor $\theta^-$ and target critic $w^-$, updated by soft
+  averaging $\theta^- \leftarrow \tau \theta + (1-\tau)\theta^-$ at every
+  step.
+- An exploration noise process: $a = \mu(s; \theta) + \epsilon$ when
+  collecting data.
+
+:::
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — DDPG pseudo-code
+
+```
+Initialise actor μ(·; θ), critic q̂(·; w); θ⁻ ← θ, w⁻ ← w.
+Initialise replay buffer D, exploration noise process N.
+Repeat (each timestep):
+    a ← μ(s; θ) + N        ← noisy behaviour action
+    Take action a; observe (r, s'). Store (s, a, r, s') in D.
+    Sample mini-batch of B transitions {(s_i, a_i, r_i, s'_i)} from D.
+
+    # Critic update (TD with target networks)
+    y_i ← r_i + γ q̂(s'_i, μ(s'_i; θ⁻); w⁻)
+    w ← w - η_w ∇_w (1/B) Σ_i (y_i - q̂(s_i, a_i; w))²
+
+    # Actor update (DPG)
+    θ ← θ + η_θ (1/B) Σ_i ∇_θ μ(s_i; θ) · ∇_a q̂(s_i, a; w)|_{a=μ(s_i;θ)}
+
+    # Soft target updates
+    θ⁻ ← τ θ + (1-τ) θ⁻
+    w⁻ ← τ w + (1-τ) w⁻
+
+    s ← s'.
+```
+
+Notice: the critic target uses $\mu(s'; \theta^-)$ — the *target actor*'s
+action — and $\hat q(\cdot; w^-)$ — the target critic. The actor uses the
+*current* $\hat q$ but treats the action via $\mu(\cdot; \theta)$ — that's
+where deterministic PG enters.
+
+### Practice — Warm
+
+**W1.** State the deterministic policy gradient theorem from memory.
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla_\theta J(\theta) = \mathbb E_{s \sim d^{\mu_\theta}}[\nabla_\theta
+\mu(s; \theta)\, \nabla_a q_\mu(s, a)|_{a = \mu(s; \theta)}]$.
+</details>
+
+**W2.** Why doesn't DPG need an importance-sampling correction in the actor?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The expectation is over $s$, not $a$. The action is determined by $\mu$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The expectation is over the *state* distribution only. There is no
+expectation over actions — the action is a deterministic function of state
+and parameter. So no $\pi/\beta$ ratio is needed to correct
+behaviour-target action mismatch. DPG is naturally off-policy without
+inflating variance from IS.
+</details>
+
+**W3.** What is the role of the *exploration noise* in DDPG?
+
+<details class="hint"><summary>Full solution</summary>
+The target policy is deterministic, so unaided it would never explore.
+Adding noise to the *behaviour* action ensures coverage of the action
+space. Common choices: zero-mean Gaussian (uncorrelated) or Ornstein–Uhlenbeck
+(correlated, useful for momentum-rich physical systems like robotic arms).
+</details>
+
+### Practice — Working
+
+**P1.** Why must the action space be **continuous** for DPG?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The chain rule needs $\nabla_a q(s, a)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The actor's gradient is $\nabla_\theta \mu \cdot \nabla_a q$. The factor
+$\nabla_a q$ is the gradient of the critic w.r.t. the action — defined
+only when $a$ lives in a continuous space (or has a smooth relaxation).
+For discrete actions there is no such gradient; you must use the
+stochastic PG theorem (or differentiable relaxations like
+Gumbel-softmax). DPG is fundamentally a continuous-action method.
+</details>
+
+**P2.** Why does DDPG use **soft target updates** rather than DQN's hard
+sync every $C$ steps?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two networks (actor and critic) need to track each other smoothly to keep
+the bootstrap stable.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Smoothness. With two interlocked networks (target actor → target critic
+target), discrete jumps in $\theta^-$ would propagate as discrete jumps in
+the critic's bootstrap target — possibly destabilising the actor in turn.
+Soft updates $\theta^- \leftarrow \tau \theta + (1 - \tau) \theta^-$ at
+every step give a smoothly-moving target with effective lag $1/\tau$.
+DDPG typically uses $\tau = 0.005$ (lag ~200 steps).
+</details>
+
+**P3.** Why is **TD3** (Twin Delayed DDPG) considered an improvement?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+DDPG can overestimate the critic; TD3 uses two critics + delayed actor
+updates.
+</details>
+<details class="hint"><summary>Full solution</summary>
+DDPG's critic, like DQN's, suffers from optimistic overestimation when
+$\hat q$ is noisy (the actor exploits noise, biasing the bootstrap
+upward). TD3 (Fujimoto et al. 2018) uses **two critics** and takes the
+*minimum* of the two predictions in the bootstrap target — a clipped
+double-Q trick — and **delays the actor update** to once every $d$ critic
+updates. These two tweaks cure most of DDPG's instability and make TD3
+the standard 2026-era continuous-control baseline.
+</details>
+
+### Practice — Stretch
+
+**S1.** Argue why **DPG has lower variance than stochastic PG** for
+continuous actions, in one paragraph.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Stochastic PG samples actions and reweights by $\nabla \log \pi$;
+deterministic PG never samples actions and uses the action's gradient
+directly.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Stochastic PG estimates an expectation over actions by Monte Carlo:
+$\mathbb E_a[\nabla \log \pi(a) q(s, a)]$. Each sample contributes a noisy
+estimate scaled by $\nabla \log \pi$, which can be large when $a$ is in
+the policy's tail. Deterministic PG never samples actions — it uses an
+*exact* gradient through $\mu$. The variance contribution of the action
+distribution is *zero* (no MC over actions). Variance only enters via the
+state distribution and via the stochasticity of $\hat q$. This is why DPG
+trains so much faster on continuous-control tasks than stochastic PG.
+</details>
+
+**S2.** Tie the whole track together. From MDP (Lesson 1) to DDPG (Lesson
+38), what is the spine that connects every algorithm?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Bellman equation. Value iteration. TD. PG. Actor-critic. All chase the
+same fixed point.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**The Bellman equation is the spine.** Every algorithm in this track is
+some way of approximating $v_\pi$ or $q_\pi$ (the fixed points of the
+Bellman operator) — or of using those approximations to improve $\pi$.
+
+- *Tabular DP* (Lessons 13–15) iterates the Bellman operator exactly.
+- *MC* (Lessons 17–18) approximates fixed points by sample averages.
+- *TD* (Lessons 23–28) bootstraps fixed points from one-step samples.
+- *FA* (Lessons 28–31) parameterises the fixed point and uses
+  semi-gradient TD.
+- *PG* (Lessons 32–34) sidesteps the fixed point: parameterise $\pi$
+  directly, do gradient ascent on $J(\theta)$.
+- *Actor-Critic* (Lessons 35–38) reunites them: critic estimates a fixed
+  point; actor uses it to improve $\pi$.
+
+DDPG is the limit of this synthesis: parameterised actor, parameterised
+critic, deep neural networks, off-policy data, continuous actions, target
+networks for stability. From "what is an MDP" to "deep deterministic
+continuous control" in 38 lessons. The Bellman equation has been the
+quiet companion the whole way.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"DPG is just stochastic PG with $\sigma \to 0$."** Closely related
+   but not identical: take the limit carefully (the score function blows
+   up). The clean *deterministic* PG theorem is its own object, derived
+   directly from the chain rule, not as a Gaussian limit.
+2. **"DDPG is deterministic so it can't explore."** The *target* policy
+   is deterministic; the *behaviour* policy adds noise. DDPG explores —
+   just not via stochasticity in the policy you ultimately deploy.
+3. **"DDPG is the state of the art."** No — TD3 and SAC have largely
+   replaced it as the 2026 standard, but the conceptual skeleton is
+   identical to DDPG.
+:::
+
+### Takeaways
+
+1. **Deterministic policy gradient theorem:**
+   $\nabla J(\theta) = \mathbb E_s[\nabla_\theta \mu(s; \theta) \nabla_a
+   q_\mu(s, a)|_{a = \mu(s)}]$. Two chain-rule factors. No
+   action-integration, no log-derivative trick.
+2. **DDPG = DPG + DQN's stabilisers + exploration noise.** A neural-net
+   actor and critic, replay buffer, soft target updates, additive
+   exploration noise. The deep continuous-control workhorse.
+3. **From MDP to DDPG, the Bellman equation has been the spine.** Every
+   algorithm in this track is some way of approximating, parameterising,
+   bootstrapping, or sampling the Bellman fixed point — or of climbing
+   $J(\theta)$ that the fixed point implicitly defines. DDPG is the
+   modern synthesis.
+
+### Self-Assessment
+
+1. Could you state the deterministic PG theorem from memory and explain
+   why it has no $\nabla \log \pi$ term?
+2. Did you see why DPG is naturally off-policy without IS?
+3. Could you sketch DDPG pseudo-code and identify the four stabilisers
+   (replay buffer, target networks for both actor and critic, soft update,
+   exploration noise)?
+4. (Bonus, capstone.) Could you write a one-paragraph history connecting
+   MDP → Bellman equation → value iteration → TD → semi-gradient TD → DQN
+   → policy gradient → actor-critic → A2C → DDPG?
+
+- **3-4 yes:** **You have completed the track.** Read the synthesis
+  lesson [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
+  to see the same arc compressed into a single page.
+- **2 yes:** redo P1 and S2.
+- **0–1 yes:** revisit the actor-critic family (Lessons 35–37) before
+  S2.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.off-policy-actor-critic"]
+- **[mfrl.off-policy-actor-critic](../37-off-policy-actor-critic/index.qmd)** —
+  the framework for using behaviour-policy data; DPG slots cleanly in.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+This is the **final lesson** of the *Mathematics for Reinforcement
+Learning* track. From here, branch out:
+
+- **Cross-track:** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd) —
+  the masters-tier synthesis lesson that compresses the whole track into
+  a single page.
+- **Forward to research:** TD3 (Fujimoto et al. 2018), SAC (Haarnoja et al.
+  2018), and PPO (Schulman et al. 2017) are direct extensions of the
+  ideas in Lessons 35–38.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** DDPG, TD3, and SAC are the deep continuous-control trio.
+Every modern simulated robotics paper uses one of them. SAC's
+maximum-entropy variant is the current default in the 2026 robotics
+literature.
+:::
+
+::: {.applied-callout}
+**Game development.** Continuous-action game AI — driving, flight,
+articulated character control — uses DPG-family methods. The robot-arm
+demo from this lesson's *Touch* widget translates directly into the
+control loops used by physics-rich game engines (Unity ML-Agents, Unreal
+Learning Agents).
+:::
+
+::: {.applied-callout}
+**Research.** Sim-to-real robotics — training agents in simulation and
+deploying to real hardware — is dominated by DPG-family methods plus
+domain randomisation. The 2026 SOTA on most MuJoCo benchmarks is some
+clipped, regularised, double-critic deterministic-AC variant.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
 gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+track expands into 38 lessons. **You are now ready to read it as a
+synthesis, not as a teaser.**
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
 - Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §38. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+  Learning* (Springer 2025), §10 (deterministic actor-critic). Original
+  references: Silver et al. (2014), *Deterministic Policy Gradient
+  Algorithms*, ICML; Lillicrap et al. (2015), *Continuous Control with
+  Deep Reinforcement Learning* (DDPG).
+- Touchstones honoured: Russian school (the *Discover* sequence
+  derives DPG from the chain rule, problem by problem); Better
+  Explained "Aha!" framing (the key insight that DPG differentiates
+  *through* the action); 3Blue1Brown (the Touch widget — robot arm
+  controlled by a deterministic policy — gives the visual intuition for
+  why continuous action gradients are so much cleaner than stochastic
+  ones).
+- The capstone Self-Assessment question (4) is intentionally a
+  *synthesis* prompt: the learner should be able to narrate the entire
+  38-lesson arc by the end of this lesson. If they can't, they aren't
+  finished.
 :::

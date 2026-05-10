@@ -7,72 +7,385 @@ prerequisites: ["mfrl.deep-q-network"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.deep-q-network"].
+1. Can you state the difference between a *deterministic* policy and a
+   *stochastic* one?
+2. Do you remember the **softmax function** and its use in classifiers
+   (e.g., outputs of a neural network mapping logits to probabilities)?
+3. Are you comfortable with the *Gaussian* (normal) distribution and its
+   parameters mean $\mu$ and standard deviation $\sigma$?
+4. Can you read $\hat q(s, a; w)$ as a parameterised function?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+If yes to all four, continue. Otherwise revisit the preceding lessons and
+the probability lessons in Tier 5.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+You're standing at a 4-way intersection. The four actions — **N, E, S, W** —
+each have an attached number, the policy's *preference*. Move a slider to
+change the preference for action **N**. Watch all four bars below the slider
+shift: as N grows, its action probability rises; the others fall.
+
+The display is showing
+
+$$\pi(a \mid s) \;=\; \frac{\exp(h_a)}{\sum_{a'} \exp(h_{a'})}$$
+
+with $h_N$ controlled by your slider and the other three preferences fixed
+at zero.
+
+Now try a second widget. A policy outputs *continuous* steering angles
+between $-1$ and $1$. Two sliders control $\mu$ and $\sigma$. The widget
+samples 100 actions and shows their histogram — a bell curve centred at
+$\mu$ with width $\sigma$.
+
+::: {.lesson-beat}
+Two widgets, two parameterisations. The first turns a vector of preferences
+into a discrete distribution. The second turns two numbers into a continuous
+distribution. Both are *policies*.
+:::
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. With Q-learning, you only ever needed $\hat q$ — and the policy fell out
+   as $\arg\max_a \hat q$. Why bother parameterising the policy directly?
+2. The Gaussian widget's output is *continuous*. How would
+   $\arg\max_a \hat q(s, a)$ work for a continuous action space — say, the
+   real line?
+3. The softmax assigns *positive* probability to every action. Useful for
+   exploration? Bad for exploitation? Both?
+4. As a parameter $\theta$ shifts smoothly, the action probabilities also
+   shift smoothly. Is that important?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — what's wrong with $\arg\max$ for continuous actions
+
+Suppose actions are real numbers $a \in \mathbb R$ and $\hat q(s, a; w)$ is a
+neural network. To act greedily you'd compute $\arg\max_{a \in \mathbb R}
+\hat q(s, a; w)$. What goes wrong?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You can't enumerate the real line.
+</details>
+<details class="hint"><summary>Full solution</summary>
+There is no algorithm that computes $\arg\max$ over $\mathbb R$ for an
+arbitrary neural network in closed form. Optimising the neural net at every
+action selection is computationally outrageous (each environment step would
+involve a full optimisation). And the maximum of $\hat q(s, \cdot; w)$ may
+not even exist (unbounded), or have multiple modes. Q-learning's
+$\max_{a'}$ is a fundamentally tabular / finite-action operator. Continuous
+actions force a different approach.
+</details>
+
+### Problem 2 — softmax over preferences
+
+Suppose your policy is
+
+$$\pi(a \mid s; \theta) \;=\; \frac{\exp(h(s, a; \theta))}{\sum_{a'} \exp(h(s, a'; \theta))}.$$
+
+What does $\pi$ look like in two limiting cases: (i) $h(s, a; \theta) = 0$
+for all $a$, and (ii) one $h(s, a^*; \theta) \to +\infty$ while others stay
+finite?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plug in directly.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(i) Uniform: all $|A|$ actions get probability $1/|A|$ — maximally
+exploratory. (ii) The probability of $a^*$ tends to 1; other actions go to
+0 — deterministic greedy. So *softmax* smoothly interpolates between
+uniform random and pure greedy as the preference scale grows. That's
+exactly the spectrum from exploration to exploitation, encoded smoothly in
+$\theta$.
+</details>
+
+### Problem 3 — Gaussian over actions
+
+For continuous $a \in \mathbb R$, a typical parameterisation is
+
+$$\pi(a \mid s; \theta) \;=\; \frac{1}{\sigma(s; \theta)\sqrt{2\pi}}\,\exp\!\left(-\frac{(a - \mu(s; \theta))^2}{2 \sigma(s; \theta)^2}\right),$$
+
+where $\mu$ and $\sigma$ are produced by a neural network from $s$. What
+roles do $\mu$ and $\sigma$ play?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Mean is the centre; standard deviation is the spread.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mu(s; \theta)$ is the *most-probable* action in state $s$ — what the
+policy "wants" to do on average. $\sigma(s; \theta)$ controls how randomly
+it actually acts: small $\sigma$ → near-deterministic; large $\sigma$ →
+broad exploration. Both can depend on $s$ (typically a neural network with
+two heads, one for $\mu$ and one for $\log \sigma$).
+</details>
+
+### Problem 4 — why parameterise the *policy*?
+
+Three reasons to parameterise $\pi$ directly rather than extract it from
+$\hat q$. Try to write down at least one before peeking.
+
+<details class="hint"><summary>Full solution</summary>
+1. **Continuous action spaces.** Direct policies sidestep $\arg\max_a$
+   entirely.
+2. **Stochastic policies as a primary citizen.** Some optimal policies are
+   provably stochastic (e.g., partial-information games). A direct
+   parameterisation can represent these; greedy-from-$q$ cannot.
+3. **Smooth optimisation surface.** $\theta$ varies smoothly → $\pi$
+   varies smoothly → $J(\theta) = \mathbb E[v_{\pi_\theta}(s_0)]$ is a
+   smooth function we can do gradient ascent on. Compare to value-based
+   methods, where small changes in $w$ can flip the $\arg\max_a$ and
+   produce discontinuous policy changes.
+
+These three together justify the entire policy-gradient family of
+algorithms in Lessons 33–38.
+</details>
+
+::: {.fun-fact}
+The first robotic arm controllers trained by deep RL — *guided policy search*
+(Levine & Abbeel 2014) and the early DDPG papers (Lillicrap et al. 2015) —
+all used Gaussian-head neural-network policies. Continuous-action robotics
+is essentially impossible with Q-learning's $\max_a$, and the Gaussian-head
+policy is what made deep RL viable for it.
+:::
+
+::: {.key-insight}
+**A parameterised policy gives you continuous actions and explicit
+randomisation for free.** Both are essentially impossible with $\hat q$
+alone. That's why every modern continuous-control algorithm — DDPG, TD3,
+SAC, PPO — has a policy network at its core.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+A **parameterised policy** $\pi(a \mid s; \theta)$ is a probability
+distribution over actions, indexed by a parameter $\theta \in \mathbb R^d$.
+
+Two standard choices:
+
+- **Softmax (discrete actions):**
+  $$\pi(a \mid s; \theta) \;=\; \frac{\exp(h(s, a; \theta))}{\sum_{a'} \exp(h(s, a'; \theta))}.$$
+- **Gaussian (continuous actions):**
+  $$\pi(a \mid s; \theta) \;=\; \mathcal N\!\bigl(a;\ \mu(s; \theta),\ \sigma(s; \theta)^2\bigr).$$
+
+In both cases $h, \mu, \sigma$ are typically neural networks of $s$.
+
+:::
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — softmax on a 2-action MDP
+
+Two actions, $a_1$ and $a_2$. State-independent preferences
+$h(a_1) = \theta_1,\ h(a_2) = \theta_2$ — so $\theta = (\theta_1, \theta_2)
+\in \mathbb R^2$.
+
+Softmax:
+$$\pi(a_1; \theta) = \frac{e^{\theta_1}}{e^{\theta_1} + e^{\theta_2}}, \quad
+\pi(a_2; \theta) = \frac{e^{\theta_2}}{e^{\theta_1} + e^{\theta_2}}.$$
+
+Take $\theta = (1, 0)$. Then $\pi(a_1) = e/(e+1) \approx 0.731,\
+\pi(a_2) \approx 0.269$. Take $\theta = (3, 0)$: $\pi(a_1) \approx 0.953$ —
+the policy is now strongly exploitative. Take $\theta = (0, 0)$: $\pi$ is
+uniform $(0.5, 0.5)$ — pure exploration.
+
+Notice that **adding the same constant to both preferences leaves $\pi$
+unchanged.** This is the *softmax invariance*: only differences matter.
+This is why people sometimes drop a "reference" preference and keep one
+fewer parameter.
+
+### Practice — Warm
+
+**W1.** For 4 actions with preferences $(2, 1, 0, -1)$, compute $\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\pi(a_i) = e^{h_i} / \sum_j e^{h_j}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$e^2 \approx 7.39,\ e^1 \approx 2.72,\ e^0 = 1,\ e^{-1} \approx 0.37$.
+Sum $\approx 11.48$. So $\pi \approx (0.644,\ 0.237,\ 0.087,\ 0.032)$.
+The action with preference 2 dominates but the others retain non-zero
+probability.
+</details>
+
+**W2.** A Gaussian policy outputs $\mu = 0,\ \sigma = 1$. What's the
+probability density at $a = 0$ versus at $a = 2$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Plug into $\frac{1}{\sigma \sqrt{2\pi}} \exp(-(a-\mu)^2/(2\sigma^2))$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At $a = 0$: $\frac{1}{\sqrt{2\pi}} \approx 0.399$. At $a = 2$:
+$\frac{1}{\sqrt{2\pi}} e^{-2} \approx 0.054$. The mode is at $\mu$;
+density falls off Gaussian-fast.
+</details>
+
+**W3.** State the two policy parameterisations covered. For each, name when
+to use it.
+
+<details class="hint"><summary>Full solution</summary>
+**Softmax** for finite (discrete) action spaces; **Gaussian** for
+1-dimensional continuous action spaces. (Multivariate Gaussian for
+multidimensional continuous; categorical → Gumbel-softmax for
+high-dimensional discrete; Beta or tanh-Gaussian for bounded continuous —
+but those are refinements of the same two ideas.)
+</details>
+
+### Practice — Working
+
+**P1.** A softmax policy with preferences $h(s, a; \theta) = \theta^\top
+\phi(s, a)$ is **linear softmax**. With $\phi(s, a)$ having $d$ features,
+how many parameters does $\theta$ have?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same as the feature dimension.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$d$ — the same dimension as $\phi$. Note this is far fewer parameters than
+a separate softmax per state (which would be $|S| \times |A|$ parameters
+for the tabular case). Linear softmax shares parameters across states via
+the features, exactly as linear FA does for value functions.
+</details>
+
+**P2.** Compute $\nabla_\theta \log \pi(a \mid s; \theta)$ for the
+state-independent 2-action softmax $\theta = (\theta_1, \theta_2)$, with
+$a = a_1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\log \pi(a_1) = \theta_1 - \log(e^{\theta_1} + e^{\theta_2})$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Differentiate term-by-term. The log-sum-exp differentiates to a softmax.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\partial \log \pi(a_1) / \partial \theta_1 = 1 - \pi(a_1; \theta)$.
+$\partial \log \pi(a_1) / \partial \theta_2 = -\pi(a_2; \theta)$.
+
+In vector form: $\nabla_\theta \log \pi(a_1 \mid s; \theta) = e_1 - \pi$,
+where $e_1 = (1, 0)$ and $\pi = (\pi(a_1), \pi(a_2))$. **Take note of this
+formula** — the policy gradient theorem in Lesson 33 uses
+$\nabla_\theta \log \pi(a \mid s; \theta)$ as its central object.
+</details>
+
+**P3.** A Gaussian policy has $\mu(s; \theta_\mu) = \theta_\mu^\top \phi(s)$
+linear in features. Compute $\nabla_{\theta_\mu} \log \pi(a \mid s)$ at
+fixed $\sigma$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\log \pi = -\frac{(a - \mu)^2}{2\sigma^2} + \text{const}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\nabla_{\theta_\mu} \log \pi(a \mid s) = \frac{a - \mu(s; \theta_\mu)}{\sigma^2}\,\phi(s)$.
+
+(Use the chain rule: differentiate w.r.t. $\mu$ first, then $\mu$ w.r.t.
+$\theta_\mu$.) Notice the magnitude: actions far from $\mu$ produce large
+gradients — the policy gets pushed harder when the action it took was
+unusual.
+</details>
+
+### Practice — Stretch
+
+**S1.** Show that the softmax policy is **invariant to a constant shift**
+of all preferences: if $h'(s, a) = h(s, a) + c(s)$ for any state-dependent
+constant $c$, then $\pi(\cdot \mid s) = \pi'(\cdot \mid s)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The numerator and denominator both pick up the factor $e^{c(s)}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\pi'(a \mid s) = \frac{e^{h(s,a) + c(s)}}{\sum_{a'} e^{h(s,a') + c(s)}}
+= \frac{e^{c(s)} e^{h(s,a)}}{e^{c(s)} \sum_{a'} e^{h(s,a')}}
+= \frac{e^{h(s,a)}}{\sum_{a'} e^{h(s,a')}} = \pi(a \mid s)$.
+
+Practical implication: subtract $\max_a h(s, a)$ from all preferences
+before exponentiating — same policy, no overflow.
+</details>
+
+**S2.** A practitioner says: "I'll just bin continuous actions into 100
+discrete bins and run DQN." What might go wrong as the action space grows
+to 4 dimensions?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Curse of dimensionality.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$100^4 = 10^8$ discrete actions. The $\max_a$ in DQN is now over $10^8$
+options at each step — completely intractable. Discretisation hits the
+curse of dimensionality with brutal force in continuous control. A
+4-dimensional Gaussian policy needs $\sim 8$ output parameters (4 means + 4
+log-std). The policy parameterisation completely sidesteps the
+combinatorial blow-up.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Softmax is just a heuristic."** No — for finite-action MDPs the
+   *Boltzmann* policy $\pi(a \mid s) \propto \exp(q(s, a) / \tau)$ is the
+   maximum-entropy policy at fixed expected $q$, and softmax preferences
+   are the parameterised version. There's a clean information-theoretic
+   story, not just a hack.
+2. **"You can always get a policy from $q$."** True for discrete actions,
+   false for continuous. And even for discrete, the $\arg\max$ policy is
+   *deterministic* — not what you want if the optimal policy is
+   stochastic (as in many imperfect-information games).
+3. **"Softmax probabilities depend on the absolute values of preferences."**
+   No — only differences. See S1.
+:::
+
+### Takeaways
+
+1. **Parameterised policies $\pi(a \mid s; \theta)$** are the bridge to
+   continuous actions and explicit stochasticity — neither is reachable
+   from $\hat q$ alone.
+2. **Softmax for discrete; Gaussian for continuous.** Both produce smooth
+   policies in $\theta$, enabling gradient-based optimisation.
+3. The single most important quantity for the rest of this track is
+   **$\nabla_\theta \log \pi(a \mid s; \theta)$.** Compute it once for
+   each parameterisation; you'll plug it into the policy gradient theorem
+   in [Lesson 33](../33-policy-gradient-theorem/index.qmd).
+
+### Self-Assessment
+
+1. Could you compute $\pi(a \mid s)$ for a softmax policy by hand on 4
+   actions?
+2. Did you derive $\nabla_\theta \log \pi$ for the softmax in P2 yourself?
+3. Could you list at least two reasons to parameterise the policy directly
+   over relying on $\arg\max_a \hat q$?
+
+- **3 yes:** continue to [Lesson 33 — Policy Gradient Theorem](../33-policy-gradient-theorem/index.qmd).
+- **2 yes:** redo P2 and P3.
+- **0–1 yes:** re-read *Discover* and *Apply*.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.deep-q-network"]
+- **[mfrl.deep-q-network](../31-deep-q-network/index.qmd)** — the
+  parameterisation of $\hat q$ via a neural network gives the *template*
+  this lesson reuses for $\pi$.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[Policy Gradient Theorem](../33-policy-gradient-theorem/index.qmd)** —
+  takes $\nabla_\theta \log \pi$ as the load-bearing object.
+- All actor-critic methods (Lessons 35–38).
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every modern policy-based deep agent — REINFORCE, TRPO, PPO,
+A2C/A3C, SAC, DDPG, TD3 — has a parameterised policy at its core.
+Continuous-action robotics is essentially impossible without one; even
+discrete-action LLM fine-tuning (RLHF) uses softmax policies over the
+vocabulary.
 :::
 
 ::: {.applied-callout}
@@ -84,10 +397,12 @@ track expands into 38 lessons.
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §32. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §9 (policy parameterisation). Cite freely; never
+  transcribe Zhao's prose.
+- Touchstones honoured: Better Explained "Aha!" framing (the key insight
+  that direct policy parameterisation gets you continuous actions for
+  free); Russian school problem-first sequencing (Discover walks the
+  learner into needing a policy parameterisation before *Name* gives the
+  templates).
 :::

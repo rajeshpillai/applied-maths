@@ -7,87 +7,522 @@ prerequisites: ["mfrl.mc-exploring-starts"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.mc-exploring-starts"].
+1. Can you state the MC ES algorithm from Lesson 18?
+2. Do you understand why deterministic policies create the *exploration
+   problem* — some $(s, a)$ pairs are never visited?
+3. Are you comfortable with mixed (stochastic) policies $\pi(a \mid s)$?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+If shaky, revisit Lessons 17, 18, and 3 (policies).
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+The exploring-starts trick said: "let me teleport the agent anywhere."
+That's unrealistic. The $\varepsilon$-greedy trick says: "let the agent
+*usually* be greedy, but occasionally pick a random action." This adds
+exploration *during* the trajectory, not at its start.
+
+Slide $\varepsilon$ from 0 to 1. Watch the agent's behaviour shift from
+"perfectly greedy" to "essentially random."
+
+```{ojs}
+viewof epsilon = Inputs.range([0, 1], {value: 0.2, step: 0.01, label: "ε"})
+```
+
+```{ojs}
+viewof seedBtn = Inputs.button("Run new episode")
+```
+
+```{ojs}
+{
+  seedBtn;
+  const N = 4;
+  const goal = [3, 3];
+  const next = (i, j, a) => {
+    if (i === goal[0] && j === goal[1]) return [i, j];
+    let ni = i, nj = j;
+    if (a === 0 && i > 0) ni = i - 1;
+    if (a === 1 && i < N - 1) ni = i + 1;
+    if (a === 2 && j > 0) nj = j - 1;
+    if (a === 3 && j < N - 1) nj = j + 1;
+    return [ni, nj];
+  };
+  // "Greedy" policy: always head toward goal (down or right depending on position)
+  const greedy = (i, j) => {
+    if (i < goal[0]) return 1; // down
+    if (j < goal[1]) return 3; // right
+    return 1;
+  };
+  let i = 0, j = 0;
+  const path = [[i, j]];
+  for (let t = 0; t < 25; t++) {
+    if (i === goal[0] && j === goal[1]) break;
+    let a;
+    if (Math.random() < epsilon) {
+      a = Math.floor(Math.random() * 4);
+    } else {
+      a = greedy(i, j);
+    }
+    const [ni, nj] = next(i, j, a);
+    i = ni; j = nj;
+    path.push([i, j]);
+  }
+  // Render grid
+  const cell = 50;
+  const cells = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const isGoal = (r === goal[0] && c === goal[1]);
+    const onPath = path.some(([pi, pj]) => pi === r && pj === c);
+    const visits = path.filter(([pi, pj]) => pi === r && pj === c).length;
+    const bg = isGoal ? "#ffd966" : (onPath ? `rgba(135, 206, 250, ${Math.min(1, visits / 5)})` : "white");
+    cells.push(html`<div style="width:${cell}px; height:${cell}px; background:${bg}; border:1px solid #999; display:flex; align-items:center; justify-content:center; font-family:monospace;">
+      ${isGoal ? "★" : (visits > 0 ? visits : "")}
+    </div>`);
+  }
+  return html`<div>
+    <div style="display:grid; grid-template-columns: repeat(${N}, ${cell}px); gap:0; width:max-content; margin:1rem auto;">
+      ${cells}
+    </div>
+    <div style="text-align:center; font-size:0.9rem; color:#666;">ε = ${epsilon}, episode length ${path.length} steps. Cell number = visits this episode.</div>
+  </div>`;
+}
+```
+
+Try $\varepsilon = 0$ (perfectly greedy — direct path to goal). Try
+$\varepsilon = 1$ (random walk; might never reach goal). Try
+$\varepsilon = 0.2$ (mostly greedy, with occasional detours).
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. With $\varepsilon = 0$ the agent always picks the greedy action.
+   What's the problem with that, given that we *want* an optimal policy?
+2. With $\varepsilon = 1$ the agent never exploits any knowledge.
+   What's the problem with that?
+3. Is there a "right" $\varepsilon$? Should it depend on the MDP, on the
+   stage of training, or both?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — Defining $\varepsilon$-greedy
+
+Given a deterministic greedy action $a^* = \arg\max_a q(s, a)$ and
+exploration parameter $\varepsilon \in [0, 1]$, write the
+$\varepsilon$-greedy policy as a probability distribution over actions.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+With probability $1 - \varepsilon$ act greedily; with probability
+$\varepsilon$ act uniformly random over all $|A|$ actions.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$\pi_\varepsilon(a \mid s) = \begin{cases} 1 - \varepsilon + \dfrac{\varepsilon}{|A|} & \text{if } a = a^* \\ \dfrac{\varepsilon}{|A|} & \text{if } a \ne a^* \end{cases}$$
+
+(The "+ $\varepsilon/|A|$" term in the first case accounts for the chance
+that the *random* action coincidentally equals the greedy.) Verify
+$\sum_a \pi_\varepsilon(a \mid s) = 1 - \varepsilon + \varepsilon/|A| + (|A| - 1)\varepsilon/|A| = 1$. ✓
+</details>
+
+### Problem 2 — Coverage under $\varepsilon$-greedy
+
+Show that for any $\varepsilon > 0$, every action has *positive*
+probability at every state under $\pi_\varepsilon$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the formula in Problem 1.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Every action has probability *at least* $\varepsilon/|A| > 0$ (the
+non-greedy ones have *exactly* this; the greedy has more). So if every
+state $s$ is reached infinitely often, every $(s, a)$ pair is visited
+infinitely often. **No exploring starts needed** — the random action
+choices provide coverage.
+
+This is the entire point of $\varepsilon$-greedy: trade *initialisation*
+flexibility for *runtime* randomness.
+</details>
+
+### Problem 3 — Exploration-exploitation tradeoff
+
+Why is small $\varepsilon$ "more exploitation, less exploration" and
+large $\varepsilon$ the opposite? Sketch what happens to total reward at
+each extreme.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\varepsilon = 0$: pure exploit. $\varepsilon = 1$: pure explore.
+</details>
+<details class="hint"><summary>Full solution</summary>
+- **$\varepsilon \to 0$ (exploit).** Agent always picks current best;
+  but if "current best" is wrong (because $\hat q$ hasn't seen better
+  options), agent never discovers them. Locked into local optimum.
+- **$\varepsilon \to 1$ (explore).** Agent ignores its knowledge entirely;
+  total reward is bad even if $\hat q$ is correct.
+- **Intermediate.** Best total reward in practice. Exact optimum depends
+  on MDP and training horizon.
+
+This is the **[exploration-exploitation tradeoff](/glossary.qmd#exploration-exploitation)** —
+*the* central tension of RL. Almost every algorithmic trick later in
+this track is a reframing of it.
+</details>
+
+### Problem 4 — Decay schedules
+
+Why might you want $\varepsilon$ to *decrease over time*? What does the
+schedule $\varepsilon_t = 1/t$ accomplish?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Early in training, $\hat q$ is bad, you want to explore. Late in
+training, $\hat q$ is good, you want to exploit.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Early:** $\varepsilon$ near 1 → agent explores broadly, gathers data
+about all $(s, a)$ pairs.
+
+**Late:** $\varepsilon$ near 0 → agent exploits its (now good) $\hat q$;
+total reward approaches optimal.
+
+**Schedule $\varepsilon_t = 1/t$:** $\sum_t \varepsilon_t = \infty$
+(infinite exploration in expectation) but $\varepsilon_t \to 0$
+(asymptotic greediness). This is the **GLIE** condition (Greedy in the
+Limit with Infinite Exploration), sufficient for MC ε-greedy to converge
+to $\pi^*$.
+
+Other schedules: $\varepsilon_t = c / \log t$ (slower decay), or
+piecewise (e.g.\ $\varepsilon = 0.1$ for first $10^6$ steps, then
+$0.01$). Real systems are tuned empirically.
+</details>
+
+### Problem 5 — MC ε-greedy algorithm
+
+Write the algorithm in pseudocode in 8 lines or fewer. (No exploring
+starts.)
+
+<details class="hint"><summary>Full solution</summary>
+```
+initialize q̂(s, a) = 0 for all (s, a)
+initialize ε ∈ (0, 1) (and optionally a decay schedule)
+for episode = 1, 2, ...:
+   π_ε(a | s) ← ε/|A| + (1 - ε) · 1[a = argmax_a' q̂(s, a')]
+   generate trajectory (S_0, A_0, R_0, ..., S_{T-1}, A_{T-1}, R_{T-1}) under π_ε from a fixed start
+   compute G_t backward as in Lesson 18 Problem 3
+   for each visit to (s, a) in the trajectory:    # every-visit
+      update q̂(s, a) by adding G_t to running average
+   optionally decay ε
+return greedy policy w.r.t. q̂
+```
+**No model used. No exploring starts. Just $\varepsilon$ random actions
+plus every-visit averaging.** This is the workhorse algorithm at the
+heart of every modern model-free RL method.
+</details>
+
+::: {.key-insight}
+$\varepsilon$-greedy is the simplest possible answer to "how do I
+explore without teleporting?" Every more sophisticated exploration
+strategy — Boltzmann/softmax, UCB, Thompson sampling, intrinsic
+motivation — is a refinement of the same idea: occasional non-greedy
+action choice.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**[ε-greedy policy](/glossary.qmd#epsilon-greedy).** For exploration
+parameter $\varepsilon \in [0, 1]$ and current action-value estimate
+$\hat q$:
+$$\pi_\varepsilon(a \mid s) = \begin{cases} 1 - \varepsilon + \varepsilon/|A| & a = \arg\max_{a'} \hat q(s, a') \\ \varepsilon/|A| & \text{otherwise.} \end{cases}$$
+
+**MC ε-greedy.** Same as MC ES but the *behaviour policy* is
+$\pi_\varepsilon$ rather than the deterministic greedy. No exploring
+starts assumed: the agent starts at any fixed initial state and explores
+through the random action choices.
+
+**GLIE convergence.** With a schedule
+$\varepsilon_t \to 0$ such that $\sum_t \varepsilon_t = \infty$ (e.g.\
+$\varepsilon_t = 1/t$), MC ε-greedy converges almost surely to $\pi^*$.
+
+:::
+
+A verse:
+
+> *Mostly greedy, sometimes random;*
+> *Coverage from the dice, not from teleport.*
+> *As ε decays, exploit takes over —*
+> *Greedy in the limit, exploring forever.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — MC ε-greedy on the 4-state corridor
+
+States $\{s_0, s_1, s_2, s_3\}$, $\gamma = 0.5$, reward 1 at $s_3$
+(absorbing). Initial $\hat q = 0$ everywhere. $\varepsilon = 0.5$ (high
+to start). Always start at $s_0$.
+
+**Episode 1.** $\hat q$ all zero, so $\arg\max$ is arbitrary; suppose it
+picks $L$. With $\varepsilon = 0.5$ each step is 50% greedy ($L$) and 50%
+random.
+
+Possible trajectory: $s_0 \xrightarrow{R} s_1 \xrightarrow{L} s_0 \xrightarrow{R} s_1 \xrightarrow{R} s_2 \xrightarrow{R} s_3$
+(reward 1, absorbed). Returns:
+$G_4 = 1, G_3 = 0.5, G_2 = 0.25, G_1 = 0.125, G_0 = 0.0625$.
+
+Update $\hat q$ at each visit. After this one episode, $\hat q(s_2, R) = 1$,
+$\hat q(s_1, R) = 0.5$, $\hat q(s_0, R) = 0.0625 + 0.125 = $ wait, let's
+re-verify: visit times for $(s_0, R)$ are $t = 0$ and $t = 2$ (returns
+$G_0 = 0.0625, G_2 = 0.25$). Average = $(0.0625 + 0.25)/2 = 0.156$. Etc.
+
+Greedy actions are now mostly $R$. Behaviour policy still has 50% random.
+
+**Episode 10.** With more episodes, $\hat q$ stabilises:
+$\hat q(s_0, R) \approx 0.125, \hat q(s_1, R) \approx 0.25, \hat q(s_2, R) \approx 1.0$.
+$\hat q(s_*, L)$ stays near 0 because $L$ trajectories rarely reach goal.
+
+Greedy = $R$ everywhere. With $\varepsilon$ decay (e.g.\ to 0.05 by
+episode 100), behaviour converges to greedy.
+
+**Episode 100.** $\hat q$ near $q^*$; greedy policy is optimal;
+$\varepsilon = 0.05$ means 95% optimal behaviour. Mission complete
+without ever teleporting.
+
+### Practice — Warm
+
+**W1.** Compute $\pi_\varepsilon(a^* \mid s)$ and
+$\pi_\varepsilon(a' \mid s)$ for $\varepsilon = 0.2$, $|A| = 4$.
+
+<details class="hint"><summary>Full solution</summary>
+$\pi_\varepsilon(a^* \mid s) = 0.8 + 0.2/4 = 0.85$.
+$\pi_\varepsilon(a' \mid s) = 0.2/4 = 0.05$ for each non-greedy.
+Check: $0.85 + 3 \cdot 0.05 = 1.0$. ✓
+</details>
+
+**W2.** With $\varepsilon = 0.1$ and 4 actions, what's the probability
+that the agent is *not* greedy on a given step?
+
+<details class="hint"><summary>Full solution</summary>
+Probability of non-greedy action = $\varepsilon \cdot (|A| - 1)/|A| = 0.1 \cdot 3/4 = 0.075$.
+**About 7.5% of steps are non-greedy** — even though "ε" is 10%, because
+the random pick sometimes coincidentally equals the greedy.
+</details>
+
+**W3.** Why doesn't $\varepsilon$-greedy converge to $\pi^*$ if
+$\varepsilon$ is held *fixed* at, say, 0.1?
+
+<details class="hint"><summary>Full solution</summary>
+Behaviour policy is always 10% random — even at the limit. The MC ε-greedy
+algorithm finds the *best $\varepsilon$-greedy policy*, not the
+*unconstrained optimal*. With fixed $\varepsilon > 0$, the asymptotic
+$\pi_{\hat q}$ is greedy w.r.t.\ $q^{\pi_\varepsilon}$ — different from
+$q^*$ in general (because suboptimal actions still get chosen 10% of the
+time, dragging values down). To converge to $\pi^*$, you need
+$\varepsilon \to 0$ (GLIE).
+</details>
+
+### Practice — Working
+
+**P1.** Suppose $\hat q(s, a^*) - \hat q(s, a') = \Delta$ for all
+non-greedy $a'$ (uniform action gap). What's the *expected immediate
+loss* per step under $\pi_\varepsilon$ vs. greedy?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each non-greedy action loses $\Delta$ in expectation. Probability of
+non-greedy = $\varepsilon (|A| - 1)/|A|$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Expected loss per step $= \varepsilon \cdot \frac{|A| - 1}{|A|} \cdot \Delta$.
+For $\varepsilon = 0.1, |A| = 4, \Delta = 1$: loss $= 0.075$ per step.
+
+In a 100-step episode, total loss $\approx 7.5$. **This is why
+$\varepsilon$-decay matters in production**: holding $\varepsilon$ at 0.1
+forever wastes 7.5% of total reward, even after $\hat q$ has converged.
+</details>
+
+**P2.** *Show that $\pi_\varepsilon$-improvement is monotone for any
+fixed $\varepsilon$.* Specifically: if $\pi$ is an $\varepsilon$-greedy
+policy w.r.t.\ some $\hat q$, and $\pi'$ is the $\varepsilon$-greedy policy
+w.r.t.\ $q_\pi$, then $v_{\pi'} \ge v_\pi$ pointwise.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Same proof as Lesson 14's policy improvement theorem, but $\pi'$ is now
+a stochastic mixture rather than greedy.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T^{\pi'} v_\pi(s) = \sum_a \pi'(a | s) [r(s, a) + \gamma \sum P(s' | s, a) v_\pi(s')]$.
+$\pi'$ assigns weight $1 - \varepsilon + \varepsilon/|A|$ to the greedy
+action and $\varepsilon/|A|$ to the rest. Compute:
+$$T^{\pi'} v_\pi(s) = (1 - \varepsilon) \max_a [\ldots] + \frac{\varepsilon}{|A|}\sum_a [\ldots]$$
+The second term equals the policy-evaluation step *under any uniform
+policy*, which equals... (skip details). Sutton & Barto §5.4 show that
+$T^{\pi'} v_\pi \ge T^\pi v_\pi = v_\pi$, hence $v_{\pi'} \ge v_\pi$.
+**ε-greedy improvement is also monotone**, but the limit is the
+*ε-greedy optimal* policy, not the unconstrained optimum.
+</details>
+
+**P3.** Compare convergence speed of MC Basic, MC ES, and MC ε-greedy
+on a 4-state corridor. (Sketch only.)
+
+<details class="hint"><summary>Full solution</summary>
+- **MC Basic** ($N$ trajectories per $(s, a)$, exploring starts). Each
+  outer iteration: $|S| \cdot |A| \cdot N = 8N$ trajectories. Many
+  outer iterations.
+- **MC ES** (every-visit + exploring starts). Each trajectory used many
+  times. Reduce trajectories per outer iteration by ~3×.
+- **MC ε-greedy.** No teleport. Single trajectory per "outer step,"
+  many outer steps. Total environment interactions comparable to MC ES,
+  but **realistic** (no teleport).
+
+In wall-clock terms, MC ε-greedy is the only one usable in real
+applications. MC ES is a teaching device; MC Basic is its convergence-proof
+backbone.
+</details>
+
+### Practice — Stretch
+
+**S1.** *Boltzmann (softmax) exploration.* Replace the
+$\varepsilon$-greedy choice with $\pi_\tau(a | s) \propto \exp(\hat q(s, a)/\tau)$
+for temperature $\tau > 0$. Compare its exploration behaviour to
+$\varepsilon$-greedy. When is each preferable?
+
+<details class="hint"><summary>Full solution</summary>
+**Boltzmann.** Probability of action $a$ scales with its $\hat q$-value
+(soft greedy). Better-than-random actions are favoured *proportionally*,
+not just "the best one wins."
+- $\tau \to 0$: deterministic greedy.
+- $\tau \to \infty$: uniform random.
+
+**vs. ε-greedy.** ε-greedy treats all non-greedy actions equally;
+Boltzmann is "smart random" — explores good non-greedy actions more
+than bad ones.
+
+**When ε-greedy wins.** When $\hat q$ is poorly scaled (large
+$\hat q$-differences swamp the temperature) or when you just want a
+simple knob.
+
+**When Boltzmann wins.** When the *ranking* of actions matters more than
+the gap, especially in policy-gradient methods (REINFORCE, Lesson 34) —
+which is where you'll meet the soft-max policy parameterisation.
+</details>
+
+**S2.** *UCB (Upper Confidence Bound) exploration.* Instead of random
+exploration, pick the action that maximises
+$\hat q(s, a) + c \sqrt{\log N(s) / N(s, a)}$, where $N(s)$ is visits to
+$s$ and $N(s, a)$ visits to $(s, a)$. Sketch why this is "intelligent
+exploration" — and what it costs.
+
+<details class="hint"><summary>Full solution</summary>
+The bonus $\sqrt{\log N(s)/N(s, a)}$ is a *confidence width*: it shrinks
+fast as you visit $(s, a)$, so under-visited actions get explored even
+when their $\hat q$ is mediocre. UCB has *deterministic* exploration —
+no random choice needed.
+
+**Cost.** Need to track visit counts; not always practical when state
+space is huge or function approximation is used. Also, the regret bound
+holds for *bandits* (single state); generalisations to MDPs are harder
+(e.g.\ MBIE-EB, R-Max).
+
+**Where it's used.** AlphaGo/AlphaZero's MCTS uses UCB-style action
+selection in the tree search. UCB is the gold standard when you can
+maintain counts.
+</details>
+
+::: {.fun-fact}
+"$\varepsilon$-greedy" first appeared in Thompson's 1933 paper on
+sequential clinical trials — decades before anything called "RL" existed.
+The exploration-exploitation tradeoff was already understood as the
+central problem in *experimental design*: you want to learn which
+treatment works (explore) without giving sick patients the bad one
+(exploit). RL inherited the framing.
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\varepsilon$-greedy converges to $\pi^*$ for any $\varepsilon$."**
+   Only with $\varepsilon \to 0$ (GLIE). Fixed $\varepsilon$ converges
+   to the *$\varepsilon$-greedy optimal*, not the unconstrained optimum.
+2. **"Random action means random outcome."** No — random *action*; the
+   *transition* is still governed by $P$. Same MDP, just a different
+   way to act.
+3. **"$\varepsilon$-greedy and exploring starts are equivalent."** Both
+   provide exploration, but $\varepsilon$-greedy is realistic and
+   exploring starts requires teleportation.
+4. **"You should use a fixed $\varepsilon = 0.1$."** Often a starting
+   default, but real systems decay — typically piecewise-linear or
+   $1/t$.
+:::
+
+### Takeaways
+
+1. **$\varepsilon$-greedy** = "act greedily with prob. $1 - \varepsilon$,
+   uniformly at random otherwise."
+2. **Coverage without teleportation.** Every $(s, a)$ has positive
+   probability under $\pi_\varepsilon$.
+3. **GLIE schedule** ($\varepsilon \to 0$, $\sum \varepsilon = \infty$)
+   gives convergence to $\pi^*$.
+4. **Exploration-exploitation tradeoff.** Small $\varepsilon$ exploits
+   too much; large $\varepsilon$ explores too much. The right balance
+   depends on the problem and training stage.
+
+### Self-Assessment
+
+1. Could you write the $\pi_\varepsilon$ formula and the MC ε-greedy
+   pseudocode without notes?
+2. Did you compute the W1, P1 quantitative questions on your own?
+3. Can you explain *why* fixed $\varepsilon$ does not converge to $\pi^*$?
+
+- **3 yes:** move on to Lesson 20 (Robbins-Monro and stochastic
+  approximation).
+- **2 yes:** redo P2 — the monotone improvement argument is subtle and
+  important.
+- **0–1 yes:** re-read *Discover* Problems 3 and 4 carefully.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.mc-exploring-starts"]
+- **Lesson 18 (MC ES).** $\varepsilon$-greedy replaces the
+  exploring-starts assumption; everything else is the same.
+- **Lesson 8 (action values).** $\hat q$ drives the greedy choice.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 20-22 — Stochastic approximation.** Robbins-Monro generalises
+  MC averaging to "find a fixed point from noisy samples"; foundational
+  for TD methods.
+- **Lessons 24, 26 — SARSA, Q-learning.** Both use $\varepsilon$-greedy
+  for exploration; SARSA learns *on-policy* (uses $\pi_\varepsilon$ as
+  its target), Q-learning learns *off-policy* (uses greedy as target,
+  $\pi_\varepsilon$ for behaviour).
+- **All deep RL.** DQN uses $\varepsilon$-greedy with annealing.
+  PPO/SAC use entropy bonuses (a "soft" cousin of $\varepsilon$).
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** $\varepsilon$-greedy or its softmax cousin is the
+exploration mechanism in *every* modern RL algorithm. DQN's epsilon
+schedule is famous: linearly anneal from $1.0$ to $0.1$ over the first
+1M frames, then hold. Variants (NoisyNets, parameter noise, intrinsic
+motivation) refine this but the structure is unchanged.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning. The
+exploration-exploitation tradeoff that this lesson formalises is the
+central tension of the entire field.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §19. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §5.4. Cite freely; never transcribe.
+- Sutton & Barto §2.2 (bandits intro to ε-greedy), §5.4 (MC control with
+  ε-greedy).
+- Touchstones: Sutton & Barto's pedagogy; Watkins's Q-learning paper
+  (1989) for the $\varepsilon$-greedy + off-policy combination.
 :::

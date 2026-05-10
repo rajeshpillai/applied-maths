@@ -7,87 +7,484 @@ prerequisites: ["mfrl.robbins-monro"]
 unlocks: []
 applied-domains: ["ai-ml", "research"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.robbins-monro"].
+Before you start, you should be able to say *yes* to all three:
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+1. Can you state the Robbins-Monro update and the two step conditions
+   $\sum \alpha_k = \infty$, $\sum \alpha_k^2 < \infty$? — see
+   [MFRL — 20, Robbins-Monro](../20-robbins-monro/index.qmd).
+2. Are you comfortable taking conditional expectations
+   $\mathbb{E}[\,\cdot \mid \mathcal{F}_k]$? — basic conditioning is in
+   [Tier 3, Lesson 14 — Conditional Probability](../../tier-3-algebra2-geometry-trig/14-conditional-probability/index.qmd); the formal $\mathcal{F}_k$
+   notation is treated alongside [Tier 5, Lesson 8 — Continuous Distributions](../../tier-5-undergrad-core/08-continuous-distributions/index.qmd).
+3. Can you read $w_{k+1} = (1 - \alpha_k) w_k + \alpha_k y_k$ and recognise it
+   as a *weighted average* of the previous estimate and a new sample?
+
+If any answer is *no*, follow the link before continuing.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+Robbins-Monro fixed one shape of update. But many algorithms in this track
+will look slightly different — TD, Sarsa, Q-learning each have their own
+recursion. They all share *one* abstract form. Let's stare at it.
+
+Drag the sliders. The blue curve is the iterate $w_k$ produced by
+$w_{k+1} = (1 - \alpha_k) w_k + \alpha_k(c + \eta_k)$, where $\eta_k$ is
+zero-mean noise with standard deviation $\sigma$. The dashed grey line is the
+target $c$.
+
+```{ojs}
+viewof targetC = Inputs.range([-2, 5], {value: 2.5, step: 0.1, label: "Target c ="})
+viewof noiseSig = Inputs.range([0, 2], {value: 1.0, step: 0.05, label: "Noise σ ="})
+viewof schedule = Inputs.select(["1/k (RM-safe)", "0.1 (constant)", "1/k^0.6 (slow)", "1/k^2 (too fast)"], {label: "Step α_k:"})
+viewof seed = Inputs.range([1, 50], {value: 3, step: 1, label: "Seed:"})
+```
+
+```{ojs}
+{
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = a;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  const rand = mulberry32(seed * 17);
+  function normal() {
+    const u1 = Math.max(rand(), 1e-12), u2 = rand();
+    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  }
+  function alpha(k) {
+    if (schedule.startsWith("1/k ")) return 1 / k;
+    if (schedule.startsWith("0.1")) return 0.1;
+    if (schedule.startsWith("1/k^0.6")) return 1 / Math.pow(k, 0.6);
+    return 1 / (k * k);
+  }
+  let w = 0;
+  const series = [{k: 0, w}];
+  for (let k = 1; k <= 400; k++) {
+    const a = alpha(k);
+    const y = targetC + noiseSig * normal();
+    w = (1 - a) * w + a * y;
+    series.push({k, w});
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return Plot.plot({
+    width: 540, height: 280,
+    x: {label: "iteration k"},
+    y: {label: "w_k", domain: [Math.min(targetC - 3, -1), Math.max(targetC + 3, 5)]},
+    marks: [
+      Plot.ruleY([targetC], {stroke: "#999", strokeDasharray: "4 3"}),
+      Plot.line(series, {x: "k", y: "w", stroke: "steelblue"})
+    ]
+  });
+}
+```
+
+Try the four schedules. The constant step bounces; $1/k^2$ freezes early; $1/k$
+and $1/k^{0.6}$ both home in. *The same shape of update, four different fates.*
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The four updates use the **same recursion**, only the schedule changes.
+   What does that say about how much information lives in $\alpha_k$ alone?
+2. The target $c$ acts like a constant. What would change if $c$ depended on
+   $w_k$ — say, $c_k = h(w_k)$ for some function $h$?
+3. Robbins-Monro had a function $g$. The widget has no $g$. Are these the
+   *same* algorithm wearing different clothes, or genuinely different?
+4. Could you write *Sarsa* in this same shape if you were clever about what
+   plays the role of "target"?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+Five problems. We will isolate the one abstract iteration that subsumes RM,
+mean estimation, TD learning, and Q-learning all at once.
+
+### Problem 1 — the unifying recursion
+
+Examine these three updates and find the *common shape*:
+
+- **Mean estimation:** $w_{k+1} = w_k + \tfrac{1}{k}(X_k - w_k)$.
+- **Robbins-Monro:** $w_{k+1} = w_k - \alpha_k y_k$ with $y_k = g(w_k) + \eta_k$.
+- **TD(0) (preview):** $v(s) \leftarrow v(s) + \alpha[r + \gamma v(s') - v(s)]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each one looks like "old estimate + step × (something − old estimate)."
+</details>
+<details class="hint"><summary>Full solution</summary>
+All three fit
+$$w_{k+1} = (1 - \alpha_k) w_k + \alpha_k T_k$$
+for some "target" $T_k$. Mean estimation: $T_k = X_k$. RM (after rearranging):
+$T_k$ is the noisy target value. TD: $T_k = r + \gamma v(s')$. The single
+recursion has many faces.
+</details>
+
+### Problem 2 — what does $T_k$ have to satisfy?
+
+For the iterate to converge to a true value $w^\*$, the targets $T_k$ should
+satisfy *what condition on average*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At the right answer $w^\*$, the update should not, on average, push you
+anywhere.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At $w_k = w^\*$ we want $\mathbb{E}[T_k - w_k \mid \mathcal{F}_k] \approx 0$,
+i.e., the *target* is an unbiased estimator of $w^\*$ when you sit at $w^\*$.
+More generally, the conditional expectation of $T_k - w_k$ should pull $w_k$
+toward $w^\*$ — a *contraction-on-average* condition.
+</details>
+
+### Problem 3 — what does the noise $T_k - \mathbb{E}[T_k]$ have to satisfy?
+
+If targets are *very* noisy, no schedule can save us. Guess the bound.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Recall RM needed $\mathbb{E}[\eta_k^2 \mid w_k]$ bounded.
+</details>
+<details class="hint"><summary>Full solution</summary>
+We need the *conditional second moment* of the target to be bounded:
+$\mathbb{E}[T_k^2 \mid \mathcal{F}_k] \le C(1 + w_k^2)$ for some constant
+$C$ — i.e., the noise can grow at most linearly with the state. Without this,
+$\sum \alpha_k^2 \cdot \mathrm{Var}(T_k)$ may diverge even though
+$\sum \alpha_k^2 < \infty$.
+</details>
+
+### Problem 4 — Dvoretzky's actual statement
+
+Dvoretzky's theorem packages all of the above into one theorem about a
+slightly more general iteration. State it (we'll formalise in *Name*) and
+specialise it to RM.
+
+::: {.lesson-beat}
+
+**Dvoretzky's theorem (informal).** Consider
+$$
+w_{k+1} = (1 - \alpha_k) w_k + \beta_k T_k,
+$$
+where $T_k$ is a random target and $\alpha_k, \beta_k$ are non-negative
+sequences. If
+
+- $\sum \alpha_k = \infty$, $\sum \alpha_k^2 < \infty$,
+- $\beta_k \to \alpha_k$ in an appropriate sense (often $\beta_k = \alpha_k$),
+- $\mathbb{E}[T_k \mid \mathcal{F}_k] \to w^\*$ as the iteration progresses,
+- conditional variance of $T_k$ stays bounded,
+
+then $w_k \to w^\*$ almost surely.
+
+:::
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Specialise: pick $\beta_k = \alpha_k$ and $T_k = w_k - y_k$ where $y_k$ is
+the noisy sample of $g$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Setting $\beta_k = \alpha_k$ and substituting $T_k = w_k - y_k$:
+$$w_{k+1} = (1 - \alpha_k) w_k + \alpha_k(w_k - y_k) = w_k - \alpha_k y_k,$$
+which is exactly the Robbins-Monro update. So **RM is a corollary of
+Dvoretzky.** The same is true of mean estimation, TD(0), Sarsa, and
+tabular Q-learning, with different target choices.
+</details>
+
+### Problem 5 — sketch of why it works
+
+We won't prove Dvoretzky's theorem (the original proof uses a martingale-like
+argument). But you can already feel the mechanics. Sketch in two sentences
+why the *contraction* condition (Problem 2) plus the *step* conditions
+(Problem 3 of *Robbins-Monro*) suffice.
+
+<details class="hint"><summary>Full solution</summary>
+The contraction condition ensures the *bias* $\mathbb{E}[w_k] - w^\*$ shrinks
+toward zero whenever $\alpha_k > 0$ — that's why $\sum \alpha_k = \infty$
+matters: it gives infinitely many shots at shrinking the bias. The
+step-square condition ensures the *variance*, accumulated as
+$\sum_k \alpha_k^2 \cdot \mathrm{Var}(T_k)$, stays bounded — and the
+contraction then drags this bounded noise to zero. Bias dies; variance
+stays finite; together they go to zero.
+</details>
+
+::: {.key-insight}
+Dvoretzky's theorem is the master key. Every later convergence proof in this
+track — TD(0), Sarsa, Q-learning, even tabular policy-gradient — verifies
+that its iteration is a Dvoretzky-style update with a contracting target,
+then quotes the theorem.
+:::
+
+::: {.fun-fact}
+**Aryeh Dvoretzky** (1916–2008) was a Russian-born Israeli mathematician
+better known for the *Dvoretzky theorem* in convex geometry — that
+sufficiently high-dimensional convex bodies have approximately spherical
+sections. His 1956 stochastic-approximation paper is the *other* Dvoretzky
+theorem, and it powered the entire theory of recursive estimation. Few
+mathematicians have two famous "Dvoretzky theorems"; he had at least two.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**Dvoretzky's convergence theorem (Zhao §6.2 form).** Suppose
+$\{w_k\}_{k\ge 0}$ is generated by
+$$
+w_{k+1} = (1 - \alpha_k) w_k + \beta_k T_k,
+$$
+with $\alpha_k, \beta_k \ge 0$. If
+
+- **(D1)** $\sum_k \alpha_k = \infty$, $\sum_k \alpha_k^2 < \infty$,
+  $\sum_k \beta_k^2 < \infty$, and $\beta_k / \alpha_k \to 1$;
+- **(D2)** $\mathbb{E}[T_k \mid \mathcal{F}_k] = w^\*$ (or, more generally,
+  contracts toward $w^\*$);
+- **(D3)** $\mathbb{E}[T_k^2 \mid \mathcal{F}_k] \le C(1 + w_k^2)$ for some
+  $C > 0$;
+
+then $w_k \to w^\*$ **almost surely**.
+
+:::
+
+A short verse for the conditions, in the spirit of Bhāskara's *Līlāvatī*:
+
+> *Step sums diverge — to keep moving forever.*
+> *Step squares converge — to silence the noise.*
+> *Targets unbiased — to aim at the truth.*
+> *Variance tame — to forbid blow-ups.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — verifying Dvoretzky for mean estimation
+
+> Show that the running-mean estimator
+> $w_{k+1} = w_k + \tfrac{1}{k}(X_k - w_k)$, where $X_k$ are i.i.d. with mean
+> $\mu$ and variance $\sigma^2 < \infty$, satisfies Dvoretzky's conditions.
+> Conclude $w_k \to \mu$ a.s.
+
+A competent solver thinks like this:
+
+1. Rewrite to the Dvoretzky shape: $w_{k+1} = (1 - 1/k) w_k + (1/k) X_k$.
+   So $\alpha_k = \beta_k = 1/k$, $T_k = X_k$.
+2. **(D1):** $\sum 1/k = \infty$ ✓; $\sum 1/k^2 = \pi^2/6 < \infty$ ✓.
+   $\beta_k / \alpha_k = 1$ ✓.
+3. **(D2):** $\mathbb{E}[X_k \mid \mathcal{F}_k] = \mu$ since $X_k$ is
+   independent of the past — so the target is *exactly* $\mu = w^\*$. ✓
+4. **(D3):** $\mathbb{E}[X_k^2] = \mu^2 + \sigma^2$, a finite constant; in
+   particular bounded by $C(1 + w_k^2)$ for any $C \ge \mu^2 + \sigma^2$. ✓
+5. **Conclude:** $w_k \to \mu$ almost surely. This is the strong law of large
+   numbers, derived as a one-line corollary of Dvoretzky.
+
+That last sentence is the punchline: **the strong law of large numbers is a
+corollary of a stochastic-approximation theorem.** History ran the other way,
+but logically the inclusion is real.
+
+### Practice — Warm
+
+**W1.** Verify each of (D1) for $\alpha_k = \beta_k = 1/(k+5)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sum 1/(k+5) = \infty$ (harmonic-type, the +5 doesn't matter). $\sum 1/(k+5)^2 < \infty$ (p-series with $p=2$). $\beta_k/\alpha_k = 1$. All three hold.
+</details>
+
+**W2.** A friend proposes the constant schedule $\alpha_k = \beta_k = 0.05$.
+Which Dvoretzky condition fails?
+
+<details class="hint"><summary>Full solution</summary>
+**(D1)** fails: $\sum \alpha_k^2 = \sum 0.0025 = \infty$. The sequence will
+*not* converge in the a.s. sense — it will track the target with persistent
+noise. Constant-$\alpha$ TD methods do this in practice; they are *trackers*,
+not *converger*s.
+</details>
+
+**W3.** State the Dvoretzky iteration for the simple "shrink-toward-zero"
+update $w_{k+1} = (1 - 1/k) w_k$. What is the target $T_k$ here? Will it
+converge?
+
+<details class="hint"><summary>Full solution</summary>
+Compare to the master form: $w_{k+1} = (1 - \alpha_k) w_k + \beta_k T_k$
+with $\alpha_k = 1/k$, $\beta_k = 0$. So $T_k$ is irrelevant. $w_k$ converges
+to $0$ deterministically (no noise), hitting $w^\* = 0$.
+</details>
+
+### Practice — Working
+
+**P1.** Verify Dvoretzky's conditions for the noisy fixed-point iteration
+$w_{k+1} = w_k + \frac{1}{k+1}(c + \eta_k - w_k)$, where $\eta_k$ is i.i.d.
+mean-zero with variance $\sigma^2$. What does it converge to?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Match to the master shape; identify $\alpha_k$, $\beta_k$, $T_k$, $w^\*$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\alpha_k = \beta_k = 1/(k+1)$; $T_k = c + \eta_k$. (D1) ✓ as in W1.
+$\mathbb{E}[T_k \mid \mathcal{F}_k] = c$, so $w^\* = c$. (D2) ✓.
+$\mathbb{E}[T_k^2 \mid \mathcal{F}_k] = c^2 + \sigma^2$, bounded. (D3) ✓.
+**$w_k \to c$ almost surely.**
+</details>
+
+**P2.** Suppose $\beta_k = \alpha_k^2$ (so $\beta_k$ shrinks much faster). Does
+Dvoretzky still apply? Why might that be a *problem*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Check the "$\beta_k / \alpha_k \to 1$" piece of (D1).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\beta_k / \alpha_k = \alpha_k \to 0$, **not** 1. (D1) fails. Intuition: the
+target's contribution dies too fast — the iterate ignores new information
+and drifts on its previous value. The relative *weight* of target versus
+old estimate matters.
+</details>
+
+**P3.** Show that **Sarsa** (you'll meet it formally in Lesson 24) fits the
+Dvoretzky template. The Sarsa update is
+$q(s, a) \leftarrow q(s, a) + \alpha [r + \gamma q(s', a') - q(s, a)]$.
+Identify $\alpha_k$, $\beta_k$, $T_k$, and $w^\*$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Rearrange into "$(1 - \alpha) q(s,a) + \alpha \cdot \text{target}$."
+</details>
+<details class="hint"><summary>Full solution</summary>
+$q(s,a)_{\text{new}} = (1 - \alpha) q(s,a) + \alpha [r + \gamma q(s', a')]$.
+So $\alpha_k = \beta_k = \alpha$, $T_k = r + \gamma q(s', a')$, and the
+fixed point is $w^\* = q^\pi(s,a)$ — the action-value of the policy being
+followed. The target is *biased* during learning (because $q(s', a')$ is
+also being updated), so showing (D2) requires a contraction argument
+analogous to value iteration. That's exactly the proof of Sarsa convergence,
+and it lives one chapter ahead.
+</details>
+
+### Practice — Stretch
+
+**S1.** *Why is the bias on $T_k$ allowed to be non-zero during learning?*
+Sketch how a contracting target — $\mathbb{E}[T_k \mid \mathcal{F}_k]$ closer
+to $w^\*$ than $w_k$ is — implies eventual convergence even when
+$\mathbb{E}[T_k] \neq w^\*$ at every finite $k$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Think of $T_k$ as applying a contraction operator $T$ with fixed point
+$w^\*$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+If $\mathbb{E}[T_k \mid \mathcal{F}_k] = T(w_k)$ where $T$ is a contraction
+with constant $\gamma < 1$ (in some norm), then
+$\mathbb{E}[w_{k+1} - w^\*] = (1 - \alpha_k)(w_k - w^\*) + \alpha_k \gamma (w_k - w^\*)$ in expectation, which contracts at rate $1 - \alpha_k(1 - \gamma)$. So
+the bias shrinks geometrically per "useful" step. This is the bridge from
+Dvoretzky to Bellman-equation-based learners — every TD method's
+convergence uses a contraction step plus Dvoretzky.
+</details>
+
+**S2.** A constant step $\alpha_k = \alpha$ violates Dvoretzky, yet practical
+deep-RL agents almost always use constant learning rates. Reconcile.
+
+<details class="hint"><summary>Full solution</summary>
+Three reconciliations: (i) Practical RL targets *drift* (the policy and
+environment change), so a tracker is what you want, not a converger. (ii)
+Constant-$\alpha$ iteration converges *in distribution* to a noise cloud of
+size $\sim \sqrt\alpha \cdot \sigma$ — small enough for many tasks. (iii)
+Modern optimizers (Adam, etc.) effectively *adapt* their per-parameter step,
+and the schedule of those internal averages does often satisfy
+Dvoretzky-style conditions. Theory and practice coexist by accepting "good
+enough" instead of "asymptotically exact."
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Dvoretzky needs $T_k$ to be unbiased."** Not strictly. The cleanest
+   form (D2) asks for $\mathbb{E}[T_k \mid \mathcal{F}_k] = w^\*$, but the
+   theorem extends to *contracting* targets — which is essential for TD,
+   where the target $r + \gamma v(s')$ is biased while $v$ is wrong.
+2. **"If conditions fail, the algorithm explodes."** Not always. Failure of
+   (D1) usually means the iterate *tracks* with persistent noise, not blow-up.
+   Failure of (D3) — unbounded variance — *can* cause blow-up.
+3. **"Dvoretzky is a single theorem."** It's a family. Zhao's textbook
+   states one form; Robbins-Siegmund (1971), Tsitsiklis (1994), and Borkar
+   (2008) state others. They prove the same kinds of facts under slightly
+   different hypotheses. Pick whichever fits your iteration.
+:::
+
+### Takeaways
+
+If you remember nothing else:
+
+1. **Every recursive estimator in this track has the shape**
+   $w_{k+1} = (1 - \alpha_k) w_k + \alpha_k T_k$ for some target $T_k$.
+2. **Dvoretzky tells you when it converges:** divergent step sums, finite
+   step-square sums, contracting/unbiased targets, bounded variance.
+3. **Future convergence proofs are corollaries.** TD, Sarsa, Q-learning all
+   prove "this is Dvoretzky-shaped" and then quote the theorem.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you take any update of the form
+   $w_{k+1} = w_k + \alpha_k(\text{target} - w_k)$ and check whether
+   Dvoretzky applies, without notes?
+2. Did you solve at least 5 of the 8 practice problems without peeking past
+   *Hint 1*?
+3. Can you state, in one breath, why a contracting (not necessarily unbiased)
+   target is enough?
+
+- **3 yes:** move on to **[Lesson 22 — SGD](../22-stochastic-gradient-descent/index.qmd)**.
+- **2 yes:** redo Working P3 — it's the rehearsal for Lesson 24.
+- **0–1 yes:** re-read the *Name* box and the worked example. The point
+  is the *master shape*; everything else is bookkeeping.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.robbins-monro"]
+- **[MFRL — 20, Robbins-Monro](../20-robbins-monro/index.qmd)** — the
+  step-size conditions and the noisy iteration; we generalised the recursion.
+- **[Tier 5, Lesson 14 — Sequences, Series, and Convergence](../../tier-5-undergrad-core/14-sequences-series-convergence/index.qmd)** — once again, the
+  p-series test for $\sum \alpha_k^2$.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **[MFRL — 22, SGD](../22-stochastic-gradient-descent/index.qmd)** — uses
+  Dvoretzky on the gradient iteration.
+- **[MFRL — 23, TD(0)](../23-td-state-values/index.qmd)** — the first
+  full-blown application: TD's update is Dvoretzky-shaped.
+- **[MFRL — 26, Q-Learning](../26-q-learning/index.qmd)** — the convergence
+  proof reduces to Dvoretzky plus contraction.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**Research.** Dvoretzky's framework is the workhorse for proving that
+recursive estimators converge. From Kalman filters to bandit algorithms to
+the most exotic distributed-RL schemes, "is the iteration Dvoretzky-shaped?"
+is the first question asked in any [convergence](/glossary.qmd#convergence)
+analysis.
+:::
+
+::: {.applied-callout}
+**AI / ML.** Online-learning analyses (regret bounds, online convex
+optimisation, federated learning) all chain through Dvoretzky-style
+inequalities. When practitioners say "the loss is descending and noise is
+bounded — it'll converge," they are appealing to Dvoretzky implicitly.
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning that this track
+expands into 38 lessons.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §21. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- **Source:** Shiyu Zhao, *Mathematical Foundations of Reinforcement
+  Learning* (Springer 2025), Chapter 6 §6.2. Statement adapted from Zhao's
+  presentation; proof omitted (see Robbins-Siegmund 1971 for the modern form).
+- **Touchstones honoured:** Russian school problem-first sequencing,
+  Better Explained "master key" framing, Bhāskara verse for the conditions.
+- **Self-study guarantees:** pre-flight ✓, multiple representations
+  (widget, recursion, English) ✓, graduated hints ✓, worked solutions ✓,
+  common-confusions ✓, self-assessment ✓.
 :::

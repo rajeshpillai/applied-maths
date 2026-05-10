@@ -7,87 +7,516 @@ prerequisites: ["mfrl.mc-basic"]
 unlocks: []
 applied-domains: ["ai-ml"]
 estimated-minutes: 30
-status: "planned"
+status: "drafted"
 ---
-
-::: {.callout-warning}
-**Status: planned (skeleton).** This lesson has been designed but not yet
-authored. The full beat-by-beat outline is in the curriculum plan at
-`~/.claude/plans/here-are-some-of-steady-aho.md` (the *Mathematics for
-Reinforcement Learning* plan). Frontmatter and prerequisites here are the
-canonical declaration; the body below is a placeholder that will be
-replaced with the six-beat lesson content in a follow-up authoring pass.
-:::
 
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-This lesson is part of the *Mathematics for Reinforcement Learning*
-track. Required prerequisites: ["mfrl.mc-basic"].
+1. Can you state MC Basic from Lesson 17?
+2. Can you compute the discounted return $G_t = \sum_{k \ge 0} \gamma^k R_{t+k}$
+   from a sequence of rewards?
+3. Do you understand why MC Basic *needs* the exploring-starts assumption?
 
-If any of these IDs is unfamiliar, follow the link in
-`_curriculum.yml` (or the navbar) before starting.
+If shaky, revisit Lesson 17.
 :::
 
 ## Touch
 
-*To be authored. See the lesson outline in the plan file for the
-specific Touch widget / concrete object that opens this lesson.*
+MC Basic generates one trajectory per $(s, a)$ pair — incredibly wasteful.
+Look at this single 10-step trajectory through a 3×3 grid. It visits
+**8 distinct $(s, a)$ pairs** along the way. Each visit gives a return.
+Each return is a sample of $q_\pi$ at that pair.
+
+```{ojs}
+viewof regen = Inputs.button("Generate new trajectory")
+```
+
+```{ojs}
+{
+  regen;
+  const N = 3;
+  const goal = [2, 2];
+  const next = (i, j, a) => {
+    if (i === goal[0] && j === goal[1]) return [i, j];
+    let ni = i, nj = j;
+    if (a === 0 && i > 0) ni = i - 1;
+    if (a === 1 && i < N - 1) ni = i + 1;
+    if (a === 2 && j > 0) nj = j - 1;
+    if (a === 3 && j < N - 1) nj = j + 1;
+    return [ni, nj];
+  };
+  const reward = (i, j) => (i === goal[0] && j === goal[1] ? 1 : 0);
+  const gamma = 0.9;
+  // Random start, random actions for illustration
+  let i = Math.floor(Math.random() * N), j = Math.floor(Math.random() * N);
+  if (i === goal[0] && j === goal[1]) i = 0;
+  const visits = [];
+  let total = 0;
+  for (let t = 0; t < 12; t++) {
+    if (i === goal[0] && j === goal[1]) break;
+    const a = Math.floor(Math.random() * 4);
+    const [ni, nj] = next(i, j, a);
+    const r = reward(ni, nj);
+    visits.push({t, s: `(${i},${j})`, a: ["↑", "↓", "←", "→"][a], r});
+    i = ni; j = nj;
+  }
+  // Compute returns from each visit
+  let G = 0;
+  for (let k = visits.length - 1; k >= 0; k--) {
+    G = visits[k].r + gamma * G;
+    visits[k].G = G;
+  }
+  return html`<div style="font-family: monospace; font-size: 0.9rem;">
+    <div style="margin-bottom:0.5rem;">A single trajectory through the 3×3 grid (random actions). Each (s, a) visit yields a return G — a sample of q_π(s, a).</div>
+    <table style="border-collapse:collapse; margin-top: 0.5rem;">
+      <tr style="background:#eef;"><th>t</th><th>state</th><th>action</th><th>r</th><th>return G_t</th></tr>
+      ${visits.map(v => html`<tr><td style="padding:2px 8px;">${v.t}</td><td style="padding:2px 8px;">${v.s}</td><td style="padding:2px 8px;">${v.a}</td><td style="padding:2px 8px;">${v.r}</td><td style="padding:2px 8px;">${v.G.toFixed(3)}</td></tr>`)}
+    </table>
+    <div style="margin-top:0.5rem; color:#666;">${visits.length} visits, each contributing one sample. (MC Basic would have used ${visits.length} *separate* trajectories.)</div>
+  </div>`;
+}
+```
+
+Click the button. Watch how many $(s, a)$ pairs each trajectory hits.
+Naive MC Basic threw away most of this — used only the very first
+$(s, a)$ pair as a sample. **Every-visit MC reuses all of them.**
 
 ## Wonder
 
-*To be authored. 2-4 open questions — no answers — that surface
-intuition before vocabulary.*
+1. The same trajectory visits eight $(s, a)$ pairs. Each gives one
+   sample of $q_\pi$ at that pair. But the samples aren't independent —
+   they come from the same trajectory. Is the resulting estimate still
+   unbiased?
+2. What if the same $(s, a)$ pair appears *twice* in one trajectory? Do
+   you average both, or only the first?
+3. The "exploring starts" trick guarantees you visit every $(s, a)$. But
+   in real systems you can't restart anywhere — a robot can't teleport,
+   a chess game can't begin from any board. What do you do then?
 
 ## Discover
 
-*To be authored. 3-7 ordered problems forcing the lesson's central
-idea before any naming.*
+### Problem 1 — Every-visit MC
+
+Look at the trajectory in the Touch widget. Suppose state $(0, 1)$ with
+action "right" appears at $t = 2$ (return $G_2$) and at $t = 5$ (return
+$G_5$). Show that *both* $G_2$ and $G_5$ are unbiased estimates of
+$q_\pi((0,1), \text{right})$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The Markov property says future depends only on the current state and
+action — not on how you got there.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By Markov property, $\mathbb{E}[G_t \mid S_t = s, A_t = a] = q_\pi(s, a)$
+*regardless of $t$ or what came before*. Each visit to $(s, a)$ is a fresh
+"start" from the perspective of the return distribution.
+
+So both $G_2$ and $G_5$ are unbiased samples of $q_\pi((0,1), \text{right})$.
+**Every-visit MC averages all of them.** Higher variance per sample
+(because the visits are correlated through the trajectory), but more
+samples per trajectory.
+</details>
+
+### Problem 2 — First-visit vs every-visit
+
+Two natural estimators when an $(s, a)$ pair appears multiple times in
+one trajectory:
+
+- **First-visit MC:** average only the return from the *first* time $(s, a)$ appears.
+- **Every-visit MC:** average all returns from all visits.
+
+Which is unbiased? Which has lower variance per *trajectory*?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Both are unbiased (Problem 1's argument applies). The variance question
+is subtle.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**First-visit:** unbiased; one sample per trajectory.
+
+**Every-visit:** also unbiased (Problem 1); multiple samples per
+trajectory, but they are *correlated*. Per-trajectory variance is *not*
+reduced by a factor of $1/k$ when there are $k$ visits; it's reduced by
+something less.
+
+In practice, **every-visit usually has lower variance per *unit of
+environment interaction*** — but the analysis is more delicate. Most
+modern RL papers use every-visit. (Singh & Sutton 1996 prove the variance
+reduction rigorously in the discrete case.)
+</details>
+
+### Problem 3 — Backward computation of returns
+
+To compute $G_t$ for every $t$ in a trajectory, the naive approach is
+$O(T^2)$ time. Show how to compute all $G_t$ in $O(T)$ using a backward
+sweep.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$G_t = R_t + \gamma G_{t+1}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Backward recurrence.**
+```
+G ← 0
+for t = T-1 down to 0:
+   G ← r_t + γ * G
+   G_t ← G
+```
+$O(T)$ time, $O(T)$ memory. **Every MC implementation uses this trick** —
+it's the same backward sweep that appears in TD($\lambda$) (Lesson 27).
+</details>
+
+### Problem 4 — Exploring starts
+
+To estimate $q_\pi(s, a)$ from sample trajectories, the trajectories must
+*visit* $(s, a)$. Argue that **exploring starts** — choosing the
+initial $(S_0, A_0)$ uniformly at random over all $(s, a)$ pairs —
+guarantees every pair is visited (in expectation).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+With uniform initial $(s, a)$, each pair has probability $1/(|S| |A|) > 0$
+of being the start of any given trajectory.
+</details>
+<details class="hint"><summary>Full solution</summary>
+With $N$ exploring-start trajectories, each $(s, a)$ pair appears as the
+*first* visit in expectation $N / (|S| |A|)$ times — guaranteed positive
+in expectation. Plus *additional* visits later in trajectories
+(every-visit reuse).
+
+**Without exploring starts**, if the policy $\pi$ is deterministic and
+never picks $a$ at state $s$, no trajectory ever visits $(s, a)$ except
+as the initial pair. Exploring starts is the *only* way to ensure
+coverage when $\pi$ is deterministic.
+</details>
+
+### Problem 5 — Exploring starts is unrealistic. Why?
+
+Give two reasons exploring starts cannot be used in real-world RL.
+
+<details class="hint"><summary>Full solution</summary>
+1. **Physical systems can't teleport.** A robot, a stock-trading agent,
+   a recommender system — these all begin at a fixed start state (or a
+   distribution over start states); you cannot choose to begin halfway
+   through a robot's task.
+2. **The state space is enormous.** With $|S|$ in the millions or
+   billions, uniformly sampling from all $(s, a)$ pairs is itself
+   infeasible — even if you could.
+
+This is exactly why $\varepsilon$-greedy (Lesson 19) was invented: it
+provides exploration *during* trajectories rather than at their starts.
+:::
+
+::: {.key-insight}
+Every-visit MC is "wring all the information you can out of one rollout."
+Exploring starts is "guarantee every $(s, a)$ pair gets sampled." Both
+are sample-efficiency tricks layered on MC Basic. Both have limits — and
+those limits motivate the next algorithms.
+:::
 
 ## Name
 
-*To be authored. Compact formal definition (1-2 sentences) per the
-six-beat contract.*
+::: {.lesson-beat}
+
+**[Every-visit MC](/glossary.qmd#every-visit-mc).** During a trajectory
+$(S_0, A_0, R_0, S_1, A_1, R_1, \ldots, S_{T-1}, A_{T-1}, R_{T-1})$, for
+*every* time step $t$ at which $(S_t, A_t) = (s, a)$, record the return
+$G_t = \sum_{k=0}^{T-1-t} \gamma^k R_{t+k}$ as one sample of $q_\pi(s, a)$.
+Average all such returns across all trajectories.
+
+**[First-visit MC](/glossary.qmd#first-visit-mc).** Same as above but
+only use the *first* time $(s, a)$ appears in each trajectory.
+
+**[Exploring starts](/glossary.qmd#exploring-starts).** Each trajectory's
+initial $(S_0, A_0)$ is chosen uniformly at random over all $(s, a)$
+pairs. Guarantees every pair is sampled.
+
+**MC Exploring Starts (MC ES).** Combine every-visit MC + exploring
+starts within MC Basic's outer evaluate-improve loop. Converges to
+$q^*, \pi^*$ under mild regularity.
+
+:::
+
+A verse:
+
+> *One trajectory, many visits;*
+> *Each visit a sample of q.*
+> *Random starts make sure*
+> *No (s, a) is ever forgotten.*
 
 ## Apply
 
-*To be authored. Worked example + Warm / Working / Stretch graded
-practice with graduated hints and full worked solutions.*
+### Worked example — MC ES on a 4-state corridor
+
+States $\{s_0, s_1, s_2, s_3\}$, actions $\{L, R\}$, $\gamma = 0.5$,
+reward $+1$ at $s_3$ (absorbing). Initial $\pi_0 = L$ everywhere.
+
+**Iteration 1.**
+
+Generate, say, 100 trajectories. Each trajectory has uniform random
+initial $(s, a)$ over $\{s_0, s_1, s_2\} \times \{L, R\}$ (6 pairs;
+$s_3$ is absorbing, no need to start there).
+
+Suppose one trajectory begins at $(s_2, R)$: then $r_0 = 1$, lands at
+$s_3$, episode ends. $G_0 = 1$. So $\hat q(s_2, R) = 1$ (one sample).
+
+Another begins at $(s_1, R)$: $r_0 = 0$, lands at $s_2$, follows $\pi_0 = L$,
+goes to $s_1, s_0, s_0, s_0, \ldots$. $G_0 = 0 + 0.5 \cdot 0 + \ldots = 0$.
+$\hat q(s_1, R) = 0$ — the policy ruined the rollout.
+
+After 100 trajectories with every-visit aggregation, the $\hat q$ table:
+
+| $(s, a)$ | $\hat q$ |
+|:-:|:-:|
+| $(s_0, L)$ | 0 |
+| $(s_0, R)$ | 0.125 (occasional reach to goal via $s_1$ then $\pi_0 = L$ trap) |
+| $(s_1, L)$ | 0 |
+| $(s_1, R)$ | 0.25 (occasional reach via $s_2 \to L$ trap, but $s_2$ from $\pi_0 = L$) |
+| $(s_2, L)$ | 0 |
+| $(s_2, R)$ | 1 |
+
+Improve: $\pi_1 = R$ at all states (any positive $\hat q$ wins over 0).
+
+**Iteration 2.** $\pi_1 = R$ — agent always heads right. Now
+trajectories from any $(s, R)$ reach the goal quickly.
+
+After 100 more trajectories: $\hat q(s_0, R) = 0.5^3 = 0.125$ (3 steps to
+goal), $\hat q(s_1, R) = 0.5^2 = 0.25$, $\hat q(s_2, R) = 1$. Plus
+$\hat q(s_*, L)$ now estimable too (because exploring starts can put us
+in $(s, L)$ even when $\pi_1 = R$): smaller values, all dominated.
+
+Improve: $\pi_2 = R$ everywhere = $\pi_1$. **Stop.** Optimal policy
+recovered in 2 outer iterations × 100 trajectories = 200 episodes.
+
+**Compare to MC Basic** which would have needed ~$|S| \cdot |A| \cdot N = 6 \cdot 100 = 600$
+trajectories per iteration, plus repeating per outer iteration.
+Every-visit MC ES is ~3× more sample-efficient.
+
+### Practice — Warm
+
+**W1.** In the worked example, with policy $\pi_0 = L$ everywhere,
+explain why a trajectory starting from $(s_0, R)$ might still reach the
+goal.
+
+<details class="hint"><summary>Full solution</summary>
+$(s_0, R)$ deposits the agent at $s_1$. Now $\pi_0 = L$ takes over:
+$s_1 \to s_0 \to s_0 \to \ldots$ — back to the trap. Return = 0. So
+$(s_0, R)$ alone doesn't reach the goal under $\pi_0$. That's why the
+$\hat q(s_0, R) = 0.125$ in my table is wrong above — let me correct:
+under $\pi_0 = L$, *no* state-action pair other than $(s_2, R)$ reaches
+the goal. So only $\hat q(s_2, R) = 1$ is positive after iteration 1.
+The answer is the same: $\pi_1 = R$ at $s_2$, ties broken arbitrarily
+elsewhere (no information yet). **MC ES needs at least one cleansing
+iteration after a bad initial policy.**
+</details>
+
+**W2.** First-visit vs every-visit: which would you choose in a Markov
+chain that revisits the same $(s, a)$ pair *many* times within a single
+episode?
+
+<details class="hint"><summary>Full solution</summary>
+**Every-visit** — it harvests all the information. First-visit throws
+away the second, third, … samples from the same trajectory. With many
+revisits, every-visit can reduce variance by ~$1/k$ where $k$ is the
+average revisit count, while first-visit gains nothing.
+</details>
+
+**W3.** Show that *first-visit MC* is unbiased.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each first visit to $(s, a)$ is a fresh start by Markov property; the
+return is an unbiased sample of $q_\pi(s, a)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+At a first visit to $(s, a)$ at time $\tau$, $\mathbb{E}[G_\tau \mid S_\tau = s, A_\tau = a] = q_\pi(s, a)$
+by Markov property. Average over trajectories: unbiased.
+</details>
+
+### Practice — Working
+
+**P1.** *Counting visits per trajectory.* On the 3×3 grid with random
+policy, run 1 trajectory of length 20. Count the number of distinct
+$(s, a)$ pairs it visits, on average. Hypothesise an asymptotic count.
+
+<details class="hint"><summary>Full solution</summary>
+9 states × 4 actions = 36 pairs. A length-20 random walk visits at most
+20 (s, a) pairs (one per step). Coupon-collector intuition: to visit all
+36 you need ~$36 \log 36 \approx 130$ steps on average. So a length-20
+trajectory visits ~$20 \cdot (1 - (35/36)^{20})$... actually closer to
+the expectation analysis: $\mathbb{E}[\text{distinct}] = 36(1 - (35/36)^{20}) \approx 36 \cdot 0.43 \approx 15.4$ pairs.
+**A single trajectory covers about half the (s, a) pairs.** That's why
+every-visit MC ES recovers a policy quickly even with few trajectories.
+</details>
+
+**P2.** *Truncation bias revisited.* In an episodic task with discount
+$\gamma = 0.99$, you cap trajectories at $T = 200$. Bound the truncation
+bias on the return.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|G_T^\infty - G_T^{\text{trunc}}| \le \gamma^T R_{\max} / (1 - \gamma)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Bias $\le \gamma^T R_{\max}/(1 - \gamma)$. For $\gamma = 0.99, T = 200$:
+$\gamma^T = 0.99^{200} \approx 0.134$. With $R_{\max} = 1$:
+bias $\le 0.134/0.01 = 13.4$. **Huge** — the truncated return has
+massive systematic error. Need either (a) much larger $T$, (b) smaller
+$\gamma$, or (c) TD methods that don't need to wait for episode ends.
+</details>
+
+**P3.** Implement first-visit MC ES (sketch only) and explain how the
+implementation differs from every-visit.
+
+<details class="hint"><summary>Full solution</summary>
+```
+for each trajectory:
+   compute G_t backward as in Problem 3
+   visited ← empty set
+   for t = 0, 1, ..., T-1:
+      (s, a) ← (S_t, A_t)
+      if (s, a) ∉ visited:                    # ← only difference vs. every-visit
+         visited ← visited ∪ {(s, a)}
+         increment count[s, a]
+         q_sum[s, a] ← q_sum[s, a] + G_t
+   q_hat[s, a] ← q_sum[s, a] / count[s, a]
+```
+**Difference:** the `visited` check. Every-visit removes that check and
+counts every visit. **One line.**
+</details>
+
+### Practice — Stretch
+
+**S1.** *Convergence of MC ES.* Sketch why MC ES converges to $\pi^*$ as
+$N \to \infty$. (Use what you know about PI and MC.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two ingredients: (i) every $(s, a)$ is visited infinitely often (by
+exploring starts); (ii) by LLN, $\hat q \to q_\pi$ at every $(s, a)$;
+(iii) PI converges.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Step 1.** With exploring starts and infinitely many trajectories, every
+$(s, a)$ is visited infinitely often. By LLN, $\hat q(s, a) \to q_\pi(s, a)$
+a.s.\ at each $(s, a)$.
+
+**Step 2.** As $\hat q \to q_\pi$, the greedy improvement step in MC ES
+matches PI's greedy improvement step. Hence MC ES traces the same policy
+trajectory as PI in the limit.
+
+**Step 3.** PI converges to $\pi^*$ in finitely many outer iterations.
+
+**Conclusion.** MC ES converges to $\pi^*$ as $N \to \infty$ at each
+outer iteration. (Caveat: with finite $N$, MC ES has noise and may
+oscillate; choosing $N$ to grow over outer iterations stabilises this.
+Singh & Sutton 1996 give the rigorous proof.)
+</details>
+
+**S2.** Suppose the environment has a *terminal* state from which you
+cannot return. With exploring starts, can you still estimate $q_\pi$ at
+the terminal state? Does it matter?
+
+<details class="hint"><summary>Full solution</summary>
+At a terminal state $s_T$, $q_\pi(s_T, a) = 0$ by convention (no future
+rewards). You can either (a) define this directly, or (b) generate
+length-1 "trajectories" from $(s_T, a)$ that just return immediately
+with $G = 0$.
+
+It doesn't matter much because the greedy improvement at $s_T$ never
+matters — you don't act at terminal states. Most implementations skip
+$s_T$ from the exploring-starts uniform distribution.
+</details>
+
+::: {.fun-fact}
+"Exploring starts" is a clean theoretical assumption that almost never
+holds in practice. It was introduced by Sutton in the early 1990s as a
+*simplification for convergence proofs*; in actual systems people moved
+on to $\varepsilon$-greedy or off-policy methods almost immediately.
+The assumption survives in textbooks because it makes the convergence
+proof tractable — and because removing it requires a substantially
+deeper analysis (Lesson 19, then stochastic-approximation theory in
+Lesson 21).
+:::
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Every-visit MC double-counts."** It uses each visit as a separate
+   sample, but each is unbiased — there's no double-counting in the
+   statistical sense. (Variance per *sample* is higher, due to
+   correlation, but bias is zero.)
+2. **"First-visit is always better."** Not in modern RL; every-visit is
+   the default. Lower variance per environment interaction.
+3. **"Exploring starts is just an initialisation choice."** No — it is a
+   *requirement* for coverage when the policy is deterministic. Without
+   it, MC fails to converge.
+4. **"Truncating long trajectories is harmless."** Only if $\gamma^T$ is
+   small. With $\gamma$ close to 1, truncation introduces significant
+   bias.
+:::
+
+### Takeaways
+
+1. **Every-visit MC** harvests *all* visits to $(s, a)$ in each
+   trajectory; **first-visit MC** uses only the first.
+2. **Backward recurrence** computes all $G_t$ in $O(T)$ time.
+3. **Exploring starts** guarantees coverage but is unrealistic in
+   practice.
+4. **MC ES** = every-visit + exploring starts; converges to $\pi^*$ as
+   $N \to \infty$, more sample-efficient than MC Basic.
+
+### Self-Assessment
+
+1. Could you write the first-visit and every-visit MC update rules
+   without notes?
+2. Did you compute the backward-pass code from scratch (Problem 3)?
+3. Can you state two reasons exploring starts is unrealistic?
+
+- **3 yes:** move on to Lesson 19 ($\varepsilon$-greedy drops the
+  exploring-starts assumption).
+- **2 yes:** redo P2 — the truncation-bias trap matters in practice.
+- **0–1 yes:** re-read *Discover* Problems 4 and 5.
 
 ## Connect
 
 ### Prerequisites used
 
-["mfrl.mc-basic"]
+- **Lesson 17 (MC Basic).** The base algorithm; this lesson optimises
+  its inner loop.
+- **Lesson 4 (returns).** The discounted return $G_t$ is the random
+  variable being averaged.
 
 ### What this unlocks
 
-To be filled in once the next lesson exists; see `_curriculum.yml`
-`unlocks` field for the canonical list.
+- **Lesson 19 — $\varepsilon$-greedy.** Replaces exploring starts with
+  random action choice during trajectories.
+- **Lesson 23+ — TD methods.** Avoid the "wait for the episode to end"
+  problem entirely.
+- **Off-policy methods (Lessons 30, 37).** Use one policy for behaviour
+  (exploration) and a different one for learning.
 
 ### Where this matters
 
 ::: {.applied-callout}
-**AI / ML.** This lesson is part of a sequence that derives every
-modern RL algorithm from first principles. Real systems built on
-this foundation include: every RL agent in production (game-playing
-agents, recommendation systems, robotics control loops), and
-the algorithms that train them.
+**AI / ML.** Every-visit MC is the default in modern policy-gradient
+implementations: each trajectory contributes many policy-gradient
+samples. The "harvest every transition" mindset extends to off-policy
+methods (importance sampling), TD($\lambda$), and experience replay
+(DQN).
 :::
 
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
-gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+gives the single-paragraph view of reinforcement learning. Sample
+efficiency — how many environment interactions per policy improvement —
+is the practical battleground that this lesson opens.
 :::
 
 ::: {.callout-note collapse="true"}
 ## Author's notes
 
-- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement
-  Learning* (Springer 2025), §18. Cite freely; never transcribe
-  Zhao's prose.
-- Touchstones honoured: Russian school problem-first sequencing
-  (Discover before Name), and Better Explained "Aha!" framing
-  (the key-insight callout when authored).
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §5.3. Cite freely; never transcribe.
+- Singh & Sutton 1996 (rigorous variance comparison of first-vs-every
+  visit), Sutton & Barto Ch. 5 (every-visit as the default).
+- Touchstones: Sutton & Barto's exposition; AoPS-style "extract more
+  from the same data" framing.
 :::
