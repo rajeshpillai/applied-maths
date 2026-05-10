@@ -106,6 +106,26 @@ Intersect: $x^2 = x \Rightarrow x = 0, 1$. On $[0,1]$, $x \ge x^2$.
 Area $= \int_0^1 (x - x^2) dx = 1/6$.
 </details>
 
+### Problem 6
+
+Find the area enclosed by $y = |x + 3|$, the x-axis, and the lines
+$x = -6$ and $x = 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$y = |x + 3|$ is a V-shape. Where is the kink?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+The vertex sits at $x = -3$. To the left of $-3$, $y = -(x+3)$; to the
+right, $y = x + 3$. Split the integral at $x = -3$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$A = \int_{-6}^{-3}(-x - 3)\,dx + \int_{-3}^{0}(x + 3)\,dx
+   = [-x^2/2 - 3x]_{-6}^{-3} + [x^2/2 + 3x]_{-3}^{0}
+   = 9/2 + 9/2 = 9$ sq units.
+The two halves are mirror-image triangles of base 3 and height 3, so the
+answer matches $2 \cdot \tfrac{1}{2}\cdot 3\cdot 3 = 9$. ✓
+</details>
+
 ::: {.fun-fact}
 **Archimedes squares the parabola (~240 BCE).** Two thousand years
 before Newton, Archimedes proved in *Quadrature of the Parabola* that
@@ -153,6 +173,46 @@ A verse:
 > *Upper minus lower across the interval — that's the dancer.*
 > *Cross-over? Split and take absolute values, lest the signs deceive;*
 > *Integrate $y$ when the curves prefer to be solved that way — believe.*
+
+::: {.callout-tip}
+## The 8-step area workflow
+
+Use this checklist on every area problem until it becomes second nature:
+
+1. **Sketch** every curve and line in the problem.
+2. **Find every intersection** (solve the curve-pair equations together).
+3. **Mark intercepts** with the axes; note them on the sketch.
+4. **Shade** the bounded region.
+5. **Choose** vertical strips (`∫ y\,dx`) or horizontal strips (`∫ x\,dy`)
+   — whichever reads off the sketch with fewer pieces.
+6. **Set the limits** from the intersection points or stated bounds.
+7. **Decide** the integrand: $f(x)$ alone, $|f(x)|$, or
+   $f(x) - g(x)$. Test a single point if you are unsure which curve is on
+   top.
+8. **Integrate, evaluate, take absolute value** if the answer comes out
+   negative.
+
+The integration is mechanical. The thinking happens in steps 1–5.
+:::
+
+::: {.callout-tip collapse="true"}
+## Useful integrals for this chapter
+
+You'll see these repeatedly when curves are circles, ellipses, or
+parabolas:
+
+| Integral | Result |
+|---|---|
+| $\int \sqrt{a^2 - x^2}\,dx$ | $\tfrac{x}{2}\sqrt{a^2 - x^2} + \tfrac{a^2}{2}\sin^{-1}(x/a) + C$ |
+| $\int \tfrac{dx}{\sqrt{a^2 - x^2}}$ | $\sin^{-1}(x/a) + C$ |
+| $\int \tfrac{dx}{a^2 + x^2}$ | $\tfrac{1}{a}\tan^{-1}(x/a) + C$ |
+| $\int x^n\,dx$ | $\tfrac{x^{n+1}}{n+1} + C$ ($n \ne -1$) |
+| $\int \sin x\,dx$ | $-\cos x + C$ |
+| $\int \cos x\,dx$ | $\sin x + C$ |
+
+The first row is the workhorse of the chapter — every circle and ellipse
+area problem reduces to it.
+:::
 
 ## Apply
 
@@ -225,6 +285,26 @@ $= \frac{1}{2} \cdot 2 \cdot 1 = 1$. By calculus: $\int_{-1}^1 (1 -
 $\int_1^4 \sqrt x \, dx = [2x^{3/2}/3]_1^4 = (16 - 2)/3 = 14/3$.
 </details>
 
+**P4.** Find the area enclosed by the sideways parabola $x = y^2$ and the
+vertical line $x = 4$. (Slice horizontally — it's much cleaner.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The region is bounded on the right by $x = 4$ and on the left by
+$x = y^2$. What are the $y$-limits where the two boundaries meet?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+At each height $y$, a horizontal strip stretches from $x = y^2$ to
+$x = 4$, so its width is $4 - y^2$ and its thickness is $dy$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The boundaries meet where $y^2 = 4$, i.e. $y = \pm 2$. By symmetry,
+$$A = \int_{-2}^{2} (4 - y^2)\,dy = 2\int_0^2 (4 - y^2)\,dy
+    = 2\bigl[4y - y^3/3\bigr]_0^2
+    = 2\bigl(8 - 8/3\bigr) = 32/3.$$
+Trying to do this with vertical strips would require splitting at $x = 0$
+and integrating $2\sqrt{x}$ — possible, but slower.
+</details>
+
 ### Practice — Stretch
 
 **S1.** Find the area enclosed by the ellipse $x^2/9 + y^2/4 = 1$.
@@ -237,6 +317,43 @@ quarter-area formula with $x = 3\sin\theta$.
 Area $= 4 \int_0^3 \frac{2}{3}\sqrt{9 - x^2}\, dx = \frac{8}{3} \cdot
 \frac{1}{4}\pi(3)^2 = \frac{8}{3} \cdot \frac{9\pi}{4} = 6\pi$.
 **Total area = $\pi a b = \pi \cdot 3 \cdot 2 = 6\pi$.** ✓
+</details>
+
+**S2.** Find the area of the region in the first quadrant enclosed by
+the circle $x^2 + y^2 = 4$ and the line $x = \sqrt{3}\, y$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Sketch first. Where does the line meet the circle? The single bounded
+region splits naturally into "under the line" and "under the circle".
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Substitute $x = \sqrt{3}\,y$ into $x^2 + y^2 = 4$: $4y^2 = 4$, so
+$y = 1$ and $x = \sqrt{3}$. The intersection is $(\sqrt 3, 1)$. Split
+the region at $x = \sqrt{3}$.
+</details>
+<details class="hint"><summary>Hint 3 — the first step</summary>
+For $0 \le x \le \sqrt 3$ the upper boundary is the line
+$y = x/\sqrt 3$. For $\sqrt 3 \le x \le 2$ the upper boundary is the
+circle $y = \sqrt{4 - x^2}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$$A = \int_0^{\sqrt 3} \frac{x}{\sqrt 3}\,dx
+     + \int_{\sqrt 3}^{2} \sqrt{4 - x^2}\,dx.$$
+The first piece is $\bigl[\tfrac{x^2}{2\sqrt 3}\bigr]_0^{\sqrt 3}
+= \tfrac{3}{2\sqrt 3} = \tfrac{\sqrt 3}{2}$. For the second, use
+$\int \sqrt{a^2 - x^2}\,dx = \tfrac{x}{2}\sqrt{a^2 - x^2}
++ \tfrac{a^2}{2}\sin^{-1}(x/a)$ with $a = 2$:
+$$\Bigl[\tfrac{x}{2}\sqrt{4 - x^2}
+       + 2\sin^{-1}(x/2)\Bigr]_{\sqrt 3}^{2}
+= \bigl(0 + 2 \cdot \pi/2\bigr) - \bigl(\tfrac{\sqrt 3}{2}
+   + 2\sin^{-1}(\sqrt 3/2)\bigr)
+= \pi - \tfrac{\sqrt 3}{2} - 2 \cdot \tfrac{\pi}{3}
+= \tfrac{\pi}{3} - \tfrac{\sqrt 3}{2}.$$
+Adding: $A = \tfrac{\sqrt 3}{2} + \tfrac{\pi}{3} - \tfrac{\sqrt 3}{2}
+= \boxed{\tfrac{\pi}{3}}$. (Check: this is exactly the
+$30°$-circular-sector formula $\tfrac{1}{2}r^2\theta$ with $r = 2,
+\theta = \pi/6$, since the line cuts the circle at angle $30°$ from the
+x-axis.)
 </details>
 
 ### Board-Pattern Practice
@@ -332,12 +449,24 @@ curves); CBSE 2022 Q33.
 ### Common confusions
 
 1. **"$\int_a^b f \, dx$ always gives positive area."** Only when $f
-   \ge 0$ on $[a, b]$. Otherwise it's signed area.
+   \ge 0$ on $[a, b]$. Otherwise it's signed area — the *integral* can
+   be negative; an *area* cannot.
 2. **"Forgetting to find intersection points."** The integration
    limits *are* the intersections — skip them and you integrate over
    the wrong interval.
 3. **"Sketching is optional."** It is not. Without a sketch, you cannot
-   know which curve is upper.
+   know which curve is upper, how many pieces to split into, or whether
+   to integrate w.r.t. $x$ or $y$.
+4. **"Picking the wrong upper curve."** If you guess and don't verify,
+   you risk a sign flip. Always test a single point between the
+   intersections to confirm which curve is on top.
+5. **"Forgetting to split when the curve crosses the axis."** If $f$
+   changes sign on $[a, b]$, $\int f\,dx$ silently cancels area below
+   against area above. Find the zeros of $f$, split, and use $|f|$ on
+   each piece.
+6. **"Algebra slips when substituting limits."** Substitute the upper
+   limit first, then the lower; bracket each substitution so the minus
+   sign distributes to *every* term.
 :::
 
 ### Takeaways
@@ -397,6 +526,17 @@ price curves.
 ::: {.applied-callout}
 **AI/ML.** ROC-AUC is the area under the ROC curve — a definite
 integral over [0, 1].
+:::
+
+::: {.fun-fact}
+**Cavalieri's principle (1635).** A century before Newton and Leibniz,
+the Italian Jesuit Bonaventura Cavalieri argued that two regions sliced
+by parallel lines into matching strips must have the same area. His
+*Geometria indivisibilibus continuorum nova quadam ratione promota* gave
+the slicing-and-summing idea a vocabulary — "indivisibles" — and a
+licence to compute areas without a formal limit. Half a century later,
+Newton and Leibniz replaced "indivisibles" with the differential $dx$
+and Cavalieri's intuition became the integral you use today.
 :::
 
 ---

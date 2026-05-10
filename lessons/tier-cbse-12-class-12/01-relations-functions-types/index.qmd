@@ -142,6 +142,31 @@ $2$ both go to $2$ — different inputs, same output. Two ways this $g$
 fails to be the "perfect pairing" you saw with $f$.
 </details>
 
+### Problem 6
+
+Now stretch $A$ to $\{1, 2, 3, 4, 5\}$. Define
+$R = \{(a,b) : |a - b| \text{ is even}\}$. Pick three pairs you expect to
+be in $R$ and three you expect to be out. Then ask: if you draw the
+relation graph, do the elements split into separate clumps?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$|a-b|$ is even iff $a$ and $b$ have the *same parity* (both odd or
+both even).
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Group $A$ by parity, then check pairs *across* and *within* each group.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Reflexive ✓ ($|a-a|=0$, even). Symmetric ✓ ($|a-b| = |b-a|$). Transitive
+✓ (sum of two evens is even, so $|a-b|$ even and $|b-c|$ even forces
+$|a-c|$ even). So $R$ is an equivalence relation.
+
+The elements split cleanly: $\{1, 3, 5\}$ (all odd) sit in one clump,
+$\{2, 4\}$ (all even) in the other. **No** odd-even pair is in $R$.
+Two clumps, no overlap, no leftovers — that is exactly what an
+equivalence relation does to a set.
+</details>
+
 You have just felt the four important properties: a relation can be
 **reflexive** (full diagonal), **symmetric** (mirror), **transitive**
 (chaining); a function can be **one-one** (no two inputs share an output)
@@ -219,6 +244,42 @@ A competent solver thinks like this:
    $b \in \{\ldots, -10, -5, 0, 5, 10, \ldots\}$ — all multiples of 5.
 
 **Answer:** $R$ is an equivalence relation; $[0] = 5\mathbb{Z}$.
+
+### Worked example — the swap-and-solve template
+
+> Let $f : \mathbb{R} \to \mathbb{R}$, $f(x) = 3x - 7$. Show $f$ is
+> bijective and write down its inverse.
+
+Three moves, every time:
+
+1. **One-one.** $3a - 7 = 3b - 7 \Rightarrow 3a = 3b \Rightarrow a = b$. ✓
+2. **Onto.** Pick any $y \in \mathbb{R}$. Solve $3x - 7 = y$:
+   $x = \tfrac{y+7}{3}$. This is a real number, so a pre-image always
+   exists. ✓
+3. **Inverse (swap-and-solve).** Write $y = 3x - 7$, solve for $x$:
+   $x = \tfrac{y+7}{3}$. Rename: $f^{-1}(x) = \tfrac{x+7}{3}$.
+
+A useful sanity check: compute $(f^{-1} \circ f)(x)$. You should get $x$
+back, and you do — $\frac{(3x-7)+7}{3} = x$. The inverse "undoes" $f$.
+
+::: {.callout-tip}
+### Trap-table — only two of three properties
+
+A relation can satisfy any *two* of {reflexive, symmetric, transitive}
+without satisfying the third. Spotting which property fails is a
+classic 1-mark / 2-mark question.
+
+| Relation on $A = \{1,2,3\}$ | Reflexive? | Symmetric? | Transitive? |
+|---|:-:|:-:|:-:|
+| $\{(1,1), (2,2), (3,3), (1,2)\}$ | ✓ | ✗ | ✓ |
+| $\{(1,2), (2,1)\}$ | ✗ | ✓ | ✗ |
+| $\{(1,1), (2,2), (3,3), (1,2), (2,1)\}$ | ✓ | ✓ | ✓ (equivalence) |
+| $\{(1,2), (2,3), (1,3)\}$ | ✗ | ✗ | ✓ |
+| $\{(1,1), (2,2), (3,3), (1,2), (2,3)\}$ | ✓ | ✗ | ✗ (need $(1,3)$) |
+
+Build your own row: pick a property to break, then construct the
+smallest relation that breaks it.
+:::
 
 ### Practice — Warm
 
@@ -324,6 +385,58 @@ $A = \{a,b,c\}$:
 5. $\{a,b,c\}$ (one big block)
 
 **5 partitions, 5 equivalence relations.**
+</details>
+
+**S3.** Let $f, g : \mathbb{R} \to \mathbb{R}$ with $f(x) = x + 2$ and
+$g(x) = x^2$. Compute $(f \circ g)(x)$ and $(g \circ f)(x)$. Are they
+the same? Then: is $f$ bijective on $\mathbb{R}$? If yes, find $f^{-1}$
+and verify $(f^{-1} \circ f)(x) = x$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(f \circ g)(x)$ means apply $g$ *first*, then $f$. The order matters
+— do not assume $f \circ g = g \circ f$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+For the inverse, set $y = f(x)$ and solve for $x$.
+</details>
+<details class="hint"><summary>Hint 3 — the first step</summary>
+$(f \circ g)(x) = f(g(x)) = f(x^2) = x^2 + 2$.
+$(g \circ f)(x) = g(f(x)) = g(x+2) = (x+2)^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(f \circ g)(x) = x^2 + 2$ and $(g \circ f)(x) = (x+2)^2 = x^2 + 4x + 4$.
+**Not equal** — composition is not commutative in general.
+
+For $f^{-1}$: $y = x + 2 \Rightarrow x = y - 2$, so $f^{-1}(x) = x - 2$.
+Verify: $(f^{-1} \circ f)(x) = f^{-1}(x+2) = (x+2) - 2 = x$. ✓
+</details>
+
+**S4.** Let $f : \mathbb{R} \to \mathbb{R}$, $f(x) = 2x + 1$, and
+$g : \mathbb{R} \to \mathbb{R}$, $g(x) = 3x$. Both are bijections. Find
+$(g \circ f)^{-1}(x)$ in two ways: (a) directly, by inverting
+$g \circ f$; (b) using the rule $(g \circ f)^{-1} = f^{-1} \circ g^{-1}$.
+Confirm the two agree, and notice the *order flips*.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+First compute $(g \circ f)(x)$. Then invert. Separately, compute
+$f^{-1}$ and $g^{-1}$ and compose them — but in the *reverse* order.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Inverses compose in reverse, like undressing: socks-then-shoes goes on,
+shoes-then-socks comes off.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**(a) Direct.** $(g \circ f)(x) = g(2x + 1) = 3(2x + 1) = 6x + 3$. Set
+$y = 6x + 3$ and solve: $x = (y-3)/6$. So $(g \circ f)^{-1}(x) =
+\tfrac{x-3}{6}$.
+
+**(b) Rule.** $f^{-1}(x) = (x-1)/2$, $g^{-1}(x) = x/3$. Then
+$(f^{-1} \circ g^{-1})(x) = f^{-1}(x/3) = \tfrac{x/3 - 1}{2} =
+\tfrac{x-3}{6}$. ✓ Same answer.
+
+The order flip is the key: $(g \circ f)^{-1} = f^{-1} \circ g^{-1}$,
+**not** $g^{-1} \circ f^{-1}$. If you reverse a two-step process, you
+undo step 2 first, step 1 second.
 </details>
 
 ### Board-Pattern Practice
@@ -468,13 +581,23 @@ If you remember nothing else from this lesson, remember these:
    some $b$ with $aRb$. An element with no partners has no diagonal
    pair forced. Example: $A = \{1,2\}$, $R = \{(2,2)\}$ is symmetric and
    transitive but not reflexive.
-2. **"Onto means the function covers $\mathbb{R}$."** No — onto is
+2. **"A chain $(1,2), (2,3)$ in $R$ is automatically transitive."**
+   No — transitivity *requires* $(1,3)$ to already be in $R$. The
+   relation $\{(1,2), (2,3)\}$ is **not** transitive. You must add
+   $(1,3)$ yourself; chaining is the test, not the gift.
+3. **"Onto means the function covers $\mathbb{R}$."** No — onto is
    relative to the **codomain** declared. $f : \mathbb{R} \to [1,\infty)$,
    $f(x) = x^2 + 1$, *is* onto. It's the same rule as before; the
    codomain changed.
-3. **"One-one functions are always invertible on their codomain."** Only
-   when the function is *also* onto. Inverse needs bijection. We meet
-   this carefully in the next lesson.
+4. **"$g \circ f$ means apply $g$ first."** No — read it from the inside
+   out: $(g \circ f)(x) = g(f(x))$ means apply $f$ *first*, then $g$.
+   Easy to flip when writing on paper. And in general $g \circ f \ne
+   f \circ g$, so the order matters every time.
+5. **"One-one functions are always invertible on their codomain."** Only
+   when the function is *also* onto. Inverse needs bijection. The
+   swap-and-solve recipe ($y = f(x)$, solve for $x$) only succeeds when
+   the equation has *exactly one* real solution for every $y$ in the
+   codomain.
 :::
 
 ### Self-Assessment
@@ -537,6 +660,16 @@ labels stay distinguishable in the model.
 in number theory, homotopy classes in topology, similarity classes of
 matrices in linear algebra. The pattern *partition by an equivalence
 relation* is a load-bearing tool.
+:::
+
+::: {.fun-fact}
+The word *function* was first used in our modern sense by **Leibniz**
+in 1673 — to describe a quantity dependent on a curve. The notation
+$f(x)$ that you write every day was introduced by **Leonhard Euler**
+in 1734. The names *injection* and *surjection* are much younger,
+coined by the Bourbaki collective in mid-20th-century France;
+*surjection* is built from the Latin *super-* ("over") plus *jacere*
+("to throw") — onto literally means "thrown over" the codomain.
 :::
 
 ---

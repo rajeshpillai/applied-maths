@@ -109,6 +109,48 @@ $|\vec a| = \sqrt 3$. $(l, m, n) = (1/\sqrt 3, 1/\sqrt 3, 1/\sqrt 3)$.
 $l^2 + m^2 + n^2 = 1$. ✓
 </details>
 
+### Problem 6 — types of vectors
+
+Decide whether each pair below is **equal**, **parallel** (same direction),
+**anti-parallel** (opposite direction), **collinear** (parallel *or*
+anti-parallel), or **none of these**.
+
+(a) $\vec a = (2, -1, 3)$ and $\vec b = (4, -2, 6)$.
+(b) $\vec a = (1, 0, 0)$ and $\vec b = (-3, 0, 0)$.
+(c) $\vec a = (1, 2, 3)$ and $\vec b = (1, 2, 3)$.
+(d) $\vec a = (1, 2, 3)$ and $\vec b = (1, 2, 4)$.
+
+<details class="hint"><summary>Hint 1 — the technique</summary>
+Two non-zero vectors are **collinear** iff one is a scalar multiple of
+the other: $\vec b = k\vec a$. The sign of $k$ tells you the
+sub-classification.
+</details>
+<details class="hint"><summary>Full solution</summary>
+(a) $\vec b = 2\vec a$ → parallel (and so collinear).
+(b) $\vec b = -3\vec a$ → anti-parallel (collinear).
+(c) Same components → equal (a stronger condition than parallel).
+(d) No scalar $k$ gives $\vec b = k\vec a$ — not collinear.
+</details>
+
+### Problem 7 — section formula, external
+
+$P$ divides the segment from $A(1, 0, 0)$ to $B(4, 6, 9)$ **externally**
+in the ratio $2 : 1$. Find $\vec{OP}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+External division uses the same formula as internal, but with one of
+the masses negated: $\vec r = (m\vec b - n\vec a)/(m - n)$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Plug $m = 2,\ n = 1$ and apply componentwise.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec r = (2\vec b - 1\cdot \vec a)/(2 - 1) = 2\vec b - \vec a$.
+$2\vec b = (8, 12, 18)$, so $\vec r = (8 - 1,\ 12 - 0,\ 18 - 0) = (7,
+12, 18)$. Notice $P$ is *beyond* $B$ — that's what external division
+means.
+</details>
+
 ::: {.fun-fact}
 **Gibbs and Heaviside split the quaternion (1880s).** William Rowan
 Hamilton spent two decades after his 1843 quaternion epiphany insisting
@@ -152,9 +194,25 @@ the axes.
 - **Direction ratios** $(a_1, a_2, a_3)$: any scalar multiple of $(l,
   m, n)$.
 
+**Types of vectors (NCERT vocabulary).**
+
+| Type | Condition |
+|---|---|
+| Zero (null) | $\vec 0 = 0\hat\imath + 0\hat\jmath + 0\hat k$; magnitude $0$, direction undefined. |
+| Unit | $|\vec a| = 1$. |
+| Equal | Same magnitude *and* same direction (position is irrelevant). |
+| Negative | Same magnitude, opposite direction; $-\vec a$. |
+| Parallel | $\vec b = k\vec a$ for some scalar $k > 0$. |
+| Anti-parallel | $\vec b = k\vec a$ with $k < 0$. |
+| Collinear | Parallel or anti-parallel — $\vec b = k\vec a$ for some non-zero $k$. |
+| Coplanar | Three or more vectors that lie in (or can be translated into) a single plane. |
+
 **Section formula.** If $\vec r$ divides the segment from $\vec a$ to
-$\vec b$ in ratio $m : n$ (internal), then
-$$\vec r = \frac{m\vec b + n\vec a}{m + n}.$$
+$\vec b$ in ratio $m : n$, then
+$$\vec r = \frac{m\vec b + n\vec a}{m + n} \quad\text{(internal)},
+\qquad \vec r = \frac{m\vec b - n\vec a}{m - n} \quad\text{(external)}.$$
+Midpoint is the special case $m : n = 1 : 1$, giving $\vec r = (\vec a +
+\vec b)/2$.
 
 :::
 
@@ -214,11 +272,16 @@ k)/3$.
 </details>
 
 **P2.** Direction cosines of the line joining $(1, -1, 2)$ and $(3, 2,
-1)$.
+1)$. Verify $l^2 + m^2 + n^2 = 1$.
 
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The line's direction is $\vec{AB}$. Compute it and divide by its magnitude.
+</details>
 <details class="hint"><summary>Full solution</summary>
 DR = $(2, 3, -1)$. Magnitude $\sqrt{4 + 9 + 1} = \sqrt{14}$.
 DC = $(2/\sqrt{14}, 3/\sqrt{14}, -1/\sqrt{14})$.
+Check: $4/14 + 9/14 + 1/14 = 14/14 = 1$. ✓ — that's the
+defining identity of any unit-vector triple.
 </details>
 
 **P3.** Show that the points $(1, 2, 3), (-2, 3, 5), (7, 0, -1)$ are
@@ -240,6 +303,27 @@ Parallel and share point $A$, so collinear. ✓
 <details class="hint"><summary>Full solution</summary>
 $4 + \lambda^2 + 1 = 14 \Rightarrow \lambda^2 = 9 \Rightarrow \lambda =
 \pm 3$.
+</details>
+
+**S2.** Point $P$ divides the segment joining $A(2, -1, 4)$ and $B(5,
+2, -2)$ in the ratio $1 : 2$ externally. Find $\vec{OP}$, then verify
+that $A$, $P$, $B$ are collinear.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the external section formula $\vec r = (m\vec b - n\vec a)/(m - n)$
+with $m = 1, n = 2$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+For collinearity, show that $\vec{AP}$ and $\vec{AB}$ are scalar
+multiples of each other.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec r = (\vec b - 2\vec a)/(1 - 2) = -(\vec b - 2\vec a) = 2\vec a -
+\vec b$.
+$2\vec a = (4, -2, 8)$, so $\vec{OP} = (4 - 5, -2 - 2, 8 - (-2)) = (-1,
+-4, 10)$.
+$\vec{AB} = (3, 3, -6)$, $\vec{AP} = (-3, -3, 6) = -\vec{AB}$ →
+parallel, share point $A$, so collinear. ✓
 </details>
 
 ### Board-Pattern Practice
@@ -332,11 +416,15 @@ CBSE 2022 Q19.
 ### Common confusions
 
 1. **"$\vec{AB} = \vec{BA}$."** They are *opposite* — same magnitude,
-   reversed direction.
+   reversed direction. Always: $\vec{AB} = -\vec{BA}$.
 2. **"Direction cosines vs. ratios."** DC = unit vector components; DR
    = any scalar multiple. DC are unique up to overall sign; DR are not.
 3. **"Adding magnitudes."** $|\vec a + \vec b| \ne |\vec a| + |\vec
    b|$ in general — the triangle inequality is what holds.
+4. **"Equal vectors must have the same starting point."** No. *Equal*
+   means same magnitude and direction; an arrow translated anywhere in
+   space is the same vector. *Position* matters only when the vector
+   *is* a position vector $\vec{OP}$, anchored at the origin.
 :::
 
 ### Takeaways

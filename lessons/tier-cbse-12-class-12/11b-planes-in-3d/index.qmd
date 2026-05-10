@@ -158,6 +158,10 @@ $$(\vec r - \vec a) \cdot \vec n = 0, \quad \text{or} \quad \vec r
 **Cartesian form** with normal $(A, B, C)$:
 $$Ax + By + Cz + D = 0.$$
 
+**Intercept form** — for a plane meeting the axes at $(a, 0, 0), (0,
+b, 0), (0, 0, c)$:
+$$\frac{x}{a} + \frac{y}{b} + \frac{z}{c} = 1.$$
+
 **Through three points** $\vec a_1, \vec a_2, \vec a_3$:
 $$(\vec r - \vec a_1) \cdot [(\vec a_2 - \vec a_1) \times (\vec a_3 -
 \vec a_1)] = 0.$$
@@ -231,22 +235,30 @@ Plane: $-2(x - 1) - 3(y - 1) + 3z = 0 \Rightarrow -2x - 3y + 3z + 5 = 0
 </details>
 
 **P2.** Show that the line $\frac{x - 1}{2} = \frac{y}{3} = \frac{z + 1}
-{4}$ lies in the plane $-2x + 3y + 4z + 6 = 0$.
+{-4}$ lies in the plane $2x + 4y + 4z + 2 = 0$.
 
 <details class="hint"><summary>Hint 1 — a nudge</summary>
-Two checks: (1) point on the line satisfies the plane equation; (2)
-direction is perpendicular to the normal.
+Two checks: (1) some point on the line satisfies the plane equation;
+(2) the line's direction is perpendicular to the plane's normal — so
+that the line is parallel to the plane *and* meets it, i.e. lies
+inside it.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+The line has direction $(2, 3, -4)$ and passes through $(1, 0, -1)$.
+The plane has normal $(2, 4, 4)$. Test the point in the plane
+equation, and dot the direction with the normal.
 </details>
 <details class="hint"><summary>Full solution</summary>
-Point $(1, 0, -1)$: $-2 + 0 - 4 + 6 = 0$ ✓. Direction $(2, 3, 4) \cdot
-(-2, 3, 4) = -4 + 9 + 16 = 21 \ne 0$ — wait, this means line is *not*
-parallel to the plane.
-*Reread the problem*: actually, the direction of the line should be
-perpendicular to the plane's normal *for the line to lie in the plane*.
-$(2, 3, 4) \cdot (-2, 3, 4) = -4 + 9 + 16 = 21 \ne 0$. So the line
-does not lie in this plane (the question's coefficients may differ).
-For lines lying in planes the test is: point on line satisfies the
-plane and direction is in the plane (perpendicular to normal).
+**Point check.** Plug $(1, 0, -1)$ into $2x + 4y + 4z + 2$:
+$2(1) + 0 + 4(-1) + 2 = 0$ ✓.
+
+**Direction check.** Dot the line's direction with the plane's normal:
+$(2, 3, -4) \cdot (2, 4, 4) = 4 + 12 - 16 = 0$ ✓.
+
+Both conditions hold, so the line lies entirely in the plane. (If only
+the direction-check passed, the line would be *parallel* to the plane
+but outside it; if only the point-check passed, the line would *cross*
+the plane at that single point.)
 </details>
 
 **P3.** Find the equation of the plane passing through $(1, 0, -2)$ and
@@ -269,6 +281,29 @@ Line through $(1,1,1)$ along normal $(1, 2, 1)$: $(1 + t, 1 + 2t, 1 +
 t)$. On plane: $(1 + t) + 2(1 + 2t) + (1 + t) = 6 \Rightarrow 4 + 6t =
 6 \Rightarrow t = 1/3$. Foot: $(4/3, 5/3, 4/3)$.
 Image: $2 \cdot (4/3, 5/3, 4/3) - (1, 1, 1) = (5/3, 7/3, 5/3)$.
+</details>
+
+**S2.** *Line–plane intersection.* Find the point at which the line
+$\vec r = (\hat\imath + 2\hat\jmath - \hat k) + \lambda(2\hat\imath +
+\hat\jmath - \hat k)$ meets the plane $x + y + z = 5$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Write the line in parametric coordinates: $(1 + 2\lambda, 2 + \lambda,
+-1 - \lambda)$. Substitute into the plane equation and solve for
+$\lambda$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+A line either misses the plane (direction perpendicular to normal,
+point off the plane), lies in it (both conditions of P2), or hits it
+at a single point. Substitution decides which.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Substitute $(1 + 2\lambda) + (2 + \lambda) + (-1 - \lambda) = 5
+\Rightarrow 2 + 2\lambda = 5 \Rightarrow \lambda = 3/2$.
+
+Intersection: $(1 + 3, 2 + 3/2, -1 - 3/2) = (4, 7/2, -5/2)$.
+
+Sanity check: $4 + 7/2 - 5/2 = 5$ ✓.
 </details>
 
 ### Board-Pattern Practice
@@ -375,6 +410,14 @@ distance); CBSE 2022 Q35.
    "intersect" in themselves.
 3. **"Distance formula uses $D$ as written."** Make sure the plane is
    in the form $Ax + By + Cz + D = 0$ — sign of $D$ matters.
+4. **"A line in 3D lies in a plane iff its direction is perpendicular
+   to the normal."** That condition only makes the line *parallel* to
+   the plane. To lie *inside*, you also need a point of the line to
+   satisfy the plane equation. Both checks, every time.
+5. **"Two skew lines must determine a plane somehow."** They don't —
+   non-coplanar lines have *no* unique plane through them. Three
+   non-collinear points determine a plane; two skew lines determine
+   none.
 :::
 
 ### Takeaways

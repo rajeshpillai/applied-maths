@@ -112,6 +112,45 @@ DR of $L_1: (2, 3, 4)$. DR of $L_2: (4, 6, 8) = 2(2, 3, 4)$.
 Proportional ⇒ parallel. ✓
 </details>
 
+### Problem 6
+
+A line makes angles $90°, 135°, 45°$ with the positive $x$-, $y$-,
+$z$-axes. Write down its direction cosines and check the identity
+$l^2 + m^2 + n^2 = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The **direction cosines** are just $(l, m, n) = (\cos\alpha, \cos\beta,
+\cos\gamma)$ — the cosines of the three axis-angles.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$l = \cos 90° = 0$, $m = \cos 135° = -1/\sqrt 2$, $n = \cos 45° = 1/
+\sqrt 2$. Check: $0 + 1/2 + 1/2 = 1$ ✓. The identity $l^2 + m^2 + n^2 =
+1$ always holds — direction cosines live on the unit sphere.
+</details>
+
+### Problem 7
+
+Find the direction cosines of the line joining $A(2, 3, 4)$ to $B(-1,
+1, 2)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Direction *ratios* first: $\vec{AB} = (x_2 - x_1, y_2 - y_1, z_2 -
+z_1)$. Then divide by $|\vec{AB}|$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+If $(a, b, c)$ are direction ratios, then $l = a/\sqrt{a^2+b^2+c^2}$,
+similarly for $m, n$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+DR: $(-3, -2, -2)$. $\sqrt{9 + 4 + 4} = \sqrt{17}$. Direction cosines:
+$(-3/\sqrt{17}, -2/\sqrt{17}, -2/\sqrt{17})$. Check: $9/17 + 4/17 +
+4/17 = 1$ ✓.
+
+So **direction ratios** are any non-zero triple proportional to a
+vector along the line; **direction cosines** are the unique unit
+version. Convert one to the other by dividing by the magnitude.
+</details>
+
 ::: {.fun-fact}
 **Plücker's coordinates (1830s) — six numbers for a line in 3D.** A
 [point](/glossary.qmd#point) in 3D needs three coordinates; you might
@@ -139,6 +178,15 @@ The Cartesian form is the same idea written one coordinate at a time.
 ## Name
 
 ::: {.lesson-beat}
+
+**[Direction cosines](/glossary.qmd#direction-cosines)** $(l, m, n) =
+(\cos\alpha, \cos\beta, \cos\gamma)$ — cosines of the angles a line
+makes with the positive $x$-, $y$-, $z$-axes. They satisfy
+$$l^2 + m^2 + n^2 = 1.$$
+
+**[Direction ratios](/glossary.qmd#direction-ratios)** $(a, b, c)$ —
+any non-zero triple proportional to $(l, m, n)$; convert via $l =
+a/\sqrt{a^2+b^2+c^2}$, similarly $m, n$.
 
 **Vector form** of a line through $\vec a$ in direction $\vec b$:
 $$\vec r = \vec a + \lambda \vec b.$$
@@ -269,6 +317,38 @@ to it: $(t - 1, 2t - 1, 3t - 1)$. Perpendicular to direction $(1, 2,
 Foot: $(3/7, 1 + 6/7, 2 + 9/7) = (3/7, 13/7, 23/7)$.
 </details>
 
+**S2.** *Find the parameter that makes two lines perpendicular.* If
+the lines $\dfrac{1 - x}{3} = \dfrac{7y - 14}{2p} = \dfrac{z - 3}{2}$
+and $\dfrac{7 - 7x}{3p} = \dfrac{y - 5}{1} = \dfrac{6 - z}{5}$ are
+perpendicular, find $p$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Bring each line to standard form $\dfrac{x - x_1}{a} = \dfrac{y - y_1}
+{b} = \dfrac{z - z_1}{c}$ first — read off the DRs only after that.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+For example, $\dfrac{1 - x}{3} = \dfrac{-(x - 1)}{3} = \dfrac{x - 1}{
+-3}$, and $\dfrac{7y - 14}{2p} = \dfrac{y - 2}{2p/7}$.
+</details>
+<details class="hint"><summary>Hint 3 — the first step</summary>
+After standardising: line 1 has DR $(-3, 2p/7, 2)$; line 2 has DR
+$(-3p/7, 1, -5)$. Now apply $a_1 a_2 + b_1 b_2 + c_1 c_2 = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Standardise both lines to $\dfrac{x - x_1}{a} = \dfrac{y - y_1}{b} =
+\dfrac{z - z_1}{c}$:
+
+- Line 1: $\dfrac{x - 1}{-3} = \dfrac{y - 2}{2p/7} = \dfrac{z - 3}{2}$,
+  so DR $= (-3,\ 2p/7,\ 2)$.
+- Line 2: $\dfrac{x - 1}{-3p/7} = \dfrac{y - 5}{1} = \dfrac{z - 6}{-5}$,
+  so DR $= (-3p/7,\ 1,\ -5)$.
+
+Perpendicularity: $(-3)(-3p/7) + (2p/7)(1) + (2)(-5) = 0$, i.e.
+$9p/7 + 2p/7 - 10 = 0 \Rightarrow 11p/7 = 10 \Rightarrow p = 70/11$.
+
+The trap is reading DRs straight off non-standard form.
+</details>
+
 ### Board-Pattern Practice
 
 **1-mark MCQ #1.** DR of the line $\frac{x - 2}{3} = \frac{y + 1}{2} =
@@ -371,10 +451,21 @@ CBSE 2022 Q24.
 ### Common confusions
 
 1. **"Skew lines must be parallel."** No — skew means *neither*
-   intersect *nor* parallel.
+   intersect *nor* parallel. In fact two random non-parallel lines in
+   3D *almost always* fail to meet — skew is the generic case.
 2. **"Distance from point to line uses dot product."** It uses cross —
    $|\vec{AP} \times \vec b|/|\vec b|$.
-3. **"Vector and Cartesian forms describe different lines."** Same
+3. **"Direction cosines and direction ratios are the same thing."**
+   They are *proportional*, not equal. Direction cosines satisfy
+   $l^2 + m^2 + n^2 = 1$; direction ratios usually do not. Always
+   divide by $\sqrt{a^2 + b^2 + c^2}$ before claiming they are
+   cosines.
+4. **"Read DRs straight off the equation."** Only when the line is in
+   the *standard* form $\frac{x - x_1}{a} = \frac{y - y_1}{b} =
+   \frac{z - z_1}{c}$. Forms like $\frac{1 - x}{3}$ or $\frac{7y -
+   14}{2p}$ must be rewritten first — sign errors here cost board
+   marks.
+5. **"Vector and Cartesian forms describe different lines."** Same
    line, different notations.
 :::
 

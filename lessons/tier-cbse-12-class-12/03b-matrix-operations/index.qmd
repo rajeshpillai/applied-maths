@@ -158,6 +158,27 @@ $B^T = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$, $A^T =
 A^T$ — note the swap.
 </details>
 
+### Problem 7
+
+Let $A = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}$ and
+$B = \begin{pmatrix} 0 & 0 \\ 0 & 1 \end{pmatrix}$. Compute $AB$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Row-meets-column. Most entries will involve a zero somewhere.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1,1) = 1\cdot 0 + 0\cdot 0 = 0$.
+$(1,2) = 1\cdot 0 + 0\cdot 1 = 0$.
+$(2,1) = 0\cdot 0 + 0\cdot 0 = 0$.
+$(2,2) = 0\cdot 0 + 0\cdot 1 = 0$.
+$$AB = \begin{pmatrix} 0 & 0 \\ 0 & 0 \end{pmatrix} = O.$$
+But neither $A$ nor $B$ is the zero matrix! In ordinary algebra, $xy = 0$
+forces $x = 0$ or $y = 0$. **Matrix algebra has no such cancellation.**
+$AB = O$ does *not* imply that $A = O$ or $B = O$. This is one of the
+strangest features of matrix multiplication — and the source of more
+than a few exam traps.
+</details>
+
 ::: {.fun-fact}
 When **Arthur Cayley** wrote *A Memoir on the Theory of Matrices* in
 1858, the first rule he had to insist on was the strange one you just
@@ -301,6 +322,58 @@ $B^T = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$, $A^T =
 3 & 1 \\ 2 & 1 \end{pmatrix}$ ✓.
 </details>
 
+**P4.** Expand $(A + B)^2$ for $2 \times 2$ matrices $A$ and $B$, *without
+assuming* commutativity. Then evaluate it for $A = \begin{pmatrix} 1 & 1
+\\ 0 & 1 \end{pmatrix}$ and $B = \begin{pmatrix} 1 & 0 \\ 1 & 1
+\end{pmatrix}$, and check explicitly that $A^2 + 2AB + B^2$ gives a
+*different* answer.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(A+B)^2 = (A+B)(A+B)$. Distribute carefully — you cannot reorder $AB$
+and $BA$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Distribute on the right first: $(A+B)(A+B) = A(A+B) + B(A+B) = A^2 + AB
++ BA + B^2$. The middle two terms only collapse to $2AB$ if $AB = BA$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(A+B)^2 = A^2 + AB + BA + B^2$ — *four* terms.
+
+For the given matrices: $A + B = \begin{pmatrix} 2 & 1 \\ 1 & 2
+\end{pmatrix}$, so $(A+B)^2 = \begin{pmatrix} 5 & 4 \\ 4 & 5
+\end{pmatrix}$.
+
+Now check the wrong identity. $A^2 = \begin{pmatrix} 1 & 2 \\ 0 & 1
+\end{pmatrix}$. $B^2 = \begin{pmatrix} 1 & 0 \\ 2 & 1 \end{pmatrix}$.
+$AB = \begin{pmatrix} 2 & 1 \\ 1 & 1 \end{pmatrix}$. So $A^2 + 2AB + B^2
+= \begin{pmatrix} 6 & 4 \\ 4 & 4 \end{pmatrix}$ — *different* from
+$(A+B)^2$. The discrepancy is $BA - AB$, exactly the failure of
+commutativity.
+
+**Moral:** matrix algebra does *not* obey the school binomial expansion.
+Always expand $(A+B)^2$ as $A^2 + AB + BA + B^2$, and only collapse if
+you have proved $AB = BA$.
+</details>
+
+**P5.** Is the product $\begin{pmatrix} 1 & 2 & 3 \end{pmatrix}
+\begin{pmatrix} 4 & 5 \\ 6 & 7 \end{pmatrix}$ defined? If yes, compute
+it. If no, explain why, and add or remove a single column from the
+*right-hand* matrix to make it defined.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The left matrix is $1 \times 3$. The right matrix is $2 \times 2$.
+Inner dimensions: $3$ vs $2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Not defined.** For $AB$ we need $\text{cols}(A) = \text{rows}(B)$, but
+here $3 \ne 2$. To fix it, the right matrix needs $3$ rows. (Adding a
+*row* to the right matrix changes its row-count from $2$ to $3$ — that
+is the minimal repair.) For example, with $\begin{pmatrix} 4 & 5 \\ 6 &
+7 \\ 8 & 9 \end{pmatrix}$, the product is $\begin{pmatrix} 1\cdot4 +
+2\cdot6 + 3\cdot8 & 1\cdot5 + 2\cdot7 + 3\cdot9 \end{pmatrix} =
+\begin{pmatrix} 40 & 46 \end{pmatrix}$, of order $1 \times 2$.
+</details>
+
 ### Practice — Stretch
 
 **S1.** If $A = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta &
@@ -435,6 +508,14 @@ If you remember nothing else from this lesson, remember these:
 3. **"You can multiply any two matrices."** Only when the inner
    dimensions match: $m\times p$ times $p\times n$. Otherwise the
    product is undefined.
+4. **"$AB = O$ implies $A = O$ or $B = O$."** False. Matrix algebra has
+   *zero divisors*: two non-zero matrices can multiply to the zero
+   matrix (see Discover Problem 7). The same failure means
+   "cancellation" breaks: $AB = AC$ does **not** imply $B = C$, even
+   when $A \ne O$.
+5. **"$(A + B)^2 = A^2 + 2AB + B^2$."** Wrong unless $AB = BA$. The
+   correct expansion is $(A+B)^2 = A^2 + AB + BA + B^2$. Likewise
+   $(A-B)(A+B) = A^2 + AB - BA - B^2$, not $A^2 - B^2$.
 :::
 
 ### Self-Assessment

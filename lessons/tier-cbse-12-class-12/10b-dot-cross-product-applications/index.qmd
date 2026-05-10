@@ -109,6 +109,52 @@ above.
 $|\vec a \times \vec b| = \sqrt{83}$. Area = $\sqrt{83}$.
 </details>
 
+### Problem 6 — perpendicularity test
+
+For what value of $\lambda$ are $\vec a = 2\hat\imath + \lambda
+\hat\jmath - 3\hat k$ and $\vec b = 3\hat\imath + \hat\jmath + 2\hat k$
+perpendicular?
+
+<details class="hint"><summary>Hint 1 — the technique</summary>
+Two non-zero vectors are perpendicular exactly when their dot product is
+zero. Set $\vec a \cdot \vec b = 0$ and solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\vec a \cdot \vec b = 6 + \lambda - 6 = \lambda$. So
+$\lambda = 0$. (When $\lambda = 0$, $\vec a = (2, 0, -3)$ which lies in
+the $xz$-plane while $\vec b$ leans into the $y$-direction; they meet
+at a right angle.)
+</details>
+
+### Problem 7 — volume from three vectors
+
+Three edges of a parallelepiped meet at a corner: $\vec a = \hat\imath$,
+$\vec b = \hat\jmath$, $\vec c = \hat k$. Compute $\vec a \cdot (\vec b
+\times \vec c)$ and interpret the answer geometrically. Then redo with
+$\vec a = \hat\imath$, $\vec b = \hat\imath + \hat\jmath$, $\vec c =
+\hat\imath + \hat\jmath + \hat k$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\vec b \times \vec c$ is a vector. Then dot it with $\vec a$ to get a
+scalar. The unit-cube case should give a clue what that scalar measures.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Unit cube.** $\hat\jmath \times \hat k = \hat\imath$, so $\hat\imath
+\cdot \hat\imath = 1$. The unit cube has volume $1$ — the scalar
+matches.
+**Slanted box.** $\vec b \times \vec c = (\hat\imath + \hat\jmath)
+\times (\hat\imath + \hat\jmath + \hat k) = \hat\imath \times \hat k +
+\hat\jmath \times \hat\imath + \hat\jmath \times \hat k = -\hat\jmath -
+\hat k + \hat\imath = (1, -1, -1)$.
+$\vec a \cdot (\vec b \times \vec c) = 1 \cdot 1 = 1$.
+Same volume — even though the box is sheared, no edge has stretched in
+its own height direction.
+**Geometric meaning.** $\vec a \cdot (\vec b \times \vec c)$ is the
+*signed volume* of the parallelepiped spanned by $\vec a, \vec b, \vec
+c$. It is called the **scalar triple product**, written $[\vec a\ \vec
+b\ \vec c]$.
+</details>
+
 ::: {.fun-fact}
 **Hamilton scratches the quaternion rule onto Brougham Bridge (1843).**
 For ten years William Rowan Hamilton tried to extend complex numbers
@@ -161,14 +207,37 @@ $|\vec a \times \vec b| = |\vec a||\vec b|\sin\theta$.
 
 **Applications.**
 
-- **Projection of $\vec a$ on $\vec b$:** $\dfrac{\vec a \cdot \vec b}{
-  |\vec b|}$.
+- **Scalar projection of $\vec a$ on $\vec b$:** $\dfrac{\vec a \cdot
+  \vec b}{|\vec b|}$ — a signed length along $\vec b$'s direction.
+- **Vector projection of $\vec a$ on $\vec b$:**
+  $\left(\dfrac{\vec a \cdot \vec b}{|\vec b|^2}\right)\vec b$ — the
+  shadow itself, as a vector along $\vec b$.
 - **Angle between vectors:** $\cos\theta = \dfrac{\vec a \cdot \vec b}{
   |\vec a||\vec b|}$.
 - **Area of parallelogram** with adjacent sides $\vec a, \vec b$:
   $|\vec a \times \vec b|$.
 - **Area of triangle** with sides $\vec a, \vec b$ at one vertex:
   $\frac{1}{2}|\vec a \times \vec b|$.
+
+**Scalar triple product.**
+$$[\vec a\ \vec b\ \vec c] := \vec a \cdot (\vec b \times \vec c).$$
+Geometrically, $|[\vec a\ \vec b\ \vec c]|$ is the volume of the
+parallelepiped spanned by $\vec a, \vec b, \vec c$. The sign is positive
+when $(\vec a, \vec b, \vec c)$ form a right-handed triple, negative
+otherwise. **Coplanarity test:** three non-zero vectors are coplanar iff
+$[\vec a\ \vec b\ \vec c] = 0$ — the parallelepiped is flat, so its
+volume vanishes.
+
+**Standard basis products** (worth memorising).
+
+| Dot | Cross |
+|---|---|
+| $\hat\imath\cdot\hat\imath = \hat\jmath\cdot\hat\jmath = \hat k\cdot\hat k = 1$ | $\hat\imath\times\hat\jmath = \hat k,\ \hat\jmath\times\hat k = \hat\imath,\ \hat k\times\hat\imath = \hat\jmath$ |
+| $\hat\imath\cdot\hat\jmath = \hat\jmath\cdot\hat k = \hat k\cdot\hat\imath = 0$ | $\hat\imath\times\hat\imath = \hat\jmath\times\hat\jmath = \hat k\times\hat k = \vec 0$ |
+
+Cross-product mnemonic: cycle $\hat\imath \to \hat\jmath \to \hat k \to
+\hat\imath$. Going **with** the cycle gives the next basis vector;
+going **against** the cycle adds a minus sign.
 
 :::
 
@@ -221,12 +290,21 @@ $\begin{vmatrix} \hat\imath & \hat\jmath & \hat k \\ 1 & 1 & 0 \\ 1 & -1
 
 ### Practice — Working
 
-**P1.** Find the projection of $\vec a = 2\hat\imath + 3\hat\jmath +
-2\hat k$ on $\vec b = \hat\imath + 2\hat\jmath + \hat k$.
+**P1.** Find both the scalar projection and the vector projection of
+$\vec a = 2\hat\imath + 3\hat\jmath + 2\hat k$ on $\vec b = \hat\imath +
+2\hat\jmath + \hat k$.
 
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Scalar projection is $(\vec a \cdot \vec b)/|\vec b|$. Vector projection
+puts that shadow back along $\vec b$ — divide by $|\vec b|^2$ instead of
+$|\vec b|$, then multiply by $\vec b$.
+</details>
 <details class="hint"><summary>Full solution</summary>
-$\vec a \cdot \vec b = 2 + 6 + 2 = 10$. $|\vec b| = \sqrt 6$.
-Projection $= 10/\sqrt 6$.
+$\vec a \cdot \vec b = 2 + 6 + 2 = 10$. $|\vec b|^2 = 6$, so $|\vec b| =
+\sqrt 6$.
+**Scalar projection** $= 10/\sqrt 6$.
+**Vector projection** $= (10/6)\,\vec b = (5/3)(\hat\imath +
+2\hat\jmath + \hat k)$.
 </details>
 
 **P2.** Area of triangle with vertices $A(1, 1, 1), B(2, 3, 5), C(0, 1,
@@ -301,13 +379,24 @@ $\vec a \times \vec b = (1, -1, 1)$, magnitude $\sqrt 3$. Required
 vector: $5/\sqrt 3 \cdot (1, -1, 1)$.
 </details>
 
-**3-mark.** Show that $\vec a, \vec b, \vec c$ are coplanar iff
-$[\vec a\ \vec b\ \vec c] = \vec a \cdot (\vec b \times \vec c) = 0$
-(scalar triple product).
+**3-mark.** Show that $\vec a = \hat\imath + 2\hat\jmath$, $\vec b =
+-\hat\imath + 3\hat\jmath + \hat k$, $\vec c = 5\hat\jmath + \hat k$
+are coplanar.
 
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Coplanarity test: $[\vec a\ \vec b\ \vec c] = 0$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+The scalar triple product is the determinant of the $3\times3$ matrix
+whose rows are the components of $\vec a, \vec b, \vec c$.
+</details>
 <details class="hint"><summary>Full solution</summary>
-Coplanar means the parallelepiped they span has zero volume. Volume $=
-|\vec a \cdot (\vec b \times \vec c)|$. Zero iff coplanar. ✓
+$$[\vec a\ \vec b\ \vec c] = \begin{vmatrix} 1 & 2 & 0 \\ -1 & 3 & 1 \\
+0 & 5 & 1 \end{vmatrix}.$$
+Expanding along row 1: $1(3 - 5) - 2(-1 - 0) + 0 = -2 + 2 = 0$. ✓
+Notice $\vec c = \vec a + \vec b$ — that's *why* the triple is zero;
+$\vec c$ is already a combination of $\vec a$ and $\vec b$, so it lies
+in their plane.
 </details>
 
 **3-mark.** Find the area of the parallelogram with diagonals $\vec d_1
@@ -372,7 +461,16 @@ identity); CBSE 2022 Q26.
 2. **"$|\vec a \times \vec b|$ = area of triangle."** It's the area of
    the parallelogram. Triangle is **half** of that.
 3. **"Cross product is commutative."** Anticommutative: $\vec a \times
-   \vec b = -\vec b \times \vec a$.
+   \vec b = -\vec b \times \vec a$. The order matters; swapping flips
+   the sign of every component.
+4. **"$\vec a \cdot \vec b = 0$ means $\vec a = \vec 0$ or $\vec b =
+   \vec 0$."** No. It also vanishes when $\vec a \perp \vec b$. Same
+   trap with cross: $\vec a \times \vec b = \vec 0$ does not force
+   either vector to be zero — they could simply be parallel.
+5. **"Mixing $\sin$ and $\cos$."** Dot uses *cosine*, cross uses *sine*.
+   Both formulas have the same $|\vec a||\vec b|$ in front, so the
+   sin/cos is the only thing distinguishing them at a glance — get it
+   wrong and the answer is silently wrong.
 :::
 
 ### Takeaways

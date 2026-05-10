@@ -111,6 +111,26 @@ $\frac{dy}{dx} = \dfrac{dy/dt}{dx/dt}$.
 $\frac{dx}{dt} = -a\sin t,\ \frac{dy}{dt} = a\cos t$. Ratio: $-\cot t$.
 </details>
 
+### Problem 6
+
+A three-deep composition: $y = \sin\!\bigl(\sqrt{1 + x^2}\bigr)$. Find
+$\dfrac{dy}{dx}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Outer = $\sin u$, middle = $\sqrt{v}$, inner = $1 + x^2$. Each layer
+contributes one factor.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Work outside-in: $\cos u \cdot \tfrac{1}{2\sqrt v}\cdot 2x$, then
+substitute $u = \sqrt{1+x^2},\ v = 1+x^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\dfrac{dy}{dx} = \cos\!\bigl(\sqrt{1+x^2}\bigr)\cdot
+\dfrac{1}{2\sqrt{1+x^2}}\cdot 2x =
+\dfrac{x\cos(\sqrt{1+x^2})}{\sqrt{1+x^2}}.$ One factor per layer is the
+heart of the chain rule.
+</details>
+
 ::: {.fun-fact}
 **Weierstrass's monster (1872).** Karl Weierstrass shocked the
 mathematical world by exhibiting a function $W(x) = \sum_{n=0}^\infty
@@ -145,7 +165,16 @@ out the rest.
 
 A function $f$ is **differentiable at $a$** iff
 $$\lim_{h \to 0} \frac{f(a + h) - f(a)}{h}$$
-exists. Differentiability $\Rightarrow$ continuity (not the reverse).
+exists *finitely*. Differentiability $\Rightarrow$ continuity (not the
+reverse).
+
+**Left- and right-hand derivatives.** $f$ is differentiable at $a$ iff
+both one-sided difference quotients exist and agree:
+$$\mathrm{LHD}(a) = \lim_{h \to 0^+}\frac{f(a-h)-f(a)}{-h}
+\quad =\quad \mathrm{RHD}(a) = \lim_{h\to 0^+}\frac{f(a+h)-f(a)}{h}.$$
+Three failure modes: corner ($\mathrm{LHD}\ne\mathrm{RHD}$, as in
+$|x|$ at $0$), vertical tangent (slope $\pm\infty$, as in $x^{1/3}$ at
+$0$), and discontinuity.
 
 **Standard derivatives** (memorise):
 
@@ -166,6 +195,13 @@ first.
 
 **Parametric differentiation.** If $x = f(t),\ y = g(t)$, then
 $\dfrac{dy}{dx} = \dfrac{dy/dt}{dx/dt}$.
+
+**[Second-order derivative](/glossary.qmd#second-derivative).** Apply
+$\tfrac{d}{dx}$ a second time: $\dfrac{d^2y}{dx^2} = \dfrac{d}{dx}\!\left(
+\dfrac{dy}{dx}\right)$. For parametric forms, remember the trap:
+$\dfrac{d^2y}{dx^2} = \dfrac{d}{dt}\!\left(\dfrac{dy}{dx}\right) \cdot
+\dfrac{1}{dx/dt}$ — the inner $\dfrac{dy}{dx}$ is a function of $t$,
+so you must convert with $1/(dx/dt)$, not just differentiate w.r.t. $t$.
 
 :::
 
@@ -188,6 +224,24 @@ A competent solver:
 2. $\frac{dy}{du} = \frac{1}{2\sqrt{u}}$. $\frac{du}{dx} = 1/x$.
 3. $\frac{dy}{dx} = \frac{1}{2\sqrt{1 + \log x}} \cdot \frac{1}{x}$.
 4. At $x = 1$: $\log 1 = 0$, so $= \frac{1}{2 \cdot 1 \cdot 1} = 1/2$.
+
+### Worked example — log differentiation tames a quotient
+
+> Find $\dfrac{dy}{dx}$ if $y = \dfrac{(x-1)(x-2)}{(x-3)(x-4)(x-5)}$.
+
+Direct quotient/product rule would explode. Take $\log$ first:
+
+1. $\log y = \log(x-1) + \log(x-2) - \log(x-3) - \log(x-4) -
+   \log(x-5).$
+2. Differentiate term-by-term — every $\log(x-k)$ becomes $1/(x-k)$:
+   $$\frac{1}{y}\frac{dy}{dx} = \frac{1}{x-1}+\frac{1}{x-2}
+   -\frac{1}{x-3}-\frac{1}{x-4}-\frac{1}{x-5}.$$
+3. Multiply through by $y$ and write $y$ back:
+   $$\frac{dy}{dx} = \frac{(x-1)(x-2)}{(x-3)(x-4)(x-5)}\!\left[
+   \tfrac{1}{x-1}+\tfrac{1}{x-2}-\tfrac{1}{x-3}-\tfrac{1}{x-4}-\tfrac{1}{x-5}\right].$$
+
+Five linear terms instead of a quotient-rule monster. This is the
+canonical use-case the NCERT chapter calls out.
 
 ### Practice — Warm
 
@@ -235,6 +289,22 @@ half-angle).
 <details class="hint"><summary>Full solution</summary>
 $y' = e^{x \cos x}(\cos x - x \sin x)$ (chain rule, with product rule
 inside).
+</details>
+
+**P4.** Second derivative. If $y = e^x \sin 5x$, find $\dfrac{d^2y}{dx^2}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $y'$ first using the product rule + chain rule, *then*
+differentiate $y'$ a second time.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$y' = e^x(\sin 5x + 5\cos 5x)$. Now apply the product rule to this
+expression.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$y' = e^x \sin 5x + 5e^x \cos 5x = e^x(\sin 5x + 5\cos 5x)$.
+$y'' = e^x(\sin 5x + 5\cos 5x) + e^x(5\cos 5x - 25\sin 5x)
+     = e^x(10\cos 5x - 24\sin 5x) = 2e^x(5\cos 5x - 12\sin 5x).$
 </details>
 
 ### Practice — Stretch
@@ -358,6 +428,17 @@ CBSE 2022 Q34 (5-mark proof).
    compositions, product for products.
 3. **"Implicit differentiation only works for circles."** Works for any
    relation $F(x,y) = 0$ where $y$ is locally a function of $x$.
+4. **"$a^x$ and $x^a$ have the same derivative shape."** They do not.
+   $(x^n)' = n x^{n-1}$ — variable in the *base*. $(a^x)' = a^x\log a$ —
+   variable in the *exponent*. Mix them up and you get marks deducted in
+   under three seconds.
+5. **"Forgot the implicit $\dfrac{dy}{dx}$."** Every $y$ that you
+   differentiate with respect to $x$ produces a $\dfrac{dy}{dx}$ factor;
+   missing one is the most common board-paper slip.
+6. **"Took $\log$ of a possibly-negative quantity."** $\log y$ is only
+   defined for $y > 0$. For log differentiation in general, use
+   $\log|y|$ and $\log|f(x)|$ — the answer is the same and the steps
+   are honest.
 :::
 
 ### Takeaways

@@ -144,6 +144,37 @@ Let $\theta = \sin^{-1}(x)$, so $\sin \theta = x$ and $\theta \in
 \in [-\pi/2, \pi/2]$. So $\sin^{-1}(-x) = -\theta = -\sin^{-1}(x)$. ✓
 </details>
 
+### Problem 6 — quick principal values
+
+Compute each, *naming the branch you land in*:
+$\sin^{-1}(-1/2)$, $\cos^{-1}(-\sqrt 3/2)$, $\tan^{-1}(-1)$,
+$\sec^{-1}(2)$, $\csc^{-1}(-2)$, $\cot^{-1}(0)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For each, ask: *"Which angle in this function's principal range has
+this trig value?"* Reach for the standard angles $\pi/6, \pi/4, \pi/3,
+\pi/2, 2\pi/3, 5\pi/6$.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Negative inputs: for $\sin^{-1}, \tan^{-1}, \csc^{-1}$ flip the sign;
+for $\cos^{-1}, \sec^{-1}, \cot^{-1}$ subtract from $\pi$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+
+| Expression | Branch | Reasoning | Value |
+|:--|:-:|:--|:-:|
+| $\sin^{-1}(-1/2)$ | $[-\pi/2, \pi/2]$ | $\sin(-\pi/6) = -1/2$ | $-\pi/6$ |
+| $\cos^{-1}(-\sqrt 3/2)$ | $[0, \pi]$ | $\pi - \cos^{-1}(\sqrt 3/2) = \pi - \pi/6$ | $5\pi/6$ |
+| $\tan^{-1}(-1)$ | $(-\pi/2, \pi/2)$ | $\tan(-\pi/4) = -1$ | $-\pi/4$ |
+| $\sec^{-1}(2)$ | $[0,\pi]\setminus\{\pi/2\}$ | $\sec(\pi/3) = 2$ | $\pi/3$ |
+| $\csc^{-1}(-2)$ | $[-\pi/2,\pi/2]\setminus\{0\}$ | $\csc(-\pi/6) = -2$ | $-\pi/6$ |
+| $\cot^{-1}(0)$ | $(0, \pi)$ | $\cot(\pi/2) = 0$ | $\pi/2$ |
+
+The single habit to internalise: every time you see $\sin^{-1}$,
+$\cos^{-1}$, $\tan^{-1}$, ask *which principal branch?* That one
+question stops the majority of errors students make in this chapter.
+</details>
+
 ::: {.key-insight}
 Sine isn't invertible — *infinitely* many angles share each value. We
 **chop the sine wave** down to one rising stretch, $[-\pi/2, \pi/2]$,
@@ -169,10 +200,43 @@ The **principal value branches** of the six inverse trig functions:
 | $\sec^{-1} x$ | $|x| \ge 1$ | $[0, \pi] \setminus \{\pi/2\}$ |
 | $\csc^{-1} x$ | $|x| \ge 1$ | $[-\pi/2, \pi/2] \setminus \{0\}$ |
 
-Two key identities (derive from complementarity):
+**Complementary ($\pi/2$) identities.** The single most-used trio:
 
-$$\sin^{-1} x + \cos^{-1} x = \frac{\pi}{2}, \qquad \tan^{-1} x +
-\cot^{-1} x = \frac{\pi}{2}.$$
+$$\sin^{-1} x + \cos^{-1} x = \tfrac{\pi}{2}, \quad \tan^{-1} x +
+\cot^{-1} x = \tfrac{\pi}{2}, \quad \sec^{-1} x + \csc^{-1} x =
+\tfrac{\pi}{2}.$$
+
+**Negative-input rules.** Symmetric branches behave like odd functions;
+$0$-anchored branches reflect through $\pi$:
+
+$$\sin^{-1}(-x) = -\sin^{-1} x, \quad \tan^{-1}(-x) = -\tan^{-1} x,
+\quad \csc^{-1}(-x) = -\csc^{-1} x.$$
+
+$$\cos^{-1}(-x) = \pi - \cos^{-1} x, \quad \sec^{-1}(-x) = \pi -
+\sec^{-1} x, \quad \cot^{-1}(-x) = \pi - \cot^{-1} x.$$
+
+**Reciprocal identities** (in the right domain):
+
+$$\sin^{-1}\!\tfrac{1}{x} = \csc^{-1} x, \quad \cos^{-1}\!\tfrac{1}{x}
+= \sec^{-1} x \quad (|x| \ge 1); \qquad \tan^{-1}\!\tfrac{1}{x} =
+\cot^{-1} x \quad (x > 0).$$
+
+**Sum / difference of $\tan^{-1}$** (when $xy < 1$, resp. $xy > -1$):
+
+$$\tan^{-1} x + \tan^{-1} y = \tan^{-1}\!\frac{x+y}{1-xy}, \qquad
+\tan^{-1} x - \tan^{-1} y = \tan^{-1}\!\frac{x-y}{1+xy}.$$
+
+If $xy > 1$ with $x,y > 0$, add $\pi$; if $xy > 1$ with $x,y < 0$,
+subtract $\pi$ — the formula's bare form lands outside the principal
+branch and needs that correction.
+
+**Double-argument identities** (for $x$ in the stated range):
+
+$$2 \tan^{-1} x = \begin{cases}
+\sin^{-1}\!\dfrac{2x}{1+x^2} & |x| \le 1, \\[4pt]
+\cos^{-1}\!\dfrac{1-x^2}{1+x^2} & x \ge 0, \\[4pt]
+\tan^{-1}\!\dfrac{2x}{1-x^2} & |x| < 1.
+\end{cases}$$
 
 :::
 
@@ -258,6 +322,41 @@ Let $\alpha = \sin^{-1}(3/5)$, so $\sin\alpha = 3/5,\ \cos\alpha = 4/5$.
 Let $\beta = \cos^{-1}(4/5)$, so $\cos\beta = 4/5,\ \sin\beta = 3/5$.
 $\cos(\alpha+\beta) = \cos\alpha\cos\beta - \sin\alpha\sin\beta = (4/5)
 (4/5) - (3/5)(3/5) = 16/25 - 9/25 = 7/25$.
+</details>
+
+**P4.** Evaluate $\tan^{-1}\!\big(2 \cos\big(2 \sin^{-1}(1/2)\big)\big)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Always work *inside-out*. Reduce the innermost inverse-trig term first.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\sin^{-1}(1/2) = \pi/6$. Now you have $\tan^{-1}(2\cos(2 \cdot \pi/6))$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\sin^{-1}(1/2) = \pi/6$, so $2\sin^{-1}(1/2) = \pi/3$. Then
+$\cos(\pi/3) = 1/2$, and $2 \cdot 1/2 = 1$. Finally $\tan^{-1}(1) =
+\pi/4$.
+</details>
+
+**P5.** Simplify
+$\tan\!\Big(\tfrac12\big[\sin^{-1}\!\dfrac{2x}{1+x^2}
++ \cos^{-1}\!\dfrac{1-y^2}{1+y^2}\big]\Big)$ for $|x|, |y| \le 1$ with
+$xy < 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each bracketed term is a *double-argument* identity in disguise.
+Recognise them.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\sin^{-1}\!\frac{2x}{1+x^2} = 2\tan^{-1} x$ for $|x|\le 1$;
+$\cos^{-1}\!\frac{1-y^2}{1+y^2} = 2\tan^{-1} y$ for $y \ge 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The bracket is $2\tan^{-1} x + 2\tan^{-1} y = 2(\tan^{-1} x +
+\tan^{-1} y)$. Multiplying by $\tfrac12$ gives $\tan^{-1} x +
+\tan^{-1} y$. Taking $\tan$ (and using $xy < 1$):
+
+$$\tan(\tan^{-1} x + \tan^{-1} y) = \frac{x + y}{1 - xy}.$$
 </details>
 
 ### Practice — Stretch
@@ -414,6 +513,12 @@ If you remember nothing else from this lesson, remember these:
    \tan^{-1}\frac{x+y}{1-xy}$ always."** Only when $xy < 1$. Otherwise
    the sum jumps out of $(-\pi/2, \pi/2)$ and you need a $\pm \pi$
    correction.
+4. **Wrong-quadrant principal value.** $\cos^{-1}(-1/2) = 2\pi/3$, not
+   $-\pi/3$ — the principal branch of $\cos^{-1}$ is $[0, \pi]$, no
+   negatives. Likewise $\sin^{-1}(\sqrt 3/2) = \pi/3$, not $2\pi/3$.
+   Pick the branch *first*, then read off the angle.
+5. **Treating $\sec^{-1}, \csc^{-1}$ like the others.** Their domain
+   is $|x| \ge 1$ only — $\sec^{-1}(1/2)$ does not exist.
 :::
 
 ### Self-Assessment

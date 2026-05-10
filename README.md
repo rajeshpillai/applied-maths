@@ -38,8 +38,7 @@ Begin at [01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-numbe
 to a Tier 7 capstone such as [15 · The Langlands Program](lessons/tier-7-masters-tracks/15-langlands-program/index.qmd).
 
 The full dependency graph is in [`_curriculum.yml`](_curriculum.yml).
-See [`CLAUDE.md`](CLAUDE.md) for the authoring contract used to build
-every lesson.
+See the [authoring contract](CLAUDE.md) used to build every lesson.
 
 ### CBSE / NCERT track (Class 8 – Class 12)
 
@@ -179,13 +178,13 @@ executable code blocks in those languages.
 
 ## Contributing a lesson
 
-Read [`CLAUDE.md`](CLAUDE.md) end to end. Then:
+Read the [authoring contract](CLAUDE.md) end to end. Then:
 
 1. Add a new lesson entry to [`_curriculum.yml`](_curriculum.yml).
 2. Create `lessons/tier-N-{slug}/{NN}-{title-slug}/index.qmd`.
 3. Author the lesson against the six-beat template and the Self-Study
    Guarantees.
-4. Tick every box on the "Done" checklist in `CLAUDE.md` before opening a PR.
+4. Tick every box on the contract's "Done" checklist before opening a PR.
 
 ## Influences
 

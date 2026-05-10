@@ -125,6 +125,32 @@ $f(1)$ is undefined. As $x \to 1^-$, $f \to -\infty$. As $x \to 1^+$,
 $f \to +\infty$. **Infinite discontinuity** (vertical asymptote).
 </details>
 
+### Problem 6 — the $h \to 0$ trick
+
+This is the workhorse of every NCERT continuity question. For a
+piecewise function, the cleanest way to compute one-sided limits is to
+substitute and let $h \to 0^+$:
+
+$$\text{LHL at }a:\ \lim_{h\to 0^+} f(a - h), \qquad
+\text{RHL at }a:\ \lim_{h\to 0^+} f(a + h).$$
+
+Apply it. Test continuity of $f(x) = \begin{cases} -2 & x \le -1 \\ 2x &
+x > -1 \end{cases}$ at $x = -1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$x = -1 - h$ falls into which piece? $x = -1 + h$?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+For LHL, $-1 - h \le -1$ is always true, so use the first piece. For
+RHL, $-1 + h > -1$, so use the second piece.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$f(-1) = -2$ (use first piece, $x \le -1$).
+LHL: $f(-1 - h) = -2 \to -2$.
+RHL: $f(-1 + h) = 2(-1 + h) = -2 + 2h \to -2$.
+All three equal $-2$. **Continuous** at $x = -1$. ✓
+</details>
+
 ::: {.fun-fact}
 **Bolzano's 1817 manifesto for rigour.** Bernard Bolzano, a Bohemian
 priest-mathematician working in obscurity, published *Rein
@@ -254,6 +280,29 @@ By squeeze: $-|x| \le x\sin(1/x) \le |x|$. Both bounds $\to 0$ as $x\to0$.
 So $\lim = 0 = f(0)$. ✓
 </details>
 
+**P4 — the trap.** Find $\lambda$ so that
+$f(x) = \begin{cases} \lambda(x^2 - 2x) & x \le 0 \\ 4x + 1 & x > 0
+\end{cases}$ is continuous at $x = 0$. (Be careful — the answer may be
+"no such $\lambda$".)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute LHL and RHL using the $h \to 0$ substitution. Does $\lambda$
+appear in both?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+LHL uses the first piece. Plug in $x = 0 - h$ and simplify before you
+let $h \to 0$. Does the $\lambda$ survive the limit?
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHL: $f(0 - h) = \lambda((-h)^2 - 2(-h)) = \lambda(h^2 + 2h) \to 0$ as
+$h \to 0$. The $\lambda$ multiplies a quantity that vanishes — so the
+LHL is $0$ regardless of $\lambda$.
+RHL: $f(0 + h) = 4h + 1 \to 1$.
+For continuity, $0 = 1$. **Contradiction. No value of $\lambda$ works.**
+The point of the problem is to learn to *say so* rather than fudge an
+answer.
+</details>
+
 ### Practice — Stretch
 
 **S1.** Discuss continuity of $f(x) = \lfloor x \rfloor$ (greatest
@@ -264,6 +313,27 @@ At any non-integer $a$, $f$ is constant on a small neighbourhood —
 continuous. At an integer $n$: LHS limit $= n - 1$ (from below) but
 $f(n) = n$ — jump. **Discontinuous at every integer; continuous
 elsewhere.**
+</details>
+
+**S2 — the root-finder.** Show that $p(x) = x^3 - 4x + 1$ has at least
+one real root in the interval $(0, 1)$. (You do not have to find it.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Polynomials are continuous everywhere. So you have a continuous
+function on $[0, 1]$. What does that buy you?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Compute $p(0)$ and $p(1)$. If they have opposite signs, the
+[Intermediate Value Theorem](/glossary.qmd#intermediate-value-theorem)
+forces a zero between them.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$p(0) = 1 > 0$. $p(1) = 1 - 4 + 1 = -2 < 0$. Since $p$ is a polynomial
+it is continuous on $[0, 1]$. The IVT says: a continuous function
+takes every value between $p(0) = 1$ and $p(1) = -2$ — including $0$.
+So there exists $c \in (0, 1)$ with $p(c) = 0$. ✓
+This is exactly how the *bisection* root-finder works numerically:
+keep halving the interval that contains a sign change.
 </details>
 
 ### Board-Pattern Practice
@@ -376,6 +446,18 @@ CBSE 2022 Q15.
    $f(a)$.
 3. **"Discontinuity means $f$ is undefined."** Not necessarily. $f$ can
    be defined at $a$ but still discontinuous (Curve B, Curve C above).
+4. **"$1/x$ is discontinuous at $0$."** Trick wording. $0$ is not in
+   the domain of $1/x$, so continuity is not even a question there. On
+   its actual domain $\mathbb{R} \setminus \{0\}$, $1/x$ is continuous
+   everywhere.
+5. **"$\tan x$ is continuous everywhere."** No — $\tan x$ has infinite
+   discontinuities at every odd multiple of $\pi/2$. Same caution for
+   $\sec x$, $\cot x$, $\operatorname{cosec} x$. They are continuous on
+   their domains, but their domains have holes.
+6. **"A removable discontinuity is fine, the function is continuous."**
+   Removable still counts as a discontinuity. The function *as given*
+   is not continuous; it can be repaired by redefining $f(a)$, but
+   until you redefine it, the curve has a hole.
 :::
 
 ### Takeaways
@@ -435,6 +517,22 @@ optimiser tolerates.
 **Research / engineering.** Physical laws are usually modelled by
 continuous functions; jumps signal a phase transition or impact event.
 Numerical integrators must detect and handle these.
+:::
+
+::: {.fun-fact}
+**Bolzano's theorem became the bisection algorithm.** The
+[Intermediate Value Theorem](/glossary.qmd#intermediate-value-theorem)
+— that a continuous function on $[a, b]$ taking opposite signs at the
+endpoints must cross zero somewhere in between — was proved rigorously
+by Bolzano in the same 1817 paper as his definition of continuity. A
+century and a half later, when computers needed to solve equations
+they could not solve symbolically, that theorem became a recipe: check
+the sign at the midpoint, throw away the half that does not change
+sign, repeat. Every numerical root-finder in modern engineering
+software — from MATLAB's `fzero` to SciPy's `brentq` — descends from
+this single idea. Continuity is not just a textbook nicety; it is the
+property that lets a machine search for an answer it cannot compute
+directly.
 :::
 
 ---
