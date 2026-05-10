@@ -31,7 +31,8 @@ But notice: the inner thing $x^2$ has derivative $2x$, sitting right in
 the integrand. Substitute $u = x^2,\ du = 2x \, dx$:
 $$\int \cos u \, du = \sin u + C = \sin(x^2) + C.$$
 
-That's **substitution** — chain rule run in reverse.
+That's [**u-substitution**](/glossary.qmd#u-substitution) — chain
+rule run in reverse.
 
 Now meet $\int x e^x \, dx$. Substitution doesn't help. But the
 **product rule** says $\frac{d}{dx}(xe^x) = e^x + xe^x$, so $xe^x =
@@ -123,6 +124,35 @@ $1 = A(x+2) + B(x-1)$. Set $x = 1$: $1 = 3A \Rightarrow A = 1/3$. Set $x
 $\int \frac{dx}{(x-1)(x+2)} = \frac{1}{3}\log|x-1| - \frac{1}{3}
 \log|x+2| + C = \frac{1}{3}\log\left|\frac{x-1}{x+2}\right| + C$.
 </details>
+
+::: {.fun-fact}
+**Substitution is just the chain rule, told backwards.** Leibniz's
+notation $\dfrac{dy}{dx}$ — the symbol Newton's $\dot x$ never quite
+defeated — wins decisively here. Write the chain rule as
+$\dfrac{dy}{du} \cdot \dfrac{du}{dx} = \dfrac{dy}{dx}$ and the
+"$du$" *cancels* like a fraction (it isn't, but it behaves like one).
+That cancellation is exactly what the [u-substitution](/glossary.qmd#u-substitution)
+formula $\int f(g(x))\,g'(x)\,dx = \int f(u)\,du$ encodes: replace
+$g(x)$ with $u$, replace $g'(x)\,dx$ with $du$, and you're done. The
+17th-century priority war between Newton and Leibniz turned on more
+than ego — Leibniz's symbols built in the chain-rule cancellation
+that makes substitution feel automatic, while Newton's notation made
+you *remember* the rule each time. Three centuries later, every
+substitution problem you do is a small vote for Leibniz.
+:::
+
+::: {.key-insight}
+**Three techniques, three reverse rules.** Substitution is the
+[**chain rule**](/glossary.qmd#chain-rule) reversed — find $g(x)$
+whose derivative sits in the integrand.
+[**Integration by parts**](/glossary.qmd#integration-by-parts) is the
+[**product rule**](/glossary.qmd#product-rule) reversed — and
+[**ILATE**](/glossary.qmd#ilate-rule) only tells you which factor
+should become $u$. Partial fractions is fraction-addition reversed —
+split a hard rational integrand into a sum of easy ones. Once you
+spot which forward rule the integrand "remembers," the reverse
+technique is the only one that fits.
+:::
 
 ## Name
 
@@ -340,6 +370,20 @@ fractions); CBSE 2022 Q22.
 3. **"Partial fractions on $\frac{x^3}{x^2 + 1}$."** Improper —
    long-divide first.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Look for the inner function before anything else.** If $g'(x)$
+   sits in the integrand, [u-substitution](/glossary.qmd#u-substitution)
+   collapses the problem in one move.
+2. **Products go to by-parts; ILATE picks $u$.** Inverse-trig,
+   logarithm, algebraic, trig, exponential — earlier in the list
+   becomes $u$ so $du$ gets simpler each round.
+3. **Rational integrand? Make it proper, then split.** Long-divide
+   if degree(top) $\ge$ degree(bottom), then partial-fraction the
+   leftover proper piece into a sum of one-line integrals.
 
 ### Self-Assessment
 

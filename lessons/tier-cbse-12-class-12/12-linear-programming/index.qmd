@@ -112,6 +112,34 @@ Evaluate: $Z(0, 0) = 0$. **Min 0 at $(0, 0)$.** (Trivial when origin is
 in feasible region and objective is non-negative.)
 </details>
 
+::: {.fun-fact}
+**Kantorovich's plywood factory (1939) — the birth of LP.** A young
+Soviet mathematician, Leonid Kantorovich, was asked to schedule
+machines at a Leningrad plywood plant. He realised the problem was
+neither calculus nor combinatorics — it was a brand-new beast of
+*linear constraints* and a *linear objective*. He wrote up his method
+in a 1939 booklet that almost no one outside the USSR could read.
+Independently, in 1947 the American George Dantzig invented the
+**simplex algorithm** for US Air Force planning problems, and Tjalling
+Koopmans framed economic activity in the same language. Kantorovich
+and Koopmans shared the **1975 Nobel Prize in Economics**; Dantzig
+never received one (the Nobel committee does not award posthumously
+or for software, depending on whom you ask). When you walk a
+[feasible region](/glossary.qmd#feasible-region) vertex by vertex
+in *Apply*, you are running Dantzig's simplex by hand.
+:::
+
+::: {.key-insight}
+**The optimum of a linear function over a polygon always sits on a
+corner.** A linear $Z = ax + by$ has parallel level lines; sliding
+those lines across a [feasible region](/glossary.qmd#feasible-region)
+bounded by [linear inequalities](/glossary.qmd#linear-inequality), the
+last point of contact is a vertex (or a whole edge in the tie case).
+That single fact is why "sketch, list vertices, evaluate $Z$" is the
+entire CBSE method — and why the simplex algorithm only ever has to
+visit corners.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -386,6 +414,19 @@ Q34.
 3. **"Forgetting the non-negativity constraints."** $x, y \ge 0$ is
    almost always implicit in CBSE problems.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Translate words into constraints, then optimise.** Variables
+   first; one inequality per resource; non-negativity always.
+2. **Sketch, find vertices, evaluate.** A bounded feasible region
+   pins the optimum at one of finitely many corners — no calculus
+   required.
+3. **Unbounded regions need a sanity check.** If $Z$ improves
+   indefinitely along a direction inside the region, the problem has
+   no finite optimum.
 
 ### Self-Assessment
 

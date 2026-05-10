@@ -112,6 +112,30 @@ DR of $L_1: (2, 3, 4)$. DR of $L_2: (4, 6, 8) = 2(2, 3, 4)$.
 Proportional ⇒ parallel. ✓
 </details>
 
+::: {.fun-fact}
+**Plücker's coordinates (1830s) — six numbers for a line in 3D.** A
+[point](/glossary.qmd#point) in 3D needs three coordinates; you might
+guess a line needs six (a point on it plus a direction). Julius Plücker,
+working in Bonn around 1830, showed that those six numbers are not
+independent — they must satisfy one quadratic relation. So a line in 3D
+is really a five-parameter object, not six. This insight became the
+foundation of *line geometry* and now lives at the heart of computer
+graphics: every ray-tracing engine and every robot-arm controller uses
+descendants of Plücker's coordinates to detect when a line hits a
+surface. The vector form $\vec r = \vec a + \lambda \vec b$ you meet in
+this chapter is Plücker's idea, stripped down for school.
+:::
+
+::: {.key-insight}
+**A line in 3D is just a starting point and a direction — every other
+fact about lines is bookkeeping.** The vector form $\vec r = \vec a +
+\lambda \vec b$ says "stand at $\vec a$, walk $\lambda$ units along
+$\vec b$." Every formula in this chapter — angle between lines,
+distance from a point, shortest distance between skew lines — falls out
+of dotting or crossing the direction [vectors](/glossary.qmd#vector).
+The Cartesian form is the same idea written one coordinate at a time.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -353,6 +377,19 @@ CBSE 2022 Q24.
 3. **"Vector and Cartesian forms describe different lines."** Same
    line, different notations.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Point + direction = line.** Once you have $\vec a$ and $\vec b$,
+   every other quantity is one dot or one cross away.
+2. **Angle uses dot, distance uses cross.** Cosine of the angle between
+   lines is $|\vec b_1 \cdot \vec b_2|/(|\vec b_1||\vec b_2|)$;
+   distances always involve $\vec b_1 \times \vec b_2$.
+3. **Skew means neither parallel nor intersecting.** The shortest
+   distance lives along their common perpendicular — that's what the
+   triple-product formula computes.
 
 ### Self-Assessment
 

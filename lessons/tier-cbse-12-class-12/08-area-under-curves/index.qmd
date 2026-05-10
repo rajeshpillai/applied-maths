@@ -23,8 +23,9 @@ estimated-minutes: 50
 
 ## Touch
 
-The region under $y = x$ from $x = 0$ to $x = 4$ is a triangle. Area
-$= \frac{1}{2}\cdot 4\cdot 4 = 8$.
+The region under $y = x$ from $x = 0$ to $x = 4$ is a triangle. Its
+[**area**](/glossary.qmd#area) by elementary geometry is
+$\frac{1}{2}\cdot 4\cdot 4 = 8$.
 
 ::: {.lesson-beat}
 
@@ -104,6 +105,28 @@ Find the area of the region bounded by $y = x^2$ and $y = x$.
 Intersect: $x^2 = x \Rightarrow x = 0, 1$. On $[0,1]$, $x \ge x^2$.
 Area $= \int_0^1 (x - x^2) dx = 1/6$.
 </details>
+
+::: {.fun-fact}
+**Archimedes squares the parabola (~240 BCE).** Two thousand years
+before Newton, Archimedes proved in *Quadrature of the Parabola* that
+the area enclosed between a parabola and a chord is exactly $\tfrac{4}{3}$
+of the inscribed triangle's area. He used the *method of exhaustion*:
+fit a triangle, then fit smaller triangles into the leftover slivers,
+then smaller still — the total area is $T + T/4 + T/16 + \cdots$, a
+geometric series summing to $\tfrac{4}{3} T$. Run the same parabola
+through your $\int_a^b$ recipe today and the answer drops out in two
+lines. Archimedes had to *prove* his answer was right; you only have
+to apply the Fundamental Theorem.
+:::
+
+::: {.key-insight}
+**A region is a tower of strips.** Every "area between curves" problem
+reduces to one rule: at each $x$, the region's height is
+$(\text{upper}) - (\text{lower})$; integrate the height. The whole
+chapter is bookkeeping — *which* curve is upper on *which* sub-interval,
+and *where* they cross. Sketch first, integrate second; never the other
+way around.
+:::
 
 ## Name
 
@@ -316,6 +339,18 @@ curves); CBSE 2022 Q33.
 3. **"Sketching is optional."** It is not. Without a sketch, you cannot
    know which curve is upper.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Area = integral of (upper − lower).** With a sketch in hand, every
+   problem becomes a single definite integral.
+2. **Find the intersections first; they are your limits.** Solve
+   $f(x) = g(x)$ before you integrate — those roots set $a$ and $b$.
+3. **Switch axes when it's easier.** If a curve is naturally $x = F(y)$
+   (sideways parabolas, lying ellipses), integrate w.r.t. $y$ instead;
+   you'll save a square root.
 
 ### Self-Assessment
 

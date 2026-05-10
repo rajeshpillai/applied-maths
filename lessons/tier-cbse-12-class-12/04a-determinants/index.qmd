@@ -133,6 +133,30 @@ Without computing all three, decide which is zero and why:
 You've now expanded along rows, used triangular structure, and seen
 that a zero row or a repeated row kills the determinant.
 
+::: {.fun-fact}
+The schoolbook trick for $3\times3$ determinants — write the matrix,
+copy the first two columns to the right, and add the three "diagonals
+down" while subtracting the three "diagonals up" — is **Sarrus's rule**,
+published by **Pierre Frédéric Sarrus** in 1833. Sarrus was a quiet
+provincial professor in Strasbourg, and his rule worked only for $3
+\times 3$ matrices, but it gave generations of students a memorable
+mnemonic for a calculation that otherwise looks like book-keeping.
+The deeper formula — cofactor expansion — was already known to **Vandermonde**
+(1771) and **Laplace** (1772), and is what NCERT teaches because it
+generalises to every size. Sarrus's rule is the picture; cofactor
+expansion is the proof.
+:::
+
+::: {.key-insight}
+A $2 \times 2$ determinant is the **signed area** of a parallelogram;
+a $3 \times 3$ determinant is the **signed volume** of a parallelepiped.
+Every property in *Name* — sign flip on row swap, scaling by $k$ when a
+row is scaled, vanishing on equal rows — is a *geometric* fact in
+disguise. Two parallel rows give a flat (degenerate) parallelogram with
+zero area; that is *exactly* what "linearly dependent rows" means
+algebraically. The determinant is geometry written as arithmetic.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -376,6 +400,14 @@ area; one factor of 4 from $x$, one from $y$). New area $= 14\cdot16 =
 **Previous-year pointer:** CBSE 2023 Set 3 Q26 (similar to 5-mark);
 CBSE 2022 Q2 (similar to MCQ #2).
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **The determinant of a square [matrix](/glossary.qmd#matrix) is one number that captures whether its rows (or columns) are linearly independent** — non-zero means they span full dimension; zero means they collapse onto each other.
+2. **Cofactor expansion lets you expand along any row or column**; pick the one with the most zeros to do the least work.
+3. **Row operations are the determinant's friends**: adding a multiple of one row to another leaves $|A|$ unchanged, swapping rows flips its sign, and scaling a row by $k$ multiplies $|A|$ by $k$ — these three rules turn brutal $n \times n$ calculations into clean triangular ones.
 
 ::: {.common-confusion}
 ### Common confusions

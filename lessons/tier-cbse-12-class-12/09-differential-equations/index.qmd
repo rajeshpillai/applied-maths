@@ -29,10 +29,10 @@ $$\frac{dN}{dt} = kN.$$
 
 ::: {.lesson-beat}
 
-This is a **differential equation** — an equation involving an unknown
-function and its derivative.
+This is a [**differential equation**](/glossary.qmd#differential-equation)
+— an equation involving an unknown function and its derivative.
 
-To solve: separate the variables.
+To solve: use [**separation of variables**](/glossary.qmd#separation-of-variables).
 $$\frac{dN}{N} = k\, dt \implies \int \frac{dN}{N} = \int k \, dt
 \implies \log N = kt + C \implies N(t) = N_0 e^{kt}.$$
 
@@ -113,6 +113,29 @@ Find the order and degree of $\left(\dfrac{d^2 y}{dx^2}\right)^3 + 5
 **Order**: highest derivative = 2. **Degree**: power of highest
 derivative when polynomial = 3.
 </details>
+
+::: {.fun-fact}
+**Malthus's exponential alarm (1798).** In *An Essay on the Principle
+of Population*, Thomas Malthus argued that human populations grow
+*geometrically* ($dN/dt = kN$, the same ODE as your bacteria) while
+food supply grows only *arithmetically*. His conclusion — recurring
+famine — turned out wrong, because he hadn't accounted for the
+nutrient ceiling that makes the rate $k$ shrink as $N$ grows. In 1838
+Pierre Verhulst patched the model with one extra term: $dN/dt = kN(1 -
+N/K)$, the *logistic* equation. That one ODE later went on to model
+neuron firing, viral spread, and the adoption curve of new technology.
+Newton's law of cooling (your case study) and Malthus's growth law are
+the same separable equation with opposite signs on $k$.
+:::
+
+::: {.key-insight}
+**Three patterns swallow most of Class 12's ODEs.** Look at $dy/dx =
+\ldots$: if you can split it into "stuff with $y$" times "stuff with
+$x$", it's separable. If both sides depend only on the ratio $y/x$,
+substitute $y = vx$ — homogeneous. If it has the shape $y' + P(x)y =
+Q(x)$, multiply by $e^{\int P}$ — linear. The hard part of CBSE is
+*classifying* the equation; once classified, the recipe is mechanical.
+:::
 
 ## Name
 
@@ -326,6 +349,19 @@ CBSE 2022 Q34.
 3. **"Order = degree."** Different concepts. Order is the highest
    derivative; degree is its polynomial power.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **An ODE is an integration problem in disguise.** Each method
+   (separation, $y = vx$, integrating factor) reshapes the equation
+   until both sides are integrable.
+2. **Classify before you compute.** Variable-separable, homogeneous,
+   linear — 30 seconds of inspection saves five minutes of wrong path.
+3. **The general solution carries one constant per order.** Pin it
+   down with an [initial condition](/glossary.qmd#initial-condition)
+   to get the particular solution that matches the real-world setup.
 
 ### Self-Assessment
 

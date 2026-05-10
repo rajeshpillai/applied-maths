@@ -142,6 +142,31 @@ solutions** (every point on $x + y = 5$). When $|A| = 0$, the system
 has either no solution or infinitely many.
 </details>
 
+::: {.fun-fact}
+**Gabriel Cramer** published his rule in 1750 in *Introduction à
+l'Analyse des Lignes Courbes Algébriques* — but solving linear systems
+was *not* the book's point. Cramer was studying which algebraic curves
+of degree $n$ pass through a given set of points, and he ran into a
+puzzle now called **Cramer's paradox**: two cubic curves can intersect
+in 9 points, yet a cubic is supposed to be determined by 9 points.
+While unwinding this, he needed a clean formula for "what coefficients
+make a system of linear equations have a unique solution," and the rule
+fell out as a tool — buried in an appendix. The little determinant
+shortcut you use to solve $2 \times 2$ systems was a side-effect of
+nineteen-year-old Cramer's homework on cubic curves.
+:::
+
+::: {.key-insight}
+The inverse $A^{-1}$ is **the matrix that undoes $A$** — it sends
+$A$'s columns back to the basis vectors $e_1, \ldots, e_n$. That undo
+exists exactly when $A$ has not crushed any direction flat — i.e. when
+$|A| \ne 0$. Both methods in this lesson are then the same idea:
+"package the undoing as a matrix" (the adjoint approach) or "package
+the undoing as a ratio of determinants" (Cramer). When $|A| = 0$, $A$
+has flattened space — many points map to one — and no honest undoer
+can exist.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -450,6 +475,14 @@ Verify against the data.
 **Previous-year pointer:** CBSE 2023 Set 1 Q34 (5-mark inverse + system);
 CBSE 2022 Q33.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A square [matrix](/glossary.qmd#matrix) has an inverse exactly when its determinant is non-zero**, and the inverse is built as $A^{-1} = \tfrac{1}{|A|}\,\text{adj}(A)$ — adjoint divided by determinant.
+2. **Every [system of linear equations](/glossary.qmd#system-of-linear-equations) $AX = B$ becomes one matrix multiplication $X = A^{-1}B$** when $|A| \ne 0$ — the elimination steps you used in Class 10 are absorbed into building the inverse once.
+3. **Cramer's rule expresses each unknown as a ratio of determinants**: a single-line formula for small systems, but exponentially slow for large ones — practically, computers prefer [Gaussian elimination](/glossary.qmd#gaussian-elimination), which scales as $n^3$ rather than $n!$.
 
 ::: {.common-confusion}
 ### Common confusions

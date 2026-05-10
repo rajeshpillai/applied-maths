@@ -158,6 +158,32 @@ $B^T = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$, $A^T =
 A^T$ — note the swap.
 </details>
 
+::: {.fun-fact}
+When **Arthur Cayley** wrote *A Memoir on the Theory of Matrices* in
+1858, the first rule he had to insist on was the strange one you just
+discovered in Problem 4: $AB \ne BA$ in general. Until then, every
+"multiplication" mathematicians had ever defined — for numbers, for
+polynomials, for complex numbers — was commutative. Cayley showed that
+the natural way to *compose* two linear transformations gives a
+multiplication that depends on order, and he made this the foundation
+of a new algebra. The non-commutativity that breaks your high-school
+instincts here is the *defining* feature of matrix algebra — and it is
+why "first rotate, then translate" gives a different result from "first
+translate, then rotate" in every game engine on Earth.
+:::
+
+::: {.key-insight}
+Addition and scalar multiplication are *entry-by-entry* — the matrix is
+just a container, and the operation runs in parallel across all slots.
+Multiplication is something else entirely: it is **composition of
+linear transformations**, encoded as "row of left meets column of
+right, sum the products." That is why $AB$ needs the inner dimensions
+to agree (the output of one transformation feeds the input of the
+other), and why swapping the order changes the answer. The transpose
+identity $(AB)^T = B^T A^T$ is the algebraic shadow of "to undo a stack
+of socks-then-shoes you remove shoes-then-socks."
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -390,6 +416,14 @@ Day 1 revenue ₹23000, Day 2 revenue ₹28250.
 **Previous-year pointer:** CBSE 2023 Set 1 Q22 (3-mark symmetry); CBSE
 2022 Q23 (5-mark sum decomposition).
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Add and scalar-multiply [matrices](/glossary.qmd#matrix) entry-by-entry; multiply them row-meets-column** — addition needs identical orders, multiplication needs only the inner dimensions to match.
+2. **Matrix multiplication is non-commutative** — $AB \ne BA$ in general, and many proofs and bugs in real systems hinge on remembering this single fact.
+3. **Transpose flips $(i,j) \leftrightarrow (j,i)$** and obeys the order-swap rule $(AB)^T = B^T A^T$; symmetric means $A^T = A$, skew-symmetric means $A^T = -A$, and every square matrix is the sum of one of each.
 
 ::: {.common-confusion}
 ### Common confusions
