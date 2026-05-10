@@ -91,12 +91,21 @@ The site is published from the `gh-pages` branch of this repo. A helper
 script handles the render-and-push:
 
 ```bash
-./scripts/deploy-gh-pages.sh
+./scripts/deploy-gh-pages.sh           # delta deploy (default, fast)
+./scripts/deploy-gh-pages.sh --full    # full reset: wipe gh-pages, force-push
 ```
 
-That script renders the site into `_site/`, drops a `.nojekyll` marker,
-force-pushes the build to the `gh-pages` branch on `origin`, and prints a
-summary. It reuses your existing `origin` push credentials (SSH or HTTPS),
+The default **delta** mode shallow-clones the existing `gh-pages` branch
+into `_site/.git`, lets Quarto render on top, then commits and pushes only
+what changed — git transfers only the changed objects, so deploys after the
+first one are quick. If `gh-pages` doesn't exist yet on the remote, the
+script falls back to `--full` automatically so the first deploy bootstraps
+cleanly.
+
+Use `--full` when the `gh-pages` history is corrupted, when you want to
+reclaim space on that branch, or when you want a guaranteed clean slate.
+
+The script reuses your existing `origin` push credentials (SSH or HTTPS),
 so no extra auth setup is needed. Override the destination by exporting
 `DEPLOY_REPO=...` before running.
 
