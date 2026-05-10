@@ -138,6 +138,26 @@ cross product captures both the magnitude (force × arm) and the axis
 of rotation. Foundational to mechanical engineering and game physics.
 </details>
 
+::: {.fun-fact}
+On 16 October 1843, the Irish mathematician **William Rowan Hamilton**
+was walking along the Royal Canal in Dublin when the multiplication
+rule for **quaternions** struck him: $i^2 = j^2 = k^2 = ijk = -1$. He
+carved it into the stone of Brougham Bridge with his pocket-knife.
+That single relation contains both the dot product (the *real* part of
+the quaternion product) and the cross product (the *imaginary* vector
+part). Modern game engines still use quaternions — Hamilton's
+"forgotten" notation — for camera rotations, because they avoid the
+gimbal-lock problem of Euler angles.
+:::
+
+::: {.key-insight}
+The dot product asks **"how much do these two vectors point the same
+way?"** — output a number. The cross product asks **"what direction
+is perpendicular to both, and how much area do they enclose?"** —
+output a vector. Same two inputs, two completely different geometric
+questions.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -288,6 +308,20 @@ applied at scale.
 3. **"$a \times b = b \times a$."** No, anti-commutative: $a \times
    b = -b \times a$. Order matters.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **The [dot product](/glossary.qmd#dot-product) measures alignment**
+   — positive when two [vectors](/glossary.qmd#vector) point similar
+   ways, zero when perpendicular, negative when opposed.
+2. **The [cross product](/glossary.qmd#cross-product) builds a
+   perpendicular** — a 3D vector at right angles to both inputs, with
+   length equal to the parallelogram area they span.
+3. **One number, one vector** — dot for *projecting and angles*,
+   cross for *normals and torques*. Every graphics, physics, and
+   robotics calculation eventually reduces to these two products.
 
 ### Self-Assessment
 
