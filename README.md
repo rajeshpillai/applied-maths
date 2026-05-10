@@ -29,7 +29,11 @@ world*, reached incrementally.
 
 ## Status
 
-**All seven tiers are complete: 105 lessons built (Grade 5 through Masters specialisations).**
+**Curriculum complete: 254 lessons across four tracks** —
+synthesis Tiers 1–7 (105 lessons), CBSE / NCERT Class 8–12 (75 lessons),
+Kiselev Russian classical (36 lessons), and Mathematics for
+Reinforcement Learning (38 lessons).
+
 Begin at [01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-number/index.qmd) — or jump
 to a Tier 7 capstone such as [15 · The Langlands Program](lessons/tier-7-masters-tracks/15-langlands-program/index.qmd).
 
@@ -79,6 +83,26 @@ book:
 [Algebra Part II](lessons/tier-kiselev-2-algebra-2/index.qmd) ·
 [Planimetry](lessons/tier-kiselev-3-planimetry/index.qmd) ·
 [Stereometry](lessons/tier-kiselev-4-stereometry/index.qmd).
+
+### Mathematics for Reinforcement Learning (graduate)
+
+A graduate-level deep-dive track that walks **Shiyu Zhao's
+*Mathematical Foundations of Reinforcement Learning*** (Springer 2025)
+lesson by lesson, deriving every modern RL algorithm from the
+Bellman equation. It is for learners who want the maths *behind*
+Q-learning, DQN, REINFORCE, and DDPG — not just the pseudo-code.
+
+The same six-beat contract; no per-lesson tier-specific extras. The
+load-bearing extras are the **strict prerequisite chain** (each
+lesson depends on the previous one) and the **explicit cross-track
+prerequisite declarations** (probability from Tier 3, linear algebra
+from Tier 5, gradient descent from Tier 6, contraction-mapping
+foundations from Tier 5/Tier 7).
+
+**Track complete: 38 lessons covering MDPs through deep deterministic
+policy gradient.** Start at the [RL Math Track Overview](mfrl/index.qmd),
+or jump to the [tier index](lessons/tier-mfrl-rl-math/index.qmd) for
+the full per-lesson list.
 
 ## Building locally
 
