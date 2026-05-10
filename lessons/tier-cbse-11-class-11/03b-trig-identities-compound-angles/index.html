@@ -2723,6 +2723,8 @@ Full solution
 <p><strong>Double angle:</strong> <span class="math display">\sin 2A = 2 \sin A \cos A</span> <span class="math display">\cos 2A = \cos^2 A - \sin^2 A = 1 - 2\sin^2 A = 2\cos^2 A - 1</span> <span class="math display">\tan 2A = \frac{2\tan A}{1 - \tan^2 A}</span></p>
 <p><strong>Triple angle:</strong> <span class="math display">\sin 3A = 3\sin A - 4\sin^3 A, \quad \cos 3A = 4\cos^3 A - 3\cos A</span></p>
 <p><strong>Half angle:</strong> <span class="math display">\sin^2(\theta/2) = \tfrac{1-\cos\theta}{2}, \quad \cos^2(\theta/2) = \tfrac{1+\cos\theta}{2}</span></p>
+<p>The square root introduces a <span class="math inline">\pm</span> — the sign is fixed by the <strong>quadrant of <span class="math inline">\theta/2</span></strong> (not of <span class="math inline">\theta</span>): <span class="math display">\sin(\theta/2) = \pm\sqrt{\tfrac{1-\cos\theta}{2}}, \quad \cos(\theta/2) = \pm\sqrt{\tfrac{1+\cos\theta}{2}}.</span></p>
+<p><strong>Double angle in terms of <span class="math inline">\tan x</span></strong> (the <em>Weierstrass substitution</em> that converts trig integrals to rational functions in Class 12): <span class="math display">\sin 2x = \frac{2\tan x}{1 + \tan^2 x}, \quad \cos 2x = \frac{1 - \tan^2 x}{1 + \tan^2 x}.</span></p>
 <p><strong>Sum to product:</strong> <span class="math display">\sin C + \sin D = 2 \sin\tfrac{C+D}{2}\cos\tfrac{C-D}{2}</span> <span class="math display">\sin C - \sin D = 2 \cos\tfrac{C+D}{2}\sin\tfrac{C-D}{2}</span> <span class="math display">\cos C + \cos D = 2 \cos\tfrac{C+D}{2}\cos\tfrac{C-D}{2}</span> <span class="math display">\cos C - \cos D = -2 \sin\tfrac{C+D}{2}\sin\tfrac{C-D}{2}</span></p>
 </div>
 <p>A short verse:</p>
@@ -2801,6 +2803,35 @@ Full solution
 </summary>
 <span class="math inline">\sin 3A = \sin 2A \cos A + \cos 2A \sin A = (2\sin A \cos A)\cos A +
 (1 - 2\sin^2 A)\sin A</span> <span class="math inline">= 2\sin A \cos^2 A + \sin A - 2\sin^3 A</span> <span class="math inline">= 2\sin A (1 - \sin^2 A) + \sin A - 2\sin^3 A</span> <span class="math inline">= 3\sin A - 4\sin^3 A</span>. ✓
+</details>
+<p><strong>P4.</strong> Given <span class="math inline">\tan x = -4/3</span> with <span class="math inline">x</span> in quadrant II, find <span class="math inline">\sin(x/2)</span>, <span class="math inline">\cos(x/2)</span>, and <span class="math inline">\tan(x/2)</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+The half-angle formulas need <span class="math inline">\cos x</span>, not <span class="math inline">\tan x</span>. Get <span class="math inline">\cos x</span> from <span class="math inline">1 + \tan^2 x = \sec^2 x</span>, with the sign fixed by Q II.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — locate <span class="math inline">x/2</span>
+</summary>
+The <span class="math inline">\pm</span> in the half-angle formulas is fixed by the quadrant of <span class="math inline">x/2</span>, <strong>not</strong> of <span class="math inline">x</span>. If <span class="math inline">x \in (\pi/2, \pi)</span>, then <span class="math inline">x/2 \in
+(\pi/4, \pi/2)</span> — quadrant I, where all three are <em>positive</em>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><strong>Step 1 — find <span class="math inline">\cos x</span>.</strong> <span class="math inline">\sec^2 x = 1 + 16/9 = 25/9</span>, so <span class="math inline">\sec x = \pm 5/3</span>. In Q II, <span class="math inline">\sec</span> is negative: <span class="math inline">\sec x = -5/3</span>, hence <span class="math inline">\cos x = -3/5</span>.</p>
+<p><strong>Step 2 — locate <span class="math inline">x/2</span>.</strong> <span class="math inline">x \in (\pi/2, \pi)</span> means <span class="math inline">x/2 \in
+(\pi/4, \pi/2)</span> — quadrant I. All three half-angle ratios are <em>positive</em>.</p>
+<p><strong>Step 3 — apply the half-angle formulas.</strong></p>
+<p><span class="math inline">\cos(x/2) = +\sqrt{\dfrac{1 + \cos x}{2}} = \sqrt{\dfrac{1 - 3/5}{2}}
+= \sqrt{\dfrac{1}{5}} = \dfrac{1}{\sqrt 5}</span>.</p>
+<p><span class="math inline">\sin(x/2) = +\sqrt{\dfrac{1 - \cos x}{2}} = \sqrt{\dfrac{1 + 3/5}{2}}
+= \sqrt{\dfrac{4}{5}} = \dfrac{2}{\sqrt 5}</span>.</p>
+<p><span class="math inline">\tan(x/2) = \sin(x/2)/\cos(x/2) = 2</span>.</p>
+The lesson here: never let the half-angle <span class="math inline">\pm</span> default to “positive.” Always decide which quadrant <em>the half</em> lives in before picking the sign.
 </details>
 </section>
 <section id="practice-stretch" class="level3">
@@ -2916,8 +2947,12 @@ Full solution
 <h3 class="anchored" data-anchor-id="common-confusions">Common confusions</h3>
 <ol type="1">
 <li><strong>“<span class="math inline">\cos(A + B) = \cos A + \cos B</span>.”</strong> Never. The cosine of a sum has <em>both</em> a cosine-cosine and a sine-sine term, with a minus sign between them.</li>
-<li><strong>“Half-angle gives only one value.”</strong> No — half-angle formulas have a <span class="math inline">\pm</span>. The sign comes from which quadrant <span class="math inline">\theta/2</span> lies in. You <em>must</em> check.</li>
+<li><strong>“Half-angle gives only one value.”</strong> No — half-angle formulas have a <span class="math inline">\pm</span>. The sign comes from which quadrant <strong><span class="math inline">\theta/2</span></strong> lies in, not the quadrant of <span class="math inline">\theta</span>. You <em>must</em> check. Worked Practice P4 shows the quadrant-of-the-half logic.</li>
 <li><strong>“<span class="math inline">\tan(A+B) = \tan A + \tan B</span>.”</strong> No.&nbsp;The denominator <span class="math inline">1 - \tan A \tan B</span> matters, and it can blow up to <span class="math inline">\infty</span> when <span class="math inline">A + B = \pi/2</span>.</li>
+<li><strong>“<span class="math inline">\sin 2x</span> is the same as <span class="math inline">2\sin x</span>.”</strong> It is not. <span class="math inline">\sin 2x =
+2\sin x \cos x</span> has a <span class="math inline">\cos x</span> factor that <span class="math inline">2\sin x</span> has no clue about. Try <span class="math inline">x = \pi/4</span>: <span class="math inline">\sin(\pi/2) = 1</span> but <span class="math inline">2\sin(\pi/4) =
+\sqrt 2</span>.</li>
+<li><strong>“With three forms of <span class="math inline">\cos 2x</span>, just pick any.”</strong> Pick the form that <em>matches the rest of the equation</em>: <span class="math inline">1 - 2\sin^2 x</span> if the equation is in <span class="math inline">\sin x</span>, <span class="math inline">2\cos^2 x - 1</span> if it is in <span class="math inline">\cos x</span>, and <span class="math inline">(1-\tan^2 x)/(1+\tan^2 x)</span> if it is in <span class="math inline">\tan x</span>.</li>
 </ol>
 </section>
 <section id="self-assessment" class="level3">

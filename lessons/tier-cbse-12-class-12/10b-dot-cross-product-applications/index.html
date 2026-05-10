@@ -2437,6 +2437,8 @@ window.Quarto = {
   <li><a href="#problem-3" id="toc-problem-3" class="nav-link" data-scroll-target="#problem-3">Problem 3</a></li>
   <li><a href="#problem-4" id="toc-problem-4" class="nav-link" data-scroll-target="#problem-4">Problem 4</a></li>
   <li><a href="#problem-5" id="toc-problem-5" class="nav-link" data-scroll-target="#problem-5">Problem 5</a></li>
+  <li><a href="#problem-6-perpendicularity-test" id="toc-problem-6-perpendicularity-test" class="nav-link" data-scroll-target="#problem-6-perpendicularity-test">Problem 6 — perpendicularity test</a></li>
+  <li><a href="#problem-7-volume-from-three-vectors" id="toc-problem-7-volume-from-three-vectors" class="nav-link" data-scroll-target="#problem-7-volume-from-three-vectors">Problem 7 — volume from three vectors</a></li>
   </ul></li>
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
@@ -2572,6 +2574,47 @@ Full solution
 </summary>
 <span class="math inline">|\vec a \times \vec b| = \sqrt{83}</span>. Area = <span class="math inline">\sqrt{83}</span>.
 </details>
+</section>
+<section id="problem-6-perpendicularity-test" class="level3">
+<h3 class="anchored" data-anchor-id="problem-6-perpendicularity-test">Problem 6 — perpendicularity test</h3>
+<p>For what value of <span class="math inline">\lambda</span> are <span class="math inline">\vec a = 2\hat\imath + \lambda
+\hat\jmath - 3\hat k</span> and <span class="math inline">\vec b = 3\hat\imath + \hat\jmath + 2\hat k</span> perpendicular?</p>
+<details class="hint">
+<summary>
+Hint 1 — the technique
+</summary>
+Two non-zero vectors are perpendicular exactly when their dot product is zero. Set <span class="math inline">\vec a \cdot \vec b = 0</span> and solve.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">\vec a \cdot \vec b = 6 + \lambda - 6 = \lambda</span>. So <span class="math inline">\lambda = 0</span>. (When <span class="math inline">\lambda = 0</span>, <span class="math inline">\vec a = (2, 0, -3)</span> which lies in the <span class="math inline">xz</span>-plane while <span class="math inline">\vec b</span> leans into the <span class="math inline">y</span>-direction; they meet at a right angle.)
+</details>
+</section>
+<section id="problem-7-volume-from-three-vectors" class="level3">
+<h3 class="anchored" data-anchor-id="problem-7-volume-from-three-vectors">Problem 7 — volume from three vectors</h3>
+<p>Three edges of a parallelepiped meet at a corner: <span class="math inline">\vec a = \hat\imath</span>, <span class="math inline">\vec b = \hat\jmath</span>, <span class="math inline">\vec c = \hat k</span>. Compute <span class="math inline">\vec a \cdot (\vec b
+\times \vec c)</span> and interpret the answer geometrically. Then redo with <span class="math inline">\vec a = \hat\imath</span>, <span class="math inline">\vec b = \hat\imath + \hat\jmath</span>, <span class="math inline">\vec c =
+\hat\imath + \hat\jmath + \hat k</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+<span class="math inline">\vec b \times \vec c</span> is a vector. Then dot it with <span class="math inline">\vec a</span> to get a scalar. The unit-cube case should give a clue what that scalar measures.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<strong>Unit cube.</strong> <span class="math inline">\hat\jmath \times \hat k = \hat\imath</span>, so <span class="math inline">\hat\imath
+\cdot \hat\imath = 1</span>. The unit cube has volume <span class="math inline">1</span> — the scalar matches. <strong>Slanted box.</strong> <span class="math inline">\vec b \times \vec c = (\hat\imath + \hat\jmath)
+\times (\hat\imath + \hat\jmath + \hat k) = \hat\imath \times \hat k +
+\hat\jmath \times \hat\imath + \hat\jmath \times \hat k = -\hat\jmath -
+\hat k + \hat\imath = (1, -1, -1)</span>. <span class="math inline">\vec a \cdot (\vec b \times \vec c) = 1 \cdot 1 = 1</span>. Same volume — even though the box is sheared, no edge has stretched in its own height direction. <strong>Geometric meaning.</strong> <span class="math inline">\vec a \cdot (\vec b \times \vec c)</span> is the <em>signed volume</em> of the parallelepiped spanned by <span class="math inline">\vec a, \vec b, \vec
+c</span>. It is called the <strong>scalar triple product</strong>, written <span class="math inline">[\vec a\ \vec
+b\ \vec c]</span>.
+</details>
 <div class="fun-fact">
 <p><strong>Hamilton scratches the quaternion rule onto Brougham Bridge (1843).</strong> For ten years William Rowan Hamilton tried to extend complex numbers <span class="math inline">a + bi</span> to triples for 3D rotation — and failed, because triples have no consistent multiplication. On 16 October 1843, walking along the Royal Canal in Dublin with his wife, the answer struck him: drop the expectation of <em>commutativity</em> and use four components, not three. He carved <span class="math inline">\mathbf{i}^2 = \mathbf{j}^2 = \mathbf{k}^2 = \mathbf{ijk} = -1</span> into the stone of Brougham Bridge with his pocket-knife. From those relations Gibbs and Heaviside later extracted <span class="math inline">\hat\imath \cdot
 \hat\imath = 1</span>, <span class="math inline">\hat\imath \times \hat\jmath = \hat k</span> — the multiplication rules you used in Problem 3. Modern game engines use quaternions for rotation; you’ve been computing with their fragments all lesson.</p>
@@ -2602,13 +2645,40 @@ Full solution
 </ul>
 <p><strong>Applications.</strong></p>
 <ul>
-<li><strong>Projection of <span class="math inline">\vec a</span> on <span class="math inline">\vec b</span>:</strong> <span class="math inline">\dfrac{\vec a \cdot \vec b}{
-|\vec b|}</span>.</li>
+<li><strong>Scalar projection of <span class="math inline">\vec a</span> on <span class="math inline">\vec b</span>:</strong> <span class="math inline">\dfrac{\vec a \cdot
+\vec b}{|\vec b|}</span> — a signed length along <span class="math inline">\vec b</span>’s direction.</li>
+<li><strong>Vector projection of <span class="math inline">\vec a</span> on <span class="math inline">\vec b</span>:</strong> <span class="math inline">\left(\dfrac{\vec a \cdot \vec b}{|\vec b|^2}\right)\vec b</span> — the shadow itself, as a vector along <span class="math inline">\vec b</span>.</li>
 <li><strong>Angle between vectors:</strong> <span class="math inline">\cos\theta = \dfrac{\vec a \cdot \vec b}{
 |\vec a||\vec b|}</span>.</li>
 <li><strong>Area of parallelogram</strong> with adjacent sides <span class="math inline">\vec a, \vec b</span>: <span class="math inline">|\vec a \times \vec b|</span>.</li>
 <li><strong>Area of triangle</strong> with sides <span class="math inline">\vec a, \vec b</span> at one vertex: <span class="math inline">\frac{1}{2}|\vec a \times \vec b|</span>.</li>
 </ul>
+<p><strong>Scalar triple product.</strong> <span class="math display">[\vec a\ \vec b\ \vec c] := \vec a \cdot (\vec b \times \vec c).</span> Geometrically, <span class="math inline">|[\vec a\ \vec b\ \vec c]|</span> is the volume of the parallelepiped spanned by <span class="math inline">\vec a, \vec b, \vec c</span>. The sign is positive when <span class="math inline">(\vec a, \vec b, \vec c)</span> form a right-handed triple, negative otherwise. <strong>Coplanarity test:</strong> three non-zero vectors are coplanar iff <span class="math inline">[\vec a\ \vec b\ \vec c] = 0</span> — the parallelepiped is flat, so its volume vanishes.</p>
+<p><strong>Standard basis products</strong> (worth memorising).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dot</th>
+<th>Cross</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\hat\imath\cdot\hat\imath = \hat\jmath\cdot\hat\jmath = \hat k\cdot\hat k = 1</span></td>
+<td><span class="math inline">\hat\imath\times\hat\jmath = \hat k,\ \hat\jmath\times\hat k = \hat\imath,\ \hat k\times\hat\imath = \hat\jmath</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\hat\imath\cdot\hat\jmath = \hat\jmath\cdot\hat k = \hat k\cdot\hat\imath = 0</span></td>
+<td><span class="math inline">\hat\imath\times\hat\imath = \hat\jmath\times\hat\jmath = \hat k\times\hat k = \vec 0</span></td>
+</tr>
+</tbody>
+</table>
+<p>Cross-product mnemonic: cycle <span class="math inline">\hat\imath \to \hat\jmath \to \hat k \to
+\hat\imath</span>. Going <strong>with</strong> the cycle gives the next basis vector; going <strong>against</strong> the cycle adds a minus sign.</p>
 </div>
 <p>A verse:</p>
 <blockquote class="blockquote">
@@ -2662,13 +2732,21 @@ Full solution
 </section>
 <section id="practice-working" class="level3">
 <h3 class="anchored" data-anchor-id="practice-working">Practice — Working</h3>
-<p><strong>P1.</strong> Find the projection of <span class="math inline">\vec a = 2\hat\imath + 3\hat\jmath +
-2\hat k</span> on <span class="math inline">\vec b = \hat\imath + 2\hat\jmath + \hat k</span>.</p>
+<p><strong>P1.</strong> Find both the scalar projection and the vector projection of <span class="math inline">\vec a = 2\hat\imath + 3\hat\jmath + 2\hat k</span> on <span class="math inline">\vec b = \hat\imath +
+2\hat\jmath + \hat k</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Scalar projection is <span class="math inline">(\vec a \cdot \vec b)/|\vec b|</span>. Vector projection puts that shadow back along <span class="math inline">\vec b</span> — divide by <span class="math inline">|\vec b|^2</span> instead of <span class="math inline">|\vec b|</span>, then multiply by <span class="math inline">\vec b</span>.
+</details>
 <details class="hint">
 <summary>
 Full solution
 </summary>
-<span class="math inline">\vec a \cdot \vec b = 2 + 6 + 2 = 10</span>. <span class="math inline">|\vec b| = \sqrt 6</span>. Projection <span class="math inline">= 10/\sqrt 6</span>.
+<span class="math inline">\vec a \cdot \vec b = 2 + 6 + 2 = 10</span>. <span class="math inline">|\vec b|^2 = 6</span>, so <span class="math inline">|\vec b| =
+\sqrt 6</span>. <strong>Scalar projection</strong> <span class="math inline">= 10/\sqrt 6</span>. <strong>Vector projection</strong> <span class="math inline">= (10/6)\,\vec b = (5/3)(\hat\imath +
+2\hat\jmath + \hat k)</span>.
 </details>
 <p><strong>P2.</strong> Area of triangle with vertices <span class="math inline">A(1, 1, 1), B(2, 3, 5), C(0, 1,
 4)</span>.</p>
@@ -2752,13 +2830,26 @@ Full solution
 </summary>
 <span class="math inline">\vec a \times \vec b = (1, -1, 1)</span>, magnitude <span class="math inline">\sqrt 3</span>. Required vector: <span class="math inline">5/\sqrt 3 \cdot (1, -1, 1)</span>.
 </details>
-<p><strong>3-mark.</strong> Show that <span class="math inline">\vec a, \vec b, \vec c</span> are coplanar iff <span class="math inline">[\vec a\ \vec b\ \vec c] = \vec a \cdot (\vec b \times \vec c) = 0</span> (scalar triple product).</p>
+<p><strong>3-mark.</strong> Show that <span class="math inline">\vec a = \hat\imath + 2\hat\jmath</span>, <span class="math inline">\vec b =
+-\hat\imath + 3\hat\jmath + \hat k</span>, <span class="math inline">\vec c = 5\hat\jmath + \hat k</span> are coplanar.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Coplanarity test: <span class="math inline">[\vec a\ \vec b\ \vec c] = 0</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+The scalar triple product is the determinant of the <span class="math inline">3\times3</span> matrix whose rows are the components of <span class="math inline">\vec a, \vec b, \vec c</span>.
+</details>
 <details class="hint">
 <summary>
 Full solution
 </summary>
-Coplanar means the parallelepiped they span has zero volume. Volume <span class="math inline">=
-|\vec a \cdot (\vec b \times \vec c)|</span>. Zero iff coplanar. ✓
+<span class="math display">[\vec a\ \vec b\ \vec c] = \begin{vmatrix} 1 &amp; 2 &amp; 0 \\ -1 &amp; 3 &amp; 1 \\
+0 &amp; 5 &amp; 1 \end{vmatrix}.</span> Expanding along row 1: <span class="math inline">1(3 - 5) - 2(-1 - 0) + 0 = -2 + 2 = 0</span>. ✓ Notice <span class="math inline">\vec c = \vec a + \vec b</span> — that’s <em>why</em> the triple is zero; <span class="math inline">\vec c</span> is already a combination of <span class="math inline">\vec a</span> and <span class="math inline">\vec b</span>, so it lies in their plane.
 </details>
 <p><strong>3-mark.</strong> Find the area of the parallelogram with diagonals <span class="math inline">\vec d_1
 = 3\hat\imath + \hat\jmath - 2\hat k</span> and <span class="math inline">\vec d_2 = \hat\imath - 3
@@ -2825,7 +2916,10 @@ Full solution
 <li><strong>“<span class="math inline">\vec a \cdot \vec b = \vec a \times \vec b</span> if vectors are parallel.”</strong> Different <em>types</em> — one is a scalar, the other a vector. They live in different spaces.</li>
 <li><strong>“<span class="math inline">|\vec a \times \vec b|</span> = area of triangle.”</strong> It’s the area of the parallelogram. Triangle is <strong>half</strong> of that.</li>
 <li><strong>“Cross product is commutative.”</strong> Anticommutative: <span class="math inline">\vec a \times
-\vec b = -\vec b \times \vec a</span>.</li>
+\vec b = -\vec b \times \vec a</span>. The order matters; swapping flips the sign of every component.</li>
+<li><strong>“<span class="math inline">\vec a \cdot \vec b = 0</span> means <span class="math inline">\vec a = \vec 0</span> or <span class="math inline">\vec b =
+\vec 0</span>.”</strong> No.&nbsp;It also vanishes when <span class="math inline">\vec a \perp \vec b</span>. Same trap with cross: <span class="math inline">\vec a \times \vec b = \vec 0</span> does not force either vector to be zero — they could simply be parallel.</li>
+<li><strong>“Mixing <span class="math inline">\sin</span> and <span class="math inline">\cos</span>.”</strong> Dot uses <em>cosine</em>, cross uses <em>sine</em>. Both formulas have the same <span class="math inline">|\vec a||\vec b|</span> in front, so the sin/cos is the only thing distinguishing them at a glance — get it wrong and the answer is silently wrong.</li>
 </ol>
 </section>
 <section id="takeaways" class="level3">

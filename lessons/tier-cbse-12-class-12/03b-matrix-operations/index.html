@@ -2438,6 +2438,7 @@ window.Quarto = {
   <li><a href="#problem-4" id="toc-problem-4" class="nav-link" data-scroll-target="#problem-4">Problem 4</a></li>
   <li><a href="#problem-5" id="toc-problem-5" class="nav-link" data-scroll-target="#problem-5">Problem 5</a></li>
   <li><a href="#problem-6" id="toc-problem-6" class="nav-link" data-scroll-target="#problem-6">Problem 6</a></li>
+  <li><a href="#problem-7" id="toc-problem-7" class="nav-link" data-scroll-target="#problem-7">Problem 7</a></li>
   </ul></li>
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
@@ -2654,6 +2655,22 @@ Full solution
 2 &amp; 4 \\ 1 &amp; 3 \end{pmatrix}</span>. <strong>They match.</strong> That is, <span class="math inline">(AB)^T = B^T
 A^T</span> — note the swap.
 </details>
+</section>
+<section id="problem-7" class="level3">
+<h3 class="anchored" data-anchor-id="problem-7">Problem 7</h3>
+<p>Let <span class="math inline">A = \begin{pmatrix} 1 &amp; 0 \\ 0 &amp; 0 \end{pmatrix}</span> and <span class="math inline">B = \begin{pmatrix} 0 &amp; 0 \\ 0 &amp; 1 \end{pmatrix}</span>. Compute <span class="math inline">AB</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Row-meets-column. Most entries will involve a zero somewhere.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">(1,1) = 1\cdot 0 + 0\cdot 0 = 0</span>. <span class="math inline">(1,2) = 1\cdot 0 + 0\cdot 1 = 0</span>. <span class="math inline">(2,1) = 0\cdot 0 + 0\cdot 0 = 0</span>. <span class="math inline">(2,2) = 0\cdot 0 + 0\cdot 1 = 0</span>. <span class="math display">AB = \begin{pmatrix} 0 &amp; 0 \\ 0 &amp; 0 \end{pmatrix} = O.</span> But neither <span class="math inline">A</span> nor <span class="math inline">B</span> is the zero matrix! In ordinary algebra, <span class="math inline">xy = 0</span> forces <span class="math inline">x = 0</span> or <span class="math inline">y = 0</span>. <strong>Matrix algebra has no such cancellation.</strong> <span class="math inline">AB = O</span> does <em>not</em> imply that <span class="math inline">A = O</span> or <span class="math inline">B = O</span>. This is one of the strangest features of matrix multiplication — and the source of more than a few exam traps.
+</details>
 <div class="fun-fact">
 <p>When <strong>Arthur Cayley</strong> wrote <em>A Memoir on the Theory of Matrices</em> in 1858, the first rule he had to insist on was the strange one you just discovered in Problem 4: <span class="math inline">AB \ne BA</span> in general. Until then, every “multiplication” mathematicians had ever defined — for numbers, for polynomials, for complex numbers — was commutative. Cayley showed that the natural way to <em>compose</em> two linear transformations gives a multiplication that depends on order, and he made this the foundation of a new algebra. The non-commutativity that breaks your high-school instincts here is the <em>defining</em> feature of matrix algebra — and it is why “first rotate, then translate” gives a different result from “first translate, then rotate” in every game engine on Earth.</p>
 </div>
@@ -2766,6 +2783,52 @@ Full solution
 \begin{pmatrix} 3 &amp; 1 \\ 2 &amp; 1 \end{pmatrix}</span>. <span class="math inline">B^T = \begin{pmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{pmatrix}</span>, <span class="math inline">A^T =
 \begin{pmatrix} 1 &amp; 0 \\ 2 &amp; 1 \end{pmatrix}</span>. <span class="math inline">B^T A^T = \begin{pmatrix}
 3 &amp; 1 \\ 2 &amp; 1 \end{pmatrix}</span> ✓.
+</details>
+<p><strong>P4.</strong> Expand <span class="math inline">(A + B)^2</span> for <span class="math inline">2 \times 2</span> matrices <span class="math inline">A</span> and <span class="math inline">B</span>, <em>without assuming</em> commutativity. Then evaluate it for <span class="math inline">A = \begin{pmatrix} 1 &amp; 1
+\\ 0 &amp; 1 \end{pmatrix}</span> and <span class="math inline">B = \begin{pmatrix} 1 &amp; 0 \\ 1 &amp; 1
+\end{pmatrix}</span>, and check explicitly that <span class="math inline">A^2 + 2AB + B^2</span> gives a <em>different</em> answer.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+<span class="math inline">(A+B)^2 = (A+B)(A+B)</span>. Distribute carefully — you cannot reorder <span class="math inline">AB</span> and <span class="math inline">BA</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Distribute on the right first: <span class="math inline">(A+B)(A+B) = A(A+B) + B(A+B) = A^2 + AB
++ BA + B^2</span>. The middle two terms only collapse to <span class="math inline">2AB</span> if <span class="math inline">AB = BA</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><span class="math inline">(A+B)^2 = A^2 + AB + BA + B^2</span> — <em>four</em> terms.</p>
+<p>For the given matrices: <span class="math inline">A + B = \begin{pmatrix} 2 &amp; 1 \\ 1 &amp; 2
+\end{pmatrix}</span>, so <span class="math inline">(A+B)^2 = \begin{pmatrix} 5 &amp; 4 \\ 4 &amp; 5
+\end{pmatrix}</span>.</p>
+<p>Now check the wrong identity. <span class="math inline">A^2 = \begin{pmatrix} 1 &amp; 2 \\ 0 &amp; 1
+\end{pmatrix}</span>. <span class="math inline">B^2 = \begin{pmatrix} 1 &amp; 0 \\ 2 &amp; 1 \end{pmatrix}</span>. <span class="math inline">AB = \begin{pmatrix} 2 &amp; 1 \\ 1 &amp; 1 \end{pmatrix}</span>. So <span class="math inline">A^2 + 2AB + B^2
+= \begin{pmatrix} 6 &amp; 4 \\ 4 &amp; 4 \end{pmatrix}</span> — <em>different</em> from <span class="math inline">(A+B)^2</span>. The discrepancy is <span class="math inline">BA - AB</span>, exactly the failure of commutativity.</p>
+<strong>Moral:</strong> matrix algebra does <em>not</em> obey the school binomial expansion. Always expand <span class="math inline">(A+B)^2</span> as <span class="math inline">A^2 + AB + BA + B^2</span>, and only collapse if you have proved <span class="math inline">AB = BA</span>.
+</details>
+<p><strong>P5.</strong> Is the product <span class="math inline">\begin{pmatrix} 1 &amp; 2 &amp; 3 \end{pmatrix}
+\begin{pmatrix} 4 &amp; 5 \\ 6 &amp; 7 \end{pmatrix}</span> defined? If yes, compute it. If no, explain why, and add or remove a single column from the <em>right-hand</em> matrix to make it defined.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+The left matrix is <span class="math inline">1 \times 3</span>. The right matrix is <span class="math inline">2 \times 2</span>. Inner dimensions: <span class="math inline">3</span> vs <span class="math inline">2</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<strong>Not defined.</strong> For <span class="math inline">AB</span> we need <span class="math inline">\text{cols}(A) = \text{rows}(B)</span>, but here <span class="math inline">3 \ne 2</span>. To fix it, the right matrix needs <span class="math inline">3</span> rows. (Adding a <em>row</em> to the right matrix changes its row-count from <span class="math inline">2</span> to <span class="math inline">3</span> — that is the minimal repair.) For example, with <span class="math inline">\begin{pmatrix} 4 &amp; 5 \\ 6 &amp;
+7 \\ 8 &amp; 9 \end{pmatrix}</span>, the product is <span class="math inline">\begin{pmatrix} 1\cdot4 +
+2\cdot6 + 3\cdot8 &amp; 1\cdot5 + 2\cdot7 + 3\cdot9 \end{pmatrix} =
+\begin{pmatrix} 40 &amp; 46 \end{pmatrix}</span>, of order <span class="math inline">1 \times 2</span>.
 </details>
 </section>
 <section id="practice-stretch" class="level3">
@@ -2901,6 +2964,8 @@ Full solution
 <li><strong>“<span class="math inline">(AB)^T = A^T B^T</span>.”</strong> Wrong. The correct identity is <span class="math inline">(AB)^T =
 B^T A^T</span> — order swaps.</li>
 <li><strong>“You can multiply any two matrices.”</strong> Only when the inner dimensions match: <span class="math inline">m\times p</span> times <span class="math inline">p\times n</span>. Otherwise the product is undefined.</li>
+<li><strong>“<span class="math inline">AB = O</span> implies <span class="math inline">A = O</span> or <span class="math inline">B = O</span>.”</strong> False. Matrix algebra has <em>zero divisors</em>: two non-zero matrices can multiply to the zero matrix (see Discover Problem 7). The same failure means “cancellation” breaks: <span class="math inline">AB = AC</span> does <strong>not</strong> imply <span class="math inline">B = C</span>, even when <span class="math inline">A \ne O</span>.</li>
+<li><strong>“<span class="math inline">(A + B)^2 = A^2 + 2AB + B^2</span>.”</strong> Wrong unless <span class="math inline">AB = BA</span>. The correct expansion is <span class="math inline">(A+B)^2 = A^2 + AB + BA + B^2</span>. Likewise <span class="math inline">(A-B)(A+B) = A^2 + AB - BA - B^2</span>, not <span class="math inline">A^2 - B^2</span>.</li>
 </ol>
 </section>
 <section id="self-assessment" class="level3">

@@ -2437,6 +2437,8 @@ window.Quarto = {
   <li><a href="#problem-3" id="toc-problem-3" class="nav-link" data-scroll-target="#problem-3">Problem 3</a></li>
   <li><a href="#problem-4" id="toc-problem-4" class="nav-link" data-scroll-target="#problem-4">Problem 4</a></li>
   <li><a href="#problem-5" id="toc-problem-5" class="nav-link" data-scroll-target="#problem-5">Problem 5</a></li>
+  <li><a href="#problem-6" id="toc-problem-6" class="nav-link" data-scroll-target="#problem-6">Problem 6</a></li>
+  <li><a href="#problem-7" id="toc-problem-7" class="nav-link" data-scroll-target="#problem-7">Problem 7</a></li>
   </ul></li>
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
@@ -2577,6 +2579,51 @@ Full solution
 </summary>
 DR of <span class="math inline">L_1: (2, 3, 4)</span>. DR of <span class="math inline">L_2: (4, 6, 8) = 2(2, 3, 4)</span>. Proportional ⇒ parallel. ✓
 </details>
+</section>
+<section id="problem-6" class="level3">
+<h3 class="anchored" data-anchor-id="problem-6">Problem 6</h3>
+<p>A line makes angles <span class="math inline">90°, 135°, 45°</span> with the positive <span class="math inline">x</span>-, <span class="math inline">y</span>-, <span class="math inline">z</span>-axes. Write down its direction cosines and check the identity <span class="math inline">l^2 + m^2 + n^2 = 1</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+The <strong>direction cosines</strong> are just <span class="math inline">(l, m, n) = (\cos\alpha, \cos\beta,
+\cos\gamma)</span> — the cosines of the three axis-angles.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">l = \cos 90° = 0</span>, <span class="math inline">m = \cos 135° = -1/\sqrt 2</span>, <span class="math inline">n = \cos 45° = 1/
+\sqrt 2</span>. Check: <span class="math inline">0 + 1/2 + 1/2 = 1</span> ✓. The identity <span class="math inline">l^2 + m^2 + n^2 =
+1</span> always holds — direction cosines live on the unit sphere.
+</details>
+</section>
+<section id="problem-7" class="level3">
+<h3 class="anchored" data-anchor-id="problem-7">Problem 7</h3>
+<p>Find the direction cosines of the line joining <span class="math inline">A(2, 3, 4)</span> to <span class="math inline">B(-1,
+1, 2)</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Direction <em>ratios</em> first: <span class="math inline">\vec{AB} = (x_2 - x_1, y_2 - y_1, z_2 -
+z_1)</span>. Then divide by <span class="math inline">|\vec{AB}|</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+If <span class="math inline">(a, b, c)</span> are direction ratios, then <span class="math inline">l = a/\sqrt{a^2+b^2+c^2}</span>, similarly for <span class="math inline">m, n</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p>DR: <span class="math inline">(-3, -2, -2)</span>. <span class="math inline">\sqrt{9 + 4 + 4} = \sqrt{17}</span>. Direction cosines: <span class="math inline">(-3/\sqrt{17}, -2/\sqrt{17}, -2/\sqrt{17})</span>. Check: <span class="math inline">9/17 + 4/17 +
+4/17 = 1</span> ✓.</p>
+So <strong>direction ratios</strong> are any non-zero triple proportional to a vector along the line; <strong>direction cosines</strong> are the unique unit version. Convert one to the other by dividing by the magnitude.
+</details>
 <div class="fun-fact">
 <p><strong>Plücker’s coordinates (1830s) — six numbers for a line in 3D.</strong> A <a href="../../../glossary.html#point">point</a> in 3D needs three coordinates; you might guess a line needs six (a point on it plus a direction). Julius Plücker, working in Bonn around 1830, showed that those six numbers are not independent — they must satisfy one quadratic relation. So a line in 3D is really a five-parameter object, not six. This insight became the foundation of <em>line geometry</em> and now lives at the heart of computer graphics: every ray-tracing engine and every robot-arm controller uses descendants of Plücker’s coordinates to detect when a line hits a surface. The vector form <span class="math inline">\vec r = \vec a + \lambda \vec b</span> you meet in this chapter is Plücker’s idea, stripped down for school.</p>
 </div>
@@ -2589,6 +2636,10 @@ DR of <span class="math inline">L_1: (2, 3, 4)</span>. DR of <span class="math i
 <section id="name" class="level2">
 <h2 class="anchored" data-anchor-id="name">Name</h2>
 <div class="lesson-beat">
+<p><strong><a href="../../../glossary.html#direction-cosines">Direction cosines</a></strong> <span class="math inline">(l, m, n) =
+(\cos\alpha, \cos\beta, \cos\gamma)</span> — cosines of the angles a line makes with the positive <span class="math inline">x</span>-, <span class="math inline">y</span>-, <span class="math inline">z</span>-axes. They satisfy <span class="math display">l^2 + m^2 + n^2 = 1.</span></p>
+<p><strong><a href="../../../glossary.html#direction-ratios">Direction ratios</a></strong> <span class="math inline">(a, b, c)</span> — any non-zero triple proportional to <span class="math inline">(l, m, n)</span>; convert via <span class="math inline">l =
+a/\sqrt{a^2+b^2+c^2}</span>, similarly <span class="math inline">m, n</span>.</p>
 <p><strong>Vector form</strong> of a line through <span class="math inline">\vec a</span> in direction <span class="math inline">\vec b</span>: <span class="math display">\vec r = \vec a + \lambda \vec b.</span></p>
 <p><strong>Cartesian form</strong> through <span class="math inline">(x_1, y_1, z_1)</span> with DR <span class="math inline">(a, b, c)</span>: <span class="math display">\frac{x - x_1}{a} = \frac{y - y_1}{b} = \frac{z - z_1}{c}.</span></p>
 <p><strong>Through two points</strong> <span class="math inline">\vec a_1, \vec a_2</span>: <span class="math display">\vec r = \vec a_1 + \lambda(\vec a_2 - \vec a_1).</span></p>
@@ -2704,6 +2755,40 @@ General point on line: <span class="math inline">(t, 1 + 2t, 2 + 3t)</span>. Vec
 3)</span>: <span class="math inline">(t - 1) + 2(2t - 1) + 3(3t - 1) = 0 \Rightarrow 14t = 6
 \Rightarrow t = 3/7</span>. Foot: <span class="math inline">(3/7, 1 + 6/7, 2 + 9/7) = (3/7, 13/7, 23/7)</span>.
 </details>
+<p><strong>S2.</strong> <em>Find the parameter that makes two lines perpendicular.</em> If the lines <span class="math inline">\dfrac{1 - x}{3} = \dfrac{7y - 14}{2p} = \dfrac{z - 3}{2}</span> and <span class="math inline">\dfrac{7 - 7x}{3p} = \dfrac{y - 5}{1} = \dfrac{6 - z}{5}</span> are perpendicular, find <span class="math inline">p</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Bring each line to standard form <span class="math inline">\dfrac{x - x_1}{a} = \dfrac{y - y_1}
+{b} = \dfrac{z - z_1}{c}</span> first — read off the DRs only after that.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+For example, <span class="math inline">\dfrac{1 - x}{3} = \dfrac{-(x - 1)}{3} = \dfrac{x - 1}{
+-3}</span>, and <span class="math inline">\dfrac{7y - 14}{2p} = \dfrac{y - 2}{2p/7}</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 3 — the first step
+</summary>
+After standardising: line 1 has DR <span class="math inline">(-3, 2p/7, 2)</span>; line 2 has DR <span class="math inline">(-3p/7, 1, -5)</span>. Now apply <span class="math inline">a_1 a_2 + b_1 b_2 + c_1 c_2 = 0</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p>Standardise both lines to <span class="math inline">\dfrac{x - x_1}{a} = \dfrac{y - y_1}{b} =
+\dfrac{z - z_1}{c}</span>:</p>
+<ul>
+<li>Line 1: <span class="math inline">\dfrac{x - 1}{-3} = \dfrac{y - 2}{2p/7} = \dfrac{z - 3}{2}</span>, so DR <span class="math inline">= (-3,\ 2p/7,\ 2)</span>.</li>
+<li>Line 2: <span class="math inline">\dfrac{x - 1}{-3p/7} = \dfrac{y - 5}{1} = \dfrac{z - 6}{-5}</span>, so DR <span class="math inline">= (-3p/7,\ 1,\ -5)</span>.</li>
+</ul>
+<p>Perpendicularity: <span class="math inline">(-3)(-3p/7) + (2p/7)(1) + (2)(-5) = 0</span>, i.e. <span class="math inline">9p/7 + 2p/7 - 10 = 0 \Rightarrow 11p/7 = 10 \Rightarrow p = 70/11</span>.</p>
+The trap is reading DRs straight off non-standard form.
+</details>
 </section>
 <section id="board-pattern-practice" class="level3">
 <h3 class="anchored" data-anchor-id="board-pattern-practice">Board-Pattern Practice</h3>
@@ -2801,8 +2886,12 @@ Full solution
 <section id="common-confusions" class="level3 common-confusion">
 <h3 class="anchored" data-anchor-id="common-confusions">Common confusions</h3>
 <ol type="1">
-<li><strong>“Skew lines must be parallel.”</strong> No — skew means <em>neither</em> intersect <em>nor</em> parallel.</li>
+<li><strong>“Skew lines must be parallel.”</strong> No — skew means <em>neither</em> intersect <em>nor</em> parallel. In fact two random non-parallel lines in 3D <em>almost always</em> fail to meet — skew is the generic case.</li>
 <li><strong>“Distance from point to line uses dot product.”</strong> It uses cross — <span class="math inline">|\vec{AP} \times \vec b|/|\vec b|</span>.</li>
+<li><strong>“Direction cosines and direction ratios are the same thing.”</strong> They are <em>proportional</em>, not equal. Direction cosines satisfy <span class="math inline">l^2 + m^2 + n^2 = 1</span>; direction ratios usually do not. Always divide by <span class="math inline">\sqrt{a^2 + b^2 + c^2}</span> before claiming they are cosines.</li>
+<li><strong>“Read DRs straight off the equation.”</strong> Only when the line is in the <em>standard</em> form <span class="math inline">\frac{x - x_1}{a} = \frac{y - y_1}{b} =
+\frac{z - z_1}{c}</span>. Forms like <span class="math inline">\frac{1 - x}{3}</span> or <span class="math inline">\frac{7y -
+14}{2p}</span> must be rewritten first — sign errors here cost board marks.</li>
 <li><strong>“Vector and Cartesian forms describe different lines.”</strong> Same line, different notations.</li>
 </ol>
 </section>

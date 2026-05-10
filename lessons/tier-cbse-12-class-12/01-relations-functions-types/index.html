@@ -2437,11 +2437,13 @@ window.Quarto = {
   <li><a href="#problem-3" id="toc-problem-3" class="nav-link" data-scroll-target="#problem-3">Problem 3</a></li>
   <li><a href="#problem-4" id="toc-problem-4" class="nav-link" data-scroll-target="#problem-4">Problem 4</a></li>
   <li><a href="#problem-5" id="toc-problem-5" class="nav-link" data-scroll-target="#problem-5">Problem 5</a></li>
+  <li><a href="#problem-6" id="toc-problem-6" class="nav-link" data-scroll-target="#problem-6">Problem 6</a></li>
   </ul></li>
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
   <ul class="collapse">
   <li><a href="#worked-example" id="toc-worked-example" class="nav-link" data-scroll-target="#worked-example">Worked example</a></li>
+  <li><a href="#worked-example-the-swap-and-solve-template" id="toc-worked-example-the-swap-and-solve-template" class="nav-link" data-scroll-target="#worked-example-the-swap-and-solve-template">Worked example — the swap-and-solve template</a></li>
   <li><a href="#practice-warm" id="toc-practice-warm" class="nav-link" data-scroll-target="#practice-warm">Practice — Warm</a></li>
   <li><a href="#practice-working" id="toc-practice-working" class="nav-link" data-scroll-target="#practice-working">Practice — Working</a></li>
   <li><a href="#practice-stretch" id="toc-practice-stretch" class="nav-link" data-scroll-target="#practice-stretch">Practice — Stretch</a></li>
@@ -2630,6 +2632,29 @@ Full solution
 </summary>
 Outputs <span class="math inline">2, 2, 3</span>. The element <span class="math inline">1</span> never appears as <span class="math inline">g(x)</span>. And <span class="math inline">1</span> and <span class="math inline">2</span> both go to <span class="math inline">2</span> — different inputs, same output. Two ways this <span class="math inline">g</span> fails to be the “perfect pairing” you saw with <span class="math inline">f</span>.
 </details>
+</section>
+<section id="problem-6" class="level3">
+<h3 class="anchored" data-anchor-id="problem-6">Problem 6</h3>
+<p>Now stretch <span class="math inline">A</span> to <span class="math inline">\{1, 2, 3, 4, 5\}</span>. Define <span class="math inline">R = \{(a,b) : |a - b| \text{ is even}\}</span>. Pick three pairs you expect to be in <span class="math inline">R</span> and three you expect to be out. Then ask: if you draw the relation graph, do the elements split into separate clumps?</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+<span class="math inline">|a-b|</span> is even iff <span class="math inline">a</span> and <span class="math inline">b</span> have the <em>same parity</em> (both odd or both even).
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Group <span class="math inline">A</span> by parity, then check pairs <em>across</em> and <em>within</em> each group.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p>Reflexive ✓ (<span class="math inline">|a-a|=0</span>, even). Symmetric ✓ (<span class="math inline">|a-b| = |b-a|</span>). Transitive ✓ (sum of two evens is even, so <span class="math inline">|a-b|</span> even and <span class="math inline">|b-c|</span> even forces <span class="math inline">|a-c|</span> even). So <span class="math inline">R</span> is an equivalence relation.</p>
+The elements split cleanly: <span class="math inline">\{1, 3, 5\}</span> (all odd) sit in one clump, <span class="math inline">\{2, 4\}</span> (all even) in the other. <strong>No</strong> odd-even pair is in <span class="math inline">R</span>. Two clumps, no overlap, no leftovers — that is exactly what an equivalence relation does to a set.
+</details>
 <p>You have just felt the four important properties: a relation can be <strong>reflexive</strong> (full diagonal), <strong>symmetric</strong> (mirror), <strong>transitive</strong> (chaining); a function can be <strong>one-one</strong> (no two inputs share an output) and <strong>onto</strong> (every element of the codomain is hit).</p>
 <div class="fun-fact">
 <p>The “two infinite sets are the same size when there is a bijection between them” idea was Cantor’s bombshell. In 1874 he showed the integers can be put into one-one correspondence with the rationals (a bijection <span class="math inline">\mathbb{N} \to
@@ -2677,6 +2702,75 @@ Outputs <span class="math inline">2, 2, 3</span>. The element <span class="math 
 <li><strong>Class of 0.</strong> Integers <span class="math inline">b</span> with <span class="math inline">b - 0</span> divisible by 5, i.e. <span class="math inline">b \in \{\ldots, -10, -5, 0, 5, 10, \ldots\}</span> — all multiples of 5.</li>
 </ol>
 <p><strong>Answer:</strong> <span class="math inline">R</span> is an equivalence relation; <span class="math inline">[0] = 5\mathbb{Z}</span>.</p>
+</section>
+<section id="worked-example-the-swap-and-solve-template" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-the-swap-and-solve-template">Worked example — the swap-and-solve template</h3>
+<blockquote class="blockquote">
+<p>Let <span class="math inline">f : \mathbb{R} \to \mathbb{R}</span>, <span class="math inline">f(x) = 3x - 7</span>. Show <span class="math inline">f</span> is bijective and write down its inverse.</p>
+</blockquote>
+<p>Three moves, every time:</p>
+<ol type="1">
+<li><strong>One-one.</strong> <span class="math inline">3a - 7 = 3b - 7 \Rightarrow 3a = 3b \Rightarrow a = b</span>. ✓</li>
+<li><strong>Onto.</strong> Pick any <span class="math inline">y \in \mathbb{R}</span>. Solve <span class="math inline">3x - 7 = y</span>: <span class="math inline">x = \tfrac{y+7}{3}</span>. This is a real number, so a pre-image always exists. ✓</li>
+<li><strong>Inverse (swap-and-solve).</strong> Write <span class="math inline">y = 3x - 7</span>, solve for <span class="math inline">x</span>: <span class="math inline">x = \tfrac{y+7}{3}</span>. Rename: <span class="math inline">f^{-1}(x) = \tfrac{x+7}{3}</span>.</li>
+</ol>
+<p>A useful sanity check: compute <span class="math inline">(f^{-1} \circ f)(x)</span>. You should get <span class="math inline">x</span> back, and you do — <span class="math inline">\frac{(3x-7)+7}{3} = x</span>. The inverse “undoes” <span class="math inline">f</span>.</p>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Trap-table — only two of three properties
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A relation can satisfy any <em>two</em> of {reflexive, symmetric, transitive} without satisfying the third. Spotting which property fails is a classic 1-mark / 2-mark question.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Relation on <span class="math inline">A = \{1,2,3\}</span></th>
+<th style="text-align: center;">Reflexive?</th>
+<th style="text-align: center;">Symmetric?</th>
+<th style="text-align: center;">Transitive?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\{(1,1), (2,2), (3,3), (1,2)\}</span></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\{(1,2), (2,1)\}</span></td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\{(1,1), (2,2), (3,3), (1,2), (2,1)\}</span></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓ (equivalence)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\{(1,2), (2,3), (1,3)\}</span></td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\{(1,1), (2,2), (3,3), (1,2), (2,3)\}</span></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✗</td>
+<td style="text-align: center;">✗ (need <span class="math inline">(1,3)</span>)</td>
+</tr>
+</tbody>
+</table>
+<p>Build your own row: pick a property to break, then construct the smallest relation that breaks it.</p>
+</div>
+</div>
 </section>
 <section id="practice-warm" class="level3">
 <h3 class="anchored" data-anchor-id="practice-warm">Practice — Warm</h3>
@@ -2786,6 +2880,55 @@ Full solution
 </summary>
 <p>Equivalence relations on <span class="math inline">A</span> correspond to partitions of <span class="math inline">A</span>. For <span class="math inline">A = \{a,b,c\}</span>: 1. <span class="math inline">\{a\},\{b\},\{c\}</span> (all singletons) 2. <span class="math inline">\{a,b\},\{c\}</span> 3. <span class="math inline">\{a,c\},\{b\}</span> 4. <span class="math inline">\{b,c\},\{a\}</span> 5. <span class="math inline">\{a,b,c\}</span> (one big block)</p>
 <strong>5 partitions, 5 equivalence relations.</strong>
+</details>
+<p><strong>S3.</strong> Let <span class="math inline">f, g : \mathbb{R} \to \mathbb{R}</span> with <span class="math inline">f(x) = x + 2</span> and <span class="math inline">g(x) = x^2</span>. Compute <span class="math inline">(f \circ g)(x)</span> and <span class="math inline">(g \circ f)(x)</span>. Are they the same? Then: is <span class="math inline">f</span> bijective on <span class="math inline">\mathbb{R}</span>? If yes, find <span class="math inline">f^{-1}</span> and verify <span class="math inline">(f^{-1} \circ f)(x) = x</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+<span class="math inline">(f \circ g)(x)</span> means apply <span class="math inline">g</span> <em>first</em>, then <span class="math inline">f</span>. The order matters — do not assume <span class="math inline">f \circ g = g \circ f</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+For the inverse, set <span class="math inline">y = f(x)</span> and solve for <span class="math inline">x</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 3 — the first step
+</summary>
+<span class="math inline">(f \circ g)(x) = f(g(x)) = f(x^2) = x^2 + 2</span>. <span class="math inline">(g \circ f)(x) = g(f(x)) = g(x+2) = (x+2)^2</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><span class="math inline">(f \circ g)(x) = x^2 + 2</span> and <span class="math inline">(g \circ f)(x) = (x+2)^2 = x^2 + 4x + 4</span>. <strong>Not equal</strong> — composition is not commutative in general.</p>
+For <span class="math inline">f^{-1}</span>: <span class="math inline">y = x + 2 \Rightarrow x = y - 2</span>, so <span class="math inline">f^{-1}(x) = x - 2</span>. Verify: <span class="math inline">(f^{-1} \circ f)(x) = f^{-1}(x+2) = (x+2) - 2 = x</span>. ✓
+</details>
+<p><strong>S4.</strong> Let <span class="math inline">f : \mathbb{R} \to \mathbb{R}</span>, <span class="math inline">f(x) = 2x + 1</span>, and <span class="math inline">g : \mathbb{R} \to \mathbb{R}</span>, <span class="math inline">g(x) = 3x</span>. Both are bijections. Find <span class="math inline">(g \circ f)^{-1}(x)</span> in two ways: (a) directly, by inverting <span class="math inline">g \circ f</span>; (b) using the rule <span class="math inline">(g \circ f)^{-1} = f^{-1} \circ g^{-1}</span>. Confirm the two agree, and notice the <em>order flips</em>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+First compute <span class="math inline">(g \circ f)(x)</span>. Then invert. Separately, compute <span class="math inline">f^{-1}</span> and <span class="math inline">g^{-1}</span> and compose them — but in the <em>reverse</em> order.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Inverses compose in reverse, like undressing: socks-then-shoes goes on, shoes-then-socks comes off.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><strong>(a) Direct.</strong> <span class="math inline">(g \circ f)(x) = g(2x + 1) = 3(2x + 1) = 6x + 3</span>. Set <span class="math inline">y = 6x + 3</span> and solve: <span class="math inline">x = (y-3)/6</span>. So <span class="math inline">(g \circ f)^{-1}(x) =
+\tfrac{x-3}{6}</span>.</p>
+<p><strong>(b) Rule.</strong> <span class="math inline">f^{-1}(x) = (x-1)/2</span>, <span class="math inline">g^{-1}(x) = x/3</span>. Then <span class="math inline">(f^{-1} \circ g^{-1})(x) = f^{-1}(x/3) = \tfrac{x/3 - 1}{2} =
+\tfrac{x-3}{6}</span>. ✓ Same answer.</p>
+The order flip is the key: <span class="math inline">(g \circ f)^{-1} = f^{-1} \circ g^{-1}</span>, <strong>not</strong> <span class="math inline">g^{-1} \circ f^{-1}</span>. If you reverse a two-step process, you undo step 2 first, step 1 second.
 </details>
 </section>
 <section id="board-pattern-practice" class="level3">
@@ -2925,8 +3068,11 @@ Full solution
 <h3 class="anchored" data-anchor-id="common-confusions">Common confusions</h3>
 <ol type="1">
 <li><strong>“A relation that is symmetric and transitive must be reflexive.”</strong> No — there’s a famous trap. If <span class="math inline">R</span> is symmetric and transitive, you can almost prove <span class="math inline">aRb \Rightarrow aRa</span>, <em>but only if</em> there exists some <span class="math inline">b</span> with <span class="math inline">aRb</span>. An element with no partners has no diagonal pair forced. Example: <span class="math inline">A = \{1,2\}</span>, <span class="math inline">R = \{(2,2)\}</span> is symmetric and transitive but not reflexive.</li>
+<li><strong>“A chain <span class="math inline">(1,2), (2,3)</span> in <span class="math inline">R</span> is automatically transitive.”</strong> No — transitivity <em>requires</em> <span class="math inline">(1,3)</span> to already be in <span class="math inline">R</span>. The relation <span class="math inline">\{(1,2), (2,3)\}</span> is <strong>not</strong> transitive. You must add <span class="math inline">(1,3)</span> yourself; chaining is the test, not the gift.</li>
 <li><strong>“Onto means the function covers <span class="math inline">\mathbb{R}</span>.”</strong> No — onto is relative to the <strong>codomain</strong> declared. <span class="math inline">f : \mathbb{R} \to [1,\infty)</span>, <span class="math inline">f(x) = x^2 + 1</span>, <em>is</em> onto. It’s the same rule as before; the codomain changed.</li>
-<li><strong>“One-one functions are always invertible on their codomain.”</strong> Only when the function is <em>also</em> onto. Inverse needs bijection. We meet this carefully in the next lesson.</li>
+<li><strong>“<span class="math inline">g \circ f</span> means apply <span class="math inline">g</span> first.”</strong> No — read it from the inside out: <span class="math inline">(g \circ f)(x) = g(f(x))</span> means apply <span class="math inline">f</span> <em>first</em>, then <span class="math inline">g</span>. Easy to flip when writing on paper. And in general <span class="math inline">g \circ f \ne
+f \circ g</span>, so the order matters every time.</li>
+<li><strong>“One-one functions are always invertible on their codomain.”</strong> Only when the function is <em>also</em> onto. Inverse needs bijection. The swap-and-solve recipe (<span class="math inline">y = f(x)</span>, solve for <span class="math inline">x</span>) only succeeds when the equation has <em>exactly one</em> real solution for every <span class="math inline">y</span> in the codomain.</li>
 </ol>
 </section>
 <section id="self-assessment" class="level3">
@@ -2978,9 +3124,12 @@ Full solution
 <div class="applied-callout">
 <p><strong>Research.</strong> Equivalence classes appear everywhere — modular arithmetic in number theory, homotopy classes in topology, similarity classes of matrices in linear algebra. The pattern <em>partition by an equivalence relation</em> is a load-bearing tool.</p>
 </div>
+<div class="fun-fact">
+<p>The word <em>function</em> was first used in our modern sense by <strong>Leibniz</strong> in 1673 — to describe a quantity dependent on a curve. The notation <span class="math inline">f(x)</span> that you write every day was introduced by <strong>Leonhard Euler</strong> in 1734. The names <em>injection</em> and <em>surjection</em> are much younger, coined by the Bourbaki collective in mid-20th-century France; <em>surjection</em> is built from the Latin <em>super-</em> (“over”) plus <em>jacere</em> (“to throw”) — onto literally means “thrown over” the codomain.</p>
+</div>
 <hr>
 <div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -2989,7 +3138,7 @@ Full solution
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <ul>
 <li><strong>Touchstones:</strong> Gelfand (problem-first <em>Discover</em>), Bhāskara (compact <em>Name</em> with verse), AoPS (graduated practice).</li>

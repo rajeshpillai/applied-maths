@@ -1,0 +1,3344 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>permutations-combinations – Applied Maths — Grade 5 to Masters</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-d0ae9245876894da5ac7e18953ecc5cc.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-cf4647c5057ecc4bfbfa51c4f1fe6500.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-a352a3c42709758d95df0fb89b7a9f75.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-cf4647c5057ecc4bfbfa51c4f1fe6500.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Applied Maths — Grade 5 to Masters</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tiers" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tiers</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tiers">    
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-1-foundations/index.html">
+ <span class="dropdown-text">Tier 1 — Foundations (Grade 5–7)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-2-prealgebra/index.html">
+ <span class="dropdown-text">Tier 2 — Pre-Algebra (Grade 8–9)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-3-algebra2-geometry-trig/index.html">
+ <span class="dropdown-text">Tier 3 — Algebra II / Geometry / Trig</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-4-precalc-calculus/index.html">
+ <span class="dropdown-text">Tier 4 — Pre-Calc &amp; Calculus</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-5-undergrad-core/index.html">
+ <span class="dropdown-text">Tier 5 — Undergrad Core</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-6-undergrad-advanced/index.html">
+ <span class="dropdown-text">Tier 6 — Undergrad Advanced</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-7-masters-tracks/index.html">
+ <span class="dropdown-text">Tier 7 — Masters Tracks</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-cbse--ncert" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">CBSE / NCERT</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-cbse--ncert">    
+        <li>
+    <a class="dropdown-item" href="../../cbse/index.html">
+ <span class="dropdown-text">CBSE Track Overview</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-cbse-08-class-8/index.html">
+ <span class="dropdown-text">Class 8</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-cbse-09-class-9/index.html">
+ <span class="dropdown-text">Class 9</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-cbse-10-class-10/index.html">
+ <span class="dropdown-text">Class 10 (Board)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-cbse-11-class-11/index.html">
+ <span class="dropdown-text">Class 11</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-cbse-12-class-12/index.html">
+ <span class="dropdown-text">Class 12 (Board)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-kiselev" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Kiselev</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-kiselev">    
+        <li>
+    <a class="dropdown-item" href="../../kiselev/index.html">
+ <span class="dropdown-text">Kiselev Track Overview</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-kiselev-0-arithmetic/index.html">
+ <span class="dropdown-text">Arithmetic</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-kiselev-1-algebra-1/index.html">
+ <span class="dropdown-text">Algebra, Part I</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-kiselev-2-algebra-2/index.html">
+ <span class="dropdown-text">Algebra, Part II</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-kiselev-3-planimetry/index.html">
+ <span class="dropdown-text">Geometry — Planimetry</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lessons/tier-kiselev-4-stereometry/index.html">
+ <span class="dropdown-text">Geometry — Stereometry</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-rl-math" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">RL Math</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-rl-math">    
+        <li>
+    <a class="dropdown-item" href="../../mfrl/index.html">
+ <span class="dropdown-text">Mathematics for Reinforcement Learning</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-i-want-to-learn..." role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">I want to learn…</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-i-want-to-learn...">    
+        <li>
+    <a class="dropdown-item" href="../../applied-bridges/ai-ml.html">
+ <span class="dropdown-text">AI / ML</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../applied-bridges/game-dev.html">
+ <span class="dropdown-text">Game Development</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../applied-bridges/databases.html">
+ <span class="dropdown-text">Databases</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../applied-bridges/systems.html">
+ <span class="dropdown-text">Systems</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../applied-bridges/encryption.html">
+ <span class="dropdown-text">Encryption</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../applied-bridges/research.html">
+ <span class="dropdown-text">Research</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+    <a href="https://github.com/rajeshpillai/applied-maths" title="Star on GitHub" class="quarto-navigation-tool px-1" aria-label="Star this project on GitHub" target="_blank"><i class="bi bi-github"></i></a>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Applied Maths</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tier 1 — Foundations</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/01-what-is-a-number/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · What is a Number?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/02-number-line/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · The Number Line</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/03-place-value/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · Place Value</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/04-add-subtract/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · Addition and Subtraction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/05-multiply-as-area/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · Multiplication as Area</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/06-divide-fair-share/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · Division as Fair Share</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/07-fractions-as-parts/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · Fractions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/08-decimals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08 · Decimals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/09-ratio-proportion/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · Ratio and Proportion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/10-negative-numbers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · Negative Numbers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/11-intro-variables/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/12-shapes-angles/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · Shapes and Angles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/13-area-perimeter-volume/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · Area, Perimeter, Volume</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/14-data-and-average/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Data and the Average</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-1-foundations/15-divisibility-and-primes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · Divisibility and Primes</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tier 2 — Pre-Algebra &amp; Algebra I</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/01-functions-as-machines/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · Functions as Machines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/02-linear-equations-one-var/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · Linear Equations in One Variable</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/03-linear-inequalities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · Linear Inequalities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/04-coordinate-plane/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · The Coordinate Plane</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/05-linear-functions-graphs/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · Linear Functions and Their Graphs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/06-systems-linear-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · Systems of Linear Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/07-exponents-powers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · Exponents and Powers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/08-scientific-notation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08 · Scientific Notation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/09-square-roots-irrationals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · Square Roots and Irrationals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/10-pythagorean-theorem/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · The Pythagorean Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/11-polynomials/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · Polynomials — Adding and Multiplying</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/12-factoring-polynomials/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · Factoring Polynomials</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/13-similarity-scale/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · Similarity and Scale</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/14-quadratic-equations-intro/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Quadratic Equations (Intro)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-2-prealgebra/15-sequences-intro/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · Sequences (Intro)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tier 3 — Algebra II / Geometry / Trig</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/01-quadratic-formula/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · Completing the Square &amp; Quadratic Formula</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/02-parabola-graphing/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · Parabolas — Graphing Quadratics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/03-conic-sections/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · Conic Sections</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/04-sequences-series/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · Sequences and Series</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/05-logarithms/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · Logarithms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/06-exp-log-functions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · Exponential and Logarithmic Functions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/07-trig-ratios/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · Trigonometry — The Ratios</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/08-unit-circle/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08 · The Unit Circle</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/09-trig-identities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · Trigonometric Identities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/10-solving-trig-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · Solving Trigonometric Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/11-combinatorics-counting/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · Combinatorics — Counting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/12-binomial-theorem/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · The Binomial Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/13-basic-probability/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · Basic Probability</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/14-conditional-probability/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Conditional Probability and Independence</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-3-algebra2-geometry-trig/15-discrete-distributions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · Discrete Probability Distributions</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tier 4 — Pre-Calculus and Calculus</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/01-limits/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · Limits — The Idea of Approach</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/02-continuity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · Continuity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/03-derivative/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · The Derivative — Slope of a Curve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/04-differentiation-rules/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · Differentiation Rules</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/05-derivatives-trig-exp-log/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · Derivatives of Trig, Exp, and Log Functions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/06-optimization/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · Applications of Derivatives — Optimisation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/07-related-rates/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · Related Rates and Linear Approximation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/08-definite-integral/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08 · The Definite Integral — Area Under a Curve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/09-fundamental-theorem/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · The Fundamental Theorem of Calculus</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/10-integration-techniques/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · Techniques of Integration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/11-integration-applications/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · Applications of Integration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/12-differential-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · Differential Equations — Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/13-vectors-2d-3d/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · Vectors in 2D and 3D</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/14-dot-cross-product/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Dot Product and Cross Product</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-4-precalc-calculus/15-parametric-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · Parametric Equations and Curves</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tier 5 — Undergraduate Core</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/01-matrices/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · Matrices and Matrix Operations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/02-linear-systems-gaussian/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · Linear Systems and Gaussian Elimination</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/03-vector-spaces/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · Vector Spaces, Linear Independence, Basis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/04-eigenvalues/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · Eigenvalues and Eigenvectors</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/05-partial-derivatives/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · Partial Derivatives and the Gradient</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/06-multiple-integrals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · Multiple Integrals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/07-vector-fields/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · Vector Fields, Divergence, Curl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/08-continuous-distributions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08 · Continuous Distributions and the Normal</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/09-variance-clt/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · Variance, Standard Deviation, and the Central Limit Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/10-statistical-inference/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · Statistical Inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/11-sets-logic-proofs/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · Sets, Logic, and Proof Techniques</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/12-graphs-algorithms/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · Graphs and Their Algorithms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/13-modular-arithmetic-rsa/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · Modular Arithmetic and the RSA Algorithm</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/14-sequences-series-convergence/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Sequences, Series, and Convergence</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-5-undergrad-core/15-real-analysis-foundation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · Continuity and Differentiability — Rigorous Foundation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tier 6 — Undergraduate Advanced</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/01-groups/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · Groups — Symmetry and Structure</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/02-rings-fields/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · Rings and Fields</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/03-group-actions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · Group Actions and Symmetry</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/04-complex-numbers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · Complex Numbers and Operations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/05-complex-functions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · Complex Functions and Cauchy’s Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/06-second-order-odes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · Second-Order Linear ODEs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/07-pdes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · Partial Differential Equations — Heat, Wave, Laplace</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/08-numerical-methods/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08 · Numerical Methods</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/09-convex-optimization/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · Convex Optimisation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/10-gradient-methods/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · Gradient Methods and SGD Variants</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/11-information-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · Information Theory — Entropy and Channel Capacity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/12-fourier-series/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · Fourier Series</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/13-fourier-transform/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · The Fourier Transform</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/14-spectral-graph-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Spectral Graph Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-6-undergrad-advanced/15-spectral-theorem/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · The Spectral Theorem and Functional Analysis Preview</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tier 7 — Masters Specialisation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/01-measure-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · Measure Theory and Lebesgue Integration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/02-topology/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · Topology — Open Sets, Continuity, Compactness</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/03-galois-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · Galois Theory — Solvability of Polynomial Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/04-statistical-learning-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · Statistical Learning Theory — PAC, VC Dimension</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/05-manifold-methods/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · Manifold Methods for Machine Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/06-rl-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · Reinforcement Learning Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/07-differential-geometry/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · Differential Geometry — Manifolds, Curvature, Geodesics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/08-quaternions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08 · Quaternions and 3D Rotations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/09-relational-algebra/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · Relational Algebra and Query Optimisation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/10-queueing-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · Queueing Theory and Performance Modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/11-formal-methods/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · Formal Methods — Model Checking and Temporal Logic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/12-algebraic-number-theory/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · Algebraic Number Theory</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/13-elliptic-curves/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · Elliptic Curves and ECC</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/14-lattice-crypto/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Lattice-Based Post-Quantum Cryptography</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-7-masters-tracks/15-langlands-program/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · The Langlands Program — A Glimpse of Unification</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">CBSE / NCERT Track</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../cbse/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CBSE / NCERT Track — Class 8 to Class 12</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text">Class 8</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/01-rational-numbers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Rational Numbers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/02-linear-equations-one-var/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Linear Equations in One Variable</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/03-understanding-quadrilaterals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3 — Understanding Quadrilaterals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/04-data-handling/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — Data Handling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/05-squares-and-square-roots/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Squares and Square Roots</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/06-cubes-and-cube-roots/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6 — Cubes and Cube Roots</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/07-comparing-quantities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7 — Comparing Quantities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/08-algebraic-expressions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8 — Algebraic Expressions and Identities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/09-mensuration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 9 — Mensuration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/10-exponents-and-powers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 10 — Exponents and Powers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/11-direct-inverse-proportions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 11 — Direct and Inverse Proportions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/12-factorisation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 12 — Factorisation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-08-class-8/13-introduction-to-graphs/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 13 — Introduction to Graphs</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text">Class 9</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/01-number-systems/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Number Systems</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/02-polynomials/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Polynomials</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/03-coordinate-geometry/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3 — Coordinate Geometry</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/04-linear-equations-two-vars/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — Linear Equations in Two Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/05-euclids-geometry/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Introduction to Euclid’s Geometry</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/06-lines-and-angles/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6 — Lines and Angles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/07-triangles/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7 — Triangles (Congruence and Properties)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/08-quadrilaterals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8 — Quadrilaterals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/09-circles/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 9 — Circles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/10-herons-formula/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 10 — Heron’s Formula</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/11-surface-areas-and-volumes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 11 — Surface Areas and Volumes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-09-class-9/12-statistics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 12 — Statistics</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text">Class 10 (Board)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/01-real-numbers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Real Numbers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/02-polynomials/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Polynomials</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/03-pair-linear-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3 — Pair of Linear Equations in Two Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/04-quadratic-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — Quadratic Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/05-arithmetic-progressions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Arithmetic Progressions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/06-triangles-similarity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6 — Triangles (Similarity)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/07-coordinate-geometry/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7 — Coordinate Geometry</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/08a-trigonometry-intro/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8a — Introduction to Trigonometry</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/08b-trigonometric-identities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8b — Trigonometric Identities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/09-heights-and-distances/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 9 — Some Applications of Trigonometry (Heights &amp; Distances)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/10-circles-tangents/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 10 — Circles (Tangents)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/11-areas-related-to-circles/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 11 — Areas Related to Circles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/12-surface-areas-and-volumes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 12 — Surface Areas and Volumes (Combined Solids)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/13-statistics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 13 — Statistics (Mean, Median, Mode of Grouped Data)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-10-class-10/14-probability/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 14 — Probability (Classical Definition)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text">Class 11</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/01-sets/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Sets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/02-relations-and-functions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Relations and Functions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/03a-trig-functions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3a — Trigonometric Functions (Radians, Unit Circle, Graphs)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/03b-trig-identities-compound-angles/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3b — Compound, Multiple &amp; Sub-Multiple Angle Identities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/03c-trig-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3c — Trigonometric Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/04-complex-numbers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — Complex Numbers and Quadratic Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/05-linear-inequalities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Linear Inequalities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/06-permutations-combinations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6 — Permutations and Combinations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/07-binomial-theorem/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7 — Binomial Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/08a-sequences-ap-gp/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8a — Sequences (AP and GP)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/08b-series-sums/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8b — Series and Special Sums</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/09-straight-lines/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 9 — Straight Lines</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/10a-conic-sections-circle-parabola/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 10a — Conic Sections (Circle and Parabola)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/10b-conic-sections-ellipse-hyperbola/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 10b — Conic Sections (Ellipse and Hyperbola)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/11-three-d-geometry-intro/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 11 — Introduction to Three-Dimensional Geometry</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/12a-limits/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 12a — Limits</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/12b-derivatives-intro/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 12b — Derivatives (Introduction)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/13-statistics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 13 — Statistics (Variance and Standard Deviation)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-11-class-11/14-probability/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 14 — Probability (Axiomatic Approach)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Class 12 (Board)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/01-relations-functions-types/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Relations and Functions (Types)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/02-inverse-trig-functions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Inverse Trigonometric Functions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/03a-matrices-intro/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3a — Matrices (Definition and Types)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/03b-matrix-operations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3b — Matrix Operations and Transpose</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/04a-determinants/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4a — Determinants</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/04b-matrix-inverse-cramers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4b — Matrix Inverse and Cramer’s Rule</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/05a-continuity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5a — Continuity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/05b-differentiability-and-rules/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5b — Differentiability and Differentiation Rules</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/06a-tangents-normals-rates/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6a — Application of Derivatives (Tangents, Normals, Rates)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/06b-maxima-minima/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6b — Maxima and Minima</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/07a-indefinite-integrals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7a — Indefinite Integrals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/07b-integration-techniques/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7b — Integration Techniques (Substitution, Parts, Partial Fractions)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/07c-definite-integrals-properties/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7c — Definite Integrals and Their Properties</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/08-area-under-curves/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8 — Application of Integrals (Areas)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/09-differential-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 9 — Differential Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/10a-vector-algebra/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 10a — Vector Algebra</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/10b-dot-cross-product-applications/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 10b — Dot Product, Cross Product, and Applications</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/11a-lines-in-3d/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 11a — Lines in 3D</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/11b-planes-in-3d/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 11b — Planes in 3D</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/12-linear-programming/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 12 — Linear Programming</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/13a-conditional-probability-bayes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 13a — Conditional Probability and Bayes’ Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-cbse-12-class-12/13b-random-variables-distributions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 13b — Random Variables and Probability Distributions</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true">
+ <span class="menu-text">Kiselev — Russian Classical Track</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kiselev/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Kiselev — Russian Classical Track</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false">
+ <span class="menu-text">Arithmetic</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-0-arithmetic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Kiselev — Arithmetic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-0-arithmetic/01-whole-numbers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Whole Numbers and the Four Operations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-0-arithmetic/02-divisibility/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Divisibility, Primes, GCD and LCM</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-0-arithmetic/03-common-fractions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3 — Common Fractions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-0-arithmetic/04-decimals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — Decimal Fractions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-0-arithmetic/05-ratio-proportion/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Ratio and Proportion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-0-arithmetic/06-percentage/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6 — Percentage and Interest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false">
+ <span class="menu-text">Algebra, Part I</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Kiselev — Algebra, Part I</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/01-signed-numbers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Signed Numbers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/02-polynomials/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Polynomials and Algebraic Expressions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/03-factoring/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3 — Factoring Polynomials</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/04-algebraic-fractions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — Algebraic Fractions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/05-linear-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Linear Equations in One Unknown</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/06-linear-systems/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6 — Systems of Linear Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/07-linear-inequalities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7 — Linear Inequalities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/08-powers-roots/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8 — Powers and Roots</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-1-algebra-1/09-quadratic-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 9 — Quadratic Equations</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false">
+ <span class="menu-text">Algebra, Part II</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-17" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-17" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-2-algebra-2/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Kiselev — Algebra, Part II</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-2-algebra-2/01-complex-numbers/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Complex Numbers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-2-algebra-2/02-higher-degree-equations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Higher-Degree Equations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-2-algebra-2/03-higher-degree-inequalities/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3 — Higher-Degree Inequalities</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-2-algebra-2/04-exponentials-logarithms/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — Exponentials and Logarithms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-2-algebra-2/05-sequences-progressions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Sequences and Progressions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-2-algebra-2/06-combinatorics-binomial/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6 — Combinatorics and the Binomial Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-2-algebra-2/07-limits/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7 — Limits and Continued Fractions</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false">
+ <span class="menu-text">Geometry — Planimetry</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-18" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-18" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Kiselev — Geometry, Book I (Planimetry)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/01-lines-and-angles/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — The Straight Line (Lines and Angles)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/02-triangle-congruence/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — The Triangle (Congruence)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/03-perpendiculars/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3 — Perpendiculars and Obliques</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/04-parallels/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — Parallels</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/05-quadrilaterals/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Quadrilaterals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/06-circles/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 6 — Circles</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/07-similarity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 7 — Similarity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/08-regular-polygons/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 8 — Regular Polygons and Circumference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-3-planimetry/09-areas/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 9 — Areas</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false">
+ <span class="menu-text">Geometry — Stereometry</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-19" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-19" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-4-stereometry/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Kiselev — Geometry, Book II (Stereometry)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-4-stereometry/01-lines-and-planes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 1 — Lines and Planes in Space</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-4-stereometry/02-polyhedra/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 2 — Polyhedra: Prisms and Pyramids</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-4-stereometry/03-cylinder-cone/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 3 — Cylinder and Cone (Round Solids)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-4-stereometry/04-sphere/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 4 — The Sphere</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-kiselev-4-stereometry/05-regular-polyhedra/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ch 5 — Regular Polyhedra and Similar Solids</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="true">
+ <span class="menu-text">RL Math — Mathematics for Reinforcement Learning</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-20" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-20" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../mfrl/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">RL Math — Mathematics for Reinforcement Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">00 · Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-21" role="navigation" aria-expanded="false">
+ <span class="menu-text">Part 1 — Basic Tools</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-21" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-21" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/01-mdp-and-grid-world/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">01 · What is an MDP? Grid-World Foundations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/02-state-transitions/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">02 · State Transitions and the Markov Property</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/03-policy/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">03 · Policies as Conditional Distributions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/04-trajectories-returns-episodes/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">04 · Trajectories, Returns, and the Discount</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/05-state-values/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">05 · State Values: Expected Return</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/06-bellman-equation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">06 · The Bellman Equation, Derived</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/07-bellman-matrix-form/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">07 · Matrix-Vector Bellman and Closed-Form Solution</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/08-action-values/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">08 · From State Values to Action Values</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/09-optimal-policies/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">09 · Optimal Policies and Optimal Values</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/10-bellman-optimality-equation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">10 · The Bellman Optimality Equation (BOE)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/11-contraction-mapping-theorem/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">11 · The Banach Fixed-Point Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/12-boe-uniqueness/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">12 · The BOE is a Contraction; v* is Its Unique Fixed Point</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/13-value-iteration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">13 · Value Iteration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/14-policy-iteration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">14 · Policy Iteration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/15-truncated-policy-iteration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">15 · Truncated Policy Iteration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/16-mean-estimation-from-samples/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">16 · Mean Estimation from Samples (the LLN as MC’s Engine)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/17-mc-basic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">17 · MC Basic: Model-Free Policy Iteration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/18-mc-exploring-starts/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">18 · Sample Efficiency: Every-Visit MC and Exploring Starts</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/19-epsilon-greedy/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">19 · ε-Greedy: Exploration without Exploring Starts</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/20-robbins-monro/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">20 · Robbins-Monro: Solving g(w)=0 from Noisy Samples</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/21-dvoretzky-convergence/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">21 · Dvoretzky’s Convergence Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/22-stochastic-gradient-descent/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">22 · SGD: Gradient Descent with Sampled Gradients</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-22" role="navigation" aria-expanded="false">
+ <span class="menu-text">Part 2 — Algorithms</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-22" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-22" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/23-td-state-values/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">23 · TD(0): Bootstrapped Value Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/24-sarsa/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">24 · Sarsa: TD for Action Values, On-Policy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/25-n-step-sarsa/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">25 · n-Step Sarsa: Bridging TD(0) and Monte Carlo</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/26-q-learning/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">26 · Q-Learning: TD for Optimal Action Values, Off-Policy</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/27-td-unified-view/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">27 · TD Methods Unified: Sarsa, Q, Expected Sarsa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/28-from-table-to-function/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">28 · From Table to Function: Why Function Approximation?</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/29-td-with-function-approximation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">29 · TD with Function Approximation: Semi-Gradient TD</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/30-q-learning-with-fa/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">30 · Q-Learning with FA, and the Deadly Triad</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/31-deep-q-network/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">31 · Deep Q-Network: Target Networks and Replay Buffers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/32-policy-parameterization/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">32 · Parameterising Policies: Softmax and Gaussian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">33 · The Policy Gradient Theorem</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/34-reinforce/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">34 · REINFORCE: Monte Carlo Policy Gradient</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">35 · QAC: The Simplest Actor-Critic</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">36 · A2C: Advantage Estimation and Baseline Invariance</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">37 · Off-Policy Actor-Critic and Importance Sampling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">38 · Deterministic Policy Gradient (DPG) and DDPG</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#permutations-and-combinations-class-11-chapter-7" id="toc-permutations-and-combinations-class-11-chapter-7" class="nav-link active" data-scroll-target="#permutations-and-combinations-class-11-chapter-7">Permutations and Combinations (Class 11, Chapter 7)</a>
+  <ul class="collapse">
+  <li><a href="#why-we-need-this-chapter" id="toc-why-we-need-this-chapter" class="nav-link" data-scroll-target="#why-we-need-this-chapter">1. Why we need this chapter</a></li>
+  <li><a href="#fundamental-principle-of-counting-fpc" id="toc-fundamental-principle-of-counting-fpc" class="nav-link" data-scroll-target="#fundamental-principle-of-counting-fpc">2. Fundamental Principle of Counting (FPC)</a>
+  <ul class="collapse">
+  <li><a href="#multiplication-rule-and" id="toc-multiplication-rule-and" class="nav-link" data-scroll-target="#multiplication-rule-and">2.1 Multiplication rule (AND)</a></li>
+  <li><a href="#addition-rule-or" id="toc-addition-rule-or" class="nav-link" data-scroll-target="#addition-rule-or">2.2 Addition rule (OR)</a></li>
+  <li><a href="#quick-illustration" id="toc-quick-illustration" class="nav-link" data-scroll-target="#quick-illustration">2.3 Quick illustration</a></li>
+  </ul></li>
+  <li><a href="#factorial-notation" id="toc-factorial-notation" class="nav-link" data-scroll-target="#factorial-notation">3. Factorial notation</a>
+  <ul class="collapse">
+  <li><a href="#why-0-1" id="toc-why-0-1" class="nav-link" data-scroll-target="#why-0-1">Why <code>0! = 1</code></a></li>
+  <li><a href="#practical-simplification" id="toc-practical-simplification" class="nav-link" data-scroll-target="#practical-simplification">Practical simplification</a></li>
+  </ul></li>
+  <li><a href="#permutations" id="toc-permutations" class="nav-link" data-scroll-target="#permutations">4. Permutations</a>
+  <ul class="collapse">
+  <li><a href="#what-permutation-means" id="toc-what-permutation-means" class="nav-link" data-scroll-target="#what-permutation-means">4.1 What “permutation” means</a></li>
+  <li><a href="#the-formula-npr-no-repetition" id="toc-the-formula-npr-no-repetition" class="nav-link" data-scroll-target="#the-formula-npr-no-repetition">4.2 The formula <code>nPr</code> (no repetition)</a></li>
+  <li><a href="#special-cases" id="toc-special-cases" class="nav-link" data-scroll-target="#special-cases">4.3 Special cases</a></li>
+  <li><a href="#worked-examples" id="toc-worked-examples" class="nav-link" data-scroll-target="#worked-examples">4.4 Worked examples</a></li>
+  <li><a href="#permutations-with-identical-objects" id="toc-permutations-with-identical-objects" class="nav-link" data-scroll-target="#permutations-with-identical-objects">4.5 Permutations with identical objects</a></li>
+  <li><a href="#circular-permutations-just-the-idea" id="toc-circular-permutations-just-the-idea" class="nav-link" data-scroll-target="#circular-permutations-just-the-idea">4.6 Circular permutations (just the idea)</a></li>
+  </ul></li>
+  <li><a href="#combinations" id="toc-combinations" class="nav-link" data-scroll-target="#combinations">5. Combinations</a>
+  <ul class="collapse">
+  <li><a href="#the-key-shift-order-doesnt-matter" id="toc-the-key-shift-order-doesnt-matter" class="nav-link" data-scroll-target="#the-key-shift-order-doesnt-matter">5.1 The key shift: order doesn’t matter</a></li>
+  <li><a href="#the-formula-ncr" id="toc-the-formula-ncr" class="nav-link" data-scroll-target="#the-formula-ncr">5.2 The formula <code>nCr</code></a></li>
+  <li><a href="#properties-of-ncr" id="toc-properties-of-ncr" class="nav-link" data-scroll-target="#properties-of-ncr">5.3 Properties of <code>nCr</code></a></li>
+  <li><a href="#worked-examples-1" id="toc-worked-examples-1" class="nav-link" data-scroll-target="#worked-examples-1">5.4 Worked examples</a></li>
+  <li><a href="#diagnosing-permutation-or-combination" id="toc-diagnosing-permutation-or-combination" class="nav-link" data-scroll-target="#diagnosing-permutation-or-combination">5.5 Diagnosing “permutation or combination?”</a></li>
+  </ul></li>
+  <li><a href="#common-solution-patterns" id="toc-common-solution-patterns" class="nav-link" data-scroll-target="#common-solution-patterns">6. Common solution patterns</a>
+  <ul class="collapse">
+  <li><a href="#together-not-together" id="toc-together-not-together" class="nav-link" data-scroll-target="#together-not-together">6.1 “Together / not together”</a></li>
+  <li><a href="#at-least-at-most" id="toc-at-least-at-most" class="nav-link" data-scroll-target="#at-least-at-most">6.2 “At least / at most”</a></li>
+  <li><a href="#fixed-positions" id="toc-fixed-positions" class="nav-link" data-scroll-target="#fixed-positions">6.3 Fixed positions</a></li>
+  <li><a href="#restricted-digits-leading-zeros" id="toc-restricted-digits-leading-zeros" class="nav-link" data-scroll-target="#restricted-digits-leading-zeros">6.4 Restricted digits / leading zeros</a></li>
+  </ul></li>
+  <li><a href="#worked-problem-set-ncert-flavoured" id="toc-worked-problem-set-ncert-flavoured" class="nav-link" data-scroll-target="#worked-problem-set-ncert-flavoured">7. Worked-problem set (NCERT-flavoured)</a></li>
+  <li><a href="#common-pitfalls" id="toc-common-pitfalls" class="nav-link" data-scroll-target="#common-pitfalls">8. Common pitfalls</a></li>
+  <li><a href="#quick-reference-card" id="toc-quick-reference-card" class="nav-link" data-scroll-target="#quick-reference-card">9. Quick reference card</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">10. Looking ahead</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/rajeshpillai/applied-maths/edit/main/references/class-11-ncert/permutations-combinations.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/rajeshpillai/applied-maths/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+
+<section id="permutations-and-combinations-class-11-chapter-7" class="level1">
+<h1>Permutations and Combinations (Class 11, Chapter 7)</h1>
+<p>A written tutorial covering the standard NCERT Class 11 chapter on counting. The chapter answers a single recurring question: <em>“In how many ways can this be done?”</em> The two big tools are the <strong>permutation</strong> (when order matters) and the <strong>combination</strong> (when it doesn’t), and both rest on the <strong>Fundamental Principle of Counting</strong>.</p>
+<hr>
+<section id="why-we-need-this-chapter" class="level2">
+<h2 class="anchored" data-anchor-id="why-we-need-this-chapter">1. Why we need this chapter</h2>
+<p>Suppose a 4-digit suitcase lock has each digit chosen freely from <code>0–9</code>. You forgot the code. How many combinations would you have to try in the worst case? Trying randomly is slow; what we want is a way to <em>count</em> the possibilities without listing them.</p>
+<p>Or: you have 2 shirts and 3 trousers. How many shirt-trouser outfits are possible? You can list <code>(S₁,P₁), (S₁,P₂), (S₁,P₃), (S₂,P₁), (S₂,P₂), (S₂,P₃)</code> — six pairs. But what if you had 12 shirts and 17 trousers? Listing breaks down. We need a principle.</p>
+<hr>
+</section>
+<section id="fundamental-principle-of-counting-fpc" class="level2">
+<h2 class="anchored" data-anchor-id="fundamental-principle-of-counting-fpc">2. Fundamental Principle of Counting (FPC)</h2>
+<section id="multiplication-rule-and" class="level3">
+<h3 class="anchored" data-anchor-id="multiplication-rule-and">2.1 Multiplication rule (AND)</h3>
+<blockquote class="blockquote">
+<p>If a first job can be done in <code>m</code> ways and, <em>for each</em> such way, a second job can be done in <code>n</code> ways, then both jobs together can be done in <code>m · n</code> ways.</p>
+</blockquote>
+<p>The shirt-trouser problem: 2 ways to choose the shirt × 3 ways to choose the trouser = 6 outfits. ✓</p>
+<p>The 4-digit lock: each slot has 10 independent choices, so <code>10 × 10 × 10 × 10 = 10⁴ = 10 000</code> codes.</p>
+<p>The rule generalises: for <code>k</code> independent stages with <code>n₁, n₂, …, n_k</code> ways respectively, the total number of ways is <code>n₁ · n₂ · … · n_k</code>.</p>
+</section>
+<section id="addition-rule-or" class="level3">
+<h3 class="anchored" data-anchor-id="addition-rule-or">2.2 Addition rule (OR)</h3>
+<blockquote class="blockquote">
+<p>If a job can be done in one of two <strong>mutually exclusive</strong> ways — either method A (with <code>m</code> choices) or method B (with <code>n</code> choices) — then the total number of ways is <code>m + n</code>.</p>
+</blockquote>
+<p>Example: a college lets you take <em>either</em> one of 5 science electives <em>or</em> one of 3 humanities electives. You take exactly one elective. Total options = <code>5 + 3 = 8</code>.</p>
+<p><strong>Rule of thumb:</strong> “AND” between stages → multiply; “OR” between alternatives → add.</p>
+</section>
+<section id="quick-illustration" class="level3">
+<h3 class="anchored" data-anchor-id="quick-illustration">2.3 Quick illustration</h3>
+<blockquote class="blockquote">
+<p>A school student wants to pack a school bag (2 available), a tiffin box (3 available), and a water bottle (2 available) — one of each. How many combinations?</p>
+</blockquote>
+<p>By FPC (multiplication): <code>2 · 3 · 2 = 12</code> distinct loadouts.</p>
+<hr>
+</section>
+</section>
+<section id="factorial-notation" class="level2">
+<h2 class="anchored" data-anchor-id="factorial-notation">3. Factorial notation</h2>
+<p>Many counting answers are products of consecutive integers. Notation:</p>
+<pre><code>n! = 1 · 2 · 3 · … · n      (read "n factorial")</code></pre>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><code>n</code></th>
+<th><code>n!</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>1 <em>(by convention — see below)</em></td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>6</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>24</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>120</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>720</td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td>5 040</td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td>40 320</td>
+</tr>
+</tbody>
+</table>
+<p>Key recursion: <code>n! = n · (n − 1)!</code>. So <code>8! = 8 · 7!</code>, <code>(n+1)! = (n+1) · n!</code>, and so on.</p>
+<section id="why-0-1" class="level3">
+<h3 class="anchored" data-anchor-id="why-0-1">Why <code>0! = 1</code></h3>
+<p>Forced by the recursion <code>1! = 1 · 0!</code>. For this to give <code>1! = 1</code>, we need <code>0! = 1</code>. (It’s a convention chosen so formulas behave at boundaries — not a theorem.)</p>
+</section>
+<section id="practical-simplification" class="level3">
+<h3 class="anchored" data-anchor-id="practical-simplification">Practical simplification</h3>
+<p>Almost every factorial-heavy expression is simplified by <em>cancelling</em> a smaller factorial out of a larger one rather than computing both numerically:</p>
+<pre><code>10! / 7! = 10 · 9 · 8 · 7! / 7! = 10 · 9 · 8 = 720</code></pre>
+<hr>
+</section>
+</section>
+<section id="permutations" class="level2">
+<h2 class="anchored" data-anchor-id="permutations">4. Permutations</h2>
+<section id="what-permutation-means" class="level3">
+<h3 class="anchored" data-anchor-id="what-permutation-means">4.1 What “permutation” means</h3>
+<p>A <strong>permutation</strong> is an ordered arrangement. The arrangements <code>AB</code> and <code>BA</code> are <em>different</em> permutations of the same two letters. Order matters.</p>
+</section>
+<section id="the-formula-npr-no-repetition" class="level3">
+<h3 class="anchored" data-anchor-id="the-formula-npr-no-repetition">4.2 The formula <code>nPr</code> (no repetition)</h3>
+<p>How many ways can we arrange <code>r</code> distinct objects chosen from <code>n</code> distinct objects, in a line, with <strong>no repetition</strong>?</p>
+<p>Fill <code>r</code> blank slots one by one:</p>
+<ul>
+<li>1st slot: any of <code>n</code> objects → <code>n</code> choices</li>
+<li>2nd slot: any of the remaining <code>n − 1</code> → <code>n − 1</code> choices</li>
+<li>3rd slot: <code>n − 2</code> choices</li>
+<li>…</li>
+<li><code>r</code>th slot: <code>n − r + 1</code> choices</li>
+</ul>
+<p>By FPC,</p>
+<pre><code>nPr = n · (n − 1) · (n − 2) · … · (n − r + 1)
+    = n! / (n − r)!</code></pre>
+</section>
+<section id="special-cases" class="level3">
+<h3 class="anchored" data-anchor-id="special-cases">4.3 Special cases</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Case</th>
+<th>Formula</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>r = n</code> (all objects taken at once)</td>
+<td><code>nPn = n!</code></td>
+<td>arrange all <code>n</code> distinct objects in a row</td>
+</tr>
+<tr class="even">
+<td><code>r = 0</code></td>
+<td><code>nP0 = 1</code></td>
+<td>one “empty arrangement”</td>
+</tr>
+<tr class="odd">
+<td>With repetition allowed</td>
+<td><code>nʳ</code></td>
+<td>each of the <code>r</code> slots independently has <code>n</code> choices</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="worked-examples" class="level3">
+<h3 class="anchored" data-anchor-id="worked-examples">4.4 Worked examples</h3>
+<p><strong>E1.</strong> Arrange 4 letters of <code>ROSE</code> taken all at once. <code>nPn = 4! = 24</code> words (most without meaning).</p>
+<p><strong>E2.</strong> Number of 3-digit numbers from <code>{1, 2, 3, 4, 5}</code> with no digit repeated: <code>5P3 = 5·4·3 = 60</code>.</p>
+<p><strong>E3.</strong> Number of 3-digit numbers using digits <code>0–9</code> with repetition allowed: hundreds slot can’t be <code>0</code> so 9 choices, tens 10 choices, units 10 choices → <code>9 · 10 · 10 = 900</code>.</p>
+</section>
+<section id="permutations-with-identical-objects" class="level3">
+<h3 class="anchored" data-anchor-id="permutations-with-identical-objects">4.5 Permutations with identical objects</h3>
+<p>If among <code>n</code> objects, <code>p</code> are alike of one kind, <code>q</code> alike of another kind, <code>r</code> alike of yet another, …, then the number of distinct arrangements taken all at once is</p>
+<pre><code>n! / (p! · q! · r! · …)</code></pre>
+<p><strong>E4.</strong> Number of distinct words formed by rearranging the letters of <code>PERMUTATIONS</code>.</p>
+<p>The word has 12 letters; only <code>T</code> repeats (it appears twice). All other letters are distinct.</p>
+<pre><code>total = 12! / 2!</code></pre>
+<p><strong>E5.</strong> Some standard sub-questions on the same word:</p>
+<ul>
+<li><p><em>Words starting with <code>P</code> and ending with <code>S</code>:</em> fix <code>P</code> and <code>S</code> at the ends. The middle 10 letters (which include the two <code>T</code>s) get permuted: <code>10!/2!</code> arrangements.</p></li>
+<li><p><em>Words with all vowels together:</em> the 5 vowels <code>E, U, A, I, O</code> are clumped into a single block. Now we permute <code>(block) + 7 consonants = 8 objects</code>, with <code>T</code> repeating: <code>8!/2!</code> arrangements. Inside the block, the 5 distinct vowels can themselves be ordered in <code>5!</code> ways. Total <code>(8!/2!) · 5!</code>.</p></li>
+<li><p><em>There are always 4 letters between <code>P</code> and <code>S</code>:</em> by sliding <code>P</code> and <code>S</code> along the 12-letter word with exactly 4 letters between them, you find 7 starting positions; <code>P</code> and <code>S</code> themselves can swap (<code>2</code> orderings); the 4 letters between them are chosen and arranged from the remaining 10 in <code>10P4</code> ways; the remaining 6 letters fill the rest in <code>6!/2!</code> ways (the two <code>T</code>s are still indistinguishable). Combine via FPC.</p></li>
+</ul>
+</section>
+<section id="circular-permutations-just-the-idea" class="level3">
+<h3 class="anchored" data-anchor-id="circular-permutations-just-the-idea">4.6 Circular permutations (just the idea)</h3>
+<p>Arranging <code>n</code> distinct objects around a circle counts only the <em>relative</em> order, so we fix one object and permute the remaining <code>n − 1</code>:</p>
+<pre><code>circular permutations of n distinct objects = (n − 1)!</code></pre>
+<p>If clockwise and anticlockwise readings are considered the same (necklace problem), divide by 2: <code>(n − 1)! / 2</code>.</p>
+<hr>
+</section>
+</section>
+<section id="combinations" class="level2">
+<h2 class="anchored" data-anchor-id="combinations">5. Combinations</h2>
+<section id="the-key-shift-order-doesnt-matter" class="level3">
+<h3 class="anchored" data-anchor-id="the-key-shift-order-doesnt-matter">5.1 The key shift: order doesn’t matter</h3>
+<p>A <strong>combination</strong> is an unordered selection. From <code>{V, R, D}</code> (Virat, Rohit, Dhawan), the <em>teams</em> of size 2 are <code>{V,R}, {V,D}, {R,D}</code> — three teams. The corresponding <em>permutations</em> would be six (each team in two orders). The combination ignores the order.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>Order matters?</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Permutation</td>
+<td>yes</td>
+<td>arranging books on a shelf, codes for a lock</td>
+</tr>
+<tr class="even">
+<td>Combination</td>
+<td>no</td>
+<td>choosing a committee, picking a hand of cards, handshakes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-formula-ncr" class="level3">
+<h3 class="anchored" data-anchor-id="the-formula-ncr">5.2 The formula <code>nCr</code></h3>
+<pre><code>nCr = n! / (r! · (n − r)!)</code></pre>
+<p>Derivation: each combination of <code>r</code> objects can be arranged in <code>r!</code> orders, so it accounts for <code>r!</code> permutations. Hence</p>
+<pre><code>nPr = nCr · r!     ⇒     nCr = nPr / r! = n! / (r! · (n − r)!)</code></pre>
+<p>Other notations: <code>C(n, r)</code> and the binomial coefficient <code>(n choose r)</code> written as a vertical pair <code>(n; r)</code>.</p>
+</section>
+<section id="properties-of-ncr" class="level3">
+<h3 class="anchored" data-anchor-id="properties-of-ncr">5.3 Properties of <code>nCr</code></h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Identity</th>
+<th>Statement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Symmetry</td>
+<td><code>nCr = nC(n−r)</code></td>
+</tr>
+<tr class="even">
+<td>Boundary</td>
+<td><code>nC0 = nCn = 1</code></td>
+</tr>
+<tr class="odd">
+<td>Single</td>
+<td><code>nC1 = nC(n−1) = n</code></td>
+</tr>
+<tr class="even">
+<td>Pascal’s identity</td>
+<td><code>nCr + nC(r−1) = (n+1)Cr</code></td>
+</tr>
+<tr class="odd">
+<td>Sum across row</td>
+<td><code>nC0 + nC1 + … + nCn = 2ⁿ</code></td>
+</tr>
+<tr class="even">
+<td>Equality</td>
+<td><code>nCx = nCy ⇒ x = y</code> or <code>x + y = n</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="worked-examples-1" class="level3">
+<h3 class="anchored" data-anchor-id="worked-examples-1">5.4 Worked examples</h3>
+<p><strong>E6.</strong> A committee of 3 chosen from 10 people: <code>10C3 = 10·9·8 / (3·2·1) = 120</code>.</p>
+<p><strong>E7.</strong> <em>Cricket team of 11 from 17 players, with exactly 4 bowlers from the 5 available bowlers</em> (the other 12 are batters).</p>
+<ul>
+<li>Choose 4 bowlers from 5: <code>5C4 = 5</code>.</li>
+<li>Choose 7 batters from 12: <code>12C7 = 792</code>.</li>
+<li>Multiply (FPC, AND): <code>5 · 792 = 3 960</code>.</li>
+</ul>
+<p><strong>E8.</strong> <em>5 black + 6 red balls in a bag. Choose 2 black and 3 red.</em></p>
+<ul>
+<li>2 of the 5 black: <code>5C2 = 10</code>.</li>
+<li>3 of the 6 red: <code>6C3 = 20</code>.</li>
+<li><code>10 · 20 = 200</code> selections.</li>
+</ul>
+<p><strong>E9.</strong> <em>Programme of 5 courses from 9 available, of which 2 are compulsory.</em></p>
+<p>The 2 compulsory courses are <em>fixed</em>. We need to choose the remaining <code>5 − 2 = 3</code> courses from the remaining <code>9 − 2 = 7</code> electives. Answer = <code>7C3 = 35</code>.</p>
+<p><strong>E10.</strong> <em>In how many ways can a 3-letter word (with or without meaning) be formed from the letters of <code>DAUGHTER</code> such that it contains 2 vowels and 1 consonant?</em></p>
+<p><code>DAUGHTER</code> has vowels <code>A, U, E</code> (3) and consonants <code>D, G, H, T, R</code> (5).</p>
+<ul>
+<li>Choose 2 vowels from 3: <code>3C2 = 3</code>.</li>
+<li>Choose 1 consonant from 5: <code>5C1 = 5</code>.</li>
+<li>Arrange the 3 chosen letters: <code>3! = 6</code>.</li>
+<li>Total = <code>3 · 5 · 6 = 90</code>.</li>
+</ul>
+<p>(The <code>nCr · r!</code> step is exactly <code>nPr</code>. Notice how permutation and combination cooperate: combination chooses <em>which</em> letters; the <code>r!</code> orders them.)</p>
+</section>
+<section id="diagnosing-permutation-or-combination" class="level3">
+<h3 class="anchored" data-anchor-id="diagnosing-permutation-or-combination">5.5 Diagnosing “permutation or combination?”</h3>
+<p>Read the problem and ask: <em>“If I list two outcomes that have the same objects in different orders, are they actually the same outcome?”</em></p>
+<ul>
+<li><strong>Same outcome</strong> ⇒ unordered ⇒ <strong>combination</strong>. Selecting a team, choosing a committee, picking balls from a bag, drawing a hand of cards, choosing a sub-collection.</li>
+<li><strong>Different outcome</strong> ⇒ ordered ⇒ <strong>permutation</strong>. Ranking, seating, forming numbers/words, deciding a code, assigning roles (President, Secretary, Treasurer).</li>
+</ul>
+<p>A useful real-world cue: a <em>handshake</em> between Rohit and Virat is the same event as a handshake between Virat and Rohit — combination. A <em>batting order</em> with Rohit then Virat differs from Virat then Rohit — permutation.</p>
+<hr>
+</section>
+</section>
+<section id="common-solution-patterns" class="level2">
+<h2 class="anchored" data-anchor-id="common-solution-patterns">6. Common solution patterns</h2>
+<section id="together-not-together" class="level3">
+<h3 class="anchored" data-anchor-id="together-not-together">6.1 “Together / not together”</h3>
+<p>To force objects to stay together, treat the bunch as <strong>one super-object</strong>, count arrangements of the super-object with the rest, then multiply by the internal arrangements of the bunch.</p>
+<p>To force objects to <em>not</em> be together, count <em>all</em> arrangements and <em>subtract</em> the “together” count, or use the <strong>gap method</strong>: arrange the other objects first, then place the restricted ones in the gaps.</p>
+</section>
+<section id="at-least-at-most" class="level3">
+<h3 class="anchored" data-anchor-id="at-least-at-most">6.2 “At least / at most”</h3>
+<p>“At least k” usually means summing several cases (k, k+1, …) — addition rule. Or you compute the complementary count and subtract from the total.</p>
+</section>
+<section id="fixed-positions" class="level3">
+<h3 class="anchored" data-anchor-id="fixed-positions">6.3 Fixed positions</h3>
+<p>Fix the constrained letters/objects in their slots first, then count the remaining free arrangements. (Used in all “starts with… and ends with…” problems.)</p>
+</section>
+<section id="restricted-digits-leading-zeros" class="level3">
+<h3 class="anchored" data-anchor-id="restricted-digits-leading-zeros">6.4 Restricted digits / leading zeros</h3>
+<p>When forming numbers, the leading digit usually cannot be <code>0</code>. Count it separately, then count the rest.</p>
+<hr>
+</section>
+</section>
+<section id="worked-problem-set-ncert-flavoured" class="level2">
+<h2 class="anchored" data-anchor-id="worked-problem-set-ncert-flavoured">7. Worked-problem set (NCERT-flavoured)</h2>
+<p><strong>P1.</strong> Find the number of 4-digit numbers using digits <code>1, 2, 3, 4, 5</code> if no digit is repeated.</p>
+<p><code>5P4 = 5·4·3·2 = 120</code>.</p>
+<p><strong>P2.</strong> How many 4-digit even numbers can be formed from <code>0, 1, 2, 3, 4, 5</code> with no repetition?</p>
+<p>The units digit must be even: <code>0, 2, 4</code>.</p>
+<ul>
+<li>Case A: units = 0. Remaining 3 slots filled from <code>{1,2,3,4,5}</code> in <code>5P3 = 60</code> ways.</li>
+<li>Case B: units ∈ <code>{2, 4}</code>. Two sub-choices for the units digit. The thousands slot can be any of <code>{1,2,3,4,5} \ {units digit}</code> (must be non-zero), so 4 choices. The hundreds and tens slots together: pick 2 from the remaining 4 digits (which now includes 0), in <code>4P2 = 12</code> ways. Sub-total <code>2 · 4 · 12 = 96</code>.</li>
+<li>Total <code>60 + 96 = 156</code>.</li>
+</ul>
+<p><strong>P3.</strong> How many ways can the letters of <code>EQUATION</code> be arranged so that all vowels are together?</p>
+<p><code>EQUATION</code> has 8 distinct letters with 5 vowels (<code>E, U, A, I, O</code>) and 3 consonants (<code>Q, T, N</code>).</p>
+<ul>
+<li>Treat the 5 vowels as a block. Now <code>(block) + 3 consonants = 4 objects</code>, all distinct: <code>4! = 24</code>.</li>
+<li>The block’s internal order: <code>5! = 120</code>.</li>
+<li>Total <code>24 · 120 = 2880</code>.</li>
+</ul>
+<p><strong>P4.</strong> From a class of 25, a team of 11 is to be chosen, including a captain. How many ways?</p>
+<p>Choose 11 from 25: <code>25C11</code>. Then choose the captain from those 11: <code>11</code>. Or equivalently, choose the captain first (<code>25</code> ways) then choose 10 more from the remaining 24 (<code>24C10</code>). Both give the same answer.</p>
+<p><strong>P5.</strong> How many diagonals does a polygon with <code>n</code> sides have?</p>
+<p>A diagonal joins two non-adjacent vertices. Pairs of vertices: <code>nC2</code>. Of those, <code>n</code> are sides of the polygon. So diagonals <code>= nC2 − n = n(n−3)/2</code>.</p>
+<p><strong>P6.</strong> In how many ways can 3 boys and 3 girls sit in a row so that no two girls are adjacent?</p>
+<p>Seat the 3 boys first: <code>3! = 6</code>. They create 4 gaps (<code>_B_B_B_</code>) into which the girls go, one per gap, choosing 3 of the 4 gaps: <code>4P3 = 24</code>. Total <code>6 · 24 = 144</code>.</p>
+<p><strong>P7.</strong> In how many ways can a committee of 5 be formed from 6 men and 4 women if it must contain at least 2 women?</p>
+<p>Cases by number of women: - 2W + 3M: <code>4C2 · 6C3 = 6 · 20 = 120</code> - 3W + 2M: <code>4C3 · 6C2 = 4 · 15 = 60</code> - 4W + 1M: <code>4C4 · 6C1 = 1 · 6 = 6</code></p>
+<p>Total <code>120 + 60 + 6 = 186</code>.</p>
+<hr>
+</section>
+<section id="common-pitfalls" class="level2">
+<h2 class="anchored" data-anchor-id="common-pitfalls">8. Common pitfalls</h2>
+<ul>
+<li><strong>Confusing permutation with combination</strong> — always ask “does order matter?” before reaching for a formula.</li>
+<li><strong>Repetition allowed vs not</strong> — the formula changes (<code>nʳ</code> vs <code>nPr</code>). The phrase “no digit is repeated” or “all distinct” is the cue.</li>
+<li><strong>Identical objects</strong> — if some letters/objects look the same, divide by the factorials of their repetitions, otherwise you over-count.</li>
+<li><strong>Leading zero</strong> — when the problem asks for <code>n</code>-digit numbers, the leading slot has fewer choices than the others.</li>
+<li><strong>AT LEAST / AT MOST</strong> — these almost always need a sum of cases (addition rule) or a complement.</li>
+<li><strong>Forgetting the internal arrangement of a glued-together block</strong> — after treating a group as one object, multiply by the group’s own internal <code>k!</code>.</li>
+<li><strong>Counting handshakes as <code>n²</code> instead of <code>nC2</code></strong> — every handshake is shared between two people, hence each pair contributes once.</li>
+<li><strong>“Selecting” vs “Arranging”</strong> — “select 3 boys” is <code>nC3</code>; “select and seat 3 boys in a row” is <code>nP3</code> or <code>nC3 · 3!</code>.</li>
+</ul>
+<hr>
+</section>
+<section id="quick-reference-card" class="level2">
+<h2 class="anchored" data-anchor-id="quick-reference-card">9. Quick reference card</h2>
+<pre><code>n!                = 1 · 2 · … · n,   0! = 1
+nPr               = n! / (n − r)!         (ordered, no repetition)
+nCr               = n! / (r! · (n − r)!)  (unordered, no repetition)
+nPr               = nCr · r!
+nCr               = nC(n − r)
+nC0 + nC1 + … +nCn = 2ⁿ
+nCr + nC(r−1)     = (n+1)Cr               (Pascal)
+
+Repetition allowed (ordered fillings) : nʳ
+Distinct arrangements with identical objects : n! / (p! q! r! …)
+Circular arrangements of n distinct objects : (n − 1)!</code></pre>
+<p>Decision tree for word problems:</p>
+<pre><code>                      Does order matter?
+                       /              \
+                      yes              no
+                       |                |
+                  permutation       combination
+                       |                |
+              repetition allowed?       |
+                /          \         use nCr
+              yes           no
+               |             |
+              nʳ           use nPr</code></pre>
+<hr>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">10. Looking ahead</h2>
+<p>Permutations and combinations are the gateway to several richer topics:</p>
+<ul>
+<li><strong>Binomial Theorem</strong> (the very next chapter): the coefficients <code>nCr</code> reappear as <code>(x + y)ⁿ = Σ nCr xⁿ⁻ʳ yʳ</code>. The combinatorial identity <code>nCr + nC(r−1) = (n+1)Cr</code> becomes Pascal’s triangle.</li>
+<li><strong>Probability</strong>. Once you can count outcomes, probability <code>= favourable / total</code> becomes a counting exercise. The whole of Class 11 probability builds on this chapter.</li>
+<li><strong>Multinomial coefficients</strong>. The “letters of a word” formula <code>n!/(p!q!r!…)</code> generalises to splits of <code>n</code> objects into groups of given sizes.</li>
+<li><strong>Inclusion–exclusion</strong>. For “at least one” type problems with overlapping events, you alternately add and subtract, each term being a sum of <code>nCr</code> choices.</li>
+<li><strong>Combinatorics on graphs</strong>, <strong>JEE Advanced level set-counting</strong>, and competitive olympiad problems all draw on the same FPC reasoning, just stacked many levels deep.</li>
+</ul>
+<p>The single habit to internalise: every counting problem reduces to <em>(a) describe the choice as a sequence of stages, (b) ask whether each stage is independent or restricted by previous stages, (c) decide whether order matters at each stage</em>. Once that’s clear, the formulas are just shorthand.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Made with ❤️ by Rajesh Pillai — dedicated to all the learners.</p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/rajeshpillai/applied-maths/edit/main/references/class-11-ncert/permutations-combinations.md" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/rajeshpillai/applied-maths/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+<script>
+// Inject an expand/collapse-all toggle into the Quarto sidebar header.
+(() => {
+  function init() {
+    const sidebar = document.querySelector('#quarto-sidebar, .sidebar');
+    if (!sidebar) return;
+
+    // Quarto can either render a true `.sidebar-title` element or, when the
+    // sidebar config has no `title:`, surface the home link as the first
+    // sidebar item. Handle both: target whichever is present.
+    let anchor = sidebar.querySelector('.sidebar-title');
+    let isTitle = !!anchor;
+    if (!anchor) {
+      const firstItem = sidebar.querySelector('.sidebar-menu-container .sidebar-item:not(.sidebar-item-section)');
+      anchor = firstItem ? firstItem.querySelector('.sidebar-item-container') : null;
+    }
+    if (!anchor || anchor.dataset.expandToggleWrapped) return;
+    anchor.dataset.expandToggleWrapped = '1';
+
+    // Wrap the anchor and the new toggle button into a flex row.
+    const row = document.createElement('div');
+    row.className = 'sidebar-header-row';
+    if (!isTitle) row.classList.add('from-home-link');
+    anchor.parentNode.insertBefore(row, anchor);
+    row.appendChild(anchor);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sidebar-expand-toggle';
+    btn.title = 'Expand / collapse all sections';
+    btn.setAttribute('aria-label', 'Expand / collapse all sections');
+    btn.innerHTML =
+      '<i class="bi bi-chevron-double-down expand-icon" aria-hidden="true"></i>' +
+      '<i class="bi bi-chevron-double-up collapse-icon" aria-hidden="true"></i>';
+    row.appendChild(btn);
+
+    let allExpanded = false;
+
+    function setAll(expand) {
+      sidebar.querySelectorAll('.sidebar-section, .sidebar-item-section, .collapse').forEach((s) => {
+        s.classList.toggle('show', expand);
+      });
+      sidebar.querySelectorAll('details').forEach((d) => { d.open = expand; });
+      sidebar.querySelectorAll('[aria-expanded]').forEach((t) => {
+        // Skip the navbar toggler — we only care about the in-sidebar collapses.
+        if (t.closest('.sidebar')) {
+          t.setAttribute('aria-expanded', expand ? 'true' : 'false');
+        }
+      });
+    }
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      allExpanded = !allExpanded;
+      setAll(allExpanded);
+      btn.classList.toggle('is-expanded', allExpanded);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

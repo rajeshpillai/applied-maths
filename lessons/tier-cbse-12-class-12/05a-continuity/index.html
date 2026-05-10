@@ -2437,6 +2437,7 @@ window.Quarto = {
   <li><a href="#problem-3" id="toc-problem-3" class="nav-link" data-scroll-target="#problem-3">Problem 3</a></li>
   <li><a href="#problem-4" id="toc-problem-4" class="nav-link" data-scroll-target="#problem-4">Problem 4</a></li>
   <li><a href="#problem-5" id="toc-problem-5" class="nav-link" data-scroll-target="#problem-5">Problem 5</a></li>
+  <li><a href="#problem-6-the-h-to-0-trick" id="toc-problem-6-the-h-to-0-trick" class="nav-link" data-scroll-target="#problem-6-the-h-to-0-trick">Problem 6 — the <span class="math inline">h \to 0</span> trick</a></li>
   </ul></li>
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
@@ -2599,6 +2600,32 @@ Full solution
 </summary>
 <span class="math inline">f(1)</span> is undefined. As <span class="math inline">x \to 1^-</span>, <span class="math inline">f \to -\infty</span>. As <span class="math inline">x \to 1^+</span>, <span class="math inline">f \to +\infty</span>. <strong>Infinite discontinuity</strong> (vertical asymptote).
 </details>
+</section>
+<section id="problem-6-the-h-to-0-trick" class="level3">
+<h3 class="anchored" data-anchor-id="problem-6-the-h-to-0-trick">Problem 6 — the <span class="math inline">h \to 0</span> trick</h3>
+<p>This is the workhorse of every NCERT continuity question. For a piecewise function, the cleanest way to compute one-sided limits is to substitute and let <span class="math inline">h \to 0^+</span>:</p>
+<p><span class="math display">\text{LHL at }a:\ \lim_{h\to 0^+} f(a - h), \qquad
+\text{RHL at }a:\ \lim_{h\to 0^+} f(a + h).</span></p>
+<p>Apply it. Test continuity of <span class="math inline">f(x) = \begin{cases} -2 &amp; x \le -1 \\ 2x &amp;
+x &gt; -1 \end{cases}</span> at <span class="math inline">x = -1</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+<span class="math inline">x = -1 - h</span> falls into which piece? <span class="math inline">x = -1 + h</span>?
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+For LHL, <span class="math inline">-1 - h \le -1</span> is always true, so use the first piece. For RHL, <span class="math inline">-1 + h &gt; -1</span>, so use the second piece.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">f(-1) = -2</span> (use first piece, <span class="math inline">x \le -1</span>). LHL: <span class="math inline">f(-1 - h) = -2 \to -2</span>. RHL: <span class="math inline">f(-1 + h) = 2(-1 + h) = -2 + 2h \to -2</span>. All three equal <span class="math inline">-2</span>. <strong>Continuous</strong> at <span class="math inline">x = -1</span>. ✓
+</details>
 <div class="fun-fact">
 <p><strong>Bolzano’s 1817 manifesto for rigour.</strong> Bernard Bolzano, a Bohemian priest-mathematician working in obscurity, published <em>Rein analytischer Beweis</em> — “Purely Analytic Proof” — in 1817, fifty-five years before Weierstrass made the epsilon-delta definition standard. He gave the first rigorous proof of the Intermediate Value Theorem and, in the same paper, the first modern definition of a <a href="../../../glossary.html#continuous-function"><strong>continuous function</strong></a>: for every <span class="math inline">\varepsilon &gt; 0</span> there exists <span class="math inline">\delta &gt; 0</span> such that <span class="math inline">|x - a| &lt; \delta</span> implies <span class="math inline">|f(x) - f(a)| &lt; \varepsilon</span>. Almost no one read it. The paper sat unnoticed in a Prague journal until Weierstrass independently rediscovered the same idea in the 1860s. The “draw without lifting your pen” picture you used in <em>Touch</em> is exactly the intuition Bolzano insisted needed an algebraic test.</p>
 </div>
@@ -2709,6 +2736,26 @@ Full solution
 </summary>
 By squeeze: <span class="math inline">-|x| \le x\sin(1/x) \le |x|</span>. Both bounds <span class="math inline">\to 0</span> as <span class="math inline">x\to0</span>. So <span class="math inline">\lim = 0 = f(0)</span>. ✓
 </details>
+<p><strong>P4 — the trap.</strong> Find <span class="math inline">\lambda</span> so that <span class="math inline">f(x) = \begin{cases} \lambda(x^2 - 2x) &amp; x \le 0 \\ 4x + 1 &amp; x &gt; 0
+\end{cases}</span> is continuous at <span class="math inline">x = 0</span>. (Be careful — the answer may be “no such <span class="math inline">\lambda</span>”.)</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Compute LHL and RHL using the <span class="math inline">h \to 0</span> substitution. Does <span class="math inline">\lambda</span> appear in both?
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+LHL uses the first piece. Plug in <span class="math inline">x = 0 - h</span> and simplify before you let <span class="math inline">h \to 0</span>. Does the <span class="math inline">\lambda</span> survive the limit?
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+LHL: <span class="math inline">f(0 - h) = \lambda((-h)^2 - 2(-h)) = \lambda(h^2 + 2h) \to 0</span> as <span class="math inline">h \to 0</span>. The <span class="math inline">\lambda</span> multiplies a quantity that vanishes — so the LHL is <span class="math inline">0</span> regardless of <span class="math inline">\lambda</span>. RHL: <span class="math inline">f(0 + h) = 4h + 1 \to 1</span>. For continuity, <span class="math inline">0 = 1</span>. <strong>Contradiction. No value of <span class="math inline">\lambda</span> works.</strong> The point of the problem is to learn to <em>say so</em> rather than fudge an answer.
+</details>
 </section>
 <section id="practice-stretch" class="level3">
 <h3 class="anchored" data-anchor-id="practice-stretch">Practice — Stretch</h3>
@@ -2718,6 +2765,25 @@ By squeeze: <span class="math inline">-|x| \le x\sin(1/x) \le |x|</span>. Both b
 Full solution
 </summary>
 At any non-integer <span class="math inline">a</span>, <span class="math inline">f</span> is constant on a small neighbourhood — continuous. At an integer <span class="math inline">n</span>: LHS limit <span class="math inline">= n - 1</span> (from below) but <span class="math inline">f(n) = n</span> — jump. <strong>Discontinuous at every integer; continuous elsewhere.</strong>
+</details>
+<p><strong>S2 — the root-finder.</strong> Show that <span class="math inline">p(x) = x^3 - 4x + 1</span> has at least one real root in the interval <span class="math inline">(0, 1)</span>. (You do not have to find it.)</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Polynomials are continuous everywhere. So you have a continuous function on <span class="math inline">[0, 1]</span>. What does that buy you?
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Compute <span class="math inline">p(0)</span> and <span class="math inline">p(1)</span>. If they have opposite signs, the <a href="../../../glossary.html#intermediate-value-theorem">Intermediate Value Theorem</a> forces a zero between them.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">p(0) = 1 &gt; 0</span>. <span class="math inline">p(1) = 1 - 4 + 1 = -2 &lt; 0</span>. Since <span class="math inline">p</span> is a polynomial it is continuous on <span class="math inline">[0, 1]</span>. The IVT says: a continuous function takes every value between <span class="math inline">p(0) = 1</span> and <span class="math inline">p(1) = -2</span> — including <span class="math inline">0</span>. So there exists <span class="math inline">c \in (0, 1)</span> with <span class="math inline">p(c) = 0</span>. ✓ This is exactly how the <em>bisection</em> root-finder works numerically: keep halving the interval that contains a sign change.
 </details>
 </section>
 <section id="board-pattern-practice" class="level3">
@@ -2825,6 +2891,9 @@ Full solution
 <li><strong>“Continuous means smooth.”</strong> No.&nbsp;<span class="math inline">|x|</span> is continuous everywhere but not smooth at 0 — a corner. Smoothness is differentiability; continuity is weaker.</li>
 <li><strong>“If <span class="math inline">f(a)</span> is defined, <span class="math inline">f</span> is continuous at <span class="math inline">a</span>.”</strong> Defined-at-<span class="math inline">a</span> is one of three requirements; the limit must also exist <em>and</em> equal <span class="math inline">f(a)</span>.</li>
 <li><strong>“Discontinuity means <span class="math inline">f</span> is undefined.”</strong> Not necessarily. <span class="math inline">f</span> can be defined at <span class="math inline">a</span> but still discontinuous (Curve B, Curve C above).</li>
+<li><strong>“<span class="math inline">1/x</span> is discontinuous at <span class="math inline">0</span>.”</strong> Trick wording. <span class="math inline">0</span> is not in the domain of <span class="math inline">1/x</span>, so continuity is not even a question there. On its actual domain <span class="math inline">\mathbb{R} \setminus \{0\}</span>, <span class="math inline">1/x</span> is continuous everywhere.</li>
+<li><strong>“<span class="math inline">\tan x</span> is continuous everywhere.”</strong> No — <span class="math inline">\tan x</span> has infinite discontinuities at every odd multiple of <span class="math inline">\pi/2</span>. Same caution for <span class="math inline">\sec x</span>, <span class="math inline">\cot x</span>, <span class="math inline">\operatorname{cosec} x</span>. They are continuous on their domains, but their domains have holes.</li>
+<li><strong>“A removable discontinuity is fine, the function is continuous.”</strong> Removable still counts as a discontinuity. The function <em>as given</em> is not continuous; it can be repaired by redefining <span class="math inline">f(a)</span>, but until you redefine it, the curve has a hole.</li>
 </ol>
 </section>
 <section id="takeaways" class="level3">
@@ -2879,6 +2948,9 @@ Full solution
 </div>
 <div class="applied-callout">
 <p><strong>Research / engineering.</strong> Physical laws are usually modelled by continuous functions; jumps signal a phase transition or impact event. Numerical integrators must detect and handle these.</p>
+</div>
+<div class="fun-fact">
+<p><strong>Bolzano’s theorem became the bisection algorithm.</strong> The <a href="../../../glossary.html#intermediate-value-theorem">Intermediate Value Theorem</a> — that a continuous function on <span class="math inline">[a, b]</span> taking opposite signs at the endpoints must cross zero somewhere in between — was proved rigorously by Bolzano in the same 1817 paper as his definition of continuity. A century and a half later, when computers needed to solve equations they could not solve symbolically, that theorem became a recipe: check the sign at the midpoint, throw away the half that does not change sign, repeat. Every numerical root-finder in modern engineering software — from MATLAB’s <code>fzero</code> to SciPy’s <code>brentq</code> — descends from this single idea. Continuity is not just a textbook nicety; it is the property that lets a machine search for an answer it cannot compute directly.</p>
 </div>
 <hr>
 <div class="callout callout-style-simple callout-note callout-titled">

@@ -2437,6 +2437,7 @@ window.Quarto = {
   <li><a href="#problem-3" id="toc-problem-3" class="nav-link" data-scroll-target="#problem-3">Problem 3</a></li>
   <li><a href="#problem-4" id="toc-problem-4" class="nav-link" data-scroll-target="#problem-4">Problem 4</a></li>
   <li><a href="#problem-5" id="toc-problem-5" class="nav-link" data-scroll-target="#problem-5">Problem 5</a></li>
+  <li><a href="#problem-6" id="toc-problem-6" class="nav-link" data-scroll-target="#problem-6">Problem 6</a></li>
   </ul></li>
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
@@ -2576,6 +2577,30 @@ Full solution
 </summary>
 Intersect: <span class="math inline">x^2 = x \Rightarrow x = 0, 1</span>. On <span class="math inline">[0,1]</span>, <span class="math inline">x \ge x^2</span>. Area <span class="math inline">= \int_0^1 (x - x^2) dx = 1/6</span>.
 </details>
+</section>
+<section id="problem-6" class="level3">
+<h3 class="anchored" data-anchor-id="problem-6">Problem 6</h3>
+<p>Find the area enclosed by <span class="math inline">y = |x + 3|</span>, the x-axis, and the lines <span class="math inline">x = -6</span> and <span class="math inline">x = 0</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+<span class="math inline">y = |x + 3|</span> is a V-shape. Where is the kink?
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+The vertex sits at <span class="math inline">x = -3</span>. To the left of <span class="math inline">-3</span>, <span class="math inline">y = -(x+3)</span>; to the right, <span class="math inline">y = x + 3</span>. Split the integral at <span class="math inline">x = -3</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">A = \int_{-6}^{-3}(-x - 3)\,dx + \int_{-3}^{0}(x + 3)\,dx
+   = [-x^2/2 - 3x]_{-6}^{-3} + [x^2/2 + 3x]_{-3}^{0}
+   = 9/2 + 9/2 = 9</span> sq units. The two halves are mirror-image triangles of base 3 and height 3, so the answer matches <span class="math inline">2 \cdot \tfrac{1}{2}\cdot 3\cdot 3 = 9</span>. ✓
+</details>
 <div class="fun-fact">
 <p><strong>Archimedes squares the parabola (~240 BCE).</strong> Two thousand years before Newton, Archimedes proved in <em>Quadrature of the Parabola</em> that the area enclosed between a parabola and a chord is exactly <span class="math inline">\tfrac{4}{3}</span> of the inscribed triangle’s area. He used the <em>method of exhaustion</em>: fit a triangle, then fit smaller triangles into the leftover slivers, then smaller still — the total area is <span class="math inline">T + T/4 + T/16 + \cdots</span>, a geometric series summing to <span class="math inline">\tfrac{4}{3} T</span>. Run the same parabola through your <span class="math inline">\int_a^b</span> recipe today and the answer drops out in two lines. Archimedes had to <em>prove</em> his answer was right; you only have to apply the Fundamental Theorem.</p>
 </div>
@@ -2597,6 +2622,85 @@ Intersect: <span class="math inline">x^2 = x \Rightarrow x = 0, 1</span>. On <sp
 <blockquote class="blockquote">
 <p><em>Sketch first — the picture decides the answer;</em> <em>Upper minus lower across the interval — that’s the dancer.</em> <em>Cross-over? Split and take absolute values, lest the signs deceive;</em> <em>Integrate <span class="math inline">y</span> when the curves prefer to be solved that way — believe.</em></p>
 </blockquote>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>The 8-step area workflow
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use this checklist on every area problem until it becomes second nature:</p>
+<ol type="1">
+<li><strong>Sketch</strong> every curve and line in the problem.</li>
+<li><strong>Find every intersection</strong> (solve the curve-pair equations together).</li>
+<li><strong>Mark intercepts</strong> with the axes; note them on the sketch.</li>
+<li><strong>Shade</strong> the bounded region.</li>
+<li><strong>Choose</strong> vertical strips (<code>∫ y\,dx</code>) or horizontal strips (<code>∫ x\,dy</code>) — whichever reads off the sketch with fewer pieces.</li>
+<li><strong>Set the limits</strong> from the intersection points or stated bounds.</li>
+<li><strong>Decide</strong> the integrand: <span class="math inline">f(x)</span> alone, <span class="math inline">|f(x)|</span>, or <span class="math inline">f(x) - g(x)</span>. Test a single point if you are unsure which curve is on top.</li>
+<li><strong>Integrate, evaluate, take absolute value</strong> if the answer comes out negative.</li>
+</ol>
+<p>The integration is mechanical. The thinking happens in steps 1–5.</p>
+</div>
+</div>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Useful integrals for this chapter
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>You’ll see these repeatedly when curves are circles, ellipses, or parabolas:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Integral</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\int \sqrt{a^2 - x^2}\,dx</span></td>
+<td><span class="math inline">\tfrac{x}{2}\sqrt{a^2 - x^2} + \tfrac{a^2}{2}\sin^{-1}(x/a) + C</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\int \tfrac{dx}{\sqrt{a^2 - x^2}}</span></td>
+<td><span class="math inline">\sin^{-1}(x/a) + C</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\int \tfrac{dx}{a^2 + x^2}</span></td>
+<td><span class="math inline">\tfrac{1}{a}\tan^{-1}(x/a) + C</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\int x^n\,dx</span></td>
+<td><span class="math inline">\tfrac{x^{n+1}}{n+1} + C</span> (<span class="math inline">n \ne -1</span>)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\int \sin x\,dx</span></td>
+<td><span class="math inline">-\cos x + C</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\int \cos x\,dx</span></td>
+<td><span class="math inline">\sin x + C</span></td>
+</tr>
+</tbody>
+</table>
+<p>The first row is the workhorse of the chapter — every circle and ellipse area problem reduces to it.</p>
+</div>
+</div>
+</div>
 </section>
 <section id="apply" class="level2">
 <h2 class="anchored" data-anchor-id="apply">Apply</h2>
@@ -2680,6 +2784,27 @@ Full solution
 </summary>
 <span class="math inline">\int_1^4 \sqrt x \, dx = [2x^{3/2}/3]_1^4 = (16 - 2)/3 = 14/3</span>.
 </details>
+<p><strong>P4.</strong> Find the area enclosed by the sideways parabola <span class="math inline">x = y^2</span> and the vertical line <span class="math inline">x = 4</span>. (Slice horizontally — it’s much cleaner.)</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+The region is bounded on the right by <span class="math inline">x = 4</span> and on the left by <span class="math inline">x = y^2</span>. What are the <span class="math inline">y</span>-limits where the two boundaries meet?
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+At each height <span class="math inline">y</span>, a horizontal strip stretches from <span class="math inline">x = y^2</span> to <span class="math inline">x = 4</span>, so its width is <span class="math inline">4 - y^2</span> and its thickness is <span class="math inline">dy</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+The boundaries meet where <span class="math inline">y^2 = 4</span>, i.e.&nbsp;<span class="math inline">y = \pm 2</span>. By symmetry, <span class="math display">A = \int_{-2}^{2} (4 - y^2)\,dy = 2\int_0^2 (4 - y^2)\,dy
+    = 2\bigl[4y - y^3/3\bigr]_0^2
+    = 2\bigl(8 - 8/3\bigr) = 32/3.</span> Trying to do this with vertical strips would require splitting at <span class="math inline">x = 0</span> and integrating <span class="math inline">2\sqrt{x}</span> — possible, but slower.
+</details>
 </section>
 <section id="practice-stretch" class="level3">
 <h3 class="anchored" data-anchor-id="practice-stretch">Practice — Stretch</h3>
@@ -2696,6 +2821,41 @@ Full solution
 </summary>
 Area <span class="math inline">= 4 \int_0^3 \frac{2}{3}\sqrt{9 - x^2}\, dx = \frac{8}{3} \cdot
 \frac{1}{4}\pi(3)^2 = \frac{8}{3} \cdot \frac{9\pi}{4} = 6\pi</span>. <strong>Total area = <span class="math inline">\pi a b = \pi \cdot 3 \cdot 2 = 6\pi</span>.</strong> ✓
+</details>
+<p><strong>S2.</strong> Find the area of the region in the first quadrant enclosed by the circle <span class="math inline">x^2 + y^2 = 4</span> and the line <span class="math inline">x = \sqrt{3}\, y</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Sketch first. Where does the line meet the circle? The single bounded region splits naturally into “under the line” and “under the circle”.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Substitute <span class="math inline">x = \sqrt{3}\,y</span> into <span class="math inline">x^2 + y^2 = 4</span>: <span class="math inline">4y^2 = 4</span>, so <span class="math inline">y = 1</span> and <span class="math inline">x = \sqrt{3}</span>. The intersection is <span class="math inline">(\sqrt 3, 1)</span>. Split the region at <span class="math inline">x = \sqrt{3}</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 3 — the first step
+</summary>
+For <span class="math inline">0 \le x \le \sqrt 3</span> the upper boundary is the line <span class="math inline">y = x/\sqrt 3</span>. For <span class="math inline">\sqrt 3 \le x \le 2</span> the upper boundary is the circle <span class="math inline">y = \sqrt{4 - x^2}</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math display">A = \int_0^{\sqrt 3} \frac{x}{\sqrt 3}\,dx
+     + \int_{\sqrt 3}^{2} \sqrt{4 - x^2}\,dx.</span> The first piece is <span class="math inline">\bigl[\tfrac{x^2}{2\sqrt 3}\bigr]_0^{\sqrt 3}
+= \tfrac{3}{2\sqrt 3} = \tfrac{\sqrt 3}{2}</span>. For the second, use <span class="math inline">\int \sqrt{a^2 - x^2}\,dx = \tfrac{x}{2}\sqrt{a^2 - x^2}
++ \tfrac{a^2}{2}\sin^{-1}(x/a)</span> with <span class="math inline">a = 2</span>: <span class="math display">\Bigl[\tfrac{x}{2}\sqrt{4 - x^2}
+       + 2\sin^{-1}(x/2)\Bigr]_{\sqrt 3}^{2}
+= \bigl(0 + 2 \cdot \pi/2\bigr) - \bigl(\tfrac{\sqrt 3}{2}
+   + 2\sin^{-1}(\sqrt 3/2)\bigr)
+= \pi - \tfrac{\sqrt 3}{2} - 2 \cdot \tfrac{\pi}{3}
+= \tfrac{\pi}{3} - \tfrac{\sqrt 3}{2}.</span> Adding: <span class="math inline">A = \tfrac{\sqrt 3}{2} + \tfrac{\pi}{3} - \tfrac{\sqrt 3}{2}
+= \boxed{\tfrac{\pi}{3}}</span>. (Check: this is exactly the <span class="math inline">30°</span>-circular-sector formula <span class="math inline">\tfrac{1}{2}r^2\theta</span> with <span class="math inline">r = 2,
+\theta = \pi/6</span>, since the line cuts the circle at angle <span class="math inline">30°</span> from the x-axis.)
 </details>
 </section>
 <section id="board-pattern-practice" class="level3">
@@ -2797,9 +2957,12 @@ Full solution
 <h3 class="anchored" data-anchor-id="common-confusions">Common confusions</h3>
 <ol type="1">
 <li><strong>“<span class="math inline">\int_a^b f \, dx</span> always gives positive area.”</strong> Only when <span class="math inline">f
-\ge 0</span> on <span class="math inline">[a, b]</span>. Otherwise it’s signed area.</li>
+\ge 0</span> on <span class="math inline">[a, b]</span>. Otherwise it’s signed area — the <em>integral</em> can be negative; an <em>area</em> cannot.</li>
 <li><strong>“Forgetting to find intersection points.”</strong> The integration limits <em>are</em> the intersections — skip them and you integrate over the wrong interval.</li>
-<li><strong>“Sketching is optional.”</strong> It is not. Without a sketch, you cannot know which curve is upper.</li>
+<li><strong>“Sketching is optional.”</strong> It is not. Without a sketch, you cannot know which curve is upper, how many pieces to split into, or whether to integrate w.r.t. <span class="math inline">x</span> or <span class="math inline">y</span>.</li>
+<li><strong>“Picking the wrong upper curve.”</strong> If you guess and don’t verify, you risk a sign flip. Always test a single point between the intersections to confirm which curve is on top.</li>
+<li><strong>“Forgetting to split when the curve crosses the axis.”</strong> If <span class="math inline">f</span> changes sign on <span class="math inline">[a, b]</span>, <span class="math inline">\int f\,dx</span> silently cancels area below against area above. Find the zeros of <span class="math inline">f</span>, split, and use <span class="math inline">|f|</span> on each piece.</li>
+<li><strong>“Algebra slips when substituting limits.”</strong> Substitute the upper limit first, then the lower; bracket each substitution so the minus sign distributes to <em>every</em> term.</li>
 </ol>
 </section>
 <section id="takeaways" class="level3">
@@ -2858,9 +3021,12 @@ Full solution
 <div class="applied-callout">
 <p><strong>AI/ML.</strong> ROC-AUC is the area under the ROC curve — a definite integral over [0, 1].</p>
 </div>
+<div class="fun-fact">
+<p><strong>Cavalieri’s principle (1635).</strong> A century before Newton and Leibniz, the Italian Jesuit Bonaventura Cavalieri argued that two regions sliced by parallel lines into matching strips must have the same area. His <em>Geometria indivisibilibus continuorum nova quadam ratione promota</em> gave the slicing-and-summing idea a vocabulary — “indivisibles” — and a licence to compute areas without a formal limit. Half a century later, Newton and Leibniz replaced “indivisibles” with the differential <span class="math inline">dx</span> and Cavalieri’s intuition became the integral you use today.</p>
+</div>
 <hr>
 <div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -2869,7 +3035,7 @@ Full solution
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <ul>
 <li><strong>Touchstones:</strong> Better Explained (“integral as accumulated area”), Bhāskara (verse), AoPS (sketch-then-integrate).</li>

@@ -2437,11 +2437,13 @@ window.Quarto = {
   <li><a href="#problem-3" id="toc-problem-3" class="nav-link" data-scroll-target="#problem-3">Problem 3</a></li>
   <li><a href="#problem-4" id="toc-problem-4" class="nav-link" data-scroll-target="#problem-4">Problem 4</a></li>
   <li><a href="#problem-5" id="toc-problem-5" class="nav-link" data-scroll-target="#problem-5">Problem 5</a></li>
+  <li><a href="#problem-6" id="toc-problem-6" class="nav-link" data-scroll-target="#problem-6">Problem 6</a></li>
   </ul></li>
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
   <ul class="collapse">
   <li><a href="#worked-example" id="toc-worked-example" class="nav-link" data-scroll-target="#worked-example">Worked example</a></li>
+  <li><a href="#worked-example-log-differentiation-tames-a-quotient" id="toc-worked-example-log-differentiation-tames-a-quotient" class="nav-link" data-scroll-target="#worked-example-log-differentiation-tames-a-quotient">Worked example — log differentiation tames a quotient</a></li>
   <li><a href="#practice-warm" id="toc-practice-warm" class="nav-link" data-scroll-target="#practice-warm">Practice — Warm</a></li>
   <li><a href="#practice-working" id="toc-practice-working" class="nav-link" data-scroll-target="#practice-working">Practice — Working</a></li>
   <li><a href="#practice-stretch" id="toc-practice-stretch" class="nav-link" data-scroll-target="#practice-stretch">Practice — Stretch</a></li>
@@ -2594,6 +2596,30 @@ Full solution
 </summary>
 <span class="math inline">\frac{dx}{dt} = -a\sin t,\ \frac{dy}{dt} = a\cos t</span>. Ratio: <span class="math inline">-\cot t</span>.
 </details>
+</section>
+<section id="problem-6" class="level3">
+<h3 class="anchored" data-anchor-id="problem-6">Problem 6</h3>
+<p>A three-deep composition: <span class="math inline">y = \sin\!\bigl(\sqrt{1 + x^2}\bigr)</span>. Find <span class="math inline">\dfrac{dy}{dx}</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Outer = <span class="math inline">\sin u</span>, middle = <span class="math inline">\sqrt{v}</span>, inner = <span class="math inline">1 + x^2</span>. Each layer contributes one factor.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Work outside-in: <span class="math inline">\cos u \cdot \tfrac{1}{2\sqrt v}\cdot 2x</span>, then substitute <span class="math inline">u = \sqrt{1+x^2},\ v = 1+x^2</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">\dfrac{dy}{dx} = \cos\!\bigl(\sqrt{1+x^2}\bigr)\cdot
+\dfrac{1}{2\sqrt{1+x^2}}\cdot 2x =
+\dfrac{x\cos(\sqrt{1+x^2})}{\sqrt{1+x^2}}.</span> One factor per layer is the heart of the chain rule.
+</details>
 <div class="fun-fact">
 <p><strong>Weierstrass’s monster (1872).</strong> Karl Weierstrass shocked the mathematical world by exhibiting a function <span class="math inline">W(x) = \sum_{n=0}^\infty
 a^n \cos(b^n \pi x)</span> (with <span class="math inline">0 &lt; a &lt; 1</span> and <span class="math inline">ab &gt; 1 + 3\pi/2</span>) that is <strong>continuous everywhere but differentiable nowhere</strong>. Before 1872, the working belief was that any “reasonable” continuous function had to have a derivative at most points — a corner here or there at worst. Weierstrass’s construction is jagged at every scale: zoom in anywhere and you see the same wild oscillation. The example forced mathematicians to take Bolzano’s epsilon-delta definitions seriously and stopped them from confusing <a href="../../../glossary.html#continuous-function"><strong>continuous functions</strong></a> with differentiable ones. The next time you write “continuous <span class="math inline">\not\Rightarrow</span> differentiable,” you are repeating the lesson Weierstrass taught the world.</p>
@@ -2606,13 +2632,18 @@ a^n \cos(b^n \pi x)</span> (with <span class="math inline">0 &lt; a &lt; 1</span
 <section id="name" class="level2">
 <h2 class="anchored" data-anchor-id="name">Name</h2>
 <div class="lesson-beat">
-<p>A function <span class="math inline">f</span> is <strong>differentiable at <span class="math inline">a</span></strong> iff <span class="math display">\lim_{h \to 0} \frac{f(a + h) - f(a)}{h}</span> exists. Differentiability <span class="math inline">\Rightarrow</span> continuity (not the reverse).</p>
+<p>A function <span class="math inline">f</span> is <strong>differentiable at <span class="math inline">a</span></strong> iff <span class="math display">\lim_{h \to 0} \frac{f(a + h) - f(a)}{h}</span> exists <em>finitely</em>. Differentiability <span class="math inline">\Rightarrow</span> continuity (not the reverse).</p>
+<p><strong>Left- and right-hand derivatives.</strong> <span class="math inline">f</span> is differentiable at <span class="math inline">a</span> iff both one-sided difference quotients exist and agree: <span class="math display">\mathrm{LHD}(a) = \lim_{h \to 0^+}\frac{f(a-h)-f(a)}{-h}
+\quad =\quad \mathrm{RHD}(a) = \lim_{h\to 0^+}\frac{f(a+h)-f(a)}{h}.</span> Three failure modes: corner (<span class="math inline">\mathrm{LHD}\ne\mathrm{RHD}</span>, as in <span class="math inline">|x|</span> at <span class="math inline">0</span>), vertical tangent (slope <span class="math inline">\pm\infty</span>, as in <span class="math inline">x^{1/3}</span> at <span class="math inline">0</span>), and discontinuity.</p>
 <p><strong>Standard derivatives</strong> (memorise):</p>
 <p><span class="math inline">\frac{d}{dx}\sin^{-1}x = \frac{1}{\sqrt{1-x^2}}</span>, <span class="math inline">\frac{d}{dx}\cos^{-1}x = -\frac{1}{\sqrt{1-x^2}}</span>, <span class="math inline">\frac{d}{dx}\tan^{-1}x = \frac{1}{1+x^2}</span>, <span class="math inline">\frac{d}{dx}e^x = e^x</span>, <span class="math inline">\frac{d}{dx}\log x = \frac{1}{x}</span>.</p>
 <p><strong>Chain rule.</strong> If <span class="math inline">y = f(u),\ u = g(x)</span>, then <span class="math inline">\dfrac{dy}{dx} = \dfrac{dy}{du}\cdot\dfrac{du}{dx}</span>.</p>
 <p><strong>Implicit differentiation.</strong> Differentiate both sides of an equation in <span class="math inline">x, y</span> w.r.t. <span class="math inline">x</span>, treating <span class="math inline">y</span> as a function of <span class="math inline">x</span>.</p>
 <p><strong>Logarithmic differentiation.</strong> For <span class="math inline">y = f(x)^{g(x)}</span>, take <span class="math inline">\log</span> first.</p>
 <p><strong>Parametric differentiation.</strong> If <span class="math inline">x = f(t),\ y = g(t)</span>, then <span class="math inline">\dfrac{dy}{dx} = \dfrac{dy/dt}{dx/dt}</span>.</p>
+<p><strong><a href="../../../glossary.html#second-derivative">Second-order derivative</a>.</strong> Apply <span class="math inline">\tfrac{d}{dx}</span> a second time: <span class="math inline">\dfrac{d^2y}{dx^2} = \dfrac{d}{dx}\!\left(
+\dfrac{dy}{dx}\right)</span>. For parametric forms, remember the trap: <span class="math inline">\dfrac{d^2y}{dx^2} = \dfrac{d}{dt}\!\left(\dfrac{dy}{dx}\right) \cdot
+\dfrac{1}{dx/dt}</span> — the inner <span class="math inline">\dfrac{dy}{dx}</span> is a function of <span class="math inline">t</span>, so you must convert with <span class="math inline">1/(dx/dt)</span>, not just differentiate w.r.t. <span class="math inline">t</span>.</p>
 </div>
 <p>A verse:</p>
 <blockquote class="blockquote">
@@ -2633,6 +2664,22 @@ a^n \cos(b^n \pi x)</span> (with <span class="math inline">0 &lt; a &lt; 1</span
 <li><span class="math inline">\frac{dy}{dx} = \frac{1}{2\sqrt{1 + \log x}} \cdot \frac{1}{x}</span>.</li>
 <li>At <span class="math inline">x = 1</span>: <span class="math inline">\log 1 = 0</span>, so <span class="math inline">= \frac{1}{2 \cdot 1 \cdot 1} = 1/2</span>.</li>
 </ol>
+</section>
+<section id="worked-example-log-differentiation-tames-a-quotient" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-log-differentiation-tames-a-quotient">Worked example — log differentiation tames a quotient</h3>
+<blockquote class="blockquote">
+<p>Find <span class="math inline">\dfrac{dy}{dx}</span> if <span class="math inline">y = \dfrac{(x-1)(x-2)}{(x-3)(x-4)(x-5)}</span>.</p>
+</blockquote>
+<p>Direct quotient/product rule would explode. Take <span class="math inline">\log</span> first:</p>
+<ol type="1">
+<li><span class="math inline">\log y = \log(x-1) + \log(x-2) - \log(x-3) - \log(x-4) -
+\log(x-5).</span></li>
+<li>Differentiate term-by-term — every <span class="math inline">\log(x-k)</span> becomes <span class="math inline">1/(x-k)</span>: <span class="math display">\frac{1}{y}\frac{dy}{dx} = \frac{1}{x-1}+\frac{1}{x-2}
+-\frac{1}{x-3}-\frac{1}{x-4}-\frac{1}{x-5}.</span></li>
+<li>Multiply through by <span class="math inline">y</span> and write <span class="math inline">y</span> back: <span class="math display">\frac{dy}{dx} = \frac{(x-1)(x-2)}{(x-3)(x-4)(x-5)}\!\left[
+\tfrac{1}{x-1}+\tfrac{1}{x-2}-\tfrac{1}{x-3}-\tfrac{1}{x-4}-\tfrac{1}{x-5}\right].</span></li>
+</ol>
+<p>Five linear terms instead of a quotient-rule monster. This is the canonical use-case the NCERT chapter calls out.</p>
 </section>
 <section id="practice-warm" class="level3">
 <h3 class="anchored" data-anchor-id="practice-warm">Practice — Warm</h3>
@@ -2687,6 +2734,26 @@ Full solution
 Full solution
 </summary>
 <span class="math inline">y' = e^{x \cos x}(\cos x - x \sin x)</span> (chain rule, with product rule inside).
+</details>
+<p><strong>P4.</strong> Second derivative. If <span class="math inline">y = e^x \sin 5x</span>, find <span class="math inline">\dfrac{d^2y}{dx^2}</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Compute <span class="math inline">y'</span> first using the product rule + chain rule, <em>then</em> differentiate <span class="math inline">y'</span> a second time.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+<span class="math inline">y' = e^x(\sin 5x + 5\cos 5x)</span>. Now apply the product rule to this expression.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">y' = e^x \sin 5x + 5e^x \cos 5x = e^x(\sin 5x + 5\cos 5x)</span>. <span class="math inline">y'' = e^x(\sin 5x + 5\cos 5x) + e^x(5\cos 5x - 25\sin 5x)
+     = e^x(10\cos 5x - 24\sin 5x) = 2e^x(5\cos 5x - 12\sin 5x).</span>
 </details>
 </section>
 <section id="practice-stretch" class="level3">
@@ -2815,6 +2882,9 @@ Full solution
 <li><strong>“Continuous = differentiable.”</strong> No.&nbsp;<span class="math inline">|x|</span> at <span class="math inline">0</span> is the counterexample.</li>
 <li><strong>“Chain rule = product rule.”</strong> Different. Chain rule for compositions, product for products.</li>
 <li><strong>“Implicit differentiation only works for circles.”</strong> Works for any relation <span class="math inline">F(x,y) = 0</span> where <span class="math inline">y</span> is locally a function of <span class="math inline">x</span>.</li>
+<li><strong>“<span class="math inline">a^x</span> and <span class="math inline">x^a</span> have the same derivative shape.”</strong> They do not. <span class="math inline">(x^n)' = n x^{n-1}</span> — variable in the <em>base</em>. <span class="math inline">(a^x)' = a^x\log a</span> — variable in the <em>exponent</em>. Mix them up and you get marks deducted in under three seconds.</li>
+<li><strong>“Forgot the implicit <span class="math inline">\dfrac{dy}{dx}</span>.”</strong> Every <span class="math inline">y</span> that you differentiate with respect to <span class="math inline">x</span> produces a <span class="math inline">\dfrac{dy}{dx}</span> factor; missing one is the most common board-paper slip.</li>
+<li><strong>“Took <span class="math inline">\log</span> of a possibly-negative quantity.”</strong> <span class="math inline">\log y</span> is only defined for <span class="math inline">y &gt; 0</span>. For log differentiation in general, use <span class="math inline">\log|y|</span> and <span class="math inline">\log|f(x)|</span> — the answer is the same and the steps are honest.</li>
 </ol>
 </section>
 <section id="takeaways" class="level3">

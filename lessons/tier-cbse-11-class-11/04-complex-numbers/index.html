@@ -2654,7 +2654,8 @@ Full solution
 </tr>
 </tbody>
 </table>
-The pattern repeats every 4. So <span class="math inline">i^n</span> depends only on <span class="math inline">n \bmod 4</span>.
+<p>The pattern repeats every 4. So <span class="math inline">i^n</span> depends only on <span class="math inline">n \bmod 4</span>.</p>
+<strong>Technique.</strong> For any large <span class="math inline">n</span>, divide by 4 and keep the remainder <span class="math inline">r \in \{0,1,2,3\}</span>; then <span class="math inline">i^n = i^r</span>. Try it: <span class="math inline">i^{50} = i^{50 \bmod 4} = i^2 = -1</span>, and <span class="math inline">i^9 + i^{19} = i + (-i) = 0</span>.
 </details>
 </section>
 <section id="problem-2-add-and-multiply" class="level3">
@@ -2769,10 +2770,38 @@ These are the (non-real) cube roots of unity, often called <span class="math inl
 <li><span class="math inline">\operatorname{Re}(z) = a</span>, <span class="math inline">\operatorname{Im}(z) = b</span>.</li>
 <li><strong>Conjugate:</strong> <span class="math inline">\bar{z} = a - bi</span>.</li>
 <li><strong>Modulus:</strong> <span class="math inline">|z| = \sqrt{a^2 + b^2}</span>. Note <span class="math inline">z\bar{z} = |z|^2</span>.</li>
-<li><strong>Argument:</strong> <span class="math inline">\arg(z) = \theta</span> with <span class="math inline">\cos\theta = a/|z|</span>, <span class="math inline">\sin\theta = b/|z|</span>.</li>
+<li><strong>Argument:</strong> <span class="math inline">\arg(z) = \theta</span> with <span class="math inline">\cos\theta = a/|z|</span>, <span class="math inline">\sin\theta = b/|z|</span>. The unique value in <span class="math inline">(-\pi, \pi]</span> is the <strong>principal argument</strong> <span class="math inline">\operatorname{Arg}(z)</span>.</li>
 <li><strong>Polar form:</strong> <span class="math inline">z = r(\cos\theta + i\sin\theta)</span> where <span class="math inline">r = |z|</span>.</li>
+<li><strong>Multiplicative inverse:</strong> for <span class="math inline">z \neq 0</span>, <span class="math inline">z^{-1} = \dfrac{\bar z}{|z|^2}</span> — the conjugate divided by the modulus squared.</li>
 </ul>
 <p><strong>Operations:</strong> <span class="math display"> (a+bi)+(c+di) = (a+c) + (b+d)i </span> <span class="math display"> (a+bi)(c+di) = (ac-bd) + (ad+bc)i </span> <span class="math display"> \frac{a+bi}{c+di} = \frac{(a+bi)(c-di)}{c^2+d^2} </span></p>
+<p><strong>Principal-argument quadrant rules.</strong> Let <span class="math inline">\alpha = \arctan(|b|/|a|)</span> be the reference angle. Then <span class="math inline">\operatorname{Arg}(z)</span> is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Quadrant of <span class="math inline">(a, b)</span></th>
+<th><span class="math inline">\operatorname{Arg}(z)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>I (<span class="math inline">a&gt;0, b&gt;0</span>)</td>
+<td><span class="math inline">\alpha</span></td>
+</tr>
+<tr class="even">
+<td>II (<span class="math inline">a&lt;0, b&gt;0</span>)</td>
+<td><span class="math inline">\pi - \alpha</span></td>
+</tr>
+<tr class="odd">
+<td>III (<span class="math inline">a&lt;0, b&lt;0</span>)</td>
+<td><span class="math inline">\alpha - \pi</span></td>
+</tr>
+<tr class="even">
+<td>IV (<span class="math inline">a&gt;0, b&lt;0</span>)</td>
+<td><span class="math inline">-\alpha</span></td>
+</tr>
+</tbody>
+</table>
 <p><strong>Polar multiplication:</strong> moduli multiply, arguments add: <span class="math display"> |z_1 z_2| = |z_1||z_2|, \quad \arg(z_1 z_2) = \arg z_1 + \arg z_2. </span></p>
 <p><strong>Quadratic with <span class="math inline">b^2 - 4ac &lt; 0</span>:</strong> roots are <span class="math display">x = \frac{-b \pm i\sqrt{4ac - b^2}}{2a}.</span></p>
 </div>
@@ -2854,6 +2883,53 @@ Full solution
 </summary>
 Discriminant <span class="math inline">= 1 - 8 = -7</span>. <span class="math inline">x = \dfrac{-1 \pm i\sqrt{7}}{4}</span>.
 </details>
+<p><strong>P4.</strong> Find the multiplicative inverse of <span class="math inline">z = 4 - 3i</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Use <span class="math inline">z^{-1} = \bar z / |z|^2</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Compute <span class="math inline">|z|^2 = a^2 + b^2</span> and <span class="math inline">\bar z = a - bi</span> separately, then divide.
+</details>
+<details class="hint">
+<summary>
+Hint 3 — the first step
+</summary>
+<span class="math inline">|z|^2 = 16 + 9 = 25</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><span class="math inline">\bar z = 4 + 3i</span>, <span class="math inline">|z|^2 = 25</span>, so <span class="math inline">z^{-1} = \dfrac{4 + 3i}{25} = \dfrac{4}{25} + \dfrac{3}{25}i</span>.</p>
+Check: <span class="math inline">(4 - 3i)\!\left(\tfrac{4}{25} + \tfrac{3}{25}i\right) =
+\tfrac{1}{25}(4 - 3i)(4 + 3i) = \tfrac{16 + 9}{25} = 1</span>. ✓
+</details>
+<p><strong>P5.</strong> Find the principal argument of <span class="math inline">z = -1 - i</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+<span class="math inline">(-1, -1)</span> lives in the third quadrant — the principal argument must be <strong>negative</strong>, even though sweeping anticlockwise from the positive real axis lands you between <span class="math inline">\pi</span> and <span class="math inline">3\pi/2</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Reference angle <span class="math inline">\alpha = \arctan(|b|/|a|)</span>, then use the quadrant-III rule <span class="math inline">\operatorname{Arg}(z) = \alpha - \pi</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><span class="math inline">\alpha = \arctan(1/1) = \pi/4</span>. Quadrant III gives <span class="math inline">\operatorname{Arg}(z) = \pi/4 - \pi = -3\pi/4</span>.</p>
+Modulus: <span class="math inline">|z| = \sqrt{2}</span>. Polar form: <span class="math inline">z = \sqrt{2}\bigl(\cos(-3\pi/4) + i\sin(-3\pi/4)\bigr)</span>.
+</details>
 </section>
 <section id="practice-stretch" class="level3">
 <h3 class="anchored" data-anchor-id="practice-stretch">Practice — Stretch</h3>
@@ -2872,7 +2948,34 @@ Full solution
 \dfrac{2i}{2} = i</span>.</p>
 So the expression <span class="math inline">= i^4 = 1</span>. ✓
 </details>
-<p><strong>S2.</strong> Find the cube roots of <span class="math inline">-8</span>.</p>
+<p><strong>S2.</strong> Find the <strong>smallest positive integer</strong> <span class="math inline">m</span> such that <span class="math inline">\left(\dfrac{1 + i}{1 - i}\right)^m = 1</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+First simplify the inside of the bracket. You have already done this in S1.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+The inside reduces to a single power of <span class="math inline">i</span>. Then ask: what is the smallest exponent that brings <span class="math inline">i</span> back to <span class="math inline">1</span>?
+</details>
+<details class="hint">
+<summary>
+Hint 3 — the first step
+</summary>
+<span class="math inline">(1+i)/(1-i) = i</span> (rationalise by multiplying top and bottom by <span class="math inline">1 + i</span>).
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><span class="math inline">\dfrac{1+i}{1-i} \cdot \dfrac{1+i}{1+i} = \dfrac{(1+i)^2}{2}
+= \dfrac{2i}{2} = i</span>.</p>
+So we need <span class="math inline">i^m = 1</span>. The powers of <span class="math inline">i</span> cycle <span class="math inline">i, -1, -i, 1</span>, so the smallest positive <span class="math inline">m</span> is <span class="math inline">m = 4</span>.
+</details>
+<p><strong>S3.</strong> Find the cube roots of <span class="math inline">-8</span>.</p>
 <details class="hint">
 <summary>
 Hint 1 — a nudge
@@ -2948,7 +3051,7 @@ Full solution
 <i class="callout-icon"></i>
 </div>
 <div class="callout-body-container">
-<p><strong>NCERT Exemplar pointer:</strong> Exemplar Ch 4 LA “powers of (1+i) using polar form” matches the 5-mark item. <strong>JEE pointer:</strong> <span class="math inline">n</span>-th roots of complex numbers (Stretch S2) is JEE Main standard.</p>
+<p><strong>NCERT Exemplar pointer:</strong> Exemplar Ch 4 LA “powers of (1+i) using polar form” matches the 5-mark item. <strong>JEE pointer:</strong> <span class="math inline">n</span>-th roots of complex numbers (Stretch S3) is JEE Main standard.</p>
 </div>
 </div>
 </div>
@@ -2968,6 +3071,8 @@ Full solution
 <li><strong>“<span class="math inline">\sqrt{-9} = 3i</span> and <span class="math inline">-3i</span> both.”</strong> Conventionally <span class="math inline">\sqrt{-9}</span> denotes the principal root <span class="math inline">3i</span>. The two solutions of <span class="math inline">x^2 = -9</span> are <span class="math inline">\pm 3i</span>, but the symbol <span class="math inline">\sqrt{\cdot}</span> picks one.</li>
 <li><strong>“<span class="math inline">\sqrt{a}\sqrt{b} = \sqrt{ab}</span> always.”</strong> Not for negative <span class="math inline">a, b</span>. <span class="math inline">\sqrt{-1}\sqrt{-1} = i \cdot i = -1</span>, while <span class="math inline">\sqrt{(-1)(-1)}
 = \sqrt{1} = 1</span>. Don’t merge negative radicands.</li>
+<li><strong>“<span class="math inline">\operatorname{Im}(3 + 4i) = 4i</span>.”</strong> No — the imaginary part is the <strong>real coefficient</strong> of <span class="math inline">i</span>, so <span class="math inline">\operatorname{Im}(3 + 4i) = 4</span>. Easy marks to lose on a 1-mark objective.</li>
+<li><strong>“The conjugate flips both signs.”</strong> Only the imaginary sign flips. For <span class="math inline">z = 3 + 4i</span> the conjugate is <span class="math inline">\overline{z} = 3 - 4i</span>, <strong>not</strong> <span class="math inline">-3 - 4i</span> (that is <span class="math inline">-z</span>, the additive inverse).</li>
 <li><strong>“Complex numbers are imaginary, not real.”</strong> They are perfectly real <em>as mathematical objects</em> — points in <span class="math inline">\mathbb{R}^2</span> with a special multiplication. The name “imaginary” is historical baggage, not a description.</li>
 </ol>
 </section>
@@ -2981,7 +3086,7 @@ Full solution
 </ol>
 <ul>
 <li><strong>3 yes:</strong> move on to <strong><a href="../../../lessons/tier-cbse-11-class-11/05-linear-inequalities/index.html">Linear Inequalities</a></strong>.</li>
-<li><strong>2 yes:</strong> redo Stretch S2 and the 5-mark item.</li>
+<li><strong>2 yes:</strong> redo Stretch S3 and the 5-mark item.</li>
 <li><strong>0–1 yes:</strong> rebuild from <em>Discover</em>. Polar form is the route to every clever shortcut in this chapter.</li>
 </ul>
 </section>
@@ -3016,6 +3121,9 @@ Full solution
 </div>
 <div class="applied-callout">
 <p><strong>Research / Engineering.</strong> AC circuits are analysed entirely with complex impedances <span class="math inline">Z = R + iX</span> (resistance + reactance). Quantum mechanics’ wavefunction lives in <span class="math inline">\mathbb{C}</span>. The Fourier transform — the basic tool of signal processing — is complex-valued.</p>
+</div>
+<div class="fun-fact">
+<p>The word <strong>“imaginary”</strong> was coined as an <em>insult</em>. <strong>René Descartes</strong>, in <em>La Géométrie</em> (1637), called the square roots of negatives <em>imaginaires</em> — meaning <em>fictitious</em>, <em>unreal</em>. The label stuck even after <strong>Hamilton</strong> (1843) extended complex numbers to the four-dimensional <strong>quaternions</strong> <span class="math inline">a + bi + cj + dk</span> — now used inside every video-game engine on the planet to interpolate 3-D rotations without “gimbal lock.” Descartes’ insult turned out to power the rotation maths in <em>Doom</em>, <em>Halo</em>, and the camera in your phone.</p>
 </div>
 <hr>
 <div class="callout callout-style-simple callout-note callout-titled">

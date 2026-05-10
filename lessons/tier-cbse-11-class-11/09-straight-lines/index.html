@@ -2476,11 +2476,14 @@ window.Quarto = {
   <li><a href="#problem-5-angle-between-lines" id="toc-problem-5-angle-between-lines" class="nav-link" data-scroll-target="#problem-5-angle-between-lines">Problem 5 — Angle between lines</a></li>
   <li><a href="#problem-6-distance-from-a-point-to-a-line" id="toc-problem-6-distance-from-a-point-to-a-line" class="nav-link" data-scroll-target="#problem-6-distance-from-a-point-to-a-line">Problem 6 — Distance from a point to a line</a></li>
   <li><a href="#problem-7-different-forms" id="toc-problem-7-different-forms" class="nav-link" data-scroll-target="#problem-7-different-forms">Problem 7 — Different forms</a></li>
+  <li><a href="#problem-8-slope-from-an-inclination" id="toc-problem-8-slope-from-an-inclination" class="nav-link" data-scroll-target="#problem-8-slope-from-an-inclination">Problem 8 — Slope from an inclination</a></li>
+  <li><a href="#problem-9-collinearity-by-slopes" id="toc-problem-9-collinearity-by-slopes" class="nav-link" data-scroll-target="#problem-9-collinearity-by-slopes">Problem 9 — Collinearity by slopes</a></li>
   </ul></li>
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
   <ul class="collapse">
   <li><a href="#worked-example" id="toc-worked-example" class="nav-link" data-scroll-target="#worked-example">Worked example</a></li>
+  <li><a href="#worked-example-form-conversion" id="toc-worked-example-form-conversion" class="nav-link" data-scroll-target="#worked-example-form-conversion">Worked example — form conversion</a></li>
   <li><a href="#practice-warm" id="toc-practice-warm" class="nav-link" data-scroll-target="#practice-warm">Practice — Warm</a></li>
   <li><a href="#practice-working" id="toc-practice-working" class="nav-link" data-scroll-target="#practice-working">Practice — Working</a></li>
   <li><a href="#practice-stretch" id="toc-practice-stretch" class="nav-link" data-scroll-target="#practice-stretch">Practice — Stretch</a></li>
@@ -2617,6 +2620,7 @@ window.Quarto = {
 </div>
 </div>
 <p>Move the sliders. Two facts — a point and a direction, or two points — pin every line uniquely.</p>
+<p>Try two extreme cases by hand. Set both points so <span class="math inline">y_1 = y_2</span>: the line goes flat and the slope reads <span class="math inline">0</span>. Now set <span class="math inline">x_1 = x_2</span> instead: the widget refuses to give a number — the slope is <em>undefined</em>, not zero, not infinity. Those are the two special cases that the slope formula <span class="math inline">m = (y_2 - y_1)/(x_2 - x_1)</span> politely warns you about every time the denominator threatens to vanish.</p>
 </section>
 <section id="wonder" class="level2">
 <h2 class="anchored" data-anchor-id="wonder">Wonder</h2>
@@ -2745,6 +2749,44 @@ Full solution
 <strong>(b)</strong> <span class="math inline">4x - 3y = -12 \Rightarrow \dfrac{4x}{-12} - \dfrac{3y}{-12} = 1
 \Rightarrow \dfrac{x}{-3} + \dfrac{y}{4} = 1</span>. So <span class="math inline">a = -3, b = 4</span>.
 </details>
+</section>
+<section id="problem-8-slope-from-an-inclination" class="level3">
+<h3 class="anchored" data-anchor-id="problem-8-slope-from-an-inclination">Problem 8 — Slope from an inclination</h3>
+<p>Find the slope of a line that makes an angle of <span class="math inline">30°</span> with the <em>positive <span class="math inline">y</span>-axis</em>, measured anticlockwise.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Slope is <span class="math inline">\tan\theta</span> where <span class="math inline">\theta</span> is the angle with the positive <span class="math inline">x</span>-axis, not the <span class="math inline">y</span>-axis.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Convert the angle: from the positive <span class="math inline">y</span>-axis to the positive <span class="math inline">x</span>-axis adds another <span class="math inline">90°</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+Inclination with the <span class="math inline">x</span>-axis: <span class="math inline">\theta = 90° + 30° = 120°</span>. Then <span class="math display"> m = \tan 120° = \tan(180° - 60°) = -\tan 60° = -\sqrt{3}. </span> Negative slope — the line falls to the right, as expected of a line tilted past the vertical.
+</details>
+</section>
+<section id="problem-9-collinearity-by-slopes" class="level3">
+<h3 class="anchored" data-anchor-id="problem-9-collinearity-by-slopes">Problem 9 — Collinearity by slopes</h3>
+<p>Show that <span class="math inline">A(1, 2)</span>, <span class="math inline">B(3, 6)</span>, <span class="math inline">C(5, 10)</span> are collinear <em>without</em> using the area formula.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Three points are collinear iff <span class="math inline">\text{slope}\,AB = \text{slope}\,BC</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">\text{slope}\,AB = (6 - 2)/(3 - 1) = 2</span>. <span class="math inline">\text{slope}\,BC = (10 - 6)/(5 - 3) = 2</span>. Equal — so <span class="math inline">A</span>, <span class="math inline">B</span>, <span class="math inline">C</span> are collinear. (The “<span class="math inline">\text{area} = 0</span>” test from Class 10 says the same thing in different language.)
+</details>
 <p>You have just used <a href="../../../glossary.html#slope">slope</a>, <strong>point-slope</strong>, <strong>two-point</strong>, <strong>slope-intercept</strong>, <strong>intercept</strong>, the <strong>angle formula</strong>, and the <a href="../../../glossary.html#distance-formula">point-line distance formula</a>. Now we name them.</p>
 <div class="fun-fact">
 <p><strong>Descartes’ <em>La Géométrie</em></strong> (1637), an appendix to his <em>Discourse on the Method</em>, is the founding text of coordinate geometry — but it does not contain a single coordinate axis. Descartes preferred <em>one</em> axis (the baseline) and let the second direction be implicit. The clean two-axis <span class="math inline">(x, y)</span> frame and the equation <span class="math inline">ax + by + c = 0</span> for a line as we write it today were standardised later, by mathematicians like <strong>Lacroix</strong> and <strong>Monge</strong> in the 1790s. The intervening century-and-a-half worked the way the <em>intercept form</em> does now — by what each axis cuts off — and only slowly converged on the form you’ll spend this chapter rearranging.</p>
@@ -2801,6 +2843,38 @@ Full solution
 <p><strong>Angle between two lines:</strong> <span class="math display"> \tan\theta = \left|\dfrac{m_1 - m_2}{1 + m_1 m_2}\right|. </span></p>
 <p><strong>Distance from <span class="math inline">(x_0, y_0)</span> to <span class="math inline">Ax + By + C = 0</span>:</strong> <span class="math display"> d = \dfrac{|A x_0 + B y_0 + C|}{\sqrt{A^2 + B^2}}. </span></p>
 <p><strong>Distance between two parallel lines</strong> <span class="math inline">Ax + By + C_1 = 0</span> and <span class="math inline">Ax + By + C_2 = 0</span>: <span class="math display"> d = \dfrac{|C_1 - C_2|}{\sqrt{A^2 + B^2}}. </span></p>
+<p><strong>Special lines</strong> (don’t force point-slope onto these — write them directly):</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Line</th>
+<th style="text-align: left;">Equation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">x</span>-axis</td>
+<td style="text-align: left;"><span class="math inline">y = 0</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">y</span>-axis</td>
+<td style="text-align: left;"><span class="math inline">x = 0</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Horizontal through <span class="math inline">(0, k)</span></td>
+<td style="text-align: left;"><span class="math inline">y = k</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Vertical through <span class="math inline">(h, 0)</span></td>
+<td style="text-align: left;"><span class="math inline">x = h</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Through origin with slope <span class="math inline">m</span></td>
+<td style="text-align: left;"><span class="math inline">y = mx</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>From general form</strong> <span class="math inline">Ax + By + C = 0</span> with <span class="math inline">B \ne 0</span>: slope <span class="math inline">= -A/B</span>, <span class="math inline">y</span>-intercept <span class="math inline">= -C/B</span>, <span class="math inline">x</span>-intercept (if <span class="math inline">A \ne 0</span>) <span class="math inline">= -C/A</span>.</p>
 </div>
 <p>A short verse:</p>
 <blockquote class="blockquote">
@@ -2822,6 +2896,21 @@ Full solution
 <li>Multiply by <span class="math inline">4</span>: <span class="math inline">4y - 12 = -5x + 10</span>, i.e.&nbsp;<span class="math inline">5x + 4y - 22 = 0</span>.</li>
 </ol>
 <p><strong>Answer:</strong> <span class="math inline">5x + 4y - 22 = 0</span>.</p>
+</section>
+<section id="worked-example-form-conversion" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-form-conversion">Worked example — form conversion</h3>
+<blockquote class="blockquote">
+<p>Take the line <span class="math inline">2x + 3y - 12 = 0</span>. Write it in (a) slope-intercept form and (b) intercept form, and read off its slope, <span class="math inline">y</span>-intercept, and <span class="math inline">x</span>-intercept.</p>
+</blockquote>
+<p>How a competent solver thinks:</p>
+<ol type="1">
+<li><strong>General <span class="math inline">\to</span> slope-intercept.</strong> Solve for <span class="math inline">y</span>: <span class="math inline">3y = -2x + 12 \Rightarrow y = -\dfrac{2}{3}x + 4</span>. Slope <span class="math inline">m = -2/3</span>, <span class="math inline">y</span>-intercept <span class="math inline">c = 4</span>.</li>
+<li><strong>General <span class="math inline">\to</span> intercept.</strong> Move the constant to the right and divide: <span class="math inline">2x + 3y = 12 \Rightarrow \dfrac{x}{6} + \dfrac{y}{4} = 1</span>. So <span class="math inline">a = 6</span> (the <span class="math inline">x</span>-intercept), <span class="math inline">b = 4</span> (the <span class="math inline">y</span>-intercept).</li>
+<li><strong>Sanity check.</strong> From the general form directly: slope <span class="math inline">= -A/B
+= -2/3</span> ✓, <span class="math inline">y</span>-intercept <span class="math inline">= -C/B = 4</span> ✓, <span class="math inline">x</span>-intercept <span class="math inline">= -C/A
+= 6</span> ✓.</li>
+</ol>
+<p>The same line; three faces. Pick whichever makes the next step shortest.</p>
 </section>
 <section id="practice-warm" class="level3">
 <h3 class="anchored" data-anchor-id="practice-warm">Practice — Warm</h3>
@@ -2888,6 +2977,25 @@ Full solution
 </summary>
 <p>Slope of joining line: <span class="math inline">(-3 - 1)/(5 - 2) = -4/3</span>.</p>
 Through <span class="math inline">(3, -2)</span> with slope <span class="math inline">-4/3</span>: <span class="math inline">y + 2 = -\dfrac{4}{3}(x - 3) \Rightarrow 3y + 6 = -4x + 12 \Rightarrow 4x + 3y - 6 = 0</span>.
+</details>
+<p><strong>P4 — linear model.</strong> When milk costs <span class="math inline">\textsf{Rs}\,14</span> per litre, the daily demand is <span class="math inline">980</span> litres; at <span class="math inline">\textsf{Rs}\,16</span> per litre, demand falls to <span class="math inline">1220</span> litres. Wait — <em>falls?</em> Real demand curves slope down, but the data says otherwise; treat the numbers as given and assume demand <span class="math inline">D</span> is a linear function of price <span class="math inline">P</span>. Find <span class="math inline">D(P)</span> and estimate the demand at <span class="math inline">\textsf{Rs}\,17</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+You have two data points <span class="math inline">(P, D) = (14, 980)</span> and <span class="math inline">(16, 1220)</span>. Use the two-point form.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Compute the slope first; then plug into point-slope.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+Slope <span class="math inline">= (1220 - 980)/(16 - 14) = 240/2 = 120</span>. Point-slope through <span class="math inline">(14, 980)</span>: <span class="math inline">D - 980 = 120(P - 14) \Rightarrow D = 120P - 700</span>. At <span class="math inline">P = 17</span>: <span class="math inline">D = 120 \cdot 17 - 700 = 1340</span> litres.
 </details>
 </section>
 <section id="practice-stretch" class="level3">
@@ -3000,9 +3108,12 @@ Full solution
 <section id="common-confusions" class="level3 common-confusion">
 <h3 class="anchored" data-anchor-id="common-confusions">Common confusions</h3>
 <ol type="1">
-<li><strong>“Vertical lines have slope <span class="math inline">0</span>.”</strong> They have <strong>undefined</strong> slope. Horizontal lines have slope <span class="math inline">0</span>.</li>
-<li><strong>“Perpendicular means <span class="math inline">m_1 + m_2 = 0</span>.”</strong> It means <span class="math inline">m_1 m_2 = -1</span>. Sum-to-zero would be <span class="math inline">m_2 = -m_1</span> — that’s the <em>reflection</em> across the <span class="math inline">y</span>-axis.</li>
+<li><strong>“Vertical lines have slope <span class="math inline">0</span>.”</strong> They have <strong>undefined</strong> slope (it’s <span class="math inline">\tan 90°</span>, which blows up). Horizontal lines have slope <span class="math inline">0</span>. The two cases are not interchangeable.</li>
+<li><strong>“Perpendicular means <span class="math inline">m_1 + m_2 = 0</span>.”</strong> It means <span class="math inline">m_1 m_2 = -1</span>. Sum-to-zero would be <span class="math inline">m_2 = -m_1</span> — that’s the <em>reflection</em> across the <span class="math inline">y</span>-axis, not perpendicularity.</li>
 <li><strong>“Distance from a point to a line is the distance to the closest <span class="math inline">x</span>-intercept.”</strong> No — the perpendicular distance is the unique shortest path. The formula handles all cases.</li>
+<li><strong>Slope sign-flip from inconsistent labelling.</strong> Always set up <span class="math inline">(y_2 - y_1)/(x_2 - x_1)</span> with the <em>same</em> point as “<span class="math inline">2</span>” in both numerator and denominator. Mixing them (<span class="math inline">y_2 - y_1</span> on top but <span class="math inline">x_1 - x_2</span> on the bottom) silently flips the sign of <span class="math inline">m</span>.</li>
+<li><strong>Intercept form for a line through the origin.</strong> If both intercepts are zero, <span class="math inline">x/a + y/b = 1</span> is meaningless — there is no <span class="math inline">a</span>, no <span class="math inline">b</span>. Use <span class="math inline">y = mx</span> (or <span class="math inline">Ax + By = 0</span>) instead.</li>
+<li><strong>“<span class="math inline">2</span> units to the left of the origin” <span class="math inline">\to x = 2</span>.</strong> No — left means negative, so <span class="math inline">x = -2</span>. Drawing a quick number line before substituting prevents this.</li>
 </ol>
 </section>
 <section id="self-assessment" class="level3">

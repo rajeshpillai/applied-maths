@@ -2469,7 +2469,8 @@ window.Quarto = {
   <li><a href="#wonder" id="toc-wonder" class="nav-link" data-scroll-target="#wonder">Wonder</a></li>
   <li><a href="#discover" id="toc-discover" class="nav-link" data-scroll-target="#discover">Discover</a>
   <ul class="collapse">
-  <li><a href="#problem-1-multiplication-principle" id="toc-problem-1-multiplication-principle" class="nav-link" data-scroll-target="#problem-1-multiplication-principle">Problem 1 — Multiplication principle</a></li>
+  <li><a href="#problem-1-multiplication-principle-and" id="toc-problem-1-multiplication-principle-and" class="nav-link" data-scroll-target="#problem-1-multiplication-principle-and">Problem 1 — Multiplication principle (AND)</a></li>
+  <li><a href="#problem-1b-addition-principle-or" id="toc-problem-1b-addition-principle-or" class="nav-link" data-scroll-target="#problem-1b-addition-principle-or">Problem 1b — Addition principle (OR)</a></li>
   <li><a href="#problem-2-factorial" id="toc-problem-2-factorial" class="nav-link" data-scroll-target="#problem-2-factorial">Problem 2 — Factorial</a></li>
   <li><a href="#problem-3-permutations-of-r-from-n" id="toc-problem-3-permutations-of-r-from-n" class="nav-link" data-scroll-target="#problem-3-permutations-of-r-from-n">Problem 3 — Permutations of r from n</a></li>
   <li><a href="#problem-4-combinations" id="toc-problem-4-combinations" class="nav-link" data-scroll-target="#problem-4-combinations">Problem 4 — Combinations</a></li>
@@ -2480,7 +2481,8 @@ window.Quarto = {
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
   <ul class="collapse">
-  <li><a href="#worked-example" id="toc-worked-example" class="nav-link" data-scroll-target="#worked-example">Worked example</a></li>
+  <li><a href="#worked-example-1-restricted-permutations" id="toc-worked-example-1-restricted-permutations" class="nav-link" data-scroll-target="#worked-example-1-restricted-permutations">Worked example 1 — restricted permutations</a></li>
+  <li><a href="#worked-example-2-identical-objects-with-a-sub-question" id="toc-worked-example-2-identical-objects-with-a-sub-question" class="nav-link" data-scroll-target="#worked-example-2-identical-objects-with-a-sub-question">Worked example 2 — identical objects, with a sub-question</a></li>
   <li><a href="#practice-warm" id="toc-practice-warm" class="nav-link" data-scroll-target="#practice-warm">Practice — Warm</a></li>
   <li><a href="#practice-working" id="toc-practice-working" class="nav-link" data-scroll-target="#practice-working">Practice — Working</a></li>
   <li><a href="#practice-stretch" id="toc-practice-stretch" class="nav-link" data-scroll-target="#practice-stretch">Practice — Stretch</a></li>
@@ -2644,8 +2646,8 @@ window.Quarto = {
 </section>
 <section id="discover" class="level2">
 <h2 class="anchored" data-anchor-id="discover">Discover</h2>
-<section id="problem-1-multiplication-principle" class="level3">
-<h3 class="anchored" data-anchor-id="problem-1-multiplication-principle">Problem 1 — Multiplication principle</h3>
+<section id="problem-1-multiplication-principle-and" class="level3">
+<h3 class="anchored" data-anchor-id="problem-1-multiplication-principle-and">Problem 1 — Multiplication principle (AND)</h3>
 <p>A menu has 3 starters, 4 mains, 2 desserts. How many different 3-course meals?</p>
 <details class="hint">
 <summary>
@@ -2658,6 +2660,23 @@ Choose starter, then main, then dessert. Multiply.
 Full solution
 </summary>
 <span class="math inline">3 \times 4 \times 2 = 24</span> meals.
+</details>
+</section>
+<section id="problem-1b-addition-principle-or" class="level3">
+<h3 class="anchored" data-anchor-id="problem-1b-addition-principle-or">Problem 1b — Addition principle (OR)</h3>
+<p>A college lets you take <strong>either</strong> one of <span class="math inline">5</span> science electives <strong>or</strong> one of <span class="math inline">3</span> humanities electives. You must take exactly one elective. How many choices do you have?</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+The two paths are mutually exclusive — you cannot do both. So the totals <em>add</em>, they do not multiply.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><span class="math inline">5 + 3 = 8</span> choices.</p>
+<strong>Rule of thumb.</strong> “AND” between independent stages → multiply. “OR” between mutually exclusive alternatives → add. Most counting blunders start with mixing these two up.
 </details>
 </section>
 <section id="problem-2-factorial" class="level3">
@@ -2769,17 +2788,37 @@ Full solution
 <section id="name" class="level2">
 <h2 class="anchored" data-anchor-id="name">Name</h2>
 <div class="lesson-beat">
-<p><strong>Factorial.</strong> <span class="math inline">n! = n \times (n-1) \times \cdots \times 2 \times 1</span>, with <span class="math inline">0! = 1</span>.</p>
-<p><strong>Multiplication principle.</strong> If task A has <span class="math inline">m</span> outcomes and task B has <span class="math inline">n</span> outcomes, the joint task has <span class="math inline">mn</span> outcomes.</p>
+<p><strong>Factorial.</strong> <span class="math inline">n! = n \times (n-1) \times \cdots \times 2 \times 1</span>, with <span class="math inline">0! = 1</span> (forced by the recursion <span class="math inline">1! = 1 \cdot 0!</span> — see <em>why</em> below).</p>
+<p><strong>Multiplication principle (AND).</strong> If task A has <span class="math inline">m</span> outcomes and task B has <span class="math inline">n</span> outcomes, the joint task has <span class="math inline">mn</span> outcomes. Generalises to <span class="math inline">k</span> stages: <span class="math inline">n_1 \cdot n_2 \cdots n_k</span>.</p>
+<p><strong><a href="../../../glossary.html#addition-principle-counting">Addition principle (OR)</a>.</strong> If a task can be done by <em>either</em> method A (<span class="math inline">m</span> ways) <em>or</em> method B (<span class="math inline">n</span> ways) and the two are <strong>mutually exclusive</strong>, the total is <span class="math inline">m + n</span>.</p>
 <p><strong>Permutations</strong> (order matters): <span class="math display"> P(n, r) = {}^nP_r = \dfrac{n!}{(n-r)!} = n(n-1)\cdots(n-r+1). </span></p>
 <p>Special cases:</p>
 <ul>
 <li>All <span class="math inline">n</span> items: <span class="math inline">n!</span>.</li>
 <li>Around a <strong>circle</strong> of <span class="math inline">n</span> seats: <span class="math inline">(n-1)!</span>.</li>
 <li>With repeats <span class="math inline">n_1, n_2, \ldots, n_k</span> identical: <span class="math inline">\dfrac{n!}{n_1! n_2! \cdots n_k!}</span>.</li>
+<li>With <strong>repetition allowed</strong> (<span class="math inline">r</span> slots, each filled freely from <span class="math inline">n</span>): <span class="math inline">n^r</span>.</li>
 </ul>
 <p><strong>Combinations</strong> (order does not matter): <span class="math display"> C(n, r) = {}^nC_r = \binom{n}{r} = \dfrac{n!}{r!\,(n-r)!}. </span></p>
-<p><strong>Key identities:</strong> <span class="math display"> \binom{n}{r} = \binom{n}{n-r}, \quad \binom{n}{r} + \binom{n}{r-1} = \binom{n+1}{r}. </span></p>
+<p><strong>Bridge between the two.</strong> Each combination of <span class="math inline">r</span> items can be ordered in <span class="math inline">r!</span> ways, so <span class="math display"> {}^nP_r = {}^nC_r \cdot r! \quad\Longleftrightarrow\quad \binom{n}{r} = \dfrac{{}^nP_r}{r!}. </span></p>
+<p><strong>Key identities:</strong> <span class="math display"> \binom{n}{r} = \binom{n}{n-r}, \qquad \binom{n}{r} + \binom{n}{r-1} = \binom{n+1}{r}, </span> <span class="math display"> \binom{n}{0} + \binom{n}{1} + \cdots + \binom{n}{n} = 2^n. </span></p>
+<p>The middle identity is <strong><a href="../../../glossary.html#pascals-identity">Pascal’s identity</a></strong> — the rule that builds <a href="../../../glossary.html#pascals-triangle">Pascal’s triangle</a> row by row. The last identity counts the total number of subsets of an <span class="math inline">n</span>-element set: each element is independently in or out, <span class="math inline">2 \cdot 2 \cdots 2 = 2^n</span>.</p>
+</div>
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why <span class="math inline">0! = 1</span> — the boundary check
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The recursion <span class="math inline">n! = n \cdot (n-1)!</span> must keep working at <span class="math inline">n = 1</span>: <span class="math inline">1! = 1 \cdot 0!</span>. Since <span class="math inline">1! = 1</span>, we are <em>forced</em> to set <span class="math inline">0! = 1</span>. It is a convention that makes formulas behave at the edges — e.g. <span class="math inline">{}^nC_n = \tfrac{n!}{n!\,0!} = 1</span> (one way to choose all of them) and <span class="math inline">{}^nC_0 = \tfrac{n!}{0!\,n!} = 1</span> (one way to choose none).</p>
+</div>
+</div>
 </div>
 <p>A short verse:</p>
 <blockquote class="blockquote">
@@ -2788,8 +2827,8 @@ Full solution
 </section>
 <section id="apply" class="level2">
 <h2 class="anchored" data-anchor-id="apply">Apply</h2>
-<section id="worked-example" class="level3">
-<h3 class="anchored" data-anchor-id="worked-example">Worked example</h3>
+<section id="worked-example-1-restricted-permutations" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-1-restricted-permutations">Worked example 1 — restricted permutations</h3>
 <blockquote class="blockquote">
 <p>How many different <span class="math inline">4</span>-digit numbers, with no digit repeated, can be formed from <span class="math inline">\{1, 2, 3, 4, 5, 6, 7\}</span>? Among these, how many are even?</p>
 </blockquote>
@@ -2801,6 +2840,18 @@ Full solution
 <li>Total even: <span class="math inline">3 \times 120 = 360</span>.</li>
 </ol>
 <p><strong>Answers:</strong> <span class="math inline">840</span> total, <span class="math inline">360</span> even.</p>
+</section>
+<section id="worked-example-2-identical-objects-with-a-sub-question" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-2-identical-objects-with-a-sub-question">Worked example 2 — identical objects, with a sub-question</h3>
+<blockquote class="blockquote">
+<p>Find the number of distinct arrangements of the letters of <em>PERMUTATIONS</em>. Among these, how many begin with <span class="math inline">P</span> and end with <span class="math inline">S</span>?</p>
+</blockquote>
+<p>The word has <span class="math inline">12</span> letters. Inventory: <span class="math inline">P, E, R, M, U, T, A, T, I, O, N, S</span> — only <span class="math inline">T</span> repeats (twice). All others are distinct.</p>
+<ol type="1">
+<li><strong>All arrangements.</strong> With one pair of identical letters, <span class="math display"> \dfrac{12!}{2!} = \dfrac{479\,001\,600}{2} = 239\,500\,800. </span></li>
+<li><strong>Begin with <span class="math inline">P</span>, end with <span class="math inline">S</span>.</strong> Fix <span class="math inline">P</span> in position <span class="math inline">1</span> and <span class="math inline">S</span> in position <span class="math inline">12</span>. The remaining <span class="math inline">10</span> letters (still containing the two <span class="math inline">T</span>s) are permuted in the middle <span class="math inline">10</span> slots: <span class="math display"> \dfrac{10!}{2!} = \dfrac{3\,628\,800}{2} = 1\,814\,400. </span></li>
+</ol>
+<p><strong>Lesson.</strong> “Identical objects” always shows up as a <em>division</em> by the factorial of each repeat. If you forget the divisor you over-count by exactly the factor <span class="math inline">2!\cdot 4! \cdots</span> that distinguishes labelled duplicates from indistinguishable ones.</p>
 </section>
 <section id="practice-warm" class="level3">
 <h3 class="anchored" data-anchor-id="practice-warm">Practice — Warm</h3>
@@ -2862,6 +2913,47 @@ Full solution
 Full solution
 </summary>
 <span class="math inline">(10-1)! = 9! = 362880</span>.
+</details>
+<p><strong>P4.</strong> How many diagonals does a convex polygon with <span class="math inline">n</span> sides have?</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+A diagonal joins two non-adjacent vertices. Start by counting <em>all</em> pairs of vertices, then subtract the ones that are sides.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Pairs of vertices: <span class="math inline">\binom{n}{2}</span>. Of these, exactly <span class="math inline">n</span> are sides of the polygon.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><span class="math display"> \binom{n}{2} - n = \dfrac{n(n-1)}{2} - n = \dfrac{n(n-3)}{2}. </span></p>
+Check: a hexagon (<span class="math inline">n=6</span>) has <span class="math inline">\tfrac{6 \cdot 3}{2} = 9</span> diagonals. ✓
+</details>
+<p><strong>P5.</strong> How many <span class="math inline">4</span>-digit <em>even</em> numbers can be formed from <span class="math inline">\{0, 1, 2, 3, 4, 5\}</span> with no digit repeated?</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+The leading digit cannot be <span class="math inline">0</span> (otherwise it isn’t a <span class="math inline">4</span>-digit number). The units digit must be even: <span class="math inline">0</span>, <span class="math inline">2</span>, or <span class="math inline">4</span>. Split on whether the units digit is <span class="math inline">0</span> or non-zero — they trigger different leading-digit constraints.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+<strong>Case A: units = <span class="math inline">0</span>.</strong> Now any of the remaining <span class="math inline">5</span> non-zero digits can lead. <strong>Case B: units <span class="math inline">\in \{2, 4\}</span>.</strong> Now the leading slot must avoid both <span class="math inline">0</span> <em>and</em> the chosen units digit.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><strong>Case A (units = 0).</strong> The remaining <span class="math inline">3</span> slots are filled from <span class="math inline">\{1, 2, 3, 4, 5\}</span> with no repeats: <span class="math inline">{}^5P_3 = 5 \cdot 4 \cdot 3 = 60</span>.</p>
+<p><strong>Case B (units <span class="math inline">\in \{2, 4\}</span>, so <span class="math inline">2</span> choices).</strong> The thousands slot takes one of the <span class="math inline">4</span> remaining non-zero digits (we cannot reuse the units digit, and we cannot use <span class="math inline">0</span>). The middle two slots take any <span class="math inline">2</span> of the <span class="math inline">4</span> remaining digits in order: <span class="math inline">{}^4P_2 = 12</span>. Sub-total: <span class="math inline">2 \cdot 4 \cdot 12 = 96</span>.</p>
+<strong>Total</strong> <span class="math inline">= 60 + 96 = 156</span> four-digit even numbers.
 </details>
 </section>
 <section id="practice-stretch" class="level3">
@@ -2972,6 +3064,10 @@ Full solution
 <li><strong>“Combinations and permutations are the same.”</strong> They are not. The acid test is: would <em>swapping the order</em> give a different outcome? Yes → permutation; no → combination.</li>
 <li><strong>“All arrangements of MISSISSIPPI are <span class="math inline">11!</span>.”</strong> No — repeated letters produce identical words. Always divide by <span class="math inline">n_1! n_2! \cdots</span> for the repeats.</li>
 <li><strong>“Circular arrangements of <span class="math inline">n</span> are <span class="math inline">n!</span>.”</strong> No — they are <span class="math inline">(n-1)!</span>, because rotations of the same arrangement should be counted once.</li>
+<li><strong>“<span class="math inline">n</span>-digit numbers from <span class="math inline">\{0, 1, \ldots, 9\}</span> with no repeats are <span class="math inline">{}^{10}P_n</span>.”</strong> Not quite — the <em>leading</em> digit cannot be <span class="math inline">0</span>, so you have one fewer choice in the first slot than in the rest. Always handle the leading slot separately.</li>
+<li><strong>“Handshakes among <span class="math inline">n</span> people are <span class="math inline">n^2</span> (or <span class="math inline">n(n-1)</span>).”</strong> Each handshake is shared between two people, so the count is <span class="math inline">\binom{n}{2}</span>, not <span class="math inline">n^2</span>. Pairs are unordered.</li>
+<li><strong>“Treat the bunch as one object — done.”</strong> When you glue a group together (e.g.&nbsp;“all vowels stay together”), you must <em>also</em> multiply by the internal arrangements of the bunch. Forgetting the internal <span class="math inline">k!</span> is the single most common slip in JEE-style problems.</li>
+<li><strong>AND vs OR.</strong> Independent stages of one task → multiply. Mutually exclusive alternatives → add. “<span class="math inline">3</span>-course menu” multiplies; “science <em>or</em> humanities elective” adds.</li>
 </ol>
 </section>
 <section id="self-assessment" class="level3">
@@ -3023,9 +3119,12 @@ Full solution
 <div class="applied-callout">
 <p><strong>Research.</strong> Combinatorics is a subject in its own right. The <strong>Catalan numbers</strong> <span class="math inline">C_n = \dfrac{1}{n+1}\binom{2n}{n}</span> count, for example, the number of valid bracket sequences of length <span class="math inline">2n</span>.</p>
 </div>
+<div class="fun-fact">
+<p>“Pascal’s” triangle was <em>not</em> discovered by Pascal. The Indian prosodist <strong>Pingala</strong> (c.&nbsp;200 BCE) used the same triangular array — under the name <em>Meruprastāra</em> — to count metrical patterns in Sanskrit verse. The Persian polymath <strong>Omar Khayyám</strong> (11th century) and the Chinese mathematician <strong>Yang Hui</strong> (13th century) both knew it well. Pascal’s contribution (1654) was the systematic study of its identities and the link to probability — but the triangle itself is over two thousand years old, and was a counting tool for poets long before it was one for gamblers.</p>
+</div>
 <hr>
 <div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -3034,7 +3133,7 @@ Full solution
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Touchstones: NRICH (low-floor word problems escalating to subtle gap arrangements), Russian school (Discover problems force the <em>permutation vs combination</em> distinction), Bhāskara (verse mnemonic).</p>
 </div>

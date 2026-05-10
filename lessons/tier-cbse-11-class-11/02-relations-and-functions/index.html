@@ -2470,6 +2470,7 @@ window.Quarto = {
   <li><a href="#discover" id="toc-discover" class="nav-link" data-scroll-target="#discover">Discover</a>
   <ul class="collapse">
   <li><a href="#problem-1-cartesian-product" id="toc-problem-1-cartesian-product" class="nav-link" data-scroll-target="#problem-1-cartesian-product">Problem 1 — Cartesian product</a></li>
+  <li><a href="#problem-1b-counting-and-recovering" id="toc-problem-1b-counting-and-recovering" class="nav-link" data-scroll-target="#problem-1b-counting-and-recovering">Problem 1b — Counting and recovering</a></li>
   <li><a href="#problem-2-domain-and-range-of-a-relation" id="toc-problem-2-domain-and-range-of-a-relation" class="nav-link" data-scroll-target="#problem-2-domain-and-range-of-a-relation">Problem 2 — Domain and range of a relation</a></li>
   <li><a href="#problem-3-function-vs-relation" id="toc-problem-3-function-vs-relation" class="nav-link" data-scroll-target="#problem-3-function-vs-relation">Problem 3 — Function vs relation</a></li>
   <li><a href="#problem-4-linear-function" id="toc-problem-4-linear-function" class="nav-link" data-scroll-target="#problem-4-linear-function">Problem 4 — Linear function</a></li>
@@ -2480,6 +2481,8 @@ window.Quarto = {
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
   <ul class="collapse">
   <li><a href="#worked-example" id="toc-worked-example" class="nav-link" data-scroll-target="#worked-example">Worked example</a></li>
+  <li><a href="#trap-table-domain-restrictions-in-one-glance" id="toc-trap-table-domain-restrictions-in-one-glance" class="nav-link" data-scroll-target="#trap-table-domain-restrictions-in-one-glance">Trap-table — domain restrictions in one glance</a></li>
+  <li><a href="#special-function-quick-reference" id="toc-special-function-quick-reference" class="nav-link" data-scroll-target="#special-function-quick-reference">Special-function quick reference</a></li>
   <li><a href="#practice-warm" id="toc-practice-warm" class="nav-link" data-scroll-target="#practice-warm">Practice — Warm</a></li>
   <li><a href="#practice-working" id="toc-practice-working" class="nav-link" data-scroll-target="#practice-working">Practice — Working</a></li>
   <li><a href="#practice-stretch" id="toc-practice-stretch" class="nav-link" data-scroll-target="#practice-stretch">Practice — Stretch</a></li>
@@ -2620,7 +2623,31 @@ Full solution
 </summary>
 <p><span class="math inline">A \times B = \{(1,x),(1,y),(1,z),(2,x),(2,y),(2,z)\}</span> — six pairs.</p>
 <p><span class="math inline">B \times A = \{(x,1),(x,2),(y,1),(y,2),(z,1),(z,2)\}</span> — six pairs.</p>
-They have the same <em>number</em> of elements but are <strong>not equal</strong>: <span class="math inline">(1,x) \ne (x,1)</span>. Order matters in the pair, so the product depends on which set is “first”.
+<p>They have the same <em>number</em> of elements but are <strong>not equal</strong>: <span class="math inline">(1,x) \ne (x,1)</span>. Order matters in the pair, so the product depends on which set is “first”.</p>
+So <span class="math inline">A \times B = B \times A</span> only in the trivial cases <span class="math inline">A = B</span> or one of them is empty.
+</details>
+</section>
+<section id="problem-1b-counting-and-recovering" class="level3">
+<h3 class="anchored" data-anchor-id="problem-1b-counting-and-recovering">Problem 1b — Counting and recovering</h3>
+<ol type="a">
+<li><p>If <span class="math inline">n(A) = m</span> and <span class="math inline">n(B) = n</span>, how many ordered pairs are in <span class="math inline">A \times B</span>? How many distinct <em>relations</em> from <span class="math inline">A</span> to <span class="math inline">B</span>?</p></li>
+<li><p>You are told <span class="math inline">n(A \times A) = 9</span> and that <span class="math inline">(-1, 0)</span> and <span class="math inline">(0, 1)</span> both lie in <span class="math inline">A \times A</span>. What is <span class="math inline">A</span>?</p></li>
+</ol>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+<p>For (a), each first coordinate has <span class="math inline">n</span> choices for second. A relation is <em>any</em> subset of <span class="math inline">A \times B</span>.</p>
+For (b), every coordinate seen must lie in <span class="math inline">A</span>, and <span class="math inline">n(A \times A) = n(A)^2</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<ol type="a">
+<li><p><span class="math inline">n(A \times B) = mn</span>. Since a relation is <em>any</em> subset, the number of distinct relations is <span class="math inline">2^{mn}</span>.</p></li>
+<li><p><span class="math inline">n(A \times A) = 9 \Rightarrow n(A) = 3</span>. The visible coordinates <span class="math inline">\{-1, 0, 1\}</span> must all lie in <span class="math inline">A</span>, and there are exactly three of them. Hence <span class="math inline">A = \{-1, 0, 1\}</span>.</p></li>
+</ol>
 </details>
 </section>
 <section id="problem-2-domain-and-range-of-a-relation" class="level3">
@@ -2807,6 +2834,116 @@ Full solution
 <li><strong>Range</strong> <span class="math inline">= [1/2, \infty)</span>.</li>
 </ol>
 </section>
+<section id="trap-table-domain-restrictions-in-one-glance" class="level3">
+<h3 class="anchored" data-anchor-id="trap-table-domain-restrictions-in-one-glance">Trap-table — domain restrictions in one glance</h3>
+<p>When a real-valued formula is handed to you, scan the expression for these three “danger sites” and intersect the safe regions.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Sub-expression in <span class="math inline">f(x)</span></th>
+<th style="text-align: left;">Restriction it imposes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\dfrac{1}{g(x)}</span></td>
+<td style="text-align: left;"><span class="math inline">g(x) \ne 0</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\sqrt{g(x)}</span> (any even root)</td>
+<td style="text-align: left;"><span class="math inline">g(x) \ge 0</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\dfrac{1}{\sqrt{g(x)}}</span></td>
+<td style="text-align: left;"><span class="math inline">g(x) &gt; 0</span> (strict)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\log g(x)</span></td>
+<td style="text-align: left;"><span class="math inline">g(x) &gt; 0</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\tan x</span>, <span class="math inline">\sec x</span></td>
+<td style="text-align: left;"><span class="math inline">\cos x \ne 0</span></td>
+</tr>
+</tbody>
+</table>
+<p>The domain of the whole formula is the <strong>intersection</strong> of all the safe regions.</p>
+</section>
+<section id="special-function-quick-reference" class="level3">
+<h3 class="anchored" data-anchor-id="special-function-quick-reference">Special-function quick reference</h3>
+<p>A handful of “named” real functions show up everywhere — know each one by its rule, its graph, and its range.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Rule</th>
+<th style="text-align: left;">Graph</th>
+<th style="text-align: left;">Range</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Identity</td>
+<td style="text-align: left;"><span class="math inline">f(x) = x</span></td>
+<td style="text-align: left;">line at 45° through origin</td>
+<td style="text-align: left;"><span class="math inline">\mathbb{R}</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Constant</td>
+<td style="text-align: left;"><span class="math inline">f(x) = c</span></td>
+<td style="text-align: left;">horizontal line at height <span class="math inline">c</span></td>
+<td style="text-align: left;"><span class="math inline">\{c\}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Modulus</td>
+<td style="text-align: left;"><span class="math inline">f(x) = \lvert x \rvert</span></td>
+<td style="text-align: left;">V-shape, vertex at origin</td>
+<td style="text-align: left;"><span class="math inline">[0, \infty)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Signum</td>
+<td style="text-align: left;"><span class="math inline">\operatorname{sgn}(x) = \begin{cases}1 &amp; x&gt;0\\0 &amp; x=0\\-1 &amp; x&lt;0\end{cases}</span></td>
+<td style="text-align: left;">three flat pieces at <span class="math inline">\pm 1</span> and <span class="math inline">0</span></td>
+<td style="text-align: left;"><span class="math inline">\{-1, 0, 1\}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Floor</td>
+<td style="text-align: left;"><span class="math inline">f(x) = \lfloor x \rfloor</span></td>
+<td style="text-align: left;">staircase, jumps at every integer</td>
+<td style="text-align: left;"><span class="math inline">\mathbb{Z}</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Polynomial</td>
+<td style="text-align: left;"><span class="math inline">a_n x^n + \dots + a_0</span></td>
+<td style="text-align: left;">smooth curve</td>
+<td style="text-align: left;">depends on <span class="math inline">f</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Rational</td>
+<td style="text-align: left;"><span class="math inline">\dfrac{p(x)}{q(x)}</span></td>
+<td style="text-align: left;">curves with vertical asymptotes at zeros of <span class="math inline">q</span></td>
+<td style="text-align: left;">depends on <span class="math inline">f</span></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-simple callout-warning">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Floor trap.</strong> <span class="math inline">\lfloor -2.5 \rfloor = -3</span>, <em>not</em> <span class="math inline">-2</span>. The greatest integer <span class="math inline">\le -2.5</span> is <span class="math inline">-3</span> — picture the number line and step <em>left</em>.</p>
+<p><strong>Signum trap.</strong> Outside <span class="math inline">0</span>, <span class="math inline">\operatorname{sgn}(x) = \lvert x \rvert / x</span>. But you cannot substitute <span class="math inline">x = 0</span> into <span class="math inline">\lvert x \rvert / x</span> (it is <span class="math inline">0/0</span>, undefined); the value <span class="math inline">\operatorname{sgn}(0) = 0</span> is <em>defined separately</em> as part of the rule.</p>
+</div>
+</div>
+</div>
+</section>
 <section id="practice-warm" class="level3">
 <h3 class="anchored" data-anchor-id="practice-warm">Practice — Warm</h3>
 <p><strong>W1.</strong> If <span class="math inline">f(x) = x^2 + 1</span>, compute <span class="math inline">f(-1)</span>, <span class="math inline">f(0)</span>, <span class="math inline">f(3)</span>.</p>
@@ -2879,6 +3016,34 @@ Full solution
 </summary>
 <span class="math inline">3x + 5 = 2x + 11 \Rightarrow x = 6</span>.
 </details>
+<p><strong>P4.</strong> Algebra of functions. Let <span class="math inline">f(x) = x + 1</span> (domain <span class="math inline">\mathbb{R}</span>) and <span class="math inline">g(x) = \sqrt{x}</span> (domain <span class="math inline">[0, \infty)</span>). Write down <span class="math inline">(f + g)(x)</span> and <span class="math inline">(f / g)(x)</span>, and state the domain of each.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+The new function is defined only where <em>both</em> <span class="math inline">f</span> and <span class="math inline">g</span> are defined. For the quotient, also exclude points where <span class="math inline">g(x) = 0</span>.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p><span class="math inline">(f + g)(x) = x + 1 + \sqrt{x}</span>. Both <span class="math inline">f</span> and <span class="math inline">g</span> must be defined, so the domain is <span class="math inline">\mathbb{R} \cap [0, \infty) = [0, \infty)</span>.</p>
+<p><span class="math inline">(f / g)(x) = \dfrac{x + 1}{\sqrt{x}}</span>. We additionally need <span class="math inline">\sqrt{x} \ne 0</span>, i.e.&nbsp;<span class="math inline">x \ne 0</span>. Domain <span class="math inline">= (0, \infty)</span>.</p>
+Moral: the sum of two functions inherits the <em>intersection</em> of their domains, not the union.
+</details>
+<p><strong>P5.</strong> Find the domain of <span class="math inline">f(x) = \dfrac{x^2 + 3x + 5}{x^2 - 5x + 4}</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+A rational function is undefined exactly where its denominator is zero. Factor.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<span class="math inline">x^2 - 5x + 4 = (x - 1)(x - 4)</span>. Forbidden values: <span class="math inline">x = 1</span> and <span class="math inline">x = 4</span>. Domain <span class="math inline">= \mathbb{R} \setminus \{1, 4\}</span>.
+</details>
 </section>
 <section id="practice-stretch" class="level3">
 <h3 class="anchored" data-anchor-id="practice-stretch">Practice — Stretch</h3>
@@ -2917,6 +3082,26 @@ Full solution
 </summary>
 <p><span class="math inline">a + b = 4</span>, <span class="math inline">3a + b = 10</span>. Subtract: <span class="math inline">2a = 6</span>, so <span class="math inline">a = 3</span>, <span class="math inline">b = 1</span>.</p>
 <span class="math inline">f(x) = 3x + 1</span>.
+</details>
+<p><strong>S3.</strong> Equality of functions, the trap. Let <span class="math inline">f(x) = \dfrac{x^2}{x}</span> and <span class="math inline">g(x) = x</span>. Are <span class="math inline">f</span> and <span class="math inline">g</span> equal as functions? Justify carefully.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Two functions are equal iff (i) they have the same domain <em>and</em> (ii) they agree at every point of that domain.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+Find the natural domain of each. Compare.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p>Domain of <span class="math inline">f</span>: <span class="math inline">\mathbb{R} \setminus \{0\}</span> (the formula <span class="math inline">x^2/x</span> is undefined at <span class="math inline">x = 0</span>). Domain of <span class="math inline">g</span>: <span class="math inline">\mathbb{R}</span>.</p>
+Since the domains differ, <span class="math inline">f \ne g</span>. The simplification <span class="math inline">x^2/x = x</span> holds <em>only</em> on the smaller domain — it does not manufacture a value at <span class="math inline">x = 0</span> for <span class="math inline">f</span>. The graph of <span class="math inline">f</span> is the line <span class="math inline">y = x</span> with a hole at the origin.
 </details>
 </section>
 <section id="board-pattern-practice" class="level3">
@@ -3001,7 +3186,12 @@ Range <span class="math inline">= \mathbb{R} \setminus \{0, 1\}</span>.
 <ol type="1">
 <li><strong>“Codomain and range are the same.”</strong> They are not. Codomain is the <em>declared</em> output set (<span class="math inline">B</span>). Range is the set of values <span class="math inline">f</span> actually <em>hits</em>. Range <span class="math inline">\subseteq</span> codomain, often strictly.</li>
 <li><strong>“<span class="math inline">\sqrt{x}</span> has two values, <span class="math inline">+</span> and <span class="math inline">-</span>.”</strong> Not as a function. The symbol <span class="math inline">\sqrt{x}</span> denotes the <em>non-negative</em> root only. Otherwise it would not be a function.</li>
-<li><strong>“Every relation is a function.”</strong> No.&nbsp;Relations are arbitrary subsets of <span class="math inline">A \times B</span>. Functions are the special ones where each input maps to exactly one output.</li>
+<li><strong>“Every relation is a function.”</strong> No.&nbsp;Relations are arbitrary subsets of <span class="math inline">A \times B</span>. Functions are the special ones where each input maps to exactly one output. (Conversely, <em>every</em> function is a relation — but not vice versa.)</li>
+<li><strong>“<span class="math inline">(a, b) = \{a, b\}</span>.”</strong> No.&nbsp;The ordered pair <span class="math inline">(a, b)</span> records <em>order</em>; the set <span class="math inline">\{a, b\}</span> does not. So <span class="math inline">(1, 2) \ne (2, 1)</span> but <span class="math inline">\{1, 2\} = \{2, 1\}</span>.</li>
+<li><strong>“<span class="math inline">A \times B = B \times A</span>.”</strong> Same <em>cardinality</em>, different <em>elements</em>: <span class="math inline">(1, x) \in A \times B</span> but <span class="math inline">(1, x) \notin B \times A</span> (unless <span class="math inline">1 \in B</span> and <span class="math inline">x \in A</span> as well). Equality holds only when <span class="math inline">A = B</span>.</li>
+<li><strong>“Image and pre-image are the same word.”</strong> If <span class="math inline">f(a) = b</span>, then <span class="math inline">b</span> is the <strong>image</strong> of <span class="math inline">a</span>, and <span class="math inline">a</span> is a <strong>pre-image</strong> of <span class="math inline">b</span>. A given <span class="math inline">a</span> has <em>one</em> image; a given <span class="math inline">b</span> may have several pre-images.</li>
+<li><strong>“<span class="math inline">(f + g)</span> is defined wherever <span class="math inline">f</span> <em>or</em> <span class="math inline">g</span> is defined.”</strong> No — it needs <em>both</em>. The new domain is the <strong>intersection</strong> <span class="math inline">\operatorname{dom}(f) \cap \operatorname{dom}(g)</span>, with the further exclusion of zeros of <span class="math inline">g</span> for the quotient.</li>
+<li><strong>“<span class="math inline">\lfloor -2.5 \rfloor = -2</span>.”</strong> No — it is <span class="math inline">-3</span>. The floor steps <em>left</em> on the number line, not toward zero.</li>
 </ol>
 </section>
 <section id="self-assessment" class="level3">

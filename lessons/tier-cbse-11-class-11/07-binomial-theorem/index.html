@@ -2479,7 +2479,9 @@ window.Quarto = {
   <li><a href="#name" id="toc-name" class="nav-link" data-scroll-target="#name">Name</a></li>
   <li><a href="#apply" id="toc-apply" class="nav-link" data-scroll-target="#apply">Apply</a>
   <ul class="collapse">
-  <li><a href="#worked-example" id="toc-worked-example" class="nav-link" data-scroll-target="#worked-example">Worked example</a></li>
+  <li><a href="#worked-example-1-coefficient-of-a-specific-power" id="toc-worked-example-1-coefficient-of-a-specific-power" class="nav-link" data-scroll-target="#worked-example-1-coefficient-of-a-specific-power">Worked example 1 — coefficient of a specific power</a></li>
+  <li><a href="#worked-example-2-numerical-evaluation-by-binomial" id="toc-worked-example-2-numerical-evaluation-by-binomial" class="nav-link" data-scroll-target="#worked-example-2-numerical-evaluation-by-binomial">Worked example 2 — numerical evaluation by binomial</a></li>
+  <li><a href="#worked-example-3-divisibility-the-1-k-trick" id="toc-worked-example-3-divisibility-the-1-k-trick" class="nav-link" data-scroll-target="#worked-example-3-divisibility-the-1-k-trick">Worked example 3 — divisibility (the “<span class="math inline">1 + k</span>” trick)</a></li>
   <li><a href="#practice-warm" id="toc-practice-warm" class="nav-link" data-scroll-target="#practice-warm">Practice — Warm</a></li>
   <li><a href="#practice-working" id="toc-practice-working" class="nav-link" data-scroll-target="#practice-working">Practice — Working</a></li>
   <li><a href="#practice-stretch" id="toc-practice-stretch" class="nav-link" data-scroll-target="#practice-stretch">Practice — Stretch</a></li>
@@ -2705,6 +2707,16 @@ Full solution
 <p><span class="math inline">6 - 2r = 0 \Rightarrow r = 3</span>. <span class="math inline">T_4 = \binom{6}{3} = 20</span>.</p>
 The constant term is <span class="math inline">\mathbf{20}</span>.
 </details>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>The “indices add to <span class="math inline">n</span>” check.</strong> In every term <span class="math inline">\binom{n}{r} a^{n-r} b^r</span>, the exponents on <span class="math inline">a</span> and <span class="math inline">b</span> must sum to <span class="math inline">n</span>. Use this as a free sanity check after every general-term calculation. In Problem 6, <span class="math inline">(6 - r) + r = 6</span> even after the <span class="math inline">1/x</span> became <span class="math inline">x^{-r}</span> — the underlying <span class="math inline">b</span>-power is still <span class="math inline">r</span>, which is what matters.</p>
+</div>
+</div>
+</div>
 <p>You have just used the <a href="../../../glossary.html#binomial-theorem">binomial theorem</a>, the <strong>general term</strong>, the <strong>middle term</strong>, and the <strong>independent-of-x trick</strong>. Now we name them.</p>
 <div class="fun-fact">
 <p>The triangle of <a href="../../../glossary.html#combination">combination</a> numbers we call <strong>Pascal’s triangle</strong> was studied by the Chinese mathematician <strong>Yang Hui</strong> around 1261 CE — and Yang Hui himself attributed it to the earlier Jia Xian (~1100 CE). Persian mathematician <strong>al-Karaji</strong> (~1000 CE) also had it. The Indian prosodist <strong>Pingala</strong> (~200 BCE) listed binomial coefficients in his <em>Chhandahshastra</em> to count Sanskrit poetic meters of length <span class="math inline">n</span>. Pascal’s <em>Traité du Triangle Arithmétique</em> (1665) was the first systematic Western treatment, but the triangle had been doing its job around the world for nearly two millennia. <strong>Newton</strong> went further the same year — extending the binomial theorem to non-integer powers — and that single generalisation opened up the calculus of power series.</p>
@@ -2737,8 +2749,8 @@ The constant term is <span class="math inline">\mathbf{20}</span>.
 </section>
 <section id="apply" class="level2">
 <h2 class="anchored" data-anchor-id="apply">Apply</h2>
-<section id="worked-example" class="level3">
-<h3 class="anchored" data-anchor-id="worked-example">Worked example</h3>
+<section id="worked-example-1-coefficient-of-a-specific-power" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-1-coefficient-of-a-specific-power">Worked example 1 — coefficient of a specific power</h3>
 <blockquote class="blockquote">
 <p>Find the coefficient of <span class="math inline">x^4</span> in the expansion of <span class="math inline">(1 + 2x)^7</span>.</p>
 </blockquote>
@@ -2750,6 +2762,37 @@ The constant term is <span class="math inline">\mathbf{20}</span>.
 <li><span class="math inline">T_5 = \binom{7}{4} 2^4 x^4 = 35 \cdot 16 \cdot x^4 = 560 x^4</span>.</li>
 </ol>
 <p><strong>Coefficient: <span class="math inline">560</span>.</strong></p>
+</section>
+<section id="worked-example-2-numerical-evaluation-by-binomial" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-2-numerical-evaluation-by-binomial">Worked example 2 — numerical evaluation by binomial</h3>
+<blockquote class="blockquote">
+<p>Evaluate <span class="math inline">(99)^5</span> by hand.</p>
+</blockquote>
+<p>The trick: pick a base near a round number. Write <span class="math inline">99 = 100 - 1</span> and apply <span class="math inline">(a - b)^n</span> with <span class="math inline">a = 100, b = 1, n = 5</span>:</p>
+<p><span class="math display">(100 - 1)^5 = \sum_{r=0}^{5} (-1)^r \binom{5}{r} 100^{5-r}.</span></p>
+<p>Term by term, <span class="math display">\binom{5}{0} 100^5 - \binom{5}{1} 100^4 + \binom{5}{2} 100^3 - \binom{5}{3} 100^2 + \binom{5}{4} 100 - \binom{5}{5}</span> <span class="math display">= 10{,}000{,}000{,}000 - 500{,}000{,}000 + 10{,}000{,}000 - 100{,}000 + 500 - 1</span> <span class="math display">= 9{,}509{,}900{,}499.</span></p>
+<p>The same trick handles <span class="math inline">(101)^4 = (100 + 1)^4</span>, <span class="math inline">(998)^3 = (1000 - 2)^3</span>, and so on. <strong>Lead with the round number; let <span class="math inline">b</span> be the small correction.</strong></p>
+</section>
+<section id="worked-example-3-divisibility-the-1-k-trick" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-3-divisibility-the-1-k-trick">Worked example 3 — divisibility (the “<span class="math inline">1 + k</span>” trick)</h3>
+<blockquote class="blockquote">
+<p>Show that <span class="math inline">9^{n+1} - 8n - 9</span> is divisible by <span class="math inline">64</span> for every positive integer <span class="math inline">n</span>.</p>
+</blockquote>
+<p>The structural idea: rewrite <span class="math inline">9 = 1 + 8</span> so the binomial expansion exposes a factor of <span class="math inline">8^2 = 64</span>.</p>
+<p><span class="math inline">9^{n+1} = 9 \cdot 9^n = 9 \cdot (1 + 8)^n.</span> Expand:</p>
+<p><span class="math display">(1 + 8)^n = 1 + 8n + \binom{n}{2} 8^2 + \binom{n}{3} 8^3 + \cdots + 8^n.</span></p>
+<p>So <span class="math display">9 \cdot 9^n = 9 + 72n + 9\!\left[\binom{n}{2} 8^2 + \binom{n}{3} 8^3 + \cdots\right].</span></p>
+<p>Subtract <span class="math inline">8n + 9</span>: <span class="math display">9^{n+1} - 8n - 9 = (9 - 9) + (72n - 8n) + 9\!\left[\binom{n}{2} 8^2 + \cdots\right]</span> <span class="math display">= 64n + 9 \cdot 64 \left[\binom{n}{2} + \binom{n}{3} \cdot 8 + \cdots\right] = 64 \cdot k,</span> for some positive integer <span class="math inline">k</span>. Hence <span class="math inline">64 \mid (9^{n+1} - 8n - 9)</span>. <span class="math inline">\blacksquare</span></p>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>The “<span class="math inline">1 + k</span>” rewrite is the master move for divisibility.</strong> Want to show something is divisible by <span class="math inline">k^2</span>? Rewrite the base as <span class="math inline">1 + k</span> (so <span class="math inline">7 = 1 + 6</span>, <span class="math inline">11 = 1 + 10</span>, <span class="math inline">9 = 1 + 8</span>), expand, and the first two terms are <span class="math inline">1</span> and <span class="math inline">nk</span> — everything beyond carries <span class="math inline">k^2</span> as a factor.</p>
+</div>
+</div>
+</div>
 </section>
 <section id="practice-warm" class="level3">
 <h3 class="anchored" data-anchor-id="practice-warm">Practice — Warm</h3>
@@ -2932,6 +2975,10 @@ Full solution
 <li><strong>“Coefficient of <span class="math inline">x^k</span> equals <span class="math inline">\binom{n}{k}</span> in <span class="math inline">(a + bx)^n</span>.”</strong> Only when <span class="math inline">a = 1</span>. The general formula gives the term <span class="math inline">\binom{n}{k} a^{n-k} b^k x^k</span>, so the coefficient is <span class="math inline">\binom{n}{k} a^{n-k} b^k</span>, not just <span class="math inline">\binom{n}{k}</span>.</li>
 <li><strong>“Number of terms = <span class="math inline">n</span>.”</strong> It’s <span class="math inline">n + 1</span>. Always include the <span class="math inline">r = 0</span> case.</li>
 <li><strong>“Middle term position.”</strong> For <span class="math inline">n</span> even there is one middle term at <span class="math inline">r = n/2</span>; for <span class="math inline">n</span> odd there are two, at <span class="math inline">r = (n-1)/2</span> and <span class="math inline">r = (n+1)/2</span>.</li>
+<li><strong>Off-by-one on the term index.</strong> <span class="math inline">T_{r+1}</span> — not <span class="math inline">T_r</span> — equals <span class="math inline">\binom{n}{r} a^{n-r} b^r</span>. So “find the 6th term” means <span class="math inline">r = 5</span>, not <span class="math inline">r = 6</span>. Mis-reading <span class="math inline">T_r</span> vs <span class="math inline">T_{r+1}</span> is the single most common error in JEE binomial questions.</li>
+<li><strong>Dropping the sign in <span class="math inline">(a - b)^n</span>.</strong> When the binomial is <span class="math inline">(a - b)^n</span>, every odd-<span class="math inline">r</span> term is negative. Always carry the <span class="math inline">(-1)^r</span> explicitly, especially when only the <em>coefficient</em> (not the term) is asked for.</li>
+<li><strong>Forgetting parentheses on negative bases.</strong> <span class="math inline">(-2x)^3 = -8x^3</span>, but <span class="math inline">-2x^3</span> is something else entirely. Always bracket the negative base <em>before</em> raising to the power.</li>
+<li><strong>“Term” vs “coefficient”.</strong> The 6th <em>term</em> of <span class="math inline">(2 + 3x)^{13}</span> includes the <span class="math inline">x</span>-power; the <em>coefficient</em> is just the numerical part.</li>
 </ol>
 </section>
 <section id="self-assessment" class="level3">

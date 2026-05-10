@@ -2607,6 +2607,8 @@ n_2|)</span> formula in <em>Name</em>. Two and a half millennia later, every CGI
 <p><strong>Vector form</strong> of plane through <span class="math inline">\vec a</span> with normal <span class="math inline">\vec n</span>: <span class="math display">(\vec r - \vec a) \cdot \vec n = 0, \quad \text{or} \quad \vec r
 \cdot \vec n = d \text{ where } d = \vec a \cdot \vec n.</span></p>
 <p><strong>Cartesian form</strong> with normal <span class="math inline">(A, B, C)</span>: <span class="math display">Ax + By + Cz + D = 0.</span></p>
+<p><strong>Intercept form</strong> — for a plane meeting the axes at <span class="math inline">(a, 0, 0), (0,
+b, 0), (0, 0, c)</span>: <span class="math display">\frac{x}{a} + \frac{y}{b} + \frac{z}{c} = 1.</span></p>
 <p><strong>Through three points</strong> <span class="math inline">\vec a_1, \vec a_2, \vec a_3</span>: <span class="math display">(\vec r - \vec a_1) \cdot [(\vec a_2 - \vec a_1) \times (\vec a_3 -
 \vec a_1)] = 0.</span></p>
 <p><strong>Angle between two planes</strong> with normals <span class="math inline">\vec n_1, \vec n_2</span>: <span class="math display">\cos\theta = \frac{|\vec n_1 \cdot \vec n_2|}{|\vec n_1||\vec n_2|}.</span></p>
@@ -2673,19 +2675,26 @@ Full solution
 \Rightarrow 2x + 3y - 3z - 5 = 0</span>.
 </details>
 <p><strong>P2.</strong> Show that the line <span class="math inline">\frac{x - 1}{2} = \frac{y}{3} = \frac{z + 1}
-{4}</span> lies in the plane <span class="math inline">-2x + 3y + 4z + 6 = 0</span>.</p>
+{-4}</span> lies in the plane <span class="math inline">2x + 4y + 4z + 2 = 0</span>.</p>
 <details class="hint">
 <summary>
 Hint 1 — a nudge
 </summary>
-Two checks: (1) point on the line satisfies the plane equation; (2) direction is perpendicular to the normal.
+Two checks: (1) some point on the line satisfies the plane equation; (2) the line’s direction is perpendicular to the plane’s normal — so that the line is parallel to the plane <em>and</em> meets it, i.e.&nbsp;lies inside it.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+The line has direction <span class="math inline">(2, 3, -4)</span> and passes through <span class="math inline">(1, 0, -1)</span>. The plane has normal <span class="math inline">(2, 4, 4)</span>. Test the point in the plane equation, and dot the direction with the normal.
 </details>
 <details class="hint">
 <summary>
 Full solution
 </summary>
-Point <span class="math inline">(1, 0, -1)</span>: <span class="math inline">-2 + 0 - 4 + 6 = 0</span> ✓. Direction <span class="math inline">(2, 3, 4) \cdot
-(-2, 3, 4) = -4 + 9 + 16 = 21 \ne 0</span> — wait, this means line is <em>not</em> parallel to the plane. <em>Reread the problem</em>: actually, the direction of the line should be perpendicular to the plane’s normal <em>for the line to lie in the plane</em>. <span class="math inline">(2, 3, 4) \cdot (-2, 3, 4) = -4 + 9 + 16 = 21 \ne 0</span>. So the line does not lie in this plane (the question’s coefficients may differ). For lines lying in planes the test is: point on line satisfies the plane and direction is in the plane (perpendicular to normal).
+<p><strong>Point check.</strong> Plug <span class="math inline">(1, 0, -1)</span> into <span class="math inline">2x + 4y + 4z + 2</span>: <span class="math inline">2(1) + 0 + 4(-1) + 2 = 0</span> ✓.</p>
+<p><strong>Direction check.</strong> Dot the line’s direction with the plane’s normal: <span class="math inline">(2, 3, -4) \cdot (2, 4, 4) = 4 + 12 - 16 = 0</span> ✓.</p>
+Both conditions hold, so the line lies entirely in the plane. (If only the direction-check passed, the line would be <em>parallel</em> to the plane but outside it; if only the point-check passed, the line would <em>cross</em> the plane at that single point.)
 </details>
 <p><strong>P3.</strong> Find the equation of the plane passing through <span class="math inline">(1, 0, -2)</span> and perpendicular to vector <span class="math inline">\hat\imath - 2\hat\jmath + \hat k</span>.</p>
 <details class="hint">
@@ -2712,6 +2721,30 @@ Full solution
 Line through <span class="math inline">(1,1,1)</span> along normal <span class="math inline">(1, 2, 1)</span>: <span class="math inline">(1 + t, 1 + 2t, 1 +
 t)</span>. On plane: <span class="math inline">(1 + t) + 2(1 + 2t) + (1 + t) = 6 \Rightarrow 4 + 6t =
 6 \Rightarrow t = 1/3</span>. Foot: <span class="math inline">(4/3, 5/3, 4/3)</span>. Image: <span class="math inline">2 \cdot (4/3, 5/3, 4/3) - (1, 1, 1) = (5/3, 7/3, 5/3)</span>.
+</details>
+<p><strong>S2.</strong> <em>Line–plane intersection.</em> Find the point at which the line <span class="math inline">\vec r = (\hat\imath + 2\hat\jmath - \hat k) + \lambda(2\hat\imath +
+\hat\jmath - \hat k)</span> meets the plane <span class="math inline">x + y + z = 5</span>.</p>
+<details class="hint">
+<summary>
+Hint 1 — a nudge
+</summary>
+Write the line in parametric coordinates: <span class="math inline">(1 + 2\lambda, 2 + \lambda,
+-1 - \lambda)</span>. Substitute into the plane equation and solve for <span class="math inline">\lambda</span>.
+</details>
+<details class="hint">
+<summary>
+Hint 2 — the technique
+</summary>
+A line either misses the plane (direction perpendicular to normal, point off the plane), lies in it (both conditions of P2), or hits it at a single point. Substitution decides which.
+</details>
+<details class="hint">
+<summary>
+Full solution
+</summary>
+<p>Substitute <span class="math inline">(1 + 2\lambda) + (2 + \lambda) + (-1 - \lambda) = 5
+\Rightarrow 2 + 2\lambda = 5 \Rightarrow \lambda = 3/2</span>.</p>
+<p>Intersection: <span class="math inline">(1 + 3, 2 + 3/2, -1 - 3/2) = (4, 7/2, -5/2)</span>.</p>
+Sanity check: <span class="math inline">4 + 7/2 - 5/2 = 5</span> ✓.
 </details>
 </section>
 <section id="board-pattern-practice" class="level3">
@@ -2816,6 +2849,8 @@ d||\vec n|) = |6 + 3 + 2|/(\sqrt 3 \cdot 7) = 11/(7\sqrt 3)</span>. <span class=
 <li><strong>“Angle between line and plane = angle between line and normal.”</strong> These are <em>complementary</em>. Use <span class="math inline">\sin\phi</span>, not <span class="math inline">\cos</span>.</li>
 <li><strong>“Two planes always intersect in a line.”</strong> Only when not parallel. Parallel planes don’t intersect; identical planes “intersect” in themselves.</li>
 <li><strong>“Distance formula uses <span class="math inline">D</span> as written.”</strong> Make sure the plane is in the form <span class="math inline">Ax + By + Cz + D = 0</span> — sign of <span class="math inline">D</span> matters.</li>
+<li><strong>“A line in 3D lies in a plane iff its direction is perpendicular to the normal.”</strong> That condition only makes the line <em>parallel</em> to the plane. To lie <em>inside</em>, you also need a point of the line to satisfy the plane equation. Both checks, every time.</li>
+<li><strong>“Two skew lines must determine a plane somehow.”</strong> They don’t — non-coplanar lines have <em>no</em> unique plane through them. Three non-collinear points determine a plane; two skew lines determine none.</li>
 </ol>
 </section>
 <section id="takeaways" class="level3">
