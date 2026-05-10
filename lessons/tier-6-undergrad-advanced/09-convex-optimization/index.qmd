@@ -150,6 +150,29 @@ Understanding **why non-convex deep learning works** is one of the
 biggest open theoretical questions in AI.
 </details>
 
+::: {.fun-fact}
+**Linear programming was born in wartime.** Soviet mathematician
+**Leonid Kantorovich** invented LP in 1939 while consulting for the
+Leningrad plywood trust on how to allocate machines and raw timber
+optimally — convex optimisation, decades before the West had a name
+for it. His pamphlet circulated quietly through Soviet planning
+offices for years. In 1947 the American **George Dantzig**, working
+on US Air Force logistics, independently invented the **simplex
+method** for the same problem. Then in 1984, **Narendra Karmarkar**
+(at Bell Labs) shocked the field with the first **polynomial-time
+interior-point algorithm**, beating simplex's exponential worst case
+and triggering the modern convex-optimisation renaissance.
+Kantorovich shared the 1975 Nobel Prize in Economics for his work.
+:::
+
+::: {.key-insight}
+A convex landscape is one where every "downhill" step is a step
+toward the *global* bottom. There are no false valleys, no traps,
+no surprises. This is the entire reason convex optimisation is
+clean: walking downhill always works, because there is only one
+"down."
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -293,6 +316,21 @@ questions in modern ML.
    regression, SVM, many generative models *are* convex. Deep nets
    are not.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A [convex function](/glossary.qmd#convex-function) lies below
+   every chord** — bowl-shaped, no internal bumps; every local minimum
+   is automatically the global minimum.
+2. **The Hessian PSD test** (eigenvalues $\ge 0$, via the
+   [eigenvalues](/glossary.qmd#eigenvalue) of $\nabla^2 f$) is the
+   workhorse check for convexity in higher dimensions.
+3. **Convex problems are tractable; non-convex problems are not** —
+   yet modern deep learning works empirically because over-
+   parameterisation, SGD noise, and architecture flatten the
+   landscape.
 
 ### Self-Assessment
 

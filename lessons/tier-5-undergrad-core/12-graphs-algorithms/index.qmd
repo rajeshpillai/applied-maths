@@ -147,6 +147,29 @@ $O(VE)$ complexity vs Dijkstra's $O((V+E) \log V)$). Negative
 *cycles* break shortest paths entirely (you can loop infinitely).
 </details>
 
+::: {.fun-fact}
+Graph theory began with a Sunday-stroll problem. The Prussian city of
+**Königsberg** (now Kaliningrad) had seven bridges crossing the
+Pregel River, and townsfolk wondered whether one could walk a route
+crossing every bridge exactly once. **Leonhard Euler**, in a 1736
+paper, did something nobody had done before: he stripped away the
+geography and represented the four landmasses as *vertices* and the
+seven bridges as *edges*. He proved no such walk exists (every vertex
+had odd degree), and in doing so invented an entire branch of
+mathematics. Two centuries later, **Erdős and Rényi** (1959) launched
+*random graph theory* — and gave us the abstractions that today model
+the internet, social networks, and protein interactions.
+:::
+
+::: {.key-insight}
+A graph is just a **set of things plus a set of pairs of things**.
+The picture is decoration. Once you see "thing + relationship" you
+see graphs everywhere — websites and links, atoms and bonds, tasks
+and dependencies, neurons and synapses. The same algorithms (BFS,
+DFS, Dijkstra) work in every one of those domains, because the only
+thing the algorithm cares about is the abstract pair structure.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -291,6 +314,22 @@ representations) underlies the *implementation* of every GNN.
 3. **"Trees are about plants."** In CS / maths, *trees* are connected
    acyclic graphs. The biological metaphor stuck.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A [graph](/glossary.qmd#graph) is vertices and edges** — anything
+   with pairwise relationships fits, and the *picture* is just
+   decoration on top of $V$ and $E$.
+2. **The [handshake lemma](/glossary.qmd#handshake-lemma)** —
+   $\sum \deg(v) = 2|E|$ — drops out the moment you count
+   edge-endpoints two ways, and immediately rules out impossible
+   degree sequences (and forces an even number of odd-degree
+   vertices).
+3. **A [tree](/glossary.qmd#tree) is the leanest connected graph**: $n$
+   vertices, exactly $n-1$ edges, no cycles — the structural skeleton
+   behind file systems, parsers, and search algorithms.
 
 ### Self-Assessment
 

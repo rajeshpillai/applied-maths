@@ -153,6 +153,32 @@ predictably.
 much faster convergence.
 </details>
 
+::: {.fun-fact}
+**Newton** described the root-finding iteration you used in
+Problem 1 in **1669**, in his *De analysi per aequationes numero
+terminorum infinitas*, but only as a method for polynomials and
+without the derivative-based form we now teach. **Joseph Raphson**
+gave the modern recursive update in 1690 — which is why the method
+is also called **Newton–Raphson**. Three centuries later, the
+**IEEE 754 standard** (1985, revised 2008 and 2019) finally pinned
+down what "floating-point arithmetic" even means across hardware
+vendors, and **James H. Wilkinson**'s 1965 *Rounding Errors in
+Algebraic Processes* introduced *backward error analysis* — the
+idea that a numerical answer is correct if it's the *exact* answer
+to a slightly perturbed problem. Modern numerical analysis stands
+on these three legs.
+:::
+
+::: {.key-insight}
+Numerical methods don't replace mathematics — they *honour* it by
+admitting that almost no real problem has a closed form. The
+unifying knob across the whole subject is the **convergence order
+$p$**: error per step shrinks like $h^p$, so halving the step
+multiplies accuracy by $2^p$. Newton's quadratic ($p = 2$ in error
+of error), RK4's $p = 4$, Simpson's $p = 4$ — choosing $p$ is
+choosing how fast you trade compute for digits.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -310,6 +336,24 @@ training runs because of this hardware-algorithm co-evolution.
    problems have *no* closed form. Numerical methods are the only
    answer.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **[Newton's method](/glossary.qmd#newtons-method) finds roots
+   by repeatedly linearising the
+   [function](/glossary.qmd#function)** and stepping to the
+   linear root — quadratic convergence when it works, but it needs
+   the [derivative](/glossary.qmd#derivative) and a decent guess.
+2. **Higher-[order](/glossary.qmd#order-of-a-numerical-method)
+   methods buy accuracy with sub-steps**, not finer grids — RK4's
+   four function evaluations per step give $O(h^4)$ error, vs
+   Euler's $O(h)$, for the same number of grid points.
+3. **The [condition number](/glossary.qmd#condition-number)
+   $\kappa(A)$ tells you how much input error a linear system
+   amplifies** — and is the right first diagnostic when a numerical
+   method silently produces nonsense.
 
 ### Self-Assessment
 

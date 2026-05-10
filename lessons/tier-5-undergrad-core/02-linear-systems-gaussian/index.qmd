@@ -175,6 +175,27 @@ The rank tells you the *dimensionality* of the solution space. This
 foreshadows Lesson 03 (vector spaces and dimension).
 </details>
 
+::: {.fun-fact}
+"Gaussian elimination" was being used in China **roughly 2000 years
+before Gauss**. The *Nine Chapters on the Mathematical Art*
+(*Jiuzhang Suanshu*, c. 200 BCE – 100 CE) lays out the
+*fangcheng* method — exactly the row-reduction procedure you just
+worked through — to solve systems with up to five unknowns, using
+counting rods on a counting board. Liu Hui's commentary (c. 263 CE)
+even justifies the row operations. Gauss arrived at the same
+algorithm in 1810, while computing the orbit of the asteroid Pallas;
+the name "Gaussian elimination" stuck for purely European reasons.
+:::
+
+::: {.key-insight}
+Every linear system tells one of three stories — and rank reads
+which one. Pivots count constraints; missing pivots count freedoms.
+"Unique solution," "infinitely many," and "none" aren't separate
+phenomena — they're three answers to the same accounting question:
+how many constraints, how many free variables, and is the constant
+column consistent?
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -340,6 +361,20 @@ This is the foundational ML algorithm — every more complex method
    for $n$ unknowns — utterly impractical. Gaussian elimination is
    $O(n^3)$ and the standard.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A [system of linear equations](/glossary.qmd#system-of-linear-equations)
+   becomes an augmented [matrix](/glossary.qmd#matrix) $[A|b]$**, and
+   three solution-preserving row operations let you reduce it to
+   triangular form.
+2. **[Gaussian elimination](/glossary.qmd#gaussian-elimination) plus
+   back-substitution solves any linear system** — the workhorse
+   algorithm for everything from circuit analysis to ML regression.
+3. **Rank decides the trichotomy**: unique, infinite, or no solution
+   — reading off ranks of $A$ and $[A|b]$ settles every case.
 
 ### Self-Assessment
 

@@ -131,6 +131,28 @@ $\int_0^1 \int_0^1 4 x^2 y \, dy \, dx = \int_0^1 4 x^2 \cdot 1/2 \, dx
 multiple integrals — foundational in probability.
 </details>
 
+::: {.fun-fact}
+The fact that you can compute a double integral by doing two
+single integrals — and in either order — feels obvious, but it is
+not. **Guido Fubini** proved the rigorous version in 1907, building
+on **Lebesgue's** new theory of integration: for any function whose
+absolute value has a finite integral over the rectangle, the
+iterated integrals exist and agree. Without Fubini's theorem, the
+move from $\iint$ to $\int \int$ is a leap of faith. With it, every
+multivariate calculation in physics, statistics, and ML rests on
+solid ground.
+:::
+
+::: {.key-insight}
+A multiple integral is just *adding up little pieces of a region*
+— and you compute it by sweeping one direction at a time. The
+choice of coordinates (rectangular, polar, spherical) is the choice
+of how to slice the region; the Jacobian factor is the
+bookkeeping that keeps each slice the right size. Pick coordinates
+that match your region's symmetry, and intractable integrals
+become one-liners.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -279,6 +301,19 @@ intractable multivariate integrals.
    yes for nice regions, but coordinate changes (polar, spherical)
    and complex regions complicate things.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A [multiple integral](/glossary.qmd#multiple-integral) is the
+   higher-dimensional [definite integral](/glossary.qmd#definite-integral)**
+   — it adds up $f$ over an area or volume, slice by slice.
+2. **Iterate inner-first, outer-last**, and Fubini's theorem says
+   the order can usually be swapped for nice integrands.
+3. **Change coordinates to match the region's symmetry** — polar
+   for disks, spherical for balls — and don't forget the Jacobian
+   factor (the $r$ in $r \, dr \, d\theta$).
 
 ### Self-Assessment
 

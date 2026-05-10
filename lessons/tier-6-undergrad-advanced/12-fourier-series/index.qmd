@@ -149,6 +149,31 @@ compression industry.
 Drop inaudible coefficients → small file.
 </details>
 
+::: {.fun-fact}
+**Fourier's claim was nearly rejected as nonsense.** When **Joseph
+Fourier** submitted his 1807 memoir on heat conduction to the
+French Academy, the referees — including **Lagrange**, the giant of
+the era — refused to publish it. Their objection was the very claim
+this lesson is built on: that *any* periodic function, even one
+with sharp jumps, is a sum of smooth sines and cosines. To
+Lagrange this seemed mathematically impossible. Fourier was
+finally vindicated in his expanded 1822 *Théorie analytique de la
+chaleur*, but full rigour had to wait for **Dirichlet** (1829),
+**Riemann** (1854), and the 20th-century theory of generalised
+functions. The Gibbs overshoot at jumps was first noticed
+experimentally by Michelson's harmonic analyser in 1898 — Fourier
+himself never saw it.
+:::
+
+::: {.key-insight}
+A Fourier series is a *change of basis* in the space of periodic
+functions. The "old basis" is "values at every point." The "new
+basis" is "amount of each pure frequency." The function does not
+change; only the way we list its information does. Compression,
+denoising, and PDE-solving all exploit the fact that many
+real-world signals are sparse in the frequency basis.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -300,6 +325,21 @@ Group convolutions (Tier 7) generalise to other symmetry groups
 3. **"DFT and FFT are the same."** DFT is the *transformation*; FFT
    is the *fast algorithm* to compute it.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Every periodic function is a sum of sines and cosines** — its
+   [Fourier series](/glossary.qmd#fourier-series) is a different
+   "view" of the same function, indexed by frequency instead of
+   position.
+2. **The coefficients $a_n, b_n$ come from
+   [integrals](/glossary.qmd#definite-integral) against $\cos nx$
+   and $\sin nx$**, exploiting orthogonality of the trig basis.
+3. **Smoother signals have faster-decaying coefficients** — this is
+   why JPEG, MP3, and most modern compression keep only the top few
+   Fourier terms and throw the rest away.
 
 ### Self-Assessment
 

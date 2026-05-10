@@ -150,6 +150,33 @@ It works for the heat equation, wave equation, Laplace's equation,
 Schrödinger — virtually all linear PDEs.
 </details>
 
+::: {.fun-fact}
+**Gauss had the FFT in 1805 and nobody noticed.** When **Cooley
+and Tukey** rediscovered the **Fast Fourier Transform** in 1965,
+they cited a recurrence — and historians soon realised that
+**Carl Friedrich Gauss** had written essentially the same algorithm
+in an unpublished notebook around 1805, while interpolating the
+orbit of the asteroid Pallas. The notebook was published in his
+*Werke* in 1866 in Latin, in a section nobody read. Cooley and
+Tukey's 1965 paper, motivated by detecting Soviet nuclear tests
+from seismic records, immediately turned an $O(N^2)$ algorithm
+into $O(N \log N)$ — *the* enabling computation behind digital
+audio, JPEG, MRI, OFDM in 4G/5G, and most of modern signal
+processing. The same year **Heisenberg's uncertainty** was
+re-derived from Fourier theory in countless undergraduate
+textbooks, an unintended bonus.
+:::
+
+::: {.key-insight}
+The Fourier transform is a *rotation* in function space. It takes
+a signal expressed as "values at every time" and re-expresses it
+as "amount of every frequency" — and both views are complete.
+Convolution, differentiation, and translation all become *simpler*
+operations after that rotation, which is the whole reason
+Fourier-based methods dominate signal processing and the linear
+PDEs of physics.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -308,6 +335,21 @@ medical imagery. Tier 7 (Research track) develops the theory.
 3. **"FT and DFT are the same."** Continuous vs discrete. DFT is the
    discrete version computed by FFT.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **The [Fourier transform](/glossary.qmd#fourier-transform)
+   $\hat f(k) = \int f(x) e^{-ikx}\, dx$ moves a signal from the
+   time domain to the frequency domain** — the same information,
+   indexed by frequency instead of time.
+2. **The [convolution theorem](/glossary.qmd#convolution-theorem)
+   turns convolution into multiplication** — the algorithmic
+   miracle behind FFT-based filtering and image processing.
+3. **The [uncertainty principle](/glossary.qmd#uncertainty-principle)
+   $\sigma_x \sigma_k \ge 1/2$ is built into Fourier theory** — a
+   signal cannot be sharp in both time and frequency, full stop.
 
 ### Self-Assessment
 

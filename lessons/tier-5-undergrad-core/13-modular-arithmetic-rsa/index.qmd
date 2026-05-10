@@ -143,6 +143,33 @@ which requires $\varphi(n) = (p-1)(q-1)$, which requires factoring
 $n$ — *intractable* for $n \approx 10^{600}$.
 </details>
 
+::: {.fun-fact}
+For most of history "secret message" meant "shared secret key":
+sender and receiver had to meet first. In 1976 **Whitfield Diffie**
+and **Martin Hellman** published *New Directions in Cryptography*,
+proposing the wild idea of *public-key* exchange — agreeing on a
+secret over an open channel, by exploiting the asymmetry between
+modular exponentiation (easy) and the discrete logarithm (hard). One
+year later, **Rivest, Shamir, and Adleman** at MIT published
+**RSA**, the first practical public-key encryption scheme — three
+2,000-year-old facts (Euclid's algorithm, Fermat's little theorem,
+the difficulty of factoring) glued together with one breathtaking
+idea. The same year, **Clifford Cocks** at GCHQ revealed that he had
+discovered RSA *four years earlier* in 1973 — kept classified by
+British intelligence. The internet runs on a discovery that was
+secret for the first quarter of its life.
+:::
+
+::: {.key-insight}
+Modular arithmetic looks like a curiosity ("clock arithmetic, mod
+12") and turns out to be the **structural bedrock of the internet**.
+The single asymmetry — multiplying two large primes is easy,
+factoring the product is unreasonably hard — is what makes every
+HTTPS connection, every signed software update, every authenticated
+banking transaction possible. The mathematics is from antiquity; the
+application is from 1977.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -299,6 +326,22 @@ representation* (sparse binary for fast exponentiation), and
    *being hard*. Quantum computers may break it. Post-quantum
    alternatives (lattice-based) are being deployed.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **[Modular arithmetic](/glossary.qmd#modular-arithmetic) is
+   arithmetic that wraps around** — once you reduce mod $n$, the
+   integers fold into a finite set $\{0, 1, \ldots, n-1\}$ that still
+   respects $+$, $-$, and $\times$.
+2. **[Fermat's little theorem](/glossary.qmd#fermats-little-theorem)
+   and its generalisation** ($a^{\varphi(n)} \equiv 1 \pmod n$) make
+   modular exponentiation predictable, which is exactly the lever
+   [RSA](/glossary.qmd#rsa) pulls.
+3. **RSA's security rests on a single asymmetry** — multiplying two
+   [primes](/glossary.qmd#prime) is cheap, factoring the product is
+   not. Most of internet encryption depends on that one gap holding.
 
 ### Self-Assessment
 

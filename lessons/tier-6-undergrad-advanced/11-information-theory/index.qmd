@@ -139,6 +139,30 @@ limit — fundamental to wireless communications, deep-space
 transmission (Voyager, Mars rovers).
 </details>
 
+::: {.fun-fact}
+**Information theory was founded in a single 1948 paper.** *A
+Mathematical Theory of Communication*, by **Claude Shannon** at
+Bell Labs, defined entropy, mutual information, channel capacity,
+the source coding theorem, and the channel coding theorem all at
+once. Before that paper, "information" was a vague engineering
+notion; after it, it was a measurable quantity in bits. Shannon
+worked partly from his wartime experience on cryptography for the
+SIGSALY voice scrambler used by Roosevelt and Churchill — the same
+machinery that classifies a ciphertext also tells you the *least*
+number of bits a faithful copy of a message must occupy. Shannon
+later built a maze-running mechanical mouse named **Theseus**, one
+of the first machine-learning demos, in his spare time.
+:::
+
+::: {.key-insight}
+Entropy answers a single question: *on average, how surprised will
+you be?* A fair coin: maximally surprised — 1 full bit per flip. A
+loaded coin that almost always lands heads: barely surprised — far
+less than 1 bit. Compression, channel capacity, and the
+cross-entropy loss your neural net minimises are all the same
+"average surprise" measured in three different costumes.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -291,6 +315,20 @@ disagree. The debate is active and consequential for AI safety.
    approach Shannon's bound within fractions of a percent. Far from
    purely theoretical.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **[Entropy](/glossary.qmd#entropy) $H(X) = -\sum p_i \log p_i$ is
+   the average number of bits needed to encode one outcome** —
+   maximised by uniform distributions, zero for certainties.
+2. **[Mutual information](/glossary.qmd#mutual-information) $I(X;Y)$
+   is "how much $Y$ tells you about $X$"** — zero when independent,
+   the basic measure of statistical dependence.
+3. **[Cross entropy](/glossary.qmd#cross-entropy) is the standard
+   classification loss in deep learning** — minimising it pulls the
+   predicted distribution toward the true one in KL distance.
 
 ### Self-Assessment
 

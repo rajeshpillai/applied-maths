@@ -153,6 +153,29 @@ Variants: AdamW (decoupled weight decay), LAMB (large-batch
 training), Lion (sign-based, more memory-efficient).
 </details>
 
+::: {.fun-fact}
+**Cauchy proposed gradient descent in 1847** — in a two-page note
+to the *Comptes Rendus* of the French Academy, while trying to
+solve systems of nonlinear equations in celestial mechanics. He
+called it the *méthode générale pour la résolution des systèmes
+d'équations simultanées*. It then sat almost unused for a century.
+**Robbins and Monro** (1951) gave it a stochastic twist for online
+estimation; **Rumelhart, Hinton and Williams** (1986) wired it
+into neural networks via backpropagation; and **Adam** was only
+published in 2014 (Kingma and Ba). The optimiser that trains
+every deep network you have ever heard of is one Cauchy idea, two
+twists, and 167 years of hardware.
+:::
+
+::: {.key-insight}
+Every modern optimiser is the same loop — *look at the slope, take
+a step downhill* — with different definitions of "look at" and
+"step." Vanilla GD looks at one gradient; momentum looks at a
+running history; Adam looks at the running mean and the running
+variance and uses them to *re-scale* each coordinate's step. The
+math is small; the practical difference is everything.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -321,6 +344,21 @@ cosine for transformers, often with a "1cycle" policy.
    suboptimal for some tasks (large-batch training favours LAMB,
    image generation sometimes prefers SGD).
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **[Gradient descent](/glossary.qmd#gradient-descent) is the rule
+   "step against the [gradient](/glossary.qmd#gradient)"** — the
+   simplest possible way to walk downhill on a loss landscape.
+2. **The [learning rate](/glossary.qmd#learning-rate) $\eta$ is the
+   single most consequential hyperparameter** — too small wastes
+   compute, too large diverges; modern training schedules it on
+   purpose.
+3. **SGD adds noise (cheap, escapes saddles); momentum adds memory
+   (smooths and accelerates); Adam adds per-parameter scaling** —
+   each variant fixes a specific failure mode of the one before it.
 
 ### Self-Assessment
 

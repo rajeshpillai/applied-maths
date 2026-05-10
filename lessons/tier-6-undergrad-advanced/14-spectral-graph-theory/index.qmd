@@ -164,6 +164,30 @@ and many other graph algorithms (random-walk embeddings, Markov
 chain Monte Carlo on graphs).
 </details>
 
+::: {.fun-fact}
+**Cheeger's inequality came from a Riemannian manifold, not a
+graph.** **Jeff Cheeger** proved his isoperimetric inequality in
+1970 for *smooth manifolds*, bounding the first non-zero
+eigenvalue of the Laplace-Beltrami operator by the manifold's
+"narrowest neck." The graph version — the workhorse of modern
+spectral clustering — was proved much later (Alon and Milman,
+1985; Dodziuk; Mohar) by carrying Cheeger's analytic argument
+across the bridge from continuous to discrete. **Miroslav Fiedler**
+had already discovered the algebraic-connectivity eigenvalue
+$\lambda_2$ in 1973, in a paper of pure linear algebra with no
+applied audience in mind. It took two decades for the AI and
+data-mining communities to notice that **spectral clustering**
+was sitting in plain sight inside Fiedler's lemma.
+:::
+
+::: {.key-insight}
+A graph is a discrete object — a set of dots and lines — yet its
+*eigenvalues* are continuous numbers that secretly encode how
+connected, clustered, or bottlenecked it is. The spectrum is the
+graph's fingerprint, and a small handful of eigenvectors recover
+its large-scale shape almost perfectly.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -304,6 +328,22 @@ construction.
    are rare), but some non-isomorphic graphs share spectra — the
    "isospectral problem."
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **The [graph Laplacian](/glossary.qmd#graph-laplacian)
+   $L = D - A$ is positive semi-definite** — and the *number of
+   zero [eigenvalues](/glossary.qmd#eigenvalue)* counts the
+   connected components of the graph.
+2. **The second-smallest eigenvalue $\lambda_2$ measures
+   [algebraic connectivity](/glossary.qmd#algebraic-connectivity)** —
+   small means narrow bottlenecks (Fiedler 1973), large means
+   robustly connected.
+3. **The Fiedler vector partitions a graph into clusters** —
+   spectral clustering is the polynomial-time spectral proxy for
+   the NP-hard graph-cut problem (Cheeger inequality).
 
 ### Self-Assessment
 
