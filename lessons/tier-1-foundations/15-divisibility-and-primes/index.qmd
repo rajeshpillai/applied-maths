@@ -215,6 +215,24 @@ and — in cryptography — the **extended Euclidean algorithm**, which
 underpins how RSA generates its keys.
 </details>
 
+::: {.fun-fact}
+**Eratosthenes of Cyrene** (c. 276–194 BCE) — the same scholar who
+measured the Earth's circumference using the angle of a shadow — gave
+us the first algorithm for finding primes: the **Sieve of Eratosthenes**.
+Write the numbers 2 to $n$ in a row; circle 2 and cross out every
+multiple of 2; circle the next surviving number (3) and cross out every
+multiple of 3; repeat. The numbers still uncircled when you reach
+$\sqrt{n}$ are *all* the primes up to $n$. Twenty-three centuries
+later, the sieve is still essentially how computers list primes — the
+asymptotically fastest variant, by Atkin and Bernstein, dates to 2003.
+:::
+
+::: {.key-insight}
+Multiplying two primes is *easy*; recovering them from the product is
+*hard*. That single asymmetry — trivial in one direction, intractable
+in the other — is what hides every secret on the internet.
+:::
+
 ## Name
 
 ::: {.lesson-beat}
@@ -401,6 +419,20 @@ The hunt for primes is a major collaborative computing project (GIMPS).
    For 600-digit numbers, no — and the security of the internet depends
    on this fact.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A [prime](/glossary.qmd#prime) is a whole number ≥ 2 with exactly
+   two divisors — and primes are the building blocks of every other
+   whole number, in exactly one way.**
+2. **There are infinitely many primes (Euclid's proof, c. 300 BCE), and
+   to test whether $n$ is prime you only need to try divisors up to
+   $\sqrt{n}$.**
+3. **Multiplying primes is easy; [factoring](/glossary.qmd#prime-factorisation)
+   the product back is hard — and that gap is the foundation of
+   [RSA](/glossary.qmd#rsa) and most modern encryption.**
 
 ### Self-Assessment
 
