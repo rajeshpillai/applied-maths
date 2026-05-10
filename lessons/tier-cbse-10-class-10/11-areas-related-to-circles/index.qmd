@@ -29,8 +29,8 @@ Three yeses, you are ready.
 ## Touch
 
 A pizza, cut from the centre. One slice. The two straight edges of the
-slice are *radii*; the curved edge is an *arc*; the angle between the two
-radii is the *sector angle*.
+slice are *radii* of the [circle](/glossary.qmd#circle); the curved edge is
+an *arc*; the angle between the two radii is the *sector angle*.
 
 ```{ojs}
 viewof rad = Inputs.range([1, 10], {value: 5, step: 0.5, label: "Radius r (cm)"})
@@ -166,6 +166,26 @@ $r/2$.) Find the area inside the big circle but outside the small one.
 <details class="hint"><summary>Full solution</summary>
 $\pi r^2 - \pi (r/2)^2 = \pi r^2 (1 - 1/4) = \dfrac{3\pi r^2}{4}$.
 </details>
+
+::: {.fun-fact}
+**Archimedes computes $\pi$ by exhaustion (~250 BCE).** In *Measurement
+of a Circle*, Archimedes inscribed and circumscribed regular polygons of
+$96$ sides around a circle, computed their perimeters, and proved that
+$$\dfrac{223}{71} \;<\; \pi \;<\; \dfrac{22}{7}.$$
+The lower bound is $3.1408\ldots$, the upper bound is $3.1428\ldots$, and
+$\pi = 3.14159\ldots$ — a 2,300-year-old sandwich that is still
+respectable. The board-paper convention $\pi = 22/7$ that you use in
+every problem of this chapter is *exactly* Archimedes' upper bound.
+:::
+
+::: {.key-insight}
+Every formula in this chapter is one fact: a sector is the fraction
+$\theta/360°$ of the whole circle, and *both* its area and its arc
+length scale by that fraction. From that one idea you get sector area,
+arc length, segment area (sector $-$ triangle), and the annulus formula
+(big circle $-$ small circle). The bookkeeping is mechanical once you
+see the fraction.
+:::
 
 ## Name
 
@@ -444,6 +464,18 @@ Standard, Q34 mirrors Q7's shaded-region pattern.
 3. **"Segment = chord + arc area."** The segment is a **2D region**, not
    a 1D length. It is the area enclosed between the chord and the arc.
 :::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A sector is a fraction of the circle.** Both its area and its arc
+   length scale by $\theta/360°$ — one rule, two formulas.
+2. **Segment = sector $-$ triangle.** The triangle has two radii and
+   the included central angle, so its area is $\tfrac{1}{2} r^2
+   \sin\theta$.
+3. **Combined-shape problems are arithmetic, not insight.** Cut the
+   figure into named pieces, add or subtract, finish.
 
 ### Self-Assessment
 
