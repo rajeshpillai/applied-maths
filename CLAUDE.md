@@ -1,0 +1,580 @@
+# CLAUDE.md — Authoring Contract
+
+This file is the contract every lesson in this repository must honour. It is
+read by both human authors and AI collaborators (including Claude Code) before
+writing or editing any lesson. **If a lesson cannot satisfy the checklist at the
+end of this file, it is not done — no matter how much content it contains.**
+
+## The Mission
+
+Build the best self-study mathematics curriculum in the world, from Grade 5 to
+Masters, with every concept connected to where it is used in **Research, AI/ML,
+Game Development, Databases, Systems, and Encryption**.
+
+The reader is alone. There is no teacher to ask. Every lesson must respect that.
+
+## The Six-Beat Lesson Template
+
+Every lesson — at every level, in every tier — uses these six headings, in this
+order, with these names. No exceptions, no renames, no reordering.
+
+```markdown
+## Touch
+## Wonder
+## Discover
+## Name
+## Apply
+## Connect
+```
+
+### 1. Touch — Pestalozzi / Froebel
+
+Open with a concrete object the learner can manipulate. A widget, a printable
+cut-out, a physical thing they have in their kitchen, a drag-able diagram. **Do
+not name the concept yet.** The goal is direct sensory contact.
+
+> *"Anschauung ist das absolute Fundament aller Erkenntnis." — Pestalozzi.*
+> Direct perception is the absolute foundation of all knowledge.
+
+If you cannot find a Touch for your topic, your topic is wrong — break it down
+further. Every mathematical idea has a concrete shadow.
+
+### 2. Wonder — Socratic / Mary Everest Boole
+
+Two to four open questions about what the learner just touched. **No answers.**
+The questions surface the learner's existing intuitions before any new
+vocabulary lands.
+
+> *"Take the child's mind, as you find it, ... and let questions be your
+> chisel." — Mary Everest Boole.*
+
+Bad Wonder questions: "What do you notice?" (too vague). "Is this addition?"
+(leading; gives away the answer).
+Good Wonder questions: "If you doubled the longer stick, what would happen to
+the shape?" "Could you make this with three objects instead of four?"
+
+### 3. Discover — Russian problem-first (Gelfand, Shen, Kiselev)
+
+A short ordered sequence — **3 to 7 problems** — that forces the new idea to
+crystallise in the learner's head before the text names it. The text only
+nudges; it never gives the technique away.
+
+> *"A good problem is a small theorem the student proves themselves." —
+> attributed to Gelfand.*
+
+Each problem should be solvable using only the prerequisites. The sequence
+should make the new concept feel inevitable by the last problem.
+
+### 4. Name — Bhāskara sūtra
+
+State the formal definition or theorem **once, compactly**. One or two
+sentences. Where appropriate, write a short verse-style mnemonic the learner can
+memorise.
+
+> *Bhāskara's Līlāvatī states each rule in a single Sanskrit verse, then
+> illustrates it with a vivid problem set in a real scene.*
+
+This beat is short. If it is long, you have not understood the idea well enough
+to name it.
+
+### 5. Apply — Bhāskara worked example + graded practice
+
+One vivid worked problem, fully solved with reasoning shown step-by-step. Then
+a graded practice set:
+- **Warm (3 problems):** direct application of the definition.
+- **Working (3 problems):** mild twist; combine with one earlier idea.
+- **Stretch (1–2 problems):** non-trivial; rewards thought.
+
+**Every problem has graduated hints and a full worked solution** (see Self-Study
+Guarantees below).
+
+After Stretch (and after the tier-specific extras for CBSE / Kiselev), every
+lesson closes Apply with a **required `### Takeaways` block followed by a
+required `### Self-Assessment` block** — see *Required closing blocks* below.
+
+### 6. Connect — Curriculum-wide
+
+This beat has three required sub-sections:
+
+- **Prerequisites used.** Bullet list of the lesson IDs (from `_curriculum.yml`)
+  this lesson relied on, with one-line reminders.
+- **What this unlocks.** Bullet list of the lesson IDs that become accessible
+  after this one.
+- **Where this matters.** At least one applied-domain callout — a single
+  sentence per domain — explaining how this idea is used in the real world. Use
+  the `.applied-callout` class.
+
+## Required Callouts
+
+Every lesson uses six callout classes. Four are documented further below
+(`.preflight-check`, `.common-confusion`, `.applied-callout`, `details.hint`).
+The remaining two — `.fun-fact` and `.key-insight` — are required additions
+that surface what the prose tends to hide.
+
+### `.fun-fact` — historical / origin hook (required, 1+ per lesson)
+
+A short, scannable amber callout for the human story behind the idea: who
+named it, when, why. The applied-maths curriculum is unusually rich in
+history (al-Khwarizmi naming "al-jabr"; Brahmagupta defining zero; Newton
+and Leibniz inventing calculus independently; Pascal and Fermat founding
+probability over a gambling problem; Florence Nightingale as a pioneering
+statistician). Surface that history visually instead of burying it in
+collapsed `## Author's notes` or in prose inside Discover solutions.
+
+```markdown
+::: {.fun-fact}
+The word "algebra" comes from the Arabic *al-jabr*, "reunion of broken
+parts," coined by the 9th-century mathematician al-Khwarizmi — whose name
+also gave us the word *algorithm*.
+:::
+```
+
+**Where to place it.** Inside `## Discover` (after a problem reveals the
+idea) or inside `## Connect` (alongside applied-callouts). **Never** in
+`## Touch` or `## Wonder` — those are vocabulary-free by contract.
+
+**Cap.** At least one per lesson, at most two. One is the norm.
+
+### `.key-insight` — the *intuitive* aha (required, exactly 1 per lesson)
+
+A teal callout that surfaces the single intuitive sentence the lesson is
+secretly built around. This is **different** from `.lesson-beat` (the
+formal, Bhāskara-style definition that lives inside `## Name`):
+
+- `.lesson-beat` says: *"A natural number is the answer to 'how many?'"*
+  (formal — the rule)
+- `.key-insight` says: *"The number lives above the things it counts."*
+  (intuitive — the aha)
+
+Both are valuable. The formal definition is what the learner can quote on
+an exam; the intuitive aha is what makes it stick.
+
+```markdown
+::: {.key-insight}
+The number lives *above* the things it counts. Three apples, three fish,
+three minutes — the things vanish when you do the arithmetic. The number
+does not.
+:::
+```
+
+**Where to place it.** Once per lesson, typically at the **end of
+`## Discover`** (the moment the idea crystallises in the learner's head)
+or immediately before `## Name`. Never two; if you have two candidate
+insights, the second probably belongs in `## Connect` as prose.
+
+**Cap.** Exactly one. Not optional.
+
+## Self-Study Guarantees
+
+Because the learner has no teacher to ask, every lesson must include:
+
+1. **Pre-flight check.** A boxed section *above* `## Touch` with 3-5 yes/no
+   questions: "Are you ready for this lesson?" Each question links to the
+   prerequisite lesson the learner should revisit if they answered no. Use the
+   `.preflight-check` class.
+
+2. **Multiple representations.** Every new idea is shown in at least three of:
+   visual diagram, numerical example, algebraic statement, plain-English
+   verbal. Different intuitions land for different learners.
+
+3. **Graduated hints on every exercise.** Use this exact disclosure structure:
+
+   ```markdown
+   <details class="hint"><summary>Hint 1 — a nudge</summary>
+   ...
+   </details>
+   <details class="hint"><summary>Hint 2 — the technique</summary>
+   ...
+   </details>
+   <details class="hint"><summary>Hint 3 — the first step</summary>
+   ...
+   </details>
+   <details class="hint"><summary>Full solution</summary>
+   ...
+   </details>
+   ```
+
+4. **Worked solution for every exercise.** No exceptions. The learner must be
+   able to see how a competent solver thinks, not just the final answer.
+
+5. **Common confusions.** A `.common-confusion` callout naming the 1-3
+   misconceptions a learner typically forms about this topic, with a short
+   explanation of why each is wrong.
+
+6. **Takeaways.** Above `### Self-Assessment` and below all practice (Warm /
+   Working / Stretch / tier-specific extras), every lesson must include a
+   short bulleted recap the learner can re-read in 30 seconds. Exactly three
+   bullets, each one sentence, no equations beyond the most essential. The
+   point is a take-away card, not a summary of the lesson.
+
+   ```markdown
+   ### Takeaways
+
+   If you remember nothing else from this lesson, remember these:
+
+   1. **The core idea, one sentence.**
+   2. **The technique or rule, one sentence.**
+   3. **What it unlocks or where it lives, one sentence.**
+   ```
+
+   Each bullet should be *intuitive*, not formal. If a Takeaway reads like
+   the `## Name` definition word-for-word, rewrite it to focus on the aha
+   or the unlock instead. Self-Assessment immediately follows Takeaways.
+
+7. **Self-assessment.** At the very bottom, before `## Connect`, three honest
+   questions the learner answers themselves, with a recommendation. Example:
+
+   ```markdown
+   ### Self-Assessment
+
+   Be honest with yourself.
+
+   1. Could you explain *why* [the rule] works to a friend, without notes?
+   2. Did you solve at least 5 of the 7 practice problems without peeking at
+      hints?
+   3. Can you spot when a problem in the wild calls for this idea?
+
+   - **3 yes:** move on.
+   - **2 yes:** do the Stretch problems again, then move on.
+   - **0–1 yes:** re-read Discover and Apply; the idea hasn't landed yet.
+   ```
+
+8. **Glossary cross-reference.** Every term the lesson formally introduces
+   in `## Name` must also have an entry in the site-wide
+   [glossary.qmd](glossary.qmd). The lesson does **not** need to inline-link
+   to the glossary every time the term appears; the glossary is the canonical
+   reference, and the lesson is where the term is first **named** with its
+   full pedagogical context.
+
+   When you write or upgrade a lesson:
+
+   - Identify every term that appears bolded inside the `.lesson-beat` block
+     in `## Name`.
+   - For each, add (or update) an entry in `glossary.qmd` of the form:
+
+     ```markdown
+     ### Term name {#term-anchor}
+
+     Plain-English one-liner. No jargon. No symbols beyond the unavoidable.
+
+     **First named in:** [Tier N, Lesson M — Title](path/to/lesson/index.qmd)
+     ```
+
+   - The anchor (`{#term-anchor}`) must be lower-case-kebab and stable —
+     other lessons may link to it as `[term](/glossary.qmd#term-anchor)`.
+   - If the term is a refinement of an earlier one (e.g. *natural number* vs.
+     *number*), give it its own entry; do not collapse two distinct terms
+     into one.
+
+   The glossary is the **canonical** reference: definitions live there in
+   plain English; the lesson supplies the *why* and the *how*.
+
+## CBSE / NCERT Lesson Additions
+
+CBSE / NCERT track lessons (any lesson whose `lesson-id` starts with
+`cbseN.`) follow the same six-beat contract above and add **two extras**.
+Do not invent a seventh beat — both extras live inside existing beats.
+
+### 1. Frontmatter
+
+In addition to the standard fields, a CBSE lesson sets:
+
+```yaml
+ncert-class: 10                     # 8, 9, 10, 11, or 12
+ncert-chapter: 5                    # NCERT chapter number
+ncert-chapter-title: "Arithmetic Progressions"
+board-exam: true                    # true for Class 10 and Class 12 lessons
+tier: "cbse10"                      # use the cbseN string, not an integer
+```
+
+### 2. Inside `## Apply` — Board-Pattern Practice
+
+After Warm / Working / Stretch, add a **Board-Pattern Practice** sub-section
+mirroring the actual board paper structure. Every problem still gets graduated
+hints + a worked solution.
+
+```markdown
+### Board-Pattern Practice
+
+**1-mark (objective).** ...
+**2-mark (short answer).** ...
+**3-mark (short answer II).** ...
+**4 or 5-mark (long answer).** ...
+
+::: {.callout-note}
+**NCERT Exemplar pointer:** Exemplar Problem 5.3, Q12 (variant of S1).
+**Previous-year pointer:** CBSE 2023 Set 3, Q14 (similar to W2).
+:::
+```
+
+The 1/2/3-mark items can be objective, short answer, and reasoning. The
+long-answer item should require multiple steps and explanation.
+
+### 3. Inside `## Connect` — NCERT Chapter Alignment
+
+Add a sub-section between *What this unlocks* and *Where this matters*:
+
+```markdown
+### NCERT chapter alignment
+
+- **Class 10, Chapter 5 — Arithmetic Progressions**
+  (NCERT 2023 rationalised syllabus). Covers Sections 5.1–5.3.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`t3.sequences-series`](../../tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd).
+- **Read alongside the NCERT textbook**, which remains the canonical
+  source for the board paper.
+```
+
+The "sister synthesis lesson" link is what stops the two tracks feeling
+like duplicate work — a learner who is stuck can compare the
+chapter-by-chapter board treatment to the synthesis lens.
+
+### CBSE-specific items in the "Done" checklist
+
+When a lesson's `lesson-id` starts with `cbseN.`, also verify:
+
+- [ ] Frontmatter sets `ncert-class`, `ncert-chapter`, `ncert-chapter-title`.
+- [ ] *Apply* contains a **Board-Pattern Practice** block with at least
+      1 + 2 + 3 + (4-or-5)-mark style items, all with hints and full
+      solutions, plus an Exemplar / PYQ pointer callout.
+- [ ] *Connect* contains a **NCERT chapter alignment** sub-section with
+      a working link to the sister synthesis lesson (or a clear note if
+      no synthesis lesson covers this idea).
+
+## Kiselev Lesson Additions
+
+Kiselev-track lessons (any lesson whose `lesson-id` starts with `ka1.`,
+`ka2.`, `kg1.`, or `kg2.`) follow the same six-beat contract above and
+add **two extras**, parallel to the CBSE additions. Do not invent a
+seventh beat — both extras live inside existing beats.
+
+### 1. Frontmatter
+
+In addition to the standard fields, a Kiselev lesson sets:
+
+```yaml
+lesson-id: "kg1.parallels"
+tier: "kg1"                                          # string, not integer
+kiselev-book: "Geometry, Book I (Planimetry)"
+kiselev-chapter: 4
+kiselev-chapter-title: "Parallels"
+kiselev-sections: "§§78–95"                          # author-verified
+```
+
+The five book-prefixes:
+
+- `kar` — Kiselev *Arithmetic*
+- `ka1` — Kiselev *Algebra, Part I*
+- `ka2` — Kiselev *Algebra, Part II*
+- `kg1` — Kiselev *Geometry, Book I (Planimetry)*
+- `kg2` — Kiselev *Geometry, Book II (Stereometry)*
+
+### 2. Inside `## Apply` — Kiselev-style problems
+
+After Warm / Working / Stretch, add a **Kiselev-style problems**
+sub-section: three problems chosen or adapted from Kiselev's own
+exercise set for this section, in his terse classical style. Every
+problem still gets graduated hints + a full worked solution. End
+with a callout pointing at the source section.
+
+```markdown
+### Kiselev-style problems
+
+Three problems in Kiselev's terse classical style, adapted from
+Givental, *Planimetry*, §§78–95.
+
+**K1.** ...
+
+::: {.callout-note}
+**Source pointer.** Adapted from Givental, *Kiselev's Geometry,
+Book I — Planimetry*, §§78–95. Free PDF on cimat.mx.
+**Note on transcription.** Adapt in your own words; do not paste
+Givental's English translation.
+:::
+```
+
+### 3. Inside `## Connect` — Kiselev chapter alignment
+
+Add a sub-section between *What this unlocks* and *Where this matters*:
+
+```markdown
+### Kiselev chapter alignment
+
+- **Geometry, Book I — Chapter 4: Parallels (§§78–95).**
+  Givental translation, Sumizdat 2006. Free PDF on cimat.mx.
+- **Sister synthesis lesson** (different pedagogical angle):
+  [`cbse9.lines-and-angles`](../../tier-cbse-09-class-9/06-lines-and-angles/index.qmd).
+- **Read alongside the source PDF** for the canonical proofs;
+  this lesson adds the widget, the wonder, and the connect-to-applications.
+```
+
+### 4. Citation, not transcription
+
+Givental's English translations of Kiselev's *Geometry* are
+**copyrighted** (Sumizdat). Kiselev's Russian originals are
+public domain. The contract:
+
+- **Cite freely.** Chapter and section numbers, theorem names,
+  problem-shapes — these are facts, not text, and are not
+  copyrightable.
+- **Adapt, never transcribe.** Re-state every problem and proof in
+  your own words. The exercise wording in your lesson must not
+  match Givental's prose.
+- **Point to the source PDF**, do not vendor it. The PDFs stay
+  external, accessed via the URL in `_curriculum.yml`'s `source:`
+  field and in the lesson's *Kiselev chapter alignment* sub-section.
+
+### Kiselev-specific items in the "Done" checklist
+
+When a lesson's `lesson-id` starts with `kar.`, `ka1.`, `ka2.`,
+`kg1.`, or `kg2.`, also verify:
+
+- [ ] Frontmatter sets `kiselev-book`, `kiselev-chapter`,
+      `kiselev-chapter-title`, `kiselev-sections`.
+- [ ] *Apply* contains a **Kiselev-style problems** block with at
+      least three problems, each with graduated hints and full
+      solution, plus a source-pointer callout.
+- [ ] *Connect* contains a **Kiselev chapter alignment** sub-section
+      with a working link to the sister synthesis lesson.
+- [ ] No verbatim copy of Givental's translation. Author has
+      adapted every problem statement in their own words.
+
+## Voice and Style
+
+- **Address the learner directly.** "You" not "the student" or "one."
+- **Concrete before abstract, always.** A noun the reader can picture beats a
+  precise but unimaginable definition every single time.
+- **Short sentences. Short paragraphs.** The reader is doing hard cognitive work
+  already; do not add prose-parsing to it.
+- **No jargon without naming it in *Name*.** If you use a term in *Discover*,
+  it must be either (a) common English or (b) defined in a prior lesson and
+  declared as a prerequisite.
+- **No forward references.** A lesson never says "as you'll see later." Every
+  idea used must already exist for this learner.
+- **Cite the touchstone.** Where a problem or framing is borrowed from Gelfand,
+  Kiselev, NRICH, AoPS, 3Blue1Brown, Better Explained, etc. — name them. Steal
+  the inspiration, never the wording.
+
+## File and Folder Conventions
+
+A lesson lives at:
+```
+lessons/tier-N-{slug}/{NN}-{kebab-case-title}/index.qmd
+```
+
+The lesson's directory may also contain:
+- `widgets/` — Observable JS, Plotly, or static SVG specific to this lesson.
+- `exercises.qmd` — extra problems beyond the *Apply* graded set, optional.
+- `images/` — diagrams. Prefer SVG; PNG only if needed.
+
+### Required YAML front matter
+
+Every lesson `index.qmd` starts with:
+
+```yaml
+---
+title: "Lesson Title — Short and Vivid"
+lesson-id: "t1.what-is-a-number"          # matches _curriculum.yml entry
+tier: 1
+prerequisites: []                          # list of lesson-ids
+unlocks: ["t1.number-line"]                # list of lesson-ids
+applied-domains: ["encryption", "ai-ml"]   # zero or more
+estimated-minutes: 25
+---
+```
+
+### Math typesetting
+
+- Inline math: `$x^2 + 1$`.
+- Display math: `$$ \int_0^1 x^2 \, dx = \frac{1}{3} $$`.
+- KaTeX is the renderer (configured in `_quarto.yml`). Test that complex
+  expressions render before committing.
+
+### Widget conventions
+
+- Reusable widgets (number line, fraction bar, unit circle, vector arrow) live
+  at the repo root in `widgets/`.
+- Lesson-specific widgets live in `lessons/.../widgets/`.
+- Prefer Observable JS (`{ojs}` blocks in Quarto) for browser interactivity —
+  no extra build step.
+- Static visualisations (Matplotlib, Plotly) go in `{python}` blocks; cache
+  with `execute: freeze: auto` (already configured).
+- Every widget gets a one-line caption explaining what to manipulate.
+
+## Design Influences (Touchstones)
+
+We do not invent in a vacuum. Each lesson should be reviewable against at least
+one of these:
+
+- **Gelfand Correspondence School** — terse, problem-first sequencing for
+  older learners.
+- **Kiselev's *Geometry* / Hadamard's *Lessons in Geometry*** — the gold
+  standard for proof exposition; clarity through restraint.
+- **Art of Problem Solving** — graduated problem difficulty; "discover the
+  technique" pedagogy.
+- **3Blue1Brown** — visual intuition for ideas usually taught only
+  symbolically.
+- **Better Explained (Kalid Azad)** — the "Aha!" framing; lead with the
+  intuitive metaphor.
+- **NRICH (Cambridge)** — rich, low-floor-high-ceiling problems that work
+  across ability levels.
+- **Khan Academy** — mastery-based progression; we borrow philosophy, not
+  format.
+- **Math Academy** — explicit prerequisite graphs; spaced review.
+
+When borrowing a problem or framing, **name the source** in a footnote.
+
+## The "Done" Checklist
+
+A lesson is not done until **every box** is checked.
+
+### Six-Beat Template
+- [ ] `## Touch` — concrete, no vocabulary, manipulable.
+- [ ] `## Wonder` — 2–4 questions, no answers.
+- [ ] `## Discover` — 3–7 ordered problems forcing the idea.
+- [ ] `## Name` — definition stated compactly, one or two sentences.
+- [ ] `## Apply` — worked example + Warm / Working / Stretch problems.
+- [ ] `## Connect` — Prerequisites used, Unlocks, Where this matters.
+
+### Self-Study Guarantees
+- [ ] Pre-flight check at the top.
+- [ ] Multiple representations of every new idea (≥3 of: visual, numerical,
+      algebraic, verbal).
+- [ ] Graduated hints (Hint 1, 2, 3, Full solution) on every exercise.
+- [ ] Worked solution for every exercise.
+- [ ] Common-confusions callout.
+- [ ] **Takeaways block (3 bullets, intuitive)** sits between Stretch (or
+      tier-specific extras) and Self-Assessment.
+- [ ] Self-assessment block above `## Connect`.
+
+### Required Callouts
+- [ ] At least one `.fun-fact` callout (max two), placed in `## Discover` or
+      `## Connect`. Never in `## Touch` or `## Wonder`.
+- [ ] Exactly one `.key-insight` callout, placed at end of `## Discover` or
+      immediately before `## Name`. Distinct from the `.lesson-beat` formal
+      definition — the key insight is intuitive, the lesson beat is formal.
+
+### Curriculum Hygiene
+- [ ] YAML front matter present and matches `_curriculum.yml`.
+- [ ] No forward references; nothing used that isn't a declared prerequisite.
+- [ ] At least one applied-domain callout in `## Connect`.
+- [ ] Reviewable against at least one design touchstone (named in a comment or
+      footnote).
+- [ ] Every term formally introduced in `## Name` has an entry in
+      [`glossary.qmd`](glossary.qmd) with a stable anchor and a "First named
+      in" link back to this lesson.
+
+### Build
+- [ ] `quarto render` succeeds with no warnings.
+- [ ] Walked the lesson straight through as a learner would; it makes sense
+      with only the prerequisites.
+
+## When in Doubt
+
+- **Cut, don't add.** A short lesson the learner finishes beats a thorough
+  lesson they abandon halfway.
+- **One idea per lesson.** If your *Name* beat has two definitions, you have
+  two lessons.
+- **The widget proves the idea before the text does.** If the widget feels
+  decorative, redesign it until it carries weight.
+- **Read the lesson aloud.** If you stumble, the learner will too.

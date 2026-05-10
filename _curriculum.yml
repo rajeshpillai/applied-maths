@@ -1,0 +1,1502 @@
+# _curriculum.yml — single source of truth for the curriculum dependency graph.
+#
+# Every lesson on the site is registered here. The lesson's YAML front matter
+# (lesson-id, prerequisites, unlocks, applied-domains) MUST match the entry
+# below. The landing-page Mermaid graph and the applied-bridges paths are
+# derived from this file.
+#
+# Schema:
+#   tiers:
+#     - id: t1
+#       title: "..."
+#       grade-range: "..."
+#       summary: "..."
+#       lessons:
+#         - id: t1.what-is-a-number       # globally unique
+#           title: "..."
+#           prerequisites: []             # list of lesson ids
+#           applied-domains: [encryption] # subset of: ai-ml, game-dev, databases,
+#                                         #   systems, encryption, research
+#           status: done | drafted | planned
+#           path: lessons/tier-1-foundations/01-what-is-a-number/index.qmd
+
+applied-domains:
+  - id: ai-ml
+    title: "AI / Machine Learning"
+  - id: game-dev
+    title: "Game Development"
+  - id: databases
+    title: "Databases"
+  - id: systems
+    title: "Systems"
+  - id: encryption
+    title: "Encryption"
+  - id: research
+    title: "Mathematical Research"
+
+tiers:
+  - id: t1
+    title: "Foundations"
+    grade-range: "Grade 5–7"
+    summary: "Number sense, the four operations re-grounded, fractions, ratio, basic geometry, and the seed of every later idea — including primes (the door to encryption)."
+    lessons:
+      - id: t1.what-is-a-number
+        title: "What is a Number?"
+        prerequisites: []
+        applied-domains: [encryption, research]
+        status: done
+        path: lessons/tier-1-foundations/01-what-is-a-number/index.qmd
+      - id: t1.number-line
+        title: "The Number Line"
+        prerequisites: [t1.what-is-a-number]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-1-foundations/02-number-line/index.qmd
+      - id: t1.place-value
+        title: "Place Value (Why Position Matters)"
+        prerequisites: [t1.what-is-a-number]
+        applied-domains: [systems, encryption, research]
+        status: done
+        path: lessons/tier-1-foundations/03-place-value/index.qmd
+      - id: t1.add-subtract
+        title: "Addition and Subtraction, Re-grounded"
+        prerequisites: [t1.number-line, t1.place-value]
+        applied-domains: [systems, research]
+        status: done
+        path: lessons/tier-1-foundations/04-add-subtract/index.qmd
+      - id: t1.multiply-as-area
+        title: "Multiplication as Area"
+        prerequisites: [t1.add-subtract]
+        applied-domains: [game-dev, ai-ml]
+        status: done
+        path: lessons/tier-1-foundations/05-multiply-as-area/index.qmd
+      - id: t1.divide-fair-share
+        title: "Division as Fair Share"
+        prerequisites: [t1.multiply-as-area]
+        applied-domains: [databases, ai-ml, encryption]
+        status: done
+        path: lessons/tier-1-foundations/06-divide-fair-share/index.qmd
+      - id: t1.fractions-as-parts
+        title: "Fractions as Parts of a Whole"
+        prerequisites: [t1.divide-fair-share]
+        applied-domains: [databases, ai-ml, research]
+        status: done
+        path: lessons/tier-1-foundations/07-fractions-as-parts/index.qmd
+      - id: t1.decimals
+        title: "Decimals — Fractions in a New Costume"
+        prerequisites: [t1.fractions-as-parts, t1.place-value]
+        applied-domains: [systems, ai-ml, research]
+        status: done
+        path: lessons/tier-1-foundations/08-decimals/index.qmd
+      - id: t1.ratio-proportion
+        title: "Ratio and Proportion"
+        prerequisites: [t1.fractions-as-parts]
+        applied-domains: [game-dev, ai-ml, databases]
+        status: done
+        path: lessons/tier-1-foundations/09-ratio-proportion/index.qmd
+      - id: t1.negative-numbers
+        title: "Negative Numbers (Below the Ground)"
+        prerequisites: [t1.number-line, t1.add-subtract]
+        applied-domains: [systems, research, ai-ml]
+        status: done
+        path: lessons/tier-1-foundations/10-negative-numbers/index.qmd
+      - id: t1.intro-variables
+        title: "Variables — Names for Unknown Numbers"
+        prerequisites: [t1.add-subtract, t1.multiply-as-area]
+        applied-domains: [ai-ml, research, encryption]
+        status: done
+        path: lessons/tier-1-foundations/11-intro-variables/index.qmd
+      - id: t1.shapes-angles
+        title: "Shapes and Angles"
+        prerequisites: []
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-1-foundations/12-shapes-angles/index.qmd
+      - id: t1.area-perimeter-volume
+        title: "Area, Perimeter, Volume"
+        prerequisites: [t1.shapes-angles, t1.multiply-as-area]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-1-foundations/13-area-perimeter-volume/index.qmd
+      - id: t1.data-and-average
+        title: "Data and the Average"
+        prerequisites: [t1.divide-fair-share]
+        applied-domains: [ai-ml, databases, research]
+        status: done
+        path: lessons/tier-1-foundations/14-data-and-average/index.qmd
+      - id: t1.divisibility-primes
+        title: "Divisibility and Primes (the Encryption Seed)"
+        prerequisites: [t1.divide-fair-share]
+        applied-domains: [encryption, research]
+        status: done
+        path: lessons/tier-1-foundations/15-divisibility-and-primes/index.qmd
+
+  - id: t2
+    title: "Pre-Algebra & Algebra I"
+    grade-range: "Grade 8–9"
+    summary: "Linear equations and systems, functions as machines, exponents, polynomials, similarity, and the Pythagorean theorem."
+    lessons:
+      - id: t2.functions-as-machines
+        title: "Functions as Machines"
+        prerequisites: [t1.intro-variables]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-2-prealgebra/01-functions-as-machines/index.qmd
+      - id: t2.linear-equations-one-var
+        title: "Linear Equations in One Variable"
+        prerequisites: [t1.intro-variables, t1.negative-numbers]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-2-prealgebra/02-linear-equations-one-var/index.qmd
+      - id: t2.linear-inequalities
+        title: "Linear Inequalities"
+        prerequisites: [t2.linear-equations-one-var, t1.negative-numbers]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-2-prealgebra/03-linear-inequalities/index.qmd
+      - id: t2.coordinate-plane
+        title: "The Coordinate Plane"
+        prerequisites: [t1.number-line, t1.negative-numbers]
+        applied-domains: [game-dev, ai-ml]
+        status: done
+        path: lessons/tier-2-prealgebra/04-coordinate-plane/index.qmd
+      - id: t2.linear-functions-graphs
+        title: "Linear Functions and Their Graphs"
+        prerequisites: [t2.functions-as-machines, t2.coordinate-plane]
+        applied-domains: [ai-ml, game-dev, research]
+        status: done
+        path: lessons/tier-2-prealgebra/05-linear-functions-graphs/index.qmd
+      - id: t2.systems-linear-equations
+        title: "Systems of Linear Equations"
+        prerequisites: [t2.linear-equations-one-var, t2.linear-functions-graphs]
+        applied-domains: [ai-ml, research, encryption]
+        status: done
+        path: lessons/tier-2-prealgebra/06-systems-linear-equations/index.qmd
+      - id: t2.exponents-powers
+        title: "Exponents and Powers"
+        prerequisites: [t1.multiply-as-area]
+        applied-domains: [systems, encryption, ai-ml]
+        status: done
+        path: lessons/tier-2-prealgebra/07-exponents-powers/index.qmd
+      - id: t2.scientific-notation
+        title: "Scientific Notation"
+        prerequisites: [t2.exponents-powers, t1.decimals]
+        applied-domains: [systems, research, ai-ml]
+        status: done
+        path: lessons/tier-2-prealgebra/08-scientific-notation/index.qmd
+      - id: t2.square-roots-irrationals
+        title: "Square Roots and Irrationals"
+        prerequisites: [t2.exponents-powers]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-2-prealgebra/09-square-roots-irrationals/index.qmd
+      - id: t2.pythagorean-theorem
+        title: "The Pythagorean Theorem"
+        prerequisites: [t1.shapes-angles, t1.area-perimeter-volume, t2.square-roots-irrationals]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-2-prealgebra/10-pythagorean-theorem/index.qmd
+      - id: t2.polynomials
+        title: "Polynomials — Adding and Multiplying"
+        prerequisites: [t1.intro-variables, t1.multiply-as-area, t2.exponents-powers]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-2-prealgebra/11-polynomials/index.qmd
+      - id: t2.factoring-polynomials
+        title: "Factoring Polynomials"
+        prerequisites: [t2.polynomials, t1.divisibility-primes]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-2-prealgebra/12-factoring-polynomials/index.qmd
+      - id: t2.similarity-scale
+        title: "Similarity and Scale"
+        prerequisites: [t1.ratio-proportion, t1.shapes-angles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-2-prealgebra/13-similarity-scale/index.qmd
+      - id: t2.quadratic-equations-intro
+        title: "Quadratic Equations (Intro)"
+        prerequisites: [t2.factoring-polynomials, t2.linear-equations-one-var]
+        applied-domains: [game-dev, research, ai-ml]
+        status: done
+        path: lessons/tier-2-prealgebra/14-quadratic-equations-intro/index.qmd
+      - id: t2.sequences-intro
+        title: "Sequences (Intro)"
+        prerequisites: [t1.intro-variables, t2.exponents-powers]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-2-prealgebra/15-sequences-intro/index.qmd
+
+  - id: t3
+    title: "Algebra II / Geometry / Trigonometry"
+    grade-range: "Grade 10–11"
+    summary: "Quadratics and conics, trigonometry, sequences and series, logs and exponentials, combinatorics, basic probability."
+    lessons:
+      - id: t3.quadratic-formula
+        title: "Completing the Square & the Quadratic Formula"
+        prerequisites: [t2.quadratic-equations-intro, t2.square-roots-irrationals]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/01-quadratic-formula/index.qmd
+      - id: t3.parabola-graphing
+        title: "Parabolas — Graphing Quadratics"
+        prerequisites: [t3.quadratic-formula, t2.linear-functions-graphs]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/02-parabola-graphing/index.qmd
+      - id: t3.conic-sections
+        title: "Conic Sections — Circle, Ellipse, Parabola, Hyperbola"
+        prerequisites: [t3.parabola-graphing, t2.pythagorean-theorem]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/03-conic-sections/index.qmd
+      - id: t3.sequences-series
+        title: "Sequences and Series"
+        prerequisites: [t2.sequences-intro]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/04-sequences-series/index.qmd
+      - id: t3.logarithms
+        title: "Logarithms"
+        prerequisites: [t2.exponents-powers]
+        applied-domains: [systems, ai-ml, research]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/05-logarithms/index.qmd
+      - id: t3.exp-log-functions
+        title: "Exponential and Logarithmic Functions"
+        prerequisites: [t3.logarithms, t2.functions-as-machines]
+        applied-domains: [ai-ml, research, systems]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/06-exp-log-functions/index.qmd
+      - id: t3.trig-ratios
+        title: "Trigonometry — The Ratios"
+        prerequisites: [t2.pythagorean-theorem, t1.ratio-proportion, t2.similarity-scale]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/07-trig-ratios/index.qmd
+      - id: t3.unit-circle
+        title: "The Unit Circle"
+        prerequisites: [t3.trig-ratios, t2.coordinate-plane]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/08-unit-circle/index.qmd
+      - id: t3.trig-identities
+        title: "Trigonometric Identities"
+        prerequisites: [t3.unit-circle]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/09-trig-identities/index.qmd
+      - id: t3.solving-trig-equations
+        title: "Solving Trigonometric Equations"
+        prerequisites: [t3.trig-identities]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/10-solving-trig-equations/index.qmd
+      - id: t3.combinatorics-counting
+        title: "Combinatorics — Counting"
+        prerequisites: [t1.divide-fair-share]
+        applied-domains: [encryption, ai-ml, research, databases]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/11-combinatorics-counting/index.qmd
+      - id: t3.binomial-theorem
+        title: "The Binomial Theorem"
+        prerequisites: [t3.combinatorics-counting, t2.polynomials]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/12-binomial-theorem/index.qmd
+      - id: t3.basic-probability
+        title: "Basic Probability"
+        prerequisites: [t3.combinatorics-counting, t1.fractions-as-parts]
+        applied-domains: [ai-ml, research, databases]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/13-basic-probability/index.qmd
+      - id: t3.conditional-probability
+        title: "Conditional Probability and Independence"
+        prerequisites: [t3.basic-probability]
+        applied-domains: [ai-ml, research, encryption]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/14-conditional-probability/index.qmd
+      - id: t3.discrete-distributions
+        title: "Discrete Probability Distributions"
+        prerequisites: [t3.basic-probability, t1.data-and-average]
+        applied-domains: [ai-ml, research, systems]
+        status: done
+        path: lessons/tier-3-algebra2-geometry-trig/15-discrete-distributions/index.qmd
+
+  - id: t4
+    title: "Pre-Calculus and Calculus"
+    grade-range: "Grade 12"
+    summary: "Limits, derivatives, integrals, the fundamental theorem, vectors in 2D and 3D — the first explicit Game Dev bridge."
+    lessons:
+      - id: t4.limits
+        title: "Limits — The Idea of Approach"
+        prerequisites: [t3.exp-log-functions, t3.unit-circle]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-4-precalc-calculus/01-limits/index.qmd
+      - id: t4.continuity
+        title: "Continuity"
+        prerequisites: [t4.limits]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-4-precalc-calculus/02-continuity/index.qmd
+      - id: t4.derivative
+        title: "The Derivative — Slope of a Curve"
+        prerequisites: [t4.limits, t2.linear-functions-graphs]
+        applied-domains: [ai-ml, game-dev, research]
+        status: done
+        path: lessons/tier-4-precalc-calculus/03-derivative/index.qmd
+      - id: t4.differentiation-rules
+        title: "Differentiation Rules"
+        prerequisites: [t4.derivative]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-4-precalc-calculus/04-differentiation-rules/index.qmd
+      - id: t4.derivatives-trig-exp-log
+        title: "Derivatives of Trig, Exp, and Log Functions"
+        prerequisites: [t4.differentiation-rules, t3.unit-circle, t3.exp-log-functions]
+        applied-domains: [ai-ml, research, game-dev]
+        status: done
+        path: lessons/tier-4-precalc-calculus/05-derivatives-trig-exp-log/index.qmd
+      - id: t4.optimization
+        title: "Applications of Derivatives — Optimisation"
+        prerequisites: [t4.differentiation-rules, t3.parabola-graphing]
+        applied-domains: [ai-ml, research, game-dev]
+        status: done
+        path: lessons/tier-4-precalc-calculus/06-optimization/index.qmd
+      - id: t4.related-rates
+        title: "Related Rates and Linear Approximation"
+        prerequisites: [t4.differentiation-rules]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-4-precalc-calculus/07-related-rates/index.qmd
+      - id: t4.definite-integral
+        title: "The Definite Integral — Area Under a Curve"
+        prerequisites: [t4.limits, t1.area-perimeter-volume]
+        applied-domains: [research, ai-ml, game-dev]
+        status: done
+        path: lessons/tier-4-precalc-calculus/08-definite-integral/index.qmd
+      - id: t4.ftc
+        title: "The Fundamental Theorem of Calculus"
+        prerequisites: [t4.derivative, t4.definite-integral]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-4-precalc-calculus/09-fundamental-theorem/index.qmd
+      - id: t4.integration-techniques
+        title: "Techniques of Integration"
+        prerequisites: [t4.ftc]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-4-precalc-calculus/10-integration-techniques/index.qmd
+      - id: t4.integration-applications
+        title: "Applications of Integration"
+        prerequisites: [t4.ftc]
+        applied-domains: [research, game-dev, ai-ml]
+        status: done
+        path: lessons/tier-4-precalc-calculus/11-integration-applications/index.qmd
+      - id: t4.differential-equations
+        title: "Differential Equations — Introduction"
+        prerequisites: [t4.derivative, t4.integration-techniques]
+        applied-domains: [research, ai-ml, game-dev]
+        status: done
+        path: lessons/tier-4-precalc-calculus/12-differential-equations/index.qmd
+      - id: t4.vectors-2d-3d
+        title: "Vectors in 2D and 3D"
+        prerequisites: [t2.coordinate-plane, t1.negative-numbers]
+        applied-domains: [game-dev, ai-ml, research]
+        status: done
+        path: lessons/tier-4-precalc-calculus/13-vectors-2d-3d/index.qmd
+      - id: t4.dot-cross-product
+        title: "Dot Product and Cross Product"
+        prerequisites: [t4.vectors-2d-3d, t3.trig-ratios]
+        applied-domains: [game-dev, ai-ml, research]
+        status: done
+        path: lessons/tier-4-precalc-calculus/14-dot-cross-product/index.qmd
+      - id: t4.parametric-equations
+        title: "Parametric Equations and Curves"
+        prerequisites: [t4.vectors-2d-3d, t4.differentiation-rules]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-4-precalc-calculus/15-parametric-equations/index.qmd
+
+  - id: t5
+    title: "Undergraduate Core"
+    grade-range: "Years 1–2"
+    summary: "Linear algebra, multivariable and vector calculus, discrete mathematics and logic, probability and statistics, intro number theory, real analysis."
+    lessons:
+      - id: t5.matrices
+        title: "Matrices and Matrix Operations"
+        prerequisites: [t2.systems-linear-equations, t4.vectors-2d-3d]
+        applied-domains: [ai-ml, game-dev, research]
+        status: done
+        path: lessons/tier-5-undergrad-core/01-matrices/index.qmd
+      - id: t5.linear-systems-gaussian
+        title: "Linear Systems and Gaussian Elimination"
+        prerequisites: [t5.matrices]
+        applied-domains: [ai-ml, research, encryption]
+        status: done
+        path: lessons/tier-5-undergrad-core/02-linear-systems-gaussian/index.qmd
+      - id: t5.vector-spaces
+        title: "Vector Spaces, Linear Independence, Basis"
+        prerequisites: [t5.matrices, t4.vectors-2d-3d]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-5-undergrad-core/03-vector-spaces/index.qmd
+      - id: t5.eigenvalues
+        title: "Eigenvalues and Eigenvectors"
+        prerequisites: [t5.linear-systems-gaussian, t5.vector-spaces]
+        applied-domains: [ai-ml, research, game-dev]
+        status: done
+        path: lessons/tier-5-undergrad-core/04-eigenvalues/index.qmd
+      - id: t5.partial-derivatives
+        title: "Partial Derivatives and the Gradient"
+        prerequisites: [t4.differentiation-rules, t4.vectors-2d-3d]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-5-undergrad-core/05-partial-derivatives/index.qmd
+      - id: t5.multiple-integrals
+        title: "Multiple Integrals"
+        prerequisites: [t4.definite-integral, t5.partial-derivatives]
+        applied-domains: [research, ai-ml, game-dev]
+        status: done
+        path: lessons/tier-5-undergrad-core/06-multiple-integrals/index.qmd
+      - id: t5.vector-fields
+        title: "Vector Fields, Divergence, Curl"
+        prerequisites: [t5.partial-derivatives, t4.dot-cross-product]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-5-undergrad-core/07-vector-fields/index.qmd
+      - id: t5.continuous-distributions
+        title: "Continuous Distributions and the Normal"
+        prerequisites: [t3.discrete-distributions, t4.definite-integral]
+        applied-domains: [ai-ml, research, databases]
+        status: done
+        path: lessons/tier-5-undergrad-core/08-continuous-distributions/index.qmd
+      - id: t5.variance-clt
+        title: "Variance, Standard Deviation, and the Central Limit Theorem"
+        prerequisites: [t5.continuous-distributions]
+        applied-domains: [ai-ml, research, databases]
+        status: done
+        path: lessons/tier-5-undergrad-core/09-variance-clt/index.qmd
+      - id: t5.statistical-inference
+        title: "Statistical Inference — Confidence Intervals and Hypothesis Testing"
+        prerequisites: [t5.variance-clt]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-5-undergrad-core/10-statistical-inference/index.qmd
+      - id: t5.sets-logic-proofs
+        title: "Sets, Logic, and Proof Techniques"
+        prerequisites: [t1.what-is-a-number, t3.combinatorics-counting]
+        applied-domains: [research, encryption, databases]
+        status: done
+        path: lessons/tier-5-undergrad-core/11-sets-logic-proofs/index.qmd
+      - id: t5.graphs-algorithms
+        title: "Graphs and Their Algorithms"
+        prerequisites: [t5.sets-logic-proofs, t3.combinatorics-counting]
+        applied-domains: [databases, ai-ml, systems, research]
+        status: done
+        path: lessons/tier-5-undergrad-core/12-graphs-algorithms/index.qmd
+      - id: t5.modular-arithmetic-rsa
+        title: "Modular Arithmetic and the RSA Algorithm"
+        prerequisites: [t1.divisibility-primes, t3.exp-log-functions]
+        applied-domains: [encryption, research]
+        status: done
+        path: lessons/tier-5-undergrad-core/13-modular-arithmetic-rsa/index.qmd
+      - id: t5.sequences-series-convergence
+        title: "Sequences, Series, and Convergence"
+        prerequisites: [t4.limits, t3.sequences-series]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-5-undergrad-core/14-sequences-series-convergence/index.qmd
+      - id: t5.real-analysis-foundation
+        title: "Continuity and Differentiability — Rigorous Foundation"
+        prerequisites: [t4.continuity, t5.sequences-series-convergence]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-5-undergrad-core/15-real-analysis-foundation/index.qmd
+
+  - id: t6
+    title: "Undergraduate Advanced"
+    grade-range: "Years 3–4"
+    summary: "Abstract algebra, complex analysis, numerical methods, ODEs/PDEs, optimisation, graph theory, information theory, Fourier analysis."
+    lessons:
+      - id: t6.groups
+        title: "Groups — Symmetry and Structure"
+        prerequisites: [t5.sets-logic-proofs, t1.divisibility-primes]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/01-groups/index.qmd
+      - id: t6.rings-fields
+        title: "Rings and Fields"
+        prerequisites: [t6.groups, t2.polynomials]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/02-rings-fields/index.qmd
+      - id: t6.group-actions
+        title: "Group Actions and Symmetry"
+        prerequisites: [t6.groups]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/03-group-actions/index.qmd
+      - id: t6.complex-numbers
+        title: "Complex Numbers and Operations"
+        prerequisites: [t2.quadratic-equations-intro, t3.unit-circle]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/04-complex-numbers/index.qmd
+      - id: t6.complex-functions
+        title: "Complex Functions and Cauchy's Theorem"
+        prerequisites: [t6.complex-numbers, t5.partial-derivatives]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/05-complex-functions/index.qmd
+      - id: t6.second-order-odes
+        title: "Second-Order Linear ODEs"
+        prerequisites: [t4.differential-equations]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/06-second-order-odes/index.qmd
+      - id: t6.pdes
+        title: "Partial Differential Equations — Heat, Wave, Laplace"
+        prerequisites: [t6.second-order-odes, t5.partial-derivatives]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/07-pdes/index.qmd
+      - id: t6.numerical-methods
+        title: "Numerical Methods"
+        prerequisites: [t4.related-rates, t5.linear-systems-gaussian]
+        applied-domains: [systems, research, ai-ml]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/08-numerical-methods/index.qmd
+      - id: t6.convex-optimization
+        title: "Convex Optimisation"
+        prerequisites: [t5.partial-derivatives, t5.eigenvalues]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/09-convex-optimization/index.qmd
+      - id: t6.gradient-methods
+        title: "Gradient Methods and SGD Variants"
+        prerequisites: [t6.convex-optimization]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/10-gradient-methods/index.qmd
+      - id: t6.information-theory
+        title: "Information Theory — Entropy and Channel Capacity"
+        prerequisites: [t3.basic-probability, t3.logarithms]
+        applied-domains: [ai-ml, encryption, systems, research]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/11-information-theory/index.qmd
+      - id: t6.fourier-series
+        title: "Fourier Series"
+        prerequisites: [t5.sequences-series-convergence, t3.unit-circle]
+        applied-domains: [research, ai-ml, systems]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/12-fourier-series/index.qmd
+      - id: t6.fourier-transform
+        title: "The Fourier Transform"
+        prerequisites: [t6.fourier-series]
+        applied-domains: [research, systems, ai-ml]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/13-fourier-transform/index.qmd
+      - id: t6.spectral-graph-theory
+        title: "Spectral Graph Theory"
+        prerequisites: [t5.eigenvalues, t5.graphs-algorithms]
+        applied-domains: [ai-ml, databases, research]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/14-spectral-graph-theory/index.qmd
+      - id: t6.spectral-theorem
+        title: "The Spectral Theorem and Functional Analysis Preview"
+        prerequisites: [t5.eigenvalues, t5.real-analysis-foundation]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-6-undergrad-advanced/15-spectral-theorem/index.qmd
+
+  - id: t7
+    title: "Masters Specialisation Tracks"
+    grade-range: "Masters"
+    summary: "Capstone lessons across the six tracks (Research, AI/ML, Game Dev, Databases, Systems, Encryption), ending with the Langlands Program."
+    lessons:
+      - id: t7.measure-theory
+        title: "Measure Theory and Lebesgue Integration"
+        prerequisites: [t5.real-analysis-foundation, t5.continuous-distributions]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-7-masters-tracks/01-measure-theory/index.qmd
+      - id: t7.topology
+        title: "Topology — Open Sets, Continuity, Compactness"
+        prerequisites: [t5.real-analysis-foundation]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-7-masters-tracks/02-topology/index.qmd
+      - id: t7.galois-theory
+        title: "Galois Theory — Solvability of Polynomial Equations"
+        prerequisites: [t6.groups, t6.rings-fields]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-7-masters-tracks/03-galois-theory/index.qmd
+      - id: t7.statistical-learning-theory
+        title: "Statistical Learning Theory — PAC, VC Dimension"
+        prerequisites: [t5.statistical-inference, t6.convex-optimization]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/04-statistical-learning-theory/index.qmd
+      - id: t7.manifold-methods
+        title: "Manifold Methods for Machine Learning"
+        prerequisites: [t6.spectral-theorem, t5.partial-derivatives]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/05-manifold-methods/index.qmd
+      - id: t7.rl-theory
+        title: "Reinforcement Learning Theory"
+        prerequisites: [t5.continuous-distributions, t6.gradient-methods]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/06-rl-theory/index.qmd
+      - id: t7.differential-geometry
+        title: "Differential Geometry — Manifolds, Curvature, Geodesics"
+        prerequisites: [t5.partial-derivatives, t6.complex-functions]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/07-differential-geometry/index.qmd
+      - id: t7.quaternions
+        title: "Quaternions and 3D Rotations"
+        prerequisites: [t6.complex-numbers, t6.groups]
+        applied-domains: [game-dev]
+        status: done
+        path: lessons/tier-7-masters-tracks/08-quaternions/index.qmd
+      - id: t7.relational-algebra
+        title: "Relational Algebra and Query Optimisation"
+        prerequisites: [t5.sets-logic-proofs]
+        applied-domains: [databases]
+        status: done
+        path: lessons/tier-7-masters-tracks/09-relational-algebra/index.qmd
+      - id: t7.queueing-theory
+        title: "Queueing Theory and Performance Modelling"
+        prerequisites: [t5.continuous-distributions, t5.statistical-inference]
+        applied-domains: [systems, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/10-queueing-theory/index.qmd
+      - id: t7.formal-methods
+        title: "Formal Methods — Model Checking and Temporal Logic"
+        prerequisites: [t5.sets-logic-proofs]
+        applied-domains: [systems, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/11-formal-methods/index.qmd
+      - id: t7.algebraic-number-theory
+        title: "Algebraic Number Theory"
+        prerequisites: [t6.rings-fields, t1.divisibility-primes]
+        applied-domains: [encryption, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/12-algebraic-number-theory/index.qmd
+      - id: t7.elliptic-curves
+        title: "Elliptic Curves and ECC"
+        prerequisites: [t6.rings-fields, t6.complex-numbers]
+        applied-domains: [encryption, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/13-elliptic-curves/index.qmd
+      - id: t7.lattice-crypto
+        title: "Lattice-Based Post-Quantum Cryptography"
+        prerequisites: [t5.linear-systems-gaussian, t1.divisibility-primes]
+        applied-domains: [encryption, research]
+        status: done
+        path: lessons/tier-7-masters-tracks/14-lattice-crypto/index.qmd
+      - id: t7.langlands-program
+        title: "The Langlands Program — A Glimpse of Unification"
+        prerequisites: [t6.spectral-theorem, t6.complex-functions, t7.galois-theory]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-7-masters-tracks/15-langlands-program/index.qmd
+
+  # ---------------------------------------------------------------------------
+  # CBSE / NCERT track — parallel curriculum aligned to the rationalised 2023
+  # NCERT syllabus, Class 8 through Class 12. Each lesson follows the same
+  # six-beat contract (CLAUDE.md) and adds two CBSE-specific extras:
+  #   - Apply: Board-Pattern Practice block (1/2/3/4-mark style + Exemplar/PYQ).
+  #   - Connect: NCERT chapter alignment block (chapter # and sister synthesis lesson).
+  # Lesson-id namespace: cbseN.<slug>. Cross-track prerequisites (tN.* IDs) are
+  # allowed and encouraged where they reduce duplication.
+  # ---------------------------------------------------------------------------
+
+  - id: cbse8
+    title: "CBSE / NCERT Class 8 Mathematics"
+    grade-range: "Class 8 (CBSE)"
+    curriculum-board: cbse-ncert
+    ncert-class: 8
+    summary: "Rational numbers, linear equations, quadrilaterals, mensuration, exponents, factorisation, graphs, and proportional reasoning — aligned chapter-by-chapter to the NCERT Class 8 textbook (rationalised 2023 syllabus)."
+    lessons:
+      - id: cbse8.rational-numbers
+        title: "Class 8 · Ch 1 — Rational Numbers"
+        prerequisites: [t1.fractions-as-parts, t1.negative-numbers]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-08-class-8/01-rational-numbers/index.qmd
+      - id: cbse8.linear-equations-one-var
+        title: "Class 8 · Ch 2 — Linear Equations in One Variable"
+        prerequisites: [t1.intro-variables, cbse8.rational-numbers]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-08-class-8/02-linear-equations-one-var/index.qmd
+      - id: cbse8.understanding-quadrilaterals
+        title: "Class 8 · Ch 3 — Understanding Quadrilaterals"
+        prerequisites: [t1.shapes-angles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-08-class-8/03-understanding-quadrilaterals/index.qmd
+      - id: cbse8.data-handling
+        title: "Class 8 · Ch 4 — Data Handling"
+        prerequisites: [t1.data-and-average, t1.fractions-as-parts]
+        applied-domains: [ai-ml, databases, research]
+        status: done
+        path: lessons/tier-cbse-08-class-8/04-data-handling/index.qmd
+      - id: cbse8.squares-and-square-roots
+        title: "Class 8 · Ch 5 — Squares and Square Roots"
+        prerequisites: [t1.multiply-as-area, t1.divisibility-primes]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-cbse-08-class-8/05-squares-and-square-roots/index.qmd
+      - id: cbse8.cubes-and-cube-roots
+        title: "Class 8 · Ch 6 — Cubes and Cube Roots"
+        prerequisites: [cbse8.squares-and-square-roots]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-cbse-08-class-8/06-cubes-and-cube-roots/index.qmd
+      - id: cbse8.comparing-quantities
+        title: "Class 8 · Ch 7 — Comparing Quantities"
+        prerequisites: [t1.ratio-proportion, t1.fractions-as-parts]
+        applied-domains: [databases, ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-08-class-8/07-comparing-quantities/index.qmd
+      - id: cbse8.algebraic-expressions
+        title: "Class 8 · Ch 8 — Algebraic Expressions and Identities"
+        prerequisites: [t1.intro-variables, t1.multiply-as-area]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-08-class-8/08-algebraic-expressions/index.qmd
+      - id: cbse8.mensuration
+        title: "Class 8 · Ch 9 — Mensuration"
+        prerequisites: [t1.area-perimeter-volume, cbse8.understanding-quadrilaterals]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-08-class-8/09-mensuration/index.qmd
+      - id: cbse8.exponents-and-powers
+        title: "Class 8 · Ch 10 — Exponents and Powers"
+        prerequisites: [t1.multiply-as-area, t1.negative-numbers]
+        applied-domains: [systems, encryption, ai-ml]
+        status: done
+        path: lessons/tier-cbse-08-class-8/10-exponents-and-powers/index.qmd
+      - id: cbse8.direct-inverse-proportions
+        title: "Class 8 · Ch 11 — Direct and Inverse Proportions"
+        prerequisites: [t1.ratio-proportion]
+        applied-domains: [databases, ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-08-class-8/11-direct-inverse-proportions/index.qmd
+      - id: cbse8.factorisation
+        title: "Class 8 · Ch 12 — Factorisation"
+        prerequisites: [cbse8.algebraic-expressions, t1.divisibility-primes]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-cbse-08-class-8/12-factorisation/index.qmd
+      - id: cbse8.introduction-to-graphs
+        title: "Class 8 · Ch 13 — Introduction to Graphs"
+        prerequisites: [t1.data-and-average, t1.number-line]
+        applied-domains: [ai-ml, databases, game-dev]
+        status: done
+        path: lessons/tier-cbse-08-class-8/13-introduction-to-graphs/index.qmd
+
+  - id: cbse9
+    title: "CBSE / NCERT Class 9 Mathematics"
+    grade-range: "Class 9 (CBSE)"
+    curriculum-board: cbse-ncert
+    ncert-class: 9
+    summary: "Number systems, polynomials, coordinate geometry, Euclid's geometry foundations, triangles, circles, Heron's formula, surface areas & volumes, and statistics — aligned to NCERT Class 9 (rationalised 2023)."
+    lessons:
+      - id: cbse9.number-systems
+        title: "Class 9 · Ch 1 — Number Systems"
+        prerequisites: [cbse8.rational-numbers, cbse8.squares-and-square-roots]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-cbse-09-class-9/01-number-systems/index.qmd
+      - id: cbse9.polynomials
+        title: "Class 9 · Ch 2 — Polynomials"
+        prerequisites: [cbse8.algebraic-expressions, cbse8.factorisation]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-cbse-09-class-9/02-polynomials/index.qmd
+      - id: cbse9.coordinate-geometry
+        title: "Class 9 · Ch 3 — Coordinate Geometry"
+        prerequisites: [cbse8.introduction-to-graphs, t1.negative-numbers]
+        applied-domains: [game-dev, ai-ml]
+        status: done
+        path: lessons/tier-cbse-09-class-9/03-coordinate-geometry/index.qmd
+      - id: cbse9.linear-equations-two-vars
+        title: "Class 9 · Ch 4 — Linear Equations in Two Variables"
+        prerequisites: [cbse8.linear-equations-one-var, cbse9.coordinate-geometry]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-09-class-9/04-linear-equations-two-vars/index.qmd
+      - id: cbse9.euclids-geometry
+        title: "Class 9 · Ch 5 — Introduction to Euclid's Geometry"
+        prerequisites: [t1.shapes-angles]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-cbse-09-class-9/05-euclids-geometry/index.qmd
+      - id: cbse9.lines-and-angles
+        title: "Class 9 · Ch 6 — Lines and Angles"
+        prerequisites: [cbse9.euclids-geometry, t1.shapes-angles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-09-class-9/06-lines-and-angles/index.qmd
+      - id: cbse9.triangles
+        title: "Class 9 · Ch 7 — Triangles (Congruence and Properties)"
+        prerequisites: [cbse9.lines-and-angles, t1.shapes-angles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-09-class-9/07-triangles/index.qmd
+      - id: cbse9.quadrilaterals
+        title: "Class 9 · Ch 8 — Quadrilaterals"
+        prerequisites: [cbse8.understanding-quadrilaterals, cbse9.triangles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-09-class-9/08-quadrilaterals/index.qmd
+      - id: cbse9.circles
+        title: "Class 9 · Ch 9 — Circles"
+        prerequisites: [cbse9.lines-and-angles, t1.shapes-angles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-09-class-9/09-circles/index.qmd
+      - id: cbse9.herons-formula
+        title: "Class 9 · Ch 10 — Heron's Formula"
+        prerequisites: [t1.area-perimeter-volume, cbse9.triangles, cbse8.squares-and-square-roots]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-cbse-09-class-9/10-herons-formula/index.qmd
+      - id: cbse9.surface-areas-and-volumes
+        title: "Class 9 · Ch 11 — Surface Areas and Volumes"
+        prerequisites: [t1.area-perimeter-volume, cbse8.mensuration]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-09-class-9/11-surface-areas-and-volumes/index.qmd
+      - id: cbse9.statistics
+        title: "Class 9 · Ch 12 — Statistics"
+        prerequisites: [cbse8.data-handling, t1.data-and-average]
+        applied-domains: [ai-ml, databases, research]
+        status: done
+        path: lessons/tier-cbse-09-class-9/12-statistics/index.qmd
+
+  - id: cbse10
+    title: "CBSE / NCERT Class 10 Mathematics (Board Year)"
+    grade-range: "Class 10 (CBSE Board Exam)"
+    curriculum-board: cbse-ncert
+    ncert-class: 10
+    board-exam: true
+    summary: "Real numbers, polynomials, pair of linear equations, quadratic equations, arithmetic progressions, similarity, coordinate geometry, trigonometry, circles, mensuration, statistics, and probability — Class 10 NCERT (rationalised 2023). First CBSE board year."
+    lessons:
+      - id: cbse10.real-numbers
+        title: "Class 10 · Ch 1 — Real Numbers"
+        prerequisites: [cbse9.number-systems, t1.divisibility-primes]
+        applied-domains: [encryption, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/01-real-numbers/index.qmd
+      - id: cbse10.polynomials
+        title: "Class 10 · Ch 2 — Polynomials"
+        prerequisites: [cbse9.polynomials]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-10-class-10/02-polynomials/index.qmd
+      - id: cbse10.pair-linear-equations
+        title: "Class 10 · Ch 3 — Pair of Linear Equations in Two Variables"
+        prerequisites: [cbse9.linear-equations-two-vars]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-10-class-10/03-pair-linear-equations/index.qmd
+      - id: cbse10.quadratic-equations
+        title: "Class 10 · Ch 4 — Quadratic Equations"
+        prerequisites: [cbse10.polynomials, cbse9.number-systems]
+        applied-domains: [game-dev, research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-10-class-10/04-quadratic-equations/index.qmd
+      - id: cbse10.arithmetic-progressions
+        title: "Class 10 · Ch 5 — Arithmetic Progressions"
+        prerequisites: [cbse10.real-numbers, t1.intro-variables]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/05-arithmetic-progressions/index.qmd
+      - id: cbse10.triangles-similarity
+        title: "Class 10 · Ch 6 — Triangles (Similarity)"
+        prerequisites: [cbse9.triangles, t1.ratio-proportion]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/06-triangles-similarity/index.qmd
+      - id: cbse10.coordinate-geometry
+        title: "Class 10 · Ch 7 — Coordinate Geometry"
+        prerequisites: [cbse9.coordinate-geometry, t2.pythagorean-theorem]
+        applied-domains: [game-dev, ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/07-coordinate-geometry/index.qmd
+      - id: cbse10.trigonometry-intro
+        title: "Class 10 · Ch 8a — Introduction to Trigonometry"
+        prerequisites: [cbse10.triangles-similarity, t2.pythagorean-theorem]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/08a-trigonometry-intro/index.qmd
+      - id: cbse10.trigonometric-identities
+        title: "Class 10 · Ch 8b — Trigonometric Identities"
+        prerequisites: [cbse10.trigonometry-intro]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-cbse-10-class-10/08b-trigonometric-identities/index.qmd
+      - id: cbse10.heights-and-distances
+        title: "Class 10 · Ch 9 — Some Applications of Trigonometry (Heights & Distances)"
+        prerequisites: [cbse10.trigonometry-intro]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/09-heights-and-distances/index.qmd
+      - id: cbse10.circles-tangents
+        title: "Class 10 · Ch 10 — Circles (Tangents)"
+        prerequisites: [cbse9.circles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/10-circles-tangents/index.qmd
+      - id: cbse10.areas-related-to-circles
+        title: "Class 10 · Ch 11 — Areas Related to Circles"
+        prerequisites: [cbse9.circles, t1.area-perimeter-volume]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/11-areas-related-to-circles/index.qmd
+      - id: cbse10.surface-areas-and-volumes
+        title: "Class 10 · Ch 12 — Surface Areas and Volumes (Combined Solids)"
+        prerequisites: [cbse9.surface-areas-and-volumes]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/12-surface-areas-and-volumes/index.qmd
+      - id: cbse10.statistics
+        title: "Class 10 · Ch 13 — Statistics (Mean, Median, Mode of Grouped Data)"
+        prerequisites: [cbse9.statistics]
+        applied-domains: [ai-ml, databases, research]
+        status: done
+        path: lessons/tier-cbse-10-class-10/13-statistics/index.qmd
+      - id: cbse10.probability
+        title: "Class 10 · Ch 14 — Probability (Classical Definition)"
+        prerequisites: [cbse9.statistics, t1.fractions-as-parts]
+        applied-domains: [ai-ml, encryption, research, databases]
+        status: done
+        path: lessons/tier-cbse-10-class-10/14-probability/index.qmd
+
+  - id: cbse11
+    title: "CBSE / NCERT Class 11 Mathematics"
+    grade-range: "Class 11 (CBSE)"
+    curriculum-board: cbse-ncert
+    ncert-class: 11
+    summary: "Sets, relations and functions, trigonometry deepened, complex numbers, linear inequalities, permutations and combinations, binomial theorem, sequences and series, straight lines, conic sections, 3D geometry intro, limits and derivatives, statistics, probability — Class 11 NCERT (rationalised 2023)."
+    lessons:
+      - id: cbse11.sets
+        title: "Class 11 · Ch 1 — Sets"
+        prerequisites: [cbse10.real-numbers]
+        applied-domains: [research, databases, encryption]
+        status: done
+        path: lessons/tier-cbse-11-class-11/01-sets/index.qmd
+      - id: cbse11.relations-and-functions
+        title: "Class 11 · Ch 2 — Relations and Functions"
+        prerequisites: [cbse11.sets, t2.functions-as-machines]
+        applied-domains: [ai-ml, databases, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/02-relations-and-functions/index.qmd
+      - id: cbse11.trig-functions
+        title: "Class 11 · Ch 3a — Trigonometric Functions (Radians, Unit Circle, Graphs)"
+        prerequisites: [cbse10.trigonometric-identities, t3.unit-circle]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/03a-trig-functions/index.qmd
+      - id: cbse11.trig-identities-compound-angles
+        title: "Class 11 · Ch 3b — Compound, Multiple & Sub-Multiple Angle Identities"
+        prerequisites: [cbse11.trig-functions]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-cbse-11-class-11/03b-trig-identities-compound-angles/index.qmd
+      - id: cbse11.trig-equations
+        title: "Class 11 · Ch 3c — Trigonometric Equations"
+        prerequisites: [cbse11.trig-identities-compound-angles]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-cbse-11-class-11/03c-trig-equations/index.qmd
+      - id: cbse11.complex-numbers
+        title: "Class 11 · Ch 4 — Complex Numbers and Quadratic Equations"
+        prerequisites: [cbse10.quadratic-equations, cbse10.real-numbers]
+        applied-domains: [research, game-dev]
+        status: done
+        path: lessons/tier-cbse-11-class-11/04-complex-numbers/index.qmd
+      - id: cbse11.linear-inequalities
+        title: "Class 11 · Ch 5 — Linear Inequalities"
+        prerequisites: [cbse10.pair-linear-equations, t2.linear-inequalities]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-11-class-11/05-linear-inequalities/index.qmd
+      - id: cbse11.permutations-combinations
+        title: "Class 11 · Ch 6 — Permutations and Combinations"
+        prerequisites: [cbse11.sets, t1.divide-fair-share]
+        applied-domains: [encryption, ai-ml, databases, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/06-permutations-combinations/index.qmd
+      - id: cbse11.binomial-theorem
+        title: "Class 11 · Ch 7 — Binomial Theorem"
+        prerequisites: [cbse11.permutations-combinations, cbse10.polynomials]
+        applied-domains: [research, encryption]
+        status: done
+        path: lessons/tier-cbse-11-class-11/07-binomial-theorem/index.qmd
+      - id: cbse11.sequences-ap-gp
+        title: "Class 11 · Ch 8a — Sequences (AP and GP)"
+        prerequisites: [cbse10.arithmetic-progressions]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/08a-sequences-ap-gp/index.qmd
+      - id: cbse11.series-sums
+        title: "Class 11 · Ch 8b — Series and Special Sums"
+        prerequisites: [cbse11.sequences-ap-gp]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-11-class-11/08b-series-sums/index.qmd
+      - id: cbse11.straight-lines
+        title: "Class 11 · Ch 9 — Straight Lines"
+        prerequisites: [cbse10.coordinate-geometry, cbse9.linear-equations-two-vars]
+        applied-domains: [game-dev, ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/09-straight-lines/index.qmd
+      - id: cbse11.conic-sections-circle-parabola
+        title: "Class 11 · Ch 10a — Conic Sections (Circle and Parabola)"
+        prerequisites: [cbse11.straight-lines, cbse10.quadratic-equations]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/10a-conic-sections-circle-parabola/index.qmd
+      - id: cbse11.conic-sections-ellipse-hyperbola
+        title: "Class 11 · Ch 10b — Conic Sections (Ellipse and Hyperbola)"
+        prerequisites: [cbse11.conic-sections-circle-parabola]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/10b-conic-sections-ellipse-hyperbola/index.qmd
+      - id: cbse11.three-d-geometry-intro
+        title: "Class 11 · Ch 11 — Introduction to Three-Dimensional Geometry"
+        prerequisites: [cbse10.coordinate-geometry, t2.pythagorean-theorem]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/11-three-d-geometry-intro/index.qmd
+      - id: cbse11.limits
+        title: "Class 11 · Ch 12a — Limits"
+        prerequisites: [cbse11.relations-and-functions, cbse11.trig-functions]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-11-class-11/12a-limits/index.qmd
+      - id: cbse11.derivatives-intro
+        title: "Class 11 · Ch 12b — Derivatives (Introduction)"
+        prerequisites: [cbse11.limits]
+        applied-domains: [ai-ml, game-dev, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/12b-derivatives-intro/index.qmd
+      - id: cbse11.statistics
+        title: "Class 11 · Ch 13 — Statistics (Variance and Standard Deviation)"
+        prerequisites: [cbse10.statistics]
+        applied-domains: [ai-ml, databases, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/13-statistics/index.qmd
+      - id: cbse11.probability
+        title: "Class 11 · Ch 14 — Probability (Axiomatic Approach)"
+        prerequisites: [cbse10.probability, cbse11.sets]
+        applied-domains: [ai-ml, encryption, research]
+        status: done
+        path: lessons/tier-cbse-11-class-11/14-probability/index.qmd
+
+  - id: cbse12
+    title: "CBSE / NCERT Class 12 Mathematics (Board Year)"
+    grade-range: "Class 12 (CBSE Board Exam)"
+    curriculum-board: cbse-ncert
+    ncert-class: 12
+    board-exam: true
+    summary: "Relations and functions, inverse trigonometry, matrices, determinants, continuity & differentiability, applications of derivatives, integrals, applications of integrals, differential equations, vector algebra, 3D geometry, linear programming, probability — Class 12 NCERT. Final CBSE board year."
+    lessons:
+      - id: cbse12.relations-functions-types
+        title: "Class 12 · Ch 1 — Relations and Functions (Types)"
+        prerequisites: [cbse11.relations-and-functions]
+        applied-domains: [research, databases, ai-ml]
+        status: done
+        path: lessons/tier-cbse-12-class-12/01-relations-functions-types/index.qmd
+      - id: cbse12.inverse-trig-functions
+        title: "Class 12 · Ch 2 — Inverse Trigonometric Functions"
+        prerequisites: [cbse11.trig-functions, cbse12.relations-functions-types]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/02-inverse-trig-functions/index.qmd
+      - id: cbse12.matrices-intro
+        title: "Class 12 · Ch 3a — Matrices (Definition and Types)"
+        prerequisites: [cbse11.relations-and-functions]
+        applied-domains: [ai-ml, game-dev, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/03a-matrices-intro/index.qmd
+      - id: cbse12.matrix-operations
+        title: "Class 12 · Ch 3b — Matrix Operations and Transpose"
+        prerequisites: [cbse12.matrices-intro]
+        applied-domains: [ai-ml, game-dev, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/03b-matrix-operations/index.qmd
+      - id: cbse12.determinants
+        title: "Class 12 · Ch 4a — Determinants"
+        prerequisites: [cbse12.matrix-operations]
+        applied-domains: [ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/04a-determinants/index.qmd
+      - id: cbse12.matrix-inverse-cramers
+        title: "Class 12 · Ch 4b — Matrix Inverse and Cramer's Rule"
+        prerequisites: [cbse12.determinants, cbse10.pair-linear-equations]
+        applied-domains: [ai-ml, research, game-dev]
+        status: done
+        path: lessons/tier-cbse-12-class-12/04b-matrix-inverse-cramers/index.qmd
+      - id: cbse12.continuity
+        title: "Class 12 · Ch 5a — Continuity"
+        prerequisites: [cbse11.limits, cbse11.derivatives-intro]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-12-class-12/05a-continuity/index.qmd
+      - id: cbse12.differentiability-and-rules
+        title: "Class 12 · Ch 5b — Differentiability and Differentiation Rules"
+        prerequisites: [cbse12.continuity, cbse11.derivatives-intro]
+        applied-domains: [ai-ml, research, game-dev]
+        status: done
+        path: lessons/tier-cbse-12-class-12/05b-differentiability-and-rules/index.qmd
+      - id: cbse12.tangents-normals-rates
+        title: "Class 12 · Ch 6a — Application of Derivatives (Tangents, Normals, Rates)"
+        prerequisites: [cbse12.differentiability-and-rules]
+        applied-domains: [game-dev, research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-12-class-12/06a-tangents-normals-rates/index.qmd
+      - id: cbse12.maxima-minima
+        title: "Class 12 · Ch 6b — Maxima and Minima"
+        prerequisites: [cbse12.tangents-normals-rates]
+        applied-domains: [ai-ml, game-dev, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/06b-maxima-minima/index.qmd
+      - id: cbse12.indefinite-integrals
+        title: "Class 12 · Ch 7a — Indefinite Integrals"
+        prerequisites: [cbse12.differentiability-and-rules]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-cbse-12-class-12/07a-indefinite-integrals/index.qmd
+      - id: cbse12.integration-techniques
+        title: "Class 12 · Ch 7b — Integration Techniques (Substitution, Parts, Partial Fractions)"
+        prerequisites: [cbse12.indefinite-integrals]
+        applied-domains: [research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/07b-integration-techniques/index.qmd
+      - id: cbse12.definite-integrals-properties
+        title: "Class 12 · Ch 7c — Definite Integrals and Their Properties"
+        prerequisites: [cbse12.integration-techniques]
+        applied-domains: [research, ai-ml, game-dev]
+        status: done
+        path: lessons/tier-cbse-12-class-12/07c-definite-integrals-properties/index.qmd
+      - id: cbse12.area-under-curves
+        title: "Class 12 · Ch 8 — Application of Integrals (Areas)"
+        prerequisites: [cbse12.definite-integrals-properties]
+        applied-domains: [research, game-dev, ai-ml]
+        status: done
+        path: lessons/tier-cbse-12-class-12/08-area-under-curves/index.qmd
+      - id: cbse12.differential-equations
+        title: "Class 12 · Ch 9 — Differential Equations"
+        prerequisites: [cbse12.integration-techniques]
+        applied-domains: [research, ai-ml, game-dev]
+        status: done
+        path: lessons/tier-cbse-12-class-12/09-differential-equations/index.qmd
+      - id: cbse12.vector-algebra
+        title: "Class 12 · Ch 10a — Vector Algebra"
+        prerequisites: [cbse11.three-d-geometry-intro]
+        applied-domains: [game-dev, ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/10a-vector-algebra/index.qmd
+      - id: cbse12.dot-cross-product-applications
+        title: "Class 12 · Ch 10b — Dot Product, Cross Product, and Applications"
+        prerequisites: [cbse12.vector-algebra]
+        applied-domains: [game-dev, ai-ml, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/10b-dot-cross-product-applications/index.qmd
+      - id: cbse12.lines-in-3d
+        title: "Class 12 · Ch 11a — Lines in 3D"
+        prerequisites: [cbse12.vector-algebra]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/11a-lines-in-3d/index.qmd
+      - id: cbse12.planes-in-3d
+        title: "Class 12 · Ch 11b — Planes in 3D"
+        prerequisites: [cbse12.lines-in-3d, cbse12.dot-cross-product-applications]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/11b-planes-in-3d/index.qmd
+      - id: cbse12.linear-programming
+        title: "Class 12 · Ch 12 — Linear Programming"
+        prerequisites: [cbse11.linear-inequalities, cbse11.straight-lines]
+        applied-domains: [ai-ml, databases, research]
+        status: done
+        path: lessons/tier-cbse-12-class-12/12-linear-programming/index.qmd
+      - id: cbse12.conditional-probability-bayes
+        title: "Class 12 · Ch 13a — Conditional Probability and Bayes' Theorem"
+        prerequisites: [cbse11.probability]
+        applied-domains: [ai-ml, encryption, research, databases]
+        status: done
+        path: lessons/tier-cbse-12-class-12/13a-conditional-probability-bayes/index.qmd
+      - id: cbse12.random-variables-distributions
+        title: "Class 12 · Ch 13b — Random Variables and Probability Distributions"
+        prerequisites: [cbse12.conditional-probability-bayes]
+        applied-domains: [ai-ml, research, databases]
+        status: done
+        path: lessons/tier-cbse-12-class-12/13b-random-variables-distributions/index.qmd
+
+  - id: kar
+    title: "Kiselev — Arithmetic"
+    grade-range: "Russian classical track — primary / lower secondary school"
+    curriculum-board: kiselev-russian
+    source: "Russian original (public domain) — archive.org scan of Систематический курс арифметики"
+    summary: "Whole numbers and the four operations, divisibility and primes, common fractions, decimal fractions, ratio and proportion, percentage and interest — Kiselev's foundational Arithmetic, chapter-by-chapter."
+    lessons:
+      - id: kar.whole-numbers
+        title: "Ch 1 — Whole Numbers and the Four Operations"
+        prerequisites: []
+        applied-domains: [research, databases, encryption]
+        status: done
+        path: lessons/tier-kiselev-0-arithmetic/01-whole-numbers/index.qmd
+      - id: kar.divisibility
+        title: "Ch 2 — Divisibility, Primes, GCD and LCM"
+        prerequisites: [kar.whole-numbers]
+        applied-domains: [encryption, research, databases]
+        status: done
+        path: lessons/tier-kiselev-0-arithmetic/02-divisibility/index.qmd
+      - id: kar.common-fractions
+        title: "Ch 3 — Common Fractions"
+        prerequisites: [kar.divisibility]
+        applied-domains: [research, databases, ai-ml]
+        status: done
+        path: lessons/tier-kiselev-0-arithmetic/03-common-fractions/index.qmd
+      - id: kar.decimals
+        title: "Ch 4 — Decimal Fractions"
+        prerequisites: [kar.common-fractions]
+        applied-domains: [research, databases, ai-ml]
+        status: done
+        path: lessons/tier-kiselev-0-arithmetic/04-decimals/index.qmd
+      - id: kar.ratio-proportion
+        title: "Ch 5 — Ratio and Proportion"
+        prerequisites: [kar.common-fractions]
+        applied-domains: [research, ai-ml, databases, game-dev]
+        status: done
+        path: lessons/tier-kiselev-0-arithmetic/05-ratio-proportion/index.qmd
+      - id: kar.percentage
+        title: "Ch 6 — Percentage and Interest"
+        prerequisites: [kar.decimals, kar.ratio-proportion]
+        applied-domains: [databases, research, ai-ml]
+        status: done
+        path: lessons/tier-kiselev-0-arithmetic/06-percentage/index.qmd
+
+  - id: ka1
+    title: "Kiselev — Algebra, Part I"
+    grade-range: "Russian classical track — secondary school"
+    curriculum-board: kiselev-russian
+    source: "Russian original (public domain) — archive.org scan of Алгебра, Ч.1"
+    summary: "Signed numbers, polynomials, factoring, algebraic fractions, equations and inequalities of the first degree, powers and roots, quadratic equations — Kiselev's classical Algebra opener, chapter-by-chapter."
+    lessons:
+      - id: ka1.signed-numbers
+        title: "Ch 1 — Signed Numbers"
+        prerequisites: [t1.negative-numbers, t1.intro-variables]
+        applied-domains: [research, ai-ml]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/01-signed-numbers/index.qmd
+      - id: ka1.polynomials
+        title: "Ch 2 — Polynomials and Algebraic Expressions"
+        prerequisites: [ka1.signed-numbers]
+        applied-domains: [research, ai-ml, encryption]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/02-polynomials/index.qmd
+      - id: ka1.factoring
+        title: "Ch 3 — Factoring Polynomials"
+        prerequisites: [ka1.polynomials]
+        applied-domains: [research, ai-ml, encryption]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/03-factoring/index.qmd
+      - id: ka1.algebraic-fractions
+        title: "Ch 4 — Algebraic Fractions"
+        prerequisites: [ka1.factoring]
+        applied-domains: [research, ai-ml, encryption]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/04-algebraic-fractions/index.qmd
+      - id: ka1.linear-equations
+        title: "Ch 5 — Linear Equations in One Unknown"
+        prerequisites: [ka1.algebraic-fractions]
+        applied-domains: [research, ai-ml, databases]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/05-linear-equations/index.qmd
+      - id: ka1.linear-systems
+        title: "Ch 6 — Systems of Linear Equations"
+        prerequisites: [ka1.linear-equations]
+        applied-domains: [research, ai-ml, game-dev, databases]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/06-linear-systems/index.qmd
+      - id: ka1.linear-inequalities
+        title: "Ch 7 — Linear Inequalities"
+        prerequisites: [ka1.linear-equations]
+        applied-domains: [research, ai-ml, databases]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/07-linear-inequalities/index.qmd
+      - id: ka1.powers-roots
+        title: "Ch 8 — Powers and Roots"
+        prerequisites: [ka1.polynomials]
+        applied-domains: [research, ai-ml, encryption]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/08-powers-roots/index.qmd
+      - id: ka1.quadratic-equations
+        title: "Ch 9 — Quadratic Equations"
+        prerequisites: [ka1.factoring, ka1.powers-roots]
+        applied-domains: [research, ai-ml, game-dev, encryption]
+        status: done
+        path: lessons/tier-kiselev-1-algebra-1/09-quadratic-equations/index.qmd
+
+  - id: ka2
+    title: "Kiselev — Algebra, Part II"
+    grade-range: "Russian classical track — secondary school (continuation)"
+    curriculum-board: kiselev-russian
+    source: "Russian original (public domain) — archive.org scan of Алгебра, Часть вторая"
+    summary: "Irrational and complex numbers, higher-degree equations, exponentials and logarithms, sequences and progressions, combinatorics and the binomial theorem, limits — the natural continuation of Part I."
+    lessons:
+      - id: ka2.complex-numbers
+        title: "Ch 1 — Complex Numbers"
+        prerequisites: [ka1.signed-numbers, t2.square-roots-irrationals]
+        applied-domains: [research, ai-ml, game-dev, encryption]
+        status: done
+        path: lessons/tier-kiselev-2-algebra-2/01-complex-numbers/index.qmd
+      - id: ka2.higher-degree-equations
+        title: "Ch 2 — Higher-Degree Equations"
+        prerequisites: [ka1.quadratic-equations, ka2.complex-numbers]
+        applied-domains: [research, ai-ml, encryption, game-dev]
+        status: done
+        path: lessons/tier-kiselev-2-algebra-2/02-higher-degree-equations/index.qmd
+      - id: ka2.higher-degree-inequalities
+        title: "Ch 3 — Higher-Degree Inequalities"
+        prerequisites: [ka1.linear-inequalities, ka2.higher-degree-equations]
+        applied-domains: [research, ai-ml, databases]
+        status: done
+        path: lessons/tier-kiselev-2-algebra-2/03-higher-degree-inequalities/index.qmd
+      - id: ka2.exponentials-logarithms
+        title: "Ch 4 — Exponentials and Logarithms"
+        prerequisites: [ka1.powers-roots, ka2.higher-degree-inequalities]
+        applied-domains: [research, ai-ml, encryption, databases]
+        status: done
+        path: lessons/tier-kiselev-2-algebra-2/04-exponentials-logarithms/index.qmd
+      - id: ka2.sequences-progressions
+        title: "Ch 5 — Sequences and Progressions"
+        prerequisites: [ka1.linear-equations, ka2.exponentials-logarithms]
+        applied-domains: [research, ai-ml, databases, game-dev]
+        status: done
+        path: lessons/tier-kiselev-2-algebra-2/05-sequences-progressions/index.qmd
+      - id: ka2.combinatorics-binomial
+        title: "Ch 6 — Combinatorics and the Binomial Theorem"
+        prerequisites: [ka1.polynomials, ka2.sequences-progressions]
+        applied-domains: [research, ai-ml, encryption, databases]
+        status: done
+        path: lessons/tier-kiselev-2-algebra-2/06-combinatorics-binomial/index.qmd
+      - id: ka2.limits
+        title: "Ch 7 — Limits and Continued Fractions"
+        prerequisites: [ka2.sequences-progressions, ka2.combinatorics-binomial]
+        applied-domains: [research, ai-ml, encryption]
+        status: done
+        path: lessons/tier-kiselev-2-algebra-2/07-limits/index.qmd
+
+  - id: kg1
+    title: "Kiselev — Geometry, Book I (Planimetry)"
+    grade-range: "Russian classical track — secondary school"
+    curriculum-board: kiselev-russian
+    source: "Givental's English translation, Sumizdat (free PDF on cimat.mx)"
+    summary: "Lines, triangles, perpendiculars and parallels, quadrilaterals, circles, similarity, regular polygons, areas — Kiselev's classical Planimetry, chapter-by-chapter."
+    lessons:
+      - id: kg1.lines-and-angles
+        title: "Ch 1 — The Straight Line (Lines and Angles)"
+        prerequisites: [t1.shapes-angles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/01-lines-and-angles/index.qmd
+      - id: kg1.triangle-congruence
+        title: "Ch 2 — The Triangle (Congruence)"
+        prerequisites: [kg1.lines-and-angles]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/02-triangle-congruence/index.qmd
+      - id: kg1.perpendiculars
+        title: "Ch 3 — Perpendiculars and Obliques"
+        prerequisites: [kg1.triangle-congruence]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/03-perpendiculars/index.qmd
+      - id: kg1.parallels
+        title: "Ch 4 — Parallels"
+        prerequisites: [kg1.perpendiculars, kg1.triangle-congruence]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/04-parallels/index.qmd
+      - id: kg1.quadrilaterals
+        title: "Ch 5 — Quadrilaterals"
+        prerequisites: [kg1.parallels, kg1.triangle-congruence]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/05-quadrilaterals/index.qmd
+      - id: kg1.circles
+        title: "Ch 6 — Circles"
+        prerequisites: [kg1.perpendiculars, kg1.triangle-congruence]
+        applied-domains: [game-dev, research, encryption]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/06-circles/index.qmd
+      - id: kg1.similarity
+        title: "Ch 7 — Similarity"
+        prerequisites: [kg1.parallels, kg1.triangle-congruence]
+        applied-domains: [game-dev, ai-ml, research]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/07-similarity/index.qmd
+      - id: kg1.regular-polygons
+        title: "Ch 8 — Regular Polygons and Circumference"
+        prerequisites: [kg1.circles, kg1.similarity]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/08-regular-polygons/index.qmd
+      - id: kg1.areas
+        title: "Ch 9 — Areas"
+        prerequisites: [kg1.similarity, kg1.regular-polygons]
+        applied-domains: [game-dev, research, ai-ml]
+        status: done
+        path: lessons/tier-kiselev-3-planimetry/09-areas/index.qmd
+
+  - id: kg2
+    title: "Kiselev — Geometry, Book II (Stereometry)"
+    grade-range: "Russian classical track — secondary school (continuation)"
+    curriculum-board: kiselev-russian
+    source: "Givental's English translation, Sumizdat (free PDF on cimat.mx)"
+    summary: "Lines and planes in space, polyhedra, cylinder/cone/sphere, volumes and surface areas, regular polyhedra — the three-dimensional continuation of Planimetry."
+    lessons:
+      - id: kg2.lines-and-planes
+        title: "Ch 1 — Lines and Planes in Space"
+        prerequisites: [kg1.parallels, kg1.perpendiculars]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-4-stereometry/01-lines-and-planes/index.qmd
+      - id: kg2.polyhedra
+        title: "Ch 2 — Polyhedra: Prisms and Pyramids"
+        prerequisites: [kg2.lines-and-planes, kg1.areas]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-4-stereometry/02-polyhedra/index.qmd
+      - id: kg2.cylinder-cone
+        title: "Ch 3 — Cylinder and Cone (Round Solids)"
+        prerequisites: [kg2.polyhedra, kg1.regular-polygons]
+        applied-domains: [game-dev, research]
+        status: done
+        path: lessons/tier-kiselev-4-stereometry/03-cylinder-cone/index.qmd
+      - id: kg2.sphere
+        title: "Ch 4 — The Sphere"
+        prerequisites: [kg2.cylinder-cone, kg1.areas]
+        applied-domains: [game-dev, research, ai-ml]
+        status: done
+        path: lessons/tier-kiselev-4-stereometry/04-sphere/index.qmd
+      - id: kg2.regular-polyhedra
+        title: "Ch 5 — Regular Polyhedra and Similar Solids"
+        prerequisites: [kg2.polyhedra, kg2.sphere]
+        applied-domains: [game-dev, research, ai-ml]
+        status: done
+        path: lessons/tier-kiselev-4-stereometry/05-regular-polyhedra/index.qmd
