@@ -1,0 +1,408 @@
+---
+title: "04 · Linear Independence and Basis"
+subtitle: "The minimum number of arrows you need to point at every direction in a space — and the maximum that don't waste effort."
+lesson-id: "mml.linear-independence-basis"
+tier: "mml"
+prerequisites: ["mml.vector-spaces"]
+unlocks: ["mml.rank-and-linear-mappings"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state the definition of a subspace? — see
+   [MML — 03, Vector Spaces](../03-vector-spaces/index.qmd).
+2. Can you compute the span of $\{(1, 2), (3, 6)\}$ — is it a line or
+   the whole plane? — same prerequisite.
+3. Can you check whether $(1, 1) \in \mathrm{span}\{(1, 0), (0, 1)\}$? — same.
+4. Are you comfortable with the matrix product $\boldsymbol{X}\boldsymbol{w}$
+   as "a linear combination of $\boldsymbol{X}$'s columns weighted by
+   $\boldsymbol{w}$"?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Two vectors $\boldsymbol{a}, \boldsymbol{b} \in \mathbb{R}^2$, again
+draggable. The widget tells you whether they're **independent** —
+i.e. whether neither one is a scalar multiple of the other — and what
+their span looks like.
+
+```{ojs}
+viewof a1 = Inputs.range([-3, 3], {value: 1,  step: 0.1, label: "a₁:"})
+viewof a2 = Inputs.range([-3, 3], {value: 0,  step: 0.1, label: "a₂:"})
+viewof b1 = Inputs.range([-3, 3], {value: 0,  step: 0.1, label: "b₁:"})
+viewof b2 = Inputs.range([-3, 3], {value: 1,  step: 0.1, label: "b₂:"})
+```
+
+```{ojs}
+{
+  const det = a1 * b2 - a2 * b1;
+  const indep = Math.abs(det) > 1e-7;
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  const label = indep
+    ? `Independent — span = ℝ²,  |det| = ${Math.abs(det).toFixed(2)}`
+    : `Dependent — span is a line,  det = 0`;
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom: 4px;">Status: <b>${label}</b></div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-5, 5], label: "x"},
+      y: {domain: [-5, 5], label: "y"},
+      grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.arrow([{x1:0, y1:0, x2:a1, y2:a2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"steelblue", strokeWidth:2}),
+        Plot.arrow([{x1:0, y1:0, x2:b1, y2:b2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"tomato",   strokeWidth:2}),
+      ]
+    })}
+  </div>`;
+}
+```
+
+Try setting $\boldsymbol{b} = 2 \boldsymbol{a}$ exactly (e.g.
+$\boldsymbol{a} = (1, 0)$, $\boldsymbol{b} = (2, 0)$). The determinant
+collapses to $0$ and the span is a line — $\boldsymbol{b}$ contributes
+*nothing new*. Try making them point in clearly different directions —
+$\boldsymbol{a} = (1, 0)$, $\boldsymbol{b} = (0, 1)$. Now they span
+the whole plane: a **basis** of $\mathbb{R}^2$.
+
+## Wonder
+
+1. Two parallel arrows give the same span as one. How do you spot a
+   "redundant" vector among three or more vectors in $\mathbb{R}^2$?
+2. The standard basis $\boldsymbol{e}_1 = (1, 0)$, $\boldsymbol{e}_2 = (0, 1)$
+   spans $\mathbb{R}^2$. So does $\boldsymbol{a} = (1, 1)$,
+   $\boldsymbol{b} = (1, -1)$. Why are *both* called a basis?
+3. Could you ever need three independent vectors to describe
+   $\mathbb{R}^2$? Could two ever fail to be enough?
+4. What number is the "right" number of independent vectors in
+   $\mathbb{R}^n$? How would you guess it without doing any algebra?
+
+## Discover
+
+Six problems leading from "redundant" to "basis".
+
+**D1.** Are $(1, 2)$ and $(3, 6)$ linearly independent in $\mathbb{R}^2$?
+
+<details class="hint"><summary>Full solution</summary>
+$(3, 6) = 3 \cdot (1, 2)$ — dependent. The span is the line
+$\{\alpha (1, 2)\}$, one-dimensional.
+</details>
+
+**D2.** Are $(1, 0)$, $(0, 1)$, $(1, 1)$ linearly independent in $\mathbb{R}^2$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Can you write $(1, 1)$ as a combination of the other two?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(1, 1) = 1 \cdot (1, 0) + 1 \cdot (0, 1)$ — dependent. Three vectors
+in $\mathbb{R}^2$ are *always* dependent. The third must be a
+combination of the first two (as long as those two are themselves
+independent).
+</details>
+
+**D3.** Solve $\alpha (1, 1) + \beta (1, -1) = (3, 5)$ for
+$\alpha, \beta$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Two equations: $\alpha + \beta = 3$, $\alpha - \beta = 5$. Add /
+subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\alpha = 4, \beta = -1$. Every $(x, y) \in \mathbb{R}^2$ has a
+unique pair of *coordinates* in the basis $\{(1,1), (1,-1)\}$ — that's
+what being a basis means.
+</details>
+
+**D4.** Show: if $\boldsymbol{v}_1, \dots, \boldsymbol{v}_k$ are
+linearly independent and $\boldsymbol{w} \in \mathrm{span}\{\boldsymbol{v}_1, \dots, \boldsymbol{v}_k\}$, then
+$\boldsymbol{w}$ has a *unique* representation
+$\sum \alpha_i \boldsymbol{v}_i$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose there are two: $\sum \alpha_i \boldsymbol{v}_i = \sum \beta_i \boldsymbol{v}_i = \boldsymbol{w}$. Subtract.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The difference $\sum (\alpha_i - \beta_i) \boldsymbol{v}_i = \boldsymbol{0}$.
+By independence, every coefficient is zero: $\alpha_i = \beta_i$. So
+the representation is unique. *This is why a basis gives well-defined
+coordinates.*
+</details>
+
+**D5.** Find a basis of the subspace
+$U = \{(x, y, z) : x + y + z = 0\} \subset \mathbb{R}^3$ (from
+Lesson 03 W1). How many vectors are in your basis?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick a $(x, y)$ freely; $z$ is forced to be $-x - y$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(x, y, -x - y) = x (1, 0, -1) + y (0, 1, -1)$. So
+$\{(1, 0, -1), (0, 1, -1)\}$ spans $U$. They are independent (their
+$xy$-components are independent). **Two** vectors — $U$ has dimension 2,
+a plane through the origin in $\mathbb{R}^3$.
+</details>
+
+**D6.** Show that every basis of $\mathbb{R}^n$ has exactly $n$
+vectors. (Loose argument is fine — we don't have rank yet.)
+
+<details class="hint"><summary>Full solution</summary>
+Fewer than $n$ vectors cannot span $\mathbb{R}^n$ (their span is at
+most $(n-1)$-dimensional). More than $n$ vectors must be dependent
+(too many independent vectors won't fit). So exactly $n$. The
+**dimension** of $V$ is the (always-equal) size of any basis.
+</details>
+
+::: {.fun-fact}
+The dimension of $\mathbb{R}^n$ being exactly $n$ feels obvious, but
+the *theorem* "any two bases of a vector space have the same size" is
+called the **dimension theorem** and is non-trivial — it depends on
+the **Steinitz exchange lemma** (Ernst Steinitz, 1913). The proof
+swaps basis elements one at a time and is one of the cleanest
+counting arguments in pure linear algebra.
+:::
+
+::: {.key-insight}
+**Linear independence** is "no vector is redundant"; **span** is "we
+can reach every vector"; **basis** is *both at once*. A basis is the
+minimal complete description of a subspace — minimal in size,
+complete in coverage. Its size is the **dimension**.
+:::
+
+## Name
+
+::: {.lesson-beat}
+Vectors $\boldsymbol{v}_1, \dots, \boldsymbol{v}_k \in V$ are
+**linearly independent** if the only scalars $\alpha_1, \dots, \alpha_k$
+with $\alpha_1 \boldsymbol{v}_1 + \dots + \alpha_k \boldsymbol{v}_k = \boldsymbol{0}$
+are $\alpha_1 = \dots = \alpha_k = 0$. Otherwise they are **linearly
+dependent**.
+
+A **basis** of $V$ is a set of linearly independent vectors whose span
+is all of $V$. Every basis of $V$ has the same number of elements,
+called the **dimension** $\dim V$.
+
+The **standard basis** of $\mathbb{R}^n$ is
+$\boldsymbol{e}_i = (0, \dots, 0, 1, 0, \dots, 0)$ ($1$ in position $i$),
+$i = 1, \dots, n$.
+
+::: {.callout-warning}
+**Sūtra.** *Independence is "no shortcut"; span is "no gap"; basis is
+both at once.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Linearly independent means the vectors point in different
+   directions."* — Not enough. $(1, 0)$ and $(1, 1)$ point in
+   different directions, but so do $(1, 0)$, $(0, 1)$, *and* $(1, 1)$ —
+   yet the third is dependent on the first two. Independence is about
+   *no non-trivial zero combination*, not about visual angle.
+2. *"A basis is unique."* — Far from it. $\mathbb{R}^2$ has *infinitely
+   many* different bases. What's unique is the **size** — always two.
+3. *"Dimension equals number of entries."* — Only for $\mathbb{R}^n$.
+   The subspace $\{(x, y, z) : x = y\} \subset \mathbb{R}^3$ has
+   dimension 2 even though its vectors have 3 entries.
+:::
+
+## Apply
+
+### Worked example
+
+Determine whether $\{(1, 2, 3), (4, 5, 6), (7, 8, 9)\}$ is a basis of $\mathbb{R}^3$.
+
+**Step 1.** Three vectors in $\mathbb{R}^3$ — the count is right. Now
+check independence.
+
+**Step 2.** Suppose $\alpha (1, 2, 3) + \beta (4, 5, 6) + \gamma (7, 8, 9) = \boldsymbol{0}$.
+Component-wise:
+$\alpha + 4 \beta + 7 \gamma = 0$;
+$2\alpha + 5 \beta + 8 \gamma = 0$;
+$3\alpha + 6 \beta + 9 \gamma = 0$.
+
+**Step 3.** Subtract row 2 minus 2× row 1: $-3 \beta - 6 \gamma = 0$,
+so $\beta = -2 \gamma$. Subtract row 3 minus 3× row 1: $-6 \beta - 12 \gamma = 0$ —
+same equation.
+
+**Step 4.** So we have *one* free parameter $\gamma$, e.g.
+$\gamma = 1, \beta = -2$, $\alpha = -4 \cdot (-2) - 7 \cdot 1 = 1$.
+Check: $1 \cdot (1, 2, 3) - 2 \cdot (4, 5, 6) + 1 \cdot (7, 8, 9) = (0, 0, 0)$. ✓
+
+**Conclusion:** The vectors are *dependent*, **not** a basis. Their
+span is a 2-dimensional plane in $\mathbb{R}^3$.
+
+### Warm
+
+**W1.** Are $(1, 1)$ and $(-2, -2)$ independent?
+
+<details class="hint"><summary>Full solution</summary>
+$(-2, -2) = -2 \cdot (1, 1)$ — dependent.
+</details>
+
+**W2.** Are the three columns of $\boldsymbol{I}_3$ a basis of $\mathbb{R}^3$?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — they are the standard basis $\boldsymbol{e}_1, \boldsymbol{e}_2, \boldsymbol{e}_3$.
+</details>
+
+**W3.** Is the empty set a basis of any vector space?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — the trivial vector space $\{\boldsymbol{0}\}$ has dimension 0,
+and its basis is the empty set. (The empty sum is, by convention,
+$\boldsymbol{0}$.)
+</details>
+
+### Working
+
+**Wo1.** Find a basis of the column space of
+$\boldsymbol{A} = \begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The column space is $\mathrm{span}\{(1, 4), (2, 5), (3, 6)\} \subset \mathbb{R}^2$. Any two of these are independent (the matrix has rank 2).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Any two of the three columns form a basis (since all three live in
+$\mathbb{R}^2$ and at least two are independent). E.g.
+$\{(1, 4), (2, 5)\}$.
+</details>
+
+**Wo2.** Show that if $\boldsymbol{v}_1, \dots, \boldsymbol{v}_k$ are
+linearly *dependent*, then at least one of them is a linear
+combination of the others.
+
+<details class="hint"><summary>Full solution</summary>
+By dependence, there exist $\alpha_i$ not all zero with
+$\sum \alpha_i \boldsymbol{v}_i = \boldsymbol{0}$. Pick any $j$ with
+$\alpha_j \ne 0$. Then $\boldsymbol{v}_j = -\sum_{i \ne j} (\alpha_i / \alpha_j) \boldsymbol{v}_i$ —
+a combination of the others.
+</details>
+
+**Wo3.** A linear regression on $\boldsymbol{X} \in \mathbb{R}^{N \times D}$
+has a "feature collinearity" problem when the columns of $\boldsymbol{X}$
+are nearly dependent. Why does this make the parameter estimate
+$\boldsymbol{w}$ unstable?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If two columns are nearly dependent, the normal-equations matrix
+$\boldsymbol{X}^\top \boldsymbol{X}$ is nearly singular.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Nearly dependent columns make $\boldsymbol{X}^\top \boldsymbol{X}$
+*nearly singular* — its smallest eigenvalue is tiny. Solving
+$\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$
+then amplifies any noise in $\boldsymbol{y}$ enormously. This is why
+**ridge regression** (Lesson 25) adds $\lambda \boldsymbol{I}$ to
+restore independence numerically.
+</details>
+
+### Stretch
+
+**S1.** Show that the polynomials $\{1, x, x^2, x^3\}$ are linearly
+independent in the vector space of polynomials of degree $\le 3$. What
+is the dimension of that space?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Suppose $a + bx + cx^2 + dx^3 = 0$ for *all* $x$. What can you conclude?
+</details>
+<details class="hint"><summary>Full solution</summary>
+A polynomial that is identically zero has all coefficients zero
+(degree-$k$ polynomial has at most $k$ roots; identically-zero means
+infinitely many roots, contradicting unless all coefficients vanish).
+So $\{1, x, x^2, x^3\}$ are independent and they span all degree-$\le 3$
+polynomials — a basis. Dimension is 4. Polynomial regression uses this
+basis directly.
+</details>
+
+**S2.** A word embedding maps each word to a vector in $\mathbb{R}^{300}$.
+Is the set $\{\boldsymbol{v}_{\text{cat}}, \boldsymbol{v}_{\text{dog}}, \boldsymbol{v}_{\text{animal}}, \boldsymbol{v}_{\text{pet}}\}$
+likely to be linearly independent?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Four vectors in a 300-dimensional space — almost certainly
+*algebraically* independent (in general position). But what about
+semantically?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Algebraically: almost surely independent — four random vectors in 300
+dimensions are independent with probability 1 under any reasonable
+random distribution. *Semantically*: they're nearly co-linear —
+$\boldsymbol{v}_{\text{cat}} - \boldsymbol{v}_{\text{pet}} \approx \boldsymbol{v}_{\text{dog}} - \boldsymbol{v}_{\text{pet}}$ in good embeddings. ML cares about *approximate* (not exact)
+independence, which is what regularisation and PCA quantify.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Linear independence means "no zero combination except all-zero" — three checks, no exceptions.**
+2. **A basis is independence + spanning; its size is the dimension, and every basis has the same size.**
+3. **In ML, nearly-dependent features cause the regression matrix to become ill-conditioned — this is what "multicollinearity" means.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you give two different bases of $\mathbb{R}^2$ and explain why
+   both work?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "rank" or "dimension" in a paper, do you see a
+   *count of independent directions* instantly?
+
+- **3 yes:** move on to Lesson 05.
+- **2 yes:** redo Wo2, then move on.
+- **0–1 yes:** re-read *Discover* problems D4 and D6.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.vector-spaces`](../03-vector-spaces/index.qmd) — the
+  subspaces we're now describing minimally.
+
+### What this unlocks
+
+- [`mml.rank-and-linear-mappings`](../05-rank-and-linear-mappings/index.qmd) —
+  rank as the *dimension* of a column space.
+- Eventually, [`mml.pca-eigenvector-high-dim`](../27-pca-eigenvector-high-dim/index.qmd) —
+  PCA finds an orthonormal basis for the data subspace.
+
+### Sister synthesis lesson
+
+[`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd)
+introduces independence as a side note; this lesson treats it as the
+core question of model identifiability.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** "Multicollinearity" in regression is exactly approximate
+linear dependence of feature columns. Regularisation (ridge, lasso)
+exists to handle it. Dimensionality reduction (PCA) exists to find
+an *independent* set of features.
+:::
+
+::: {.applied-callout}
+**Encryption.** A lattice basis defines a discrete subspace
+$\Lambda \subset \mathbb{R}^n$. Lattice cryptography (LWE,
+NTRU, Kyber) relies on "good" vs. "bad" bases of the same lattice —
+finding a short basis is computationally hard, and that hardness is
+the security guarantee.
+:::
+
+::: {.applied-callout}
+**Game dev.** Local coordinate frames on a 3D mesh are bases of the
+tangent plane. UV unwrapping picks a 2D basis at each vertex; bad
+choices give visible seams.
+:::

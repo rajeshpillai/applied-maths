@@ -1,0 +1,415 @@
+---
+title: "06 · Affine Spaces and Hyperplanes"
+subtitle: "A subspace that was shifted off the origin — the geometry of lines, planes, and decision boundaries that don't go through zero."
+lesson-id: "mml.affine-spaces"
+tier: "mml"
+prerequisites: ["mml.rank-and-linear-mappings"]
+unlocks: ["mml.norms-inner-products"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state what a subspace is and why it must contain the
+   origin? — see
+   [MML — 03, Vector Spaces](../03-vector-spaces/index.qmd).
+2. Can you find a basis of a 2D subspace of $\mathbb{R}^3$? — see
+   [MML — 04, Linear Independence and Basis](../04-linear-independence-basis/index.qmd).
+3. Do you remember what "rank" measures? —
+   [MML — 05, Rank and Linear Mappings](../05-rank-and-linear-mappings/index.qmd).
+4. Can you write the equation of a line in $\mathbb{R}^2$ that does
+   *not* pass through the origin?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Drag the four parameters: a normal direction $\boldsymbol{w} = (w_1, w_2)$
+and an offset $b$. The widget plots the line
+$\{\boldsymbol{x} \in \mathbb{R}^2 : \boldsymbol{w}^\top \boldsymbol{x} = b\}$
+and the origin, so you can see how the line is *shifted* away from
+the origin by the offset.
+
+```{ojs}
+viewof w1 = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "w₁:"})
+viewof w2 = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "w₂:"})
+viewof bb = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "b (offset):"})
+```
+
+```{ojs}
+{
+  // Line:  w1 x + w2 y = b.
+  // Parameterise: pick t, give x = t direction perpendicular to (w1,w2) plus a base point.
+  function lineSeries(w1, w2, b) {
+    if (Math.abs(w1) < 1e-9 && Math.abs(w2) < 1e-9) return [];
+    // Direction along the line is perpendicular to (w1, w2).
+    const d1 = -w2, d2 = w1;
+    // Base point: closest point to origin = (w1, w2) * b / (w1²+w2²).
+    const denom = w1*w1 + w2*w2;
+    const px = w1 * b / denom, py = w2 * b / denom;
+    const series = [];
+    for (let t = -8; t <= 8; t += 0.1) series.push({x: px + t*d1, y: py + t*d2});
+    return series;
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return Plot.plot({
+    width: 460, height: 360,
+    x: {domain: [-6, 6], label: "x"},
+    y: {domain: [-6, 6], label: "y"},
+    grid: true,
+    marks: [
+      Plot.ruleX([0], {stroke: "#bbb"}),
+      Plot.ruleY([0], {stroke: "#bbb"}),
+      Plot.dot([{x:0, y:0}], {x:"x", y:"y", r: 4, fill: "black"}),
+      Plot.text([{x:0.2, y:0.2}], {x: "x", y: "y", text: ["origin"], fontSize: 10, fill: "#666"}),
+      Plot.line(lineSeries(w1, w2, bb), {x: "x", y: "y", stroke: "steelblue", strokeWidth: 2}),
+      Plot.arrow([{x1:0, y1:0, x2:w1, y2:w2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"tomato"})
+    ]
+  });
+}
+```
+
+Set $b = 0$ — the line passes through the origin and is a subspace.
+Set $b \ne 0$ — the line is *shifted* off the origin; it's no longer a
+subspace, but it's still a perfectly nice geometric object. The vector
+$\boldsymbol{w}$ (red) is always **perpendicular** to the line; this
+will be the "normal" of a hyperplane, and the heart of the SVM decision
+rule (Lesson 31).
+
+## Wonder
+
+1. The line $b = 0$ is a subspace. The line $b = 1$ "looks the same"
+   geometrically. What feature have we *lost* when we set $b \ne 0$?
+2. As $b$ varies with $\boldsymbol{w}$ fixed, the line sweeps over the
+   whole plane parallel to itself. How would you describe the *family*
+   of all such lines?
+3. A *decision boundary* in classification is exactly this kind of
+   shifted line (in 2D) or shifted plane (in higher dims). Why might
+   forcing it to pass through the origin be a bad idea?
+4. Could you ever have an "affine set" with negative dimension? Zero
+   dimension?
+
+## Discover
+
+Five problems building from subspace to affine set.
+
+**D1.** Take the subspace $U = \mathrm{span}\{(1, 1)\} \subset \mathbb{R}^2$.
+Shift it by the vector $\boldsymbol{p} = (2, 0)$ — i.e. consider
+$\boldsymbol{p} + U = \{(2 + t, t) : t \in \mathbb{R}\}$. Is this still
+a subspace?
+
+<details class="hint"><summary>Full solution</summary>
+No — it doesn't contain the origin ($(0, 0)$ is on the line iff
+$0 = 2 + t$ and $0 = t$, which is contradictory). It's parallel to
+$U$ but shifted by $\boldsymbol{p}$. We call this an **affine
+subspace** (or "affine set"); not a subspace.
+</details>
+
+**D2.** Show that the same affine line is obtained from
+$\boldsymbol{p} = (2, 0)$ *or* $\boldsymbol{p}' = (3, 1)$ — i.e.
+$(2, 0) + U = (3, 1) + U$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(3, 1) = (2, 0) + (1, 1)$, and $(1, 1) \in U$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Any point on the affine line $L = (2, 0) + U$ can serve as the "base
+point." Two bases differ by a vector in $U$. The affine set is
+parameterised non-uniquely — what's intrinsic is the *direction
+subspace* $U$ and the *coset* $\boldsymbol{p} + U$, not the choice of $\boldsymbol{p}$.
+</details>
+
+**D3.** Show: the solution set
+$\{\boldsymbol{x} : \boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}\}$ of
+a *consistent* (solvable) linear system is an affine subspace. What
+is its direction subspace?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If $\boldsymbol{x}_0$ is one solution and $\boldsymbol{x}_1$ is
+another, what does $\boldsymbol{A}(\boldsymbol{x}_1 - \boldsymbol{x}_0)$ equal?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A}(\boldsymbol{x}_1 - \boldsymbol{x}_0) = \boldsymbol{b} - \boldsymbol{b} = \boldsymbol{0}$. So $\boldsymbol{x}_1 - \boldsymbol{x}_0$ is in the
+null space (kernel) $N(\boldsymbol{A})$. Conversely, $\boldsymbol{x}_0 + N(\boldsymbol{A})$ is a set of solutions. The solution set is
+$\boldsymbol{x}_0 + N(\boldsymbol{A})$ — an affine subspace with
+direction subspace $N(\boldsymbol{A})$. This is the *general structure*
+of "find all $\boldsymbol{x}$ with $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$": one particular solution plus the null space.
+</details>
+
+**D4.** A **hyperplane** in $\mathbb{R}^n$ is the solution set of a
+single linear equation $\boldsymbol{w}^\top \boldsymbol{x} = b$ (with
+$\boldsymbol{w} \ne \boldsymbol{0}$). What is its dimension?
+
+<details class="hint"><summary>Full solution</summary>
+One equation imposes one constraint on $n$ degrees of freedom, leaving
+$n - 1$. The dimension is $n - 1$. So a "hyperplane" is the
+codimension-1 generalisation of a line in $\mathbb{R}^2$ or a plane in
+$\mathbb{R}^3$. A *separating* hyperplane in $\mathbb{R}^D$ has
+dimension $D - 1$.
+</details>
+
+**D5.** A linear classifier predicts class $+1$ on the side
+$\boldsymbol{w}^\top \boldsymbol{x} + b > 0$, class $-1$ on the side
+$\boldsymbol{w}^\top \boldsymbol{x} + b < 0$. The **decision boundary**
+$\boldsymbol{w}^\top \boldsymbol{x} + b = 0$ is what kind of geometric
+object? Why does the "bias" $b$ matter?
+
+<details class="hint"><summary>Full solution</summary>
+The decision boundary is a *hyperplane* — affine, not a subspace, because
+of the $b$. Without the bias, the boundary passes through the origin,
+which forces every plausible classifier to agree on the input
+$\boldsymbol{x} = \boldsymbol{0}$. The bias frees the classifier to
+shift the boundary anywhere — and is essential for classifying real
+data where the origin is not specially meaningful.
+</details>
+
+::: {.fun-fact}
+The word "affine" comes from the Latin *affinis*, "related by
+marriage" — a relative but not blood. Felix Klein used it in his
+1872 *Erlangen Programme* to mean *the geometry preserved by linear
+maps plus translations*, in contrast to Euclidean geometry (which
+also preserves distances). Affine geometry is what survives when you
+forget which point is the origin — and that is essentially the
+geometry of a dataset, whose origin is arbitrary.
+:::
+
+::: {.key-insight}
+An **affine subspace** is a subspace that has been *shifted* off the
+origin. Lines, planes, and decision boundaries in ML are affine, not
+linear — and the small distinction (the **bias** $b$) is what lets
+a model fit data that isn't centred at zero.
+:::
+
+## Name
+
+::: {.lesson-beat}
+An **affine subspace** of $V$ is a set of the form
+$$
+L = \boldsymbol{x}_0 + U = \{\boldsymbol{x}_0 + \boldsymbol{u} : \boldsymbol{u} \in U\}
+$$
+where $\boldsymbol{x}_0 \in V$ and $U \subseteq V$ is a subspace. The
+choice of $\boldsymbol{x}_0$ is non-unique (any other point in $L$
+would do); the subspace $U$ is unique and is called the **direction
+subspace** of $L$.
+
+The **dimension** of $L$ is $\dim U$.
+
+A **hyperplane** is an affine subspace of dimension $\dim V - 1$.
+Equivalently, the solution set of a single linear equation
+$\boldsymbol{w}^\top \boldsymbol{x} = b$ for some nonzero
+$\boldsymbol{w}$.
+
+An **affine map** $f : V \to W$ is one of the form
+$f(\boldsymbol{x}) = \boldsymbol{A}\boldsymbol{x} + \boldsymbol{b}$ —
+a linear map plus a constant translation. The set of affine maps is
+closed under composition and addition.
+
+::: {.callout-warning}
+**Sūtra.** *Affine = linear + a constant; the constant is the
+freedom from forcing zero.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"An affine subspace is just a subspace shifted."* — Yes, but the
+   shift is *unique* in direction (not in starting point). Two
+   different $\boldsymbol{x}_0$ values give the same affine set as
+   long as they differ by an element of $U$.
+2. *"Affine maps are linear."* — Almost, but no. Linear maps satisfy
+   $f(\boldsymbol{0}) = \boldsymbol{0}$; affine maps don't have to.
+   In ML, the bias term breaks linearity.
+3. *"Hyperplanes are 2D."* — Only in $\mathbb{R}^3$. In $\mathbb{R}^n$
+   a hyperplane is $(n - 1)$-dimensional. In $\mathbb{R}^{100}$ it's
+   99-dimensional.
+:::
+
+## Apply
+
+### Worked example
+
+Find the equation of the hyperplane in $\mathbb{R}^3$ that passes through
+the three points $(1, 0, 0)$, $(0, 1, 0)$, $(0, 0, 1)$.
+
+**Step 1.** Look for $\boldsymbol{w}^\top \boldsymbol{x} = b$ with
+$\boldsymbol{w} = (w_1, w_2, w_3)$.
+
+**Step 2.** Plug in the three points:
+$w_1 = b$, $w_2 = b$, $w_3 = b$ — so $\boldsymbol{w} \propto (1, 1, 1)$.
+Take $\boldsymbol{w} = (1, 1, 1)$ and $b = 1$.
+
+**Answer:** $x_1 + x_2 + x_3 = 1$. This is the affine plane through
+the three standard basis vectors — the same plane that the **simplex**
+of probability distributions over 3 outcomes lives on.
+
+### Warm
+
+**W1.** Is the set $\{(x, y) : x + y = 2\}$ a subspace? An affine
+subspace?
+
+<details class="hint"><summary>Full solution</summary>
+Not a subspace (doesn't contain origin). Is an affine subspace —
+$(2, 0) + \mathrm{span}\{(1, -1)\}$.
+</details>
+
+**W2.** What's the dimension of the hyperplane
+$\{\boldsymbol{x} \in \mathbb{R}^{10} : \boldsymbol{w}^\top \boldsymbol{x} = 0\}$?
+
+<details class="hint"><summary>Full solution</summary>
+9. (Always $n - 1$ for a hyperplane in $\mathbb{R}^n$.)
+</details>
+
+**W3.** Is the **simplex** $\{\boldsymbol{x} \in \mathbb{R}^n : x_i \ge 0, \sum x_i = 1\}$ an affine subspace?
+
+<details class="hint"><summary>Full solution</summary>
+No — the inequalities $x_i \ge 0$ aren't preserved under all affine
+combinations. The simplex is the intersection of an affine subspace
+(the plane $\sum x_i = 1$) with a *convex* set (the positive orthant).
+We'll meet convexity in Lesson 21.
+</details>
+
+### Working
+
+**Wo1.** Given an affine set $L = \boldsymbol{x}_0 + U$, show that for
+any $\boldsymbol{y} \in L$, $L = \boldsymbol{y} + U$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{y} = \boldsymbol{x}_0 + \boldsymbol{u}_0$ for some
+$\boldsymbol{u}_0 \in U$. Then $\boldsymbol{y} + U = \boldsymbol{x}_0 + \boldsymbol{u}_0 + U = \boldsymbol{x}_0 + U = L$, using $\boldsymbol{u}_0 + U = U$ (a subspace is closed under addition by its own elements). Any
+point in $L$ is a valid "base point."
+</details>
+
+**Wo2.** The *intersection* of two affine subspaces — if non-empty —
+is again an affine subspace. Prove it.
+
+<details class="hint"><summary>Full solution</summary>
+Let $L_1 = \boldsymbol{a} + U_1$ and $L_2 = \boldsymbol{b} + U_2$, and
+suppose $\boldsymbol{p} \in L_1 \cap L_2$. By Wo1 we can re-base both
+at $\boldsymbol{p}$: $L_1 = \boldsymbol{p} + U_1$, $L_2 = \boldsymbol{p} + U_2$. Then $L_1 \cap L_2 = \boldsymbol{p} + (U_1 \cap U_2)$. Since
+$U_1 \cap U_2$ is a subspace (Lesson 03 Wo1), the intersection is
+affine.
+</details>
+
+**Wo3.** A logistic-regression decision boundary in $\mathbb{R}^D$
+has equation $\boldsymbol{w}^\top \boldsymbol{x} + b = 0$. What is
+its dimension, and how should you interpret the magnitude of
+$\boldsymbol{w}$ versus its direction?
+
+<details class="hint"><summary>Full solution</summary>
+Dimension: $D - 1$ — a hyperplane. The *direction* of $\boldsymbol{w}$
+(unit-vector $\boldsymbol{w}/\lVert \boldsymbol{w}\rVert$) sets the
+orientation of the boundary. The *magnitude* of $\boldsymbol{w}$
+controls how *sharp* the logistic transition is — bigger
+$\lVert \boldsymbol{w}\rVert$ ⇒ steeper transition. The boundary
+itself is identical under scaling $(\boldsymbol{w}, b) \to (\lambda \boldsymbol{w}, \lambda b)$ for $\lambda > 0$. SVM uses this
+freedom to *normalise* — Lesson 31.
+</details>
+
+### Stretch
+
+**S1.** Show that the set of affine combinations of points
+$\{\boldsymbol{x}_1, \dots, \boldsymbol{x}_k\}$ — i.e.
+$\{\sum \alpha_i \boldsymbol{x}_i : \sum \alpha_i = 1\}$ — is the
+smallest affine subspace containing them all.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick one point as base: re-parameterise as $\boldsymbol{x}_1 + \sum_{i \ge 2} \beta_i (\boldsymbol{x}_i - \boldsymbol{x}_1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+With $\alpha_1 = 1 - \sum_{i \ge 2} \beta_i$, every affine combination
+becomes $\boldsymbol{x}_1 + \sum_{i \ge 2} \beta_i (\boldsymbol{x}_i - \boldsymbol{x}_1)$. The set is $\boldsymbol{x}_1 + \mathrm{span}\{\boldsymbol{x}_i - \boldsymbol{x}_1\}_{i \ge 2}$ — an affine subspace.
+Any affine subspace containing all $\boldsymbol{x}_i$ must contain
+this. So it's the smallest. **Affine combinations are to affine
+subspaces what linear combinations are to linear subspaces.**
+</details>
+
+**S2.** A **convex combination** is an affine combination with all
+$\alpha_i \ge 0$. The set of convex combinations is the **convex
+hull**. Is the convex hull always an affine subspace?
+
+<details class="hint"><summary>Full solution</summary>
+No — the convex hull of $\{(0, 0), (1, 0)\}$ is the line segment from
+$(0, 0)$ to $(1, 0)$, not the entire line. The convex hull is a
+*subset* of the affine hull, and is convex but not affine.
+The distinction matters in optimisation: linear programming and SVM
+duality both rely on it.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Affine = linear + a translation; lose the requirement to contain the origin.**
+2. **A hyperplane is a codimension-1 affine subspace — and the basic shape of every linear classifier's decision boundary.**
+3. **Real-world data does not live near the origin; the "bias" $b$ is what lets a model fit it.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you explain why the bias term in a regression matters, and
+   what would go wrong without it?
+2. Did you solve at least 6 of the 8 practice problems without
+   peeking at hints?
+3. When you see $\boldsymbol{w}^\top \boldsymbol{x} + b$ in a paper,
+   do you instantly picture a shifted hyperplane?
+
+- **3 yes:** move on to Lesson 07.
+- **2 yes:** redo Wo3, then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D5.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.rank-and-linear-mappings`](../05-rank-and-linear-mappings/index.qmd) —
+  rank and null-space gave us the structure of solution sets of linear
+  systems, which is the canonical example of an affine subspace.
+
+### What this unlocks
+
+- [`mml.norms-inner-products`](../07-norms-inner-products/index.qmd) —
+  measuring distances to a hyperplane requires norms and inner
+  products.
+- Eventually, [`mml.svm-primal`](../31-svm-primal/index.qmd) — every
+  SVM's separating hyperplane is an affine set; the "margin" is the
+  perpendicular distance from a point to it.
+
+### Sister synthesis lesson
+
+[`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd)
+treats affine sets as "translated subspaces" in passing; this lesson
+treats them as the geometry of *every* linear classifier and the
+structure of every consistent linear system.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every linear classifier (perceptron, logistic regression,
+linear SVM, single neuron pre-activation) draws an affine hyperplane
+through feature space. The "bias" term in deep-net layers is exactly
+this affine shift — drop it, and your network can only model
+zero-anchored functions.
+:::
+
+::: {.applied-callout}
+**Game dev.** A clipping plane in 3D graphics is a hyperplane in
+$\mathbb{R}^3$, used to cull primitives that fall on the wrong side.
+The graphics pipeline's view frustum is an intersection of 6 such
+hyperplanes — an affine polytope.
+:::
+
+::: {.applied-callout}
+**Research.** The probability simplex (Lesson 23) is an affine set
+intersected with the non-negative orthant. Many statistical models
+implicitly live on this simplex; gradient steps must respect both
+the affine and the convex constraints (a special case of
+constrained optimisation, Lesson 21).
+:::

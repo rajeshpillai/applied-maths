@@ -1,0 +1,427 @@
+---
+title: "03 · Vector Spaces and Subspaces"
+subtitle: "A vector space is wherever the rules of vector addition and scaling hold — and your data lives in one whether you noticed or not."
+lesson-id: "mml.vector-spaces"
+tier: "mml"
+prerequisites: ["mml.matrices"]
+unlocks: ["mml.linear-independence-basis"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you add two vectors $(1, 2) + (3, -1)$ in your head? — see
+   [Tier 4 — Vectors](../../tier-4-precalc-calculus/06-vectors/index.qmd).
+2. Can you scale a vector $3 \cdot (1, 2) = (3, 6)$? — same prerequisite.
+3. Can you state what $\mathbb{R}^n$ means? — same prerequisite.
+4. Do you remember the matrix product $\boldsymbol{X}\boldsymbol{w}$
+   from Lesson 02?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Pick two vectors $\boldsymbol{a}, \boldsymbol{b} \in \mathbb{R}^2$
+below, and a pair of scalars $\alpha, \beta$. The widget plots
+$\alpha \boldsymbol{a} + \beta \boldsymbol{b}$ — and, lighter, *every*
+combination $\alpha \boldsymbol{a} + \beta \boldsymbol{b}$ as
+$\alpha, \beta$ each range over $[-3, 3]$. Watch what region those
+combinations cover.
+
+```{ojs}
+viewof a1 = Inputs.range([-3, 3], {value: 1,  step: 0.1, label: "a₁:"})
+viewof a2 = Inputs.range([-3, 3], {value: 2,  step: 0.1, label: "a₂:"})
+viewof b1 = Inputs.range([-3, 3], {value: 2,  step: 0.1, label: "b₁:"})
+viewof b2 = Inputs.range([-3, 3], {value: -1, step: 0.1, label: "b₂:"})
+viewof alpha = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "α:"})
+viewof beta  = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "β:"})
+```
+
+```{ojs}
+{
+  const det = a1 * b2 - a2 * b1;
+  const cloud = [];
+  for (let aa = -3; aa <= 3; aa += 0.5) {
+    for (let bb = -3; bb <= 3; bb += 0.5) {
+      cloud.push({x: aa*a1 + bb*b1, y: aa*a2 + bb*b2});
+    }
+  }
+  const target = [{x: alpha*a1 + beta*b1, y: alpha*a2 + beta*b2}];
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  const label = Math.abs(det) < 1e-7
+    ? "span is a LINE (vectors are parallel)"
+    : "span covers ALL of ℝ²";
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom: 4px;">Span: <b>${label}</b></div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-12, 12], label: "x"},
+      y: {domain: [-12, 12], label: "y"},
+      grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.dot(cloud, {x: "x", y: "y", r: 1.5, fill: "#9bd"}),
+        Plot.arrow([{x1:0, y1:0, x2:a1, y2:a2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"steelblue", strokeWidth:2}),
+        Plot.arrow([{x1:0, y1:0, x2:b1, y2:b2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"tomato",   strokeWidth:2}),
+        Plot.dot(target, {x: "x", y: "y", r: 6, fill: "black"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+When the two arrows point in different directions, the blue dots
+cover the whole plane — the **span** of $\boldsymbol{a}$ and
+$\boldsymbol{b}$ is *all of $\mathbb{R}^2$*. When the arrows are
+parallel, the dots collapse to a line — the span is a *line through
+the origin*. The black dot is wherever you sent $\alpha, \beta$.
+
+## Wonder
+
+1. When the two vectors are parallel, the span shrinks to a line.
+   But it's still a *vector space in its own right* — adding two
+   vectors on the line gives another vector on the line. Why?
+2. What's the smallest non-trivial set of vectors in $\mathbb{R}^2$
+   that is closed under both addition and scaling?
+3. Could the span of two vectors in $\mathbb{R}^2$ ever be a single
+   point? A finite collection of three points?
+4. What if you had **three** vectors in $\mathbb{R}^2$ instead of
+   two? Can three arrows in the plane ever fail to cover all of
+   $\mathbb{R}^2$? What if they all pointed the same way?
+
+## Discover
+
+Six problems that crystallise the idea of a *subspace*.
+
+**D1.** Let $L = \{(t, 2t) : t \in \mathbb{R}\}$ — the line through
+the origin with slope 2. Pick any two points in $L$ and add them. Is
+the sum in $L$?
+
+<details class="hint"><summary>Full solution</summary>
+$(t_1, 2t_1) + (t_2, 2t_2) = (t_1 + t_2, 2(t_1 + t_2))$, which has the
+form $(s, 2s)$ with $s = t_1 + t_2$. Yes, in $L$. The line is
+*closed under addition*.
+</details>
+
+**D2.** Same line $L$. Pick any point in $L$ and scale by $5$. Is
+the result in $L$?
+
+<details class="hint"><summary>Full solution</summary>
+$5 \cdot (t, 2t) = (5t, 10t) = (s, 2s)$ with $s = 5t$. Yes.
+*Closed under scaling.*
+</details>
+
+**D3.** Now consider the line $L' = \{(t, 2t + 1) : t \in \mathbb{R}\}$ —
+shifted up by 1 unit. Is $L'$ closed under addition?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try adding $(0, 1)$ — which is in $L'$ with $t = 0$ — to itself.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(0, 1) + (0, 1) = (0, 2)$. For $(0, 2)$ to lie on $L'$ we'd need
+$2 = 2 \cdot 0 + 1 = 1$ — false. So no: *$L'$ is not closed under addition.*
+This is why "subspace" demands the line pass through the origin.
+</details>
+
+**D4.** Consider $S = \{(x, y) \in \mathbb{R}^2 : x \ge 0, y \ge 0\}$ —
+the first quadrant. Is $S$ closed under addition? Closed under scaling?
+
+<details class="hint"><summary>Full solution</summary>
+Addition: yes — sum of non-negatives is non-negative. Scaling: *no* —
+multiplying by $-1$ takes you out of the quadrant. The first quadrant
+is *not* a subspace.
+</details>
+
+**D5.** Consider the set of *all* solutions
+$\{\boldsymbol{x} \in \mathbb{R}^n : \boldsymbol{A}\boldsymbol{x} = \boldsymbol{0}\}$
+of a homogeneous linear system. Show it is closed under addition and
+scaling.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If $\boldsymbol{A}\boldsymbol{x}_1 = \boldsymbol{0}$ and
+$\boldsymbol{A}\boldsymbol{x}_2 = \boldsymbol{0}$, what is
+$\boldsymbol{A}(\boldsymbol{x}_1 + \boldsymbol{x}_2)$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A}(\boldsymbol{x}_1 + \boldsymbol{x}_2) = \boldsymbol{A}\boldsymbol{x}_1 + \boldsymbol{A}\boldsymbol{x}_2 = \boldsymbol{0} + \boldsymbol{0} = \boldsymbol{0}$. Similarly
+$\boldsymbol{A}(\lambda \boldsymbol{x}) = \lambda \boldsymbol{0} = \boldsymbol{0}$.
+The **null space** of $\boldsymbol{A}$ is always a subspace. Compare
+to the solutions of $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$
+with $\boldsymbol{b} \ne \boldsymbol{0}$ (Lesson 01, Stretch S2) —
+that's an *affine* set, not a subspace.
+</details>
+
+**D6.** Define $\mathrm{span}(\boldsymbol{a}, \boldsymbol{b}) = \{\alpha \boldsymbol{a} + \beta \boldsymbol{b} : \alpha, \beta \in \mathbb{R}\}$.
+Verify: $\mathrm{span}(\boldsymbol{a}, \boldsymbol{b})$ is always a
+subspace.
+
+<details class="hint"><summary>Full solution</summary>
+Closed under addition: $(\alpha_1 \boldsymbol{a} + \beta_1 \boldsymbol{b}) + (\alpha_2 \boldsymbol{a} + \beta_2 \boldsymbol{b}) = (\alpha_1 + \alpha_2) \boldsymbol{a} + (\beta_1 + \beta_2) \boldsymbol{b}$.
+Closed under scaling: $\lambda(\alpha \boldsymbol{a} + \beta \boldsymbol{b}) = (\lambda \alpha) \boldsymbol{a} + (\lambda \beta) \boldsymbol{b}$.
+Both back in the span. *The span of any set of vectors is automatically
+a subspace.*
+</details>
+
+::: {.fun-fact}
+The abstract notion of a vector space was crystallised by **Giuseppe Peano**
+in 1888 in *Calcolo geometrico*, and developed by **Hermann Weyl** in his
+1918 *Raum, Zeit, Materie* (which used it as the algebraic skeleton of
+Einstein's relativity). The eight vector-space axioms you can list today
+were not properly written down until **Stefan Banach**'s 1922 PhD thesis.
+The idea is younger than the matrix.
+:::
+
+::: {.key-insight}
+A **subspace** is anything that *contains the origin* and is *closed*
+under the two vector operations. Geometrically: lines, planes, and
+higher-dimensional flats *through the origin*. Anything else — a
+shifted line, a half-plane, a curved surface — is not a subspace,
+even when it looks vector-like.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **vector space** $V$ (over $\mathbb{R}$) is a set with two operations
+— addition $\boldsymbol{u} + \boldsymbol{v}$ and scalar multiplication
+$\lambda \boldsymbol{v}$ — satisfying the eight standard axioms
+(associativity, commutativity, identity $\boldsymbol{0}$, inverses,
+distributivity, etc.). The space $\mathbb{R}^n$ is the canonical example.
+
+A **subspace** of $V$ is a non-empty subset $U \subseteq V$ that is
+closed under addition and scalar multiplication. Equivalently:
+$\boldsymbol{0} \in U$ and for all $\boldsymbol{u}, \boldsymbol{v} \in U$,
+$\lambda \in \mathbb{R}$, both $\boldsymbol{u} + \boldsymbol{v} \in U$
+and $\lambda \boldsymbol{u} \in U$.
+
+The **span** of vectors $\boldsymbol{v}_1, \dots, \boldsymbol{v}_k \in V$ is
+$$
+\mathrm{span}(\boldsymbol{v}_1, \dots, \boldsymbol{v}_k) = \Bigl\{\sum_{i=1}^k \alpha_i \boldsymbol{v}_i : \alpha_i \in \mathbb{R}\Bigr\}.
+$$
+The span is always a subspace.
+
+::: {.callout-warning}
+**Sūtra.** *Origin in, sums in, scales in — three checks; pass them
+all, you have a subspace.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"$\mathbb{R}^2$ is a subspace of $\mathbb{R}^3$."* — Not as
+   written. The set $\{(x, y) : x, y \in \mathbb{R}\}$ has only
+   2-tuples in it; $\mathbb{R}^3$ has 3-tuples. What *is* a subspace
+   of $\mathbb{R}^3$: $\{(x, y, 0) : x, y \in \mathbb{R}\}$ — the
+   $xy$-plane. Same idea, embedded with a zero.
+2. *"A line is always a subspace."* — Only if it passes through the
+   origin. The line $y = 2x + 1$ is *affine* but not a subspace.
+3. *"Span and subspace are different things."* — They're tightly
+   linked: every subspace is the span of some set (its basis, coming
+   in Lesson 04). And every span is a subspace.
+:::
+
+## Apply
+
+### Worked example
+
+For the matrix
+$\boldsymbol{X} = \begin{pmatrix} 1 & 2 \\ 1 & 2 \\ 1 & 2 \end{pmatrix}$,
+describe the set $\{\boldsymbol{X}\boldsymbol{w} : \boldsymbol{w} \in \mathbb{R}^2\}$ —
+the **column space** of $\boldsymbol{X}$.
+
+**Step 1.** Write a generic product:
+$\boldsymbol{X}\boldsymbol{w} = w_1 \begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix} + w_2 \begin{pmatrix} 2 \\ 2 \\ 2 \end{pmatrix}$.
+
+**Step 2.** Notice $\begin{pmatrix} 2 \\ 2 \\ 2 \end{pmatrix} = 2 \begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix}$ —
+the columns are parallel.
+
+**Step 3.** So $\boldsymbol{X}\boldsymbol{w} = (w_1 + 2 w_2) \begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix}$.
+
+**Answer:** The column space is the *line* through the origin in
+$\mathbb{R}^3$ in direction $(1, 1, 1)$. Even though $\boldsymbol{X}$
+has two columns, they span only a *one*-dimensional subspace. We'll
+name this phenomenon — **rank deficiency** — in Lesson 05.
+
+### Warm
+
+**W1.** Is the set $\{(x, y, z) \in \mathbb{R}^3 : x + y + z = 0\}$ a
+subspace?
+
+<details class="hint"><summary>Full solution</summary>
+Yes. Closed under addition (sum of two zero-sum triples is zero-sum),
+closed under scaling (scale of a zero-sum triple is zero-sum),
+contains $\boldsymbol{0}$. It's the plane through the origin with
+normal $(1, 1, 1)$.
+</details>
+
+**W2.** Is $\{(x, y) \in \mathbb{R}^2 : x + y = 1\}$ a subspace?
+
+<details class="hint"><summary>Full solution</summary>
+No — it does not contain the origin. (Or: $(1, 0) + (0, 1) = (1, 1)$
+which has $x + y = 2 \ne 1$, so it's also not closed under addition.)
+It's an *affine* line, not a subspace.
+</details>
+
+**W3.** What is the span of the single vector $(2, -1, 3) \in \mathbb{R}^3$?
+
+<details class="hint"><summary>Full solution</summary>
+The line through the origin in direction $(2, -1, 3)$:
+$\{\alpha (2, -1, 3) : \alpha \in \mathbb{R}\}$.
+</details>
+
+### Working
+
+**Wo1.** Show that the intersection of two subspaces is a subspace.
+Is the *union* of two subspaces a subspace?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Intersection: if $\boldsymbol{u}, \boldsymbol{v} \in U \cap W$, are
+$\boldsymbol{u} + \boldsymbol{v}$ and $\lambda \boldsymbol{u}$ in
+$U \cap W$?
+Union: try $U = x$-axis, $W = y$-axis in $\mathbb{R}^2$. Is
+$(1, 0) + (0, 1) \in U \cup W$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Intersection: yes — $\boldsymbol{u} + \boldsymbol{v} \in U$ and
+$\boldsymbol{u} + \boldsymbol{v} \in W$, so $\in U \cap W$. Same for
+scaling. Union: *no* in general — $(1, 0) + (0, 1) = (1, 1)$ lies on
+neither axis. The right "additive" combination is the **sum**
+$U + W = \{\boldsymbol{u} + \boldsymbol{w} : \boldsymbol{u} \in U, \boldsymbol{w} \in W\}$,
+which *is* a subspace.
+</details>
+
+**Wo2.** Let $f, g : \mathbb{R} \to \mathbb{R}$ be continuous functions.
+Argue that the set of continuous functions $\mathbb{R} \to \mathbb{R}$
+is a vector space.
+
+<details class="hint"><summary>Full solution</summary>
+Define $(f + g)(x) = f(x) + g(x)$ and $(\lambda f)(x) = \lambda f(x)$.
+Continuity is preserved under sums and scalar multiples (classical
+real analysis). The zero element is the constant function $0$. The
+eight axioms all pass component-wise. *Vector spaces are not just
+$\mathbb{R}^n$* — function spaces are vector spaces too, and ML uses
+this directly when it speaks of "function approximators."
+</details>
+
+**Wo3.** For a matrix $\boldsymbol{X} \in \mathbb{R}^{N \times D}$,
+describe the column space and the null space in plain English.
+
+<details class="hint"><summary>Full solution</summary>
+**Column space:** all vectors of the form $\boldsymbol{X}\boldsymbol{w}$
+as $\boldsymbol{w}$ varies — the subspace of $\mathbb{R}^N$ "reachable"
+by linear combinations of features. The set of *possible predictions*
+in a linear regression.
+**Null space:** all $\boldsymbol{w}$ with $\boldsymbol{X}\boldsymbol{w} = \boldsymbol{0}$ —
+the directions in parameter space along which the predictions don't
+change. The size of the null space measures *non-identifiability* of
+the model.
+</details>
+
+### Stretch
+
+**S1.** A neural-network layer with weights
+$\boldsymbol{W} \in \mathbb{R}^{D' \times D}$ and a ReLU activation
+computes $\boldsymbol{h} = \max(\boldsymbol{0}, \boldsymbol{W}\boldsymbol{x})$.
+Is the set of *all possible outputs* $\{\boldsymbol{h}\}$ a subspace of
+$\mathbb{R}^{D'}$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subspaces must contain $-\boldsymbol{u}$ whenever they contain $\boldsymbol{u}$.
+What does ReLU do to negative values?
+</details>
+<details class="hint"><summary>Full solution</summary>
+No. ReLU outputs are non-negative, so $-\boldsymbol{h}$ never appears
+unless $\boldsymbol{h} = \boldsymbol{0}$. The set of reachable hidden
+activations is a *non-linear cone*, not a subspace. This is exactly
+why deep networks beat linear models — they explore non-subspace
+geometries.
+</details>
+
+**S2.** The set of $n \times n$ matrices with trace $0$ is a subspace
+of the space of $n \times n$ matrices. What is its "dimension" (number
+of independent directions you can move in)? — answer informally; we'll
+make this precise in Lesson 04.
+
+<details class="hint"><summary>Full solution</summary>
+There are $n^2$ total entries in an $n \times n$ matrix, and one
+constraint (trace $= 0$). Intuitively the dimension is $n^2 - 1$. For
+$n = 2$: dimension $3$ — you can vary the off-diagonals (2 of them)
+and one diagonal entry, with the other diagonal forced.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A subspace is any set closed under "+, ·" that contains the origin — three checks, every time.**
+2. **The span of any set of vectors is automatically a subspace.**
+3. **In ML, the column space of $\boldsymbol{X}$ is "what your model can predict"; the null space is "what it can't distinguish."**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you give two examples of subsets of $\mathbb{R}^2$ that are
+   *not* subspaces, and say why?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "column space" or "null space" in a paper, do you
+   instantly think *subspace*?
+
+- **3 yes:** move on to Lesson 04.
+- **2 yes:** redo Wo3, then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D4; the
+  "origin-required" point hasn't landed.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.matrices`](../02-matrices/index.qmd) — gave us matrix–vector
+  multiplication, which is what column and null spaces are made of.
+
+### What this unlocks
+
+- [`mml.linear-independence-basis`](../04-linear-independence-basis/index.qmd) —
+  the next step: how do we *describe* a subspace minimally?
+- Eventually, [`mml.pca-variance-projection`](../26-pca-variance-projection/index.qmd) —
+  PCA finds a low-dimensional subspace that approximates the data
+  cloud.
+
+### Sister synthesis lesson
+
+[`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd)
+treats vector spaces incidentally; this lesson treats them as the
+*data structure* of ML — useful for understanding why "rank" and
+"dimensionality" matter for regularisation.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** The **column space** of the design matrix
+$\boldsymbol{X}$ is the set of all predictions a linear model can
+make. If your target $\boldsymbol{y}$ lies outside this subspace,
+**no** linear model can fit perfectly — least-squares projects
+$\boldsymbol{y}$ onto the column space. We'll prove this in Lesson 25.
+:::
+
+::: {.applied-callout}
+**Research.** Function spaces are vector spaces. Hilbert spaces of
+$L^2$ functions underlie everything from Fourier analysis to kernel
+methods (Lesson 32) to PDE theory.
+:::
+
+::: {.applied-callout}
+**Databases.** Latent-semantic-analysis (LSA) embeds documents as
+vectors in a subspace of term-frequency space. Documents close in
+the subspace are topically related — this is the seed idea behind
+modern embedding-based search.
+:::

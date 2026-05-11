@@ -1,0 +1,331 @@
+---
+title: "09 · Orthogonal Projections and Rotations"
+subtitle: "Drop a perpendicular onto a subspace — the move at the heart of least-squares, PCA, and every fit-by-minimising-residual."
+lesson-id: "mml.projections-rotations"
+tier: "mml"
+prerequisites: ["mml.orthogonality"]
+unlocks: ["mml.determinant-trace-eigen"]
+applied-domains: ["ai-ml", "research", "game-dev"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state what an orthonormal basis is and why every coordinate
+   is one inner product away? — see
+   [MML — 08, Orthogonality](../08-orthogonality/index.qmd).
+2. Can you state that for an orthogonal matrix $\boldsymbol{Q}$,
+   $\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$? — same prerequisite.
+3. Can you write a 2D rotation matrix
+   $\begin{pmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{pmatrix}$? — see [Tier 3 — Trigonometry](../../tier-3-algebra2-geometry-trig/11-right-triangle-trig/index.qmd).
+4. Do you remember the Pythagoras-style decomposition $\lVert \boldsymbol{a}\rVert^2 + \lVert \boldsymbol{b}\rVert^2 = \lVert \boldsymbol{a} + \boldsymbol{b}\rVert^2$ for perpendicular $\boldsymbol{a}, \boldsymbol{b}$?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A point $\boldsymbol{v}$ (draggable) and a line $L$ through the origin
+(rotate-able). The widget shows the **orthogonal projection** of
+$\boldsymbol{v}$ onto $L$ — the unique closest point on $L$, and
+the perpendicular from $\boldsymbol{v}$ to that projection.
+
+```{ojs}
+viewof vx = Inputs.range([-4, 4], {value: 2, step: 0.05, label: "v_x:"})
+viewof vy = Inputs.range([-4, 4], {value: 3, step: 0.05, label: "v_y:"})
+viewof theta = Inputs.range([0, Math.PI], {value: 0.5, step: 0.01, label: "line angle θ (rad):"})
+```
+
+```{ojs}
+{
+  const ux = Math.cos(theta), uy = Math.sin(theta);  // unit dir of line
+  const proj = ux*vx + uy*vy;                        // scalar projection
+  const px = proj * ux, py = proj * uy;              // projection point
+  const t = 8;
+  const lineSeries = [{x: -t*ux, y: -t*uy}, {x: t*ux, y: t*uy}];
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  const distSq = (vx - px)*(vx - px) + (vy - py)*(vy - py);
+  const projSq = px*px + py*py;
+  const vSq = vx*vx + vy*vy;
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Pythagoras check: ‖v‖² = ${vSq.toFixed(2)}, ‖proj‖² + ‖residual‖² = ${(projSq + distSq).toFixed(2)}
+    </div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-5, 5]}, y: {domain: [-5, 5]}, grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.line(lineSeries, {x: "x", y: "y", stroke: "#aaa"}),
+        Plot.line([{x:vx,y:vy},{x:px,y:py}], {x:"x", y:"y", stroke: "tomato", strokeDasharray: "3 3"}),
+        Plot.arrow([{x1:0,y1:0,x2:vx,y2:vy}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke: "steelblue", strokeWidth: 2}),
+        Plot.arrow([{x1:0,y1:0,x2:px,y2:py}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke: "seagreen", strokeWidth: 2}),
+        Plot.dot([{x:vx,y:vy}], {x:"x", y:"y", r: 4, fill: "steelblue"}),
+        Plot.dot([{x:px,y:py}], {x:"x", y:"y", r: 4, fill: "seagreen"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+The green arrow is the projection. The red dashed line is the
+**residual** — perpendicular to the green by construction. The
+running Pythagoras check should always hold: vector² = projection² +
+residual².
+
+## Wonder
+
+1. The projection is the *closest* point on the line. Why "closest"?
+   What's special about the perpendicular dropping?
+2. Could you project onto a subspace of *higher* dimension — a plane,
+   not just a line — using the same idea?
+3. A rotation moves vectors around the origin without changing their
+   lengths or angles. What does its matrix look like?
+4. Both projection and rotation are linear maps; both have neat
+   matrices. Yet they're *very* different — one preserves length,
+   the other can crush it. What's the matrix-level difference?
+
+## Discover
+
+Six problems building from projection-onto-a-line to projection-onto-a-subspace.
+
+**D1.** Project $\boldsymbol{v} = (2, 3)$ onto the line spanned by
+$\boldsymbol{u} = (1, 0)$.
+
+<details class="hint"><summary>Full solution</summary>
+The component along $\boldsymbol{u}$ is $\boldsymbol{u}^\top \boldsymbol{v} = 2$. The projection is $2 \boldsymbol{u} = (2, 0)$. The residual is $\boldsymbol{v} - (2, 0) = (0, 3)$ — perpendicular to $(1, 0)$. ✓
+</details>
+
+**D2.** Project $\boldsymbol{v} = (3, 4)$ onto $\boldsymbol{u} = (1, 1)$.
+(Note: $\boldsymbol{u}$ is *not* unit length.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The right formula is
+$\mathrm{proj}_{\boldsymbol{u}} \boldsymbol{v} = \dfrac{\boldsymbol{u}^\top \boldsymbol{v}}{\boldsymbol{u}^\top \boldsymbol{u}} \boldsymbol{u}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{u}^\top \boldsymbol{v} = 7$, $\boldsymbol{u}^\top \boldsymbol{u} = 2$. So $\mathrm{proj} = (7/2)(1, 1) = (3.5, 3.5)$.
+The formula has $\boldsymbol{u}^\top \boldsymbol{u}$ in the denominator
+to normalise out $\boldsymbol{u}$'s length. If $\boldsymbol{u}$ were
+unit-length it would be just $\boldsymbol{u}^\top \boldsymbol{v}$.
+</details>
+
+**D3.** Verify that $\boldsymbol{v} - \mathrm{proj}_{\boldsymbol{u}} \boldsymbol{v}$ is orthogonal to $\boldsymbol{u}$ for the previous problem.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{v} - \mathrm{proj} = (3, 4) - (3.5, 3.5) = (-0.5, 0.5)$.
+Dot with $\boldsymbol{u} = (1, 1)$: $-0.5 + 0.5 = 0$. ✓ The residual is *always* orthogonal to the direction we projected onto — that's the *definition* of orthogonal projection.
+</details>
+
+**D4.** For a subspace $U$ with orthonormal basis $\{\boldsymbol{b}_1, \dots, \boldsymbol{b}_k\}$, derive the projection formula:
+$\mathrm{proj}_U \boldsymbol{v} = \sum_{i=1}^k (\boldsymbol{b}_i^\top \boldsymbol{v}) \boldsymbol{b}_i$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\boldsymbol{v}$ decomposes uniquely as $\boldsymbol{v} = \boldsymbol{u} + \boldsymbol{w}$ with $\boldsymbol{u} \in U, \boldsymbol{w} \in U^\perp$.
+The projection is $\boldsymbol{u}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Decompose $\boldsymbol{v} = \sum_i c_i \boldsymbol{b}_i + \boldsymbol{w}$ with $\boldsymbol{w} \in U^\perp$. Take inner product with $\boldsymbol{b}_j$:
+$\boldsymbol{b}_j^\top \boldsymbol{v} = c_j + 0$. So $c_j = \boldsymbol{b}_j^\top \boldsymbol{v}$ and $\mathrm{proj}_U \boldsymbol{v} = \sum (\boldsymbol{b}_i^\top \boldsymbol{v}) \boldsymbol{b}_i$. *Project = sum of orthonormal coordinates*.
+</details>
+
+**D5.** Show that for any linear subspace $U \subseteq \mathbb{R}^n$,
+the projection $\mathrm{proj}_U \boldsymbol{v}$ minimises $\lVert \boldsymbol{v} - \boldsymbol{u}\rVert$ over all $\boldsymbol{u} \in U$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For any $\boldsymbol{u} \in U$, write $\boldsymbol{v} - \boldsymbol{u} = (\boldsymbol{v} - \mathrm{proj}_U \boldsymbol{v}) + (\mathrm{proj}_U \boldsymbol{v} - \boldsymbol{u})$. The two pieces are perpendicular.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(\boldsymbol{v} - \mathrm{proj}_U \boldsymbol{v}) \in U^\perp$ and $(\mathrm{proj}_U \boldsymbol{v} - \boldsymbol{u}) \in U$. By Pythagoras,
+$\lVert \boldsymbol{v} - \boldsymbol{u}\rVert^2 = \lVert \boldsymbol{v} - \mathrm{proj}_U \boldsymbol{v}\rVert^2 + \lVert \mathrm{proj}_U \boldsymbol{v} - \boldsymbol{u}\rVert^2$. The second term is non-negative and zero only when $\boldsymbol{u} = \mathrm{proj}_U \boldsymbol{v}$. **So projection = least-squares closest point.** This *is* linear regression.
+</details>
+
+**D6.** A **rotation matrix** in 2D is $\boldsymbol{R}_\theta = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix}$. Verify $\boldsymbol{R}_\theta^\top \boldsymbol{R}_\theta = \boldsymbol{I}$ and $\det \boldsymbol{R}_\theta = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{R}_\theta^\top = \begin{pmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{pmatrix}$. Product:
+$\begin{pmatrix} \cos^2 + \sin^2 & -\cos\sin + \sin\cos \\ \sin\cos - \cos\sin & \sin^2 + \cos^2 \end{pmatrix} = \boldsymbol{I}$. ✓
+$\det = \cos^2\theta + \sin^2\theta = 1$. ✓
+**Rotation = orthogonal with positive determinant.** Determinant $-1$ would be a reflection.
+</details>
+
+::: {.fun-fact}
+The orthogonal projection formula $\boldsymbol{P} = \boldsymbol{U}(\boldsymbol{U}^\top \boldsymbol{U})^{-1} \boldsymbol{U}^\top$ for projecting onto $\mathrm{col}(\boldsymbol{U})$ was first explicitly written by **Carl Friedrich Gauss** in 1821, in his treatise on **least squares**. Gauss's motivation was geodesy — fitting ellipsoid models to the Earth's shape, using projection to find the line of best fit. That same formula is what runs every linear regression you've ever fitted.
+:::
+
+::: {.key-insight}
+**Projection onto a subspace = sum of inner products with an orthonormal basis.** Geometrically, drop a perpendicular; algebraically, take inner products. The "closest point in $U$ to $\boldsymbol{v}$" is the **least-squares answer** to "fit $\boldsymbol{v}$ from the columns of $\boldsymbol{U}$" — that's the bridge from geometry to regression.
+:::
+
+## Name
+
+::: {.lesson-beat}
+The **orthogonal projection** of $\boldsymbol{v} \in V$ onto a subspace $U \subseteq V$ is the unique $\mathrm{proj}_U \boldsymbol{v} \in U$ such that $\boldsymbol{v} - \mathrm{proj}_U \boldsymbol{v} \in U^\perp$.
+
+For a line spanned by $\boldsymbol{u} \ne \boldsymbol{0}$:
+$$
+\mathrm{proj}_{\boldsymbol{u}} \boldsymbol{v} = \dfrac{\boldsymbol{u}^\top \boldsymbol{v}}{\boldsymbol{u}^\top \boldsymbol{u}}\, \boldsymbol{u}.
+$$
+
+For a subspace with orthonormal basis $\{\boldsymbol{b}_i\}$:
+$$
+\mathrm{proj}_U \boldsymbol{v} = \sum_i (\boldsymbol{b}_i^\top \boldsymbol{v})\, \boldsymbol{b}_i.
+$$
+
+For a subspace $U = \mathrm{col}(\boldsymbol{U})$ written via a column-matrix $\boldsymbol{U}$ (not necessarily orthonormal):
+$$
+\mathrm{proj}_U \boldsymbol{v} = \boldsymbol{U}(\boldsymbol{U}^\top \boldsymbol{U})^{-1} \boldsymbol{U}^\top \boldsymbol{v}.
+$$
+The matrix $\boldsymbol{P} = \boldsymbol{U}(\boldsymbol{U}^\top \boldsymbol{U})^{-1} \boldsymbol{U}^\top$ is the **projection matrix**; it satisfies $\boldsymbol{P}^2 = \boldsymbol{P}$ (idempotent) and $\boldsymbol{P}^\top = \boldsymbol{P}$ (symmetric).
+
+A **rotation** in $\mathbb{R}^n$ is an orthogonal matrix with determinant $+1$. Rotations preserve lengths, angles, and orientation.
+
+::: {.callout-warning}
+**Sūtra.** *Drop a perpendicular = sum of orthonormal inner products = least-squares answer. Same operation, three names.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Projection is reversible."* — No. Projection destroys all information about the residual; you cannot recover $\boldsymbol{v}$ from $\boldsymbol{P}\boldsymbol{v}$ alone if $U \ne V$.
+2. *"$\boldsymbol{P}\boldsymbol{P} = \boldsymbol{I}$."* — No. $\boldsymbol{P}\boldsymbol{P} = \boldsymbol{P}$ (idempotent) — projecting twice is the same as once. Inversion-like properties belong to rotations, not projections.
+3. *"All orthogonal matrices are rotations."* — Only those with determinant $+1$. Determinant $-1$ gives reflections. In 3D, mirroring across the $xy$-plane is a reflection, not a rotation.
+:::
+
+## Apply
+
+### Worked example
+
+Project $\boldsymbol{v} = (1, 1, 1)$ onto the plane $U = \mathrm{span}\{(1, 0, 0), (0, 1, 0)\}$ in $\mathbb{R}^3$ — that is, the $xy$-plane.
+
+**Step 1.** The basis is already orthonormal. The projection is
+$\sum_i (\boldsymbol{b}_i^\top \boldsymbol{v}) \boldsymbol{b}_i$.
+
+**Step 2.** $\boldsymbol{b}_1^\top \boldsymbol{v} = 1$, so first contribution $(1, 0, 0)$. $\boldsymbol{b}_2^\top \boldsymbol{v} = 1$, so second $(0, 1, 0)$.
+
+**Step 3.** Projection: $(1, 1, 0)$. Residual: $(0, 0, 1)$ — the
+$z$-component, perpendicular to the $xy$-plane.
+
+**Answer:** $\mathrm{proj}_U (1, 1, 1) = (1, 1, 0)$. The geometry: drop
+the $z$-coordinate. The closest point in the $xy$-plane is the
+$xy$-shadow.
+
+### Warm
+
+**W1.** Project $(0, 5)$ onto the $x$-axis.
+
+<details class="hint"><summary>Full solution</summary>
+$(0, 0)$. The component along $\boldsymbol{e}_1 = (1, 0)$ is 0; the projection is $\boldsymbol{0}$.
+</details>
+
+**W2.** What is the projection matrix onto $\mathrm{span}\{(1, 0)\} \subset \mathbb{R}^2$?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{P} = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}$. (Verify: applied to $(x, y)$ gives $(x, 0)$.)
+</details>
+
+**W3.** Apply $\boldsymbol{R}_{90°} = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix}$ to $(1, 0)$ and $(0, 1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$(1, 0) \mapsto (0, 1)$, $(0, 1) \mapsto (-1, 0)$. The standard basis rotates by 90° counterclockwise.
+</details>
+
+### Working
+
+**Wo1.** Show that the projection matrix $\boldsymbol{P}$ has eigenvalues only $0$ and $1$. (Hint: $\boldsymbol{P}^2 = \boldsymbol{P}$.)
+
+<details class="hint"><summary>Full solution</summary>
+If $\boldsymbol{P}\boldsymbol{v} = \lambda \boldsymbol{v}$ then $\boldsymbol{P}^2 \boldsymbol{v} = \lambda^2 \boldsymbol{v}$. But $\boldsymbol{P}^2 = \boldsymbol{P}$, so $\lambda^2 = \lambda$, giving $\lambda \in \{0, 1\}$. *Eigenvalue 1 corresponds to $U$ (already in the subspace), eigenvalue 0 corresponds to $U^\perp$ (annihilated).* We'll see eigen-decompositions of projections again in Lesson 12.
+</details>
+
+**Wo2.** Derive the normal equations $\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$ from the projection-onto-a-subspace formula.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+We want $\boldsymbol{X}\boldsymbol{w}$ to be the projection of $\boldsymbol{y}$ onto the column space of $\boldsymbol{X}$. The residual $\boldsymbol{y} - \boldsymbol{X}\boldsymbol{w}$ must be orthogonal to every column of $\boldsymbol{X}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Orthogonality of $\boldsymbol{y} - \boldsymbol{X}\boldsymbol{w}$ to every column of $\boldsymbol{X}$: $\boldsymbol{X}^\top (\boldsymbol{y} - \boldsymbol{X}\boldsymbol{w}) = \boldsymbol{0}$. Rearrange: $\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$. The least-squares regression weights *are* the coordinates of the projection. We'll re-derive this as MLE in Lesson 24.
+</details>
+
+**Wo3.** In 3D, a rotation about the $z$-axis by angle $\theta$ has matrix $\begin{pmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{pmatrix}$. What are its eigenvalues (complex allowed)?
+
+<details class="hint"><summary>Full solution</summary>
+$1$ (eigenvector along the rotation axis $z$), $e^{i\theta}$ and $e^{-i\theta}$ (complex eigenvalues, eigenvectors in the rotation plane). Rotations have complex eigenvalues — which is *why* the spectral theorem (Lesson 12) is restricted to *symmetric* matrices (rotations aren't symmetric).
+</details>
+
+### Stretch
+
+**S1.** A *neural network skip connection* (ResNet) adds the input to the output of a block: $\boldsymbol{y} = f(\boldsymbol{x}) + \boldsymbol{x}$. Argue informally that this makes the optimisation landscape closer to projection onto an *affine* set than projection onto a linear subspace.
+
+<details class="hint"><summary>Full solution</summary>
+Without the skip connection, the block must learn the full mapping $\boldsymbol{x} \mapsto \boldsymbol{y}$. With it, the block only needs to learn the *residual* $f(\boldsymbol{x}) = \boldsymbol{y} - \boldsymbol{x}$. If the optimal $\boldsymbol{y}$ is close to $\boldsymbol{x}$ (small refinement), the block has an easy job — and gradients flow more smoothly because the identity path bypasses the non-linearity. *Residual = the part not already explained*, which is exactly what projection-residuals encode.
+</details>
+
+**S2.** **Householder reflections** $\boldsymbol{H} = \boldsymbol{I} - 2 \boldsymbol{v} \boldsymbol{v}^\top$ (with $\lVert \boldsymbol{v}\rVert = 1$) are orthogonal matrices with determinant $-1$ used to introduce zeros in QR factorisation. Verify $\boldsymbol{H}^2 = \boldsymbol{I}$ and explain the geometric action.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{H}^2 = \boldsymbol{I} - 4\boldsymbol{v}\boldsymbol{v}^\top + 4 \boldsymbol{v} (\boldsymbol{v}^\top \boldsymbol{v}) \boldsymbol{v}^\top = \boldsymbol{I}$ (using $\boldsymbol{v}^\top \boldsymbol{v} = 1$). Geometrically, $\boldsymbol{H}$ reflects across the hyperplane orthogonal to $\boldsymbol{v}$ — apply twice and you return to where you started. *Three Householder reflections compose to any 3D rotation*, which is how numerical libraries implement orthogonalisation.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Orthogonal projection = closest point in a subspace = sum of orthonormal coordinates. Drop a perpendicular.**
+2. **The least-squares normal equations are *exactly* the projection-onto-column-space condition — regression *is* projection.**
+3. **Rotations are length-preserving orthogonal maps (det = +1); reflections are length-preserving but flip orientation (det = $-1$).**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you sketch the projection of a vector onto a plane in 3D, and
+   explain why the residual is perpendicular?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "least-squares fit," do you immediately see
+   "projection onto the column space"?
+
+- **3 yes:** move on to Lesson 10.
+- **2 yes:** redo Wo2 (deriving normal equations from projection), then move on.
+- **0–1 yes:** re-read *Discover* D4 and D5.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.orthogonality`](../08-orthogonality/index.qmd) — orthonormal
+  bases gave us the cheap projection formula.
+
+### What this unlocks
+
+- [`mml.determinant-trace-eigen`](../10-determinant-trace-eigen/index.qmd) —
+  determinants pair naturally with the orientation-preserving-or-not
+  question we touched on for rotations vs. reflections.
+- Eventually, [`mml.linear-regression-mle`](../24-linear-regression-mle/index.qmd) and
+  [`mml.bayesian-linear-regression`](../25-bayesian-linear-regression/index.qmd) — where regression *is* projection.
+
+### Sister synthesis lesson
+
+[`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd) /
+[`t6.spectral-theorem`](../../tier-6-undergrad-advanced/04-spectral-theorem/index.qmd) — the pure linear-algebra views of orthogonal matrices and projection. This lesson layers in the ML interpretation: regression, dimensionality reduction, PCA pre-processing.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Linear regression = orthogonal projection onto column space. PCA = orthogonal projection onto the top-$k$ principal subspace. Even backpropagation, viewed through the lens of *natural gradients*, uses a metric-tensor-aware projection of the steepest direction.
+:::
+
+::: {.applied-callout}
+**Game dev.** Every 3D rotation (camera, object, bone) is an orthogonal matrix with determinant 1. Quaternions provide a more compact representation, but they map to / from these rotation matrices for actual rendering. Projection onto the camera's view plane is the foundation of 3D-to-2D rendering.
+:::
+
+::: {.applied-callout}
+**Research.** Functional projection onto Fourier or wavelet bases isolates frequency components or scale components of a signal — used in image denoising, PDE solvers, and stat mech.
+:::

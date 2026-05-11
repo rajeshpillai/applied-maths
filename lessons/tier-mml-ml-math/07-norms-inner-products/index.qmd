@@ -1,0 +1,405 @@
+---
+title: "07 · Norms, Inner Products, Lengths, Angles"
+subtitle: "How long is a vector? How close are two? The two numbers behind every loss function, regulariser, and similarity score in ML."
+lesson-id: "mml.norms-inner-products"
+tier: "mml"
+prerequisites: ["mml.affine-spaces"]
+unlocks: ["mml.orthogonality"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute $\sqrt{3^2 + 4^2} = 5$ — the length of the vector
+   $(3, 4)$ via Pythagoras? — see
+   [Tier 3 — Pythagoras](../../tier-3-algebra2-geometry-trig/10-pythagoras/index.qmd).
+2. Can you compute the dot product $(1, 2) \cdot (3, 4) = 11$? — see
+   [Tier 4 — Dot Product](../../tier-4-precalc-calculus/07-dot-product/index.qmd).
+3. Do you know that $\cos$ of an angle uses adjacent over hypotenuse? — see
+   [Tier 3 — Trigonometry](../../tier-3-algebra2-geometry-trig/11-right-triangle-trig/index.qmd).
+4. Can you state what a hyperplane is in $\mathbb{R}^n$? —
+   [MML — 06, Affine Spaces](../06-affine-spaces/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Two vectors $\boldsymbol{u}, \boldsymbol{v} \in \mathbb{R}^2$. The
+widget shows their **L2 norms** (Euclidean lengths), their **L1 norms**
+(sum of absolute values), and the **angle** between them, computed via
+$\cos \theta = \boldsymbol{u}^\top \boldsymbol{v} / (\lVert \boldsymbol{u}\rVert \lVert \boldsymbol{v}\rVert)$.
+
+```{ojs}
+viewof u1 = Inputs.range([-4, 4], {value: 3, step: 0.1, label: "u₁:"})
+viewof u2 = Inputs.range([-4, 4], {value: 0, step: 0.1, label: "u₂:"})
+viewof v1 = Inputs.range([-4, 4], {value: 2, step: 0.1, label: "v₁:"})
+viewof v2 = Inputs.range([-4, 4], {value: 2, step: 0.1, label: "v₂:"})
+```
+
+```{ojs}
+{
+  const nu2 = Math.sqrt(u1*u1 + u2*u2);
+  const nv2 = Math.sqrt(v1*v1 + v2*v2);
+  const nu1 = Math.abs(u1) + Math.abs(u2);
+  const nv1 = Math.abs(v1) + Math.abs(v2);
+  const dot = u1*v1 + u2*v2;
+  const cos = (nu2 > 1e-9 && nv2 > 1e-9) ? (dot / (nu2 * nv2)) : 0;
+  const theta = Math.acos(Math.max(-1, Math.min(1, cos))) * 180 / Math.PI;
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif;">
+      <b>||u||₂</b> = ${nu2.toFixed(2)},
+      <b>||v||₂</b> = ${nv2.toFixed(2)},
+      <b>||u||₁</b> = ${nu1.toFixed(2)},
+      <b>||v||₁</b> = ${nv1.toFixed(2)} <br/>
+      <b>u·v</b> = ${dot.toFixed(2)},
+      <b>cos θ</b> = ${cos.toFixed(3)},
+      <b>θ</b> = ${theta.toFixed(1)}°
+    </div>
+    ${Plot.plot({
+      width: 460, height: 320,
+      x: {domain: [-5, 5], label: "x"},
+      y: {domain: [-5, 5], label: "y"},
+      grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.arrow([{x1:0, y1:0, x2:u1, y2:u2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"steelblue", strokeWidth:2}),
+        Plot.arrow([{x1:0, y1:0, x2:v1, y2:v2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"tomato",   strokeWidth:2})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Slide the vectors. Notice that $\boldsymbol{u} \cdot \boldsymbol{v}$
+is *zero exactly when the angle is 90°* — that's **orthogonality**,
+the cornerstone of every projection, decomposition, and decorrelation
+in ML.
+
+## Wonder
+
+1. The L1 norm (sum of absolute values) and the L2 norm (Euclidean)
+   both measure "size." When would the *unit ball* of each look
+   different — and when does the difference matter for ML?
+2. The dot product can be negative. What does that mean geometrically?
+3. If you double a vector, its norm doubles. What does that say about
+   how *cosine similarity* — the cos of the angle — behaves under
+   scaling?
+4. In the limit of very high dimensions, two random vectors tend to
+   be *nearly orthogonal*. Why might that be a problem for some ML
+   algorithms?
+
+## Discover
+
+Six problems building from norm to inner product to angle.
+
+**D1.** Compute $\lVert (3, 4)\rVert_2$, $\lVert (3, 4)\rVert_1$, and
+$\lVert (3, 4)\rVert_\infty$ (max-absolute-value).
+
+<details class="hint"><summary>Full solution</summary>
+$\lVert (3, 4)\rVert_2 = \sqrt{9 + 16} = 5$. $\lVert (3, 4)\rVert_1 = 3 + 4 = 7$. $\lVert (3, 4)\rVert_\infty = \max(3, 4) = 4$. The same
+vector has *different* sizes under different norms — and ML algorithms
+that use one (ridge: L2) versus another (lasso: L1, max-margin SVMs:
+L∞ in feature space) give different answers as a result.
+</details>
+
+**D2.** Verify the **Cauchy–Schwarz inequality**
+$\lvert \boldsymbol{u}^\top \boldsymbol{v} \rvert \le \lVert \boldsymbol{u} \rVert_2 \lVert \boldsymbol{v} \rVert_2$
+for $\boldsymbol{u} = (1, 2), \boldsymbol{v} = (3, 4)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{u}^\top \boldsymbol{v} = 11$. $\lVert \boldsymbol{u} \rVert_2 = \sqrt{5}$, $\lVert \boldsymbol{v} \rVert_2 = 5$. So
+$\sqrt{5} \cdot 5 \approx 11.18 \ge 11$. ✓
+The inequality is *tight* (equal) exactly when the two vectors are
+parallel — which is also when $\cos \theta = \pm 1$.
+</details>
+
+**D3.** Derive the formula for the angle:
+$\cos \theta = \boldsymbol{u}^\top \boldsymbol{v} / (\lVert \boldsymbol{u} \rVert \lVert \boldsymbol{v} \rVert)$
+starting from the law of cosines.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The law of cosines:
+$\lVert \boldsymbol{u} - \boldsymbol{v} \rVert^2 = \lVert \boldsymbol{u}\rVert^2 + \lVert \boldsymbol{v}\rVert^2 - 2 \lVert \boldsymbol{u}\rVert \lVert \boldsymbol{v}\rVert \cos \theta$.
+And $\lVert \boldsymbol{u} - \boldsymbol{v} \rVert^2 = (\boldsymbol{u} - \boldsymbol{v})^\top (\boldsymbol{u} - \boldsymbol{v}) = \lVert \boldsymbol{u}\rVert^2 + \lVert \boldsymbol{v}\rVert^2 - 2 \boldsymbol{u}^\top \boldsymbol{v}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Equating the two expressions for $\lVert \boldsymbol{u} - \boldsymbol{v} \rVert^2$ and cancelling the common terms:
+$-2 \lVert \boldsymbol{u}\rVert \lVert \boldsymbol{v}\rVert \cos \theta = -2 \boldsymbol{u}^\top \boldsymbol{v}$, so $\cos \theta = \boldsymbol{u}^\top \boldsymbol{v} / (\lVert \boldsymbol{u}\rVert \lVert \boldsymbol{v}\rVert)$. *The dot product is geometry in algebraic clothing.*
+</details>
+
+**D4.** Show $\boldsymbol{u}^\top \boldsymbol{v} = 0$ iff
+$\boldsymbol{u}$ and $\boldsymbol{v}$ are perpendicular (assuming
+both nonzero).
+
+<details class="hint"><summary>Full solution</summary>
+$\cos \theta = 0$ iff $\theta = 90°$ iff perpendicular. And
+$\cos \theta = 0$ iff $\boldsymbol{u}^\top \boldsymbol{v} = 0$. So
+**orthogonal ⇔ dot product zero**. This single equivalence is what
+makes orthogonality computationally cheap to check.
+</details>
+
+**D5.** A general **inner product** $\langle \boldsymbol{u}, \boldsymbol{v}\rangle$ is any function $V \times V \to \mathbb{R}$ that is
+bilinear, symmetric, and positive-definite (i.e.
+$\langle \boldsymbol{u}, \boldsymbol{u}\rangle \ge 0$, equal to $0$
+iff $\boldsymbol{u} = \boldsymbol{0}$). Verify these for the standard
+dot product.
+
+<details class="hint"><summary>Full solution</summary>
+Bilinearity: $(\alpha \boldsymbol{u}_1 + \beta \boldsymbol{u}_2)^\top \boldsymbol{v} = \alpha \boldsymbol{u}_1^\top \boldsymbol{v} + \beta \boldsymbol{u}_2^\top \boldsymbol{v}$. ✓
+Symmetry: $\boldsymbol{u}^\top \boldsymbol{v} = \boldsymbol{v}^\top \boldsymbol{u}$. ✓
+Positive-definite: $\boldsymbol{u}^\top \boldsymbol{u} = \sum u_i^2 \ge 0$, zero iff every $u_i = 0$. ✓
+**Every inner product induces a norm** $\lVert \boldsymbol{u}\rVert = \sqrt{\langle \boldsymbol{u}, \boldsymbol{u}\rangle}$. But not every norm comes from an inner product — L1 doesn't.
+</details>
+
+**D6.** Define a non-standard inner product on $\mathbb{R}^2$:
+$\langle \boldsymbol{u}, \boldsymbol{v}\rangle_{\boldsymbol{M}} = \boldsymbol{u}^\top \boldsymbol{M} \boldsymbol{v}$
+for $\boldsymbol{M} = \begin{pmatrix} 2 & 0 \\ 0 & 1 \end{pmatrix}$.
+Compute $\lVert (1, 1) \rVert_{\boldsymbol{M}}$ and the angle between
+$(1, 0)$ and $(0, 1)$ under this inner product.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\lVert \boldsymbol{u} \rVert_{\boldsymbol{M}}^2 = \boldsymbol{u}^\top \boldsymbol{M} \boldsymbol{u}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\lVert (1, 1)\rVert_{\boldsymbol{M}}^2 = (1, 1) \begin{pmatrix} 2 & 0 \\ 0 & 1 \end{pmatrix} (1, 1)^\top = (1)(2)(1) + (1)(1)(1) = 3$. So the
+norm is $\sqrt{3}$, *not* $\sqrt{2}$.
+Angle between $(1, 0)$ and $(0, 1)$:
+$\langle (1, 0), (0, 1)\rangle_{\boldsymbol{M}} = 0$ still — perpendicular under this inner product as well. But the **Mahalanobis distance** (Lesson 18) uses precisely this kind of weighted inner product to "stretch" some directions more than others.
+</details>
+
+::: {.fun-fact}
+**Cauchy** proved Cauchy–Schwarz in 1821 for sums, and **Bunyakovsky**
+proved the integral version in 1859 (in Russia, hence the local name
+"Cauchy–Bunyakovsky inequality"); **Schwarz** rediscovered the integral
+version in 1888 in the West and got the name. The same inequality, in
+function spaces, becomes the **Cauchy–Schwarz–Bunyakovsky inequality**
+— the workhorse of every Hilbert space argument from quantum mechanics
+to kernel methods (Lesson 32).
+:::
+
+::: {.key-insight}
+**The dot product is geometry written in algebra.** Length is
+$\sqrt{\boldsymbol{u}^\top \boldsymbol{u}}$. Angle is
+$\boldsymbol{u}^\top \boldsymbol{v} / (\lVert \boldsymbol{u} \rVert \lVert \boldsymbol{v} \rVert)$. Distance is $\lVert \boldsymbol{u} - \boldsymbol{v} \rVert$. Three intuitions, one operation.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **norm** on a vector space $V$ is a function
+$\lVert \cdot \rVert : V \to [0, \infty)$ satisfying:
+
+1. **Positive-definite:** $\lVert \boldsymbol{v} \rVert = 0$ iff $\boldsymbol{v} = \boldsymbol{0}$.
+2. **Homogeneous:** $\lVert \lambda \boldsymbol{v} \rVert = |\lambda| \lVert \boldsymbol{v} \rVert$.
+3. **Triangle inequality:** $\lVert \boldsymbol{u} + \boldsymbol{v} \rVert \le \lVert \boldsymbol{u}\rVert + \lVert \boldsymbol{v}\rVert$.
+
+Common norms on $\mathbb{R}^n$:
+$\lVert \boldsymbol{x} \rVert_p = \bigl(\sum |x_i|^p\bigr)^{1/p}$ for
+$p \ge 1$; special cases $p = 1, 2, \infty$.
+
+An **inner product** is a function $\langle \cdot, \cdot \rangle : V \times V \to \mathbb{R}$ that is bilinear, symmetric, and positive-definite.
+Every inner product induces a norm $\lVert \boldsymbol{v}\rVert = \sqrt{\langle \boldsymbol{v}, \boldsymbol{v}\rangle}$.
+
+The **standard dot product** on $\mathbb{R}^n$ is
+$\boldsymbol{u}^\top \boldsymbol{v} = \sum u_i v_i$. The **angle**
+between non-zero vectors is
+$\theta = \arccos\bigl(\boldsymbol{u}^\top \boldsymbol{v} / (\lVert \boldsymbol{u}\rVert \lVert \boldsymbol{v}\rVert)\bigr)$.
+
+Vectors are **orthogonal** if $\langle \boldsymbol{u}, \boldsymbol{v}\rangle = 0$.
+
+::: {.callout-warning}
+**Sūtra.** *Norm gives length, inner product gives angle, orthogonal
+means zero — three rules, every distance and similarity follows.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"All norms are equivalent."* — In *finite* dimensions yes, in the
+   sense that they generate the same topology. But L1, L2, L∞ give
+   numerically different answers and select *different* sparse
+   solutions in ML (L1 → sparse weights, L2 → small-but-dense
+   weights).
+2. *"Cosine similarity equals dot product."* — Only when both vectors
+   are unit-length. Otherwise cosine similarity *normalises out* the
+   magnitudes. Word2vec and sentence embeddings use this; raw
+   regression weights don't.
+3. *"Orthogonal means perpendicular."* — Geometrically yes, but
+   orthogonal under one inner product is *not* orthogonal under
+   another. Mahalanobis-orthogonal ≠ Euclidean-orthogonal. Lesson 18.
+:::
+
+## Apply
+
+### Worked example
+
+A regulariser in ridge regression is $\lambda \lVert \boldsymbol{w} \rVert_2^2 = \lambda \sum w_i^2$. In lasso it's $\lambda \lVert \boldsymbol{w} \rVert_1 = \lambda \sum |w_i|$. For $\boldsymbol{w} = (3, 0, 4)$:
+
+**Ridge:** $\lambda \cdot (9 + 0 + 16) = 25 \lambda$.
+**Lasso:** $\lambda \cdot (3 + 0 + 4) = 7 \lambda$.
+
+Now consider $\boldsymbol{w}' = (5, 0, 0)$ — same L2 norm,
+*different* L1 norm: $\lVert \boldsymbol{w}'\rVert_2^2 = 25, \lVert \boldsymbol{w}'\rVert_1 = 5$.
+
+Under ridge, both weight vectors pay the same penalty. Under lasso,
+$\boldsymbol{w}'$ (with one large entry, two zeros) pays *less*.
+That's why lasso prefers sparse solutions — it cheers for zeros in a
+way ridge does not.
+
+### Warm
+
+**W1.** Compute $\lVert (-2, 1, 2)\rVert_2$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{4 + 1 + 4} = 3$.
+</details>
+
+**W2.** Are $(1, 2, 3)$ and $(2, -1, 0)$ orthogonal?
+
+<details class="hint"><summary>Full solution</summary>
+Dot product: $1 \cdot 2 + 2 \cdot (-1) + 3 \cdot 0 = 0$. Yes.
+</details>
+
+**W3.** What is the angle between $(1, 0)$ and $(1, 1)$ in degrees?
+
+<details class="hint"><summary>Full solution</summary>
+$\cos \theta = 1 / \sqrt{2}$, $\theta = 45°$.
+</details>
+
+### Working
+
+**Wo1.** Show that the L1 unit ball $\{\boldsymbol{x} \in \mathbb{R}^2 : \lVert \boldsymbol{x}\rVert_1 \le 1\}$ is a diamond (square rotated $45°$), while the L2 unit ball is a circle.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+L1 unit ball: $|x_1| + |x_2| \le 1$. Draw this in the plane by
+considering each quadrant separately.
+</details>
+<details class="hint"><summary>Full solution</summary>
+In the first quadrant, $x_1 + x_2 \le 1$ — a triangle. Across all four
+quadrants, the region is a diamond with vertices at
+$(\pm 1, 0), (0, \pm 1)$. L2: $x_1^2 + x_2^2 \le 1$ — a circle. The
+*corners* of the L1 ball are what make lasso solutions sparse: the
+optimum of a smooth objective typically lands at a corner.
+</details>
+
+**Wo2.** Prove the **parallelogram law**:
+$\lVert \boldsymbol{u} + \boldsymbol{v} \rVert^2 + \lVert \boldsymbol{u} - \boldsymbol{v} \rVert^2 = 2 \lVert \boldsymbol{u}\rVert^2 + 2 \lVert \boldsymbol{v}\rVert^2$
+for a norm induced by an inner product.
+
+<details class="hint"><summary>Full solution</summary>
+Expand using $\lVert \boldsymbol{x}\rVert^2 = \langle \boldsymbol{x}, \boldsymbol{x}\rangle$ and bilinearity:
+LHS = $\langle \boldsymbol{u} + \boldsymbol{v}, \boldsymbol{u} + \boldsymbol{v}\rangle + \langle \boldsymbol{u} - \boldsymbol{v}, \boldsymbol{u} - \boldsymbol{v}\rangle = 2 \langle \boldsymbol{u}, \boldsymbol{u}\rangle + 2 \langle \boldsymbol{v}, \boldsymbol{v}\rangle$ = RHS. (The cross-terms cancel.)
+**This identity characterises inner-product norms** — a norm satisfies the parallelogram law iff it comes from an inner product. L1 doesn't satisfy it.
+</details>
+
+**Wo3.** In a dataset, two feature vectors $\boldsymbol{x}_i, \boldsymbol{x}_j$ with cosine similarity $0.9$ have what dot product, if both have unit L2 norm? What about L2 norm 5?
+
+<details class="hint"><summary>Full solution</summary>
+Unit norm: dot product = cosine sim × 1 × 1 = $0.9$. L2 norm 5: dot
+product = $0.9 \times 5 \times 5 = 22.5$. The *cosine* is scale-free;
+the *dot product* is not. In document embeddings we usually normalise
+to unit norm so the two coincide.
+</details>
+
+### Stretch
+
+**S1.** In $\mathbb{R}^{1000}$, two vectors with i.i.d. $\mathcal{N}(0, 1)$
+entries are nearly orthogonal. Compute approximately what the
+expected cosine similarity is, and explain.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\mathbb{E}[\boldsymbol{u}^\top \boldsymbol{v}] = 0$ by independence
+of entries. What's the typical *magnitude*?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{u}^\top \boldsymbol{v} = \sum u_i v_i$ has mean 0 and
+variance $n = 1000$. So $\boldsymbol{u}^\top \boldsymbol{v} \sim \sqrt{1000}$ in magnitude. Each norm $\lVert \boldsymbol{u}\rVert \sim \sqrt{n}$. So $\cos \theta \sim \sqrt{n} / (n) = 1 / \sqrt{n} \approx 0.03$.
+*Random high-dimensional vectors are nearly orthogonal* — the **concentration of measure** phenomenon. ML algorithms that rely on angular separation can fail in high dimensions because of this; embeddings need explicit training to put related vectors close.
+</details>
+
+**S2.** Define a **kernel** $k(\boldsymbol{x}, \boldsymbol{y}) = \exp(-\lVert \boldsymbol{x} - \boldsymbol{y}\rVert^2 / 2)$.
+Argue informally that $k$ behaves *like* an inner product, even though
+no fixed feature map appears in its definition.
+
+<details class="hint"><summary>Full solution</summary>
+$k(\boldsymbol{x}, \boldsymbol{y})$ is symmetric, positive (always > 0), and equal to 1 when $\boldsymbol{x} = \boldsymbol{y}$. It satisfies the
+**Mercer condition** — its Gram matrix is positive semi-definite — so
+it *is* an inner product in some infinite-dimensional feature space.
+The kernel trick (Lesson 32) lets us use $k$ everywhere we'd otherwise
+use $\langle \boldsymbol{\phi}(\boldsymbol{x}), \boldsymbol{\phi}(\boldsymbol{y})\rangle$ — without ever computing $\boldsymbol{\phi}$.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Norm = length, inner product = angle, orthogonal = zero — every distance and similarity in ML reduces to these three.**
+2. **Different norms (L1, L2, L∞) give different geometries — and that's why ridge and lasso make different choices.**
+3. **In high dimensions, random vectors are nearly orthogonal; "similarity" is a thing you have to engineer, not assume.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you explain the geometric meaning of $\boldsymbol{u}^\top \boldsymbol{v} = 0$ to a friend, without using the word "orthogonal"?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "regularise the L2 norm" in a paper, do you instantly
+   picture a circular constraint?
+
+- **3 yes:** move on to Lesson 08.
+- **2 yes:** redo Wo1 and Wo2, then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D5.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.affine-spaces`](../06-affine-spaces/index.qmd) — distances
+  from points to hyperplanes need an inner product, which arrives
+  here.
+
+### What this unlocks
+
+- [`mml.orthogonality`](../08-orthogonality/index.qmd) — orthonormal
+  bases, the canonical "nice" coordinate system, built directly on
+  this lesson.
+- Eventually, [`mml.svd-and-low-rank`](../13-svd-and-low-rank/index.qmd) —
+  SVD uses an orthonormal basis on both sides; the Eckart–Young
+  best-rank-$k$ approximation is measured in the **Frobenius norm**.
+
+### Sister synthesis lesson
+
+[`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd) and
+[Tier 4 — Dot Product](../../tier-4-precalc-calculus/07-dot-product/index.qmd) — pure-geometry views. This lesson assembles them into the
+loss/regulariser/similarity vocabulary of ML.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Squared-error loss = squared L2 norm of residual. Ridge
+penalty = L2 norm of weights. Lasso = L1. Cosine similarity in
+embedding search. Cross-entropy = a kind of "norm" on probability
+distributions. Every loss function in ML is, at heart, a norm.
+:::
+
+::: {.applied-callout}
+**Game dev.** Distance in collision detection (AABB, sphere
+intersection) is L∞ / L2 testing. Vector field strength = norm.
+:::
+
+::: {.applied-callout}
+**Encryption.** Lattice cryptography hardness reduces to "find the
+shortest vector under the L2 norm in a lattice" (SVP). LWE security
+relies on the same hardness. Different norms give different
+hardness assumptions.
+:::

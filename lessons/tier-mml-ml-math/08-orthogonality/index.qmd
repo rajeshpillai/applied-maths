@@ -1,0 +1,368 @@
+---
+title: "08 · Orthonormal Basis, Orthogonal Complement, Function Inner Products"
+subtitle: "The bases ML actually wants — perpendicular, unit-length, and computational paradise."
+lesson-id: "mml.orthogonality"
+tier: "mml"
+prerequisites: ["mml.norms-inner-products"]
+unlocks: ["mml.projections-rotations"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state when two vectors are orthogonal? — see
+   [MML — 07, Norms & Inner Products](../07-norms-inner-products/index.qmd).
+2. Can you compute $\lVert \boldsymbol{v} \rVert_2$? — same prerequisite.
+3. Do you know what a basis is? —
+   [MML — 04, Linear Independence and Basis](../04-linear-independence-basis/index.qmd).
+4. Can you compute a dot product $(1, 2, 3) \cdot (-3, 0, 1) = -2$?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Two slider-controlled vectors $\boldsymbol{a}, \boldsymbol{b} \in \mathbb{R}^2$.
+The widget tells you whether they form an **orthonormal** basis —
+mutually orthogonal *and* each of unit length — and shows the unit
+circle so you can see when each vector touches it.
+
+```{ojs}
+viewof a1 = Inputs.range([-2, 2], {value: 1, step: 0.05, label: "a₁:"})
+viewof a2 = Inputs.range([-2, 2], {value: 0, step: 0.05, label: "a₂:"})
+viewof b1 = Inputs.range([-2, 2], {value: 0, step: 0.05, label: "b₁:"})
+viewof b2 = Inputs.range([-2, 2], {value: 1, step: 0.05, label: "b₂:"})
+```
+
+```{ojs}
+{
+  const na = Math.sqrt(a1*a1 + a2*a2);
+  const nb = Math.sqrt(b1*b1 + b2*b2);
+  const dot = a1*b1 + a2*b2;
+  const isUnitA = Math.abs(na - 1) < 0.02;
+  const isUnitB = Math.abs(nb - 1) < 0.02;
+  const isOrth = Math.abs(dot) < 0.02;
+  const status = isUnitA && isUnitB && isOrth ? "ORTHONORMAL BASIS ✓"
+              : isOrth ? "orthogonal (lengths off)"
+              : "not orthogonal";
+  const circle = [];
+  for (let t = 0; t <= 2 * Math.PI + 0.01; t += 0.05) circle.push({x: Math.cos(t), y: Math.sin(t)});
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">Status: <b>${status}</b> ||a|| = ${na.toFixed(3)}, ||b|| = ${nb.toFixed(3)}, a·b = ${dot.toFixed(3)}</div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-2.5, 2.5], label: "x"},
+      y: {domain: [-2.5, 2.5], label: "y"},
+      grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.line(circle, {x:"x", y:"y", stroke: "#ddd"}),
+        Plot.arrow([{x1:0, y1:0, x2:a1, y2:a2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"steelblue", strokeWidth:2}),
+        Plot.arrow([{x1:0, y1:0, x2:b1, y2:b2}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"tomato",   strokeWidth:2}),
+      ]
+    })}
+  </div>`;
+}
+```
+
+Try $\boldsymbol{a} = (1, 0), \boldsymbol{b} = (0, 1)$ — standard basis.
+Try $\boldsymbol{a} = (1/\sqrt 2, 1/\sqrt 2), \boldsymbol{b} = (-1/\sqrt 2, 1/\sqrt 2)$ — rotated 45°, still orthonormal. Try $\boldsymbol{a} = (1, 1)$ — orthogonality holds for many $\boldsymbol{b}$, but neither has unit
+length: ordinary basis, not orthonormal.
+
+## Wonder
+
+1. The standard basis $\{\boldsymbol{e}_i\}$ is orthonormal. Every
+   rotation of the standard basis is also orthonormal. Why are
+   rotations the *only* way to get a new orthonormal basis from an old
+   one (in $\mathbb{R}^n$, plus reflections)?
+2. If $\{\boldsymbol{b}_i\}$ is orthonormal, what's the coordinate of
+   a vector $\boldsymbol{v}$ along $\boldsymbol{b}_i$? Hint: it's a
+   single inner product.
+3. The set of vectors *orthogonal* to a fixed subspace $U$ — what shape
+   does it take? Is it itself a subspace?
+4. Could *functions* be orthogonal? What inner product on functions
+   would even make sense?
+
+## Discover
+
+Six problems building up to orthonormal coordinates and the orthogonal
+complement.
+
+**D1.** Verify that $\{(\frac{1}{\sqrt 2}, \frac{1}{\sqrt 2}), (-\frac{1}{\sqrt 2}, \frac{1}{\sqrt 2})\}$ is an orthonormal basis of $\mathbb{R}^2$.
+
+<details class="hint"><summary>Full solution</summary>
+Norms: each $\sqrt{1/2 + 1/2} = 1$. ✓
+Dot product: $(1/\sqrt 2)(-1/\sqrt 2) + (1/\sqrt 2)(1/\sqrt 2) = -1/2 + 1/2 = 0$. ✓
+Two orthonormal vectors in $\mathbb{R}^2$ are automatically a basis.
+</details>
+
+**D2.** Take $\boldsymbol{v} = (3, 4)$ and the orthonormal basis from D1.
+Compute the coordinates of $\boldsymbol{v}$ in this new basis.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For an orthonormal basis $\{\boldsymbol{b}_i\}$, the coordinate of
+$\boldsymbol{v}$ along $\boldsymbol{b}_i$ is $\boldsymbol{b}_i^\top \boldsymbol{v}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+First coord: $(1/\sqrt 2)(3) + (1/\sqrt 2)(4) = 7/\sqrt 2$.
+Second coord: $(-1/\sqrt 2)(3) + (1/\sqrt 2)(4) = 1/\sqrt 2$.
+Check: $(7/\sqrt 2)(1/\sqrt 2, 1/\sqrt 2) + (1/\sqrt 2)(-1/\sqrt 2, 1/\sqrt 2) = (7/2 - 1/2, 7/2 + 1/2) = (3, 4)$. ✓
+**Coordinates in an orthonormal basis are just inner products with the
+basis vectors.** This is why orthonormal bases are so computationally
+nice.
+</details>
+
+**D3.** Prove that for an orthonormal basis $\{\boldsymbol{b}_i\}$ of
+$\mathbb{R}^n$ and any vector $\boldsymbol{v}$:
+$\lVert \boldsymbol{v}\rVert^2 = \sum_i (\boldsymbol{b}_i^\top \boldsymbol{v})^2$ (**Parseval's identity**).
+
+<details class="hint"><summary>Full solution</summary>
+Write $\boldsymbol{v} = \sum_i c_i \boldsymbol{b}_i$ with $c_i = \boldsymbol{b}_i^\top \boldsymbol{v}$. Then
+$\lVert \boldsymbol{v}\rVert^2 = \boldsymbol{v}^\top \boldsymbol{v} = \sum_i \sum_j c_i c_j \boldsymbol{b}_i^\top \boldsymbol{b}_j = \sum_i c_i^2$ (the cross terms vanish by orthogonality). **The length of a vector equals the sum of squared coordinates in any orthonormal basis** — and this is the algebraic reason Fourier analysis (the orthonormal basis of sines and cosines) preserves energy.
+</details>
+
+**D4.** Given a subspace $U \subset \mathbb{R}^n$, define
+$U^\perp = \{\boldsymbol{v} \in \mathbb{R}^n : \boldsymbol{v}^\top \boldsymbol{u} = 0 \text{ for all } \boldsymbol{u} \in U\}$ — the
+**orthogonal complement**. Show $U^\perp$ is a subspace.
+
+<details class="hint"><summary>Full solution</summary>
+Three subspace checks: $\boldsymbol{0} \in U^\perp$. If $\boldsymbol{v}_1, \boldsymbol{v}_2 \in U^\perp$, then for any $\boldsymbol{u} \in U$,
+$(\boldsymbol{v}_1 + \boldsymbol{v}_2)^\top \boldsymbol{u} = 0 + 0 = 0$. Same for scalar multiplication. ✓
+</details>
+
+**D5.** Show $\dim U + \dim U^\perp = n$ in $\mathbb{R}^n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Pick an orthonormal basis $\{\boldsymbol{b}_1, \dots, \boldsymbol{b}_k\}$ of $U$. Extend to an orthonormal basis of $\mathbb{R}^n$ by adding $n - k$ more vectors. Where do those live?
+</details>
+<details class="hint"><summary>Full solution</summary>
+The added $n - k$ vectors are each orthogonal to every $\boldsymbol{b}_i \in U$ — so they are in $U^\perp$. They span $U^\perp$ (any $\boldsymbol{v} \in U^\perp$ has zero coordinates along $\boldsymbol{b}_1, \dots, \boldsymbol{b}_k$, so lies in the span of the extension).
+So $\dim U^\perp = n - k$. The two subspaces *partition* every direction in $\mathbb{R}^n$.
+</details>
+
+**D6.** Define an inner product on continuous functions
+$f, g : [-\pi, \pi] \to \mathbb{R}$: $\langle f, g\rangle = \int_{-\pi}^\pi f(x) g(x)\, dx$. Verify that $\sin(x)$ and $\cos(x)$ are
+orthogonal under this inner product.
+
+<details class="hint"><summary>Full solution</summary>
+$\int_{-\pi}^\pi \sin(x) \cos(x)\, dx = \tfrac{1}{2} \int_{-\pi}^\pi \sin(2x)\, dx = \tfrac{1}{2} \cdot 0 = 0$.
+**Orthogonal functions** are exactly as well-defined as orthogonal
+vectors. Sines and cosines at different frequencies form an
+*orthonormal basis* of $L^2[-\pi, \pi]$ — the **Fourier basis** —
+which is the same idea as PCA, only for functions instead of vectors.
+</details>
+
+::: {.fun-fact}
+The **Gram–Schmidt process** for turning any basis into an orthonormal
+one is named after Jørgen Pedersen Gram (1883) and Erhard Schmidt
+(1907), though Laplace had used it in 1816 and Cauchy in 1837 — a
+recurring theme of mathematical history is "the famous algorithm by X
+was already known by Y." Numerically, the *modified* Gram–Schmidt
+variant (1965, Rice) is what production code actually uses, because
+the classical version loses orthogonality to floating-point error.
+:::
+
+::: {.key-insight}
+An **orthonormal basis** turns coordinate-finding into a single inner
+product: $c_i = \boldsymbol{b}_i^\top \boldsymbol{v}$. The whole
+computational story of Fourier, wavelets, PCA, and SVD is "find the
+right orthonormal basis and the problem becomes trivial."
+:::
+
+## Name
+
+::: {.lesson-beat}
+A set of vectors $\{\boldsymbol{b}_1, \dots, \boldsymbol{b}_k\}$ is **orthonormal** if $\langle \boldsymbol{b}_i, \boldsymbol{b}_j\rangle = \delta_{ij}$ — the Kronecker delta, $1$ if $i = j$, $0$ otherwise.
+
+An **orthonormal basis** of $V$ is a basis that is orthonormal.
+
+The **orthogonal complement** of a subspace $U \subseteq V$ is
+$U^\perp = \{\boldsymbol{v} \in V : \langle \boldsymbol{v}, \boldsymbol{u}\rangle = 0 \text{ for all } \boldsymbol{u} \in U\}$.
+We have $\dim U + \dim U^\perp = \dim V$ and $V = U \oplus U^\perp$
+(direct sum).
+
+For an orthonormal basis $\{\boldsymbol{b}_i\}$, any vector decomposes
+as $\boldsymbol{v} = \sum_i (\boldsymbol{b}_i^\top \boldsymbol{v}) \boldsymbol{b}_i$, and **Parseval's identity** gives $\lVert \boldsymbol{v}\rVert^2 = \sum_i (\boldsymbol{b}_i^\top \boldsymbol{v})^2$.
+
+The **Gram–Schmidt process** turns any basis into an orthonormal one
+by repeatedly subtracting projections onto previously-built basis
+vectors and normalising.
+
+::: {.callout-warning}
+**Sūtra.** *Perpendicular pairs, unit lengths — every coordinate is
+one inner product away.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"All bases give the same answer for length / projection."* — The
+   *vector* is the same, but the *computation* of length and
+   projection is much simpler in an orthonormal basis. In general
+   bases you need to invert a Gram matrix.
+2. *"Orthonormal means 'all entries are 0s and 1s'."* — The standard
+   basis is a special case. The rotated basis
+   $\{(\cos\theta, \sin\theta), (-\sin\theta, \cos\theta)\}$ is also
+   orthonormal — for any $\theta$.
+3. *"Function spaces don't have bases."* — They do; they're just
+   infinite. Sines and cosines, Hermite polynomials, wavelets — all
+   are orthonormal bases of various function spaces.
+:::
+
+## Apply
+
+### Worked example
+
+Apply Gram–Schmidt to $\{\boldsymbol{a}_1, \boldsymbol{a}_2\} = \{(1, 1, 0), (1, 0, 1)\}$ in $\mathbb{R}^3$.
+
+**Step 1.** Normalise $\boldsymbol{a}_1$:
+$\boldsymbol{b}_1 = \boldsymbol{a}_1 / \lVert \boldsymbol{a}_1\rVert = (1, 1, 0) / \sqrt{2} = (1/\sqrt 2, 1/\sqrt 2, 0)$.
+
+**Step 2.** Subtract projection of $\boldsymbol{a}_2$ onto $\boldsymbol{b}_1$:
+$\boldsymbol{b}_1^\top \boldsymbol{a}_2 = (1/\sqrt 2)(1) + (1/\sqrt 2)(0) + 0 = 1/\sqrt 2$.
+$\boldsymbol{a}_2 - (1/\sqrt 2) \boldsymbol{b}_1 = (1, 0, 1) - (1/2, 1/2, 0) = (1/2, -1/2, 1)$.
+
+**Step 3.** Normalise:
+$\lVert (1/2, -1/2, 1) \rVert = \sqrt{1/4 + 1/4 + 1} = \sqrt{3/2}$.
+$\boldsymbol{b}_2 = (1/2, -1/2, 1) / \sqrt{3/2} = (1/\sqrt 6, -1/\sqrt 6, 2/\sqrt 6)$.
+
+**Verify:** $\boldsymbol{b}_1^\top \boldsymbol{b}_2 = (1/\sqrt 2)(1/\sqrt 6) + (1/\sqrt 2)(-1/\sqrt 6) + 0 = 0$. ✓
+Both have unit norm. We've produced an orthonormal basis of the
+2D subspace spanned by $\boldsymbol{a}_1, \boldsymbol{a}_2$.
+
+### Warm
+
+**W1.** Are $(1, 0, 0)$ and $(0, 1/\sqrt 2, 1/\sqrt 2)$ orthonormal as a pair?
+
+<details class="hint"><summary>Full solution</summary>
+Dot product: $0$. ✓ Norms: $1$ and $\sqrt{1/2 + 1/2} = 1$. ✓ Orthonormal.
+</details>
+
+**W2.** What is the orthogonal complement of $\mathrm{span}\{(1, 0, 0)\}$ in $\mathbb{R}^3$?
+
+<details class="hint"><summary>Full solution</summary>
+The $y, z$ plane: $\{(0, y, z) : y, z \in \mathbb{R}\}$. 2D subspace.
+</details>
+
+**W3.** For the orthonormal basis $\{\boldsymbol{b}_1, \boldsymbol{b}_2, \boldsymbol{b}_3\}$ of $\mathbb{R}^3$ and $\boldsymbol{v} = 3\boldsymbol{b}_1 + 4\boldsymbol{b}_2 + 12\boldsymbol{b}_3$, what is $\lVert \boldsymbol{v}\rVert$?
+
+<details class="hint"><summary>Full solution</summary>
+By Parseval: $\sqrt{9 + 16 + 144} = \sqrt{169} = 13$.
+</details>
+
+### Working
+
+**Wo1.** Show that if $\boldsymbol{Q} \in \mathbb{R}^{n \times n}$ has
+orthonormal columns, then $\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$.
+
+<details class="hint"><summary>Full solution</summary>
+$(\boldsymbol{Q}^\top \boldsymbol{Q})_{ij} = \boldsymbol{q}_i^\top \boldsymbol{q}_j = \delta_{ij}$. So $\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$. Such a matrix is called **orthogonal** (confusingly named — "orthonormal" would be more honest, but "orthogonal matrix" is the standard term). We use these heavily in SVD (Lesson 13).
+</details>
+
+**Wo2.** For an orthogonal matrix $\boldsymbol{Q}$, show
+$\boldsymbol{Q}^{-1} = \boldsymbol{Q}^\top$ — the inverse is just the
+transpose.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$ (Wo1) and $\boldsymbol{Q}\boldsymbol{Q}^\top = \boldsymbol{I}$ (by uniqueness of inverse for square matrices). So $\boldsymbol{Q}^{-1} = \boldsymbol{Q}^\top$.
+*Inverting an orthogonal matrix is $O(1)$ — no Gaussian elimination needed.* This is why orthogonal matrices are computational paradise.
+</details>
+
+**Wo3.** A PCA returns a matrix $\boldsymbol{U} \in \mathbb{R}^{D \times K}$ whose columns are the top $K$ principal directions — orthonormal. Given new data $\boldsymbol{x} \in \mathbb{R}^D$, how do you compute its coordinates in the PCA basis?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{c} = \boldsymbol{U}^\top \boldsymbol{x} \in \mathbb{R}^K$.
+A single matrix–vector multiply. This is why PCA is fast at inference time, no matter the original dimension.
+</details>
+
+### Stretch
+
+**S1.** In a deep neural net, an *orthogonal weight initialisation*
+sets each weight matrix to an orthogonal matrix. Argue informally why
+this is better than random Gaussian initialisation for gradient flow.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What does an orthogonal matrix do to vector lengths?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Orthogonal matrices preserve length: $\lVert \boldsymbol{Q}\boldsymbol{x}\rVert = \lVert \boldsymbol{x}\rVert$ (by Parseval). So gradients flowing back through many such layers don't explode or vanish — they keep constant magnitude. Random Gaussian initialisations tend to *scale* gradients (by roughly $\sqrt{n}$ per layer), causing exploding or vanishing gradients in deep nets. Orthogonal init was a key insight in the 2014 *Saxe et al.* paper on exact dynamics of deep linear networks.
+</details>
+
+**S2.** Sketch why a **discrete Fourier transform** can be written as
+multiplication by an orthonormal matrix. (Just the high-level idea.)
+
+<details class="hint"><summary>Full solution</summary>
+The DFT matrix has entries $F_{jk} = \tfrac{1}{\sqrt N} e^{-2\pi i jk/N}$. Its columns are the *sampled complex exponentials at integer frequencies*. By orthogonality of these exponentials over $N$ equally-spaced sample points (the discrete-Fourier orthogonality relation), the columns form an orthonormal basis of $\mathbb{C}^N$. So the DFT is a *unitary* (the complex analogue of orthogonal) change of basis — that's why $\mathrm{FFT}^{-1} = \overline{\mathrm{FFT}^\top} / N$ is so cheap.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **In an orthonormal basis, every coordinate is one inner product away — and lengths are sums of squared coordinates (Parseval).**
+2. **The orthogonal complement $U^\perp$ partitions every direction in $V$ into "in $U$" and "orthogonal to $U$" — and that's how we'll project in the next lesson.**
+3. **Orthogonal matrices ($\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$) preserve length and are trivially invertible — that's why SVD, PCA, and stable optimisation use them.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you explain *why* an orthonormal basis makes coordinate-finding
+   trivial, without notes?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see $\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$
+   in a paper, do you instantly think *length-preserving / rotation*?
+
+- **3 yes:** move on to Lesson 09.
+- **2 yes:** redo Wo1 and Wo2, then move on.
+- **0–1 yes:** re-read *Discover* problems D2 and D3.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.norms-inner-products`](../07-norms-inner-products/index.qmd) —
+  the inner product is the operation orthogonality is built on.
+
+### What this unlocks
+
+- [`mml.projections-rotations`](../09-projections-rotations/index.qmd) —
+  projecting onto a subspace uses an orthonormal basis directly.
+- Eventually, [`mml.svd-and-low-rank`](../13-svd-and-low-rank/index.qmd) —
+  SVD = orthonormal left basis × diagonal × orthonormal right basis.
+
+### Sister synthesis lesson
+
+[`t6.spectral-theorem`](../../tier-6-undergrad-advanced/04-spectral-theorem/index.qmd) — the synthesis-tier view, which states the existence of orthonormal eigenbases for symmetric matrices. This lesson sets up the language; that one ships the deepest theorem.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every PCA, SVD, ICA, and orthogonal weight initialisation
+uses orthonormal bases. They make projection trivial, preserve
+gradient magnitudes, and turn most matrix questions into vector
+questions component-by-component.
+:::
+
+::: {.applied-callout}
+**Research.** Fourier, Hermite, Legendre, Chebyshev — every "named"
+orthonormal function basis is the right tool for some PDE or
+approximation problem. Wavelets are an orthonormal basis built for
+spatially-localised signals (used in JPEG-2000 compression).
+:::
+
+::: {.applied-callout}
+**Game dev.** A camera's view space uses an orthonormal frame: a
+forward, up, and right vector that are mutually perpendicular and
+unit-length. Re-orthonormalising this frame every few frames prevents
+drift from floating-point error.
+:::

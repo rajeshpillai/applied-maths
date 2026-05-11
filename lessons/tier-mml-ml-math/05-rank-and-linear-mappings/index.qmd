@@ -1,0 +1,414 @@
+---
+title: "05 · Rank, Linear Mappings, Change of Basis"
+subtitle: "The dimension of a matrix's column space is the number of independent things it can do — and that number is invariant under change of basis."
+lesson-id: "mml.rank-and-linear-mappings"
+tier: "mml"
+prerequisites: ["mml.linear-independence-basis"]
+unlocks: ["mml.affine-spaces"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state what a basis is and why every basis of $\mathbb{R}^n$
+   has size $n$? — see
+   [MML — 04, Linear Independence](../04-linear-independence-basis/index.qmd).
+2. Can you compute $\boldsymbol{X}\boldsymbol{w}$ as a linear
+   combination of $\boldsymbol{X}$'s columns? — see
+   [MML — 02, Matrices](../02-matrices/index.qmd).
+3. Do you know what the column space of $\boldsymbol{X}$ is? —
+   [MML — 03, Vector Spaces](../03-vector-spaces/index.qmd).
+4. Can you state the determinant of a $2 \times 2$ matrix?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Drag the four entries of a $2 \times 2$ matrix $\boldsymbol{A}$. The
+widget shows what happens to a *unit square* $[0,1] \times [0,1]$
+under the linear map $\boldsymbol{x} \mapsto \boldsymbol{A}\boldsymbol{x}$.
+
+```{ojs}
+viewof a11 = Inputs.range([-3, 3], {value:  1, step: 0.1, label: "a₁₁:"})
+viewof a12 = Inputs.range([-3, 3], {value:  0, step: 0.1, label: "a₁₂:"})
+viewof a21 = Inputs.range([-3, 3], {value:  0, step: 0.1, label: "a₂₁:"})
+viewof a22 = Inputs.range([-3, 3], {value:  1, step: 0.1, label: "a₂₂:"})
+```
+
+```{ojs}
+{
+  function ap(p) { return [a11*p[0] + a12*p[1], a21*p[0] + a22*p[1]]; }
+  const corners = [[0,0],[1,0],[1,1],[0,1],[0,0]];
+  const mapped = corners.map(ap);
+  const det = a11*a22 - a12*a21;
+  const rank = (Math.abs(det) > 1e-7) ? 2 :
+               ((Math.abs(a11)+Math.abs(a12)+Math.abs(a21)+Math.abs(a22) > 1e-7) ? 1 : 0);
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">rank(A) = <b>${rank}</b>,  |det A| = ${Math.abs(det).toFixed(2)}  ⇒ image is ${
+      rank===2 ? "a parallelogram (full 2D)" :
+      rank===1 ? "a line segment (rank-1, collapsed)" :
+                 "a single point (rank-0)"
+    }</div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-5, 5], label: "x"},
+      y: {domain: [-5, 5], label: "y"},
+      grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.line(corners.map(p => ({x:p[0], y:p[1]})), {x:"x", y:"y", stroke: "#888", strokeDasharray: "3 3"}),
+        Plot.line(mapped.map(p => ({x:p[0], y:p[1]})), {x:"x", y:"y", stroke: "steelblue", strokeWidth: 2, fill: "rgba(70,130,180,0.15)"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+When the matrix is *full rank* (det ≠ 0), the unit square is mapped
+to a parallelogram. When the matrix is *rank 1*, the square collapses
+to a *line segment* — one entire dimension was destroyed by the map.
+When rank 0 (the zero matrix), everything goes to a single point.
+
+## Wonder
+
+1. Why does the *area* of the image parallelogram equal $|\det A|$?
+   What would happen in 3D — would it be a volume?
+2. A rank-1 map sends every input to a *line*. Can such a map ever
+   "undo" itself — i.e. be inverted?
+3. The standard basis $\boldsymbol{e}_1, \boldsymbol{e}_2$ goes to
+   the *columns* of $\boldsymbol{A}$. Is that a coincidence?
+4. If we used a different basis for $\mathbb{R}^2$, would the same
+   linear map have a different matrix? Would its rank change?
+
+## Discover
+
+Six problems building rank, linear maps, and change of basis.
+
+**D1.** Let
+$\boldsymbol{A} = \begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{pmatrix}$.
+What is the rank of $\boldsymbol{A}$ (dimension of its column space)?
+
+<details class="hint"><summary>Full solution</summary>
+The column space is $\mathrm{span}\{(1,4), (2,5), (3,6)\} \subseteq \mathbb{R}^2$.
+Any two non-parallel columns span $\mathbb{R}^2$. Here $(1, 4)$ and
+$(2, 5)$ are independent ($1 \cdot 5 - 2 \cdot 4 = -3 \ne 0$).
+Three columns can't all be independent in $\mathbb{R}^2$. Rank = 2.
+</details>
+
+**D2.** Let $\boldsymbol{B} = \begin{pmatrix} 1 & 2 \\ 2 & 4 \\ 3 & 6 \end{pmatrix}$.
+What is rank $\boldsymbol{B}$?
+
+<details class="hint"><summary>Full solution</summary>
+Column 2 = $2 \times$ Column 1 — dependent. Rank = 1. The column
+space is the line through $(1, 2, 3)$ in $\mathbb{R}^3$.
+</details>
+
+**D3.** Define $T : \mathbb{R}^2 \to \mathbb{R}^2$ by $T(x, y) = (x + y, x - y)$.
+Verify $T(\alpha \boldsymbol{u} + \beta \boldsymbol{v}) = \alpha T(\boldsymbol{u}) + \beta T(\boldsymbol{v})$ —
+i.e. that $T$ is **linear**. Find the matrix of $T$ in the standard
+basis.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The $i$-th column of the matrix is $T(\boldsymbol{e}_i)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T(\boldsymbol{e}_1) = T(1, 0) = (1, 1)$,
+$T(\boldsymbol{e}_2) = T(0, 1) = (1, -1)$.
+Matrix: $\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}$. Linearity:
+$T(\alpha \boldsymbol{u} + \beta \boldsymbol{v}) = ((\alpha u_1 + \beta v_1) + (\alpha u_2 + \beta v_2), (\alpha u_1 + \beta v_1) - (\alpha u_2 + \beta v_2)) = \alpha T(\boldsymbol{u}) + \beta T(\boldsymbol{v})$.
+</details>
+
+**D4.** Take the same map $T$. Express its action in the *new basis*
+$\boldsymbol{b}_1 = (1, 1), \boldsymbol{b}_2 = (1, -1)$ —
+i.e. find a matrix $\boldsymbol{A}'$ such that the coordinates of
+$T(\boldsymbol{v})$ in the new basis are $\boldsymbol{A}'$ times the
+coordinates of $\boldsymbol{v}$ in the new basis.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Apply $T$ to $\boldsymbol{b}_1$ and $\boldsymbol{b}_2$, then express
+the results back in the basis $\{\boldsymbol{b}_1, \boldsymbol{b}_2\}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$T(\boldsymbol{b}_1) = T(1, 1) = (2, 0) = 1 \cdot (1, 1) + 1 \cdot (1, -1) = \boldsymbol{b}_1 + \boldsymbol{b}_2$. So the first column of $\boldsymbol{A}'$ is $(1, 1)^\top$ — *in $\boldsymbol{b}$-coordinates*.
+$T(\boldsymbol{b}_2) = T(1, -1) = (0, 2) = 1 \cdot (1, 1) - 1 \cdot (1, -1) = \boldsymbol{b}_1 - \boldsymbol{b}_2$. Second column: $(1, -1)^\top$.
+So $\boldsymbol{A}' = \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}$ — same matrix! (Because the basis we chose happens to be related to $T$ symmetrically.) In general $\boldsymbol{A}'$ and $\boldsymbol{A}$ will differ.
+</details>
+
+**D5.** For a general change of basis with matrix $\boldsymbol{S}$
+(columns = new basis vectors in old coordinates), the new matrix of
+$T$ is $\boldsymbol{A}' = \boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S}$.
+Verify by checking the formula on the previous problem.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{S} = \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}$,
+$\boldsymbol{S}^{-1} = \frac{1}{-2}\begin{pmatrix} -1 & -1 \\ -1 & 1 \end{pmatrix} = \frac{1}{2}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}$.
+$\boldsymbol{S}^{-1} \boldsymbol{A} = \tfrac{1}{2}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix} = \tfrac{1}{2}\begin{pmatrix} 2 & 0 \\ 0 & 2 \end{pmatrix} = \boldsymbol{I}$.
+$\boldsymbol{A}' = \boldsymbol{I} \boldsymbol{S} = \boldsymbol{S} = \begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}$.
+Matches D4. The formula $\boldsymbol{A}' = \boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S}$ is *change of basis* in matrix form.
+</details>
+
+**D6.** Rank doesn't change under change of basis. Why? (Informally.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Multiplication by an *invertible* matrix doesn't shrink or grow the
+column space — it just re-labels it.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The column space of $\boldsymbol{A}' = \boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S}$
+is the image of $\boldsymbol{S}^{-1} \boldsymbol{A}$ — and since
+$\boldsymbol{S}^{-1}$ is invertible, it preserves dimension. So
+$\mathrm{rank}(\boldsymbol{A}') = \mathrm{rank}(\boldsymbol{A})$.
+Rank is an **invariant** of the linear map — independent of which
+basis you write it in.
+</details>
+
+::: {.fun-fact}
+The word "rank" was first used in this sense by **Frobenius** in 1879.
+But "linear mapping" as a stand-alone idea took until **Peano (1888)** to
+crystallise. Before that, mathematicians thought in terms of "linear
+substitutions" — transformations applied to systems of equations — which
+is why a lot of 19th-century linear algebra reads like notation about
+notation. Recognising the *operator* as the object of study (independent
+of its matrix) is one of the deepest moves in abstract mathematics.
+:::
+
+::: {.key-insight}
+A matrix is a **linear map written in a chosen basis**. Change the basis
+and the matrix changes — but its *rank*, *determinant*, *eigenvalues*,
+*trace*, and *nullity* don't. Those are properties of the **mapping**,
+not the matrix. Most of ML's linear algebra is about choosing the right
+basis to make a hard mapping look easy.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **linear map** between vector spaces $V$ and $W$ is a function
+$\Phi : V \to W$ satisfying
+$$
+\Phi(\alpha \boldsymbol{u} + \beta \boldsymbol{v}) = \alpha \Phi(\boldsymbol{u}) + \beta \Phi(\boldsymbol{v})
+\quad \text{for all } \boldsymbol{u}, \boldsymbol{v} \in V,\ \alpha, \beta \in \mathbb{R}.
+$$
+
+Once you choose a basis of $V$ and a basis of $W$, the map $\Phi$ is
+represented by a unique **matrix** whose $i$-th column is $\Phi$ applied
+to the $i$-th basis vector of $V$, written in the chosen basis of $W$.
+
+The **rank** of a matrix $\boldsymbol{A}$ is the dimension of its
+column space — equivalently, the number of linearly independent
+columns. (And, by a non-trivial theorem, equivalently the number of
+linearly independent rows.)
+
+Under change of basis $\boldsymbol{S}$, a matrix $\boldsymbol{A}$
+representing a map $V \to V$ transforms to
+$\boldsymbol{A}' = \boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S}$.
+This operation is called **conjugation** by $\boldsymbol{S}$.
+
+::: {.callout-warning}
+**Sūtra.** *The map is the object; the matrix is a name; the basis is
+the dictionary.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"A matrix and its corresponding linear map are the same thing."* —
+   Not exactly. The map is intrinsic; the matrix depends on a chosen
+   basis. Two different matrices can represent the same map.
+2. *"Rank counts the number of non-zero rows."* — Almost — but only
+   after row-reduction (Gaussian elimination). The raw count of
+   non-zero rows in an unreduced matrix is not the rank.
+3. *"Linear maps are matrices in disguise."* — In finite dimensions,
+   essentially yes. In infinite dimensions (function spaces), most
+   linear maps cannot be written as matrices — they are
+   **operators**.
+:::
+
+## Apply
+
+### Worked example
+
+A regression with three highly correlated features:
+$\boldsymbol{X} = \begin{pmatrix} 1 & 2 & 3 \\ 2 & 4 & 6 \\ 3 & 6 & 9 \\ 4 & 8 & 12 \end{pmatrix} \in \mathbb{R}^{4 \times 3}$.
+What goes wrong if we try to solve the normal equations
+$\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$?
+
+**Step 1.** Observe the columns: $\boldsymbol{x}_2 = 2 \boldsymbol{x}_1$,
+$\boldsymbol{x}_3 = 3 \boldsymbol{x}_1$. Rank of $\boldsymbol{X}$ is 1.
+
+**Step 2.** $\boldsymbol{X}^\top \boldsymbol{X} \in \mathbb{R}^{3 \times 3}$.
+Its rank is the same as $\boldsymbol{X}$'s rank (a theorem): 1. So
+$\boldsymbol{X}^\top \boldsymbol{X}$ is *singular* — its determinant
+is $0$, and it has no inverse.
+
+**Step 3.** The normal equations have either no solution or infinitely
+many. If a solution exists, every parameter $\boldsymbol{w}$ along
+the null space of $\boldsymbol{X}^\top \boldsymbol{X}$ gives the
+same predictions $\boldsymbol{X}\boldsymbol{w}$. *The model is not
+identifiable.*
+
+**Conclusion:** Rank-deficient design matrices break linear regression.
+The fix is either (a) drop redundant features, (b) add a small
+$\lambda \boldsymbol{I}$ to restore independence (ridge regression),
+or (c) project onto the column space (PCA pre-processing).
+
+### Warm
+
+**W1.** What is the rank of $\boldsymbol{I}_n$?
+
+<details class="hint"><summary>Full solution</summary>
+$n$ — every standard basis column is independent.
+</details>
+
+**W2.** What is the rank of the zero matrix?
+
+<details class="hint"><summary>Full solution</summary>
+0 — no non-zero columns.
+</details>
+
+**W3.** A $3 \times 5$ matrix can have rank at most what?
+
+<details class="hint"><summary>Full solution</summary>
+$\min(3, 5) = 3$. Rank can't exceed either dimension. (3 rows × 5
+columns: column space lives in $\mathbb{R}^3$, so dimension at most 3.)
+</details>
+
+### Working
+
+**Wo1.** Show that the kernel (= null space)
+$\ker \Phi = \{\boldsymbol{v} : \Phi(\boldsymbol{v}) = \boldsymbol{0}\}$
+of a linear map is always a subspace of the domain.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{0} \in \ker \Phi$ (linearity).
+$\boldsymbol{u}, \boldsymbol{v} \in \ker \Phi \Rightarrow \Phi(\boldsymbol{u} + \boldsymbol{v}) = \boldsymbol{0} + \boldsymbol{0} = \boldsymbol{0}$.
+$\Phi(\lambda \boldsymbol{u}) = \lambda \boldsymbol{0} = \boldsymbol{0}$. Three subspace checks pass.
+</details>
+
+**Wo2.** State the **rank-nullity theorem**:
+$\dim V = \mathrm{rank}\,\boldsymbol{A} + \mathrm{nullity}\,\boldsymbol{A}$,
+where $\boldsymbol{A}$ represents a map from $V$. Interpret it in
+plain English.
+
+<details class="hint"><summary>Full solution</summary>
+The dimension of the domain equals the dimension you "use" (rank,
+i.e. column-space dimension) plus the dimension you "destroy"
+(nullity, the dimension of the kernel). Every input direction either
+goes somewhere or gets crushed — and the total is fixed. For
+$\boldsymbol{A} \in \mathbb{R}^{m \times n}$, $\mathrm{rank} + \mathrm{nullity} = n$.
+</details>
+
+**Wo3.** Give the matrix of the linear map $\mathbb{R}^3 \to \mathbb{R}^3$
+that rotates by $90°$ about the $z$-axis.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$(1, 0, 0) \mapsto (0, 1, 0)$, $(0, 1, 0) \mapsto (-1, 0, 0)$,
+$(0, 0, 1) \mapsto (0, 0, 1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{R} = \begin{pmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{pmatrix}$. Rank = 3 (full), determinant = 1, columns are the
+images of the basis vectors. We'll see rotations again in Lesson 09.
+</details>
+
+### Stretch
+
+**S1.** A convolutional layer in a neural network applies a fixed
+$k \times k$ filter to every position of an input image. Is this
+operation linear? What's the "matrix" of this operation, viewed as a
+map from images to images?
+
+<details class="hint"><summary>Full solution</summary>
+Yes, convolution is linear: $\text{conv}(\alpha \boldsymbol{x} + \beta \boldsymbol{y}) = \alpha \,\text{conv}(\boldsymbol{x}) + \beta \,\text{conv}(\boldsymbol{y})$. The matrix is a **Toeplitz** matrix — sparse and structured,
+with the filter weights repeating along diagonals. Modern frameworks
+*never* materialise this matrix (too large), but it exists conceptually.
+The fact that conv is linear is what makes it work with all of linear
+algebra's tools (backprop, eigenanalysis, etc.).
+</details>
+
+**S2.** PCA computes a change of basis. In the new basis, the
+*covariance matrix* of the data is diagonal. Why might that simplify
+subsequent analyses?
+
+<details class="hint"><summary>Full solution</summary>
+Diagonal covariance means the features are uncorrelated. Any
+component-wise analysis (per-feature regularisation, per-feature
+analysis of variance, marginal distributions) decouples completely.
+Many algorithms simplify dramatically (independent Gaussians, separable
+priors, parallelisable updates) when features are uncorrelated. We'll
+prove PCA does this in Lesson 26.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A matrix is one *name* for a linear map; the map is what's real, and rank is its invariant size.**
+2. **Rank-nullity: every input dimension is either *used* (rank) or *crushed* (nullity); the sum is the domain dimension.**
+3. **In ML, low rank is a data structure: redundant features collapse, and the right basis often makes the geometry trivial (this is why PCA, SVD, and embeddings matter).**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state, without notes, what changes under change of basis
+   and what stays the same?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. Can you reach for "rank = number of independent directions" as a
+   first instinct when reading any matrix-heavy paper?
+
+- **3 yes:** move on to Lesson 06.
+- **2 yes:** redo D5 and Wo2, then move on.
+- **0–1 yes:** re-read *Discover* problems D4–D6.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.linear-independence-basis`](../04-linear-independence-basis/index.qmd) —
+  rank is the size of a basis of the column space; without "basis,"
+  rank has no meaning.
+
+### What this unlocks
+
+- [`mml.affine-spaces`](../06-affine-spaces/index.qmd) — affine maps
+  are linear maps plus a translation; same rank language applies.
+- Eventually, [`mml.svd-and-low-rank`](../13-svd-and-low-rank/index.qmd) —
+  SVD gives a canonical "best rank-$k$" approximation to any matrix.
+
+### Sister synthesis lesson
+
+[`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd)
+introduces rank via row-reduction; this lesson treats it as the
+**dimension of the map's image** — the conceptual definition that
+makes rank-nullity, SVD, and PCA inevitable.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Multicollinearity = rank-deficient design matrix. Ridge
+regression = add $\lambda \boldsymbol{I}$ to lift rank deficiency.
+Low-rank approximation (Lesson 13) = the matrix-compression idea
+behind LoRA fine-tuning of large language models.
+:::
+
+::: {.applied-callout}
+**Databases.** Query optimisation cost models use rank-of-join-graph
+heuristics. A low-rank join hint can short-circuit expensive plans.
+:::
+
+::: {.applied-callout}
+**Research.** "Effective dimensionality" of a dataset is rarely the
+ambient dimension — natural data lives on a low-dimensional manifold
+inside $\mathbb{R}^D$. The first cut is "estimate the rank of the
+covariance matrix," which is exactly what PCA does.
+:::
