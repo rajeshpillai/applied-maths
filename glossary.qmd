@@ -2541,6 +2541,372 @@ If a product of two numbers is zero, then at least one of them must be zero. The
 
 ---
 
+## MML track additions
+
+The following entries are first-named in the **Mathematics for Machine Learning (mml)** track, which walks Deisenroth, Faisal & Ong end-to-end. Many of these terms are also referenced in the synthesis tiers; the mml lesson gives the ML-flavoured framing.
+
+### Affine subspace {#affine-subspace}
+
+A subspace translated by a fixed point; geometrically a line, plane, or higher-dimensional flat that does *not* necessarily pass through the origin.
+
+**First named in:** [MML — Lesson 06, Affine Spaces and Hyperplanes](lessons/tier-mml-ml-math/06-affine-spaces/index.qmd)
+
+### Automatic differentiation (autodiff) {#automatic-differentiation}
+
+Algorithmic computation of exact derivatives of programs, in two flavours: *forward-mode* (best for $\mathbb{R} \to \mathbb{R}^M$) and *reverse-mode* (best for $\mathbb{R}^D \to \mathbb{R}$ — the basis of backprop).
+
+**First named in:** [MML — Lesson 16, Backpropagation and Automatic Differentiation](lessons/tier-mml-ml-math/16-backprop-autodiff/index.qmd)
+
+### Backpropagation {#backpropagation}
+
+Reverse-mode automatic differentiation applied to neural networks: forward pass computes outputs; backward pass propagates gradient through the graph in reverse. Cost: ~2× forward, regardless of parameter count.
+
+**First named in:** [MML — Lesson 16, Backpropagation and Automatic Differentiation](lessons/tier-mml-ml-math/16-backprop-autodiff/index.qmd)
+
+### Basis {#basis}
+
+A set of linearly independent vectors whose span is the whole space; every vector has a *unique* representation as a combination of basis vectors. Every basis of a vector space has the same size — the dimension.
+
+**First named in:** [MML — Lesson 04, Linear Independence and Basis](lessons/tier-mml-ml-math/04-linear-independence-basis/index.qmd)
+
+### Bayesian linear regression {#bayesian-linear-regression}
+
+Linear regression where the weights have a Gaussian prior; the posterior is Gaussian by conjugacy, the MAP estimate is ridge regression, and the predictive distribution includes both parameter uncertainty and observation noise.
+
+**First named in:** [MML — Lesson 25, Bayesian Linear Regression](lessons/tier-mml-ml-math/25-bayesian-linear-regression/index.qmd)
+
+### Cholesky decomposition {#cholesky-decomposition}
+
+For an SPD (symmetric positive-definite) matrix $\boldsymbol{A}$, the unique factorisation $\boldsymbol{A} = \boldsymbol{L}\boldsymbol{L}^\top$ with $\boldsymbol{L}$ lower-triangular and positive-diagonal. The "matrix square root" — twice as fast as LU and the canonical tool for solving / sampling / log-det of SPD matrices.
+
+**First named in:** [MML — Lesson 11, Cholesky Decomposition](lessons/tier-mml-ml-math/11-cholesky/index.qmd)
+
+### Conditional independence {#conditional-independence}
+
+$A \perp\!\!\!\perp B \mid C$ — observing $C$ makes $A$ and $B$ statistically independent. The fundamental relation encoded by directed graphical models.
+
+**First named in:** [MML — Lesson 23, Directed Graphical Models](lessons/tier-mml-ml-math/23-graphical-models-model-selection/index.qmd)
+
+### Conjugate prior {#conjugate-prior}
+
+A prior $p(\theta)$ is conjugate to a likelihood $p(D \mid \theta)$ if the posterior $p(\theta \mid D)$ is in the same family as the prior. Makes Bayes update reduce to parameter arithmetic.
+
+**First named in:** [MML — Lesson 19, Conjugacy and the Exponential Family](lessons/tier-mml-ml-math/19-conjugacy-change-of-variables/index.qmd)
+
+### Cosine similarity {#cosine-similarity}
+
+$\boldsymbol{u}^\top \boldsymbol{v} / (\lVert \boldsymbol{u}\rVert \lVert \boldsymbol{v}\rVert)$ — the cosine of the angle between two vectors; scale-free, used everywhere in embedding-based search.
+
+**First named in:** [MML — Lesson 07, Norms, Inner Products, Lengths, Angles](lessons/tier-mml-ml-math/07-norms-inner-products/index.qmd)
+
+### Cross-validation {#cross-validation}
+
+Partition data into $K$ folds; for each, train on the rest and evaluate on the held-out. Average across folds gives an estimate of true generalisation error. The modern default for model selection.
+
+**First named in:** [MML — Lesson 22, Data, Models, ERM](lessons/tier-mml-ml-math/22-models-and-erm/index.qmd)
+
+### Design matrix {#design-matrix}
+
+$\boldsymbol{X} \in \mathbb{R}^{N \times D}$ — rows are examples, columns are features. The data structure every supervised-learning algorithm starts from.
+
+**First named in:** [MML — Lesson 02, Matrices](lessons/tier-mml-ml-math/02-matrices/index.qmd)
+
+### Determinant {#determinant}
+
+A scalar associated with a square matrix that equals the (signed) volume scaling factor of the unit cube under that linear map. Invariant under change of basis; non-zero iff invertible.
+
+**First named in:** [MML — Lesson 10, Determinant, Trace, Eigenvalues](lessons/tier-mml-ml-math/10-determinant-trace-eigen/index.qmd)
+
+### Directed graphical model {#directed-graphical-model}
+
+A DAG with random variables as nodes; the joint distribution factorises as $p(\boldsymbol{x}) = \prod_i p(x_i \mid \mathrm{Pa}(x_i))$. Missing edges encode conditional independences.
+
+**First named in:** [MML — Lesson 23, Directed Graphical Models](lessons/tier-mml-ml-math/23-graphical-models-model-selection/index.qmd)
+
+### Eigendecomposition {#eigendecomposition}
+
+A square matrix $\boldsymbol{A} = \boldsymbol{S}\boldsymbol{\Lambda}\boldsymbol{S}^{-1}$ written as basis (columns of $\boldsymbol{S}$ are eigenvectors) times diagonal eigenvalue matrix times inverse basis. For symmetric matrices, $\boldsymbol{S}$ is orthogonal — the spectral theorem.
+
+**First named in:** [MML — Lesson 12, Eigendecomposition and Diagonalisation](lessons/tier-mml-ml-math/12-eigendecomposition/index.qmd)
+
+### ELBO (Evidence Lower BOund) {#elbo}
+
+For any latent-variable model and any distribution $q(z)$: $\log p(\boldsymbol{x}) \ge \mathbb{E}_q[\log p(\boldsymbol{x}, z)] - \mathbb{E}_q[\log q(z)]$. The right-hand side is the ELBO, maximised at the true posterior. The foundation of EM and variational inference.
+
+**First named in:** [MML — Lesson 30, The EM Algorithm](lessons/tier-mml-ml-math/30-em-algorithm/index.qmd)
+
+### EM algorithm (Expectation-Maximisation) {#em-algorithm}
+
+Iterative algorithm for MLE in latent-variable models: E-step computes posterior over latents given current parameters; M-step re-fits parameters given the posterior. Monotone improvement of log-likelihood; converges to local maximum.
+
+**First named in:** [MML — Lesson 30, The EM Algorithm](lessons/tier-mml-ml-math/30-em-algorithm/index.qmd)
+
+### Empirical Risk Minimisation (ERM) {#erm}
+
+Minimise the average loss on the training data: $\min \tfrac{1}{N} \sum_n L(y_n, f_{\boldsymbol{w}}(\boldsymbol{x}_n))$. The universal recipe of supervised learning.
+
+**First named in:** [MML — Lesson 22, Data, Models, ERM](lessons/tier-mml-ml-math/22-models-and-erm/index.qmd)
+
+### Exponential family {#exponential-family}
+
+A parametric family with density $p(x \mid \boldsymbol{\theta}) = h(x) \exp(\boldsymbol{\theta}^\top \boldsymbol{T}(x) - A(\boldsymbol{\theta}))$. Sufficient statistics live in $\boldsymbol{T}$; most common distributions (Gaussian, Beta, Gamma, Poisson, Bernoulli) belong to this family.
+
+**First named in:** [MML — Lesson 19, Conjugacy and the Exponential Family](lessons/tier-mml-ml-math/19-conjugacy-change-of-variables/index.qmd)
+
+### Gaussian Mixture Model (GMM) {#gmm}
+
+A density $p(\boldsymbol{x}) = \sum_k \pi_k \mathcal{N}(\boldsymbol{x} \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$ — weighted sum of $K$ Gaussians. Used for soft clustering and density estimation; fitted by EM.
+
+**First named in:** [MML — Lesson 29, Gaussian Mixture Models](lessons/tier-mml-ml-math/29-gmm/index.qmd)
+
+### Hessian {#hessian}
+
+The matrix $\boldsymbol{H}_{ij} = \partial^2 f / \partial x_i \partial x_j$ of second partial derivatives of a scalar function. Symmetric (under continuity). Its eigenvalues at a critical point classify min / max / saddle.
+
+**First named in:** [MML — Lesson 14, Differentiation and Gradients](lessons/tier-mml-ml-math/14-differentiation-gradients/index.qmd)
+
+### Hinge loss {#hinge-loss}
+
+$\max(0, 1 - y \cdot \mathrm{score})$ — the loss minimised by soft-margin SVM. Zero past the margin; linearly penalising margin violations.
+
+**First named in:** [MML — Lesson 31, SVM Primal](lessons/tier-mml-ml-math/31-svm-primal/index.qmd)
+
+### Hyperplane {#hyperplane}
+
+A codimension-1 affine subspace; in $\mathbb{R}^n$, the solution set of a single linear equation $\boldsymbol{w}^\top \boldsymbol{x} = b$. The decision boundary of every linear classifier.
+
+**First named in:** [MML — Lesson 06, Affine Spaces and Hyperplanes](lessons/tier-mml-ml-math/06-affine-spaces/index.qmd)
+
+### Inner product {#inner-product}
+
+A symmetric, bilinear, positive-definite function $\langle \boldsymbol{u}, \boldsymbol{v}\rangle$ on a vector space; induces a norm $\sqrt{\langle \boldsymbol{u}, \boldsymbol{u}\rangle}$ and an angle.
+
+**First named in:** [MML — Lesson 07, Norms, Inner Products, Lengths, Angles](lessons/tier-mml-ml-math/07-norms-inner-products/index.qmd)
+
+### Jacobian {#jacobian}
+
+For $\boldsymbol{g} : \mathbb{R}^n \to \mathbb{R}^m$, the matrix $\boldsymbol{J}_{ij} = \partial g_i / \partial x_j$ of partial derivatives. Generalises the derivative to vector-valued functions; multivariable chain rule = Jacobian product.
+
+**First named in:** [MML — Lesson 14, Differentiation and Gradients](lessons/tier-mml-ml-math/14-differentiation-gradients/index.qmd)
+
+### KKT conditions {#kkt-conditions}
+
+Karush–Kuhn–Tucker conditions: stationarity, primal feasibility, dual feasibility, complementary slackness. Necessary at any smooth optimum of a constrained problem (under regularity); sufficient for convex problems.
+
+**First named in:** [MML — Lesson 21, Constrained and Convex Optimisation](lessons/tier-mml-ml-math/21-constrained-convex-optimisation/index.qmd)
+
+### Kernel (Mercer kernel) {#kernel-function}
+
+A symmetric function $k(\boldsymbol{x}, \boldsymbol{x}')$ whose Gram matrix is positive semi-definite for every finite set of points; equivalent to an inner product in some feature space. The basis of the kernel trick.
+
+**First named in:** [MML — Lesson 32, Dual SVM and Kernels](lessons/tier-mml-ml-math/32-svm-dual-kernels/index.qmd)
+
+### Kernel trick {#kernel-trick}
+
+Replace inner products $\boldsymbol{x}^\top \boldsymbol{x}'$ in an algorithm with a kernel $k(\boldsymbol{x}, \boldsymbol{x}')$; the algorithm operates *as if* in a (possibly infinite-dimensional) feature space, without ever materialising features.
+
+**First named in:** [MML — Lesson 32, Dual SVM and Kernels](lessons/tier-mml-ml-math/32-svm-dual-kernels/index.qmd)
+
+### Lagrange multiplier {#lagrange-multiplier}
+
+The dual variable associated with a constraint in the Lagrangian $\mathcal{L} = f - \lambda h$; geometrically, the proportionality constant between $\nabla f$ and $\nabla h$ at a constrained extremum.
+
+**First named in:** [MML — Lesson 21, Constrained and Convex Optimisation](lessons/tier-mml-ml-math/21-constrained-convex-optimisation/index.qmd)
+
+### Latent variable {#latent-variable}
+
+An unobserved random variable that, together with parameters, generates observed data. Examples: cluster assignment in a GMM, "true score" in factor analysis, $z$ in probabilistic PCA / VAE.
+
+**First named in:** [MML — Lesson 28, PCA as a Latent-Variable Model](lessons/tier-mml-ml-math/28-pca-latent-variable/index.qmd)
+
+### Linear independence {#linear-independence}
+
+Vectors $\boldsymbol{v}_1, \dots, \boldsymbol{v}_k$ are linearly independent if no non-trivial linear combination equals zero: $\sum \alpha_i \boldsymbol{v}_i = \boldsymbol{0}$ forces $\alpha_1 = \dots = \alpha_k = 0$.
+
+**First named in:** [MML — Lesson 04, Linear Independence and Basis](lessons/tier-mml-ml-math/04-linear-independence-basis/index.qmd)
+
+### Linear mapping {#linear-mapping}
+
+A function $\Phi : V \to W$ satisfying $\Phi(\alpha \boldsymbol{u} + \beta \boldsymbol{v}) = \alpha \Phi(\boldsymbol{u}) + \beta \Phi(\boldsymbol{v})$. Once a basis is chosen on each side, $\Phi$ is represented by a matrix.
+
+**First named in:** [MML — Lesson 05, Rank and Linear Mappings](lessons/tier-mml-ml-math/05-rank-and-linear-mappings/index.qmd)
+
+### Mahalanobis distance {#mahalanobis-distance}
+
+$\sqrt{(\boldsymbol{x} - \boldsymbol{\mu})^\top \boldsymbol{\Sigma}^{-1} (\boldsymbol{x} - \boldsymbol{\mu})}$ — distance scaled by the inverse covariance; "natural" distance in Gaussian space.
+
+**First named in:** [MML — Lesson 18, Summary Statistics and the Gaussian](lessons/tier-mml-ml-math/18-gaussian-summary-stats/index.qmd)
+
+### Marginal likelihood (evidence) {#marginal-likelihood}
+
+$p(\mathcal{D} \mid M) = \int p(\mathcal{D} \mid \theta, M) p(\theta \mid M) d\theta$ — the probability of the data under model $M$ with parameters integrated out. Used for Bayesian model selection.
+
+**First named in:** [MML — Lesson 23, Directed Graphical Models and Model Selection](lessons/tier-mml-ml-math/23-graphical-models-model-selection/index.qmd)
+
+### Maximum a Posteriori (MAP) {#map-estimator}
+
+The mode of the posterior $p(\theta \mid D)$ — i.e. the most probable parameter given the data. Equivalent to regularised MLE with $-\log$ prior as the regulariser.
+
+**First named in:** [MML — Lesson 25, Bayesian Linear Regression](lessons/tier-mml-ml-math/25-bayesian-linear-regression/index.qmd)
+
+### Multivariate Gaussian {#multivariate-gaussian}
+
+$\mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$ in $\mathbb{R}^D$: density $\propto \exp(-\tfrac{1}{2}(\boldsymbol{x} - \boldsymbol{\mu})^\top \boldsymbol{\Sigma}^{-1}(\boldsymbol{x} - \boldsymbol{\mu}))$. Closed under affine maps, marginalisation, and conditioning.
+
+**First named in:** [MML — Lesson 18, Summary Statistics and the Gaussian](lessons/tier-mml-ml-math/18-gaussian-summary-stats/index.qmd)
+
+### Norm {#norm}
+
+A length function $\lVert \cdot \rVert$ on a vector space, satisfying positive-definiteness, homogeneity, and triangle inequality. Common: L1, L2, L∞.
+
+**First named in:** [MML — Lesson 07, Norms, Inner Products, Lengths, Angles](lessons/tier-mml-ml-math/07-norms-inner-products/index.qmd)
+
+### Normal equations {#normal-equations}
+
+$\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$ — the linear system whose solution is the least-squares (MLE) regression weight.
+
+**First named in:** [MML — Lesson 24, Linear Regression MLE](lessons/tier-mml-ml-math/24-linear-regression-mle/index.qmd)
+
+### Orthogonal complement {#orthogonal-complement}
+
+For a subspace $U \subseteq V$, the set $U^\perp$ of vectors in $V$ orthogonal to every element of $U$. Always a subspace; $\dim U + \dim U^\perp = \dim V$.
+
+**First named in:** [MML — Lesson 08, Orthonormal Basis and Orthogonal Complement](lessons/tier-mml-ml-math/08-orthogonality/index.qmd)
+
+### Orthogonal projection {#orthogonal-projection}
+
+The unique map from $V$ to a subspace $U$ that returns the closest point in $U$ to the input; equivalent to "drop a perpendicular." Least-squares regression is orthogonal projection onto the column space.
+
+**First named in:** [MML — Lesson 09, Orthogonal Projections and Rotations](lessons/tier-mml-ml-math/09-projections-rotations/index.qmd)
+
+### Orthonormal basis {#orthonormal-basis}
+
+A basis of pairwise orthogonal unit vectors. Coordinates in such a basis are inner products with the basis vectors; sum of squared coordinates is squared norm (Parseval's identity).
+
+**First named in:** [MML — Lesson 08, Orthonormal Basis and Orthogonal Complement](lessons/tier-mml-ml-math/08-orthogonality/index.qmd)
+
+### Posterior {#posterior}
+
+$p(\theta \mid \mathcal{D})$ — the conditional distribution of parameters given the data; obtained via Bayes' theorem from prior and likelihood.
+
+**First named in:** [MML — Lesson 17, Probability Spaces and Bayes](lessons/tier-mml-ml-math/17-probability-spaces-bayes/index.qmd)
+
+### Principal Component Analysis (PCA) {#pca}
+
+A dimensionality-reduction technique: find the directions (eigenvectors of the data covariance) that maximise variance — equivalently, minimise reconstruction error in projection.
+
+**First named in:** [MML — Lesson 26, PCA Max-Variance and Projection-Error](lessons/tier-mml-ml-math/26-pca-variance-projection/index.qmd)
+
+### Probabilistic PCA {#probabilistic-pca}
+
+Generative model with continuous latent $z \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ and observed $\boldsymbol{x} = \boldsymbol{W} z + \boldsymbol{\mu} + \boldsymbol{\epsilon}$. MLE recovers classical PCA; gives posterior + sampling for free.
+
+**First named in:** [MML — Lesson 28, PCA as a Latent-Variable Model](lessons/tier-mml-ml-math/28-pca-latent-variable/index.qmd)
+
+### Probability space {#probability-space}
+
+A triple $(\Omega, \mathcal{F}, P)$: sample space, $\sigma$-algebra of events, probability measure. The formal setting of probability theory.
+
+**First named in:** [MML — Lesson 17, Probability Spaces and Bayes](lessons/tier-mml-ml-math/17-probability-spaces-bayes/index.qmd)
+
+### Prior {#prior}
+
+$p(\theta)$ — the distribution over parameters *before* observing the data. Updated via Bayes' theorem into a posterior.
+
+**First named in:** [MML — Lesson 17, Probability Spaces and Bayes](lessons/tier-mml-ml-math/17-probability-spaces-bayes/index.qmd)
+
+### Pseudo-inverse {#pseudo-inverse}
+
+$\boldsymbol{A}^+$ — for a matrix without a true inverse (non-square or singular), the minimum-norm least-squares solver. Computed from SVD: invert non-zero singular values, transpose.
+
+**First named in:** [MML — Lesson 13, SVD and Low-Rank Approximation](lessons/tier-mml-ml-math/13-svd-and-low-rank/index.qmd)
+
+### Rank {#rank}
+
+The dimension of the column space (equivalently, the row space) of a matrix; the number of linearly independent columns. Invariant under change of basis.
+
+**First named in:** [MML — Lesson 05, Rank and Linear Mappings](lessons/tier-mml-ml-math/05-rank-and-linear-mappings/index.qmd)
+
+### Regularisation {#regularisation}
+
+A penalty $\lambda \Omega(\boldsymbol{w})$ added to the training loss to discourage extreme weight values; equivalent to a constraint on $\Omega(\boldsymbol{w})$. Ridge: $\Omega = \lVert \cdot \rVert_2^2$. Lasso: $\Omega = \lVert \cdot \rVert_1$.
+
+**First named in:** [MML — Lesson 22, Data, Models, ERM](lessons/tier-mml-ml-math/22-models-and-erm/index.qmd)
+
+### Responsibility (GMM) {#responsibility}
+
+$r_{nk} = p(z_n = k \mid \boldsymbol{x}_n)$ — the posterior probability that component $k$ generated point $\boldsymbol{x}_n$ in a Gaussian mixture model. Fractional / soft cluster assignment.
+
+**First named in:** [MML — Lesson 29, Gaussian Mixture Models](lessons/tier-mml-ml-math/29-gmm/index.qmd)
+
+### Ridge regression {#ridge-regression}
+
+Linear regression with $L_2$ penalty: $\min \lVert \boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}\rVert^2 + \lambda \lVert \boldsymbol{w}\rVert^2$. Closed form $(\boldsymbol{X}^\top \boldsymbol{X} + \lambda \boldsymbol{I})^{-1} \boldsymbol{X}^\top \boldsymbol{y}$ — MAP under a Gaussian prior on $\boldsymbol{w}$.
+
+**First named in:** [MML — Lesson 25, Bayesian Linear Regression](lessons/tier-mml-ml-math/25-bayesian-linear-regression/index.qmd)
+
+### Rotation matrix {#rotation-matrix}
+
+An orthogonal matrix with determinant $+1$; preserves lengths, angles, and orientation. In $\mathbb{R}^2$: $\begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix}$.
+
+**First named in:** [MML — Lesson 09, Orthogonal Projections and Rotations](lessons/tier-mml-ml-math/09-projections-rotations/index.qmd)
+
+### Spectral theorem (MML view) {#spectral-theorem-mml}
+
+Every real symmetric matrix has an orthonormal eigenbasis; equivalently, $\boldsymbol{A} = \boldsymbol{Q}\boldsymbol{\Lambda}\boldsymbol{Q}^\top$ with $\boldsymbol{Q}$ orthogonal and $\boldsymbol{\Lambda}$ diagonal real.
+
+**First named in:** [MML — Lesson 12, Eigendecomposition and Diagonalisation](lessons/tier-mml-ml-math/12-eigendecomposition/index.qmd)
+
+### Stochastic Gradient Descent (SGD) {#sgd-mml}
+
+Gradient descent where the gradient is estimated from a mini-batch rather than the whole dataset; unbiased, variance $\propto 1/B$. Cornerstone of large-scale ML training.
+
+**First named in:** [MML — Lesson 20, Gradient Descent, SGD, Momentum](lessons/tier-mml-ml-math/20-gradient-descent/index.qmd)
+
+### Subspace {#subspace}
+
+A non-empty subset of a vector space, closed under addition and scalar multiplication (equivalently: contains the origin and is closed under both operations).
+
+**First named in:** [MML — Lesson 03, Vector Spaces and Subspaces](lessons/tier-mml-ml-math/03-vector-spaces/index.qmd)
+
+### Sufficient statistic {#sufficient-statistic}
+
+A function $\boldsymbol{T}(x)$ that summarises all information in the data relevant to inferring the parameter; in the exponential family, $\boldsymbol{T}$ appears in the density and the MLE depends on the data only through it.
+
+**First named in:** [MML — Lesson 19, Conjugacy and the Exponential Family](lessons/tier-mml-ml-math/19-conjugacy-change-of-variables/index.qmd)
+
+### Support Vector Machine (SVM) {#svm}
+
+Max-margin classifier: find the hyperplane separating two classes with the largest margin to the closest training points. Trained as a quadratic program; in the dual, depends on data only through inner products — enabling the kernel trick.
+
+**First named in:** [MML — Lesson 31, SVM Primal](lessons/tier-mml-ml-math/31-svm-primal/index.qmd)
+
+### Support vector {#support-vector}
+
+A training point exactly on the SVM margin (or inside it, for soft-margin); only support vectors contribute to the decision boundary.
+
+**First named in:** [MML — Lesson 31, SVM Primal](lessons/tier-mml-ml-math/31-svm-primal/index.qmd)
+
+### Singular Value Decomposition (SVD) {#svd}
+
+Universal matrix factorisation $\boldsymbol{A} = \boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top$: orthogonal × diagonal (non-negative) × orthogonal. Truncating to the top-$k$ singular values gives the best rank-$k$ approximation (Eckart–Young).
+
+**First named in:** [MML — Lesson 13, SVD and Low-Rank Approximation](lessons/tier-mml-ml-math/13-svd-and-low-rank/index.qmd)
+
+### Trace {#trace}
+
+The sum of the diagonal entries of a square matrix; equal to the sum of its eigenvalues. Invariant under change of basis and under cyclic permutation of products.
+
+**First named in:** [MML — Lesson 10, Determinant, Trace, Eigenvalues](lessons/tier-mml-ml-math/10-determinant-trace-eigen/index.qmd)
+
+### Vector space {#vector-space}
+
+A set with addition and scalar multiplication satisfying eight standard axioms; the abstract setting of linear algebra.
+
+**First named in:** [MML — Lesson 03, Vector Spaces and Subspaces](lessons/tier-mml-ml-math/03-vector-spaces/index.qmd)
+
+---
+
 ::: {.applied-callout}
 **For authors.** Every term that a lesson formally introduces in its `## Name`
 beat must also have an entry here. See the repo's authoring contract for the
