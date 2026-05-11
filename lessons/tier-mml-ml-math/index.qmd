@@ -1,0 +1,164 @@
+---
+title: "00 · Introduction"
+subtitle: "Tier MML — Mathematics for Machine Learning · 32 lessons walking Deisenroth, Faisal & Ong end-to-end, from linear systems to SVM kernels"
+---
+
+## What this tier is for
+
+This tier walks Deisenroth, Faisal & Ong's *Mathematics for Machine
+Learning* (Cambridge 2024) lesson by lesson. Where the synthesis
+tiers give you the **mathematics** (Tier 5 linear algebra, Tier 5–6
+calculus, Tier 5 probability, Tier 6 optimisation), this tier shows
+how that mathematics **combines** into the five algorithms that built
+classical ML — linear regression, PCA, GMM with EM, SVM with kernels —
+and the modern infrastructure they live on: backpropagation, automatic
+differentiation, graphical models.
+
+By the end of the tier you can:
+
+- **Solve linear systems** geometrically and algebraically, and recognise
+  the design matrix $\boldsymbol{X} \in \mathbb{R}^{N \times D}$ as the
+  data structure of ML.
+- **Decompose any matrix** — Cholesky, eigendecomposition, SVD — and use
+  low-rank approximation (Eckart–Young) for compression and noise removal.
+- **Take gradients** of vector- and matrix-valued functions, derive
+  **backpropagation** as repeated chain-rule on a computation graph,
+  and recognise it as **reverse-mode automatic differentiation**.
+- **Reason probabilistically** with the Gaussian, conjugate priors,
+  exponential families, and change-of-variables — the four building
+  blocks of every Bayesian model.
+- **Solve constrained optimisations** via Lagrangians and the KKT
+  conditions, and recognise convex problems as the well-behaved
+  subfamily.
+- **Derive linear regression** as MLE and as orthogonal projection,
+  then upgrade it to the Bayesian posterior with closed-form mean and
+  covariance.
+- **Derive PCA** from four perspectives — max-variance, projection-error,
+  eigenvector computation, latent-variable — and recognise probabilistic
+  PCA as a Gaussian generative model.
+- **Fit Gaussian Mixture Models** with the EM algorithm, then see EM
+  itself as coordinate ascent on the ELBO.
+- **Derive SVMs** as max-margin separating hyperplanes (primal), then
+  as a quadratic program in the dual, and recognise **kernels** as the
+  trick that makes the dual lift to infinite-dimensional feature spaces.
+
+## How to read this tier
+
+**Strict prerequisite chain.** Each lesson depends on the previous
+one by design. The prerequisite graph in `_curriculum.yml` is the
+source of truth — if a lesson links to a synthesis prerequisite
+(e.g. `t5.matrices` for the matrix-algebra lesson, `t6.gradient-methods`
+for backpropagation), that external prereq is also required.
+
+**Read alongside the MML PDF.** [Free PDF](https://mml-book.com) of
+the entire book at `mml-book.com`. This tier adds the *Touch* widget,
+the *Wonder* questions, the graduated hints, the glossary cross-links,
+and the ML-flavoured framing the textbook's graduate compactness
+leaves to the reader.
+
+**Compare with the synthesis tiers** when the same idea is treated
+there from a different angle:
+
+- [`t5.matrices`](../tier-5-undergrad-core/01-matrices/index.qmd) /
+  [`t5.eigenvalues`](../tier-5-undergrad-core/04-eigenvalues/index.qmd) —
+  the pure linear-algebra view, framed without ML.
+- [`t6.gradient-methods`](../tier-6-undergrad-advanced/10-gradient-methods/index.qmd) /
+  [`t6.convex-optimization`](../tier-6-undergrad-advanced/03-convex-optimization/index.qmd) —
+  the pure optimisation view.
+- [`t6.spectral-theorem`](../tier-6-undergrad-advanced/04-spectral-theorem/index.qmd) —
+  the pure spectral view of SVD.
+
+This tier doesn't re-derive those — it cites them, then applies them
+to the ML algorithms the synthesis tiers never reach.
+
+## The lessons by part
+
+```{mermaid}
+flowchart LR
+    A[Part I: Foundations<br/>L01-L21<br/>LA, calculus, probability, optimisation]
+    B[Part II: Algorithms<br/>L22-L32<br/>ERM, LR, PCA, GMM, SVM]
+    A --> B
+```
+
+### Part I — Mathematical Foundations (lessons 1-21)
+
+#### Chapter 2 — Linear Algebra
+
+1. [**01 · Systems of Linear Equations and the Geometry of Solutions**](01-linear-systems/index.qmd)
+2. [**02 · Matrices: Algebra, Inverse, and the Design Matrix**](02-matrices/index.qmd)
+3. [**03 · Vector Spaces and Subspaces**](03-vector-spaces/index.qmd)
+4. [**04 · Linear Independence and Basis**](04-linear-independence-basis/index.qmd)
+5. [**05 · Rank, Linear Mappings, Change of Basis**](05-rank-and-linear-mappings/index.qmd)
+6. [**06 · Affine Spaces and Hyperplanes**](06-affine-spaces/index.qmd)
+
+#### Chapter 3 — Analytic Geometry
+
+7. [**07 · Norms, Inner Products, Lengths, Angles**](07-norms-inner-products/index.qmd)
+8. [**08 · Orthonormal Basis, Orthogonal Complement, Function Inner Products**](08-orthogonality/index.qmd)
+9. [**09 · Orthogonal Projections and Rotations**](09-projections-rotations/index.qmd)
+
+#### Chapter 4 — Matrix Decompositions
+
+10. [**10 · Determinant, Trace, Eigenvalues**](10-determinant-trace-eigen/index.qmd)
+11. [**11 · Cholesky Decomposition**](11-cholesky/index.qmd)
+12. [**12 · Eigendecomposition and Diagonalisation**](12-eigendecomposition/index.qmd)
+13. [**13 · SVD, Matrix Approximation, Matrix Phylogeny**](13-svd-and-low-rank/index.qmd)
+
+#### Chapter 5 — Vector Calculus
+
+14. [**14 · Univariate and Partial Differentiation, Gradients**](14-differentiation-gradients/index.qmd)
+15. [**15 · Gradients of Vector- and Matrix-Valued Functions**](15-vector-matrix-gradients/index.qmd)
+16. [**16 · Backpropagation, Automatic Differentiation, Multivariate Taylor**](16-backprop-autodiff/index.qmd)
+
+#### Chapter 6 — Probability and Distributions
+
+17. [**17 · Probability Spaces, Discrete and Continuous, Bayes' Theorem**](17-probability-spaces-bayes/index.qmd)
+18. [**18 · Summary Statistics, Independence, the Gaussian**](18-gaussian-summary-stats/index.qmd)
+19. [**19 · Conjugacy, the Exponential Family, Change of Variables**](19-conjugacy-change-of-variables/index.qmd)
+
+#### Chapter 7 — Continuous Optimisation
+
+20. [**20 · Gradient Descent, SGD, Momentum**](20-gradient-descent/index.qmd)
+21. [**21 · Constrained and Convex Optimisation (Lagrange, KKT)**](21-constrained-convex-optimisation/index.qmd)
+
+### Part II — Central Machine-Learning Problems (lessons 22-32)
+
+#### Chapter 8 — When Models Meet Data
+
+22. [**22 · Data, Models, Empirical Risk Minimisation**](22-models-and-erm/index.qmd)
+23. [**23 · Directed Graphical Models and Model Selection**](23-graphical-models-model-selection/index.qmd)
+
+#### Chapter 9 — Linear Regression
+
+24. [**24 · Linear Regression: MLE Parameter Estimation**](24-linear-regression-mle/index.qmd)
+25. [**25 · Bayesian Linear Regression and MLE as Orthogonal Projection**](25-bayesian-linear-regression/index.qmd)
+
+#### Chapter 10 — Dimensionality Reduction with PCA
+
+26. [**26 · PCA: Max-Variance and Projection-Error Perspectives**](26-pca-variance-projection/index.qmd)
+27. [**27 · PCA: Eigenvector Computation and the High-Dimensional Trick**](27-pca-eigenvector-high-dim/index.qmd)
+28. [**28 · PCA as a Latent-Variable Model (Probabilistic PCA)**](28-pca-latent-variable/index.qmd)
+
+#### Chapter 11 — Density Estimation with Gaussian Mixture Models
+
+29. [**29 · Gaussian Mixture Models and MLE**](29-gmm/index.qmd)
+30. [**30 · The EM Algorithm and the Latent-Variable Perspective**](30-em-algorithm/index.qmd)
+
+#### Chapter 12 — Classification with Support Vector Machines
+
+31. [**31 · SVM: Separating Hyperplanes and the Primal**](31-svm-primal/index.qmd)
+32. [**32 · Dual SVM, Kernels, and Numerical Solution**](32-svm-dual-kernels/index.qmd)
+
+## Track status — in progress (32 lessons planned)
+
+The track is being authored against the six-beat contract. Each lesson
+will carry all required callouts (fun-fact, key-insight,
+common-confusion, Takeaways, Self-Assessment), graduated hints
+(Hint 1 / 2 / 3 / Full solution) on every exercise, and a
+sister-synthesis link to the relevant Tier 5–7 lesson.
+
+::: {.callout-note}
+This page reflects the snapshot of `_curriculum.yml` at the time of
+build. Lesson statuses there are the source of truth — `planned`
+lessons are skeletons; `done` lessons are fully authored.
+:::

@@ -1,0 +1,435 @@
+---
+title: "02 · Matrices: Algebra, Inverse, and the Design Matrix"
+subtitle: "A matrix is a grid of numbers — and the data structure every ML model is shaped by."
+lesson-id: "mml.matrices"
+tier: "mml"
+prerequisites: ["mml.linear-systems", "t5.matrices"]
+unlocks: ["mml.vector-spaces"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$ as a
+   system of linear equations? — see
+   [MML — 01, Linear Systems](../01-linear-systems/index.qmd).
+2. Can you multiply two 2-by-2 matrices on paper? — see
+   [Tier 5 — Matrices](../../tier-5-undergrad-core/01-matrices/index.qmd).
+3. Can you state the dimensions rule: $\boldsymbol{A} \in \mathbb{R}^{m \times n}$
+   times $\boldsymbol{B} \in \mathbb{R}^{n \times p}$ gives what shape? — same prerequisite.
+4. Do you know what a $2 \times 2$ identity matrix looks like?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A spreadsheet is a matrix. Below is a tiny dataset: three students,
+each with two test scores. Hover the cells; this is
+$\boldsymbol{X} \in \mathbb{R}^{3 \times 2}$ — three rows (one per
+student), two columns (one per test).
+
+```{ojs}
+{
+  const X = [[78, 91], [65, 70], [88, 84]];
+  const rowLabels = ["Alice", "Bob", "Cara"];
+  const colLabels = ["Test 1", "Test 2"];
+  return html`<table style="border-collapse: collapse; font-family: sans-serif; margin-top: 8px;">
+    <thead>
+      <tr><th></th>${colLabels.map(c => `<th style="border:1px solid #ccc; padding:6px 14px; background:#f0f0f0">${c}</th>`).join("")}</tr>
+    </thead>
+    <tbody>
+      ${X.map((row, i) => `<tr>
+        <th style="border:1px solid #ccc; padding:6px 14px; background:#f0f0f0">${rowLabels[i]}</th>
+        ${row.map(v => `<td style="border:1px solid #ccc; padding:6px 14px; text-align:right">${v}</td>`).join("")}
+      </tr>`).join("")}
+    </tbody>
+  </table>`;
+}
+```
+
+Now imagine we want to assign each test a weight — say
+$\boldsymbol{w} = (0.4, 0.6)^\top$ — and get one weighted grade per
+student. The operation that does this is **matrix–vector
+multiplication**: $\boldsymbol{X}\boldsymbol{w}$ is a length-3 vector,
+the weighted grade per student. Drag the slider for $w_1$ (Test 1's
+weight); $w_2 = 1 - w_1$ adjusts automatically.
+
+```{ojs}
+viewof w1 = Inputs.range([0, 1], {value: 0.4, step: 0.01, label: "Test 1 weight w₁:"})
+```
+
+```{ojs}
+{
+  const X = [[78, 91], [65, 70], [88, 84]];
+  const w = [w1, 1 - w1];
+  const grades = X.map(row => row[0]*w[0] + row[1]*w[1]);
+  const rowLabels = ["Alice", "Bob", "Cara"];
+  return html`<table style="border-collapse: collapse; font-family: sans-serif; margin-top:6px;">
+    <thead><tr><th></th><th style="padding:6px 14px;background:#f0f0f0;border:1px solid #ccc;">Grade = X w</th></tr></thead>
+    <tbody>
+      ${grades.map((g,i) => `<tr>
+        <th style="padding:6px 14px;background:#f0f0f0;border:1px solid #ccc">${rowLabels[i]}</th>
+        <td style="padding:6px 14px;border:1px solid #ccc;text-align:right">${g.toFixed(1)}</td>
+      </tr>`).join("")}
+    </tbody>
+  </table>`;
+}
+```
+
+The matrix $\boldsymbol{X}$ holds the data. The vector $\boldsymbol{w}$
+holds the model parameters. The product $\boldsymbol{X}\boldsymbol{w}$
+holds the predictions. *That is linear regression in one sentence.*
+
+## Wonder
+
+1. Why does the rule "rows of the first times columns of the second"
+   for matrix multiplication require the *inner* dimensions to match,
+   not the outer?
+2. If $\boldsymbol{X}$ has 3 rows and 2 columns, what shape is
+   $\boldsymbol{X}\boldsymbol{w}$? Three numbers, two, six? Why?
+3. We chose weights $w_1$ and $w_2$ that sum to 1. Why might that
+   make $\boldsymbol{X}\boldsymbol{w}$ feel like an *average* of the
+   columns?
+4. Could there be a matrix $\boldsymbol{Y}$ such that $\boldsymbol{Y}\boldsymbol{X}$
+   gives a length-2 vector? What would its shape need to be?
+
+## Discover
+
+Six problems that build matrix algebra from $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$.
+
+**D1.** Compute $\boldsymbol{X}\boldsymbol{w}$ by hand where
+$\boldsymbol{X} = \begin{pmatrix} 2 & 1 \\ 0 & 3 \\ 4 & -1 \end{pmatrix}$
+and $\boldsymbol{w} = \begin{pmatrix} 1 \\ 2 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$(2 \cdot 1 + 1 \cdot 2,\ 0 \cdot 1 + 3 \cdot 2,\ 4 \cdot 1 + (-1) \cdot 2)^\top = (4, 6, 2)^\top$.
+Three rows of $\boldsymbol{X}$ produce three components in
+$\boldsymbol{X}\boldsymbol{w}$.
+</details>
+
+**D2.** Verify by direct computation that
+$(\boldsymbol{A}\boldsymbol{B})\boldsymbol{C} = \boldsymbol{A}(\boldsymbol{B}\boldsymbol{C})$
+for $\boldsymbol{A} = \begin{pmatrix} 1 & 0 \\ 0 & 2 \end{pmatrix}$,
+$\boldsymbol{B} = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$,
+$\boldsymbol{C} = \begin{pmatrix} 2 \\ 3 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{B}\boldsymbol{C} = (5, 3)^\top$, so $\boldsymbol{A}(\boldsymbol{B}\boldsymbol{C}) = (5, 6)^\top$.
+$\boldsymbol{A}\boldsymbol{B} = \begin{pmatrix} 1 & 1 \\ 0 & 2 \end{pmatrix}$,
+so $(\boldsymbol{A}\boldsymbol{B})\boldsymbol{C} = (5, 6)^\top$. Equal.
+Matrix multiplication is *associative* — but you have to compute the
+sizes to even check this.
+</details>
+
+**D3.** Find a $2 \times 2$ matrix $\boldsymbol{A}$ and another
+$\boldsymbol{B}$ such that $\boldsymbol{A}\boldsymbol{B} \ne \boldsymbol{B}\boldsymbol{A}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Try $\boldsymbol{A} = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$,
+$\boldsymbol{B} = \begin{pmatrix} 1 & 0 \\ 1 & 1 \end{pmatrix}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A}\boldsymbol{B} = \begin{pmatrix} 2 & 1 \\ 1 & 1 \end{pmatrix}$,
+$\boldsymbol{B}\boldsymbol{A} = \begin{pmatrix} 1 & 1 \\ 1 & 2 \end{pmatrix}$.
+Not equal. **Matrix multiplication is *not* commutative** — and this
+is why composing two linear maps depends on order.
+</details>
+
+**D4.** Find a $2 \times 2$ matrix $\boldsymbol{I}$ such that
+$\boldsymbol{I}\boldsymbol{A} = \boldsymbol{A}\boldsymbol{I} = \boldsymbol{A}$
+for every $2 \times 2$ matrix $\boldsymbol{A}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{I} = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}$ —
+the **identity matrix**. Plays the role of $1$ in ordinary
+multiplication. There is one for each square size: $\boldsymbol{I}_n$ for $n \times n$.
+</details>
+
+**D5.** Suppose $\boldsymbol{A}\boldsymbol{B} = \boldsymbol{I}$ for
+some square $\boldsymbol{B}$. Does that mean $\boldsymbol{B}\boldsymbol{A} = \boldsymbol{I}$
+too? Try
+$\boldsymbol{A} = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$,
+$\boldsymbol{B} = \frac{1}{-2}\begin{pmatrix} 4 & -2 \\ -3 & 1 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+Compute: $\boldsymbol{A}\boldsymbol{B} = \boldsymbol{I}$ and
+$\boldsymbol{B}\boldsymbol{A} = \boldsymbol{I}$ as well. For
+*square* matrices, one-sided inverses are two-sided inverses
+(a deep theorem). We call $\boldsymbol{B}$ the **inverse** of
+$\boldsymbol{A}$ and write $\boldsymbol{B} = \boldsymbol{A}^{-1}$.
+Not every square matrix has one — only those with nonzero determinant.
+</details>
+
+**D6.** Given $\boldsymbol{A}^{-1}$ exists, give a one-line formula
+for the solution of $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$.
+
+<details class="hint"><summary>Full solution</summary>
+Multiply both sides on the left by $\boldsymbol{A}^{-1}$:
+$\boldsymbol{x} = \boldsymbol{A}^{-1}\boldsymbol{b}$. *Beautiful in
+theory — but in practice we never actually compute $\boldsymbol{A}^{-1}$;
+we do Gaussian elimination directly because it's $\sim 3\times$ faster
+and numerically more stable.*
+</details>
+
+::: {.fun-fact}
+The English mathematician **Arthur Cayley** wrote the first paper on
+the algebra of matrices in 1858 (*A Memoir on the Theory of Matrices*),
+proving among other things that every square matrix satisfies its own
+characteristic polynomial — the **Cayley–Hamilton theorem**. He did
+this before *vectors* were a standard idea. The "matrix" had to come
+first; vectors as algebra-friendly objects came later.
+:::
+
+::: {.key-insight}
+A matrix is *two things at once*: a **data table** (your dataset,
+your design matrix $\boldsymbol{X}$) and a **transformation** (the
+operation $\boldsymbol{x} \mapsto \boldsymbol{A}\boldsymbol{x}$ that
+sends one vector to another). Every confusion about matrices comes
+from losing track of which view you're in.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **matrix** $\boldsymbol{A} \in \mathbb{R}^{m \times n}$ is a
+rectangular array with $m$ rows and $n$ columns. Its $(i, j)$ entry
+is $a_{ij}$.
+
+The **matrix–matrix product** of
+$\boldsymbol{A} \in \mathbb{R}^{m \times n}$ and
+$\boldsymbol{B} \in \mathbb{R}^{n \times p}$ is the matrix
+$\boldsymbol{C} \in \mathbb{R}^{m \times p}$ with entries
+$$
+c_{ij} = \sum_{k=1}^n a_{ik} b_{kj}.
+$$
+
+The **identity matrix** $\boldsymbol{I}_n \in \mathbb{R}^{n \times n}$
+has $1$ on the diagonal and $0$ elsewhere. The **inverse** of a
+square $\boldsymbol{A}$, when it exists, is the unique
+$\boldsymbol{A}^{-1}$ with $\boldsymbol{A}\boldsymbol{A}^{-1} = \boldsymbol{A}^{-1}\boldsymbol{A} = \boldsymbol{I}$.
+
+The **design matrix** of a dataset with $N$ examples and $D$ features
+is $\boldsymbol{X} \in \mathbb{R}^{N \times D}$ — one row per example,
+one column per feature. This is the matrix every supervised-learning
+algorithm in this track starts with.
+
+::: {.callout-warning}
+**Sūtra.** *Rows by columns, inner dimensions match — and order is
+not negotiable.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Matrix multiplication is element-wise."* — Almost never. The
+   element-wise (Hadamard) product exists but is rare. $\boldsymbol{A}\boldsymbol{B}$
+   is the rows-by-columns inner-product rule above.
+2. *"$\boldsymbol{A}^{-1}$ always exists if $\boldsymbol{A}$ is square."* —
+   Wrong. It exists iff $\det \boldsymbol{A} \ne 0$. The all-ones
+   matrix is square but has no inverse.
+3. *"Computing $\boldsymbol{A}^{-1}\boldsymbol{b}$ is the way to solve
+   $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$."* — Mathematically
+   yes, numerically no. NumPy's `solve` uses LU decomposition; the
+   inverse is reserved for theoretical work.
+:::
+
+## Apply
+
+### Worked example
+
+A linear regression on the dataset
+$\boldsymbol{X} = \begin{pmatrix} 1 & 2 \\ 1 & 3 \\ 1 & 5 \end{pmatrix}$,
+$\boldsymbol{y} = \begin{pmatrix} 3 \\ 4 \\ 6 \end{pmatrix}$ — the
+first column of $\boldsymbol{X}$ is the intercept, the second is the
+feature. The **normal equations** for the least-squares fit are
+$\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$.
+
+**Step 1 — Form $\boldsymbol{X}^\top \boldsymbol{X}$:**
+$\boldsymbol{X}^\top = \begin{pmatrix} 1 & 1 & 1 \\ 2 & 3 & 5 \end{pmatrix}$.
+Then $\boldsymbol{X}^\top \boldsymbol{X} = \begin{pmatrix} 3 & 10 \\ 10 & 38 \end{pmatrix}$.
+
+**Step 2 — Form $\boldsymbol{X}^\top \boldsymbol{y}$:**
+$\boldsymbol{X}^\top \boldsymbol{y} = \begin{pmatrix} 13 \\ 48 \end{pmatrix}$.
+
+**Step 3 — Solve the $2 \times 2$ system** (any way you like — use
+Lesson 01's elimination). Multiplying through:
+$3 w_0 + 10 w_1 = 13$, $10 w_0 + 38 w_1 = 48$. Eliminating $w_0$
+gives $w_1 = (48 - \tfrac{10}{3} \cdot 13)/(38 - \tfrac{100}{3}) = (48 - 43.\overline{3})/4.\overline{6} = 1$ exactly. Then $w_0 = (13 - 10)/3 = 1$.
+
+**Answer:** $\boldsymbol{w} = (1, 1)^\top$, i.e. the regression line
+is $y = 1 + 1 \cdot x_1$. We just *did* linear regression with two
+matrix products and one $2 \times 2$ system.
+
+### Warm
+
+**W1.** Compute $\boldsymbol{A}\boldsymbol{B}$ for
+$\boldsymbol{A} = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}$,
+$\boldsymbol{B} = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 2 & 1 \\ 4 & 3 \end{pmatrix}$. (Right-multiplying by
+the swap matrix $\boldsymbol{B}$ swaps the columns of $\boldsymbol{A}$.)
+</details>
+
+**W2.** What is the inverse of $\boldsymbol{A} = \begin{pmatrix} 2 & 0 \\ 0 & 5 \end{pmatrix}$?
+
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 1/2 & 0 \\ 0 & 1/5 \end{pmatrix}$. The inverse of a
+diagonal matrix is the diagonal of reciprocals.
+</details>
+
+**W3.** Given $\boldsymbol{X} \in \mathbb{R}^{100 \times 5}$ — a
+dataset of 100 examples and 5 features — what are the shapes of
+$\boldsymbol{X}^\top$, $\boldsymbol{X}^\top \boldsymbol{X}$, and
+$\boldsymbol{X} \boldsymbol{X}^\top$?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{X}^\top \in \mathbb{R}^{5 \times 100}$,
+$\boldsymbol{X}^\top \boldsymbol{X} \in \mathbb{R}^{5 \times 5}$,
+$\boldsymbol{X} \boldsymbol{X}^\top \in \mathbb{R}^{100 \times 100}$.
+The two products are *very* different sizes — and ML algorithms
+choose between them depending on whether $N < D$ or $D < N$. We'll see
+this trick in PCA (Lesson 27).
+</details>
+
+### Working
+
+**Wo1.** Show $(\boldsymbol{A}\boldsymbol{B})^\top = \boldsymbol{B}^\top \boldsymbol{A}^\top$.
+
+<details class="hint"><summary>Full solution</summary>
+$[(\boldsymbol{A}\boldsymbol{B})^\top]_{ij} = (\boldsymbol{A}\boldsymbol{B})_{ji} = \sum_k a_{jk} b_{ki}$.
+$[\boldsymbol{B}^\top \boldsymbol{A}^\top]_{ij} = \sum_k (\boldsymbol{B}^\top)_{ik} (\boldsymbol{A}^\top)_{kj} = \sum_k b_{ki} a_{jk}$.
+Same sum. (Note the *reversal* — this is why the normal equations are
+$\boldsymbol{X}^\top \boldsymbol{X}$, not $\boldsymbol{X}\boldsymbol{X}^\top$.)
+</details>
+
+**Wo2.** Suppose $\boldsymbol{A}$ and $\boldsymbol{B}$ are both
+invertible $n \times n$ matrices. Prove that
+$(\boldsymbol{A}\boldsymbol{B})^{-1} = \boldsymbol{B}^{-1}\boldsymbol{A}^{-1}$.
+
+<details class="hint"><summary>Full solution</summary>
+$(\boldsymbol{A}\boldsymbol{B})(\boldsymbol{B}^{-1}\boldsymbol{A}^{-1}) = \boldsymbol{A}(\boldsymbol{B}\boldsymbol{B}^{-1})\boldsymbol{A}^{-1} = \boldsymbol{A}\boldsymbol{A}^{-1} = \boldsymbol{I}$.
+By uniqueness of inverses, this is the inverse. *Reverse the order
+when inverting a product* — the "socks and shoes" rule.
+</details>
+
+**Wo3.** Express the operation "stack $\boldsymbol{X}$'s columns into
+a single column vector" as multiplication by some matrix — or argue
+that you can't.
+
+<details class="hint"><summary>Full solution</summary>
+You *can* — the **vectorisation** operator $\mathrm{vec}(\cdot)$ is a
+linear map, so it has a matrix representation (via Kronecker products).
+But it's neither left- nor right-multiplication by a single matrix.
+This is one of the cases where you need a more general linear map than
+plain matrix multiplication. We'll meet linear maps in Lesson 05.
+</details>
+
+### Stretch
+
+**S1.** For a square matrix $\boldsymbol{A}$, the **trace** is
+$\mathrm{tr}(\boldsymbol{A}) = \sum_i a_{ii}$. Show that
+$\mathrm{tr}(\boldsymbol{A}\boldsymbol{B}) = \mathrm{tr}(\boldsymbol{B}\boldsymbol{A})$
+whenever both products are defined and square.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Write out $\mathrm{tr}(\boldsymbol{A}\boldsymbol{B}) = \sum_i (\boldsymbol{A}\boldsymbol{B})_{ii}$
+as a double sum.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathrm{tr}(\boldsymbol{A}\boldsymbol{B}) = \sum_i \sum_k a_{ik} b_{ki} = \sum_k \sum_i b_{ki} a_{ik} = \mathrm{tr}(\boldsymbol{B}\boldsymbol{A})$.
+Despite the non-commutativity of multiplication, the *trace* of
+$\boldsymbol{A}\boldsymbol{B}$ doesn't care about order. We'll use
+this constantly when computing gradients of $\mathrm{tr}$-expressions
+in Lesson 15.
+</details>
+
+**S2.** A *one-hot* encoding turns a categorical label into a length-$K$
+vector with a single 1. If $\boldsymbol{X} \in \{0, 1\}^{N \times K}$
+is a stack of $N$ one-hot rows, what does
+$\boldsymbol{X}^\top \boldsymbol{X}$ represent?
+
+<details class="hint"><summary>Full solution</summary>
+$(\boldsymbol{X}^\top \boldsymbol{X})_{kk'} = \sum_n x_{nk} x_{nk'}$.
+Since each row has a single $1$, the only contributors are rows where
+*both* $x_{nk}$ and $x_{nk'}$ are $1$ — which forces $k = k'$. So
+$\boldsymbol{X}^\top \boldsymbol{X}$ is diagonal with entry
+$\#\{n : x_{nk} = 1\}$ — the **count** of each category. A one-line
+matrix product gives you a class-count histogram.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A matrix is both a data table and a transformation — keep both pictures in mind.**
+2. **Matrix multiplication is rows-by-columns, inner dimensions must match, and order matters.**
+3. **In ML, the design matrix $\boldsymbol{X} \in \mathbb{R}^{N \times D}$ is where every supervised problem starts — and $\boldsymbol{X}^\top \boldsymbol{X}$ is where most of them lead.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state the matrix-multiplication rule and the dimensions
+   check in one breath, to a friend?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see $\boldsymbol{X}^\top \boldsymbol{X}$ in a paper, do
+   you immediately see it as a Gram matrix / a covariance proxy?
+
+- **3 yes:** move on to Lesson 03.
+- **2 yes:** redo Wo1 and Wo2 from scratch, then move on.
+- **0–1 yes:** re-read *Discover* and the worked example; the dual
+  picture (data vs. transformation) hasn't landed yet.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.linear-systems`](../01-linear-systems/index.qmd) — gave us
+  $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$ as the motivation
+  for studying matrices.
+- [`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd) —
+  the synthesis-tier pure-linear-algebra view of matrix multiplication.
+
+### What this unlocks
+
+- [`mml.vector-spaces`](../03-vector-spaces/index.qmd) — the structure
+  the columns of a matrix actually live in.
+- Eventually, [`mml.linear-regression-mle`](../24-linear-regression-mle/index.qmd) —
+  where the normal equations $\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$ are derived from first principles.
+
+### Sister synthesis lesson
+
+[`t5.matrices`](../../tier-5-undergrad-core/01-matrices/index.qmd) is
+the pure-LA view. Read it for the algebraic rules; read *this* lesson
+for the design-matrix and ML-pipeline framing.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** The matrix product $\boldsymbol{X}\boldsymbol{w}$ is the
+forward pass of a linear regression *and* the forward pass of a single
+neural-network layer (followed by a non-linearity). Modern deep
+learning is, at every layer, a matrix multiplication.
+:::
+
+::: {.applied-callout}
+**Databases.** Joins on a relational schema can often be written as
+matrix products of incidence matrices. Sparse-matrix multiplication
+algorithms (CSR, CSC formats) are how query engines run on TPUs/GPUs.
+:::
+
+::: {.applied-callout}
+**Systems.** GPUs are matrix-multiplication accelerators —
+the `tensor core` instruction performs a $4 \times 4 \times 4$ matrix
+multiply-and-accumulate as a single hardware op. ML workloads scale
+with the speed of this one operation.
+:::

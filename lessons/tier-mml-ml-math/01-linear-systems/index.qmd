@@ -1,0 +1,496 @@
+---
+title: "01 · Systems of Linear Equations and the Geometry of Solutions"
+subtitle: "Every ML problem becomes a linear system somewhere — and a linear system has exactly three shapes of answer."
+lesson-id: "mml.linear-systems"
+tier: "mml"
+prerequisites: ["t5.linear-systems-gaussian"]
+unlocks: ["mml.matrices"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you solve $2x + 3y = 7$, $x - y = 1$ for $(x, y)$? — see
+   [Tier 2 — Linear Equations](../../tier-2-prealgebra/07-linear-equations/index.qmd).
+2. Can you state Gaussian elimination as a sequence of three row
+   operations? — see
+   [Tier 5 — Linear Systems & Gaussian Elimination](../../tier-5-undergrad-core/02-linear-systems-gaussian/index.qmd).
+3. Do you remember what *the equation of a line in $\mathbb{R}^2$*
+   looks like? — same prerequisite.
+4. Can you sketch two lines that have (a) one intersection, (b) no
+   intersection, (c) infinitely many intersections?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Drag the four sliders below. Each one changes a coefficient in this
+small system of two linear equations in two unknowns:
+
+$$
+\begin{aligned}
+a_{11}\, x + a_{12}\, y &= b_1 \\
+a_{21}\, x + a_{22}\, y &= b_2
+\end{aligned}
+$$
+
+The two coloured lines are the two equations. Their points of
+intersection are the *solutions*. Watch what happens to the
+intersection as you slide.
+
+```{ojs}
+viewof a11 = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "a₁₁:"})
+viewof a12 = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "a₁₂:"})
+viewof b1  = Inputs.range([-5, 5], {value: 2, step: 0.1, label: "b₁:"})
+viewof a21 = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "a₂₁:"})
+viewof a22 = Inputs.range([-3, 3], {value: -1, step: 0.1, label: "a₂₂:"})
+viewof b2  = Inputs.range([-5, 5], {value: 0, step: 0.1, label: "b₂:"})
+```
+
+```{ojs}
+{
+  // Line i:  a_{i1} x + a_{i2} y = b_i.
+  // Sample x from -6 to 6 and solve for y when a_{i2} != 0; else vertical line.
+  function lineSeries(a, b, c, name) {
+    const series = [];
+    if (Math.abs(b) > 1e-9) {
+      for (let x = -6; x <= 6; x += 0.1) {
+        series.push({x, y: (c - a * x) / b, line: name});
+      }
+    } else if (Math.abs(a) > 1e-9) {
+      const x0 = c / a;
+      for (let y = -6; y <= 6; y += 0.1) series.push({x: x0, y, line: name});
+    }
+    return series;
+  }
+  // Solve 2x2 if det != 0.
+  const det = a11 * a22 - a12 * a21;
+  const inter = [];
+  if (Math.abs(det) > 1e-7) {
+    const xs = (a22 * b1 - a12 * b2) / det;
+    const ys = (a11 * b2 - a21 * b1) / det;
+    inter.push({x: xs, y: ys});
+  }
+  // Detect parallel-coincident.
+  const ratioA = (Math.abs(a21) > 1e-9 ? a11 / a21 : null);
+  const ratioB = (Math.abs(a22) > 1e-9 ? a12 / a22 : null);
+  const ratioC = (Math.abs(b2)  > 1e-9 ? b1  / b2  : null);
+  const coincident = Math.abs(det) < 1e-7 &&
+    ratioA !== null && ratioB !== null && Math.abs(ratioA - ratioB) < 1e-4 &&
+    (ratioC === null || Math.abs(ratioA - ratioC) < 1e-4);
+  const status =
+    Math.abs(det) > 1e-7 ? "one solution (lines cross)" :
+    coincident ? "infinitely many (same line)" :
+                 "no solution (parallel)";
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font: 13px sans-serif; margin-bottom: 4px;">Status: <b>${status}</b></div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-6, 6], label: "x"},
+      y: {domain: [-6, 6], label: "y"},
+      grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#ccc"}),
+        Plot.ruleY([0], {stroke: "#ccc"}),
+        Plot.line(lineSeries(a11, a12, b1, "Eq 1"), {x: "x", y: "y", stroke: "steelblue", strokeWidth: 2}),
+        Plot.line(lineSeries(a21, a22, b2, "Eq 2"), {x: "x", y: "y", stroke: "tomato",   strokeWidth: 2}),
+        Plot.dot(inter, {x: "x", y: "y", r: 6, fill: "black"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+The black dot is the solution — when there *is* one. Slide the
+coefficients until you've seen all three things happen: one
+intersection, no intersection (parallel), infinitely many
+intersections (same line).
+
+## Wonder
+
+1. Did you ever land on a setting where the two lines *exactly*
+   coincide? How fragile was it — did it survive any movement at all?
+2. When the lines are parallel-but-not-equal, the system has *no*
+   solution. What does that say about the right-hand side $b_1, b_2$?
+3. Two lines in the plane can meet in 0, 1, or infinitely many
+   points. Could they ever meet in *exactly two* points? *Exactly
+   three*?
+4. The four coefficients $a_{11}, a_{12}, a_{21}, a_{22}$ form a
+   little 2-by-2 grid. Is there one *number* you could compute from
+   that grid that tells you which case you're in, before plotting?
+
+## Discover
+
+Six problems that walk from a single equation to the geometric
+shapes a 2D linear system can take.
+
+**D1.** Sketch (or just describe in words) the set of all $(x, y)$
+satisfying $x + y = 2$. How many points? What shape is the answer set?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A single equation in two unknowns underdetermines the unknowns. How
+many degrees of freedom are left?
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Solve for $y$ in terms of $x$. Then $x$ is free — pick anything — and
+$y$ follows.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$y = 2 - x$. As $x$ varies, the pair $(x, 2 - x)$ traces out a *line*
+in the plane. The solution set is an infinite line, not a point.
+*One equation, two unknowns* always leaves you a line.
+</details>
+
+**D2.** Now add a second equation $x - y = 0$. What is the solution
+set of *both* equations together?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Each equation is a line. You want the points that lie on *both*
+lines.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$x - y = 0$ gives $y = x$. Substituting into $x + y = 2$ gives
+$2x = 2$, so $x = 1, y = 1$. The two lines meet at $(1, 1)$.
+*One point* — adding the second equation cut the line down to a point.
+</details>
+
+**D3.** Replace the second equation with $2x + 2y = 4$. What is the
+solution set now?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare the new equation to the first one. Is it really *new* information?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2x + 2y = 4$ is exactly $2 \cdot (x + y = 2)$. The two "equations"
+are the same line in disguise. The solution set is the whole line
+$y = 2 - x$ — *infinitely many* solutions. Adding a redundant
+equation adds zero information.
+</details>
+
+**D4.** Replace the second equation with $x + y = 5$. What is the
+solution set now?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Could a single $(x, y)$ satisfy both $x + y = 2$ and $x + y = 5$?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Subtracting the two equations gives $0 = 3$, which is false. There is
+*no* $(x, y)$ satisfying both. Geometrically the two lines are parallel
+(same slope, different intercept) and never meet. *Zero solutions.*
+</details>
+
+**D5.** In problems D2, D3, D4 you've seen the three possible outcomes
+for a 2-by-2 linear system: exactly one solution, infinitely many,
+none. Is there *any* fourth case — for instance, exactly seven solutions?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Think geometrically. Two lines in the plane — how many ways can they
+sit relative to each other?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Two lines either (a) cross at exactly one point, (b) are the same line
+(infinitely many shared points), or (c) are parallel and distinct (no
+shared points). There is no fourth case. *Three possibilities — and
+that's it.*
+</details>
+
+**D6.** Compute $a_{11} a_{22} - a_{12} a_{21}$ for each of D2, D3,
+D4. Notice anything?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For D2: $(a_{11}, a_{12}, a_{21}, a_{22}) = (1, 1, 1, -1)$.
+For D3: $(1, 1, 2, 2)$.
+For D4: $(1, 1, 1, 1)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+D2: $1 \cdot (-1) - 1 \cdot 1 = -2 \ne 0$ → unique solution.
+D3: $1 \cdot 2 - 1 \cdot 2 = 0$ → infinitely many.
+D4: $1 \cdot 1 - 1 \cdot 1 = 0$ → none.
+The number $a_{11} a_{22} - a_{12} a_{21}$ — called the **determinant** —
+is nonzero exactly when there is a unique solution. We'll meet it
+formally in Lesson 10.
+</details>
+
+::: {.fun-fact}
+The word "matrix" comes from the Latin *mater*, "womb" — coined by
+J.J. Sylvester in 1850 to mean a rectangular array of numbers that
+*gives birth* to determinants. The Chinese mathematical text *The
+Nine Chapters on the Mathematical Art* (c. 100 BCE) was already
+solving 3-by-3 systems by what we now call Gaussian elimination —
+nearly two millennia before Gauss.
+:::
+
+::: {.key-insight}
+A linear system has **exactly three possible answer-shapes**: a
+single point, an entire line/plane/subspace, or *nothing*. Every
+question in classical machine learning — fitting a regression,
+finding a separating hyperplane, decomposing a covariance — collapses
+to one of these three shapes, in a higher-dimensional space.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **system of linear equations** in $n$ unknowns $x_1, \dots, x_n$ is
+a finite collection of equations of the form
+
+$$
+a_{i1} x_1 + a_{i2} x_2 + \dots + a_{in} x_n = b_i, \qquad i = 1, \dots, m.
+$$
+
+In matrix form: $\boldsymbol{A} \boldsymbol{x} = \boldsymbol{b}$, where
+$\boldsymbol{A} \in \mathbb{R}^{m \times n}$, $\boldsymbol{x} \in \mathbb{R}^n$,
+$\boldsymbol{b} \in \mathbb{R}^m$. The **solution set** is
+$\{\boldsymbol{x} \in \mathbb{R}^n : \boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}\}$.
+
+A linear system has **exactly one** of three answer-shapes: a *unique*
+solution, *infinitely many* solutions (an affine subspace), or *no*
+solution.
+
+::: {.callout-warning}
+**Sūtra.** *One, many, or none — three doors, never two, never four.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Two equations in two unknowns always has a solution."* — False.
+   Parallel lines have no shared point. In ML, this is the case where
+   your data does not fit any line — and that's information you want.
+2. *"Adding more equations always cuts the solution set down."* —
+   Only if the equations are *independent*. A redundant equation adds
+   nothing. We'll formalise this as **linear independence** in
+   Lesson 4.
+3. *"Solving means finding the unknowns."* — Sometimes "solving"
+   means recognising that there *is no* solution, or that there are
+   infinitely many. Each is a legitimate answer.
+:::
+
+## Apply
+
+### Worked example
+
+Solve $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$ where
+$$
+\boldsymbol{A} = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \qquad
+\boldsymbol{b} = \begin{pmatrix} 5 \\ 11 \end{pmatrix}.
+$$
+
+**Step 1 — Write the equations.**
+$x_1 + 2 x_2 = 5$ and $3 x_1 + 4 x_2 = 11$.
+
+**Step 2 — Eliminate $x_1$.** Subtract 3× the first from the second:
+$$
+(3 x_1 + 4 x_2) - 3(x_1 + 2 x_2) = 11 - 3 \cdot 5
+\;\Longrightarrow\;
+-2 x_2 = -4
+\;\Longrightarrow\;
+x_2 = 2.
+$$
+
+**Step 3 — Back-substitute.** $x_1 + 2 \cdot 2 = 5$ gives $x_1 = 1$.
+
+**Step 4 — Check the determinant.** $1 \cdot 4 - 2 \cdot 3 = -2 \ne 0$,
+so we expected a unique solution — confirmed.
+
+**Answer:** $\boldsymbol{x} = (1, 2)^\top$, and the geometric picture
+is two lines crossing at the point $(1, 2)$.
+
+### Warm
+
+**W1.** Solve $x + y = 3$, $x - y = 1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Add the two equations. What drops out?
+</details>
+<details class="hint"><summary>Full solution</summary>
+Adding: $2x = 4$, so $x = 2$. Then $y = 3 - 2 = 1$. Solution
+$(x, y) = (2, 1)$.
+</details>
+
+**W2.** Solve $2x + y = 4$, $4x + 2y = 8$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look carefully at the coefficients of the second equation.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The second equation is $2\times$ the first. Same line — *infinitely
+many* solutions, the line $y = 4 - 2x$. Determinant
+$2 \cdot 2 - 1 \cdot 4 = 0$ confirms.
+</details>
+
+**W3.** Solve $x + y = 1$, $x + y = 2$.
+
+<details class="hint"><summary>Full solution</summary>
+Subtracting gives $0 = 1$. *No* solution — parallel lines.
+</details>
+
+### Working
+
+**Wo1.** Solve, by Gaussian elimination,
+$$
+\begin{pmatrix} 1 & 1 & 1 \\ 1 & 2 & 3 \\ 1 & 4 & 9 \end{pmatrix}
+\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix}
+=
+\begin{pmatrix} 6 \\ 14 \\ 36 \end{pmatrix}.
+$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Subtract row 1 from rows 2 and 3 to zero out the first column.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+After step 1 you'll have a smaller 2-by-2 system in $(x_2, x_3)$.
+Solve it. Back-substitute for $x_1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+After subtracting row 1 from rows 2 and 3:
+$\begin{pmatrix} 1 & 1 & 1 \\ 0 & 1 & 2 \\ 0 & 3 & 8 \end{pmatrix}
+\boldsymbol{x} = \begin{pmatrix} 6 \\ 8 \\ 30 \end{pmatrix}$.
+Subtract 3× row 2 from row 3: $2 x_3 = 6$, so $x_3 = 3$.
+Then $x_2 + 2 \cdot 3 = 8 \Rightarrow x_2 = 2$, and
+$x_1 + 2 + 3 = 6 \Rightarrow x_1 = 1$. Solution $(1, 2, 3)^\top$.
+</details>
+
+**Wo2.** For which values of $c$ does $x + 2y = 1$, $2x + 4y = c$
+have (a) no solution, (b) infinitely many, (c) one solution?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two left-hand sides are proportional. What must the right-hand
+sides do for the equations to be consistent?
+</details>
+<details class="hint"><summary>Full solution</summary>
+LHS ratio is $2$. Equations consistent iff RHS ratio is also $2$,
+i.e. $c = 2$. (a) $c \ne 2$: no solution. (b) $c = 2$: infinitely
+many. (c) Never one — the determinant is $1 \cdot 4 - 2 \cdot 2 = 0$
+for every $c$.
+</details>
+
+**Wo3.** Write the system "find $(x, y, z) \in \mathbb{R}^3$ on the
+plane $x + y + z = 1$ and on the plane $x - y = 0$" in matrix form
+$\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$, and describe the
+solution set geometrically.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A} = \begin{pmatrix} 1 & 1 & 1 \\ 1 & -1 & 0 \end{pmatrix}$,
+$\boldsymbol{b} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}$. Two planes
+in $\mathbb{R}^3$ intersect in a line (when they're not parallel).
+Setting $x = y$ and $z = 1 - 2x$ gives the parameterised line
+$(t, t, 1 - 2t)$ for $t \in \mathbb{R}$. *Infinitely many* solutions
+forming a 1-dimensional affine subspace.
+</details>
+
+### Stretch
+
+**S1.** A linear regression with 100 data points and 3 parameters
+gives the system $\boldsymbol{X} \boldsymbol{w} = \boldsymbol{y}$ with
+$\boldsymbol{X} \in \mathbb{R}^{100 \times 3}$. Will this system,
+in general, have a solution? If so, how many? If not, what *should*
+we ask for instead?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+100 equations, 3 unknowns. The system is *overdetermined*. In which
+of the three cases (none / one / many) does this typically land?
+</details>
+<details class="hint"><summary>Full solution</summary>
+With many more equations than unknowns and noisy data, no exact
+$\boldsymbol{w}$ satisfies all 100 equations — typically *no*
+solution. The right question is not "solve" but "*minimise*
+$\lVert \boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}\rVert^2$" —
+which gives the **least-squares** solution. We'll derive this in
+Lesson 24 as MLE under Gaussian noise.
+</details>
+
+**S2.** Show that if $\boldsymbol{x}_1$ and $\boldsymbol{x}_2$ are
+both solutions of $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$,
+then so is $\boldsymbol{x}_1 + \lambda(\boldsymbol{x}_2 - \boldsymbol{x}_1)$
+for every $\lambda \in \mathbb{R}$. What does this tell you about
+the geometry of the solution set when it has more than one element?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute
+$\boldsymbol{A}(\boldsymbol{x}_1 + \lambda(\boldsymbol{x}_2 - \boldsymbol{x}_1))$
+and use linearity of matrix–vector multiplication.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A}(\boldsymbol{x}_1 + \lambda(\boldsymbol{x}_2 - \boldsymbol{x}_1))
+= \boldsymbol{A}\boldsymbol{x}_1 + \lambda(\boldsymbol{A}\boldsymbol{x}_2 - \boldsymbol{A}\boldsymbol{x}_1)
+= \boldsymbol{b} + \lambda(\boldsymbol{b} - \boldsymbol{b}) = \boldsymbol{b}$.
+So every point on the line through $\boldsymbol{x}_1$ and
+$\boldsymbol{x}_2$ is a solution. Whenever there are *two* solutions
+there is an entire line of them — and an entire affine subspace
+in general. There is no "two-solution" linear system.
+:::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A linear system has one, many, or no solutions — three doors, never two, never four.**
+2. **Geometrically, the solution set is a point, an affine subspace, or empty — there's nothing in between.**
+3. **In ML, "solving" is rarely about finding *the* solution — it's about minimising a residual when no exact solution exists, which gives least-squares regression.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you explain *why* a linear system can't have exactly two
+   solutions, to a friend, without notes?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you see $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$
+   in a paper, do you reach for "one of three answer-shapes" as
+   your first instinct?
+
+- **3 yes:** move on to Lesson 02.
+- **2 yes:** redo the Stretch problems, then move on.
+- **0–1 yes:** re-read *Discover* and *Apply*; the three-shapes
+  idea hasn't landed yet.
+
+## Connect
+
+### Prerequisites used
+
+- [`t5.linear-systems-gaussian`](../../tier-5-undergrad-core/02-linear-systems-gaussian/index.qmd) — Gaussian elimination as the algorithm we used in the worked example and Wo1.
+
+### What this unlocks
+
+- [`mml.matrices`](../02-matrices/index.qmd) — Now that we have $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$, the next lesson is *what is $\boldsymbol{A}$*: matrix algebra, the inverse, and the design matrix of ML.
+- Eventually, [`mml.linear-regression-mle`](../24-linear-regression-mle/index.qmd) — where the overdetermined system of Stretch S1 becomes the least-squares problem.
+
+### Sister synthesis lesson
+
+[`t5.linear-systems-gaussian`](../../tier-5-undergrad-core/02-linear-systems-gaussian/index.qmd) is the pure linear-algebra view. Read it for the algorithm; read *this* lesson for the geometric three-shapes intuition that ML papers assume you carry around.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every linear regression starts by writing
+$\boldsymbol{X}\boldsymbol{w} = \boldsymbol{y}$ — an overdetermined
+linear system. The three-shapes intuition tells you immediately why
+exact solutions don't exist (more data than parameters) and why
+least-squares is the right replacement.
+:::
+
+::: {.applied-callout}
+**Research.** Whenever a model has a unique fit, the underlying
+system has nonzero determinant. Whenever the fit is unstable, the
+determinant is *near* zero — and you've discovered an ill-conditioned
+problem. This single number is the simplest diagnostic in numerical
+linear algebra.
+:::
+
+::: {.applied-callout}
+**Encryption.** Linear systems mod $p$ are the workhorse of
+classical cryptanalysis. Hill ciphers, LFSR break-attacks, and the
+small-modulus parts of post-quantum LWE schemes all reduce to "solve
+$\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$ over a finite
+field" — same three-shapes story, different number system.
+:::
