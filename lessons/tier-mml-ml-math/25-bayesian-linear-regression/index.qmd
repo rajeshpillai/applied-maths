@@ -1,0 +1,310 @@
+---
+title: "25 · Bayesian Linear Regression and MLE as Orthogonal Projection"
+subtitle: "Treat the weights as a random variable — observe data — get a posterior. Ridge regression falls out as a special case."
+lesson-id: "mml.bayesian-linear-regression"
+tier: "mml"
+prerequisites: ["mml.linear-regression-mle"]
+unlocks: ["mml.pca-variance-projection"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state the linear regression model? — see
+   [MML — 24, Linear Regression MLE](../24-linear-regression-mle/index.qmd).
+2. Can you state Bayes' theorem for continuous parameters? — see [MML — 17](../17-probability-spaces-bayes/index.qmd).
+3. Do you know Gaussian conjugacy (Gaussian prior × Gaussian likelihood)? — [MML — 18 / 19](../19-conjugacy-change-of-variables/index.qmd).
+4. Can you compute a matrix inverse / pseudo-inverse?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Bayesian linear regression on noisy data. Watch the posterior over $\boldsymbol{w}$ tighten as data arrives, and see the prediction interval shrink in regions where you have data.
+
+```{ojs}
+viewof N = Inputs.range([0, 50], {value: 5, step: 1, label: "N data points:"})
+viewof tauPrior = Inputs.range([0.01, 5], {value: 1, step: 0.05, label: "prior precision τ₀:"})
+viewof seed = Inputs.range([1, 50], {value: 11, step: 1, label: "seed:"})
+```
+
+```{ojs}
+{
+  function rng(s) { return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; }
+  const r = rng(seed * 17);
+  // Model: y = 1 - 0.5 x + N(0, 0.3^2)
+  const noise = 0.3;
+  const xs = [], ys = [];
+  for (let i = 0; i < N; i++) {
+    const x = -2 + 4 * r();
+    const u1 = r() + 1e-9, u2 = r();
+    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    xs.push(x); ys.push(1 - 0.5 * x + noise * z);
+  }
+  // Posterior: w | y ~ N(mu_N, Sigma_N)
+  // Phi: [1, x] design matrix
+  // Sigma_N^{-1} = tauPrior * I + (1/noise^2) Phi^T Phi
+  // mu_N = Sigma_N (1/noise^2) Phi^T y
+  function matInv2(a, b, c, d) { const det = a*d - b*c; return [d/det, -b/det, -c/det, a/det]; }
+  const tau = 1 / (noise * noise);
+  let a = tauPrior, b = 0, c = 0, d = tauPrior; // Prior precision
+  let mtx = 0, mty = 0;
+  for (let i = 0; i < N; i++) {
+    const phi0 = 1, phi1 = xs[i];
+    a += tau * phi0 * phi0;
+    b += tau * phi0 * phi1;
+    c += tau * phi1 * phi0;
+    d += tau * phi1 * phi1;
+    mtx += tau * phi0 * ys[i];
+    mty += tau * phi1 * ys[i];
+  }
+  const SigmaInv = [a, b, c, d];
+  const Sigma = matInv2(a, b, c, d);
+  const muN = [Sigma[0] * mtx + Sigma[1] * mty, Sigma[2] * mtx + Sigma[3] * mty];
+  // Predict over a grid: mean = mu^T x, var = x^T Sigma x + noise^2
+  const grid = [];
+  for (let xx = -3; xx <= 3; xx += 0.05) {
+    const mean = muN[0] + muN[1] * xx;
+    const v = Sigma[0] + 2 * Sigma[1] * xx + Sigma[3] * xx * xx + noise * noise;
+    const s = Math.sqrt(v);
+    grid.push({x: xx, mean, lo: mean - 2*s, hi: mean + 2*s});
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Posterior mean: w₀ = ${muN[0].toFixed(3)}, w₁ = ${muN[1].toFixed(3)} (true: 1.000, -0.500)
+    </div>
+    ${Plot.plot({
+      width: 460, height: 320, x: {domain: [-3, 3]}, y: {domain: [-3, 4]},
+      marks: [
+        Plot.areaY(grid, {x: "x", y1: "lo", y2: "hi", fill: "#eef"}),
+        Plot.line(grid, {x: "x", y: "mean", stroke: "tomato", strokeWidth: 2}),
+        Plot.dot(xs.map((x, i) => ({x, y: ys[i]})), {x: "x", y: "y", r: 3, fill: "steelblue"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+At $N = 0$, the prediction interval is wide everywhere — pure prior. Add data and the interval contracts. Notice: the band is tightest in *regions with data*, widest where you've extrapolated.
+
+## Wonder
+
+1. Bayesian linear regression returns a *distribution* over weights, not a point estimate. What does that buy us?
+2. The MAP estimate (mode of the posterior) is what ridge regression computes. What does the posterior distribution add that ridge doesn't?
+3. As $N \to \infty$, the posterior concentrates around the MLE. Why?
+4. The prediction interval includes uncertainty from *parameter posterior* + *irreducible noise*. The two contributions trade off as $N$ grows differently. How?
+
+## Discover
+
+Five problems building the Bayesian linear regression.
+
+**D1.** Prior $\boldsymbol{w} \sim \mathcal{N}(\boldsymbol{0}, \tau_0^{-1} \boldsymbol{I})$. Likelihood $\boldsymbol{y} \mid \boldsymbol{X}, \boldsymbol{w} \sim \mathcal{N}(\boldsymbol{X}\boldsymbol{w}, \sigma^2 \boldsymbol{I})$. Show the posterior is Gaussian.
+
+<details class="hint"><summary>Full solution</summary>
+$\log p(\boldsymbol{w} \mid \boldsymbol{y}) = \log p(\boldsymbol{y} \mid \boldsymbol{w}) + \log p(\boldsymbol{w}) + \mathrm{const}$, both terms are quadratic in $\boldsymbol{w}$. Quadratic ⇒ Gaussian.
+</details>
+
+**D2.** Derive the posterior mean and covariance. (Show that the posterior is $\mathcal{N}(\boldsymbol{\mu}_N, \boldsymbol{\Sigma}_N)$ with $\boldsymbol{\Sigma}_N^{-1} = \tau_0 \boldsymbol{I} + \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{X}$ and $\boldsymbol{\mu}_N = \boldsymbol{\Sigma}_N \cdot \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{y}$.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Match the quadratic expansion of $-\tfrac{1}{2}(\boldsymbol{w}^\top \boldsymbol{\Sigma}_N^{-1} \boldsymbol{w} - 2 \boldsymbol{w}^\top \boldsymbol{\Sigma}_N^{-1} \boldsymbol{\mu}_N)$ to the prior + likelihood terms.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Quadratic coefficient: $\tau_0 \boldsymbol{I} + \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{X} = \boldsymbol{\Sigma}_N^{-1}$.
+Linear coefficient: $\tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{y} = \boldsymbol{\Sigma}_N^{-1} \boldsymbol{\mu}_N$. Solve: $\boldsymbol{\mu}_N = \boldsymbol{\Sigma}_N \cdot \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{y}$. **Posterior precision = prior precision + observation precision** (the multivariate version of D2 in Lesson 19).
+</details>
+
+**D3.** Show that the **MAP estimator** (mode of posterior) equals the **ridge regression** solution $\hat{\boldsymbol{w}}_{\mathrm{ridge}} = (\boldsymbol{X}^\top \boldsymbol{X} + \lambda \boldsymbol{I})^{-1} \boldsymbol{X}^\top \boldsymbol{y}$.
+
+<details class="hint"><summary>Full solution</summary>
+For a Gaussian posterior, MAP = mean = $\boldsymbol{\mu}_N$. Substituting: $\boldsymbol{\mu}_N = (\tau_0 \boldsymbol{I} + \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{X})^{-1} \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{y} = (\sigma^2 \tau_0 \boldsymbol{I} + \boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{y}$. **Ridge regression with $\lambda = \sigma^2 \tau_0$.** Ridge = MAP under Gaussian prior on weights — the prior's strength is the regulariser.
+</details>
+
+**D4.** Predictive distribution: for a new $\boldsymbol{x}_*$, $y_* \mid \mathcal{D}, \boldsymbol{x}_* \sim \mathcal{N}(\boldsymbol{x}_*^\top \boldsymbol{\mu}_N, \boldsymbol{x}_*^\top \boldsymbol{\Sigma}_N \boldsymbol{x}_* + \sigma^2)$. Interpret the variance.
+
+<details class="hint"><summary>Full solution</summary>
+Variance has two parts: $\boldsymbol{x}_*^\top \boldsymbol{\Sigma}_N \boldsymbol{x}_*$ = uncertainty in the parameters projected to this input direction. Plus $\sigma^2$ = irreducible noise. **Parameter uncertainty shrinks with more data; observational noise doesn't.** Far-from-data regions: $\boldsymbol{x}_*^\top \boldsymbol{\Sigma}_N \boldsymbol{x}_*$ is large. Right where data are: small.
+</details>
+
+**D5.** Marginal likelihood / evidence: $p(\boldsymbol{y} \mid \boldsymbol{X}) = \int p(\boldsymbol{y} \mid \boldsymbol{X}, \boldsymbol{w}) p(\boldsymbol{w}) d\boldsymbol{w}$ is also Gaussian for the conjugate prior. Why is computing it useful?
+
+<details class="hint"><summary>Full solution</summary>
+Used for **model selection** (Lesson 23): comparing competing regression models (different feature sets, different priors). Higher marginal likelihood = preferred model. Closed-form computation of evidence is a major reason to choose conjugate priors.
+</details>
+
+::: {.fun-fact}
+**Bayesian regression** as a practical tool dates to **Jeffreys 1939** and **Lindley 1957**. The full machinery — conjugate priors, evidence-based model selection, predictive distributions — became practical only with the work of **Tipping (2001)** on the **Relevance Vector Machine** and the **Bishop 2006** textbook. Closed-form Bayesian regression has nice properties but **doesn't scale** to billion-parameter neural nets — research on **variational** Bayesian deep learning is ongoing.
+:::
+
+::: {.key-insight}
+**Bayesian linear regression returns a Gaussian posterior over weights.** Its mean is the ridge estimate; its covariance is the inverse posterior precision. The predictive variance accounts for both parameter uncertainty and noise — making *prediction intervals* a one-line consequence of the framework rather than an afterthought.
+:::
+
+## Name
+
+::: {.lesson-beat}
+**Bayesian linear regression** model:
+$$
+\boldsymbol{w} \sim \mathcal{N}(\boldsymbol{m}_0, \boldsymbol{S}_0), \qquad \boldsymbol{y} \mid \boldsymbol{X}, \boldsymbol{w} \sim \mathcal{N}(\boldsymbol{X}\boldsymbol{w}, \sigma^2 \boldsymbol{I}).
+$$
+
+**Posterior** (Gaussian by conjugacy): $\boldsymbol{w} \mid \boldsymbol{y}, \boldsymbol{X} \sim \mathcal{N}(\boldsymbol{m}_N, \boldsymbol{S}_N)$ with
+$$
+\boldsymbol{S}_N^{-1} = \boldsymbol{S}_0^{-1} + \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{X}, \qquad \boldsymbol{m}_N = \boldsymbol{S}_N \bigl(\boldsymbol{S}_0^{-1} \boldsymbol{m}_0 + \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{y}\bigr).
+$$
+
+**MAP estimate** = posterior mean = $\boldsymbol{m}_N$. For $\boldsymbol{m}_0 = \boldsymbol{0}$, $\boldsymbol{S}_0 = \tau_0^{-1} \boldsymbol{I}$, this is the **ridge regression** solution with $\lambda = \sigma^2 \tau_0$.
+
+**Predictive distribution** for new $\boldsymbol{x}_*$:
+$$
+y_* \mid \mathcal{D}, \boldsymbol{x}_* \sim \mathcal{N}(\boldsymbol{x}_*^\top \boldsymbol{m}_N,\ \boldsymbol{x}_*^\top \boldsymbol{S}_N \boldsymbol{x}_* + \sigma^2).
+$$
+
+**Marginal likelihood / evidence**:
+$$
+p(\boldsymbol{y} \mid \boldsymbol{X}) = \mathcal{N}(\boldsymbol{y} \mid \boldsymbol{X}\boldsymbol{m}_0,\ \sigma^2 \boldsymbol{I} + \boldsymbol{X}\boldsymbol{S}_0\boldsymbol{X}^\top).
+$$
+
+As $N \to \infty$ with informative data, the posterior concentrates around the MLE. The Bayesian framework smoothly interpolates between "prior-dominated" (small $N$) and "data-dominated" (large $N$).
+
+**MLE as orthogonal projection.** $\hat{\boldsymbol{y}}_{\mathrm{MLE}} = \boldsymbol{X}\hat{\boldsymbol{w}}_{\mathrm{MLE}} = \boldsymbol{P}\boldsymbol{y}$, the projection of $\boldsymbol{y}$ onto $\mathrm{col}(\boldsymbol{X})$. Bayesian regression "shrinks" this projection toward the prior mean.
+
+::: {.callout-warning}
+**Sūtra.** *Gaussian prior + Gaussian likelihood = Gaussian posterior. MAP = ridge. The full posterior gives prediction intervals that ridge can't.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Bayesian = MAP estimate."* — MAP is *one* number from the posterior. Full Bayes uses the *whole* posterior — for prediction intervals, model evidence, decision-theoretic optimisation.
+2. *"Setting $\tau_0 \to 0$ gives MLE."* — Limit not always well-defined; in particular, $\boldsymbol{S}_0^{-1} \to \boldsymbol{0}$ but the posterior is still well-defined when $\boldsymbol{X}^\top \boldsymbol{X}$ is invertible, recovering MLE. When $\boldsymbol{X}^\top \boldsymbol{X}$ is singular, the prior is still essential.
+3. *"Bayes is always better than ML."* — Computational cost is higher. For overparametrised deep nets, full Bayes is intractable. Practitioners often use MAP with strong priors as a compromise.
+:::
+
+## Apply
+
+### Worked example
+
+Bayesian linear regression on a single data point. Prior $\boldsymbol{w} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$, noise $\sigma = 1$. Observe $(\boldsymbol{x}, y) = ((1, 2)^\top, 3)$.
+
+**Step 1.** Posterior precision: $\boldsymbol{S}_N^{-1} = \boldsymbol{I} + (1, 2)^\top (1, 2) = \begin{pmatrix} 2 & 2 \\ 2 & 5 \end{pmatrix}$.
+
+**Step 2.** Posterior covariance: $\boldsymbol{S}_N = \tfrac{1}{6} \begin{pmatrix} 5 & -2 \\ -2 & 2 \end{pmatrix}$.
+
+**Step 3.** Posterior mean: $\boldsymbol{m}_N = \boldsymbol{S}_N \cdot (1 \cdot 3, 2 \cdot 3)^\top = \boldsymbol{S}_N (3, 6)^\top = (\tfrac{1}{6}(15 - 12), \tfrac{1}{6}(-6 + 12)) = (0.5, 1)$.
+
+**Step 4.** Predict at $\boldsymbol{x}_* = (1, 1)^\top$: mean $= 0.5 + 1 = 1.5$; variance $= \boldsymbol{x}_*^\top \boldsymbol{S}_N \boldsymbol{x}_* + 1 = \tfrac{1}{6}(5 - 4 + 2) + 1 = 1.5$; std $\approx 1.22$.
+
+**Conclusion:** From 1 data point we have an interpretable mean prediction and a prediction interval $\pm 2.4$ — wide because we have so little data. Adding more data tightens both.
+
+### Warm
+
+**W1.** What's the posterior mean as $\sigma \to \infty$ (extreme noise)?
+
+<details class="hint"><summary>Full solution</summary>
+The data term $\tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{X} \to \boldsymbol{0}$; posterior tends to prior. **Highly noisy data is uninformative.**
+</details>
+
+**W2.** What's the posterior mean as $\tau_0 \to 0$ (vague prior)?
+
+<details class="hint"><summary>Full solution</summary>
+Posterior tends to MLE (when invertible). **Vague prior ⇒ data dominates.**
+</details>
+
+**W3.** Ridge with $\lambda = 0$ is what?
+
+<details class="hint"><summary>Full solution</summary>
+The MLE: $(\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{y}$. No regularisation.
+</details>
+
+### Working
+
+**Wo1.** Derive the posterior covariance formula from prior covariance and likelihood by completing the square in $\boldsymbol{w}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\log p(\boldsymbol{w} \mid \boldsymbol{y}) = -\tfrac{1}{2} (\boldsymbol{w} - \boldsymbol{m}_0)^\top \boldsymbol{S}_0^{-1} (\boldsymbol{w} - \boldsymbol{m}_0) - \tfrac{1}{2\sigma^2} (\boldsymbol{y} - \boldsymbol{X}\boldsymbol{w})^\top (\boldsymbol{y} - \boldsymbol{X}\boldsymbol{w}) + \mathrm{const}$. Expand both, collect terms in $\boldsymbol{w}^\top \cdot \boldsymbol{w}$ to get $\boldsymbol{S}_N^{-1} = \boldsymbol{S}_0^{-1} + \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{X}$, and terms in $\boldsymbol{w}$ to get $\boldsymbol{m}_N$ formula.
+</details>
+
+**Wo2.** Show that the *predictive distribution* is the integral of the likelihood over the posterior: $p(y_* \mid \boldsymbol{x}_*, \mathcal{D}) = \int p(y_* \mid \boldsymbol{x}_*, \boldsymbol{w}) p(\boldsymbol{w} \mid \mathcal{D}) d\boldsymbol{w}$.
+
+<details class="hint"><summary>Full solution</summary>
+Convolution of two Gaussians: outer Gaussian $\mathcal{N}(\boldsymbol{x}_*^\top \boldsymbol{w}, \sigma^2)$ in $y_*$, inner Gaussian $\mathcal{N}(\boldsymbol{m}_N, \boldsymbol{S}_N)$ in $\boldsymbol{w}$. Marginalise $\boldsymbol{w}$: $y_* \sim \mathcal{N}(\boldsymbol{x}_*^\top \boldsymbol{m}_N, \boldsymbol{x}_*^\top \boldsymbol{S}_N \boldsymbol{x}_* + \sigma^2)$. **The convolution of two Gaussians is Gaussian** — a clean integral.
+</details>
+
+**Wo3.** Why is the posterior covariance $\boldsymbol{S}_N \preceq \boldsymbol{S}_0$ (i.e. always smaller than the prior)?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{S}_N^{-1} - \boldsymbol{S}_0^{-1} = \tfrac{1}{\sigma^2} \boldsymbol{X}^\top \boldsymbol{X} \succeq \boldsymbol{0}$. Inverting reverses the order: $\boldsymbol{S}_N \preceq \boldsymbol{S}_0$. **Data always reduces uncertainty** (under the assumed model).
+</details>
+
+### Stretch
+
+**S1.** A **Gaussian Process** is the function-space limit of Bayesian linear regression with infinitely many basis functions. State (informally) what makes a Gaussian process different from a Bayesian linear regression.
+
+<details class="hint"><summary>Full solution</summary>
+A GP is a distribution over *functions* defined by a mean function and a kernel (covariance) function. Bayesian linear regression with kernel $k(\boldsymbol{x}, \boldsymbol{x}') = \boldsymbol{\phi}(\boldsymbol{x})^\top \boldsymbol{\phi}(\boldsymbol{x}')$ for some feature map $\boldsymbol{\phi}$ is *finite-dimensional* — the function lives in a finite-dimensional subspace. GP lifts this to infinite dimensions via the kernel trick. *Predictive variance* is then a function of the kernel — high where the kernel is small (far from data). **MML reaches this implicitly via kernels in Lesson 32.**
+</details>
+
+**S2.** **Empirical Bayes** estimates the prior hyperparameters ($\tau_0$, $\sigma$) from data by maximising marginal likelihood. Why is this principled?
+
+<details class="hint"><summary>Full solution</summary>
+The marginal likelihood $p(\boldsymbol{y} \mid \boldsymbol{X})$ depends on hyperparameters. Optimising it = picking the prior that *best explains the data*, not the most overconfident one. This is **type-II maximum likelihood** or "ML-II." Used implicitly by many "automatic relevance determination" (ARD) methods, e.g. the Relevance Vector Machine.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Bayesian linear regression = Gaussian prior + Gaussian likelihood = Gaussian posterior. Closed form.**
+2. **MAP = posterior mean = ridge regression. The full posterior gives prediction intervals for free.**
+3. **As data accumulates, posterior concentrates around the MLE. Empirical Bayes uses marginal likelihood to select priors.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you derive the posterior formula by hand?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "ridge regression," do you instantly think *MAP under Gaussian prior*?
+
+- **3 yes:** move on to Lesson 26.
+- **2 yes:** redo D3 (MAP ↔ ridge), then move on.
+- **0–1 yes:** re-read *Discover* problems D2 and D3.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.linear-regression-mle`](../24-linear-regression-mle/index.qmd) — MLE perspective.
+
+### What this unlocks
+
+- [`mml.pca-variance-projection`](../26-pca-variance-projection/index.qmd) — first PCA lesson, also derivable as MLE.
+- Eventually, Gaussian processes / kernel methods (Lesson 32 covers kernels).
+
+### Sister synthesis lesson
+
+[`t5.statistical-inference`](../../tier-5-undergrad-core/10-statistical-inference/index.qmd) — Bayesian inference from synthesis perspective.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Bayesian deep learning approximates this exact setting at scale (variational, MC dropout, ensembling). Posterior intervals are essential for uncertainty-aware decision-making (active learning, A/B testing).
+:::
+
+::: {.applied-callout}
+**Research.** Frequentist confidence intervals and Bayesian credible intervals coincide *asymptotically* but interpret differently. Clinical trial design, A/B testing, and surveys lean on this.
+:::
+
+::: {.applied-callout}
+**Game dev.** Inverse-kinematics with uncertain joint angles → predict optimal pose with credible regions for animator decisions.
+:::

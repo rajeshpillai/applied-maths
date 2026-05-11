@@ -1,0 +1,324 @@
+---
+title: "30 · The EM Algorithm and the Latent-Variable Perspective"
+subtitle: "Alternate between guessing the latents and re-fitting the parameters. Provably monotone, broadly applicable — the universal latent-variable optimiser."
+lesson-id: "mml.em-algorithm"
+tier: "mml"
+prerequisites: ["mml.gmm"]
+unlocks: ["mml.svm-primal"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state the GMM model and responsibilities? — see
+   [MML — 29, GMM](../29-gmm/index.qmd).
+2. Do you know Jensen's inequality $\log \mathbb{E}[X] \ge \mathbb{E}[\log X]$ for concave log? — implicit in
+   [MML — 17](../17-probability-spaces-bayes/index.qmd).
+3. Can you compute a conditional expectation? — same prerequisite.
+4. Can you state Bayes' theorem?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+EM running on a 2-component 1D GMM. Watch the means and variances converge as the iterations proceed.
+
+```{ojs}
+viewof iter = Inputs.range([0, 30], {value: 5, step: 1, label: "EM iterations:"})
+viewof seed = Inputs.range([1, 50], {value: 17, step: 1, label: "seed:"})
+```
+
+```{ojs}
+{
+  function rng(s) { return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; }
+  const r = rng(seed * 31);
+  // True data
+  const N = 100;
+  const truth_mu = [-2, 1.5];
+  const truth_sig = [0.8, 0.6];
+  const truth_pi = [0.4, 0.6];
+  const data = [];
+  for (let i = 0; i < N; i++) {
+    const k = r() < truth_pi[0] ? 0 : 1;
+    const u1 = r() + 1e-9, u2 = r();
+    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    data.push(truth_mu[k] + truth_sig[k] * z);
+  }
+  // Initialise (random)
+  let mu = [-1, 1], sig = [1, 1], pi = [0.5, 0.5];
+  function gauss(x, m, s) { return Math.exp(-(x - m) ** 2 / (2 * s * s)) / (Math.sqrt(2 * Math.PI) * s); }
+  for (let t = 0; t < iter; t++) {
+    // E-step
+    const R = data.map(x => {
+      const p1 = pi[0] * gauss(x, mu[0], sig[0]);
+      const p2 = pi[1] * gauss(x, mu[1], sig[1]);
+      const total = p1 + p2 + 1e-9;
+      return [p1 / total, p2 / total];
+    });
+    // M-step
+    const Nk = [0, 0];
+    for (const r of R) { Nk[0] += r[0]; Nk[1] += r[1]; }
+    mu = [0, 0]; sig = [0, 0]; pi = [Nk[0] / N, Nk[1] / N];
+    for (let i = 0; i < N; i++) {
+      mu[0] += R[i][0] * data[i] / (Nk[0] + 1e-9);
+      mu[1] += R[i][1] * data[i] / (Nk[1] + 1e-9);
+    }
+    for (let i = 0; i < N; i++) {
+      sig[0] += R[i][0] * (data[i] - mu[0]) ** 2 / (Nk[0] + 1e-9);
+      sig[1] += R[i][1] * (data[i] - mu[1]) ** 2 / (Nk[1] + 1e-9);
+    }
+    sig[0] = Math.sqrt(sig[0]); sig[1] = Math.sqrt(sig[1]);
+  }
+  // Plot
+  const all = [];
+  for (let x = -5; x <= 5; x += 0.05) {
+    all.push({x, p: pi[0] * gauss(x, mu[0], sig[0]) + pi[1] * gauss(x, mu[1], sig[1]), k: "GMM"});
+  }
+  for (let x = -5; x <= 5; x += 0.05) {
+    all.push({x, p: truth_pi[0] * gauss(x, truth_mu[0], truth_sig[0]) + truth_pi[1] * gauss(x, truth_mu[1], truth_sig[1]), k: "truth"});
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Fitted: π = (${pi[0].toFixed(2)}, ${pi[1].toFixed(2)}), μ = (${mu[0].toFixed(2)}, ${mu[1].toFixed(2)}), σ = (${sig[0].toFixed(2)}, ${sig[1].toFixed(2)}).
+      <br/>True: π = (0.40, 0.60), μ = (-2.00, 1.50), σ = (0.80, 0.60).
+    </div>
+    ${Plot.plot({
+      width: 460, height: 280, x: {domain: [-5, 5]},
+      color: {legend: true, domain: ["GMM", "truth"], range: ["tomato", "#999"]},
+      marks: [
+        Plot.dot(data.map(x => ({x, p: 0})), {x: "x", y: "p", r: 2, fill: "#bbb"}),
+        Plot.line(all, {x: "x", y: "p", stroke: "k", strokeWidth: 2})
+      ]
+    })}
+  </div>`;
+}
+```
+
+At 0 iterations, the random init is way off. Each iteration of E (compute responsibilities) and M (re-fit parameters) brings the fit closer to the truth. **EM converges to a local maximum of the likelihood** — usually fast.
+
+## Wonder
+
+1. EM is *guaranteed* to *not decrease* likelihood every iteration. How is this possible when we're not directly optimising the likelihood?
+2. The E-step "fills in" unknown latents. The M-step re-fits parameters. What is the deeper structure that makes these two steps work?
+3. EM converges to a *local* maximum, not necessarily global. How do we mitigate this?
+4. EM is the algorithm; what's the underlying mathematical principle?
+
+## Discover
+
+Five problems building EM from variational lower bound.
+
+**D1.** The log-likelihood of a latent-variable model is $\log p(\boldsymbol{x}) = \log \sum_z p(\boldsymbol{x}, z)$. For any distribution $q(z)$, derive the **ELBO**: $\log p(\boldsymbol{x}) \ge \mathbb{E}_q[\log p(\boldsymbol{x}, z)] - \mathbb{E}_q[\log q(z)]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\log p(\boldsymbol{x}) = \log \sum_z q(z) \frac{p(\boldsymbol{x}, z)}{q(z)}$. Jensen's inequality (log is concave): $\log \mathbb{E}_q[f] \ge \mathbb{E}_q[\log f]$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\log p(\boldsymbol{x}) = \log \mathbb{E}_q\bigl[\frac{p(\boldsymbol{x}, z)}{q(z)}\bigr] \ge \mathbb{E}_q\bigl[\log \frac{p(\boldsymbol{x}, z)}{q(z)}\bigr] = \mathbb{E}_q[\log p(\boldsymbol{x}, z)] - \mathbb{E}_q[\log q(z)]$.
+**ELBO = Evidence Lower BOund.** With equality when $q(z) = p(z \mid \boldsymbol{x})$ (the true posterior). **The slack is $\mathrm{KL}(q \| p(\cdot \mid \boldsymbol{x}))$.**
+</details>
+
+**D2.** **E-step**: maximise the ELBO over $q$ for fixed $\boldsymbol{\theta}$. Show the optimal $q$ is the **posterior** $p(z \mid \boldsymbol{x}, \boldsymbol{\theta})$.
+
+<details class="hint"><summary>Full solution</summary>
+ELBO at the posterior: $\log p(\boldsymbol{x}, z = \cdot) - \log p(z = \cdot \mid \boldsymbol{x}) = \log p(\boldsymbol{x})$ — equality. ELBO at any other $q$ is strictly less. **E-step: compute $q(z) = p(z \mid \boldsymbol{x}, \boldsymbol{\theta}^{(t)})$.** For GMM: $q(z_n = k) = r_{nk}^{(t)}$.
+</details>
+
+**D3.** **M-step**: maximise the ELBO over $\boldsymbol{\theta}$ for fixed $q$. Show this reduces to maximising $\mathbb{E}_q[\log p(\boldsymbol{x}, z \mid \boldsymbol{\theta})]$.
+
+<details class="hint"><summary>Full solution</summary>
+ELBO = $\mathbb{E}_q[\log p(\boldsymbol{x}, z \mid \boldsymbol{\theta})] - \mathbb{E}_q[\log q(z)]$. The second term doesn't depend on $\boldsymbol{\theta}$. So maximising ELBO wrt $\boldsymbol{\theta}$ = maximising $\mathbb{E}_q[\log p(\boldsymbol{x}, z \mid \boldsymbol{\theta})]$ — the **expected complete-data log-likelihood**.
+</details>
+
+**D4.** Apply EM to GMM. Show:
+- E-step: $r_{nk}^{(t)} = \pi_k^{(t)} \mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_k^{(t)}, \boldsymbol{\Sigma}_k^{(t)}) / \sum_j(\cdot)$.
+- M-step:
+  - $\pi_k^{(t+1)} = \frac{1}{N} \sum_n r_{nk}^{(t)}$;
+  - $\boldsymbol{\mu}_k^{(t+1)} = \frac{\sum_n r_{nk}^{(t)} \boldsymbol{x}_n}{\sum_n r_{nk}^{(t)}}$;
+  - $\boldsymbol{\Sigma}_k^{(t+1)} = \frac{\sum_n r_{nk}^{(t)} (\boldsymbol{x}_n - \boldsymbol{\mu}_k)(\boldsymbol{x}_n - \boldsymbol{\mu}_k)^\top}{\sum_n r_{nk}^{(t)}}$.
+
+<details class="hint"><summary>Full solution</summary>
+M-step maximises $\sum_n \sum_k r_{nk} \log[\pi_k \mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)]$. Differentiate wrt each parameter (and a Lagrange multiplier for $\sum \pi_k = 1$), set to zero. Each parameter has a *responsibility-weighted* MLE form — exactly as if the *responsibilities replaced one-hot labels*.
+</details>
+
+**D5.** Argue why EM **monotonically increases** the log-likelihood.
+
+<details class="hint"><summary>Full solution</summary>
+At iteration $t$: $\log p(\boldsymbol{x} \mid \boldsymbol{\theta}^{(t)})$ = ELBO at $q^{(t)} = p(z \mid \boldsymbol{x}, \boldsymbol{\theta}^{(t)})$ (E-step is exact).
+M-step: $\mathrm{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t+1)}) \ge \mathrm{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t)}) = \log p(\boldsymbol{x} \mid \boldsymbol{\theta}^{(t)})$.
+But $\log p(\boldsymbol{x} \mid \boldsymbol{\theta}^{(t+1)}) \ge \mathrm{ELBO}(q^{(t)}, \boldsymbol{\theta}^{(t+1)})$ — bound is always $\le$ true log-lik.
+Chain: $\log p(\boldsymbol{x} \mid \boldsymbol{\theta}^{(t+1)}) \ge \log p(\boldsymbol{x} \mid \boldsymbol{\theta}^{(t)})$. **Monotone improvement.**
+</details>
+
+::: {.fun-fact}
+**EM** as a named algorithm dates to **Dempster, Laird & Rubin, 1977**, but the *idea* was used by Hartley (1958), Baum, Petrie, Soules & Weiss (1970, for HMMs), and others before. **The ELBO interpretation** (E and M as alternating optimisation of a lower bound) was given by **Neal & Hinton, 1998** — and is what makes EM convergence transparent. Variational inference (Lesson 30 in MFRL track) is a generalisation: instead of using the exact posterior in the E-step, approximate it with a simpler $q$ from a parametric family.
+:::
+
+::: {.key-insight}
+**EM alternates between guessing latents (E-step) and re-fitting parameters (M-step).** Each step *cannot decrease* the log-likelihood. Convergence is to a local optimum. The deep view: EM is **coordinate ascent on the ELBO** in $(q, \boldsymbol{\theta})$ space. **Variational inference**, **wake-sleep**, **VAE training** are all generalisations.
+:::
+
+## Name
+
+::: {.lesson-beat}
+**EM (Expectation-Maximisation)** is an iterative algorithm for MLE in latent-variable models. Given a model $p(\boldsymbol{x}, z \mid \boldsymbol{\theta})$ with latent $z$:
+
+- **E-step**: compute the posterior $q^{(t+1)}(z) = p(z \mid \boldsymbol{x}, \boldsymbol{\theta}^{(t)})$ (or its sufficient statistics).
+- **M-step**: $\boldsymbol{\theta}^{(t+1)} = \mathrm{argmax}_{\boldsymbol{\theta}} \mathbb{E}_{q^{(t+1)}}[\log p(\boldsymbol{x}, z \mid \boldsymbol{\theta})]$.
+
+**Monotone improvement**: $\log p(\boldsymbol{x} \mid \boldsymbol{\theta}^{(t+1)}) \ge \log p(\boldsymbol{x} \mid \boldsymbol{\theta}^{(t)})$ at every iteration.
+
+**Convergence** is to a *local* maximum of the log-likelihood. Sensitive to initialisation; usually run with multiple restarts.
+
+**ELBO formulation**. Define $\mathrm{ELBO}(q, \boldsymbol{\theta}) = \mathbb{E}_q[\log p(\boldsymbol{x}, z \mid \boldsymbol{\theta})] - \mathbb{E}_q[\log q(z)]$.
+- E-step: $q^{(t+1)} = \mathrm{argmax}_q \mathrm{ELBO}(q, \boldsymbol{\theta}^{(t)}) = p(z \mid \boldsymbol{x}, \boldsymbol{\theta}^{(t)})$.
+- M-step: $\boldsymbol{\theta}^{(t+1)} = \mathrm{argmax}_{\boldsymbol{\theta}} \mathrm{ELBO}(q^{(t+1)}, \boldsymbol{\theta})$.
+
+EM = coordinate ascent on ELBO in $(q, \boldsymbol{\theta})$ space.
+
+**Variational EM**: when the posterior is intractable, restrict $q$ to a parametric family $q_\phi$ and optimise the *variational lower bound* — the foundation of modern VAEs.
+
+**Generalised EM (GEM)**: M-step *increases* but doesn't necessarily maximise — still monotone in likelihood.
+
+::: {.callout-warning}
+**Sūtra.** *EM alternates E (compute posterior over latents) and M (refit parameters). Coordinate ascent on the ELBO; monotone improvement.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"EM is specific to GMM."* — It's a general framework for latent-variable models: HMMs, factor analysis, missing-data regression, LDA topic models — all fit by EM (or variational EM).
+2. *"EM finds the MLE."* — It finds a *local* MLE. Multi-restart and warm-start (K-means initialisation for GMM) help.
+3. *"M-step requires closed-form maximisation."* — Generalised EM (GEM) just requires *increase*, not max. Allows EM to work with intractable models via gradient steps on the M-step.
+:::
+
+## Apply
+
+### Worked example
+
+Fit a 2-component GMM on $\boldsymbol{x} = (1, 2, 8, 9, 10)$ using EM. Init: $\pi = (0.5, 0.5)$, $\mu = (3, 7)$, $\sigma = (2, 2)$.
+
+**Step 1 (E).** Responsibility of component 1 for each point:
+$r_{n1} = \pi_1 \mathcal{N}(x_n \mid 3, 4) / [\pi_1 \mathcal{N}(x_n \mid 3, 4) + \pi_2 \mathcal{N}(x_n \mid 7, 4)]$.
+For $x = 1$: $r_{11} \approx 0.88$ (close to 3).
+For $x = 2$: $r_{21} \approx 0.73$.
+For $x = 8$: $r_{31} \approx 0.27$.
+For $x = 9$: $r_{41} \approx 0.12$.
+For $x = 10$: $r_{51} \approx 0.05$.
+
+**Step 2 (M).** Update $\pi_1 = \tfrac{1}{5}(0.88 + 0.73 + 0.27 + 0.12 + 0.05) = 0.41$. Similarly $\mu_1 = \sum r_{n1} x_n / \sum r_{n1}$, etc.
+
+**Step 3.** Iterate. After ~10 iterations, $\mu_1 \approx 1.5, \mu_2 \approx 9$, and the responsibilities are nearly hard (~0.99 / 0.01). **EM converged to the correct two clusters.**
+
+**Conclusion:** Even from a naive initialisation, EM converges to the right answer for well-separated clusters in ~10 iterations.
+
+### Warm
+
+**W1.** Is EM guaranteed to find the global max?
+
+<details class="hint"><summary>Full solution</summary>
+No. Local max only. Multi-restart is standard practice.
+</details>
+
+**W2.** Why do we use the *complete-data* log-likelihood inside the M-step instead of the marginal?
+
+<details class="hint"><summary>Full solution</summary>
+The marginal log-likelihood has the troublesome $\log \sum_z$ structure. The complete-data log-likelihood doesn't — $\log p(\boldsymbol{x}, z)$ is easier to differentiate. Replacing $z$ with its expectation (E-step) makes the M-step tractable.
+</details>
+
+**W3.** EM for a single Gaussian: what does it compute?
+
+<details class="hint"><summary>Full solution</summary>
+Sample mean and covariance — but with one "component," there's no latent and EM trivially returns the MLE in one step.
+</details>
+
+### Working
+
+**Wo1.** Derive the M-step formulas for GMM by differentiating $\sum_n \sum_k r_{nk} \log[\pi_k \mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)]$ wrt $\boldsymbol{\mu}_k$.
+
+<details class="hint"><summary>Full solution</summary>
+$\partial / \partial \boldsymbol{\mu}_k$ of $\sum_n r_{nk} \cdot (-\tfrac{1}{2}(\boldsymbol{x}_n - \boldsymbol{\mu}_k)^\top \boldsymbol{\Sigma}_k^{-1} (\boldsymbol{x}_n - \boldsymbol{\mu}_k))$: $\sum_n r_{nk} \boldsymbol{\Sigma}_k^{-1} (\boldsymbol{x}_n - \boldsymbol{\mu}_k) = \boldsymbol{0}$. So $\boldsymbol{\mu}_k = (\sum_n r_{nk} \boldsymbol{x}_n) / (\sum_n r_{nk})$ — **weighted average**. ✓
+</details>
+
+**Wo2.** Show that for **K-means**, the M-step assigns each point hard to one cluster and updates centroids as means; equivalent to GMM-EM with $\sigma \to 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$\sigma \to 0$: $\mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_k, \sigma^2 \boldsymbol{I})$ is a sharp spike. Responsibilities collapse to one-hot: $r_{nk} = 1$ if $k = \mathrm{argmin}_j \lVert \boldsymbol{x}_n - \boldsymbol{\mu}_j\rVert$, $0$ else. M-step for $\boldsymbol{\mu}_k$: centroid of points assigned to $k$. **K-means = limiting case.**
+</details>
+
+**Wo3.** Why does **K-means typically converge faster than GMM-EM** for well-separated clusters?
+
+<details class="hint"><summary>Full solution</summary>
+Hard assignments converge in fewer iterations because each point definitively belongs to one cluster. Soft responsibilities oscillate slightly near boundaries. K-means is also computationally cheaper per iteration. **K-means is the practical first cut**; GMM-EM is the principled refinement.
+</details>
+
+### Stretch
+
+**S1.** **Variational autoencoder (VAE)** uses an *amortised* variational E-step: a neural network maps each $\boldsymbol{x}$ directly to its approximate posterior, avoiding per-point optimisation. Sketch this.
+
+<details class="hint"><summary>Full solution</summary>
+Encoder $q_\phi(z \mid \boldsymbol{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\boldsymbol{x}), \boldsymbol{\Sigma}_\phi(\boldsymbol{x}))$ — parametric posterior shared across all data. Decoder $p_\theta(\boldsymbol{x} \mid z)$. Joint training: maximise ELBO over $(\theta, \phi)$ via SGD. **Amortised inference**: replace EM's per-point E-step with a learned function from $\boldsymbol{x}$ to approximate posterior. **VAE = neural EM at amortised scale.**
+</details>
+
+**S2.** **Generalised EM** for non-conjugate models: replace the closed-form M-step with a gradient step. Argue why monotone improvement still holds.
+
+<details class="hint"><summary>Full solution</summary>
+ELBO is non-decreasing in either E or M coordinate. M-step *increase* (not max) still increases ELBO, hence non-decreases log-likelihood. Useful for: neural exponential family, complex priors, hierarchical models. **GEM trades closed-form for flexibility.**
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **EM = E-step (compute posterior over latents) + M-step (re-fit parameters given responsibilities). Iterate until convergence.**
+2. **EM is coordinate ascent on the ELBO; monotone improvement of log-likelihood.**
+3. **Converges to a local optimum; multi-restart is standard. K-means is the hard-assignment limit.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you sketch the E and M steps for a GMM from scratch?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you read "ELBO" in a paper, do you reach for "lower bound on log-evidence"?
+
+- **3 yes:** move on to Lesson 31.
+- **2 yes:** redo D5 (monotone improvement) and D4 (GMM M-step), then move on.
+- **0–1 yes:** re-read *Discover* problems D1 and D5.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.gmm`](../29-gmm/index.qmd) — the model EM fits.
+
+### What this unlocks
+
+- [`mml.svm-primal`](../31-svm-primal/index.qmd) — switching tracks to classification.
+- VAEs, HMM forward-backward, factor analysis — all fit by EM or its variational generalisations.
+
+### Sister synthesis lesson
+
+[`t5.statistical-inference`](../../tier-5-undergrad-core/10-statistical-inference/index.qmd) — pure-stats view of likelihood-based inference.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** EM fits HMMs, GMMs, factor analysis, LDA, missing-data regression. Modern variational autoencoders generalise EM to deep generative models.
+:::
+
+::: {.applied-callout}
+**Research.** Genetic association studies use EM for haplotype phasing. Bayesian network parameter learning often uses EM when graph structure is known but parameters are not.
+:::
+
+::: {.applied-callout}
+**Game dev.** Pose estimation with missing joint data — EM iteratively fills in missing entries and updates pose parameters.
+:::

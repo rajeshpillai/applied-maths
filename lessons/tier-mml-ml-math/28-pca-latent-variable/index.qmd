@@ -1,0 +1,283 @@
+---
+title: "28 · PCA as a Latent-Variable Model (Probabilistic PCA)"
+subtitle: "Treat the principal components as hidden causes; observed data is a noisy linear projection of them. PCA pops out as the MLE."
+lesson-id: "mml.pca-latent-variable"
+tier: "mml"
+prerequisites: ["mml.pca-eigenvector-high-dim"]
+unlocks: ["mml.gmm"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state the PCA eigendecomposition objective? — see
+   [MML — 26, PCA Variance Projection](../26-pca-variance-projection/index.qmd).
+2. Do you know the multivariate Gaussian density and its closure under affine maps? — see [MML — 18](../18-gaussian-summary-stats/index.qmd).
+3. Can you state MLE? — see [MML — 17 / 19](../19-conjugacy-change-of-variables/index.qmd).
+4. Do you understand directed graphical models? — see [MML — 23](../23-graphical-models-model-selection/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A toy PPCA generative model: a 1-dimensional latent $z$ generates a 2D observation $\boldsymbol{x} = \boldsymbol{W} z + \boldsymbol{\mu} + \boldsymbol{\epsilon}$, with $z \sim \mathcal{N}(0, 1)$ and $\boldsymbol{\epsilon} \sim \mathcal{N}(\boldsymbol{0}, \sigma^2 \boldsymbol{I})$.
+
+```{ojs}
+viewof W1 = Inputs.range([-2, 2], {value: 1.5, step: 0.05, label: "W₁:"})
+viewof W2 = Inputs.range([-2, 2], {value: 0.8, step: 0.05, label: "W₂:"})
+viewof sig = Inputs.range([0.05, 1], {value: 0.3, step: 0.05, label: "obs noise σ:"})
+viewof N = Inputs.range([20, 200], {value: 80, step: 5, label: "N samples:"})
+viewof seed = Inputs.range([1, 50], {value: 13, step: 1, label: "seed:"})
+```
+
+```{ojs}
+{
+  function rng(s) { return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; }
+  const r = rng(seed * 29);
+  const xs = [], ys = [];
+  for (let i = 0; i < N; i++) {
+    const u1 = r() + 1e-9, u2 = r();
+    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    const u3 = r() + 1e-9, u4 = r();
+    const e1 = sig * Math.sqrt(-2 * Math.log(u3)) * Math.cos(2 * Math.PI * u4);
+    const u5 = r() + 1e-9, u6 = r();
+    const e2 = sig * Math.sqrt(-2 * Math.log(u5)) * Math.cos(2 * Math.PI * u6);
+    xs.push(W1 * z + e1); ys.push(W2 * z + e2);
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Observed data: x = W z + noise. The "latent" direction is (W₁, W₂) = (${W1.toFixed(2)}, ${W2.toFixed(2)}).
+    </div>
+    ${Plot.plot({
+      width: 460, height: 320, x: {domain: [-5, 5]}, y: {domain: [-5, 5]}, grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.dot(xs.map((x, i) => ({x, y: ys[i]})), {x: "x", y: "y", r: 3, fill: "steelblue"}),
+        Plot.arrow([{x1: 0, y1: 0, x2: W1, y2: W2}], {x1: "x1", y1: "y1", x2: "x2", y2: "y2", stroke: "tomato", strokeWidth: 2})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Red arrow = generating direction $\boldsymbol{W}$. Data scatters around it perpendicular to the arrow, with spread proportional to $\sigma$. PPCA's job is to *recover* $\boldsymbol{W}$ and $\sigma$ from observed data alone.
+
+## Wonder
+
+1. Standard PCA gives directions and variances — but no probabilistic model. Why might making PCA a *generative model* (PPCA) be valuable?
+2. PPCA includes an explicit noise term $\boldsymbol{\epsilon}$. How does this interact with classical PCA (which doesn't)?
+3. As $\sigma \to 0$ (no noise), PPCA should reduce to classical PCA. Does it?
+4. Once we have a generative model, we can *sample* new data points. What does that buy us?
+
+## Discover
+
+Five problems building PPCA.
+
+**D1.** PPCA model: $z \sim \mathcal{N}(0, 1)$, $\boldsymbol{x} = \boldsymbol{W} z + \boldsymbol{\mu} + \boldsymbol{\epsilon}$, $\boldsymbol{\epsilon} \sim \mathcal{N}(\boldsymbol{0}, \sigma^2 \boldsymbol{I})$. Compute the marginal distribution of $\boldsymbol{x}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{x}$ is an affine map of Gaussian $z$ plus independent Gaussian noise. So $\boldsymbol{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{W}\boldsymbol{W}^\top + \sigma^2 \boldsymbol{I})$. **PPCA marginally generates a Gaussian** with low-rank-plus-isotropic covariance.
+</details>
+
+**D2.** Show that the MLE of $\boldsymbol{\mu}$ is the sample mean $\bar{\boldsymbol{x}}$ — independent of $\boldsymbol{W}$ and $\sigma^2$.
+
+<details class="hint"><summary>Full solution</summary>
+Log-likelihood depends on $\boldsymbol{\mu}$ only through $(\boldsymbol{x}_n - \boldsymbol{\mu})^\top \boldsymbol{C}^{-1} (\boldsymbol{x}_n - \boldsymbol{\mu})$ summed over $n$. Differentiating wrt $\boldsymbol{\mu}$: $-\sum \boldsymbol{C}^{-1} (\boldsymbol{x}_n - \boldsymbol{\mu}) = 0$ gives $\boldsymbol{\mu} = \bar{\boldsymbol{x}}$. **PPCA centring** = standard PCA centring.
+</details>
+
+**D3.** Setting $\boldsymbol{\mu} = \bar{\boldsymbol{x}}$ and centering data: the MLE of $\boldsymbol{W}$ and $\sigma^2$ is (theorem of Tipping & Bishop, 1999): $\sigma^2_{\mathrm{MLE}} = \tfrac{1}{D - K} \sum_{i > K} \lambda_i$ (average of the *discarded* eigenvalues) and $\boldsymbol{W}_{\mathrm{MLE}} = \boldsymbol{U}_K (\boldsymbol{\Lambda}_K - \sigma^2 \boldsymbol{I})^{1/2} \boldsymbol{R}$ for any orthogonal $\boldsymbol{R}$. Interpret each factor.
+
+<details class="hint"><summary>Full solution</summary>
+- $\boldsymbol{U}_K$: top-$K$ eigenvectors — the principal directions.
+- $(\boldsymbol{\Lambda}_K - \sigma^2 \boldsymbol{I})^{1/2}$: principal-component standard deviations, *minus* the noise floor (eigenvalues from noise contribute $\sigma^2$ each).
+- $\boldsymbol{R}$: rotation freedom (PPCA can rotate latent variables; only the span of $\boldsymbol{W}$ is identified).
+**PPCA's MLE gives back classical PCA directions, with the noise variance estimated from the discarded eigenvalues.**
+</details>
+
+**D4.** Compute the posterior $p(z \mid \boldsymbol{x})$. (Use Gaussian conditioning.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$z$ and $\boldsymbol{x}$ are jointly Gaussian. Use the conditional formulas from Lesson 18.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Joint: $(z, \boldsymbol{x}) \sim \mathcal{N}\bigl((0, \boldsymbol{\mu})^\top, \begin{pmatrix} 1 & \boldsymbol{W}^\top \\ \boldsymbol{W} & \boldsymbol{W}\boldsymbol{W}^\top + \sigma^2 \boldsymbol{I} \end{pmatrix}\bigr)$.
+Conditional $z \mid \boldsymbol{x}$: mean $\boldsymbol{W}^\top (\boldsymbol{W}\boldsymbol{W}^\top + \sigma^2 \boldsymbol{I})^{-1} (\boldsymbol{x} - \boldsymbol{\mu})$, variance $1 - \boldsymbol{W}^\top (\boldsymbol{W}\boldsymbol{W}^\top + \sigma^2 \boldsymbol{I})^{-1} \boldsymbol{W}$. **Posterior is Gaussian** — PPCA does Bayesian inference over latents for free.
+</details>
+
+**D5.** Sample a new data point from the PPCA model. Sketch the algorithm.
+
+<details class="hint"><summary>Full solution</summary>
+1. Draw $z \sim \mathcal{N}(0, 1)$. 2. Compute $\boldsymbol{\mu} + \boldsymbol{W} z$. 3. Add $\boldsymbol{\epsilon} \sim \mathcal{N}(\boldsymbol{0}, \sigma^2 \boldsymbol{I})$.
+**This is a generative model** — unlike classical PCA, which doesn't say where new data should "come from."
+</details>
+
+::: {.fun-fact}
+**Probabilistic PCA** was introduced by **Michael Tipping** and **Christopher Bishop** in their 1999 paper *Probabilistic Principal Component Analysis* (Royal Statistical Society). The same paper showed that the MLE for $\boldsymbol{W}$ and $\sigma^2$ has a *closed form* — surprising, because most latent-variable models require EM (Lesson 30). PPCA was the gateway to **Factor Analysis** (more flexible noise covariance), **Mixtures of PPCAs** (combining with GMM, Lesson 29), and eventually **Variational Autoencoders** (the deep-learning generalisation).
+:::
+
+::: {.key-insight}
+**PPCA is PCA with a generative-model interpretation.** Latent variables $z$ generate observations $\boldsymbol{x}$ via a linear projection plus Gaussian noise. The MLE recovers classical PCA directions, but PPCA additionally gives us: an explicit noise model, posterior inference $p(z \mid \boldsymbol{x})$, a sampling procedure, and a route to *mixture* models (the next two lessons).
+:::
+
+## Name
+
+::: {.lesson-beat}
+**Probabilistic PCA (PPCA)** model. Latent $z_n \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I}_K)$ for each $n = 1, \dots, N$, $K \ll D$. Observation
+$$
+\boldsymbol{x}_n = \boldsymbol{W} z_n + \boldsymbol{\mu} + \boldsymbol{\epsilon}_n, \qquad \boldsymbol{\epsilon}_n \sim \mathcal{N}(\boldsymbol{0}, \sigma^2 \boldsymbol{I}_D),
+$$
+with $\boldsymbol{W} \in \mathbb{R}^{D \times K}$, $\boldsymbol{\mu} \in \mathbb{R}^D$, $\sigma^2 > 0$.
+
+**Marginal** (integrating $z$): $\boldsymbol{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{W}\boldsymbol{W}^\top + \sigma^2 \boldsymbol{I})$.
+
+**MLE** (Tipping–Bishop, 1999): $\boldsymbol{\mu} = \bar{\boldsymbol{x}}$; $\boldsymbol{W} = \boldsymbol{U}_K (\boldsymbol{\Lambda}_K - \sigma^2 \boldsymbol{I})^{1/2}$ up to a $K \times K$ rotation; $\sigma^2 = \tfrac{1}{D - K} \sum_{i > K} \lambda_i$, where $\lambda_i$ are eigenvalues of sample covariance and $\boldsymbol{U}_K, \boldsymbol{\Lambda}_K$ are top-$K$ eigenvectors and eigenvalues.
+
+**Posterior** $z \mid \boldsymbol{x}$ is Gaussian (D4).
+
+**Connection to PCA**: as $\sigma^2 \to 0$, PPCA collapses to classical PCA. **PPCA = PCA + Gaussian noise model**.
+
+**Factor Analysis** generalises PPCA: replaces $\sigma^2 \boldsymbol{I}$ with a *diagonal* noise covariance $\boldsymbol{\Psi}$, allowing per-dimension scale.
+
+**Mixture of PPCAs** (Tipping & Bishop, 1999b): each cluster has its own PPCA model.
+
+**Variational Autoencoder** (Kingma & Welling 2013): replaces linear $\boldsymbol{W}$ with a non-linear neural network and uses variational inference for the posterior.
+
+::: {.callout-warning}
+**Sūtra.** *Latent z + linear map + Gaussian noise = PPCA. MLE recovers classical PCA; the rest is the generative model and the posterior.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"PPCA is just classical PCA with extra math."* — It's a fundamentally different *interpretation* (generative model) with extra capabilities (posterior, sampling, mixtures, VAE generalisation).
+2. *"$\boldsymbol{W}$ is uniquely determined by the data."* — Only up to a $K \times K$ orthogonal rotation. The *column span* is unique, not the columns themselves.
+3. *"PPCA always works as well as PCA."* — When $\sigma$ is large or model is misspecified, PPCA can be worse. Cross-validation helps choose $K$.
+:::
+
+## Apply
+
+### Worked example
+
+A 3D dataset with 2D latent structure. Eigenvalues of sample covariance: $\lambda = (10, 5, 1)$. Fit PPCA with $K = 2$.
+
+**Step 1.** Noise variance: $\sigma^2 = \tfrac{1}{D - K} \sum_{i > K} \lambda_i = \tfrac{1}{1} \cdot 1 = 1$.
+
+**Step 2.** Loading matrix: $\boldsymbol{W} = \boldsymbol{U}_2 \mathrm{diag}(\sqrt{10 - 1}, \sqrt{5 - 1}) = \boldsymbol{U}_2 \mathrm{diag}(3, 2)$.
+
+**Step 3.** Total variance under model: trace = $\sum_i \lambda_i^{\mathrm{model}} = (\sqrt{10-1})^2 + 1 + (\sqrt{5-1})^2 + 1 + 1 = 9 + 4 + 1 \cdot 3 = 16$. Compare to data total variance $\sum \lambda_i = 16$. ✓ The fit *exactly* reproduces the variance.
+
+**Step 4.** Generative samples: pick $z = (z_1, z_2) \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$, compute $\bar{\boldsymbol{x}} + 3 z_1 \boldsymbol{u}_1 + 2 z_2 \boldsymbol{u}_2 + \boldsymbol{\epsilon}$.
+
+**Conclusion:** PPCA fits in closed form: extract eigenstructure, subtract noise floor, get a generative model. Sampling is one extra step beyond what classical PCA gives.
+
+### Warm
+
+**W1.** Does PPCA's MLE for $\sigma^2$ depend on $K$?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — it's the *average of the discarded* eigenvalues, which depends on which ones are kept.
+</details>
+
+**W2.** For $K = D$ (keep all components), what is the PPCA model?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{x} = \boldsymbol{W} z + \boldsymbol{\mu}$ exactly (no noise direction left to model), $\sigma^2 = 0$. PPCA collapses to classical PCA.
+</details>
+
+**W3.** Why is the rotation freedom of $\boldsymbol{W}$ a feature, not a bug?
+
+<details class="hint"><summary>Full solution</summary>
+It tells us the *latent space's geometry is not uniquely determined* by data alone. Identifiability requires extra constraints (orthogonality, sparsity, sign). In VAEs, the encoder breaks this symmetry by mapping each input to a specific point.
+</details>
+
+### Working
+
+**Wo1.** Show that for the noise-free limit $\sigma \to 0$, the marginal $\boldsymbol{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{W}\boldsymbol{W}^\top)$ has rank $K$, supported on a $K$-dim affine subspace.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{W}\boldsymbol{W}^\top$ has rank $K$ (assuming $\boldsymbol{W}$ has full column rank). A Gaussian with low-rank covariance is degenerate — its support is the affine subspace $\boldsymbol{\mu} + \mathrm{col}(\boldsymbol{W})$. The data lies *exactly* on a $K$-plane. **Classical PCA assumes this.**
+</details>
+
+**Wo2.** **Probabilistic interpretation of PCA reconstruction**: the posterior mean of $z$ given $\boldsymbol{x}$ is a *shrunk* version of the OLS projection. Show this.
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{E}[z \mid \boldsymbol{x}] = (\boldsymbol{W}^\top \boldsymbol{W} + \sigma^2 \boldsymbol{I})^{-1} \boldsymbol{W}^\top (\boldsymbol{x} - \boldsymbol{\mu})$. As $\sigma \to 0$: posterior mean → $(\boldsymbol{W}^\top \boldsymbol{W})^{-1} \boldsymbol{W}^\top (\boldsymbol{x} - \boldsymbol{\mu})$ — OLS. For finite $\sigma$: shrunk toward zero (regularised). **PPCA's posterior is a ridge-regularised PCA score.**
+</details>
+
+**Wo3.** State why **EM** (Lesson 30) provides an alternative way to fit PPCA, especially useful when data has missing entries.
+
+<details class="hint"><summary>Full solution</summary>
+Closed-form Tipping-Bishop MLE requires the full sample covariance. With missing data, this doesn't exist. EM alternates: E-step infers missing entries given current $\boldsymbol{W}, \sigma^2$; M-step updates $\boldsymbol{W}, \sigma^2$ given full data. Converges to MLE. **Probabilistic matrix factorisation = PPCA + EM** — used in early Netflix-prize recommender systems.
+</details>
+
+### Stretch
+
+**S1.** **Variational Autoencoder (VAE)**: replace $\boldsymbol{W}$ with a deep neural decoder, replace closed-form posterior with a variational approximation $q(z \mid \boldsymbol{x})$. Sketch how VAE generalises PPCA.
+
+<details class="hint"><summary>Full solution</summary>
+PPCA: $\boldsymbol{x} = \boldsymbol{W} z + \boldsymbol{\epsilon}$, linear decoder, exact Gaussian posterior. VAE: $\boldsymbol{x} = f_\theta(z) + \boldsymbol{\epsilon}$, nonlinear decoder $f_\theta$ (neural net), variational posterior $q_\phi(z \mid \boldsymbol{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\boldsymbol{x}), \boldsymbol{\Sigma}_\phi(\boldsymbol{x}))$ also neural. ELBO = reconstruction loss + KL(q || prior). **VAE is the neural-net version of PPCA** — first generative model trained by SGD on millions of images.
+</details>
+
+**S2.** **Bayesian PCA** integrates out $\boldsymbol{W}$ as well as $z$. Why might this matter for model selection?
+
+<details class="hint"><summary>Full solution</summary>
+Choosing $K$ (number of components) by AIC/BIC requires the marginal likelihood $p(\boldsymbol{X} \mid K) = \int p(\boldsymbol{X} \mid \boldsymbol{W}, \sigma^2) p(\boldsymbol{W}) p(\sigma^2) d\boldsymbol{W} d\sigma^2$. Bayesian PCA integrates over $\boldsymbol{W}$; the marginal likelihood automatically penalises overcomplex models. **ARD (Automatic Relevance Determination)** puts hierarchical priors that switch off unneeded components, **automatically selecting $K$**.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **PPCA = PCA + Gaussian noise model. Generative; MLE has closed form (Tipping-Bishop).**
+2. **The principal directions are recovered; PPCA additionally gives posterior over latents, sampling, mixtures.**
+3. **VAE generalises PPCA: nonlinear decoder, variational posterior, trained by SGD.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state PPCA's generative model in one sentence?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you see a VAE in a paper, can you connect it to PPCA?
+
+- **3 yes:** move on to Lesson 29.
+- **2 yes:** redo D3 (MLE formulas), then move on.
+- **0–1 yes:** re-read *Discover* problems D1, D3.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.pca-eigenvector-high-dim`](../27-pca-eigenvector-high-dim/index.qmd) — computational PCA we now interpret probabilistically.
+
+### What this unlocks
+
+- [`mml.gmm`](../29-gmm/index.qmd) — latent-variable models with discrete latents.
+
+### Sister synthesis lesson
+
+[`t7.manifold-methods`](../../tier-7-masters-tracks/02-manifold-methods/index.qmd) — manifold extensions.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** PPCA is a stepping stone to VAEs, factor analysis, mixture of factor analyzers, and probabilistic matrix factorisation (collaborative filtering).
+:::
+
+::: {.applied-callout}
+**Research.** Latent-variable models are the basic language of generative modeling in statistics. Behavioral psychology factor analysis, exploratory genetics — all PPCA-shaped.
+:::
+
+::: {.applied-callout}
+**Game dev.** Procedural-content generation in some games uses learned low-dimensional latent representations of textures or geometry — generative models in PPCA/VAE form.
+:::

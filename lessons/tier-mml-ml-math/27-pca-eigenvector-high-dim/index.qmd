@@ -1,0 +1,273 @@
+---
+title: "27 · PCA: Eigenvector Computation and the High-Dimensional Trick"
+subtitle: "How to compute PCA when there are more features than data points — and why power iteration scales when eigendecomposition doesn't."
+lesson-id: "mml.pca-eigenvector-high-dim"
+tier: "mml"
+prerequisites: ["mml.pca-variance-projection"]
+unlocks: ["mml.pca-latent-variable"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state PCA in terms of eigendecomposition of covariance? — see
+   [MML — 26, PCA Variance Projection](../26-pca-variance-projection/index.qmd).
+2. Do you know SVD? — see [MML — 13, SVD](../13-svd-and-low-rank/index.qmd).
+3. Can you state Cholesky/eigendecomposition costs ($O(D^3)$)?
+4. Can you imagine a dataset where $N \ll D$ (e.g. genomics: 100 patients × 20,000 genes)?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A "tall" matrix vs a "wide" matrix. The widget compares the cost of computing PCA via $\boldsymbol{X}^\top \boldsymbol{X}$ ($D \times D$) vs $\boldsymbol{X} \boldsymbol{X}^\top$ ($N \times N$). For $N \ll D$, the second is *vastly* cheaper.
+
+```{ojs}
+viewof N = Inputs.range([10, 1000], {value: 50, step: 10, label: "N data points:"})
+viewof D = Inputs.range([10, 5000], {value: 2000, step: 50, label: "D features:"})
+```
+
+```{ojs}
+{
+  const costX = D * D * D;
+  const costXt = N * N * N;
+  const better = costX < costXt ? "X^T X (D×D) cheaper" : "X X^T (N×N) cheaper";
+  return html`<div style="font: 14px monospace; line-height: 1.6;">
+    <b>Sample-covariance approach</b> (X^T X is D×D = ${D}×${D}):<br/>
+    eigendecomp cost ≈ ${costX.toLocaleString()} flops.
+    <br/><br/>
+    <b>Gram-matrix approach</b> (X X^T is N×N = ${N}×${N}):<br/>
+    eigendecomp cost ≈ ${costXt.toLocaleString()} flops.
+    <br/><br/>
+    <b style="color: ${costX < costXt ? 'tomato' : 'seagreen'}">${better}</b>
+    <br/>
+    Savings factor: ${(Math.max(costX, costXt) / Math.min(costX, costXt)).toFixed(1)}×
+  </div>`;
+}
+```
+
+For $N = 50$ patients and $D = 2000$ genes: cube of $D$ is **$8 \times 10^9$** flops; cube of $N$ is **$1.25 \times 10^5$** flops. The Gram-matrix trick is $\sim 64,000\times$ cheaper.
+
+## Wonder
+
+1. Computing all eigenvalues of $\boldsymbol{X}^\top \boldsymbol{X}$ takes $O(D^3)$. When $D \gg N$, this is wasteful — most of the eigenvalues are zero. How do we know that without computing them?
+2. **Power iteration** computes only the top eigenvector by repeatedly applying $\boldsymbol{A}$. Why does this work?
+3. The Gram matrix $\boldsymbol{X}\boldsymbol{X}^\top$ has the same non-zero eigenvalues as $\boldsymbol{X}^\top \boldsymbol{X}$. How are the eigenvectors related?
+4. For sparse data (many zeros), there are faster methods. What kind of "sparsity" matters?
+
+## Discover
+
+Five problems building computational PCA.
+
+**D1.** Show that $\mathrm{rank}(\boldsymbol{X}^\top \boldsymbol{X}) = \mathrm{rank}(\boldsymbol{X}) \le \min(N, D)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{X}^\top \boldsymbol{X}$'s rank equals $\boldsymbol{X}$'s (standard linear algebra). $\boldsymbol{X}$'s rank can't exceed $\min(N, D)$. **If $N \ll D$, $\boldsymbol{X}^\top \boldsymbol{X}$ has at most $N$ nonzero eigenvalues — even though it's $D \times D$.** Most eigenvalues are zero; computing them is wasteful.
+</details>
+
+**D2.** Show that $\boldsymbol{X}\boldsymbol{X}^\top$ (an $N \times N$ matrix) has the same non-zero eigenvalues as $\boldsymbol{X}^\top \boldsymbol{X}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+If $\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{v} = \lambda \boldsymbol{v}$ with $\lambda \ne 0$, define $\boldsymbol{u} = \boldsymbol{X}\boldsymbol{v} / \sqrt{\lambda}$. Then $\boldsymbol{X}\boldsymbol{X}^\top \boldsymbol{u} = ?$
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{X}\boldsymbol{X}^\top \boldsymbol{u} = \boldsymbol{X}\boldsymbol{X}^\top \boldsymbol{X}\boldsymbol{v} / \sqrt{\lambda} = \boldsymbol{X} \lambda \boldsymbol{v} / \sqrt{\lambda} = \sqrt{\lambda} \boldsymbol{X}\boldsymbol{v} = \lambda \boldsymbol{u}$. So $\boldsymbol{u}$ is an eigenvector of $\boldsymbol{X}\boldsymbol{X}^\top$ with eigenvalue $\lambda$. **Both matrices share their non-zero spectrum.** When $N < D$, the $N \times N$ Gram matrix is much faster to eigendecompose.
+</details>
+
+**D3.** **Power iteration**: start with random $\boldsymbol{v}_0$; iterate $\boldsymbol{v}_{k+1} = \boldsymbol{A}\boldsymbol{v}_k / \lVert \boldsymbol{A}\boldsymbol{v}_k\rVert$. Show that $\boldsymbol{v}_k \to \boldsymbol{u}_1$ (the dominant eigenvector) under mild conditions.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand $\boldsymbol{v}_0 = \sum_i c_i \boldsymbol{u}_i$ in the eigenbasis. After $k$ iterations: $\boldsymbol{A}^k \boldsymbol{v}_0 = \sum c_i \lambda_i^k \boldsymbol{u}_i$. The dominant term wins as $k$ grows.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A}^k \boldsymbol{v}_0 \propto \lambda_1^k \boldsymbol{u}_1 + (\lambda_2/\lambda_1)^k \cdot \boldsymbol{u}_2 + \dots$. The leading term dominates when $\lambda_1 > \lambda_2$, and convergence is geometric in $\lambda_2 / \lambda_1$. Normalisation ensures $\boldsymbol{v}_k$ doesn't grow. **One eigenvector per pass through the data** — cheap, scalable.
+</details>
+
+**D4.** **Deflation**: after finding $\boldsymbol{u}_1$, subtract its contribution and re-iterate to find $\boldsymbol{u}_2$. Show $\boldsymbol{A} - \lambda_1 \boldsymbol{u}_1 \boldsymbol{u}_1^\top$ has the same eigenstructure as $\boldsymbol{A}$ except $\boldsymbol{u}_1$ now has eigenvalue $0$.
+
+<details class="hint"><summary>Full solution</summary>
+For $i = 1$: $(\boldsymbol{A} - \lambda_1 \boldsymbol{u}_1 \boldsymbol{u}_1^\top) \boldsymbol{u}_1 = \lambda_1 \boldsymbol{u}_1 - \lambda_1 \boldsymbol{u}_1 = \boldsymbol{0}$. For $i \ne 1$: $\boldsymbol{u}_1^\top \boldsymbol{u}_i = 0$, so the second term vanishes; result is $\lambda_i \boldsymbol{u}_i$. **Deflation pulls $\lambda_1$ to zero**; now the new dominant eigenvalue is $\lambda_2$, found by power iteration on the deflated matrix.
+</details>
+
+**D5.** Combined recipe: power iteration + deflation = compute top-$K$ eigenvectors at cost $O(NK)$ per iteration (NOT $O(D^3)$).
+
+<details class="hint"><summary>Full solution</summary>
+Each power-iteration step computes $\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{v}$ via two matrix-vector products: $\boldsymbol{X}^\top (\boldsymbol{X}\boldsymbol{v})$ — cost $O(ND)$. With $K$ eigenvectors and 10–20 iterations each: $O(KND)$ total. **For $K = 10, N = 1000, D = 10^6$: $10^{10}$ flops, vs $10^{18}$ for full eigendecomp**. Eight orders of magnitude faster.
+</details>
+
+::: {.fun-fact}
+**Power iteration** dates to **von Mises, 1929**, and was independently rediscovered for many applications. **Lanczos iteration** (1950) generalises it to *all* top-$K$ eigenvectors at once with better numerical properties. **Krylov subspace methods** (Arnoldi, Lanczos) are the family that includes both. The famous **PageRank** algorithm (Brin & Page, 1998) is power iteration on a $\sim 10^9 \times 10^9$ sparse matrix — that's why it works on the entire web's link graph.
+:::
+
+::: {.key-insight}
+**When $N \ll D$, compute PCA via the Gram matrix $\boldsymbol{X}\boldsymbol{X}^\top$** (small) **or via SVD of $\boldsymbol{X}$ directly** (most stable). **When you only need top-$K$ eigenvectors, use power iteration / Lanczos** — never compute the full eigendecomposition of a million-dimensional matrix.
+:::
+
+## Name
+
+::: {.lesson-beat}
+For data $\boldsymbol{X} \in \mathbb{R}^{N \times D}$:
+
+**Two equivalent eigenproblems**:
+- $\boldsymbol{X}^\top \boldsymbol{X} \in \mathbb{R}^{D \times D}$: eigenvectors are **principal directions** (in feature space).
+- $\boldsymbol{X}\boldsymbol{X}^\top \in \mathbb{R}^{N \times N}$: eigenvectors are **scores in data space** (whose images $\boldsymbol{X}^\top \boldsymbol{u}/\sqrt\lambda$ give principal directions).
+
+Same non-zero spectrum. **Compute on whichever is smaller.**
+
+**SVD route**: $\boldsymbol{X} = \boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top$. Principal directions = columns of $\boldsymbol{V}$; eigenvalues of covariance = $\sigma_i^2 / N$. Most numerically stable approach.
+
+**Power iteration** (top-1):
+$$
+\boldsymbol{v}_{k+1} = \boldsymbol{A}\boldsymbol{v}_k / \lVert \boldsymbol{A}\boldsymbol{v}_k\rVert, \qquad \boldsymbol{v}_k \to \boldsymbol{u}_1,\quad \lambda_1 = \boldsymbol{v}_\infty^\top \boldsymbol{A} \boldsymbol{v}_\infty.
+$$
+
+Convergence rate: $\rho = \lambda_2 / \lambda_1 < 1$.
+
+**Deflation**: $\boldsymbol{A} \to \boldsymbol{A} - \lambda_1 \boldsymbol{u}_1 \boldsymbol{u}_1^\top$, then repeat for $\boldsymbol{u}_2$.
+
+**Lanczos iteration**: simultaneously computes top-$K$ eigenpairs in $K$ power-iteration-like steps, with better numerical stability and convergence.
+
+**Cost summary**:
+- Full eigendecomp: $O(D^3)$ — infeasible for $D > 10^5$.
+- Lanczos for top-$K$: $O(K N D)$ for sparse data.
+- SVD of $\boldsymbol{X}$: $O(\min(N^2 D, N D^2))$ — economy SVD.
+
+::: {.callout-warning}
+**Sūtra.** *Pick the smaller matrix to eigendecompose; pick power iteration for top-K; pick SVD for stability.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"$\boldsymbol{X}^\top \boldsymbol{X}$ is always $D \times D$, so always $O(D^3)$."* — Right that it's $D \times D$. But the *rank* is at most $\min(N, D)$. If $N \ll D$, the matrix is rank-deficient — partial SVD / Lanczos is *much* cheaper than full eigendecomp.
+2. *"Power iteration always converges."* — Only when there's a unique dominant eigenvalue. Repeated eigenvalues require Lanczos or block power methods.
+3. *"You need the whole eigendecomposition to do PCA."* — Modern ML almost never does this. We keep top-$K$ eigenvectors (where $K$ is small) and ignore the rest.
+:::
+
+## Apply
+
+### Worked example
+
+Gene-expression data: 100 patients × 20,000 genes. Compute the top 10 PCs.
+
+**Step 1.** Centre the data: subtract column means → $\boldsymbol{X} \in \mathbb{R}^{100 \times 20000}$.
+
+**Step 2.** Choose route: $\boldsymbol{X}\boldsymbol{X}^\top$ is $100 \times 100$ — tiny. Form it: $O(N^2 D) = 2 \times 10^8$ flops.
+
+**Step 3.** Eigendecompose $\boldsymbol{X}\boldsymbol{X}^\top$: $O(N^3) = 10^6$ flops. Get $\boldsymbol{u}_1, \dots, \boldsymbol{u}_{100}$ in data space (and eigenvalues $\lambda_1, \dots, \lambda_{100}$).
+
+**Step 4.** Recover principal directions in feature space: $\boldsymbol{v}_k = \boldsymbol{X}^\top \boldsymbol{u}_k / \sqrt{\lambda_k}$ for $k = 1, \dots, 10$. Cost: $O(KND) = 2 \times 10^7$.
+
+**Step 5.** Total: about $2 \times 10^8$ flops. Direct eigendecomp of $\boldsymbol{X}^\top \boldsymbol{X}$ would have been $D^3 = 8 \times 10^{12}$ — **40,000× more**.
+
+**Conclusion:** For $N \ll D$, always use the Gram matrix or SVD. Direct eigendecomp of $D \times D$ covariance is computational suicide.
+
+### Warm
+
+**W1.** $N = 100, D = 5000$. Smaller of $\boldsymbol{X}^\top \boldsymbol{X}$ vs $\boldsymbol{X}\boldsymbol{X}^\top$?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{X}\boldsymbol{X}^\top$ ($100 \times 100$).
+</details>
+
+**W2.** Power-iteration convergence rate for $\lambda_1 = 10, \lambda_2 = 5$?
+
+<details class="hint"><summary>Full solution</summary>
+$\lambda_2 / \lambda_1 = 0.5$ per iteration.
+</details>
+
+**W3.** Why might **economy SVD** be preferred over full SVD for tall matrices?
+
+<details class="hint"><summary>Full solution</summary>
+Full SVD has $\boldsymbol{U} \in \mathbb{R}^{N \times N}$ — most columns are unused. Economy SVD has $\boldsymbol{U} \in \mathbb{R}^{N \times D}$ — only useful columns. Memory: $O(ND)$ vs $O(N^2)$ for $N \gg D$.
+</details>
+
+### Working
+
+**Wo1.** State and informally justify the **Lanczos algorithm**: build a Krylov subspace $\{\boldsymbol{v}, \boldsymbol{A}\boldsymbol{v}, \boldsymbol{A}^2 \boldsymbol{v}, \dots\}$, orthogonalise, project $\boldsymbol{A}$ onto it, eigendecompose the small projection.
+
+<details class="hint"><summary>Full solution</summary>
+The Krylov subspace contains "directions $\boldsymbol{A}$ acts on." Projecting $\boldsymbol{A}$ onto it gives a small tridiagonal matrix, whose top eigenvalues approximate $\boldsymbol{A}$'s top eigenvalues. After $K$ Krylov steps, the *Ritz values* converge to the top-$K$ eigenvalues. Same idea as power iteration but extracts $K$ eigenpairs at once. **Computer libraries (`scipy.sparse.linalg.eigsh`) use Lanczos** for large sparse symmetric matrices.
+</details>
+
+**Wo2.** A **truncated SVD** $\boldsymbol{X} \approx \boldsymbol{U}_K \boldsymbol{\Sigma}_K \boldsymbol{V}_K^\top$ takes $O(KND)$ via randomised algorithms (Halko et al. 2011). Argue informally why randomisation helps.
+
+<details class="hint"><summary>Full solution</summary>
+A random projection $\boldsymbol{Y} = \boldsymbol{X}\boldsymbol{R}$ (where $\boldsymbol{R}$ is random Gaussian) has columns that span (approximately) the same subspace as the top-$K$ singular directions. Then QR-factor $\boldsymbol{Y}$, project $\boldsymbol{X}$, and SVD a $K \times K$ matrix. Total cost: $O(KND)$. **Randomised numerical linear algebra is the standard approach for billion-scale matrices.**
+</details>
+
+**Wo3.** Argue why direct eigendecomposition is **infeasible** for the covariance matrix of $10^6$ pixels (or $10^9$ weights of a neural network).
+
+<details class="hint"><summary>Full solution</summary>
+$D^3 = 10^{18}$ flops. Even on a 100-teraflop GPU, that's $10^4$ seconds = several hours for *one* eigendecomposition. Memory: $D^2 = 10^{12}$ entries × 8 bytes = 8 TB. **Direct eigendecomp is infeasible above $D \sim 10^5$.** Lanczos, randomised SVD, and stochastic gradient methods (per-batch updates) are the alternatives.
+</details>
+
+### Stretch
+
+**S1.** **Stochastic PCA**: maintain an online estimate of the top eigenvectors that updates with each new data point. Useful when data streams in. Sketch the algorithm.
+
+<details class="hint"><summary>Full solution</summary>
+Oja's rule: $\boldsymbol{u} \leftarrow \boldsymbol{u} + \eta (\boldsymbol{x}\boldsymbol{x}^\top \boldsymbol{u} - \lVert \boldsymbol{u}\rVert^2 \boldsymbol{u})$. The first term pushes $\boldsymbol{u}$ along the data; the second normalises. Converges to the top eigenvector when $\eta$ is appropriately annealed. **Used in streaming-data systems where the dataset doesn't fit in memory.**
+</details>
+
+**S2.** **PCA for sparse data**. Why is sparsity especially valuable for power iteration?
+
+<details class="hint"><summary>Full solution</summary>
+Each power-iteration step costs $O(\text{nnz}(\boldsymbol{X}))$ — the number of non-zero entries. For text corpora ($N \sim 10^7$ docs, $D \sim 10^6$ terms, but $\text{nnz} \sim 10^9$), this is far less than $N D = 10^{13}$. **LSI on Wikipedia: feasible only because of sparsity.**
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **$\boldsymbol{X}^\top \boldsymbol{X}$ and $\boldsymbol{X}\boldsymbol{X}^\top$ share non-zero spectrum — eigendecompose the smaller one.**
+2. **Power iteration computes top eigenvector at cost $O(D)$ per step; deflation extracts more. Lanczos / randomised SVD do top-$K$ efficiently.**
+3. **Direct eigendecomposition is infeasible above $D \sim 10^5$; modern ML always uses SVD or iterative methods.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state when to prefer $\boldsymbol{X}^\top \boldsymbol{X}$ vs $\boldsymbol{X}\boldsymbol{X}^\top$ for PCA?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you read "extracted top-100 PCs from billion-dimensional data," can you guess the algorithm used?
+
+- **3 yes:** move on to Lesson 28.
+- **2 yes:** redo D2 (Gram-matrix trick), then move on.
+- **0–1 yes:** re-read *Discover* problems D2 and D3.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.pca-variance-projection`](../26-pca-variance-projection/index.qmd) — the analytical PCA we now compute efficiently.
+
+### What this unlocks
+
+- [`mml.pca-latent-variable`](../28-pca-latent-variable/index.qmd) — probabilistic PCA, the generative-model perspective.
+
+### Sister synthesis lesson
+
+[`t7.manifold-methods`](../../tier-7-masters-tracks/02-manifold-methods/index.qmd) — manifold-learning extensions of PCA. This lesson covers the computational backbone.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** scikit-learn's `PCA(svd_solver='randomized')` is randomised SVD by default — the high-dimensional algorithm. Faiss uses random projections + PCA for vector-DB indexing.
+:::
+
+::: {.applied-callout}
+**Research.** Climate-data spatiotemporal PCA: $\sim 10^4$ spatial × $\sim 10^3$ time = wide matrix; Gram-trick is essential. Gene-expression studies: 100 patients × 20,000 genes — same.
+:::
+
+::: {.applied-callout}
+**Systems.** Sparse-matrix SVD is GPU-accelerated; massive-scale ranking and recommendation use it.
+:::

@@ -1,0 +1,280 @@
+---
+title: "29 · Gaussian Mixture Models and MLE"
+subtitle: "A weighted average of Gaussians: simple to write, surprisingly hard to fit, and the workhorse of clustering / density estimation."
+lesson-id: "mml.gmm"
+tier: "mml"
+prerequisites: ["mml.pca-latent-variable"]
+unlocks: ["mml.em-algorithm"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state the multivariate Gaussian density? — see
+   [MML — 18, Gaussian Summary Stats](../18-gaussian-summary-stats/index.qmd).
+2. Do you know what MLE is? — see [MML — 17 / 19 / 24](../24-linear-regression-mle/index.qmd).
+3. Can you state the chain rule for graphical models? — [MML — 23](../23-graphical-models-model-selection/index.qmd).
+4. Can you take a derivative of a sum of exponentials?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A mixture of three 1D Gaussians. The widget plots the joint density and the contribution of each component.
+
+```{ojs}
+viewof p1 = Inputs.range([0.01, 1], {value: 0.4, step: 0.01, label: "π₁ (weight):"})
+viewof p2 = Inputs.range([0.01, 1], {value: 0.4, step: 0.01, label: "π₂:"})
+viewof mu1 = Inputs.range([-5, 5], {value: -2, step: 0.1, label: "μ₁:"})
+viewof mu2 = Inputs.range([-5, 5], {value: 0, step: 0.1, label: "μ₂:"})
+viewof mu3 = Inputs.range([-5, 5], {value: 3, step: 0.1, label: "μ₃:"})
+viewof s = Inputs.range([0.2, 2], {value: 0.6, step: 0.05, label: "σ (shared):"})
+```
+
+```{ojs}
+{
+  const p3 = Math.max(0, 1 - p1 - p2);
+  function gauss(x, mu, sigma) {
+    return Math.exp(-(x - mu) ** 2 / (2 * sigma * sigma)) / (Math.sqrt(2 * Math.PI) * sigma);
+  }
+  const data = [], byc = [];
+  for (let x = -8; x <= 8; x += 0.05) {
+    const g1 = p1 * gauss(x, mu1, s);
+    const g2 = p2 * gauss(x, mu2, s);
+    const g3 = p3 * gauss(x, mu3, s);
+    data.push({x, p: g1 + g2 + g3, k: "total"});
+    byc.push({x, p: g1, k: "k=1"}); byc.push({x, p: g2, k: "k=2"}); byc.push({x, p: g3, k: "k=3"});
+  }
+  const all = byc.concat(data);
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Weights π = (${p1.toFixed(2)}, ${p2.toFixed(2)}, ${p3.toFixed(2)}). Sum = ${(p1+p2+p3).toFixed(2)}.
+    </div>
+    ${Plot.plot({
+      width: 460, height: 280, x: {domain: [-8, 8]}, y: {label: "density"},
+      color: {legend: true, domain: ["k=1", "k=2", "k=3", "total"], range: ["#aac", "#caa", "#aca", "black"]},
+      marks: [Plot.line(all, {x: "x", y: "p", stroke: "k", strokeWidth: 2})]
+    })}
+  </div>`;
+}
+```
+
+Black is the mixture density; coloured are the *components* weighted by $\pi_k$. The total is a multimodal density — and a GMM's MLE has to find these modes from data alone.
+
+## Wonder
+
+1. A GMM with $K$ components can model arbitrarily complex (1D) densities by stacking enough Gaussians. Why doesn't it overfit catastrophically?
+2. The MLE of a GMM doesn't have a closed form (unlike Gaussian, linear regression, or PPCA). Why is this?
+3. The "responsibilities" — the posterior probability that point $\boldsymbol{x}_n$ came from component $k$ — are continuous. How does this relate to *soft* clustering?
+4. K-means is a special case of GMM. What does K-means *assume* that GMMs don't?
+
+## Discover
+
+Five problems building GMM.
+
+**D1.** Write the GMM density: $p(\boldsymbol{x} \mid \boldsymbol{\theta}) = \sum_{k=1}^K \pi_k \mathcal{N}(\boldsymbol{x} \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$, with $\pi_k \ge 0, \sum \pi_k = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+A weighted sum of $K$ Gaussians, with weights summing to 1 — i.e. a probability distribution. **The model has $K - 1 + KD + K \cdot D(D+1)/2$ parameters** for general covariance, or $K - 1 + KD + K$ for shared isotropic. Plenty of flexibility.
+</details>
+
+**D2.** Show the GMM as a directed graphical model: latent $z_n \in \{1, \dots, K\}$ with $p(z_n = k) = \pi_k$; conditional $\boldsymbol{x}_n \mid z_n \sim \mathcal{N}(\boldsymbol{\mu}_{z_n}, \boldsymbol{\Sigma}_{z_n})$.
+
+<details class="hint"><summary>Full solution</summary>
+$p(\boldsymbol{x}_n) = \sum_k p(z_n = k) p(\boldsymbol{x}_n \mid z_n = k) = \sum_k \pi_k \mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$. Match. **The latent indicator $z_n$ tells us which component generated $\boldsymbol{x}_n$.** Inferring $z_n$ from $\boldsymbol{x}_n$ is the *clustering* problem.
+</details>
+
+**D3.** The **responsibility** $r_{nk} = p(z_n = k \mid \boldsymbol{x}_n)$ is given by Bayes:
+$$
+r_{nk} = \frac{\pi_k \mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)}{\sum_{j} \pi_j \mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j)}.
+$$
+Verify $r_{nk} \in [0, 1]$ and $\sum_k r_{nk} = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+Numerator and denominator are positive; ratio is in $[0, 1]$. Summing over $k$: numerators sum to denominator. **Responsibilities are a posterior distribution over which component generated $\boldsymbol{x}_n$.** Soft clustering: each point is fractionally assigned to clusters.
+</details>
+
+**D4.** Why doesn't the MLE of GMM parameters have a closed form?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $\log$ of GMM density: $\log \sum_k \pi_k \mathcal{N}(\cdot)$. The log of a *sum* cannot be simplified — partials wrt $\boldsymbol{\mu}_k$ involve responsibilities.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The log-likelihood involves $\log \sum_k$ — the log of a sum is not the sum of logs. Setting $\nabla = 0$ gives equations where $\boldsymbol{\mu}_k$ depends on responsibilities $r_{nk}$, which themselves depend on $\boldsymbol{\mu}_k$. **A chicken-and-egg problem** — closed form impossible, but EM (Lesson 30) solves it iteratively.
+</details>
+
+**D5.** Show that *K-means* is the limiting case of GMM-EM as $\sigma \to 0$ with shared isotropic covariance $\sigma^2 \boldsymbol{I}$.
+
+<details class="hint"><summary>Full solution</summary>
+As $\sigma \to 0$, the Gaussian becomes a "delta-spike." Responsibilities $r_{nk} \to 1$ for the closest cluster centre, $0$ for the others — *hard assignment*. The M-step for $\boldsymbol{\mu}_k$ becomes the centroid of points assigned to $k$ — *K-means update*. **K-means is GMM with hard responsibilities and shared spherical covariance.**
+</details>
+
+::: {.fun-fact}
+**K-means clustering** dates to **MacQueen, 1967** and earlier (Steinhaus, 1956). **Gaussian Mixture Models** as a unifying probabilistic framework were synthesised by **Dempster, Laird & Rubin, 1977** in their famous paper *Maximum Likelihood from Incomplete Data via the EM Algorithm* — which gave the **EM algorithm** its name and modern formulation. The DLR 1977 paper is one of the most-cited statistical papers ever, and the EM algorithm fits more models than just GMMs (HMMs, mixed-effect regression, mixture of experts, etc.).
+:::
+
+::: {.key-insight}
+**A GMM models density as a sum of Gaussians.** Latent indicators $z_n$ "name" which Gaussian generated each point; responsibilities $r_{nk}$ are the posterior over those names. **The MLE has no closed form** — the log-sum is intractable. EM solves it via alternating E (compute responsibilities) and M (re-fit Gaussians) — Lesson 30.
+:::
+
+## Name
+
+::: {.lesson-beat}
+**Gaussian Mixture Model (GMM)** density:
+$$
+p(\boldsymbol{x} \mid \boldsymbol{\theta}) = \sum_{k=1}^K \pi_k \mathcal{N}(\boldsymbol{x} \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k),
+$$
+with **mixing coefficients** $\pi_k \ge 0$, $\sum_k \pi_k = 1$, **component means** $\boldsymbol{\mu}_k$, and **component covariances** $\boldsymbol{\Sigma}_k$.
+
+**Latent-variable representation**: $z_n \in \{1, \dots, K\}$ a discrete latent with $p(z_n = k) = \pi_k$; $\boldsymbol{x}_n \mid z_n = k \sim \mathcal{N}(\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$.
+
+**Responsibility** of component $k$ for point $\boldsymbol{x}_n$:
+$$
+r_{nk} = p(z_n = k \mid \boldsymbol{x}_n, \boldsymbol{\theta}) = \frac{\pi_k \mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)}{\sum_j \pi_j \mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j)}.
+$$
+
+**MLE has no closed form** — log-likelihood contains $\log \sum_k$. Standard fitting: **EM algorithm** (next lesson).
+
+**Soft clustering**: $r_{nk}$ is a fractional assignment.
+**Hard clustering** (K-means): $r_{nk} \in \{0, 1\}$, achieved as $\sigma \to 0$ in GMM with shared isotropic covariance.
+
+**Identifiability**: GMM is *non-identifiable up to label permutation* — relabeling the components gives the same density.
+
+::: {.callout-warning}
+**Sūtra.** *GMM = weighted sum of Gaussians. Responsibilities = posterior over components. K-means = hard limit.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"More components is always better."* — Each Gaussian is a flexible component; with $K = N$ (one Gaussian per data point), training likelihood goes to infinity (singular covariance). **Always regularise or cap $K$** via BIC, cross-validation, or Bayesian model averaging.
+2. *"K-means and GMM give the same answer."* — Only when clusters are spherical, well-separated, and same size. Otherwise GMM (with general covariance) handles elongated, overlapping, or unbalanced clusters much better.
+3. *"Responsibilities equal class labels."* — They equal *posterior probabilities*. Hard label = argmax responsibility; but the posterior carries uncertainty information argmax discards.
+:::
+
+## Apply
+
+### Worked example
+
+A 1D dataset $\boldsymbol{x} = \{-2, -1.9, -1.1, 0.1, 0.0, 2.0, 2.1\}$ — visually 3 clusters. Initial GMM: $\pi = (1/3, 1/3, 1/3)$, $\mu = (-2, 0, 2)$, $\sigma = 0.5$.
+
+**Step 1.** Compute initial responsibilities for $\boldsymbol{x}_1 = -2$:
+$\mathcal{N}(-2 \mid -2, 0.25) \approx 0.798$, $\mathcal{N}(-2 \mid 0, 0.25) \approx 0$, $\mathcal{N}(-2 \mid 2, 0.25) \approx 0$.
+$r_{11} \approx 1$, $r_{12} \approx 0$, $r_{13} \approx 0$. (Very confidently component 1.)
+
+**Step 2.** Same for $\boldsymbol{x}_3 = -1.1$: $\mathcal{N}(-1.1 \mid -2, 0.25) \approx 0.034$, $\mathcal{N}(-1.1 \mid 0, 0.25) \approx 0.087$. $r_{31} \approx 0.28$, $r_{32} \approx 0.72$.
+
+**Step 3.** The point $\boldsymbol{x}_3 = -1.1$ is *uncertain* between components 1 and 2 — closer to 0 than to $-2$ if we trust the standard deviations. **Soft assignment** captures this.
+
+**Conclusion:** Even at initialisation, we can compute responsibilities. To improve the fit, we update $\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k, \pi_k$ given responsibilities — the M-step of EM (Lesson 30).
+
+### Warm
+
+**W1.** 2-component GMM in 1D. Identifiable under permutation?
+
+<details class="hint"><summary>Full solution</summary>
+$\pi_1 \leftrightarrow \pi_2$, $\mu_1 \leftrightarrow \mu_2$, $\sigma_1 \leftrightarrow \sigma_2$ gives the same density. *Label-switching* is the practical consequence — averages across runs become meaningless.
+</details>
+
+**W2.** Why is full covariance per component sometimes a bad idea?
+
+<details class="hint"><summary>Full solution</summary>
+$K \cdot D(D+1)/2$ parameters can explode. For $D = 100, K = 10$: 50,500 covariance params. With $N = 200$ data points, severe overfitting. Use **diagonal** or **tied/shared covariance** instead.
+</details>
+
+**W3.** A 1-component GMM is what?
+
+<details class="hint"><summary>Full solution</summary>
+A single Gaussian. MLE is sample mean and sample covariance.
+</details>
+
+### Working
+
+**Wo1.** Show the GMM is a **universal density approximator**: given enough components, any smooth density can be approximated arbitrarily well in $L^1$.
+
+<details class="hint"><summary>Full solution</summary>
+A smooth density can be approximated locally by Gaussians at many scales. Refining the partition makes each piece more Gaussian; summing reconstructs the original. *Approximation theorem* — Kostantinos, 2000. Conceptually: GMMs are dense in densities. **In practice, you don't need many components for reasonable approximations.**
+</details>
+
+**Wo2.** Show why **singularities** arise in GMM MLE: a component shrinking to a single data point makes the likelihood infinite.
+
+<details class="hint"><summary>Full solution</summary>
+If $\boldsymbol{\mu}_k = \boldsymbol{x}_n$ and $\boldsymbol{\Sigma}_k \to \boldsymbol{0}$ along some direction, $\mathcal{N}(\boldsymbol{x}_n \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k) \to \infty$. The likelihood explodes. **MLE is ill-posed** without regularisation. Fixes: prior on $\boldsymbol{\Sigma}$, lower bound on smallest eigenvalue, MAP rather than MLE.
+</details>
+
+**Wo3.** State the **Bayesian Information Criterion (BIC)** for GMM model selection.
+
+<details class="hint"><summary>Full solution</summary>
+$\mathrm{BIC} = -2 \log L^* + k \log N$, where $k$ is the number of free parameters of the GMM with $K$ components. For full-covariance $K$-component GMM in $D$ dimensions: $k = K(D + D(D+1)/2) + (K-1)$. BIC favours smaller models when their fit is comparable.
+</details>
+
+### Stretch
+
+**S1.** **Variational Bayesian GMM** (Bishop 2006 chapter 10): apply variational inference to a Bayesian GMM with priors on $\pi, \boldsymbol{\mu}, \boldsymbol{\Sigma}$. Argue why it can *automatically* determine the number of components.
+
+<details class="hint"><summary>Full solution</summary>
+With a Dirichlet prior on $\pi$ (with concentration $< 1$), the variational posterior tends to *prune* unused components — their $\pi_k$ collapses to 0, effectively removing them. **Bayesian GMM does model selection inside inference**, avoiding the manual BIC search.
+</details>
+
+**S2.** **DPMM (Dirichlet Process Mixture Model)** is a nonparametric GMM with possibly infinite components. Why is it useful?
+
+<details class="hint"><summary>Full solution</summary>
+A DPMM has a *prior over partitions* that grows the number of clusters with data — never has to choose $K$ in advance. Inference (via Gibbs sampling, slice sampling, or variational methods) automatically discovers the "right" $K$ for the observed data. **Used in topic modeling, image segmentation, exploratory clustering** when $K$ is genuinely unknown.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A GMM is a weighted sum of Gaussians; latent $z_n$ tells us which component generated each point.**
+2. **Responsibilities $r_{nk}$ are posterior probabilities of component $k$ given $\boldsymbol{x}_n$ — soft cluster assignments.**
+3. **MLE has no closed form (log of a sum); EM solves it iteratively. K-means is the $\sigma \to 0$ hard limit.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state the GMM density and the formula for responsibilities?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you see "soft assignment in clustering," can you connect it to GMM responsibilities?
+
+- **3 yes:** move on to Lesson 30.
+- **2 yes:** redo D5 (K-means limit), then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D5.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.pca-latent-variable`](../28-pca-latent-variable/index.qmd) — continuous-latent generative model; GMM uses *discrete* latents.
+
+### What this unlocks
+
+- [`mml.em-algorithm`](../30-em-algorithm/index.qmd) — the algorithm that fits GMMs (and many other latent-variable models).
+
+### Sister synthesis lesson
+
+[`t5.statistical-inference`](../../tier-5-undergrad-core/10-statistical-inference/index.qmd) — pure-stats view of likelihood, MLE.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Density estimation, anomaly detection, clustering — GMM is a standard baseline. Mixture models layer below many modern algorithms (variational autoencoders with categorical priors, mixture-of-experts gating).
+:::
+
+::: {.applied-callout}
+**Research.** GMM-HMM was the dominant speech-recognition model from 1980s to ~2010. Astronomy: GMMs cluster star populations.
+:::
+
+::: {.applied-callout}
+**Game dev.** Procedural generation with GMM priors on textures or shapes.
+:::

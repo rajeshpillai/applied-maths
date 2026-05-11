@@ -1,0 +1,290 @@
+---
+title: "24 · Linear Regression: MLE Parameter Estimation"
+subtitle: "Least-squares is MLE under Gaussian noise — and the closed-form regression you've been waiting for, derived from probabilistic first principles."
+lesson-id: "mml.linear-regression-mle"
+tier: "mml"
+prerequisites: ["mml.graphical-models-model-selection", "t5.statistical-inference"]
+unlocks: ["mml.bayesian-linear-regression"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute $\nabla L$ for MSE? — see
+   [MML — 15, Vector and Matrix Gradients](../15-vector-matrix-gradients/index.qmd).
+2. Do you know the multivariate Gaussian density? — see
+   [MML — 18](../18-gaussian-summary-stats/index.qmd).
+3. Can you state MLE? — see [Tier 5 — Statistical Inference](../../tier-5-undergrad-core/10-statistical-inference/index.qmd).
+4. Can you state the normal equations $\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$? — see [MML — 02](../02-matrices/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A noisy regression dataset and the MLE line. Slide the noise variance to see how the slope estimate's confidence changes:
+
+```{ojs}
+viewof slope = Inputs.range([-2, 2], {value: 1, step: 0.05, label: "true slope:"})
+viewof inter = Inputs.range([-2, 2], {value: 0, step: 0.05, label: "true intercept:"})
+viewof sig = Inputs.range([0.1, 2], {value: 0.5, step: 0.05, label: "noise σ:"})
+viewof N = Inputs.range([5, 60], {value: 20, step: 1, label: "N data points:"})
+viewof seed = Inputs.range([1, 50], {value: 7, step: 1, label: "seed:"})
+```
+
+```{ojs}
+{
+  function rng(s) { return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; }
+  const r = rng(seed * 13);
+  const xs = [], ys = [];
+  for (let i = 0; i < N; i++) {
+    const x = -2 + 4 * (i + 0.5) / N;
+    const u1 = r(), u2 = r();
+    const z = Math.sqrt(-2 * Math.log(u1 + 1e-9)) * Math.cos(2 * Math.PI * u2);
+    const y = slope * x + inter + sig * z;
+    xs.push(x); ys.push(y);
+  }
+  // OLS
+  const xbar = xs.reduce((a, b) => a + b, 0) / N;
+  const ybar = ys.reduce((a, b) => a + b, 0) / N;
+  let sxy = 0, sxx = 0;
+  for (let i = 0; i < N; i++) { sxy += (xs[i] - xbar) * (ys[i] - ybar); sxx += (xs[i] - xbar) ** 2; }
+  const what1 = sxy / sxx;
+  const what0 = ybar - what1 * xbar;
+  // line
+  const truth = [{x: -2, y: slope * -2 + inter}, {x: 2, y: slope * 2 + inter}];
+  const est = [{x: -2, y: what1 * -2 + what0}, {x: 2, y: what1 * 2 + what0}];
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      True (slope, intercept) = (${slope.toFixed(2)}, ${inter.toFixed(2)}).
+      MLE = (${what1.toFixed(2)}, ${what0.toFixed(2)}).
+    </div>
+    ${Plot.plot({
+      width: 460, height: 320, x: {domain: [-2.5, 2.5]}, y: {domain: [-5, 5]},
+      marks: [
+        Plot.dot(xs.map((x, i) => ({x, y: ys[i]})), {x: "x", y: "y", r: 3, fill: "steelblue"}),
+        Plot.line(truth, {x: "x", y: "y", stroke: "#999", strokeDasharray: "3 2"}),
+        Plot.line(est, {x: "x", y: "y", stroke: "tomato", strokeWidth: 2})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Grey dashed = truth, red = MLE. As $N$ grows, the MLE line tightens onto the truth. As $\sigma$ grows, individual draws are noisier; the line wobbles more between random samples.
+
+## Wonder
+
+1. The MLE for linear regression is the **least-squares** solution. Why does Gaussian-noise *imply* squared-error loss?
+2. With $N \to \infty$, the MLE converges to the true parameter (consistency). What does it look like at finite $N$ — what kind of *uncertainty* surrounds the estimate?
+3. If the data were corrupted by *Laplace noise* (heavy tails) instead of Gaussian, would MSE-MLE still be optimal?
+4. The MLE has a closed form for linear regression. Why is this so rare in ML?
+
+## Discover
+
+Five problems building linear regression from MLE first principles.
+
+**D1.** Model: $y_n = \boldsymbol{w}^\top \boldsymbol{x}_n + \epsilon_n$, $\epsilon_n \sim \mathcal{N}(0, \sigma^2)$ i.i.d. Write the likelihood $p(\boldsymbol{y} \mid \boldsymbol{X}, \boldsymbol{w}, \sigma^2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$p(\boldsymbol{y} \mid \boldsymbol{X}, \boldsymbol{w}, \sigma^2) = \prod_n \mathcal{N}(y_n \mid \boldsymbol{w}^\top \boldsymbol{x}_n, \sigma^2) = (2\pi \sigma^2)^{-N/2} \exp(-\tfrac{1}{2\sigma^2} \sum_n (y_n - \boldsymbol{w}^\top \boldsymbol{x}_n)^2)$.
+</details>
+
+**D2.** Take the negative log-likelihood. Show that minimising it (wrt $\boldsymbol{w}$, at fixed $\sigma^2$) is equivalent to minimising $\sum_n (y_n - \boldsymbol{w}^\top \boldsymbol{x}_n)^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$-\log p = \tfrac{N}{2} \log(2\pi \sigma^2) + \tfrac{1}{2\sigma^2} \sum_n (y_n - \boldsymbol{w}^\top \boldsymbol{x}_n)^2$. The first term doesn't depend on $\boldsymbol{w}$. The second is proportional to MSE. **Gaussian-noise MLE = least-squares.**
+</details>
+
+**D3.** Compute $\nabla_{\boldsymbol{w}}$ of $L(\boldsymbol{w}) = \tfrac{1}{2}\lVert \boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}\rVert^2$ and set to zero. Derive the **normal equations**.
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla L = \boldsymbol{X}^\top (\boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}) = \boldsymbol{0} \Rightarrow \boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$. **MLE for linear-Gaussian regression has a closed form.**
+</details>
+
+**D4.** Show $\hat{\boldsymbol{w}}_{\mathrm{MLE}} = (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{y}$ is unbiased: $\mathbb{E}[\hat{\boldsymbol{w}}] = \boldsymbol{w}^*$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w}^* + \boldsymbol{\epsilon}$, so $\hat{\boldsymbol{w}} = (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top (\boldsymbol{X}\boldsymbol{w}^* + \boldsymbol{\epsilon}) = \boldsymbol{w}^* + (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{\epsilon}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{E}[\hat{\boldsymbol{w}}] = \boldsymbol{w}^* + (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \mathbb{E}[\boldsymbol{\epsilon}] = \boldsymbol{w}^* + \boldsymbol{0} = \boldsymbol{w}^*$. **Unbiased.** And by similar calculation $\mathrm{Cov}(\hat{\boldsymbol{w}}) = \sigma^2 (\boldsymbol{X}^\top \boldsymbol{X})^{-1}$ — the variance shrinks as more data come in.
+</details>
+
+**D5.** Geometric interpretation: the MLE prediction $\hat{\boldsymbol{y}} = \boldsymbol{X} \hat{\boldsymbol{w}}$ is the **orthogonal projection** of $\boldsymbol{y}$ onto the column space of $\boldsymbol{X}$.
+
+<details class="hint"><summary>Full solution</summary>
+The projection matrix $\boldsymbol{P} = \boldsymbol{X}(\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top$ from Lesson 09. Then $\boldsymbol{X}\hat{\boldsymbol{w}} = \boldsymbol{X}(\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{y} = \boldsymbol{P} \boldsymbol{y}$ — orthogonal projection of $\boldsymbol{y}$ onto column space of $\boldsymbol{X}$. **Regression = projection.** The residual $\boldsymbol{y} - \boldsymbol{X}\hat{\boldsymbol{w}}$ is orthogonal to every feature column.
+</details>
+
+::: {.fun-fact}
+**Carl Friedrich Gauss** claimed to have invented least squares in 1795 (used to predict the orbit of the asteroid Ceres in 1801), but published it only in 1809. **Adrien-Marie Legendre** independently published the *first* least-squares paper in 1805 — and the priority dispute lasted decades. Gauss's 1809 derivation contained the key insight that "least squares is the right estimator *if and only if* the noise is Gaussian" — making linear regression the *first* MLE in history, before MLE was even a recognised general framework (Fisher, 1922).
+:::
+
+::: {.key-insight}
+**Least-squares regression is MLE under the Gaussian-noise model**, and *closed-form* because both the likelihood and the parameter space have nice quadratic structure. Every other "linear model" — logistic regression, Poisson GLM, etc. — replaces Gaussian noise with another exponential-family distribution, loses the closed form, and trains via gradient descent (Lesson 20).
+:::
+
+## Name
+
+::: {.lesson-beat}
+**Linear regression model**: $y_n = \boldsymbol{w}^\top \boldsymbol{x}_n + \epsilon_n$, $\epsilon_n \sim \mathcal{N}(0, \sigma^2)$ i.i.d. for $n = 1, \dots, N$.
+
+**Likelihood**: $p(\boldsymbol{y} \mid \boldsymbol{X}, \boldsymbol{w}, \sigma^2) = \mathcal{N}(\boldsymbol{y} \mid \boldsymbol{X}\boldsymbol{w}, \sigma^2 \boldsymbol{I})$.
+
+**MLE** for $\boldsymbol{w}$:
+$$
+\hat{\boldsymbol{w}}_{\mathrm{MLE}} = (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{y}.
+$$
+
+**MLE** for $\sigma^2$: $\hat \sigma^2_{\mathrm{MLE}} = \tfrac{1}{N} \lVert \boldsymbol{y} - \boldsymbol{X}\hat{\boldsymbol{w}}\rVert^2$.
+
+**Properties**:
+- Unbiased: $\mathbb{E}[\hat{\boldsymbol{w}}] = \boldsymbol{w}^*$.
+- $\mathrm{Cov}(\hat{\boldsymbol{w}}) = \sigma^2 (\boldsymbol{X}^\top \boldsymbol{X})^{-1}$.
+- **Best Linear Unbiased Estimator (BLUE)** — Gauss-Markov theorem.
+- Geometric: $\boldsymbol{X}\hat{\boldsymbol{w}} = \mathrm{proj}_{\mathrm{col}(\boldsymbol{X})} \boldsymbol{y}$.
+
+When $\boldsymbol{X}^\top \boldsymbol{X}$ is singular (rank-deficient $\boldsymbol{X}$, or $N < D$), the MLE is non-unique. The **pseudo-inverse** $\boldsymbol{X}^+$ gives the minimum-norm solution.
+
+**Regularised**: ridge regression replaces $(\boldsymbol{X}^\top \boldsymbol{X})^{-1}$ with $(\boldsymbol{X}^\top \boldsymbol{X} + \lambda \boldsymbol{I})^{-1}$, always invertible, MAP under a Gaussian prior on $\boldsymbol{w}$.
+
+::: {.callout-warning}
+**Sūtra.** *Gaussian noise ⇒ MLE = least squares = projection onto column space. Three views of the same answer.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Linear regression assumes linearity in the data."* — It assumes linearity in the *parameters*. $y = w_0 + w_1 x + w_2 x^2$ is linear in $(w_0, w_1, w_2)$, hence linear regression. *Polynomial features* are linear regression on transformed inputs.
+2. *"MLE = minimum loss on training set."* — True. But MLE doesn't guarantee good generalisation — that's regularisation's job.
+3. *"The estimate is the same number every time."* — No. It's a random variable (depends on the random data). Its variance is $\sigma^2 (\boldsymbol{X}^\top \boldsymbol{X})^{-1}$.
+:::
+
+## Apply
+
+### Worked example
+
+Fit a regression to $\boldsymbol{X} = \begin{pmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \\ 1 & 4 \end{pmatrix}$, $\boldsymbol{y} = (2, 3, 5, 4)^\top$.
+
+**Step 1.** $\boldsymbol{X}^\top \boldsymbol{X} = \begin{pmatrix} 4 & 10 \\ 10 & 30 \end{pmatrix}$.
+
+**Step 2.** $\boldsymbol{X}^\top \boldsymbol{y} = (14, 39)^\top$.
+
+**Step 3.** Solve: $4 w_0 + 10 w_1 = 14$, $10 w_0 + 30 w_1 = 39$. From the first: $w_0 = (14 - 10 w_1)/4 = 3.5 - 2.5 w_1$. Substituting: $10 (3.5 - 2.5 w_1) + 30 w_1 = 39 \Rightarrow 5 w_1 = 4 \Rightarrow w_1 = 0.8$. Then $w_0 = 1.5$.
+
+**Step 4.** Predict: $\hat y(x) = 1.5 + 0.8 x$. Residuals: $(0.7, -0.1, 1.1, -0.7)$. Sum of squared residuals: $1.96$.
+
+**Answer:** $\hat{\boldsymbol{w}}_{\mathrm{MLE}} = (1.5, 0.8)^\top$. Closed form, three matrix operations, done.
+
+### Warm
+
+**W1.** What's the MLE for $\sigma^2$ in linear regression?
+
+<details class="hint"><summary>Full solution</summary>
+$\hat \sigma^2 = \tfrac{1}{N} \lVert \boldsymbol{y} - \boldsymbol{X}\hat{\boldsymbol{w}}\rVert^2$. (The *unbiased* estimator divides by $N - D$, not $N$.)
+</details>
+
+**W2.** Why include an intercept column in $\boldsymbol{X}$?
+
+<details class="hint"><summary>Full solution</summary>
+Without it, the regression line is forced through the origin. The intercept lets it shift — same as the *bias* in Lesson 06.
+</details>
+
+**W3.** Linear regression fails when $\boldsymbol{X}^\top \boldsymbol{X}$ is what?
+
+<details class="hint"><summary>Full solution</summary>
+Singular (zero determinant). Happens when features are collinear or $N < D$.
+</details>
+
+### Working
+
+**Wo1.** Show the **Gauss-Markov theorem**: among all linear unbiased estimators of $\boldsymbol{w}$, the MLE has the smallest variance.
+
+<details class="hint"><summary>Full solution</summary>
+Sketch: any linear unbiased estimator has the form $\tilde{\boldsymbol{w}} = \boldsymbol{C}\boldsymbol{y}$ with $\boldsymbol{C}\boldsymbol{X} = \boldsymbol{I}$. Write $\boldsymbol{C} = (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top + \boldsymbol{D}$ with $\boldsymbol{D}\boldsymbol{X} = \boldsymbol{0}$. Compute $\mathrm{Cov}(\tilde{\boldsymbol{w}}) = \sigma^2 \boldsymbol{C}\boldsymbol{C}^\top = \sigma^2 [(\boldsymbol{X}^\top \boldsymbol{X})^{-1} + \boldsymbol{D}\boldsymbol{D}^\top]$. The extra term $\boldsymbol{D}\boldsymbol{D}^\top$ is PSD, so $\mathrm{Cov}(\tilde{\boldsymbol{w}}) \succeq \mathrm{Cov}(\hat{\boldsymbol{w}}_{\mathrm{MLE}})$. **MLE is BLUE.**
+</details>
+
+**Wo2.** Show that for $\boldsymbol{y} = \boldsymbol{X}\boldsymbol{w}^* + \boldsymbol{\epsilon}$ with $\boldsymbol{\epsilon} \sim \mathcal{N}(\boldsymbol{0}, \sigma^2 \boldsymbol{I})$, the MLE has distribution $\hat{\boldsymbol{w}}_{\mathrm{MLE}} \sim \mathcal{N}(\boldsymbol{w}^*, \sigma^2 (\boldsymbol{X}^\top \boldsymbol{X})^{-1})$.
+
+<details class="hint"><summary>Full solution</summary>
+$\hat{\boldsymbol{w}} = \boldsymbol{w}^* + (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{\epsilon}$. Affine transformation of Gaussian: mean $\boldsymbol{w}^*$, covariance $\sigma^2 \cdot (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{X} (\boldsymbol{X}^\top \boldsymbol{X})^{-1} = \sigma^2 (\boldsymbol{X}^\top \boldsymbol{X})^{-1}$. ✓ **Linear regression has a closed-form sampling distribution** — used in confidence intervals.
+</details>
+
+**Wo3.** What does the **prediction interval** for a new $\boldsymbol{x}_*$ look like?
+
+<details class="hint"><summary>Full solution</summary>
+$\hat y_* = \boldsymbol{x}_*^\top \hat{\boldsymbol{w}}$. Variance has two contributions: uncertainty in $\hat{\boldsymbol{w}}$ ($\boldsymbol{x}_*^\top \mathrm{Cov}(\hat{\boldsymbol{w}}) \boldsymbol{x}_*$) and noise on the new observation ($\sigma^2$). Total: $\boldsymbol{x}_*^\top \sigma^2 (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{x}_* + \sigma^2$. **Prediction interval = parameter uncertainty + irreducible noise.** This is what Bayesian linear regression (Lesson 25) computes naturally.
+</details>
+
+### Stretch
+
+**S1.** A **basis function expansion** maps inputs through $\boldsymbol{\phi} : \boldsymbol{x} \mapsto \boldsymbol{\phi}(\boldsymbol{x})$ and fits $y \approx \boldsymbol{w}^\top \boldsymbol{\phi}(\boldsymbol{x})$. Why is this still a "linear regression" — and why does it allow non-linear fits?
+
+<details class="hint"><summary>Full solution</summary>
+The map $y \mapsto \boldsymbol{w}^\top \boldsymbol{\phi}(\boldsymbol{x})$ is *linear in $\boldsymbol{w}$* (the parameter), even though it's *nonlinear* in $\boldsymbol{x}$. Polynomials, RBFs, Fourier basis, spline basis — all are basis function expansions. **The kernel trick** (Lesson 32) replaces explicit $\boldsymbol{\phi}$ with kernel evaluations; same idea, infinite-dimensional features.
+</details>
+
+**S2.** Why does Linear Regression **fail** badly with outliers? What's the standard fix?
+
+<details class="hint"><summary>Full solution</summary>
+Squared loss penalises outliers *quadratically* — a single big residual dominates. Fix: **Huber loss** (quadratic near zero, linear far away) — robust to outliers. Or **L1 loss** = MAE = median regression. Robust regression methods (RANSAC, Iterative Reweighted Least Squares) explicitly downweight outliers. **The Gaussian noise assumption fails for heavy-tailed data**, and so does its derived loss.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Linear regression = MLE under Gaussian noise = least-squares = projection onto column space.**
+2. **Closed form: $\hat{\boldsymbol{w}} = (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{y}$. Unbiased; covariance $\sigma^2 (\boldsymbol{X}^\top \boldsymbol{X})^{-1}$; BLUE (Gauss-Markov).**
+3. **The closed form requires invertibility of $\boldsymbol{X}^\top \boldsymbol{X}$. Multicollinearity and $N < D$ break it; ridge regression (Lesson 25) restores invertibility with a Gaussian prior on $\boldsymbol{w}$.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you derive the normal equations from Gaussian likelihood, by hand, in one breath?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "linear regression" in a paper, do you instantly think *MLE under Gaussian noise = orthogonal projection*?
+
+- **3 yes:** move on to Lesson 25.
+- **2 yes:** redo D2 and D5, then move on.
+- **0–1 yes:** re-read *Discover* problems D1–D3.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.graphical-models-model-selection`](../23-graphical-models-model-selection/index.qmd) — model selection theory the linear-regression family inhabits.
+- [`t5.statistical-inference`](../../tier-5-undergrad-core/10-statistical-inference/index.qmd) — MLE from the synthesis tier.
+
+### What this unlocks
+
+- [`mml.bayesian-linear-regression`](../25-bayesian-linear-regression/index.qmd) — upgrade to a full posterior over $\boldsymbol{w}$, not just a point estimate.
+- Eventually, [`mml.pca-variance-projection`](../26-pca-variance-projection/index.qmd) — PCA can be derived similarly as MLE of a latent Gaussian model.
+
+### Sister synthesis lesson
+
+[`t5.statistical-inference`](../../tier-5-undergrad-core/10-statistical-inference/index.qmd) — pure inference view. This lesson packages it as the first ML algorithm of the track.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Linear regression is the simplest ML algorithm, the foundation of every "linear model" in scikit-learn, the analytic baseline against which every fancier method is measured.
+:::
+
+::: {.applied-callout}
+**Research.** Every linear-model fit in physics, biology, social science, econometrics is exactly this. Confidence intervals, hypothesis tests, R², F-statistic — all built on the MLE sampling distribution from Wo2.
+:::
+
+::: {.applied-callout}
+**Databases.** Learned indices (Kraska et al. 2018) approximate cumulative distributions with linear regression, replacing B-tree lookups by closed-form predictions.
+:::

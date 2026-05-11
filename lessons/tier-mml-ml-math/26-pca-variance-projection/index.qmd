@@ -1,0 +1,304 @@
+---
+title: "26 · PCA: Max-Variance and Projection-Error Perspectives"
+subtitle: "Two ways to think about Principal Component Analysis — and they're the same answer."
+lesson-id: "mml.pca-variance-projection"
+tier: "mml"
+prerequisites: ["mml.bayesian-linear-regression"]
+unlocks: ["mml.pca-eigenvector-high-dim"]
+applied-domains: ["ai-ml", "research", "databases"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute the eigendecomposition of a symmetric matrix? — see
+   [MML — 12, Eigendecomposition](../12-eigendecomposition/index.qmd).
+2. Do you know orthogonal projection? — see [MML — 09](../09-projections-rotations/index.qmd).
+3. Can you state covariance? — see [MML — 18](../18-gaussian-summary-stats/index.qmd).
+4. Do you know the Rayleigh principle ($\max \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x} / \lVert \boldsymbol{x}\rVert^2 = \lambda_{\max}$)? — see [MML — 12 Wo3](../12-eigendecomposition/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A 2D dataset with elongated structure. The widget overlays the PCA directions and shows the projections onto each.
+
+```{ojs}
+viewof slope = Inputs.range([-2, 2], {value: 0.5, step: 0.05, label: "true correlation slope:"})
+viewof noise = Inputs.range([0.05, 1.5], {value: 0.4, step: 0.05, label: "noise σ:"})
+viewof N = Inputs.range([20, 200], {value: 80, step: 5, label: "N points:"})
+viewof seed = Inputs.range([1, 50], {value: 9, step: 1, label: "seed:"})
+```
+
+```{ojs}
+{
+  function rng(s) { return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; }
+  const r = rng(seed * 23);
+  const xs = [], ys = [];
+  for (let i = 0; i < N; i++) {
+    const t = -2 + 4 * r();
+    const u1 = r() + 1e-9, u2 = r();
+    const z1 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    const u3 = r() + 1e-9, u4 = r();
+    const z2 = Math.sqrt(-2 * Math.log(u3)) * Math.cos(2 * Math.PI * u4);
+    xs.push(t + noise * z1); ys.push(slope * t + noise * z2);
+  }
+  // Centre, compute covariance, eigendecomp (2x2 closed form).
+  const xbar = xs.reduce((a, b) => a + b, 0) / N;
+  const ybar = ys.reduce((a, b) => a + b, 0) / N;
+  let sxx = 0, syy = 0, sxy = 0;
+  for (let i = 0; i < N; i++) {
+    sxx += (xs[i] - xbar) ** 2;
+    syy += (ys[i] - ybar) ** 2;
+    sxy += (xs[i] - xbar) * (ys[i] - ybar);
+  }
+  sxx /= N; syy /= N; sxy /= N;
+  const tr = sxx + syy, disc = Math.sqrt(Math.max(0, (sxx - syy) ** 2 + 4 * sxy * sxy));
+  const l1 = (tr + disc) / 2, l2 = (tr - disc) / 2;
+  let ev1x = 1, ev1y = 0;
+  if (Math.abs(sxy) > 1e-9) { ev1x = 1; ev1y = (l1 - sxx) / sxy; }
+  const n1 = Math.sqrt(ev1x ** 2 + ev1y ** 2); ev1x /= n1; ev1y /= n1;
+  const ev2x = -ev1y, ev2y = ev1x;
+  // Plot the two PC axes scaled by sqrt(eigenvalue).
+  const scale = 2;
+  const pca1 = [{x: xbar - scale*Math.sqrt(l1)*ev1x, y: ybar - scale*Math.sqrt(l1)*ev1y},
+                {x: xbar + scale*Math.sqrt(l1)*ev1x, y: ybar + scale*Math.sqrt(l1)*ev1y}];
+  const pca2 = [{x: xbar - scale*Math.sqrt(l2)*ev2x, y: ybar - scale*Math.sqrt(l2)*ev2y},
+                {x: xbar + scale*Math.sqrt(l2)*ev2x, y: ybar + scale*Math.sqrt(l2)*ev2y}];
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Variances along PCs: λ₁ = ${l1.toFixed(2)}, λ₂ = ${l2.toFixed(2)}. Variance ratio: ${(l1 / (l1 + l2) * 100).toFixed(0)}% / ${(l2 / (l1 + l2) * 100).toFixed(0)}%
+    </div>
+    ${Plot.plot({
+      width: 460, height: 360, x: {domain: [-4, 4]}, y: {domain: [-4, 4]}, grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.dot(xs.map((x, i) => ({x, y: ys[i]})), {x: "x", y: "y", r: 3, fill: "steelblue"}),
+        Plot.line(pca1, {x: "x", y: "y", stroke: "tomato", strokeWidth: 2}),
+        Plot.line(pca2, {x: "x", y: "y", stroke: "seagreen", strokeWidth: 2})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Red is the first principal direction (largest variance). Green is the second (smallest). Projecting onto the red axis preserves the elongation of the cloud; projecting onto green gives mostly noise.
+
+## Wonder
+
+1. Why is "maximise variance along a direction" the right thing for dimensionality reduction?
+2. The second principal direction is perpendicular to the first. Why must they be perpendicular?
+3. "Project onto a subspace to minimise reconstruction error" sounds like a different objective. How can it give the same answer as max-variance?
+4. PCA assumes the data is approximately Gaussian (linear structure). What happens if the data lies on a non-linear manifold like a circle?
+
+## Discover
+
+Five problems building PCA from variance and projection.
+
+**D1.** Given centred data $\boldsymbol{X} \in \mathbb{R}^{N \times D}$ (mean zero column-wise), define the sample covariance $\boldsymbol{S} = \tfrac{1}{N} \boldsymbol{X}^\top \boldsymbol{X}$. Show that the variance along direction $\boldsymbol{u}$ (unit) is $\boldsymbol{u}^\top \boldsymbol{S} \boldsymbol{u}$.
+
+<details class="hint"><summary>Full solution</summary>
+Variance of $\boldsymbol{X}\boldsymbol{u}$: $\tfrac{1}{N} \sum_n (\boldsymbol{x}_n^\top \boldsymbol{u})^2 = \tfrac{1}{N} \boldsymbol{u}^\top \boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{u} = \boldsymbol{u}^\top \boldsymbol{S} \boldsymbol{u}$.
+</details>
+
+**D2.** Maximise $\boldsymbol{u}^\top \boldsymbol{S} \boldsymbol{u}$ subject to $\lVert \boldsymbol{u}\rVert = 1$. Solve using Lagrange multipliers and conclude that $\boldsymbol{u}_1 = $ eigenvector of $\boldsymbol{S}$ with largest eigenvalue, and the max variance is $\lambda_1$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\mathcal{L} = \boldsymbol{u}^\top \boldsymbol{S} \boldsymbol{u} - \lambda (\lVert \boldsymbol{u}\rVert^2 - 1)$. Stationarity: $\boldsymbol{S}\boldsymbol{u} = \lambda \boldsymbol{u}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{S}\boldsymbol{u} = \lambda \boldsymbol{u}$ — eigenvalue equation. Variance at the optimum: $\boldsymbol{u}^\top \boldsymbol{S}\boldsymbol{u} = \lambda \boldsymbol{u}^\top \boldsymbol{u} = \lambda$. Maximised by the *largest* eigenvalue $\lambda_1$, with eigenvector $\boldsymbol{u}_1$. **The first principal component is the leading eigenvector of the covariance matrix; its variance is the largest eigenvalue.**
+</details>
+
+**D3.** The second PC maximises variance among unit vectors orthogonal to $\boldsymbol{u}_1$. Show this is the eigenvector $\boldsymbol{u}_2$ with the second-largest eigenvalue.
+
+<details class="hint"><summary>Full solution</summary>
+Add a Lagrange multiplier for the orthogonality constraint $\boldsymbol{u}_1^\top \boldsymbol{u} = 0$. The KKT conditions still pick eigenvectors of $\boldsymbol{S}$; orthogonality + max variance → second-largest. By induction, $\boldsymbol{u}_k$ is the eigenvector with the $k$-th largest eigenvalue. **PCs are the eigenbasis of $\boldsymbol{S}$ in descending eigenvalue order.**
+</details>
+
+**D4.** **Projection-error view.** Minimise $\sum_n \lVert \boldsymbol{x}_n - \boldsymbol{P}\boldsymbol{x}_n\rVert^2$ over $K$-dimensional orthogonal projection matrices $\boldsymbol{P}$. Show the answer is the same as in D3 (project onto the top-$K$ eigenvectors of $\boldsymbol{S}$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\lVert \boldsymbol{x}_n\rVert^2 = \lVert \boldsymbol{P}\boldsymbol{x}_n\rVert^2 + \lVert \boldsymbol{x}_n - \boldsymbol{P}\boldsymbol{x}_n\rVert^2$ (Pythagoras). So minimising reconstruction error = maximising captured variance.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Total variance is fixed at $\sum_n \lVert \boldsymbol{x}_n\rVert^2$. Reconstruction error = total variance − captured variance. Minimising reconstruction = maximising captured = picking top-$K$ eigenvectors. **Max-variance and min-projection-error give the same answer.** The duality between these two perspectives is one of MML's signature insights.
+</details>
+
+**D5.** Show that the **fraction of variance explained** by the top-$K$ PCs is $(\lambda_1 + \dots + \lambda_K) / (\lambda_1 + \dots + \lambda_D)$.
+
+<details class="hint"><summary>Full solution</summary>
+Total variance $\mathrm{tr}(\boldsymbol{S}) = \sum_i \lambda_i$. Captured variance $\sum_{i \le K} \lambda_i$. Ratio is the *explained variance ratio* — used to pick $K$ (e.g. "smallest $K$ such that 95% of variance is captured").
+</details>
+
+::: {.fun-fact}
+**PCA** was invented twice (independently). **Karl Pearson, 1901** introduced it as "lines and planes of closest fit to systems of points in space" — the projection-error view. **Harold Hotelling, 1933** rediscovered it for psychometrics (multivariate analysis of test scores) under the name "principal components" — the max-variance view. The equivalence of the two formulations was clear by the 1950s. PCA has been the *single most-used dimensionality-reduction technique* in statistics since.
+:::
+
+::: {.key-insight}
+**PCA = eigendecomposition of the covariance matrix.** Two views — max-variance and min-projection-error — give the same answer because the *total variance* is fixed. The eigenvectors are the principal directions; the eigenvalues are the variances along each. Pick the top-$K$ to compress data while preserving the most information.
+:::
+
+## Name
+
+::: {.lesson-beat}
+**Principal Component Analysis (PCA)**. Given centred data $\boldsymbol{X} \in \mathbb{R}^{N \times D}$ (columns mean-zero), sample covariance
+$$
+\boldsymbol{S} = \tfrac{1}{N} \boldsymbol{X}^\top \boldsymbol{X}.
+$$
+
+The **principal directions** are the orthonormal eigenvectors $\boldsymbol{u}_1, \dots, \boldsymbol{u}_D$ of $\boldsymbol{S}$, ordered so that the eigenvalues $\lambda_1 \ge \dots \ge \lambda_D \ge 0$.
+
+**$K$-dimensional PCA projection**: $\boldsymbol{U}_K = (\boldsymbol{u}_1 \cdots \boldsymbol{u}_K)$, $\boldsymbol{Z} = \boldsymbol{X}\boldsymbol{U}_K \in \mathbb{R}^{N \times K}$ — the **principal scores**.
+
+**Max-variance view**: $\boldsymbol{u}_k$ maximises $\mathrm{Var}(\boldsymbol{X}\boldsymbol{u})$ subject to $\lVert \boldsymbol{u}\rVert = 1$ and $\boldsymbol{u} \perp \boldsymbol{u}_1, \dots, \boldsymbol{u}_{k-1}$.
+
+**Projection-error view**: $\boldsymbol{U}_K$ minimises $\sum_n \lVert \boldsymbol{x}_n - \boldsymbol{U}_K \boldsymbol{U}_K^\top \boldsymbol{x}_n\rVert^2$ over orthogonal $\boldsymbol{U}_K \in \mathbb{R}^{D \times K}$.
+
+The two views give the *same* solution.
+
+**Reconstruction**: $\hat{\boldsymbol{X}} = \boldsymbol{X}\boldsymbol{U}_K \boldsymbol{U}_K^\top$. The reconstruction error $\lVert \boldsymbol{X} - \hat{\boldsymbol{X}}\rVert_F^2 = \sum_{k > K} \lambda_k$ — the variance NOT captured.
+
+**Fraction of variance explained**: $(\sum_{k \le K} \lambda_k) / (\sum_k \lambda_k)$.
+
+::: {.callout-warning}
+**Sūtra.** *PCA finds the directions of maximum variance — equivalently, the directions giving smallest projection error — equivalently, the leading eigenvectors of the covariance matrix.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"PCA assumes data is Gaussian."* — PCA *interprets* Gaussian data perfectly. Non-Gaussian data: PCA still finds maximum-variance directions, but they may not match latent structure. For non-Gaussian: **ICA, manifold learning**.
+2. *"PCA scales features."* — It doesn't, by default. If features have wildly different scales, PCA will be dominated by the high-variance feature. **Always normalise or standardise** before PCA.
+3. *"Centering is optional."* — It isn't. PCA on uncentered data computes the "second-moment" structure, not the covariance structure.
+:::
+
+## Apply
+
+### Worked example
+
+Apply PCA to $\boldsymbol{X} = \begin{pmatrix} 1 & 2 \\ 3 & 4 \\ 5 & 6 \\ 7 & 8 \end{pmatrix}$.
+
+**Step 1.** Centre: column means are $4, 5$. Centred: $\begin{pmatrix} -3 & -3 \\ -1 & -1 \\ 1 & 1 \\ 3 & 3 \end{pmatrix}$.
+
+**Step 2.** Sample covariance $\boldsymbol{S} = \tfrac{1}{4} \begin{pmatrix} 20 & 20 \\ 20 & 20 \end{pmatrix} = \begin{pmatrix} 5 & 5 \\ 5 & 5 \end{pmatrix}$.
+
+**Step 3.** Eigenvalues: $\det(\boldsymbol{S} - \lambda \boldsymbol{I}) = (5 - \lambda)^2 - 25 = \lambda^2 - 10\lambda = 0 \Rightarrow \lambda = 10, 0$.
+
+**Step 4.** Eigenvectors: for $\lambda = 10$, $\boldsymbol{u}_1 = (1, 1)/\sqrt 2$. For $\lambda = 0$, $\boldsymbol{u}_2 = (1, -1)/\sqrt 2$.
+
+**Step 5.** Reduction to $K = 1$: scores $\boldsymbol{Z} = \boldsymbol{X}_{\mathrm{centered}} \boldsymbol{u}_1 = (-6, -2, 2, 6)/\sqrt 2 = -3\sqrt 2, -\sqrt 2, \sqrt 2, 3 \sqrt 2$. The data lies entirely on the $\boldsymbol{u}_1$ axis — *100% of variance* explained by 1 dimension.
+
+**Conclusion:** The 2D data was actually 1D — PCA discovered the underlying linear structure and reduced dimensions without loss.
+
+### Warm
+
+**W1.** Variance fraction explained by top-1 PC when $\lambda = (5, 3, 2)$?
+
+<details class="hint"><summary>Full solution</summary>
+$5 / (5 + 3 + 2) = 50\%$.
+</details>
+
+**W2.** Why must PCs be orthogonal?
+
+<details class="hint"><summary>Full solution</summary>
+Spectral theorem: covariance matrix is symmetric, so its eigenvectors form an orthonormal basis.
+</details>
+
+**W3.** What does PCA do if all features have the same variance and are uncorrelated?
+
+<details class="hint"><summary>Full solution</summary>
+Covariance is $\sigma^2 \boldsymbol{I}$. All eigenvalues equal; PCs are not uniquely defined; PCA is uninformative. No reduction possible.
+</details>
+
+### Working
+
+**Wo1.** Show that the SVD of centred data $\boldsymbol{X} = \boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top$ directly gives the PCA: principal directions are the columns of $\boldsymbol{V}$, eigenvalues of covariance are $\sigma_i^2 / N$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{S} = \tfrac{1}{N} \boldsymbol{X}^\top \boldsymbol{X} = \tfrac{1}{N} \boldsymbol{V} \boldsymbol{\Sigma}^2 \boldsymbol{V}^\top$. Eigendecomposition: $\boldsymbol{V}$ has eigenvectors, $\boldsymbol{\Sigma}^2 / N$ has eigenvalues. **Computing PCA via SVD is more numerically stable** than forming $\boldsymbol{X}^\top \boldsymbol{X}$ explicitly.
+</details>
+
+**Wo2.** Why do you need to **mean-centre** before computing PCA?
+
+<details class="hint"><summary>Full solution</summary>
+Without centering, PCA captures variance *around the origin*, including the offset. If the data is far from origin, the first PC points *toward* the centroid, dominating the analysis. Centering removes this nuisance; PCA then captures variance *around the data's own centre*.
+</details>
+
+**Wo3.** Why is **whitening** (rescaling PC scores by $1/\sqrt{\lambda_i}$) useful as preprocessing?
+
+<details class="hint"><summary>Full solution</summary>
+Whitened data has unit covariance: each feature is independent with variance 1. Useful for downstream algorithms that assume isotropy: linear models converge faster; clustering becomes scale-free; ICA and decorrelation algorithms benefit. **In deep learning, batch normalisation is a per-batch approximate whitening.**
+</details>
+
+### Stretch
+
+**S1.** **Robust PCA** decomposes a matrix into low-rank + sparse parts: $\boldsymbol{X} = \boldsymbol{L} + \boldsymbol{S}$. Argue why this beats standard PCA for outlier-corrupted data.
+
+<details class="hint"><summary>Full solution</summary>
+A few outliers can completely distort the PC directions (squared error dominates). RPCA explicitly separates a low-rank component (the "good" structure) from a sparse component (the outliers). Solving the convex relaxation min $\lVert \boldsymbol{L}\rVert_* + \lambda \lVert \boldsymbol{S}\rVert_1$ subject to $\boldsymbol{L} + \boldsymbol{S} = \boldsymbol{X}$ gives provable recovery. **Used in surveillance video, where the static background is low-rank and moving objects are sparse.**
+</details>
+
+**S2.** **Manifold learning** (Isomap, t-SNE, UMAP) finds non-linear low-dimensional structure. Why does linear PCA fail when the data lies on, say, a Swiss roll?
+
+<details class="hint"><summary>Full solution</summary>
+PCA finds the directions of maximum *linear* variance. For a Swiss roll embedded in 3D, the maximum linear variance is across the diameter — but the *true* low-dimensional structure is the 2D sheet that wraps. Linear projection mixes wrapped-together points. **Nonlinear methods preserve local distances** (geodesic distances on the manifold).
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **PCA = eigendecomposition of the covariance matrix; principal directions are eigenvectors, variances are eigenvalues.**
+2. **Max-variance and min-projection-error give the same answer — total variance is fixed.**
+3. **Numerically: use SVD of centred data $\boldsymbol{X} = \boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top$; principal directions are columns of $\boldsymbol{V}$.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state both PCA objectives and explain why they agree?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "PCA" in a paper, do you instantly think *eigendecomposition of covariance* (or equivalently, *SVD of centred data*)?
+
+- **3 yes:** move on to Lesson 27.
+- **2 yes:** redo D4 (projection-error view), then move on.
+- **0–1 yes:** re-read *Discover* problems D2 and D4.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.bayesian-linear-regression`](../25-bayesian-linear-regression/index.qmd) — closes the regression arc.
+
+### What this unlocks
+
+- [`mml.pca-eigenvector-high-dim`](../27-pca-eigenvector-high-dim/index.qmd) — computational tricks for high-dimensional / large-$N$ PCA.
+- Eventually, the latent-variable view in [`mml.pca-latent-variable`](../28-pca-latent-variable/index.qmd).
+
+### Sister synthesis lesson
+
+[`t7.manifold-methods`](../../tier-7-masters-tracks/02-manifold-methods/index.qmd) — covers PCA briefly + nonlinear extensions (Isomap, kernel PCA). This lesson goes deep on the linear case.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** PCA preprocessing for any downstream learner. Eigenfaces (face recognition). Word embeddings (latent semantic analysis = SVD of term-doc matrix). PCA-decorrelated features speed up downstream training.
+:::
+
+::: {.applied-callout}
+**Research.** Climate-data EOFs (Empirical Orthogonal Functions) = PCA on spatiotemporal anomalies. fMRI denoising. Astronomy: PCA of stellar spectra.
+:::
+
+::: {.applied-callout}
+**Databases.** PCA-based dimensionality reduction precedes vector-database indexing (cf FAISS) and approximate-nearest-neighbour search.
+:::

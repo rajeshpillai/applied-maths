@@ -1,0 +1,323 @@
+---
+title: "31 · SVM: Separating Hyperplanes and the Primal"
+subtitle: "Find the hyperplane that maximises the margin between two classes — a quadratic program with one variable per data point's distance to the boundary."
+lesson-id: "mml.svm-primal"
+tier: "mml"
+prerequisites: ["mml.em-algorithm"]
+unlocks: ["mml.svm-dual-kernels"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state what a hyperplane in $\mathbb{R}^n$ is? — see
+   [MML — 06, Affine Spaces](../06-affine-spaces/index.qmd).
+2. Can you compute the distance from a point to a hyperplane? — see [MML — 09](../09-projections-rotations/index.qmd).
+3. Do you know what convex optimisation is? — see [MML — 21](../21-constrained-convex-optimisation/index.qmd).
+4. Do you remember KKT conditions and complementary slackness? — same prerequisite.
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Two classes of 2D points and a separating hyperplane. The widget shows the maximum-margin SVM separator and the "margin" — the gap between the support vectors and the boundary.
+
+```{ojs}
+viewof spread = Inputs.range([0.1, 1.5], {value: 0.4, step: 0.05, label: "class spread:"})
+viewof gap = Inputs.range([0, 3], {value: 1.5, step: 0.05, label: "between-class gap:"})
+viewof seed = Inputs.range([1, 50], {value: 5, step: 1, label: "seed:"})
+```
+
+```{ojs}
+{
+  function rng(s) { return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; }
+  const r = rng(seed * 37);
+  const N = 20;
+  const pos = [], neg = [];
+  for (let i = 0; i < N; i++) {
+    const u1 = r() + 1e-9, u2 = r();
+    const z1 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    const u3 = r() + 1e-9, u4 = r();
+    const z2 = Math.sqrt(-2 * Math.log(u3)) * Math.cos(2 * Math.PI * u4);
+    pos.push({x: 2 + gap/2 + spread * z1, y: 1 + spread * z2});
+    neg.push({x: -1 - gap/2 + spread * z1, y: 1 + spread * z2});
+  }
+  // Fit primal SVM via gradient descent on hinge loss + L2.
+  let w1 = 1, w2 = 0, b = 0;
+  const eta = 0.05, lam = 0.1;
+  for (let t = 0; t < 200; t++) {
+    let g1 = 2 * lam * w1, g2 = 2 * lam * w2, gb = 0;
+    for (const p of pos.concat(neg)) {
+      const y = pos.includes(p) ? 1 : -1;
+      const margin = y * (w1 * p.x + w2 * p.y + b);
+      if (margin < 1) { g1 -= y * p.x / (pos.length + neg.length); g2 -= y * p.y / (pos.length + neg.length); gb -= y / (pos.length + neg.length); }
+    }
+    w1 -= eta * g1; w2 -= eta * g2; b -= eta * gb;
+  }
+  // Decision boundary: w1*x + w2*y + b = 0 ⇒ y = -(w1*x + b)/w2
+  const boundary = [], mPos = [], mNeg = [];
+  for (let xx = -4; xx <= 4; xx += 0.1) {
+    if (Math.abs(w2) > 1e-9) {
+      boundary.push({x: xx, y: -(w1 * xx + b) / w2});
+      mPos.push({x: xx, y: -(w1 * xx + b - 1) / w2});
+      mNeg.push({x: xx, y: -(w1 * xx + b + 1) / w2});
+    }
+  }
+  const margin = 2 / Math.sqrt(w1*w1 + w2*w2);
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Margin width: ${margin.toFixed(2)}, w = (${w1.toFixed(2)}, ${w2.toFixed(2)}), b = ${b.toFixed(2)}
+    </div>
+    ${Plot.plot({
+      width: 460, height: 320, x: {domain: [-5, 5]}, y: {domain: [-3, 4]},
+      marks: [
+        Plot.dot(pos, {x: "x", y: "y", r: 4, fill: "tomato"}),
+        Plot.dot(neg, {x: "x", y: "y", r: 4, fill: "steelblue"}),
+        Plot.line(boundary, {x: "x", y: "y", stroke: "black", strokeWidth: 2}),
+        Plot.line(mPos, {x: "x", y: "y", stroke: "gray", strokeDasharray: "3 2"}),
+        Plot.line(mNeg, {x: "x", y: "y", stroke: "gray", strokeDasharray: "3 2"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+The black line is the SVM decision boundary; the grey dashed lines are the margin edges. As the gap between classes widens, the margin grows. As classes overlap, the SVM has to accept some misclassifications.
+
+## Wonder
+
+1. Many hyperplanes separate two linearly separable classes. Why specifically the *maximum-margin* one?
+2. The margin involves $1/\lVert \boldsymbol{w}\rVert$. Why minimising $\lVert \boldsymbol{w}\rVert^2$ maximises the margin?
+3. What happens when the two classes overlap? Hard-margin SVM is infeasible. How do we relax it?
+4. "Support vectors" are the data points exactly on the margin. Why do only *those* points define the boundary?
+
+## Discover
+
+Five problems building hard-margin SVM, then soft-margin.
+
+**D1.** A binary classifier predicts class $+1$ if $\boldsymbol{w}^\top \boldsymbol{x} + b > 0$, class $-1$ if $< 0$. Show the *signed distance* from $\boldsymbol{x}$ to the hyperplane is $(\boldsymbol{w}^\top \boldsymbol{x} + b) / \lVert \boldsymbol{w}\rVert$.
+
+<details class="hint"><summary>Full solution</summary>
+From orthogonal projection: distance is $\lvert \boldsymbol{w}^\top \boldsymbol{x} + b \rvert / \lVert \boldsymbol{w}\rVert$. Sign tells you which side.
+</details>
+
+**D2.** A point is **correctly classified with margin $\ge 1$** if $y_n (\boldsymbol{w}^\top \boldsymbol{x}_n + b) \ge 1$. (Sign matches class, magnitude is at least 1.) Show that if all points satisfy this, the *geometric margin* (minimum distance to boundary) is at least $1 / \lVert \boldsymbol{w}\rVert$.
+
+<details class="hint"><summary>Full solution</summary>
+$y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) \ge 1 \Rightarrow \lvert \boldsymbol{w}^\top \boldsymbol{x}_n + b\rvert \ge 1$, so distance to hyperplane is $\ge 1 / \lVert \boldsymbol{w}\rVert$. The constraint "margin $\ge 1$" is *scale-invariant* — we can absorb the $1$ into normalisation. **Maximising $1/\lVert \boldsymbol{w}\rVert$ = minimising $\lVert \boldsymbol{w}\rVert$.**
+</details>
+
+**D3.** **Hard-margin SVM**:
+$$
+\min_{\boldsymbol{w}, b} \tfrac{1}{2}\lVert \boldsymbol{w}\rVert^2 \quad \text{s.t. } y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) \ge 1, \forall n.
+$$
+Argue why this gives the max-margin separator.
+
+<details class="hint"><summary>Full solution</summary>
+Constraint enforces $\ge 1$ functional margin (= geometric margin $\ge 1/\lVert \boldsymbol{w}\rVert$). Minimising $\lVert \boldsymbol{w}\rVert$ maximises the geometric margin. Convex quadratic in $\boldsymbol{w}$, linear constraints — **convex quadratic program (QP)**.
+</details>
+
+**D4.** **Soft-margin SVM** (introduce slack $\xi_n \ge 0$ allowing margin violations, penalise them in the objective):
+$$
+\min_{\boldsymbol{w}, b, \boldsymbol{\xi}} \tfrac{1}{2}\lVert \boldsymbol{w}\rVert^2 + C \sum_n \xi_n \quad \text{s.t. } y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) \ge 1 - \xi_n, \xi_n \ge 0.
+$$
+Interpret the role of $C$.
+
+<details class="hint"><summary>Full solution</summary>
+$C$ trades off margin width (small $\lVert \boldsymbol{w}\rVert$) against margin violations ($\sum \xi_n$). Small $C$: wide margin, more violations. Large $C$: narrow margin, fewer violations. **$C$ is the hyperparameter; tuned by cross-validation.** Hard-margin = $C \to \infty$.
+</details>
+
+**D5.** Show the soft-margin SVM is equivalent to **hinge-loss + L2 regularisation**:
+$$
+\min_{\boldsymbol{w}, b} \tfrac{1}{2}\lVert \boldsymbol{w}\rVert^2 + C \sum_n \max(0, 1 - y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b)).
+$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At the optimum, $\xi_n = \max(0, 1 - y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b))$ — the **hinge** function.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For correctly-classified points with margin $\ge 1$: $\xi_n = 0$. For others: $\xi_n = 1 - y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b)$. Sum = hinge loss. **SVM = hinge loss + L2.** Trained by SGD or specialised QP solvers.
+</details>
+
+::: {.fun-fact}
+**Support Vector Machines** were developed by **Vladimir Vapnik** and **Alexey Chervonenkis** in the USSR (1960s–70s) as the algorithmic outgrowth of their **VC theory**. The *kernel SVM* extension came after Vapnik moved to AT&T Bell Labs in the early 1990s, where with **Boser, Guyon and Vapnik** (1992) and **Cortes and Vapnik** (1995, soft-margin), it became the dominant ML method for the next 15 years. The *Support Vector* name comes from the observation that only points on the margin matter — they "support" the hyperplane.
+:::
+
+::: {.key-insight}
+**SVM = find the hyperplane with maximum margin to the nearest training points.** Hard-margin requires linear separability; soft-margin trades margin width for misclassifications via slack variables. Equivalent to hinge loss + L2 regularisation — **the original "max-margin" generalisation principle**.
+:::
+
+## Name
+
+::: {.lesson-beat}
+**Binary linear classifier**: $\hat y(\boldsymbol{x}) = \mathrm{sign}(\boldsymbol{w}^\top \boldsymbol{x} + b)$.
+
+**Margin** of $\boldsymbol{x}_n$: $y_n (\boldsymbol{w}^\top \boldsymbol{x}_n + b) / \lVert \boldsymbol{w}\rVert$. Positive iff correctly classified.
+
+**Hard-margin SVM** (linearly separable case):
+$$
+\min_{\boldsymbol{w}, b} \tfrac{1}{2}\lVert \boldsymbol{w}\rVert^2 \quad \text{s.t. } y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) \ge 1, \forall n.
+$$
+Convex quadratic program. KKT conditions:
+- Stationarity: $\boldsymbol{w} = \sum_n \alpha_n y_n \boldsymbol{x}_n$.
+- $\alpha_n \ge 0$; $\alpha_n [y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) - 1] = 0$.
+
+**Support vectors**: points with $\alpha_n > 0$, i.e. exactly on the margin ($y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) = 1$).
+
+**Soft-margin SVM** (overlapping classes):
+$$
+\min_{\boldsymbol{w}, b, \boldsymbol{\xi}} \tfrac{1}{2}\lVert \boldsymbol{w}\rVert^2 + C \sum_n \xi_n \quad \text{s.t. } y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) \ge 1 - \xi_n,\ \xi_n \ge 0.
+$$
+Equivalent unconstrained form (hinge + L2):
+$$
+\min_{\boldsymbol{w}, b} \tfrac{1}{2}\lVert \boldsymbol{w}\rVert^2 + C \sum_n \max(0, 1 - y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b)).
+$$
+
+**$C$**: regularisation hyperparameter. Small $C$ ⇒ wide margin + tolerates violations. Large $C$ ⇒ narrow margin + few violations. **Cross-validation.**
+
+**Prediction**: $\hat y = \mathrm{sign}(\boldsymbol{w}^\top \boldsymbol{x} + b)$. Decision boundary is the hyperplane $\boldsymbol{w}^\top \boldsymbol{x} + b = 0$.
+
+::: {.callout-warning}
+**Sūtra.** *Max margin = min weight norm subject to functional-margin-≥-1 constraints. Soft margin via slack vars; equivalent to hinge loss + L2.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"SVM is a probabilistic classifier."* — Standard SVM outputs *only* the signed distance, not a probability. Calibration (Platt scaling) is needed to convert to probabilities.
+2. *"The margin is the average distance to the boundary."* — It's the *minimum* distance — the distance to the *closest* support vectors.
+3. *"All training points affect the boundary."* — Only support vectors do. Non-support-vector points could move within their side of the margin without changing $\boldsymbol{w}$.
+:::
+
+## Apply
+
+### Worked example
+
+Hard-margin SVM on linearly separable 1D data: positives $\{2, 3\}$, negatives $\{-1, 0\}$.
+
+**Step 1.** The decision boundary $w x + b = 0$ should separate them: any $w > 0$ with $-b/w \in (0, 2)$ works.
+
+**Step 2.** Functional margin $\ge 1$: $w \cdot 2 + b \ge 1$ (positive 2), $w \cdot 3 + b \ge 1$ (positive 3), $-(w \cdot 0 + b) \ge 1$ (negative 0), $-(w \cdot (-1) + b) \ge 1$ (negative -1).
+
+**Step 3.** From positive 2 and negative 0: $w \cdot 2 + b \ge 1$, $-b \ge 1$. So $b \le -1$, $w \ge (1 - b)/2 \ge 1$. From positive 3 and negative -1: $w \cdot 3 + b \ge 1$, $w - b \ge 1$. With $w = 1, b = -1$: all constraints satisfied. $\lVert \boldsymbol{w}\rVert^2 = 1$.
+
+**Step 4.** Margin width: $2/\lVert \boldsymbol{w}\rVert = 2$. Boundary at $x = 1$. Support vectors: $0$ (constraint tight: $-(-1) = 1$) and $2$ (tight: $1 \cdot 2 - 1 = 1$).
+
+**Conclusion:** Two support vectors define the boundary, exactly 2 units apart. The other two points ($-1$ and $3$) are farther than $1$ unit away and don't affect the boundary.
+
+### Warm
+
+**W1.** SVM with $C = 0$ — what does it ignore?
+
+<details class="hint"><summary>Full solution</summary>
+$C = 0$: no penalty for margin violations; optimum is $\boldsymbol{w} = \boldsymbol{0}$ (zero margin). Degenerate.
+</details>
+
+**W2.** What's the *direction* of $\boldsymbol{w}$ relative to the decision boundary?
+
+<details class="hint"><summary>Full solution</summary>
+Perpendicular (normal to the hyperplane).
+</details>
+
+**W3.** Why does maximising margin help generalisation?
+
+<details class="hint"><summary>Full solution</summary>
+Wide margin = a *robust* boundary; small perturbations of data don't change classifications. Theoretical generalisation bounds (Vapnik) explicitly depend on $1 / \mathrm{margin}^2$.
+</details>
+
+### Working
+
+**Wo1.** Derive that the optimal $\boldsymbol{w}$ is a linear combination of the support vectors: $\boldsymbol{w} = \sum_{n: \mathrm{SV}} \alpha_n y_n \boldsymbol{x}_n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use KKT stationarity: $\boldsymbol{w} = \sum_n \alpha_n y_n \boldsymbol{x}_n$ with $\alpha_n \ge 0$, and complementary slackness $\alpha_n = 0$ unless the constraint is tight.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Tight constraint = support vector. Only $\alpha_n > 0$ contributes to $\boldsymbol{w}$. **$\boldsymbol{w}$ is a sparse combination of data points** — the support vectors. **Memory-efficient at inference: store only the support vectors.**
+</details>
+
+**Wo2.** Show that **hinge loss** is convex in $\boldsymbol{w}, b$.
+
+<details class="hint"><summary>Full solution</summary>
+$\max(0, 1 - y_n (\boldsymbol{w}^\top \boldsymbol{x}_n + b))$ is the maximum of two linear functions in $(\boldsymbol{w}, b)$ — convex. Sum over $n$: convex. L2 term: convex. Convex objective + linear constraints = convex problem. **Unique global minimum**, found by SGD or QP solvers.
+</details>
+
+**Wo3.** **Logistic regression vs SVM**: both minimise a margin-based loss. Logistic uses $\log(1 + e^{-y \cdot \mathrm{score}})$, SVM uses $\max(0, 1 - y \cdot \mathrm{score})$. Compare their behaviour.
+
+<details class="hint"><summary>Full solution</summary>
+Logistic: smooth, never zero (no hard "no-update" zone), gives calibrated probabilities. SVM hinge: piecewise linear, zero past the margin (only support vectors update gradient), no probabilities by default. **Empirically: similar performance; SVM faster at inference (only support vectors); logistic better for probability estimates.**
+</details>
+
+### Stretch
+
+**S1.** **Multi-class SVM**: how can we extend binary SVM to $K$ classes?
+
+<details class="hint"><summary>Full solution</summary>
+- **One-vs-Rest**: train $K$ binary classifiers, each separating one class from all others. Predict by max-score. Simple but unbalanced.
+- **One-vs-One**: train $K(K-1)/2$ binary classifiers, vote for majority. More balanced but $O(K^2)$ classifiers.
+- **Crammer-Singer**: single joint optimisation. Cleaner theory, harder to optimise.
+</details>
+
+**S2.** **Structured SVM**: classification with structured outputs (sequences, trees). Sketch the generalisation.
+
+<details class="hint"><summary>Full solution</summary>
+Output is no longer a single class but a structured object $\boldsymbol{y}$ from a discrete set $\mathcal{Y}$. Score function $\boldsymbol{w}^\top \boldsymbol{\phi}(\boldsymbol{x}, \boldsymbol{y})$. Loss: hinge with structured margin — the boundary depends on the *most-violating* alternative output. Solved via inference oracles (exact for chains, approximate for general structures). **Used in NLP (parsing) and computer vision (CRFs).**
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **SVM = find the hyperplane that maximises the margin to the closest training points.**
+2. **Soft-margin allows slack via penalised $\xi_n$ — equivalent to hinge loss + L2 regularisation.**
+3. **The decision boundary is determined by support vectors only; non-SV training points don't matter.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you derive that $\boldsymbol{w}$ is a linear combination of support vectors?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you read "max-margin classifier" in a paper, can you write its objective?
+
+- **3 yes:** move on to Lesson 32.
+- **2 yes:** redo D3 (hard-margin objective) and D5 (hinge equivalence), then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D4.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.em-algorithm`](../30-em-algorithm/index.qmd) — closes the unsupervised arc; SVM is supervised classification.
+- [`mml.constrained-convex-optimisation`](../21-constrained-convex-optimisation/index.qmd) — KKT, duality, Lagrange.
+
+### What this unlocks
+
+- [`mml.svm-dual-kernels`](../32-svm-dual-kernels/index.qmd) — the dual formulation and the kernel trick.
+
+### Sister synthesis lesson
+
+[`t7.statistical-learning-theory`](../../tier-7-masters-tracks/01-statistical-learning-theory/index.qmd) — VC dimension and generalisation bounds for SVM.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Pre-deep-learning, SVMs were dominant for image classification, text categorisation, bioinformatics. Hinge loss is still used (RankSVM, structured SVMs, max-margin variants of neural nets).
+:::
+
+::: {.applied-callout}
+**Research.** SVMs in genomics (cancer classification), proteomics (function prediction). Still competitive on small datasets where deep learning overfits.
+:::
+
+::: {.applied-callout}
+**Encryption.** Margin-based attacks on cryptographic side-channels use SVMs to discriminate "secret bit 0" vs "secret bit 1" from power traces.
+:::
