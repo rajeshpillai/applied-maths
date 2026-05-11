@@ -1,0 +1,290 @@
+---
+title: "16 · Backpropagation, Automatic Differentiation, Multivariate Taylor"
+subtitle: "The chain rule is a tree; backpropagation is a careful tree traversal. And modern autodiff is just that traversal, automated."
+lesson-id: "mml.backprop-autodiff"
+tier: "mml"
+prerequisites: ["mml.vector-matrix-gradients", "t6.gradient-methods"]
+unlocks: ["mml.probability-spaces-bayes"]
+applied-domains: ["ai-ml", "research", "systems"]
+estimated-minutes: 35
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state the multivariable chain rule? — see
+   [MML — 14, Differentiation and Gradients](../14-differentiation-gradients/index.qmd).
+2. Can you compute the Jacobian of $\boldsymbol{g}(\boldsymbol{x}) = \boldsymbol{A}\boldsymbol{x}$? — see [MML — 15](../15-vector-matrix-gradients/index.qmd).
+3. Do you remember the Jacobian of softmax: $\partial p_i / \partial z_j = p_i (\delta_{ij} - p_j)$? — same prerequisite.
+4. Can you state gradient descent: $\boldsymbol{w} \leftarrow \boldsymbol{w} - \eta \nabla L$? — see
+   [Tier 6 — Gradient Methods](../../tier-6-undergrad-advanced/10-gradient-methods/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A tiny two-layer net: $\boldsymbol{z} = \boldsymbol{W}_1 \boldsymbol{x} + \boldsymbol{b}_1$, $\boldsymbol{h} = \mathrm{relu}(\boldsymbol{z})$, $\boldsymbol{y} = \boldsymbol{W}_2 \boldsymbol{h} + \boldsymbol{b}_2$, $L = \tfrac{1}{2} (y - t)^2$. The widget shows the computation as a graph, the values flowing forward, and the gradients flowing backward.
+
+```{ojs}
+viewof x1 = Inputs.range([-2, 2], {value: 1, step: 0.05, label: "x:"})
+viewof t  = Inputs.range([-2, 2], {value: 1, step: 0.05, label: "target t:"})
+viewof w1 = Inputs.range([-2, 2], {value: 0.5, step: 0.05, label: "W₁:"})
+viewof w2 = Inputs.range([-2, 2], {value: 1.0, step: 0.05, label: "W₂:"})
+```
+
+```{ojs}
+{
+  // Forward
+  const z = w1 * x1;
+  const h = Math.max(0, z);
+  const y = w2 * h;
+  const L = 0.5 * (y - t) * (y - t);
+  // Backward
+  const dL_dy = (y - t);
+  const dL_dw2 = dL_dy * h;
+  const dL_dh = dL_dy * w2;
+  const dL_dz = dL_dh * (z > 0 ? 1 : 0);
+  const dL_dw1 = dL_dz * x1;
+  const fmt = v => v.toFixed(3);
+  return html`<div style="font: 13px monospace; line-height: 1.6;">
+    <div><b>Forward pass:</b></div>
+    <div>x = ${fmt(x1)} →  z = W₁·x = ${fmt(z)} →  h = ReLU(z) = ${fmt(h)} →  y = W₂·h = ${fmt(y)} →  L = ½(y−t)² = ${fmt(L)}</div>
+    <div style="margin-top: 10px;"><b>Backward pass (in reverse):</b></div>
+    <div>∂L/∂y = (y − t) = ${fmt(dL_dy)}</div>
+    <div>∂L/∂W₂ = (∂L/∂y) · h = ${fmt(dL_dw2)}</div>
+    <div>∂L/∂h = (∂L/∂y) · W₂ = ${fmt(dL_dh)}</div>
+    <div>∂L/∂z = (∂L/∂h) · ReLU′(z) = ${fmt(dL_dz)}</div>
+    <div>∂L/∂W₁ = (∂L/∂z) · x = ${fmt(dL_dw1)}</div>
+  </div>`;
+}
+```
+
+Move the sliders. Watch how a change in $W_1$ propagates *forward* through $z, h, y, L$ — and how the gradient propagates *backward* through the same chain in reverse. **Backprop = chain rule + memoise the intermediate values.**
+
+## Wonder
+
+1. If we just used the chain rule "from input to loss," wouldn't we need to compute the full Jacobian of the network and then dot it with $\nabla L$? Why does backprop run in $O(\text{forward cost})$ instead of $O(D^2)$?
+2. Forward-mode autodiff vs. reverse-mode (backprop) — for a function $\mathbb{R}^D \to \mathbb{R}$ with one scalar output (typical loss), which is cheaper? What about $\mathbb{R}^1 \to \mathbb{R}^M$?
+3. Why does the gradient through ReLU "kill" half the neurons? What's the geometric picture?
+4. Could the chain rule be approximated linearly, and would that approximation be useful?
+
+## Discover
+
+Six problems building from chain rule to backprop algorithm.
+
+**D1.** Write out the chain rule for the two-layer net $L = (W_2 W_1 x - t)^2 / 2$ (no activation) in scalar form. Compute $\partial L / \partial W_1$ and $\partial L / \partial W_2$ separately, then check both ways of writing the chain.
+
+<details class="hint"><summary>Full solution</summary>
+$L = (y - t)^2 / 2$, $y = W_2 W_1 x$, all scalars.
+$\partial L / \partial W_2 = (y - t) \cdot W_1 x$.
+$\partial L / \partial W_1 = (y - t) \cdot W_2 \cdot x$.
+**Forward** computes $y$ first. **Backward** computes $\partial L / \partial y = y - t$ first, then propagates back through each layer. Same answer; different traversal order.
+</details>
+
+**D2.** Why is the *backward* order cheap? Compute the number of multiplications for a 3-layer linear net $y = W_3 W_2 W_1 x$ with all matrices $D \times D$:
+- (a) Forward: 3 matrix-vector products.
+- (b) Forward then backward (backprop): how many?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The backward pass propagates $\partial L / \partial y$ (a vector) back through each layer's transpose: $\partial L / \partial \boldsymbol{h}_2 = W_3^\top (\partial L / \partial y)$, etc. Each is one matrix-vector product.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Forward: 3 matrix-vector products, $O(3 D^2)$ flops.
+Backward: 3 matrix-vector products for upstream gradients, plus 3 outer products for weight gradients ($\partial L / \partial W_i = (\partial L / \partial \boldsymbol{h}_i) \boldsymbol{h}_{i-1}^\top$). Total: $O(6 D^2)$.
+**Backward is at most ~2× the forward cost.** Not $D^2$ times forward, not $D$ times forward — a *constant* multiplier. This is what makes deep learning feasible.
+</details>
+
+**D3.** Define **forward-mode autodiff**: track $\partial y / \partial x_k$ for one input dimension $x_k$ at a time, propagating forward. How many forward passes does it need for the full gradient of $L : \mathbb{R}^D \to \mathbb{R}$?
+
+<details class="hint"><summary>Full solution</summary>
+$D$ forward passes (one per input dimension). Cost: $D \times O(\text{forward})$. For ML where $D$ is millions, this is *infeasible*. Reverse-mode (backprop) gets the same gradient in $\sim 2 \times$ one forward pass — independent of $D$. **For $\mathbb{R}^D \to \mathbb{R}$, reverse beats forward by a factor of $D$.**
+</details>
+
+**D4.** When does **forward-mode autodiff** win? Consider $L : \mathbb{R} \to \mathbb{R}^M$.
+
+<details class="hint"><summary>Full solution</summary>
+Forward mode: 1 forward pass produces the full Jacobian. Reverse mode: $M$ backward passes (one per output). Forward wins by $M$. **For "Jacobian-vector products with few inputs and many outputs"** (PDE sensitivity analysis, parameter studies), forward mode is preferred. Modern frameworks (JAX) support both.
+</details>
+
+**D5.** Compute the gradient of $L = \tfrac{1}{N} \sum_{n=1}^N \log p_\theta(\boldsymbol{x}_n)$ — a typical maximum likelihood loss — by treating it as one node in a computation graph and propagating through.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\nabla L = \tfrac{1}{N} \sum_n \nabla \log p_\theta(\boldsymbol{x}_n)$ — the **score function** averaged.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By linearity of gradients, $\nabla L = \tfrac{1}{N} \sum_n \nabla \log p_\theta(\boldsymbol{x}_n)$. Per-sample backprop computes each summand; the total is averaged. **This is mini-batch SGD's gradient** — a few samples approximate the sum at much lower cost.
+</details>
+
+**D6.** Argue why backprop is the **multivariate Taylor expansion** truncated at first order. Specifically: $L(\boldsymbol{w} + \boldsymbol{\delta}) \approx L(\boldsymbol{w}) + \nabla L(\boldsymbol{w})^\top \boldsymbol{\delta}$. What's the next term?
+
+<details class="hint"><summary>Full solution</summary>
+$L(\boldsymbol{w} + \boldsymbol{\delta}) = L(\boldsymbol{w}) + \nabla L^\top \boldsymbol{\delta} + \tfrac{1}{2} \boldsymbol{\delta}^\top \boldsymbol{H} \boldsymbol{\delta} + O(\lVert \boldsymbol{\delta}\rVert^3)$. The first-order term is what gradient descent uses. The second-order term ($\boldsymbol{H}$ = Hessian) is what *Newton's method* uses. **Backprop = first-order Taylor expansion of the loss.** Higher-order methods (Newton, natural-gradient) compute and use the Hessian.
+</details>
+
+::: {.fun-fact}
+The **backpropagation algorithm** has been discovered independently at least five times: **Linnainmaa** (Finland, 1970, in his master's thesis), **Werbos** (Harvard PhD, 1974), **Parker** (Stanford, 1985), **LeCun** (1985, PhD thesis under Hopfield), and famously **Rumelhart, Hinton & Williams** (1986, *Nature* paper). The 1986 paper made it famous, but Linnainmaa published the same idea 16 years earlier — for *general computer programs*, not just neural networks. He called it "reverse-mode automatic differentiation." Modern autodiff frameworks (PyTorch, JAX, TensorFlow) implement Linnainmaa's algorithm directly.
+:::
+
+::: {.key-insight}
+**Backpropagation is the chain rule, traversed from output to input, with intermediate values memoised.** It costs ~2× the forward pass — regardless of how many parameters. This *constant factor* (vs. $D$ for forward-mode or $D^2$ for naive Jacobian-then-dot) is what makes deep learning computationally feasible. Modern autodiff just automates Linnainmaa's 1970 algorithm.
+:::
+
+## Name
+
+::: {.lesson-beat}
+**Backpropagation (reverse-mode automatic differentiation)** computes $\nabla L$ for a scalar-valued $L : \mathbb{R}^D \to \mathbb{R}$ as follows:
+
+1. **Forward pass.** Compute $L$, recording every intermediate value.
+2. **Backward pass.** Initialise $\partial L / \partial L = 1$. Traverse the computation graph in *reverse* topological order. At each node $u$ with operation $u = f(v_1, \dots, v_k)$, compute $\partial L / \partial v_i = \partial L / \partial u \cdot \partial f / \partial v_i$ for each input $v_i$ and accumulate it into the gradient at $v_i$.
+
+Cost: $O(\text{forward cost})$ for *any* $D$. The total backward computation is bounded by a constant ($\sim 2 \times$) times the forward.
+
+**Forward-mode autodiff** propagates derivatives along with values: at each node, also track $\partial v / \partial x_k$ for the chosen $x_k$. Best for $\mathbb{R} \to \mathbb{R}^M$ (few inputs, many outputs).
+
+**Multivariate Taylor expansion** of $L : \mathbb{R}^n \to \mathbb{R}$:
+$$
+L(\boldsymbol{w} + \boldsymbol{\delta}) = L(\boldsymbol{w}) + \nabla L(\boldsymbol{w})^\top \boldsymbol{\delta} + \tfrac{1}{2} \boldsymbol{\delta}^\top \boldsymbol{H}(\boldsymbol{w}) \boldsymbol{\delta} + O(\lVert \boldsymbol{\delta}\rVert^3).
+$$
+Gradient descent uses the first-order term; Newton's method uses the first two.
+
+::: {.callout-warning}
+**Sūtra.** *Chain rule + memoisation + reverse order = backprop. Constant cost ratio to forward pass, independent of parameter count.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Backprop is a deep-learning algorithm."* — It's a general algorithm for computing gradients of any differentiable function (Linnainmaa 1970). Deep learning just happens to use it everywhere.
+2. *"Backprop requires the loss to be differentiable everywhere."* — It needs *sub-differentials* at almost every point. ReLU at zero, max-pooling, and "argmax" are handled by sub-gradient or straight-through estimators.
+3. *"Reverse-mode and forward-mode give different answers."* — They give the exact same answer (up to floating-point noise) — just at different cost. They're two algorithms computing the *same* gradient.
+:::
+
+## Apply
+
+### Worked example
+
+Compute the gradient of $L = (\sigma(W_2 \sigma(W_1 x + b_1) + b_2) - t)^2 / 2$ — a two-layer net with sigmoid activations — wrt $W_1$.
+
+**Step 1 (forward).** $z_1 = W_1 x + b_1$, $h = \sigma(z_1)$, $z_2 = W_2 h + b_2$, $y = \sigma(z_2)$, $L = (y - t)^2 / 2$. Cache $z_1, h, z_2, y$.
+
+**Step 2 (backward).**
+- $\partial L / \partial y = y - t$.
+- $\partial L / \partial z_2 = (y - t) \cdot \sigma'(z_2) = (y - t) \cdot y (1 - y)$.
+- $\partial L / \partial h = (y - t) y (1 - y) \cdot W_2$.
+- $\partial L / \partial z_1 = (y - t) y (1 - y) W_2 \cdot \sigma'(z_1) = (y - t) y (1 - y) W_2 h (1 - h)$.
+- $\partial L / \partial W_1 = \partial L / \partial z_1 \cdot x$.
+
+**Answer:** $\partial L / \partial W_1 = (y - t)\, y (1 - y)\, W_2\, h (1 - h)\, x$. **Five terms** — every one of which would have to be computed anyway in a forward pass. Backprop just sequences them right.
+
+### Warm
+
+**W1.** Gradient of $L = (x^2 + y^2)$ at $(1, 2)$?
+
+<details class="hint"><summary>Full solution</summary>
+$(2, 4)$.
+</details>
+
+**W2.** For a linear network $y = \boldsymbol{W} \boldsymbol{x}$, the gradient $\partial y_i / \partial W_{jk}$?
+
+<details class="hint"><summary>Full solution</summary>
+$\delta_{ij} x_k$. (Only the $i$-th output depends on the $i$-th row of $\boldsymbol{W}$, and the dependence is linear in $W_{ik}$ with coefficient $x_k$.)
+</details>
+
+**W3.** Why does the gradient through ReLU "zero out" half the activations?
+
+<details class="hint"><summary>Full solution</summary>
+$\mathrm{relu}(z) = \max(0, z)$. Its derivative is $1$ if $z > 0$, else $0$. Backprop multiplies through this — gradients for nodes with $z < 0$ are killed. **Dead ReLU** problem: if a neuron's pre-activation is always negative, it never updates.
+</details>
+
+### Working
+
+**Wo1.** Show that for a *linear* network $\boldsymbol{y} = \boldsymbol{W}_L \boldsymbol{W}_{L-1} \cdots \boldsymbol{W}_1 \boldsymbol{x}$, gradient descent has the same effect as gradient descent on a *single* effective linear matrix $\boldsymbol{W}_{\mathrm{eff}}$, but with *different* dynamics.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The expressivity is the same ($\boldsymbol{W}_{\mathrm{eff}} = \prod \boldsymbol{W}_i$), but the *optimisation trajectory* through parameter space differs.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Same expressivity: any product is realisable as a single matrix. But the gradient updates of each $\boldsymbol{W}_i$ are correlated through the chain rule — early layers see gradients scaled by products of later weights. In practice, **deep linear networks train slower than shallow ones initially**, then approach the same minimum (proved by Saxe, McClelland, Ganguli 2014). This is one of the cleanest exemplars of "depth matters for optimisation, not just expressivity."
+</details>
+
+**Wo2.** Argue why **batch normalisation** changes the gradient landscape (without working out the algebra).
+
+<details class="hint"><summary>Full solution</summary>
+BatchNorm normalises pre-activations to mean 0, variance 1 across a mini-batch, then re-scales by learned parameters. The result: gradients backprop through a "whitened" intermediate distribution, reducing the dependence of one layer's gradients on the scale of earlier weights. Empirically: faster convergence, less sensitivity to initialisation. **Mathematically: it changes the conditioning of the loss landscape** — same minimum, much better-behaved gradient flow. Recent analysis (Bjorck et al. 2018, Santurkar et al. 2018) clarified this as the key mechanism.
+</details>
+
+**Wo3.** A **vanishing gradient** happens when $\partial L / \partial W_{1,ij}$ for early-layer weights becomes exponentially small. Trace why this happens in a deep sigmoid network.
+
+<details class="hint"><summary>Full solution</summary>
+The chain rule multiplies through $L$ layers' worth of factors. Each sigmoid derivative $\sigma'(z) = \sigma(z)(1 - \sigma(z))$ has max value $1/4$. Multiplying $L$ such factors: $(1/4)^L$ — exponentially small for $L > 10$. Solutions: ReLU (derivative is 0 or 1, no shrinking), LSTM (additive paths), residual connections (skip connections preserve gradient).
+</details>
+
+### Stretch
+
+**S1.** **JAX's grad function** wraps any Python function with `@jax.grad` and produces a gradient function. What's the underlying algorithm?
+
+<details class="hint"><summary>Full solution</summary>
+JAX traces the function on abstract values to build a computation graph (a `Jaxpr`), then symbolically differentiates it in reverse mode. The traced graph is JIT-compiled to XLA — so the gradient runs as fast as the forward function on GPU/TPU. **Same algorithm as Linnainmaa 1970**, with modern compilation. PyTorch's autograd is similar but builds graphs dynamically (per forward pass) rather than via tracing.
+</details>
+
+**S2.** **Adjoint methods** in PDE-constrained optimisation — used in fluid dynamics and topology optimisation — are *exactly* reverse-mode autodiff applied to infinite-dimensional systems. Why is this connection useful?
+
+<details class="hint"><summary>Full solution</summary>
+For PDE-constrained problems $\min_\theta L(u(\theta))$ where $u$ solves a PDE depending on $\theta$, the adjoint method computes $\partial L / \partial \theta$ at the cost of *one extra PDE solve* — same as backprop's "one extra forward pass" cost. Modern ML-PDE solvers (Fourier Neural Operators, PINNs) use autodiff for both — bringing 70 years of PDE-adjoint expertise into the ML toolkit.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Backprop = chain rule + memoise intermediates + reverse traversal. Cost is constant (~2×) the forward pass, regardless of parameter count.**
+2. **For scalar loss $L : \mathbb{R}^D \to \mathbb{R}$, reverse-mode autodiff is exponentially cheaper than forward-mode or naive Jacobian.**
+3. **Modern frameworks (PyTorch, JAX, TensorFlow) implement Linnainmaa's 1970 algorithm — and that's what makes training a billion-parameter model feasible.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you sketch the computation graph for $L = (W_2 \mathrm{relu}(W_1 x) - t)^2$ and label the backward edges?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you read `loss.backward()` in PyTorch, do you see the reverse traversal happening in your head?
+
+- **3 yes:** move on to Lesson 17.
+- **2 yes:** redo D2 and D6, then move on.
+- **0–1 yes:** re-read *Discover* problems D1–D3 and the worked example.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.vector-matrix-gradients`](../15-vector-matrix-gradients/index.qmd) — the gradient identities the chain rule glues together.
+- [`t6.gradient-methods`](../../tier-6-undergrad-advanced/10-gradient-methods/index.qmd) — what consumes the gradients.
+
+### What this unlocks
+
+- [`mml.probability-spaces-bayes`](../17-probability-spaces-bayes/index.qmd) — pivot from calculus to probability.
+- Eventually, [`mml.gradient-descent`](../20-gradient-descent/index.qmd) — uses the gradients backprop produces.
+
+### Sister synthesis lesson
+
+[`t6.gradient-methods`](../../tier-6-undergrad-advanced/10-gradient-methods/index.qmd) — the gradient-descent view. This lesson explains *how* the gradient was computed in the first place.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every training step of every neural network ever trained uses backpropagation. Without it, deep learning would be infeasible.
+:::
+
+::: {.applied-callout}
+**Research.** Adjoint methods in numerical PDEs are reverse-mode autodiff. The same algorithm now powers ML-PDE solvers (Physics-Informed Neural Networks, neural operators).
+:::
+
+::: {.applied-callout}
+**Systems.** Autodiff frameworks (PyTorch, JAX) compile graphs to XLA / CUDA kernels. The forward + backward pair runs as efficiently as hand-written CUDA, while being expressed in Python.
+:::

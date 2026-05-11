@@ -1,0 +1,307 @@
+---
+title: "19 · Conjugacy, the Exponential Family, Change of Variables"
+subtitle: "When the posterior is the same family as the prior — and the algebraic structure that makes that happen."
+lesson-id: "mml.conjugacy-change-of-variables"
+tier: "mml"
+prerequisites: ["mml.gaussian-summary-stats", "t5.statistical-inference"]
+unlocks: ["mml.gradient-descent"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state Bayes' theorem for a continuous parameter? — see
+   [MML — 17, Probability Spaces & Bayes](../17-probability-spaces-bayes/index.qmd).
+2. Can you compute the multivariate Gaussian density and conditional? —
+   [MML — 18, Gaussian](../18-gaussian-summary-stats/index.qmd).
+3. Do you know what MLE is? — see
+   [Tier 5 — Statistical Inference](../../tier-5-undergrad-core/10-statistical-inference/index.qmd).
+4. Can you do a 1D change-of-variables in an integral $\int f(g(u)) g'(u) du$?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A Beta-Binomial Bayes updater. Prior is $\mathrm{Beta}(\alpha, \beta)$ (a flexible distribution on $[0, 1]$). Observe $k$ heads in $n$ coin flips. The posterior is $\mathrm{Beta}(\alpha + k, \beta + n - k)$ — *same family*. The widget shows prior, likelihood, and posterior overlaid.
+
+```{ojs}
+viewof alpha = Inputs.range([0.5, 10], {value: 2, step: 0.1, label: "prior α:"})
+viewof beta  = Inputs.range([0.5, 10], {value: 2, step: 0.1, label: "prior β:"})
+viewof heads = Inputs.range([0, 50], {value: 7, step: 1, label: "heads observed:"})
+viewof flips = Inputs.range([0, 50], {value: 10, step: 1, label: "total flips:"})
+```
+
+```{ojs}
+{
+  function betaPdf(t, a, b) {
+    // log gamma via Stirling-Lanczos
+    function lgamma(x) {
+      let g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+                     771.32342877765313, -176.61502916214059, 12.507343278686905,
+                     -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+      if (x < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * x)) - lgamma(1 - x);
+      x -= 1;
+      let aa = c[0];
+      let tt = x + g + 0.5;
+      for (let i = 1; i < 9; i++) aa += c[i] / (x + i);
+      return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(tt) - tt + Math.log(aa);
+    }
+    if (t <= 0 || t >= 1) return 0;
+    const ln = (a - 1) * Math.log(t) + (b - 1) * Math.log(1 - t) - (lgamma(a) + lgamma(b) - lgamma(a + b));
+    return Math.exp(ln);
+  }
+  const prior = [], post = [], lik = [];
+  const tails = Math.max(0, flips - heads);
+  for (let t = 0.001; t < 1; t += 0.005) {
+    prior.push({t, p: betaPdf(t, alpha, beta), which: "prior"});
+    post.push({t, p: betaPdf(t, alpha + heads, beta + tails), which: "posterior"});
+    // Likelihood ∝ t^heads (1-t)^tails, normalised for plotting
+    lik.push({t, p: Math.pow(t, heads) * Math.pow(1 - t, tails), which: "likelihood"});
+  }
+  const ln = lik.reduce((s, d) => s + d.p, 0) * 0.005;
+  lik.forEach(d => d.p /= (ln || 1));
+  const data = prior.concat(lik).concat(post);
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return Plot.plot({
+    width: 460, height: 320,
+    x: {label: "θ"}, y: {label: "density"},
+    color: {legend: true, domain: ["prior", "likelihood", "posterior"], range: ["#888", "tomato", "steelblue"]},
+    marks: [Plot.line(data, {x: "t", y: "p", stroke: "which", strokeWidth: 2})]
+  });
+}
+```
+
+Watch: the prior is grey; the (renormalised) likelihood is red; the posterior is blue. As $n$ grows, the posterior concentrates around the MLE $k/n$ — but never quite reaches it because of the prior's pull. **All three distributions are Beta.**
+
+## Wonder
+
+1. The Beta prior + binomial likelihood gives a Beta posterior. Is this a coincidence, or is there a deeper reason — and which other prior/likelihood pairs have it?
+2. The Gaussian + Gaussian observation gives a Gaussian posterior (we'll see this in Bayesian linear regression). Same trick, different family. Common pattern?
+3. A change of variables in a distribution multiplies the density by the *absolute determinant of the Jacobian*. What does this absolute value protect against?
+4. The "natural parameter" form $p(x \mid \theta) = h(x) \exp(\theta^\top T(x) - A(\theta))$ — why is *this* the right way to parameterise a family?
+
+## Discover
+
+Six problems building from Beta conjugacy to the exponential family.
+
+**D1.** Beta prior $\mathrm{Beta}(\alpha, \beta)$, binomial likelihood $p(k \mid \theta) \propto \theta^k (1 - \theta)^{n - k}$. Show that the posterior is $\mathrm{Beta}(\alpha + k, \beta + n - k)$.
+
+<details class="hint"><summary>Full solution</summary>
+$p(\theta \mid k) \propto p(k \mid \theta) p(\theta) \propto \theta^k (1-\theta)^{n-k} \cdot \theta^{\alpha-1}(1-\theta)^{\beta-1} = \theta^{\alpha+k-1}(1-\theta)^{\beta+n-k-1}$ — the kernel of $\mathrm{Beta}(\alpha+k, \beta+n-k)$. **Same family** ⇒ conjugate prior.
+</details>
+
+**D2.** Gaussian prior $\theta \sim \mathcal{N}(\mu_0, \sigma_0^2)$, Gaussian observation $x \mid \theta \sim \mathcal{N}(\theta, \sigma^2)$ (known $\sigma^2$). Compute the posterior.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the **precision** $\tau = 1/\sigma^2$. Posterior precision is sum of prior precision and observation precision. Posterior mean is the precision-weighted average.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Posterior precision $\tau_1 = 1/\sigma_0^2 + 1/\sigma^2$. Posterior variance $\sigma_1^2 = 1 / \tau_1$. Posterior mean $\mu_1 = \sigma_1^2 (\mu_0 / \sigma_0^2 + x / \sigma^2)$. **Gaussian × Gaussian = Gaussian.** The posterior mean is a **precision-weighted average** of prior mean and observation.
+</details>
+
+**D3.** A **conjugate prior** for a likelihood family $\mathcal{F}$ is a prior family $\mathcal{P}$ such that for any $p_F \in \mathcal{F}$ and $p_P \in \mathcal{P}$, the posterior is in $\mathcal{P}$. List 3 famous conjugate pairs.
+
+<details class="hint"><summary>Full solution</summary>
+**Beta ↔ Bernoulli/Binomial.** **Gamma ↔ Poisson.** **Gaussian ↔ Gaussian (known variance).** **Normal-Inverse-Gamma ↔ Gaussian (unknown mean and variance).** **Dirichlet ↔ Multinomial.** *All conjugate pairs come from the exponential family.*
+</details>
+
+**D4.** A family $p(x \mid \theta) = h(x) \exp(\boldsymbol{\theta}^\top \boldsymbol{T}(x) - A(\boldsymbol{\theta}))$ is an **exponential family**. Write the Gaussian $\mathcal{N}(\mu, \sigma^2)$ in this form (with $\sigma^2$ known).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand the exponent of the Gaussian density. Group terms involving $\mu$ vs not.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$p(x \mid \mu) = \tfrac{1}{\sqrt{2\pi}\sigma} \exp(-x^2 / 2\sigma^2 + x \mu / \sigma^2 - \mu^2 / 2\sigma^2)$. In exponential form: $h(x) = \tfrac{1}{\sqrt{2\pi}\sigma} e^{-x^2/2\sigma^2}$, $\theta = \mu/\sigma^2$, $T(x) = x$, $A(\theta) = \theta^2 \sigma^2 / 2$. **Sufficient statistic** is $T(x) = x$ — the sample mean is all that matters for inference about $\mu$. (The sample is then condensed into one number.)
+</details>
+
+**D5.** Change of variables. For $Y = g(X)$ a smooth invertible map with inverse $g^{-1}$, derive the density:
+$$
+p_Y(y) = p_X(g^{-1}(y)) \lvert \det J_{g^{-1}}(y) \rvert.
+$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For any event $A$: $P(Y \in A) = P(X \in g^{-1}(A)) = \int_{g^{-1}(A)} p_X(x) dx$. Change of variables $x = g^{-1}(y)$ pulls the integral into $y$-coordinates.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\int_{g^{-1}(A)} p_X(x) dx = \int_A p_X(g^{-1}(y)) \lvert \det J_{g^{-1}}(y) \rvert dy$ — by multivariate change of variables. The factor $\lvert \det J_{g^{-1}}\rvert$ accounts for the *volume distortion* of $g$. **Densities are not preserved under transformations — they're stretched by the Jacobian.**
+</details>
+
+**D6.** Use D5 to derive the density of $Y = \sigma X + \mu$ when $X \sim \mathcal{N}(0, 1)$. Show $Y \sim \mathcal{N}(\mu, \sigma^2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$g^{-1}(y) = (y - \mu)/\sigma$. $J_{g^{-1}} = 1/\sigma$. $p_Y(y) = p_X((y - \mu)/\sigma) \cdot 1/\sigma = \tfrac{1}{\sqrt{2\pi}} e^{-(y-\mu)^2/2\sigma^2} \cdot 1/\sigma = \tfrac{1}{\sqrt{2\pi}\sigma} e^{-(y - \mu)^2/2\sigma^2}$ — $\mathcal{N}(\mu, \sigma^2)$. ✓ **Affine change of variables on a Gaussian gives another Gaussian** — by the change-of-variables formula directly.
+</details>
+
+::: {.fun-fact}
+The **exponential family** as a unified concept was crystallised by **Edwin Pitman** (1936) and **Bernard Koopman** (1936) independently — they proved that exponential families are *exactly* the families admitting a finite-dimensional sufficient statistic. The **Koopman–Pitman–Darmois theorem** says: if you can summarise data of any size by a fixed-dimensional sufficient statistic, you're in the exponential family. This is why "compute mean and variance, throw away the data" works for Gaussians but not for, say, Cauchy.
+:::
+
+::: {.key-insight}
+**Conjugacy is what makes Bayesian inference computable.** When prior and posterior are in the same family, updating is just arithmetic on the *parameters* — no integration, no MCMC. Conjugacy arises whenever the likelihood is in the exponential family, with conjugate prior also in the exponential family. **Modern Bayesian deep learning gives up conjugacy** (and pays for it via variational inference or MCMC).
+:::
+
+## Name
+
+::: {.lesson-beat}
+A prior $p(\theta)$ is **conjugate** to a likelihood $p(x \mid \theta)$ if the posterior $p(\theta \mid x) \propto p(x \mid \theta) p(\theta)$ is in the same family as $p(\theta)$.
+
+The **exponential family** of distributions has densities of the form
+$$
+p(x \mid \boldsymbol{\theta}) = h(x) \exp\bigl(\boldsymbol{\theta}^\top \boldsymbol{T}(x) - A(\boldsymbol{\theta})\bigr),
+$$
+where $\boldsymbol{\theta}$ are the **natural parameters**, $\boldsymbol{T}(x)$ is the **sufficient statistic**, and $A(\boldsymbol{\theta}) = \log \int h(x) \exp(\boldsymbol{\theta}^\top \boldsymbol{T}(x)) dx$ is the **log-partition function**.
+
+Examples: Gaussian, Beta, Gamma, Poisson, Bernoulli/binomial, multinomial, exponential, chi-squared. *Most* common distributions are exponential family.
+
+**Conjugate prior to an exp. family likelihood** is itself in the exp. family.
+
+**Change-of-variables formula.** For $Y = g(X)$ smooth invertible:
+$$
+p_Y(y) = p_X(g^{-1}(y)) \lvert \det J_{g^{-1}}(y) \rvert.
+$$
+
+**Inverse transform sampling.** To sample from a CDF $F_X$: draw $U \sim \mathrm{Unif}(0, 1)$, set $X = F_X^{-1}(U)$.
+
+::: {.callout-warning}
+**Sūtra.** *Exponential family ⇒ conjugate prior exists ⇒ Bayes update is parameter arithmetic.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Conjugate priors are the 'right' priors."* — They're computationally convenient, not philosophically preferred. Modern Bayesian models often use non-conjugate priors and pay computational cost via MCMC/variational inference.
+2. *"Sufficient statistics are unique."* — They're unique only up to one-to-one transformations. $\bar x$ and $\sum x_i$ are both sufficient for the Gaussian mean.
+3. *"Change-of-variables doesn't need the absolute value."* — It does, when working with densities (probabilities are positive). Sign flipping of the Jacobian must be absorbed into $\lvert \cdot \rvert$.
+:::
+
+## Apply
+
+### Worked example
+
+You're learning the bias $\theta$ of a coin. Prior $\theta \sim \mathrm{Beta}(2, 2)$ (skeptical of extreme biases). Observe 17 heads in 25 flips.
+
+**Step 1.** Posterior $\theta \mid D \sim \mathrm{Beta}(2 + 17, 2 + 25 - 17) = \mathrm{Beta}(19, 10)$.
+
+**Step 2.** Posterior mean $= 19 / (19 + 10) = 19/29 \approx 0.655$. Compare: MLE = $17/25 = 0.68$. **Prior pulls slightly toward $0.5$.**
+
+**Step 3.** Posterior variance $= \mathrm{Var}[\mathrm{Beta}(19, 10)] = (19 \cdot 10) / (29^2 \cdot 30) \approx 0.0075$, std ≈ 0.087.
+
+**Step 4.** 95% posterior credible interval: roughly $(0.48, 0.82)$. The true bias is *probably* in this range — interpretation Bayesian, not frequentist.
+
+**Conclusion:** Conjugate update is *one line* of arithmetic. No integration, no MCMC. **This simplicity is why conjugate priors dominate classical Bayesian computation.**
+
+### Warm
+
+**W1.** Beta prior $\mathrm{Beta}(\alpha, \beta)$ updates to ?
+
+<details class="hint"><summary>Full solution</summary>
+$\mathrm{Beta}(\alpha + \text{heads}, \beta + \text{tails})$ after binomial observation.
+</details>
+
+**W2.** Is the uniform distribution on $[0, 1]$ an exponential family member?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — it's $\mathrm{Beta}(1, 1)$, which is exponential family with sufficient statistic 0.
+</details>
+
+**W3.** Density of $Y = X^2$ when $X \sim \mathcal{N}(0, 1)$?
+
+<details class="hint"><summary>Full solution</summary>
+$Y \sim \chi^2_1$, density $\tfrac{1}{\sqrt{2\pi y}} e^{-y/2}$ for $y > 0$. Two-to-one map (both $X = \pm \sqrt y$ map to $Y$); change-of-variables formula must account for both branches.
+</details>
+
+### Working
+
+**Wo1.** Find the conjugate prior for the Poisson likelihood $p(k \mid \lambda) = e^{-\lambda} \lambda^k / k!$ (one observation $k$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Posterior should be a Gamma. Try a Gamma prior $\lambda \sim \mathrm{Gamma}(a, b)$ with density $\propto \lambda^{a-1} e^{-b\lambda}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$p(\lambda \mid k) \propto e^{-\lambda} \lambda^k \cdot \lambda^{a-1} e^{-b\lambda} = \lambda^{a+k-1} e^{-(b+1)\lambda}$ — $\mathrm{Gamma}(a + k, b + 1)$. **Gamma is conjugate to Poisson.**
+</details>
+
+**Wo2.** A **normalising flow** transforms a simple distribution $z \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ into a complex one $\boldsymbol{x} = f_\theta(\boldsymbol{z})$ via an invertible neural network $f_\theta$. Why does the density of $\boldsymbol{x}$ depend on the Jacobian of $f$?
+
+<details class="hint"><summary>Full solution</summary>
+By the change-of-variables formula: $p_X(\boldsymbol{x}) = p_Z(f^{-1}(\boldsymbol{x})) \lvert \det J_{f^{-1}}(\boldsymbol{x})\rvert = p_Z(f^{-1}(\boldsymbol{x})) / \lvert \det J_f(f^{-1}(\boldsymbol{x}))\rvert$. **Tractable Jacobian determinant is the design constraint** of normalising flows — RealNVP, Glow, NICE all use clever architectures (coupling layers) where $\det J$ is product of diagonal entries.
+</details>
+
+**Wo3.** Show that the maximum-likelihood estimator for an exponential family is determined entirely by $\mathbb{E}_{\hat p}[\boldsymbol{T}(X)] = \bar{\boldsymbol{T}}$ (the sample average of the sufficient statistic).
+
+<details class="hint"><summary>Full solution</summary>
+Log-likelihood: $\sum_n (\boldsymbol{\theta}^\top \boldsymbol{T}(\boldsymbol{x}_n) - A(\boldsymbol{\theta})) + \mathrm{const}$. Gradient wrt $\boldsymbol{\theta}$: $\sum \boldsymbol{T}(\boldsymbol{x}_n) - N \nabla A(\boldsymbol{\theta}) = 0$. So $\nabla A(\boldsymbol{\theta}) = \bar{\boldsymbol{T}}$. But $\nabla A = \mathbb{E}_\theta[\boldsymbol{T}(X)]$ (a property of the log-partition function). So **MLE matches expected sufficient statistic to sample sufficient statistic** — *moment matching*. Used directly in GLM fitting.
+</details>
+
+### Stretch
+
+**S1.** A **Jeffreys prior** is $p(\theta) \propto \sqrt{\det I(\theta)}$ where $I$ is the Fisher information matrix. Why is this "parametrisation-invariant"?
+
+<details class="hint"><summary>Full solution</summary>
+Under change of variables $\phi = g(\theta)$, the Fisher information transforms as $I(\phi) = J^{-\top} I(\theta) J^{-1}$. So $\sqrt{\det I(\phi)} = \sqrt{\det I(\theta)} \cdot \lvert \det J\rvert^{-1}$. But $p_\phi(\phi) = p_\theta(g^{-1}(\phi)) \lvert \det J^{-1}\rvert$. So **the Jeffreys prior in $\phi$-coordinates equals the change-of-variables of the Jeffreys prior in $\theta$-coordinates** — the prior is the "same" under reparametrisation. This is **objective Bayes**.
+</details>
+
+**S2.** Why do **diffusion models** apply a sequence of small change-of-variables transformations to noise, rather than one big invertible transformation?
+
+<details class="hint"><summary>Full solution</summary>
+Big invertible maps with tractable Jacobian are *architecturally constrained* (coupling layers, only). Small denoising steps — each a slightly noised version of identity — relax the constraint: the maps don't need to be invertible, because the chain learns a *reverse stochastic process*, not a deterministic map. Each step's Jacobian contribution is small. The cumulative effect can match any distribution. Diffusion models trade architectural simplicity for many small steps (1000+ at inference), but achieve state-of-the-art image quality.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Conjugate priors keep prior and posterior in the same family — Bayes update becomes parameter arithmetic.**
+2. **The exponential family unifies Gaussian, Beta, Gamma, Poisson, etc. — and has finite-dimensional sufficient statistics.**
+3. **Change of variables multiplies density by $\lvert \det J \rvert$ — the foundation of normalising flows and diffusion model training.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you list 3 conjugate prior–likelihood pairs?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "exponential family" in a paper, do you instantly look for the natural parameters and sufficient statistic?
+
+- **3 yes:** move on to Lesson 20.
+- **2 yes:** redo D5–D6 (change of variables), then move on.
+- **0–1 yes:** re-read *Discover* problems D2 and D4.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.gaussian-summary-stats`](../18-gaussian-summary-stats/index.qmd) —
+  the Gaussian-conjugate computation in D2 is the foundation.
+- [`t5.statistical-inference`](../../tier-5-undergrad-core/10-statistical-inference/index.qmd) — the synthesis-tier prerequisite on MLE.
+
+### What this unlocks
+
+- [`mml.gradient-descent`](../20-gradient-descent/index.qmd) — pivots from probabilistic foundations into optimisation algorithms.
+- Eventually, [`mml.bayesian-linear-regression`](../25-bayesian-linear-regression/index.qmd), [`mml.gmm`](../29-gmm/index.qmd) — both use conjugacy.
+
+### Sister synthesis lesson
+
+[`t5.statistical-inference`](../../tier-5-undergrad-core/10-statistical-inference/index.qmd) — pure-statistics view of MLE / MAP / posteriors. This lesson adds the *structural* perspective: conjugacy, exp family, change-of-variables flows.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Latent Dirichlet Allocation (topic models) uses Dirichlet-multinomial conjugacy. Variational inference's mean-field updates often have closed forms exactly when the conditionals are conjugate. Normalising flows and diffusion models use change-of-variables.
+:::
+
+::: {.applied-callout}
+**Research.** Probabilistic programming (Stan, PyMC, NumPyro) automatically recognises conjugate structures and uses closed-form updates where possible. Generative models for science (molecular simulation, climate) rely on the exponential family for tractability.
+:::
+
+::: {.applied-callout}
+**Encryption.** Some cryptographic randomness extractors transform structured distributions to uniform using change-of-variables — the *Leftover Hash Lemma* is a discrete version.
+:::

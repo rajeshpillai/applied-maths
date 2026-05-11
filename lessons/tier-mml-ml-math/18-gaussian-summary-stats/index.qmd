@@ -1,0 +1,317 @@
+---
+title: "18 · Summary Statistics, Independence, the Gaussian"
+subtitle: "Mean, covariance, the multivariate normal — the four core moves of every probabilistic ML model."
+lesson-id: "mml.gaussian-summary-stats"
+tier: "mml"
+prerequisites: ["mml.probability-spaces-bayes", "t5.variance-clt"]
+unlocks: ["mml.conjugacy-change-of-variables"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute $\mathbb{E}[X]$ for a discrete random variable? — see
+   [Tier 5 — Variance, CLT](../../tier-5-undergrad-core/09-variance-clt/index.qmd).
+2. Can you state the variance formula $\mathrm{Var}(X) = \mathbb{E}[X^2] - \mathbb{E}[X]^2$? — same prerequisite.
+3. Do you know the 1D Gaussian pdf $\tfrac{1}{\sqrt{2\pi}\sigma} e^{-(x - \mu)^2 / 2\sigma^2}$? — same.
+4. Do you remember the Cholesky factor $\boldsymbol{\Sigma} = \boldsymbol{L}\boldsymbol{L}^\top$? — see [MML — 11](../11-cholesky/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A 2D Gaussian, parameterised by mean $(\mu_1, \mu_2)$ and covariance entries $(\Sigma_{11}, \Sigma_{22}, \Sigma_{12})$. The widget plots the **density contours** — concentric ellipses whose axes are the eigenvectors of $\boldsymbol{\Sigma}$.
+
+```{ojs}
+viewof mu1 = Inputs.range([-2, 2], {value: 0, step: 0.1, label: "μ₁:"})
+viewof mu2 = Inputs.range([-2, 2], {value: 0, step: 0.1, label: "μ₂:"})
+viewof s11 = Inputs.range([0.2, 3], {value: 1, step: 0.05, label: "Σ₁₁ (var x):"})
+viewof s22 = Inputs.range([0.2, 3], {value: 1, step: 0.05, label: "Σ₂₂ (var y):"})
+viewof s12 = Inputs.range([-1.5, 1.5], {value: 0, step: 0.05, label: "Σ₁₂ (covariance):"})
+```
+
+```{ojs}
+{
+  const det = s11 * s22 - s12 * s12;
+  const valid = det > 1e-6;
+  let series = [];
+  if (valid) {
+    // Generate ellipse from eigen-decomposition of Sigma.
+    const tr = s11 + s22;
+    const disc = Math.sqrt(Math.max(0, (s11-s22)*(s11-s22) + 4*s12*s12));
+    const l1 = (tr + disc)/2, l2 = (tr - disc)/2;
+    let evx = 1, evy = 0;
+    if (Math.abs(s12) > 1e-7) { evx = 1; evy = (l1 - s11) / s12; }
+    const n = Math.sqrt(evx*evx + evy*evy);
+    evx /= n; evy /= n;
+    const sigmas = [1, 2];
+    for (const k of sigmas) {
+      const arr = [];
+      for (let t = 0; t <= 2*Math.PI + 0.01; t += 0.05) {
+        const u = k * Math.sqrt(l1) * Math.cos(t);
+        const v = k * Math.sqrt(l2) * Math.sin(t);
+        arr.push({x: mu1 + evx*u - evy*v, y: mu2 + evy*u + evx*v, lvl: k});
+      }
+      series = series.concat(arr);
+    }
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      μ = (${mu1.toFixed(2)}, ${mu2.toFixed(2)}), det Σ = ${det.toFixed(3)}, ${valid ? "valid covariance ✓" : "invalid (Σ not PSD)"}
+    </div>
+    ${Plot.plot({
+      width: 460, height: 360, x: {domain: [-6, 6]}, y: {domain: [-6, 6]}, grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.line(series, {x: "x", y: "y", z: "lvl", stroke: "steelblue", strokeWidth: 1.5}),
+        Plot.dot([{x: mu1, y: mu2}], {x: "x", y: "y", r: 4, fill: "tomato"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Slide $\Sigma_{12}$ to $0$: the ellipse is axis-aligned (uncorrelated). Slide $\Sigma_{12}$ positive: the ellipse tilts up-right (positive correlation). Slide too far and $\boldsymbol{\Sigma}$ stops being PSD — the "distribution" becomes invalid.
+
+## Wonder
+
+1. The Gaussian appears everywhere in ML — least-squares assumes it, GMM uses it, the CLT predicts it. Why does *this one distribution* play such an outsized role?
+2. The marginal of a multivariate Gaussian (project onto a subset of coordinates) is Gaussian. The conditional ($X$ given $Y$) is Gaussian. The sum of Gaussians is Gaussian. What other distribution has all three closures?
+3. The Gaussian is determined by *mean and covariance* only. Yet a general distribution has infinitely many "moments" (higher-order summary statistics). Why does Gaussian get away with just two?
+4. Independence implies zero correlation, but the reverse fails for non-Gaussian variables. For Gaussian, zero correlation *does* imply independence. Why?
+
+## Discover
+
+Six problems building mean, covariance, the Gaussian.
+
+**D1.** Compute $\mathbb{E}[X]$ and $\mathrm{Var}(X)$ for $X \sim \mathrm{Uniform}(0, 1)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{E}[X] = \int_0^1 x\, dx = 1/2$. $\mathbb{E}[X^2] = \int_0^1 x^2\, dx = 1/3$. $\mathrm{Var}(X) = 1/3 - 1/4 = 1/12$.
+</details>
+
+**D2.** Show $\mathrm{Cov}(X, Y) = \mathbb{E}[XY] - \mathbb{E}[X] \mathbb{E}[Y]$ (the "covariance formula").
+
+<details class="hint"><summary>Full solution</summary>
+$\mathrm{Cov}(X, Y) = \mathbb{E}[(X - \mu_X)(Y - \mu_Y)] = \mathbb{E}[XY] - \mu_X \mathbb{E}[Y] - \mu_Y \mathbb{E}[X] + \mu_X \mu_Y = \mathbb{E}[XY] - \mu_X \mu_Y$. ✓
+</details>
+
+**D3.** Show that if $X, Y$ are independent, $\mathbb{E}[XY] = \mathbb{E}[X] \mathbb{E}[Y]$ — hence $\mathrm{Cov}(X, Y) = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{E}[XY] = \iint xy\, p_{XY}(x, y)\, dx\, dy = \iint xy\, p_X(x) p_Y(y) dx\, dy$ (independence) $= (\int x p_X(x) dx)(\int y p_Y(y) dy) = \mathbb{E}[X] \mathbb{E}[Y]$. **Independence ⇒ uncorrelated**, but not the reverse in general.
+</details>
+
+**D4.** Write the multivariate Gaussian density:
+$$
+p(\boldsymbol{x}) = (2\pi)^{-D/2} \lvert \boldsymbol{\Sigma}\rvert^{-1/2} \exp\bigl(-\tfrac{1}{2} (\boldsymbol{x} - \boldsymbol{\mu})^\top \boldsymbol{\Sigma}^{-1} (\boldsymbol{x} - \boldsymbol{\mu})\bigr).
+$$
+Verify it reduces to the 1D Gaussian for $D = 1$.
+
+<details class="hint"><summary>Full solution</summary>
+$D = 1$: $\boldsymbol{\Sigma} = \sigma^2$, $\lvert \boldsymbol{\Sigma}\rvert^{-1/2} = 1/\sigma$, exponent $-(x - \mu)^2 / 2\sigma^2$, prefactor $1 / \sqrt{2\pi}$. So $p(x) = \tfrac{1}{\sqrt{2\pi}\sigma} e^{-(x - \mu)^2 / 2\sigma^2}$. ✓
+</details>
+
+**D5.** For $\boldsymbol{X} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$ and an affine transformation $\boldsymbol{Y} = \boldsymbol{A}\boldsymbol{X} + \boldsymbol{b}$, show $\boldsymbol{Y} \sim \mathcal{N}(\boldsymbol{A}\boldsymbol{\mu} + \boldsymbol{b}, \boldsymbol{A}\boldsymbol{\Sigma}\boldsymbol{A}^\top)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\mathbb{E}[\boldsymbol{Y}] = \boldsymbol{A}\boldsymbol{\mu} + \boldsymbol{b}$. $\mathrm{Cov}(\boldsymbol{Y}) = \boldsymbol{A} \mathrm{Cov}(\boldsymbol{X}) \boldsymbol{A}^\top$. Closure under affine: a Gaussian into an affine map is a Gaussian. (The non-trivial part — that $\boldsymbol{Y}$ is still Gaussian — uses change-of-variables, which we cover in Lesson 19.)
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{E}[\boldsymbol{Y}] = \boldsymbol{A}\mathbb{E}[\boldsymbol{X}] + \boldsymbol{b} = \boldsymbol{A}\boldsymbol{\mu} + \boldsymbol{b}$. $\mathrm{Cov}(\boldsymbol{Y}) = \mathbb{E}[(\boldsymbol{Y} - \mathbb{E}[\boldsymbol{Y}])(\boldsymbol{Y} - \mathbb{E}[\boldsymbol{Y}])^\top] = \boldsymbol{A}\mathrm{Cov}(\boldsymbol{X})\boldsymbol{A}^\top = \boldsymbol{A}\boldsymbol{\Sigma}\boldsymbol{A}^\top$. **The Gaussian survives all linear and affine transformations** — this is *the* defining property.
+</details>
+
+**D6.** For $\boldsymbol{X} = \begin{pmatrix} X_1 \\ X_2 \end{pmatrix} \sim \mathcal{N}\left(\begin{pmatrix} \mu_1 \\ \mu_2 \end{pmatrix}, \begin{pmatrix} \Sigma_{11} & \Sigma_{12} \\ \Sigma_{12} & \Sigma_{22} \end{pmatrix}\right)$, the **conditional** $X_1 \mid X_2$ is Gaussian with mean $\mu_1 + \Sigma_{12} \Sigma_{22}^{-1} (X_2 - \mu_2)$ and variance $\Sigma_{11} - \Sigma_{12}^2 / \Sigma_{22}$. Interpret the mean formula.
+
+<details class="hint"><summary>Full solution</summary>
+The conditional mean is *linear* in $X_2$: a "regression line" $\mathbb{E}[X_1 \mid X_2 = x_2] = \mu_1 + \beta (x_2 - \mu_2)$ with slope $\beta = \Sigma_{12} / \Sigma_{22} = \mathrm{Cov}(X_1, X_2) / \mathrm{Var}(X_2)$. **Linear regression's slope formula is literally this.** And the conditional variance is *smaller* than the marginal — observing $X_2$ reduces uncertainty about $X_1$.
+</details>
+
+::: {.fun-fact}
+**Carl Friedrich Gauss** introduced the normal distribution in 1809 (in *Theoria motus corporum coelestium*) as the unique distribution making the **least-squares estimate** the maximum-likelihood estimator. *Independently*, **Laplace** had derived the same distribution in 1810 as the limit of binomial probabilities (the **Central Limit Theorem**). Two different motivations, the same density — which is why it's called the "Gaussian" (by physicists) *or* the "Laplace-Gauss" (by statisticians) *or* the "normal" (by everyone else). The CLT's "this distribution emerges naturally from averaging" is what makes the Gaussian *the* default in modeling additive noise.
+:::
+
+::: {.key-insight}
+**The Gaussian is closed under everything ML cares about**: marginalisation, conditioning, affine maps, sums (when independent), products (when conjugate). And it's fully described by mean + covariance. That's why every algorithm in classical ML — least-squares, ridge, PCA, GMM, Kalman, Gaussian Process — uses Gaussians as the default assumption.
+:::
+
+## Name
+
+::: {.lesson-beat}
+For a random variable $X$ with density $p$:
+- **Mean** $\mu = \mathbb{E}[X] = \int x p(x) dx$.
+- **Variance** $\sigma^2 = \mathrm{Var}(X) = \mathbb{E}[(X - \mu)^2]$.
+- **Standard deviation** $\sigma = \sqrt{\mathrm{Var}(X)}$.
+
+For two random variables:
+- **Covariance** $\mathrm{Cov}(X, Y) = \mathbb{E}[(X - \mu_X)(Y - \mu_Y)] = \mathbb{E}[XY] - \mu_X \mu_Y$.
+- **Correlation** $\rho_{XY} = \mathrm{Cov}(X, Y) / (\sigma_X \sigma_Y) \in [-1, 1]$.
+
+For a random vector $\boldsymbol{X} \in \mathbb{R}^D$:
+- **Mean vector** $\boldsymbol{\mu} = \mathbb{E}[\boldsymbol{X}]$.
+- **Covariance matrix** $\boldsymbol{\Sigma} = \mathbb{E}[(\boldsymbol{X} - \boldsymbol{\mu})(\boldsymbol{X} - \boldsymbol{\mu})^\top] \in \mathbb{R}^{D \times D}$, always symmetric PSD.
+
+**Independence.** $X, Y$ are independent iff $p_{XY}(x, y) = p_X(x) p_Y(y)$, equivalent to $p(x \mid y) = p(x)$.
+
+**Multivariate Gaussian** $\mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$ on $\mathbb{R}^D$:
+$$
+p(\boldsymbol{x}) = (2\pi)^{-D/2} \lvert \boldsymbol{\Sigma}\rvert^{-1/2} \exp\bigl(-\tfrac{1}{2} (\boldsymbol{x} - \boldsymbol{\mu})^\top \boldsymbol{\Sigma}^{-1} (\boldsymbol{x} - \boldsymbol{\mu})\bigr).
+$$
+
+**Closure properties** of the multivariate Gaussian:
+- **Affine.** $\boldsymbol{A}\boldsymbol{X} + \boldsymbol{b} \sim \mathcal{N}(\boldsymbol{A}\boldsymbol{\mu} + \boldsymbol{b}, \boldsymbol{A}\boldsymbol{\Sigma}\boldsymbol{A}^\top)$.
+- **Marginal.** Any subset of coordinates is Gaussian.
+- **Conditional.** $X_1 \mid X_2$ is Gaussian (formulas in D6, generalised to vectors).
+- **Sum of independents.** Sum is Gaussian with summed means and summed covariances.
+
+For Gaussians: **uncorrelated ⇒ independent**. (Specific to Gaussians; not true for general distributions.)
+
+::: {.callout-warning}
+**Sūtra.** *Mean + covariance summarise a Gaussian completely; the Gaussian survives every linear operation.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Correlation 0 means independence."* — Only for Gaussians. Anscombe's quartet and uniform-on-a-circle examples show non-Gaussian variables with zero correlation but strong dependence.
+2. *"Mean and variance always fully describe a distribution."* — Only the Gaussian. Cauchy doesn't even *have* a mean; lognormal needs higher moments; multimodal distributions need all of them.
+3. *"$\mathrm{Cov}(X, Y) > 0$ means $Y$ tends to go up when $X$ does."* — Approximately yes, but the relationship may be non-linear. Correlation only captures linear association.
+:::
+
+## Apply
+
+### Worked example
+
+Given $\boldsymbol{X} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I}_2)$ and $\boldsymbol{Y} = \boldsymbol{A}\boldsymbol{X} + \boldsymbol{b}$ with $\boldsymbol{A} = \begin{pmatrix} 2 & 1 \\ 0 & 3 \end{pmatrix}, \boldsymbol{b} = (1, -1)^\top$, find the distribution of $\boldsymbol{Y}$.
+
+**Step 1.** $\mathbb{E}[\boldsymbol{Y}] = \boldsymbol{A} \boldsymbol{0} + \boldsymbol{b} = (1, -1)^\top$.
+
+**Step 2.** $\mathrm{Cov}(\boldsymbol{Y}) = \boldsymbol{A}\boldsymbol{I}\boldsymbol{A}^\top = \boldsymbol{A}\boldsymbol{A}^\top = \begin{pmatrix} 5 & 3 \\ 3 & 9 \end{pmatrix}$.
+
+**Step 3.** $\boldsymbol{Y} \sim \mathcal{N}\left((1, -1), \begin{pmatrix} 5 & 3 \\ 3 & 9 \end{pmatrix}\right)$.
+
+**Answer:** affine maps preserve Gaussianity, with mean and covariance transforming as derived. This is the **reparameterisation trick** behind VAEs: sample $\boldsymbol{X} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$, then transform to your target distribution via a learned affine map.
+
+### Warm
+
+**W1.** $\mathrm{Var}(aX + b)$ in terms of $\mathrm{Var}(X)$?
+
+<details class="hint"><summary>Full solution</summary>
+$a^2 \mathrm{Var}(X)$. Adding a constant doesn't change variance; scaling by $a$ scales variance by $a^2$.
+</details>
+
+**W2.** $\mathrm{Cov}(X + Y, Z)$ in terms of $\mathrm{Cov}(X, Z)$ and $\mathrm{Cov}(Y, Z)$?
+
+<details class="hint"><summary>Full solution</summary>
+$\mathrm{Cov}(X + Y, Z) = \mathrm{Cov}(X, Z) + \mathrm{Cov}(Y, Z)$ — bilinearity of covariance.
+</details>
+
+**W3.** For $X \sim \mathcal{N}(0, 1)$, $P(X > 0) = ?$
+
+<details class="hint"><summary>Full solution</summary>
+$1/2$ — symmetry about zero.
+</details>
+
+### Working
+
+**Wo1.** Show that for $\boldsymbol{X} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, the **Mahalanobis distance** $(\boldsymbol{x} - \boldsymbol{\mu})^\top \boldsymbol{\Sigma}^{-1} (\boldsymbol{x} - \boldsymbol{\mu})$ follows a chi-squared distribution with $D$ degrees of freedom.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use Cholesky: $\boldsymbol{\Sigma} = \boldsymbol{L}\boldsymbol{L}^\top$. Let $\boldsymbol{Z} = \boldsymbol{L}^{-1} (\boldsymbol{X} - \boldsymbol{\mu})$. What distribution does $\boldsymbol{Z}$ have?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{Z} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ — independent standard Gaussians. Mahalanobis = $\boldsymbol{Z}^\top \boldsymbol{Z} = \sum Z_i^2 \sim \chi^2_D$. **Mahalanobis distance is the "natural" distance in Gaussian space** — and the threshold for "outlier" detection.
+</details>
+
+**Wo2.** Show that the maximum-likelihood estimator of $\boldsymbol{\mu}$ from $N$ i.i.d. samples $\boldsymbol{x}_1, \dots, \boldsymbol{x}_N$ of a Gaussian is the sample mean $\bar{\boldsymbol{x}} = \tfrac{1}{N} \sum \boldsymbol{x}_n$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Maximise log-likelihood $\sum_n \log p(\boldsymbol{x}_n; \boldsymbol{\mu}, \boldsymbol{\Sigma})$ wrt $\boldsymbol{\mu}$. Take gradient and set to zero.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Log-likelihood (dropping constants) $= -\tfrac{1}{2} \sum (\boldsymbol{x}_n - \boldsymbol{\mu})^\top \boldsymbol{\Sigma}^{-1} (\boldsymbol{x}_n - \boldsymbol{\mu})$. Gradient wrt $\boldsymbol{\mu}$: $\boldsymbol{\Sigma}^{-1} \sum (\boldsymbol{x}_n - \boldsymbol{\mu}) = \boldsymbol{0}$. So $\boldsymbol{\mu} = \bar{\boldsymbol{x}}$. **MLE for Gaussian mean is the sample mean** — independent of $\boldsymbol{\Sigma}$.
+</details>
+
+**Wo3.** The **multivariate Gaussian conditional formula** in full: for $\boldsymbol{X} = \begin{pmatrix} \boldsymbol{X}_1 \\ \boldsymbol{X}_2 \end{pmatrix} \sim \mathcal{N}\left(\begin{pmatrix} \boldsymbol{\mu}_1 \\ \boldsymbol{\mu}_2 \end{pmatrix}, \begin{pmatrix} \boldsymbol{\Sigma}_{11} & \boldsymbol{\Sigma}_{12} \\ \boldsymbol{\Sigma}_{12}^\top & \boldsymbol{\Sigma}_{22} \end{pmatrix}\right)$, we have $\boldsymbol{X}_1 \mid \boldsymbol{X}_2 \sim \mathcal{N}(\boldsymbol{\mu}_{1 \mid 2}, \boldsymbol{\Sigma}_{1 \mid 2})$ with $\boldsymbol{\mu}_{1 \mid 2} = \boldsymbol{\mu}_1 + \boldsymbol{\Sigma}_{12} \boldsymbol{\Sigma}_{22}^{-1} (\boldsymbol{X}_2 - \boldsymbol{\mu}_2)$ and $\boldsymbol{\Sigma}_{1 \mid 2} = \boldsymbol{\Sigma}_{11} - \boldsymbol{\Sigma}_{12} \boldsymbol{\Sigma}_{22}^{-1} \boldsymbol{\Sigma}_{12}^\top$. Interpret.
+
+<details class="hint"><summary>Full solution</summary>
+**Conditional mean is linear in the observed $\boldsymbol{X}_2$.** This is *exactly* linear regression: predict the response from the predictors. **Conditional covariance is smaller than the prior covariance** by the "explained variance" $\boldsymbol{\Sigma}_{12} \boldsymbol{\Sigma}_{22}^{-1} \boldsymbol{\Sigma}_{12}^\top$. Used in Kalman filters, Gaussian processes, latent-variable models.
+</details>
+
+### Stretch
+
+**S1.** The **Central Limit Theorem** says: averages of $N$ i.i.d. random variables with mean $\mu$ and variance $\sigma^2$ converge in distribution to $\mathcal{N}(\mu, \sigma^2 / N)$ as $N \to \infty$. Why does this make the Gaussian "universal" in noise modeling?
+
+<details class="hint"><summary>Full solution</summary>
+Any noise source that is the *sum* (or average) of many small, roughly-independent contributions tends to look Gaussian — regardless of the individual noise distributions. Measurement error, observational noise, financial returns over short intervals, neuronal firing — all are "many small things added up," so empirically Gaussian-distributed. **The Gaussian is the entropy-maximising distribution at fixed mean and variance**, and the CLT is its dynamical justification.
+</details>
+
+**S2.** A **multivariate-Gaussian likelihood ratio test** discriminates two classes with shared covariance $\boldsymbol{\Sigma}$, means $\boldsymbol{\mu}_0, \boldsymbol{\mu}_1$. Show that the decision boundary is a *hyperplane* (linear in $\boldsymbol{x}$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Set $\log p(\boldsymbol{x} \mid \mathrm{class}\ 1) = \log p(\boldsymbol{x} \mid \mathrm{class}\ 0)$ and simplify the quadratic terms.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$(\boldsymbol{x} - \boldsymbol{\mu}_0)^\top \boldsymbol{\Sigma}^{-1} (\boldsymbol{x} - \boldsymbol{\mu}_0) = (\boldsymbol{x} - \boldsymbol{\mu}_1)^\top \boldsymbol{\Sigma}^{-1} (\boldsymbol{x} - \boldsymbol{\mu}_1)$. Quadratic terms in $\boldsymbol{x}$ cancel (shared $\boldsymbol{\Sigma}$); the remaining is linear in $\boldsymbol{x}$. **Linear Discriminant Analysis (LDA)** = exactly this rule. Distinct covariances per class would give quadratic boundaries (QDA).
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Mean and covariance summarise a Gaussian completely — and the Gaussian survives marginalisation, conditioning, and affine maps.**
+2. **Gaussian conditioning is the regression formula in disguise; closed-form Bayesian inference is feasible whenever the model is Gaussian.**
+3. **The Central Limit Theorem makes the Gaussian the default noise model in ML — and explains why so many things "are Gaussian enough" in practice.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state the three closure properties of the multivariate Gaussian?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see $\mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$ in a paper, do you reach instinctively for the affine-transformation rule?
+
+- **3 yes:** move on to Lesson 19.
+- **2 yes:** redo D5 and Wo3, then move on.
+- **0–1 yes:** re-read *Discover* problems D4–D6.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.probability-spaces-bayes`](../17-probability-spaces-bayes/index.qmd) —
+  the probability framework the Gaussian lives in.
+- [`t5.variance-clt`](../../tier-5-undergrad-core/09-variance-clt/index.qmd) — moments, CLT, justification for the Gaussian.
+
+### What this unlocks
+
+- [`mml.conjugacy-change-of-variables`](../19-conjugacy-change-of-variables/index.qmd) — conjugate priors and the exponential family.
+- Eventually, [`mml.bayesian-linear-regression`](../25-bayesian-linear-regression/index.qmd), [`mml.gmm`](../29-gmm/index.qmd) — both built on multivariate Gaussians.
+
+### Sister synthesis lesson
+
+[`t5.continuous-distributions`](../../tier-5-undergrad-core/08-continuous-distributions/index.qmd) — pure-stats view of continuous distributions. This lesson adds the *ML* perspective: covariance as PSD matrix, closure under affine maps, conditional-as-regression-formula.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Bayesian linear regression, Gaussian processes, GMMs, Kalman filters — all built on multivariate Gaussians. The reparameterisation trick in VAEs samples $\boldsymbol{z} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ then maps to learned $\mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$ via an affine layer.
+:::
+
+::: {.applied-callout}
+**Research.** Statistical physics: the Boltzmann distribution at a quadratic potential is a Gaussian. Quantum harmonic oscillator ground state. Brownian motion's transition density. The Gaussian is *the* universal continuous distribution.
+:::
+
+::: {.applied-callout}
+**Encryption.** **Learning With Errors** (LWE) — the foundation of post-quantum lattice cryptography — uses *Gaussian noise* added to lattice points. Choice of $\sigma$ trades hardness for correctness.
+:::

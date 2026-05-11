@@ -1,0 +1,283 @@
+---
+title: "17 · Probability Spaces, Discrete and Continuous, Bayes' Theorem"
+subtitle: "Probability is the algebra of degrees of belief. Bayes is the update rule."
+lesson-id: "mml.probability-spaces-bayes"
+tier: "mml"
+prerequisites: ["mml.backprop-autodiff", "t5.continuous-distributions"]
+unlocks: ["mml.gaussian-summary-stats"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state $P(A \mid B) = P(A \cap B) / P(B)$ (definition of conditional probability)? — see
+   [Tier 3 — Conditional Probability](../../tier-3-algebra2-geometry-trig/14-conditional-probability/index.qmd).
+2. Can you integrate a continuous probability density? — see
+   [Tier 5 — Continuous Distributions](../../tier-5-undergrad-core/08-continuous-distributions/index.qmd).
+3. Can you state Bayes' theorem $P(A \mid B) = P(B \mid A) P(A) / P(B)$? — see Tier 3.
+4. Can you compute $\int_0^1 x^2 dx = 1/3$?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A simple Bayes calculator. A disease has prior prevalence $p$ (e.g. 1%). A test has sensitivity $s$ (true-positive rate) and specificity $t$ (true-negative rate). The widget computes $P(\text{disease} \mid \text{positive test})$ — and shows why "the test is 99% accurate" rarely means what people think.
+
+```{ojs}
+viewof p = Inputs.range([0.001, 0.5], {value: 0.01, step: 0.001, label: "prior P(disease):"})
+viewof s = Inputs.range([0.5, 0.999], {value: 0.99, step: 0.001, label: "sensitivity P(pos | disease):"})
+viewof spec = Inputs.range([0.5, 0.999], {value: 0.99, step: 0.001, label: "specificity P(neg | no disease):"})
+```
+
+```{ojs}
+{
+  const tp = p * s;
+  const fp = (1 - p) * (1 - spec);
+  const posterior = tp / (tp + fp);
+  return html`<div style="font: 13px monospace; line-height: 1.6;">
+    Prior P(disease) = ${(p*100).toFixed(2)}%
+    <br/> P(positive | disease) = ${(s*100).toFixed(2)}%
+    <br/> P(positive | no disease) = ${((1-spec)*100).toFixed(2)}%
+    <br/> <br/>
+    <b>P(positive)</b> = P(pos | d)P(d) + P(pos | ¬d)P(¬d) = ${((tp + fp)*100).toFixed(2)}%
+    <br/> <br/>
+    <b>P(disease | positive)</b> = ${(posterior*100).toFixed(2)}%
+    <br/> <br/>
+    <span style="color: ${posterior < 0.5 ? 'tomato' : 'seagreen'}">
+      ${posterior < 0.5 ? "Most positives are FALSE positives." : "Most positives are TRUE positives."}
+    </span>
+  </div>`;
+}
+```
+
+With a 1%-prevalence disease and a 99%-accurate test, fewer than half of positive results indicate disease. Bayes' theorem is *not optional* — it's the mathematics of updating beliefs.
+
+## Wonder
+
+1. With a 99%-accurate test and a 1%-prevalence disease, only half of positives are true. What's the "base-rate fallacy" people commit when they ignore this?
+2. The likelihood $P(D \mid \theta)$ and the posterior $P(\theta \mid D)$ are *different* functions, even though they involve the same letters. Why?
+3. For a continuous parameter $\theta$, $P(\theta = 0.5) = 0$. How do we handle "evidence updates" when single points have probability zero?
+4. The denominator $P(D)$ in Bayes' theorem is often called the "evidence" or "marginal likelihood." Why?
+
+## Discover
+
+Six problems building from probability space to Bayes.
+
+**D1.** A fair coin is flipped twice. Sample space $\Omega = \{HH, HT, TH, TT\}$. Define the event "at least one heads." What is its probability?
+
+<details class="hint"><summary>Full solution</summary>
+$A = \{HH, HT, TH\}$. $P(A) = 3/4$. By symmetry, each outcome has probability $1/4$.
+</details>
+
+**D2.** Given $A = $ "first flip heads" and $B = $ "second flip heads," verify $P(A \cap B) = P(A) P(B)$ — the two events are **independent**.
+
+<details class="hint"><summary>Full solution</summary>
+$A = \{HH, HT\}$, $P(A) = 1/2$. $B = \{HH, TH\}$, $P(B) = 1/2$. $A \cap B = \{HH\}$, $P(A \cap B) = 1/4 = 1/2 \cdot 1/2$. ✓ Independent.
+</details>
+
+**D3.** Compute $P(A \mid B)$ for the previous problem and observe it equals $P(A)$. What does that say?
+
+<details class="hint"><summary>Full solution</summary>
+$P(A \mid B) = P(A \cap B) / P(B) = 1/4 / 1/2 = 1/2 = P(A)$. **Conditioning on $B$ doesn't change $A$'s probability**: that's the definition of independence. Knowing the second flip doesn't help you predict the first.
+</details>
+
+**D4.** A bag has 5 red balls and 5 blue balls. Draw one ball. Then *without replacement* draw a second. Are the two draws independent?
+
+<details class="hint"><summary>Full solution</summary>
+No. $P(\text{2nd red} \mid \text{1st red}) = 4/9$ but $P(\text{2nd red}) = 1/2$. Conditional changes after observation. Without-replacement sampling *induces* dependence.
+</details>
+
+**D5.** Derive Bayes' theorem $P(A \mid B) = P(B \mid A) P(A) / P(B)$ from the definition of conditional probability.
+
+<details class="hint"><summary>Full solution</summary>
+$P(A \cap B) = P(A \mid B) P(B) = P(B \mid A) P(A)$. Rearrange: $P(A \mid B) = P(B \mid A) P(A) / P(B)$. ✓ **All of Bayesian inference is repeated application of this one identity.**
+</details>
+
+**D6.** A disease has prevalence $0.5\%$ in the population. A test is positive for $99\%$ of people with the disease and negative for $97\%$ of people without. You test positive. What is $P(\text{disease} \mid \text{positive})$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$P(\text{disease} \mid \text{pos}) = P(\text{pos} \mid \text{disease}) P(\text{disease}) / P(\text{pos})$. Compute $P(\text{pos})$ by total probability: $P(\text{pos} \mid \text{disease}) P(\text{disease}) + P(\text{pos} \mid \text{no disease}) P(\text{no disease})$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{pos}) = 0.99 \cdot 0.005 + 0.03 \cdot 0.995 = 0.00495 + 0.02985 = 0.0348$. Posterior $= 0.00495 / 0.0348 \approx 14.2\%$. **Only one in seven positives indicates the disease**, despite the test being "99% accurate."
+</details>
+
+::: {.fun-fact}
+**Thomas Bayes** (1701–1761) was an English Presbyterian minister who, far from being famous in his lifetime, published only one mathematical paper — and that one *posthumously* by his friend Richard Price in 1763. The paper, *An Essay towards solving a Problem in the Doctrine of Chances*, contained what we now call Bayes' theorem. **Laplace** (1812) rediscovered and generalised it independently. Use of Bayes' rule was rare in 20th-century statistics because of *computational* intractability — until MCMC (1990s) and variational inference (2000s) made Bayesian computation routine. Today, **every spam filter** is a Bayesian classifier.
+:::
+
+::: {.key-insight}
+**Bayes' theorem is the update rule:** posterior $\propto$ likelihood $\times$ prior. The denominator $P(D)$ is just a normalising constant. **For continuous parameters**, replace probabilities with densities; the formula is identical. *Statistical inference is repeated Bayes updating; ML training is a special case where the prior is uniform.*
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **probability space** is a triple $(\Omega, \mathcal{F}, P)$:
+- $\Omega$ — the **sample space**, set of possible outcomes.
+- $\mathcal{F}$ — a $\sigma$-algebra of measurable subsets (**events**) of $\Omega$.
+- $P : \mathcal{F} \to [0, 1]$ — the **probability measure**, satisfying $P(\Omega) = 1$ and countable additivity.
+
+The **conditional probability** of $A$ given $B$ is $P(A \mid B) = P(A \cap B) / P(B)$, when $P(B) > 0$.
+
+Events $A, B$ are **independent** if $P(A \cap B) = P(A) P(B)$, equivalently $P(A \mid B) = P(A)$.
+
+**Bayes' theorem.**
+$$
+P(A \mid B) = \frac{P(B \mid A) P(A)}{P(B)},
+$$
+generalising to densities: $p(\theta \mid D) = p(D \mid \theta) p(\theta) / p(D)$.
+
+- **Prior** $p(\theta)$: belief before data.
+- **Likelihood** $p(D \mid \theta)$: probability of data under each $\theta$.
+- **Posterior** $p(\theta \mid D)$: belief after data.
+- **Marginal likelihood / evidence** $p(D) = \int p(D \mid \theta) p(\theta)\, d\theta$.
+
+A **probability density function (pdf)** $p$ on $\mathbb{R}^n$ is a non-negative function with $\int p = 1$. For an event $A \subseteq \mathbb{R}^n$: $P(A) = \int_A p$.
+
+::: {.callout-warning}
+**Sūtra.** *Posterior ∝ likelihood × prior; the denominator is a number, not a function.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"$P(\theta \mid D)$ and $P(D \mid \theta)$ are the same thing."* — Catastrophically not. $P(D \mid \theta)$ is the *likelihood* (a function of $\theta$ for fixed $D$); $P(\theta \mid D)$ is the *posterior* (a probability distribution over $\theta$). Their swap is the **prosecutor's fallacy**.
+2. *"Bayesian and frequentist methods give the same answer."* — Often similar with enough data, but **never** identical in interpretation. Frequentist: confidence intervals over many repeated experiments. Bayesian: credible intervals over parameter uncertainty in *this* dataset.
+3. *"Probability density is probability."* — Density can be $> 1$. $P(\theta = 0.5) = 0$ for continuous $\theta$. Only *integrals* of densities are probabilities.
+:::
+
+## Apply
+
+### Worked example
+
+Coin-flip with unknown bias $\theta \in [0, 1]$, **uniform prior** $p(\theta) = 1$. Observe 8 heads in 10 flips. Compute the posterior $p(\theta \mid D)$.
+
+**Step 1 (likelihood).** $p(D \mid \theta) = \binom{10}{8} \theta^8 (1 - \theta)^2$.
+
+**Step 2 (apply Bayes).** $p(\theta \mid D) \propto \theta^8 (1 - \theta)^2$ (drop the prior since it's constant; drop the binomial coefficient since it's a $\theta$-independent constant absorbed into the normaliser).
+
+**Step 3 (normalise).** $\int_0^1 \theta^8 (1 - \theta)^2 d\theta = B(9, 3) = 8! 2! / 11! = 1 / 495$. So $p(\theta \mid D) = 495\, \theta^8 (1 - \theta)^2$ — a **Beta(9, 3)** distribution.
+
+**Step 4 (posterior mean).** $\mathbb{E}[\theta \mid D] = 9 / 12 = 0.75$. The MLE would be $0.8 = 8/10$. **The prior pulls the estimate toward $0.5$** — even a flat prior introduces shrinkage through the +1 / +1 pseudo-counts.
+
+### Warm
+
+**W1.** Two events $A, B$ with $P(A) = 0.4, P(B) = 0.5, P(A \cap B) = 0.2$. Are they independent?
+
+<details class="hint"><summary>Full solution</summary>
+$P(A) P(B) = 0.2 = P(A \cap B)$. Independent.
+</details>
+
+**W2.** A bag has 3 red, 7 green balls. You draw 2 without replacement. $P(\text{both red})$?
+
+<details class="hint"><summary>Full solution</summary>
+$3/10 \cdot 2/9 = 6/90 = 1/15$.
+</details>
+
+**W3.** $P(A \mid B) = 0.8, P(B) = 0.3$. Find $P(A \cap B)$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(A \cap B) = P(A \mid B) P(B) = 0.24$.
+</details>
+
+### Working
+
+**Wo1.** A spam filter classifies an email as spam if $P(\text{spam} \mid \boldsymbol{x}) > 0.5$. Using **Naive Bayes** with features $\boldsymbol{x} = (x_1, \dots, x_n)$ (presence of words), derive the classifier rule.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+By Bayes: $P(\text{spam} \mid \boldsymbol{x}) \propto P(\boldsymbol{x} \mid \text{spam}) P(\text{spam})$. Naive Bayes assumes $P(\boldsymbol{x} \mid \text{spam}) = \prod_i P(x_i \mid \text{spam})$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Classify spam if $\log P(\text{spam}) + \sum_i \log P(x_i \mid \text{spam}) > \log P(\text{ham}) + \sum_i \log P(x_i \mid \text{ham})$. **Linear classifier in log-space**, even though the underlying probability rule is multiplicative. This is why Naive Bayes is fast and was historically the production spam filter.
+</details>
+
+**Wo2.** Show that for two independent random variables $X, Y$ with continuous densities $p_X, p_Y$, the density of $X + Y$ is the **convolution** $p_{X+Y}(z) = \int p_X(x) p_Y(z - x)\, dx$.
+
+<details class="hint"><summary>Full solution</summary>
+$P(X + Y \le z) = \iint_{x + y \le z} p_X(x) p_Y(y) dx\, dy = \int_{-\infty}^\infty p_X(x) \int_{-\infty}^{z-x} p_Y(y) dy\, dx$. Differentiate wrt $z$: $\int p_X(x) p_Y(z - x) dx$ — the convolution. This is how sums of independent Gaussians remain Gaussian (Lesson 18) and how the CLT proves itself.
+</details>
+
+**Wo3.** For Bayes update with $N$ i.i.d. observations: derive that the posterior after $N$ observations is the posterior after $N - 1$ observations *as a prior*, updated with the new observation. (I.e. Bayesian updating is incremental.)
+
+<details class="hint"><summary>Full solution</summary>
+$p(\theta \mid D_{1:N}) \propto p(\theta) \prod_{i=1}^N p(d_i \mid \theta) = [p(\theta) \prod_{i=1}^{N-1} p(d_i \mid \theta)] \cdot p(d_N \mid \theta) \propto p(\theta \mid D_{1:N-1}) \cdot p(d_N \mid \theta)$. **Yesterday's posterior is today's prior.** This is why online Bayesian filtering (Kalman filters!) works.
+</details>
+
+### Stretch
+
+**S1.** **Monty Hall problem.** Three doors; one has a car, two have goats. You pick door 1. The host (who knows) opens door 3 to reveal a goat, and offers to let you switch to door 2. Should you switch? Use Bayes.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Prior $P(\text{car behind door}\ i) = 1/3$. Likelihood: $P(\text{host opens 3} \mid \text{car at 1}) = 1/2$; $P(\text{host opens 3} \mid \text{car at 2}) = 1$ (must avoid the car); $P(\text{host opens 3} \mid \text{car at 3}) = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$P(\text{car at 1} \mid \text{host opens 3}) = (1/2)(1/3) / [(1/2)(1/3) + 1 \cdot (1/3) + 0] = (1/6) / (1/2) = 1/3$.
+$P(\text{car at 2} \mid \text{host opens 3}) = (1)(1/3) / (1/2) = 2/3$. **Switch.** The intuition fails because most people don't update on the host's *informed* action — but Bayes does it mechanically.
+</details>
+
+**S2.** A **uniform prior** on $\theta \in [0, 1]$ is NOT a uniform prior on $\log \theta$ (or $\theta^2$, or any non-linear transform). Argue informally why prior choice is *not basis-free*, and what this implies for Bayesian inference.
+
+<details class="hint"><summary>Full solution</summary>
+Change of variables: if $\theta \sim U(0, 1)$, then $\phi = \log \theta$ has density $e^\phi$ on $(-\infty, 0)$ — non-uniform. **"Uninformative prior" is parametrisation-dependent.** *Objective Bayes* approaches (Jeffreys prior, reference priors) attempt parametrisation-invariance. **Subjective Bayes** just says "choose a prior reflecting your beliefs, and report it." Either way, *some* prior choice is unavoidable.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A probability space has outcomes, events, and a measure assigning probabilities. Conditional probability is the building block; independence is "knowing $B$ tells you nothing about $A$."**
+2. **Bayes' theorem: posterior $\propto$ likelihood × prior. This is the universal update rule for beliefs.**
+3. **In ML, learning is just Bayes inference (or its MAP / MLE approximation). MLE = uniform prior; MAP = mode of the posterior; full Bayes = the whole posterior distribution.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state Bayes' theorem in one breath without notes?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "posterior probability" in a paper, can you reach for the formula instantly?
+
+- **3 yes:** move on to Lesson 18.
+- **2 yes:** redo D6 (disease test) and S1 (Monty Hall), then move on.
+- **0–1 yes:** re-read *Discover* problems D5 and D6.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.backprop-autodiff`](../16-backprop-autodiff/index.qmd) — closes
+  the calculus arc.
+- [`t5.continuous-distributions`](../../tier-5-undergrad-core/08-continuous-distributions/index.qmd) — the synthesis-tier prerequisite on continuous random variables.
+
+### What this unlocks
+
+- [`mml.gaussian-summary-stats`](../18-gaussian-summary-stats/index.qmd) —
+  the Gaussian, the most-used continuous distribution.
+- Eventually, [`mml.bayesian-linear-regression`](../25-bayesian-linear-regression/index.qmd) — full Bayes on regression.
+
+### Sister synthesis lesson
+
+[`t5.statistical-inference`](../../tier-5-undergrad-core/10-statistical-inference/index.qmd) — the synthesis statistical-inference lesson. This lesson layers in ML interpretation: MAP / MLE / full posterior as a hierarchy of approximations.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Bayesian neural networks, variational autoencoders, Gaussian processes, diffusion models — all use Bayes for inference. Even non-Bayesian methods can be cast as MAP estimation with a particular prior.
+:::
+
+::: {.applied-callout}
+**Research.** Climate-model parameter inference, drug-trial efficacy, epidemic forecasting — every modern inference engine is a Bayesian one. Stan, PyMC, NumPyro are the dominant tools.
+:::
+
+::: {.applied-callout}
+**Encryption.** Bayesian techniques in cryptanalysis decompose ciphertext under prior hypotheses about plaintext distribution. Spelling correctors (often credited as the first deployed Bayesian system) work on the same principle.
+:::

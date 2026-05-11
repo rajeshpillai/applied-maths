@@ -1,0 +1,298 @@
+---
+title: "14 · Univariate and Partial Differentiation, Gradients"
+subtitle: "The derivative is the slope; the gradient is the slope-vector that says 'this direction goes uphill fastest.'"
+lesson-id: "mml.differentiation-gradients"
+tier: "mml"
+prerequisites: ["mml.svd-and-low-rank", "t5.partial-derivatives"]
+unlocks: ["mml.vector-matrix-gradients"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute $\tfrac{d}{dx}(x^3 + 2x) = 3x^2 + 2$? — see
+   [Tier 4 — Derivative Rules](../../tier-4-precalc-calculus/13-derivative-rules/index.qmd).
+2. Can you state the chain rule for $\tfrac{d}{dx} f(g(x))$? — same prerequisite.
+3. Do you know what a partial derivative is? — see
+   [Tier 5 — Partial Derivatives](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd).
+4. Can you compute $\partial f / \partial x$ for $f(x, y) = x^2 + 3xy$? — same prerequisite.
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A scalar function $f(x, y)$ on the plane, plotted as a heatmap. The widget draws the **gradient** $\nabla f$ as arrows — pointing uphill, with magnitude equal to the steepness.
+
+```{ojs}
+viewof choice = Inputs.select(["f = x² + y²", "f = sin(x) cos(y)", "f = x² − y²"], {label: "function f(x,y):"})
+viewof px = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "point x:"})
+viewof py = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "point y:"})
+```
+
+```{ojs}
+{
+  function f(x, y) {
+    if (choice.startsWith("f = x² +")) return x*x + y*y;
+    if (choice.startsWith("f = sin")) return Math.sin(x) * Math.cos(y);
+    return x*x - y*y;
+  }
+  function grad(x, y) {
+    if (choice.startsWith("f = x² +")) return [2*x, 2*y];
+    if (choice.startsWith("f = sin")) return [Math.cos(x) * Math.cos(y), -Math.sin(x) * Math.sin(y)];
+    return [2*x, -2*y];
+  }
+  const heat = [];
+  for (let xx = -3; xx <= 3; xx += 0.25) for (let yy = -3; yy <= 3; yy += 0.25) heat.push({x: xx, y: yy, v: f(xx, yy)});
+  const g = grad(px, py);
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      f(${px.toFixed(2)}, ${py.toFixed(2)}) = ${f(px, py).toFixed(2)},  ∇f = (${g[0].toFixed(2)}, ${g[1].toFixed(2)})
+    </div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-3, 3]}, y: {domain: [-3, 3]},
+      color: {scheme: "RdBu", reverse: false},
+      marks: [
+        Plot.rect(heat, {x:"x", x2: d => d.x + 0.25, y: "y", y2: d => d.y + 0.25, fill: "v"}),
+        Plot.arrow([{x1: px, y1: py, x2: px + g[0]*0.3, y2: py + g[1]*0.3}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke: "black", strokeWidth: 2}),
+        Plot.dot([{x: px, y: py}], {x: "x", y: "y", r: 4, fill: "black"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Try the bowl $x^2 + y^2$: the gradient always points away from origin. Try $\sin x \cos y$: the gradient changes sign across saddle ridges. Try $x^2 - y^2$: a saddle — the gradient points one way along $x$, the *opposite* along $y$.
+
+## Wonder
+
+1. The derivative tells you the slope in *one* direction (along $x$). The gradient is a vector — what does it tell you that one-direction slope doesn't?
+2. Why does the gradient point in the direction of **steepest** ascent — not, say, in the direction of the largest single partial derivative?
+3. At a minimum or maximum, the gradient is zero. But the converse fails: zero gradient ≠ extremum. What can you say at a zero-gradient point that isn't an extremum?
+4. The chain rule extends multivariably. If $y = f(g(x))$ where $g : \mathbb{R}^n \to \mathbb{R}^m$ and $f : \mathbb{R}^m \to \mathbb{R}$, what is $\tfrac{dy}{dx}$?
+
+## Discover
+
+Six problems building from one-variable derivative to multivariable gradient.
+
+**D1.** Compute $\nabla f$ for $f(x, y) = 3x^2 + 2xy + y^3$.
+
+<details class="hint"><summary>Full solution</summary>
+$\partial f / \partial x = 6x + 2y$. $\partial f / \partial y = 2x + 3y^2$. $\nabla f = (6x + 2y, 2x + 3y^2)$.
+</details>
+
+**D2.** At the point $(1, -1)$, find a direction in which $f$ from D1 is *not* changing (i.e. directional derivative is zero).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\nabla f (1, -1) = (4, 5)$. Find a unit vector $\boldsymbol{d}$ with $\boldsymbol{d}^\top \nabla f = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Any direction perpendicular to $\nabla f = (4, 5)$ works. Unit vector $\boldsymbol{d} = (5, -4)/\sqrt{41}$. **The gradient is perpendicular to the level sets of $f$** — a fundamental fact of multivariate calculus.
+</details>
+
+**D3.** Show $\boldsymbol{d}^\top \nabla f$ is maximised over unit $\boldsymbol{d}$ at $\boldsymbol{d} = \nabla f / \lVert \nabla f\rVert$, with max value $\lVert \nabla f\rVert$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Cauchy–Schwarz: $\boldsymbol{d}^\top \nabla f \le \lVert \boldsymbol{d}\rVert \lVert \nabla f\rVert = \lVert \nabla f\rVert$, with equality iff $\boldsymbol{d}$ is parallel to $\nabla f$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+From Cauchy–Schwarz. The gradient is the direction of **steepest ascent**; its magnitude is the rate of ascent there. **Negative gradient = steepest descent = gradient descent's update direction.**
+</details>
+
+**D4.** Multivariable chain rule. If $y = f(\boldsymbol{u})$ and $\boldsymbol{u} = \boldsymbol{g}(\boldsymbol{x})$, derive $\partial y / \partial x_i = \sum_j \partial f / \partial u_j \cdot \partial g_j / \partial x_i$.
+
+<details class="hint"><summary>Full solution</summary>
+The total derivative of $y$ with respect to $x_i$ is the sum, over all intermediate $u_j$, of "rate of change of $y$ wrt $u_j$" times "rate of change of $u_j$ wrt $x_i$." In matrix form: $\partial y / \partial \boldsymbol{x} = \nabla_{\boldsymbol{u}} f^\top \boldsymbol{J}_{\boldsymbol{g}}$ where $\boldsymbol{J}_{\boldsymbol{g}}$ is the Jacobian of $\boldsymbol{g}$. **This is the foundation of backpropagation** — Lesson 16.
+</details>
+
+**D5.** For $f(\boldsymbol{x}) = \tfrac{1}{2} \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}$ with symmetric $\boldsymbol{A}$, show $\nabla f(\boldsymbol{x}) = \boldsymbol{A}\boldsymbol{x}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Expand: $f = \tfrac{1}{2} \sum_{i, j} a_{ij} x_i x_j$. Take partial $\partial / \partial x_k$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\partial f / \partial x_k = \tfrac{1}{2} \sum_i a_{ik} x_i + \tfrac{1}{2} \sum_j a_{kj} x_j = \sum_j a_{kj} x_j$ (using $a_{ik} = a_{ki}$). So $\nabla f = \boldsymbol{A}\boldsymbol{x}$. **Quadratic forms have linear gradients** — this is what makes least-squares solvable in closed form.
+</details>
+
+**D6.** Show that at any *local minimum* of a smooth function $f : \mathbb{R}^n \to \mathbb{R}$, the gradient is zero.
+
+<details class="hint"><summary>Full solution</summary>
+If $\nabla f(\boldsymbol{x}^*) \ne \boldsymbol{0}$, then moving from $\boldsymbol{x}^*$ in direction $-\nabla f / \lVert \nabla f\rVert$ decreases $f$ (by D3, directional derivative is $-\lVert \nabla f\rVert < 0$). Contradiction with local min. **$\nabla f = \boldsymbol{0}$ is necessary for a local extremum** — and is exactly the first-order optimality condition optimisers solve for.
+</details>
+
+::: {.fun-fact}
+The word "gradient" was coined by **Maxwell** in 1871, in his *Treatise on Electricity and Magnetism*. He wanted a name for the vector field $\nabla \phi$ where $\phi$ is the electric potential — and chose "gradient" by analogy with the *slope of a hillside* (Latin *gradus*, "step"). The $\nabla$ symbol itself ("nabla") came from **Hamilton** in 1853, who borrowed the name of an ancient Hebrew harp because the symbol's shape was thought to resemble it. Gradient descent as an algorithm was first published by **Cauchy** in 1847 — for the purpose of solving astronomical equations.
+:::
+
+::: {.key-insight}
+**The gradient is the direction of steepest ascent.** It's perpendicular to level sets; its magnitude is the rate of climb in that direction; it vanishes exactly at critical points. Gradient descent — go opposite to the gradient — is the universal first-order optimiser, and the heart of every modern ML training loop.
+:::
+
+## Name
+
+::: {.lesson-beat}
+For $f : \mathbb{R}^n \to \mathbb{R}$ differentiable, the **partial derivative** $\partial f / \partial x_i$ at $\boldsymbol{x}$ is the rate of change of $f$ as only $x_i$ varies. The **gradient** is the vector
+$$
+\nabla f(\boldsymbol{x}) = \biggl(\frac{\partial f}{\partial x_1}, \dots, \frac{\partial f}{\partial x_n}\biggr)^\top.
+$$
+
+The **directional derivative** of $f$ in direction $\boldsymbol{d}$ (unit vector) is $D_{\boldsymbol{d}} f(\boldsymbol{x}) = \boldsymbol{d}^\top \nabla f(\boldsymbol{x})$, maximised when $\boldsymbol{d}$ points along $\nabla f$.
+
+The **Jacobian** of $\boldsymbol{g} : \mathbb{R}^n \to \mathbb{R}^m$ is the $m \times n$ matrix
+$$
+\boldsymbol{J}_{\boldsymbol{g}}(\boldsymbol{x}) = \begin{pmatrix} \partial g_1 / \partial x_1 & \cdots & \partial g_1 / \partial x_n \\ \vdots & & \vdots \\ \partial g_m / \partial x_1 & \cdots & \partial g_m / \partial x_n \end{pmatrix}.
+$$
+
+**Multivariable chain rule.** For $y = f(\boldsymbol{g}(\boldsymbol{x}))$:
+$$
+\nabla_{\boldsymbol{x}} y = \boldsymbol{J}_{\boldsymbol{g}}^\top \nabla_{\boldsymbol{u}} f.
+$$
+
+At a local extremum of a smooth $f$, $\nabla f = \boldsymbol{0}$ (first-order necessary condition).
+
+::: {.callout-warning}
+**Sūtra.** *Gradient = vector of partials = direction of steepest ascent. Chain rule glues nested gradients together.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"The gradient is a scalar."* — In 1D yes (the derivative). In higher dimensions it's a vector with one component per variable.
+2. *"$\nabla f = \boldsymbol{0}$ means minimum."* — Necessary, not sufficient. It could be max, saddle, or inflection. Need the Hessian (second derivatives) to classify.
+3. *"Gradient ascent at the steepest direction reaches the maximum in one step."* — No. Steepest ascent gives the *local* direction; you have to repeat. And the optimal step size requires a search.
+:::
+
+## Apply
+
+### Worked example
+
+Find all critical points of $f(x, y) = x^3 - 3xy + y^3$ and classify them.
+
+**Step 1.** $\nabla f = (3x^2 - 3y, -3x + 3y^2)$.
+
+**Step 2.** $\nabla f = \boldsymbol{0}$: $y = x^2$ and $x = y^2$. Substitute: $x = x^4 \Rightarrow x(x^3 - 1) = 0 \Rightarrow x = 0$ or $x = 1$. Critical points: $(0, 0)$ and $(1, 1)$.
+
+**Step 3.** Classify. Hessian $\boldsymbol{H} = \begin{pmatrix} 6x & -3 \\ -3 & 6y \end{pmatrix}$.
+At $(0, 0)$: $\boldsymbol{H} = \begin{pmatrix} 0 & -3 \\ -3 & 0 \end{pmatrix}$, eigenvalues $\pm 3$ — saddle.
+At $(1, 1)$: $\boldsymbol{H} = \begin{pmatrix} 6 & -3 \\ -3 & 6 \end{pmatrix}$, eigenvalues $3, 9$ — local min.
+
+**Answer:** $(1, 1)$ is a local minimum, $(0, 0)$ is a saddle.
+
+### Warm
+
+**W1.** Compute $\nabla f$ for $f(x, y, z) = xy + yz + xz$.
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla f = (y + z, x + z, x + y)$.
+</details>
+
+**W2.** Direction of steepest descent of $f(x, y) = x^2 + 4y^2$ at $(1, 1)$?
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla f = (2x, 8y) = (2, 8)$. Steepest descent: $-\nabla f / \lVert \nabla f\rVert = -(2, 8)/\sqrt{68} = -(1, 4)/\sqrt{17}$.
+</details>
+
+**W3.** Jacobian of $\boldsymbol{g}(x, y) = (x^2 y, x + y^2)$?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{J} = \begin{pmatrix} 2xy & x^2 \\ 1 & 2y \end{pmatrix}$.
+</details>
+
+### Working
+
+**Wo1.** Show that $\nabla \lVert \boldsymbol{x}\rVert^2 = 2 \boldsymbol{x}$ (the gradient of squared L2 norm).
+
+<details class="hint"><summary>Full solution</summary>
+$\lVert \boldsymbol{x}\rVert^2 = \sum x_i^2$. $\partial / \partial x_k = 2 x_k$. So $\nabla = 2 \boldsymbol{x}$. **Squared L2 norm has linear gradient — this is why L2 regularisation is so easy to differentiate.**
+</details>
+
+**Wo2.** For the mean-squared-error loss $L(\boldsymbol{w}) = \tfrac{1}{N} \lVert \boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}\rVert^2$, compute $\nabla_{\boldsymbol{w}} L$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the chain rule: outer is squared L2 norm, inner is the linear map $\boldsymbol{w} \mapsto \boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Outer gradient: $2 (\boldsymbol{X}\boldsymbol{w} - \boldsymbol{y})$. Jacobian of inner wrt $\boldsymbol{w}$: $\boldsymbol{X}$. So $\nabla_{\boldsymbol{w}} L = \tfrac{2}{N} \boldsymbol{X}^\top (\boldsymbol{X}\boldsymbol{w} - \boldsymbol{y})$. **Setting this to zero gives the normal equations** $\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$ (Lesson 24).
+</details>
+
+**Wo3.** Show that for $f : \mathbb{R}^n \to \mathbb{R}$ twice differentiable, the Hessian is symmetric (assuming continuous second partials).
+
+<details class="hint"><summary>Full solution</summary>
+By **Clairaut's / Schwarz's theorem**: if $\partial^2 f / \partial x_i \partial x_j$ and $\partial^2 f / \partial x_j \partial x_i$ are both continuous, they are equal. So $H_{ij} = H_{ji}$. **This is why the spectral theorem applies to the Hessian** — leading to Newton's method, natural gradients, and the curvature analysis of optimisation.
+</details>
+
+### Stretch
+
+**S1.** A **softmax** function $\boldsymbol{p} = \mathrm{softmax}(\boldsymbol{z})$ has components $p_i = e^{z_i} / \sum_j e^{z_j}$. Compute the Jacobian $\partial p_i / \partial z_j$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Case $i = j$ vs $i \ne j$. Use quotient rule, careful with the normaliser.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\partial p_i / \partial z_j = p_i (\delta_{ij} - p_j)$. In matrix form: $\boldsymbol{J} = \mathrm{diag}(\boldsymbol{p}) - \boldsymbol{p}\boldsymbol{p}^\top$. **This is the formula every classification network uses for backprop through the output layer**, and it's the *centred covariance matrix* of the predicted distribution.
+</details>
+
+**S2.** A **Lipschitz constant** $L$ of a function $f$ satisfies $\lvert f(\boldsymbol{x}) - f(\boldsymbol{y})\rvert \le L \lVert \boldsymbol{x} - \boldsymbol{y}\rVert$. Show $L \le \sup_{\boldsymbol{x}} \lVert \nabla f(\boldsymbol{x})\rVert$.
+
+<details class="hint"><summary>Full solution</summary>
+By the mean value theorem on the line segment from $\boldsymbol{x}$ to $\boldsymbol{y}$: $f(\boldsymbol{y}) - f(\boldsymbol{x}) = \nabla f(\boldsymbol{\xi})^\top (\boldsymbol{y} - \boldsymbol{x})$ for some $\boldsymbol{\xi}$. Cauchy–Schwarz: $\lvert f(\boldsymbol{y}) - f(\boldsymbol{x})\rvert \le \lVert \nabla f(\boldsymbol{\xi})\rVert \cdot \lVert \boldsymbol{y} - \boldsymbol{x}\rVert \le \sup \lVert \nabla f\rVert \cdot \lVert \boldsymbol{y} - \boldsymbol{x}\rVert$. So $L \le \sup \lVert \nabla f\rVert$. **Lipschitzness is a global "speed limit" on $f$** — used in spectral normalisation of GANs and certified robustness of classifiers.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Gradient = vector of partial derivatives = direction of steepest ascent.**
+2. **Chain rule glues nested derivatives: $\nabla_{\boldsymbol{x}} y = \boldsymbol{J}_g^\top \nabla_u f$ — the foundation of every neural-network gradient computation.**
+3. **At any extremum, $\nabla f = \boldsymbol{0}$. The Hessian's eigenvalues then tell you min / max / saddle.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you sketch a function $f(x, y)$ whose gradient at $(1, 1)$ points "north-east"?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see $\nabla L$ in a paper, do you reach for "direction loss increases fastest" instantly?
+
+- **3 yes:** move on to Lesson 15.
+- **2 yes:** redo Wo2 (gradient of MSE), then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D4.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.svd-and-low-rank`](../13-svd-and-low-rank/index.qmd) — closed off the linear-algebra arc; calculus begins here.
+- [`t5.partial-derivatives`](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd) — pure-calc view.
+
+### What this unlocks
+
+- [`mml.vector-matrix-gradients`](../15-vector-matrix-gradients/index.qmd) — extends gradients to vector- and matrix-valued functions.
+- Eventually, [`mml.gradient-descent`](../20-gradient-descent/index.qmd) — the algorithm built on $-\nabla f$.
+
+### Sister synthesis lesson
+
+[`t5.partial-derivatives`](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd) — pure-calculus view. This lesson adds the gradient-as-steepest-ascent intuition and the ML-bound applications.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every neural-network training step computes $\nabla L$ wrt parameters and steps opposite — this is the gradient that backpropagation produces. Without it, no training.
+:::
+
+::: {.applied-callout}
+**Research.** Variational methods in physics (Lagrangian mechanics, Hamilton's principle) ask for extrema of action functionals — setting variational derivatives to zero generalises the $\nabla f = 0$ condition.
+:::
+
+::: {.applied-callout}
+**Game dev.** Physics simulation finds force vectors as $-\nabla U$ for potential $U$. Inverse kinematics solves for joint angles by gradient descent on a position-error objective.
+:::
