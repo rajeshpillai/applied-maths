@@ -1,0 +1,307 @@
+---
+title: "21 · Constrained and Convex Optimisation (Lagrange, KKT)"
+subtitle: "When the optimum has to live somewhere — equality and inequality constraints, Lagrangians, and the dual problem that often solves them."
+lesson-id: "mml.constrained-convex-optimisation"
+tier: "mml"
+prerequisites: ["mml.gradient-descent", "t6.convex-optimization"]
+unlocks: ["mml.models-and-erm"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute the gradient of $\boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}$? — see
+   [MML — 15, Vector and Matrix Gradients](../15-vector-matrix-gradients/index.qmd).
+2. Do you know what a convex function is? — see
+   [Tier 6 — Convex Optimisation](../../tier-6-undergrad-advanced/03-convex-optimization/index.qmd).
+3. Can you state when $\nabla f = \boldsymbol{0}$ is necessary for an extremum?
+4. Do you remember what a hyperplane is in $\mathbb{R}^n$? — see [MML — 06](../06-affine-spaces/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Minimise $f(x, y) = x^2 + y^2$ subject to the constraint $x + y = 1$. The widget shows the level curves of $f$ and the constraint line, with the optimal point at *tangency* — where the gradient of $f$ is parallel to the gradient of the constraint.
+
+```{ojs}
+viewof xshow = Inputs.range([-2, 2], {value: 0.5, step: 0.05, label: "x:"})
+```
+
+```{ojs}
+{
+  const yshow = 1 - xshow;
+  const fvalue = xshow*xshow + yshow*yshow;
+  // Optimal: minimise x² + (1-x)² ⇒ x = 0.5, y = 0.5, f = 0.5.
+  const optimum = {x: 0.5, y: 0.5};
+  const contours = [];
+  for (const r of [0.5, 1, 2, 4]) {
+    for (let t = 0; t <= 2*Math.PI + 0.01; t += 0.05) {
+      contours.push({x: Math.sqrt(r)*Math.cos(t), y: Math.sqrt(r)*Math.sin(t), lvl: r});
+    }
+  }
+  const line = [];
+  for (let xx = -2; xx <= 2; xx += 0.05) line.push({x: xx, y: 1 - xx});
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Point: (${xshow.toFixed(2)}, ${yshow.toFixed(2)}). f = ${fvalue.toFixed(2)}. Constraint: x + y = 1. Min on constraint = 0.5 at (0.5, 0.5).
+    </div>
+    ${Plot.plot({
+      width: 460, height: 360, x: {domain: [-2, 2]}, y: {domain: [-2, 2]}, grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.line(contours, {x: "x", y: "y", z: "lvl", stroke: "#ddd"}),
+        Plot.line(line, {x: "x", y: "y", stroke: "tomato", strokeWidth: 2}),
+        Plot.dot([optimum], {x: "x", y: "y", r: 5, fill: "seagreen"}),
+        Plot.dot([{x: xshow, y: yshow}], {x: "x", y: "y", r: 4, fill: "steelblue"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Slide $x$. The blue point traces the constraint line; the green dot is the optimum. At the optimum, the constraint line is *tangent* to a circle of $f$ — meaning $\nabla f$ is perpendicular to the line, which is *parallel* to the constraint normal. **That tangency condition is the Lagrange multiplier.**
+
+## Wonder
+
+1. The unconstrained minimum of $x^2 + y^2$ is at $(0, 0)$. The constrained minimum is at $(0.5, 0.5)$. What does the *gap* between them tell you about the constraint?
+2. The Lagrangian "absorbs" the constraint into a modified objective. Why does that turn a constrained problem into an *unconstrained* one (sort of)?
+3. Inequality constraints behave differently from equality ones. The active inequality constraints "pin" the optimum to a boundary; inactive ones are irrelevant. How do KKT conditions track this?
+4. Strong duality says "the dual optimum equals the primal optimum." When does this hold, and why is the dual sometimes easier to solve?
+
+## Discover
+
+Six problems building constrained optimisation, Lagrangians, and KKT.
+
+**D1.** Minimise $f(x, y) = x^2 + y^2$ subject to $x + y = 1$ using substitution.
+
+<details class="hint"><summary>Full solution</summary>
+$y = 1 - x$. $f = x^2 + (1 - x)^2 = 2x^2 - 2x + 1$. Minimised at $x = 1/2$, $y = 1/2$, $f = 1/2$.
+</details>
+
+**D2.** Same problem with **Lagrange multipliers**. Define $\mathcal{L}(x, y, \lambda) = x^2 + y^2 - \lambda (x + y - 1)$. Set $\nabla \mathcal{L} = \boldsymbol{0}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Three equations: $\partial \mathcal{L}/\partial x = 0$, $\partial \mathcal{L}/\partial y = 0$, $\partial \mathcal{L}/\partial \lambda = 0$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$2x - \lambda = 0$, $2y - \lambda = 0$, $x + y = 1$. From the first two: $x = y$. Substituting: $2x = 1 \Rightarrow x = 1/2$. So $(x, y) = (1/2, 1/2)$, $\lambda = 1$. Same answer as D1 — but generalisable to multiple constraints.
+</details>
+
+**D3.** Geometric interpretation: at the optimum, $\nabla f = \lambda \nabla h$ where $h$ is the constraint. Verify for the previous problem.
+
+<details class="hint"><summary>Full solution</summary>
+$\nabla f = (2x, 2y) = (1, 1)$ at the optimum. $\nabla h = (1, 1)$ (gradient of $h = x + y - 1$). Ratio is 1. ✓ **Gradients parallel at a constrained extremum** — the Lagrange multiplier $\lambda$ is the proportionality constant. Geometrically: $f$'s level set is tangent to the constraint surface at the optimum.
+</details>
+
+**D4.** With **inequality constraints** $g_i(\boldsymbol{x}) \le 0$, the **KKT conditions** at the optimum are:
+1. **Stationarity**: $\nabla f + \sum_i \mu_i \nabla g_i = \boldsymbol{0}$.
+2. **Primal feasibility**: $g_i(\boldsymbol{x}) \le 0$.
+3. **Dual feasibility**: $\mu_i \ge 0$.
+4. **Complementary slackness**: $\mu_i g_i(\boldsymbol{x}) = 0$.
+
+Interpret condition 4.
+
+<details class="hint"><summary>Full solution</summary>
+Either $\mu_i = 0$ (the constraint is *inactive* — doesn't bind at the optimum) or $g_i = 0$ (the constraint is *active* — the optimum lies on its boundary). **Complementary slackness automatically separates active from inactive constraints** — and is the algebra behind SVM support vectors (Lesson 32).
+</details>
+
+**D5.** For a convex objective with affine constraints, **strong duality** holds: $\min_{\boldsymbol{x}} \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}} \mathcal{L} = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}} \min_{\boldsymbol{x}} \mathcal{L}$. Compute the **dual** of minimising $\tfrac{1}{2} \boldsymbol{x}^\top \boldsymbol{x}$ subject to $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\mathcal{L} = \tfrac{1}{2}\boldsymbol{x}^\top \boldsymbol{x} - \boldsymbol{\lambda}^\top (\boldsymbol{A}\boldsymbol{x} - \boldsymbol{b})$. Minimise over $\boldsymbol{x}$ analytically: $\nabla_{\boldsymbol{x}} \mathcal{L} = \boldsymbol{x} - \boldsymbol{A}^\top \boldsymbol{\lambda} = \boldsymbol{0} \Rightarrow \boldsymbol{x} = \boldsymbol{A}^\top \boldsymbol{\lambda}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Substituting back: $\mathcal{L} = \tfrac{1}{2} \boldsymbol{\lambda}^\top \boldsymbol{A} \boldsymbol{A}^\top \boldsymbol{\lambda} - \boldsymbol{\lambda}^\top (\boldsymbol{A}\boldsymbol{A}^\top \boldsymbol{\lambda} - \boldsymbol{b}) = -\tfrac{1}{2} \boldsymbol{\lambda}^\top \boldsymbol{A}\boldsymbol{A}^\top \boldsymbol{\lambda} + \boldsymbol{\lambda}^\top \boldsymbol{b}$. **Dual problem**: maximise this over $\boldsymbol{\lambda}$ — a quadratic *unconstrained*. The primal had $D$ variables and $m$ constraints; the dual has $m$ variables and *no* constraints. When $m \ll D$, the dual is much easier.
+</details>
+
+**D6.** **Convexity** of $f : \mathbb{R}^n \to \mathbb{R}$ means $f(\lambda \boldsymbol{x} + (1-\lambda) \boldsymbol{y}) \le \lambda f(\boldsymbol{x}) + (1-\lambda) f(\boldsymbol{y})$ for $\lambda \in [0, 1]$. Show that every local minimum of a convex function is a *global* minimum.
+
+<details class="hint"><summary>Full solution</summary>
+Suppose $\boldsymbol{x}^*$ is a local min with $f(\boldsymbol{x}^*) > f(\boldsymbol{y})$ for some $\boldsymbol{y}$. Then $f(\lambda \boldsymbol{x}^* + (1-\lambda) \boldsymbol{y}) \le \lambda f(\boldsymbol{x}^*) + (1-\lambda) f(\boldsymbol{y}) < f(\boldsymbol{x}^*)$ — points along the segment have lower $f$. As $\lambda \to 1$, those points approach $\boldsymbol{x}^*$, contradicting local min. So no $\boldsymbol{y}$ with lower $f$ exists. **Local min ⇒ global min**, and that's why convex problems are solved exactly by gradient descent.
+</details>
+
+::: {.fun-fact}
+**Joseph-Louis Lagrange** introduced the multiplier method in 1788 in *Mécanique analytique*. **Karush** (1939) proved the inequality-constraint case in his master's thesis (which remained obscure). **Kuhn and Tucker** (1951) independently rediscovered it; the conditions are now usually called **KKT**. The *Kuhn–Tucker theorem* with strong duality was a major contribution to early operations research — directly used in *Dantzig's simplex method* for linear programming.
+:::
+
+::: {.key-insight}
+**Constrained optimisation = unconstrained optimisation on the Lagrangian.** Equality constraints add multipliers $\lambda_i$ (any sign); inequality constraints add multipliers $\mu_i \ge 0$ with the complementary slackness $\mu_i g_i = 0$ that picks out active constraints. **The dual problem is often easier than the primal** — that's how SVMs are practically solved (Lesson 32).
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **constrained optimisation problem** has the form
+$$
+\min_{\boldsymbol{x}} f(\boldsymbol{x}) \quad \text{subject to } h_i(\boldsymbol{x}) = 0 \text{ for } i = 1, \dots, p \text{ and } g_j(\boldsymbol{x}) \le 0 \text{ for } j = 1, \dots, q.
+$$
+
+The **Lagrangian** is
+$$
+\mathcal{L}(\boldsymbol{x}, \boldsymbol{\lambda}, \boldsymbol{\mu}) = f(\boldsymbol{x}) + \sum_i \lambda_i h_i(\boldsymbol{x}) + \sum_j \mu_j g_j(\boldsymbol{x}).
+$$
+
+**Karush–Kuhn–Tucker (KKT) conditions** at an optimum (under regularity):
+1. **Stationarity**: $\nabla_{\boldsymbol{x}} \mathcal{L} = \boldsymbol{0}$.
+2. **Primal feasibility**: $h_i = 0, g_j \le 0$.
+3. **Dual feasibility**: $\mu_j \ge 0$.
+4. **Complementary slackness**: $\mu_j g_j = 0$.
+
+The **dual function** is $g(\boldsymbol{\lambda}, \boldsymbol{\mu}) = \min_{\boldsymbol{x}} \mathcal{L}$, and the **dual problem** is $\max_{\boldsymbol{\lambda}, \boldsymbol{\mu} \ge \boldsymbol{0}} g$.
+
+**Weak duality** always holds: $\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}} g \le \min_{\boldsymbol{x}} f$ (the dual gives a lower bound on the primal).
+
+**Strong duality** (equality of primal and dual optima) holds when:
+- the problem is convex (convex objective, convex inequalities, affine equalities), and
+- some technical regularity condition holds (e.g. **Slater's condition**: a strictly feasible point exists).
+
+A set $S \subseteq \mathbb{R}^n$ is **convex** if for all $\boldsymbol{x}, \boldsymbol{y} \in S$ and $\lambda \in [0, 1]$, $\lambda \boldsymbol{x} + (1-\lambda) \boldsymbol{y} \in S$. A function $f$ is convex if its epigraph $\{(\boldsymbol{x}, t) : t \ge f(\boldsymbol{x})\}$ is convex.
+
+**For convex $f$ over a convex set: every local minimum is global.**
+
+::: {.callout-warning}
+**Sūtra.** *Equality constraints have signed multipliers; inequality constraints have non-negative ones with complementary slackness. Convex problems have one minimum, reachable by gradient descent.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"KKT is sufficient for optimality."* — Necessary at smooth points (under regularity). Sufficient *only* for convex problems. In non-convex problems, KKT points include saddles.
+2. *"The dual is always easier."* — When constraints are simple and the primal has many variables, yes. With complicated nonlinear constraints, the dual is intractable.
+3. *"Convex = quadratic."* — Quadratics with PSD Hessian are convex, but so are L1 norms, max functions, log-sum-exp, KL divergence. Convexity is a *qualitative* shape property — bowl-like.
+:::
+
+## Apply
+
+### Worked example
+
+Maximum-margin separating hyperplane (preview of SVM, Lesson 31). Find $\boldsymbol{w}, b$ minimising $\tfrac{1}{2} \lVert \boldsymbol{w}\rVert^2$ subject to $y_n (\boldsymbol{w}^\top \boldsymbol{x}_n + b) \ge 1$ for all $n$.
+
+**Step 1.** Lagrangian: $\mathcal{L} = \tfrac{1}{2}\lVert \boldsymbol{w}\rVert^2 - \sum_n \mu_n [y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) - 1]$, $\mu_n \ge 0$.
+
+**Step 2.** Stationarity: $\partial \mathcal{L} / \partial \boldsymbol{w} = \boldsymbol{w} - \sum_n \mu_n y_n \boldsymbol{x}_n = \boldsymbol{0} \Rightarrow \boldsymbol{w} = \sum_n \mu_n y_n \boldsymbol{x}_n$.
+$\partial \mathcal{L} / \partial b = -\sum_n \mu_n y_n = 0$.
+
+**Step 3.** Complementary slackness: $\mu_n > 0$ only when $y_n(\boldsymbol{w}^\top \boldsymbol{x}_n + b) = 1$ — i.e., $\boldsymbol{x}_n$ is exactly on the margin. These are the **support vectors**.
+
+**Step 4.** Substitute back into Lagrangian: dual is $\max_{\boldsymbol{\mu} \ge 0} \sum_n \mu_n - \tfrac{1}{2} \sum_{n,m} \mu_n \mu_m y_n y_m \boldsymbol{x}_n^\top \boldsymbol{x}_m$, subject to $\sum \mu_n y_n = 0$.
+
+**Conclusion:** The SVM dual is a **quadratic program in $\boldsymbol{\mu}$** (one variable per data point). The data appears *only as inner products* $\boldsymbol{x}_n^\top \boldsymbol{x}_m$ — the seed of the **kernel trick** (Lesson 32).
+
+### Warm
+
+**W1.** Minimise $x^2 + y^2$ subject to $x = 3$.
+
+<details class="hint"><summary>Full solution</summary>
+$y = 0$ optimal. Min value $9$.
+</details>
+
+**W2.** Is $f(x) = \lvert x \rvert$ convex?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — by triangle inequality.
+</details>
+
+**W3.** Two interior local minima of a function $f : \mathbb{R}^n \to \mathbb{R}$. Is $f$ convex?
+
+<details class="hint"><summary>Full solution</summary>
+No — convex functions have a single global min (set of minimisers can be a flat region, but no separated locals).
+</details>
+
+### Working
+
+**Wo1.** **Lasso** is $\min_{\boldsymbol{w}} \tfrac{1}{2}\lVert \boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}\rVert^2 + \lambda \lVert \boldsymbol{w}\rVert_1$. Show this is equivalent to a constrained problem $\min \lVert \boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}\rVert^2$ s.t. $\lVert \boldsymbol{w}\rVert_1 \le t$ for some $t$.
+
+<details class="hint"><summary>Full solution</summary>
+By Lagrange duality: every $\lambda$ corresponds to some $t$ (and vice versa) such that the unconstrained and constrained problems have the same minimiser. Lasso's L1 ball constraint geometrically picks corners as solutions ⇒ sparse weights. The corner-on-axis is the *active* constraint with non-zero multiplier; coordinates not at corners are 0.
+</details>
+
+**Wo2.** Show that minimising $\boldsymbol{x}^\top \boldsymbol{c}$ subject to $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}, \boldsymbol{x} \ge \boldsymbol{0}$ is a **linear program**. State its dual.
+
+<details class="hint"><summary>Full solution</summary>
+Linear program: linear objective and constraints. Lagrangian: $\boldsymbol{c}^\top \boldsymbol{x} - \boldsymbol{\lambda}^\top (\boldsymbol{A}\boldsymbol{x} - \boldsymbol{b}) - \boldsymbol{\mu}^\top \boldsymbol{x}$ with $\boldsymbol{\mu} \ge \boldsymbol{0}$. Stationarity: $\boldsymbol{c} - \boldsymbol{A}^\top \boldsymbol{\lambda} - \boldsymbol{\mu} = \boldsymbol{0} \Rightarrow \boldsymbol{A}^\top \boldsymbol{\lambda} \le \boldsymbol{c}$ (since $\boldsymbol{\mu} \ge 0$). Dual: $\max \boldsymbol{b}^\top \boldsymbol{\lambda}$ s.t. $\boldsymbol{A}^\top \boldsymbol{\lambda} \le \boldsymbol{c}$. **LP duality is the foundation of operations research.**
+</details>
+
+**Wo3.** State why **softmax + cross-entropy** loss is a convex function of the logits $\boldsymbol{z}$.
+
+<details class="hint"><summary>Full solution</summary>
+Cross-entropy: $L = -\sum_i t_i \log p_i$ with $p = \mathrm{softmax}(\boldsymbol{z})$. Re-write: $L = -\boldsymbol{t}^\top \boldsymbol{z} + \log \sum_j e^{z_j}$. First term is linear in $\boldsymbol{z}$. **Log-sum-exp is convex** (its Hessian is the centred covariance matrix of $\boldsymbol{p}$, which is PSD). Sum of convex is convex. So $L$ is convex in $\boldsymbol{z}$. **Logistic regression has a globally optimal solution** — and gradient descent reaches it.
+</details>
+
+### Stretch
+
+**S1.** **Lagrangian relaxation** in integer programming: replace integrality constraints with Lagrangian penalties, solve the relaxed problem, then round / branch. Why does this often give tight bounds?
+
+<details class="hint"><summary>Full solution</summary>
+The dual function of the relaxation is concave (always, by structure of duality). Its maximum gives a *lower bound* on the integer-program optimum. Tightness depends on the gap between the convex hull of the integer feasible set and the LP relaxation polytope — often surprisingly small for problems with strong combinatorial structure (matchings, flows). The Held-Karp lower bound for TSP is a classical example.
+</details>
+
+**S2.** **Augmented Lagrangian / ADMM** algorithms add a quadratic penalty $\rho/2 \lVert h(\boldsymbol{x})\rVert^2$ to the Lagrangian. Why does this *improve* convergence?
+
+<details class="hint"><summary>Full solution</summary>
+The quadratic penalty makes the inner unconstrained problem **strongly convex** even if the original wasn't — gradient descent converges geometrically. Updating $\boldsymbol{\lambda}$ between inner solves drives the constraint violation to zero. ADMM splits the variables: alternate inner minimisations are cheaper than joint minimisation. Used in distributed L1 regression, sparse signal recovery, and large-scale convex problems.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Constrained optimisation = unconstrained optimisation on the Lagrangian. Multipliers price the constraints.**
+2. **KKT conditions at smooth optima: stationarity + feasibility + complementary slackness. The latter picks out active inequalities.**
+3. **Convex problems have one minimum, reachable by gradient descent. Strong duality (under Slater's condition) lets you solve the dual when it's easier.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you write the Lagrangian for an SVM in one go from the constraint description?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "KKT conditions" in a paper, can you list the four parts?
+
+- **3 yes:** move on to Lesson 22.
+- **2 yes:** redo D5 (dual problem), then move on.
+- **0–1 yes:** re-read *Discover* problems D2 and D5.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.gradient-descent`](../20-gradient-descent/index.qmd) — the
+  unconstrained optimiser we'll wrap with Lagrangian techniques.
+- [`t6.convex-optimization`](../../tier-6-undergrad-advanced/03-convex-optimization/index.qmd) — synthesis-tier on convex sets and functions.
+
+### What this unlocks
+
+- [`mml.models-and-erm`](../22-models-and-erm/index.qmd) — pivot from
+  optimisation theory to ML model formulation.
+- Eventually, [`mml.svm-primal`](../31-svm-primal/index.qmd) and
+  [`mml.svm-dual-kernels`](../32-svm-dual-kernels/index.qmd) — direct
+  applications of Lagrangians and KKT.
+
+### Sister synthesis lesson
+
+[`t6.convex-optimization`](../../tier-6-undergrad-advanced/03-convex-optimization/index.qmd) — convexity. This lesson adds the *constrained* twist that ML really uses.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** SVM training is a quadratic program (dual). Sparse regression (Lasso, ElasticNet) uses Lagrangian dualities. Constrained policy-gradient methods in RL (TRPO, PPO) use trust-region constraints with Lagrangian penalties.
+:::
+
+::: {.applied-callout}
+**Research.** Compressed sensing recovery solves $\ell_1$-constrained convex programs. Robust regression handles outliers via Huber-loss + slack variables.
+:::
+
+::: {.applied-callout}
+**Game dev.** Inverse kinematics with joint-limit constraints. Pose-estimation with bone-length constraints. All formulated as constrained nonlinear programs.
+:::

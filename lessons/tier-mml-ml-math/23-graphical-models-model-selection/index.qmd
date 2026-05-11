@@ -1,0 +1,279 @@
+---
+title: "23 · Directed Graphical Models and Model Selection"
+subtitle: "When a joint distribution factorises along a DAG — and how to pick the model that explains your data."
+lesson-id: "mml.graphical-models-model-selection"
+tier: "mml"
+prerequisites: ["mml.models-and-erm"]
+unlocks: ["mml.linear-regression-mle"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state Bayes' theorem? — see
+   [MML — 17, Probability Spaces & Bayes](../17-probability-spaces-bayes/index.qmd).
+2. Can you state conditional independence? — same prerequisite.
+3. Do you know what ERM is? — see [MML — 22](../22-models-and-erm/index.qmd).
+4. Can you draw a directed acyclic graph (DAG)?
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A 3-variable graphical model. The widget shows the joint distribution factored according to a chosen DAG structure. Switch structures and see how conditional independence assumptions change.
+
+```{ojs}
+viewof structure = Inputs.select([
+  "Chain: A → B → C",
+  "Fork: A ← B → C",
+  "Collider: A → B ← C",
+  "All independent: A, B, C"
+], {label: "DAG structure:"})
+```
+
+```{ojs}
+{
+  let factorisation = "";
+  let ci = "";
+  if (structure.startsWith("Chain")) {
+    factorisation = "p(A, B, C) = p(A) · p(B | A) · p(C | B)";
+    ci = "A ⊥⊥ C | B  (conditional on B, A is independent of C)";
+  } else if (structure.startsWith("Fork")) {
+    factorisation = "p(A, B, C) = p(B) · p(A | B) · p(C | B)";
+    ci = "A ⊥⊥ C | B  (common cause structure: A and C only correlate through B)";
+  } else if (structure.startsWith("Collider")) {
+    factorisation = "p(A, B, C) = p(A) · p(C) · p(B | A, C)";
+    ci = "A ⊥⊥ C marginally, BUT NOT given B  (Berkson's paradox: conditioning on a collider creates dependence)";
+  } else {
+    factorisation = "p(A, B, C) = p(A) · p(B) · p(C)";
+    ci = "All three pairwise independent";
+  }
+  return html`<div style="font: 13px monospace; line-height: 1.6;">
+    <b>Factorisation:</b><br/>${factorisation}
+    <br/><br/>
+    <b>Implied conditional independence:</b><br/>${ci}
+  </div>`;
+}
+```
+
+Three pieces of structure, three different stories. The chain says $B$ is the *mediator* between $A$ and $C$. The fork says $B$ is a *common cause*. The collider has $B$ as a *common effect* — and that's the case where conditioning on $B$ *creates* a spurious correlation between $A$ and $C$ (Berkson's paradox).
+
+## Wonder
+
+1. Two variables can be unconditionally correlated for very different reasons — direct cause, common cause, common effect. Why does the *structural* form of the graph matter, beyond what the joint distribution says?
+2. Each DAG implies a set of conditional independences. Different DAGs can imply the same set — they're **Markov equivalent**. Why might that matter for inferring causality from data?
+3. To pick between competing models, do we want the one that fits the data best (training MSE), or something else?
+4. The **Bayesian model selection** criterion is $p(M \mid \mathcal{D}) \propto p(\mathcal{D} \mid M) p(M)$ — choose the model with highest *marginal likelihood*. Why does this naturally penalise complexity?
+
+## Discover
+
+Five problems building DAGs, factorisation, and model selection.
+
+**D1.** For the chain $A \to B \to C$, derive the factorisation $p(A, B, C) = p(A) p(B \mid A) p(C \mid B)$ from the chain rule of probability.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Chain rule: $p(A, B, C) = p(A) p(B \mid A) p(C \mid A, B)$. The DAG says $C \perp\!\!\!\perp A \mid B$ — i.e. $p(C \mid A, B) = p(C \mid B)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$p(A, B, C) = p(A) p(B \mid A) p(C \mid A, B) = p(A) p(B \mid A) p(C \mid B)$ (using conditional independence implied by the DAG).
+**The DAG's edges represent direct probabilistic dependence.** Missing edges encode conditional independences.
+</details>
+
+**D2.** For a DAG with nodes $X_1, \dots, X_n$ and parent sets $\mathrm{Pa}(X_i)$, write the general factorisation.
+
+<details class="hint"><summary>Full solution</summary>
+$p(\boldsymbol{x}) = \prod_{i=1}^n p(x_i \mid \mathrm{Pa}(x_i))$. **Each node is the conditional of itself given its parents.** This is the *defining* factorisation of a Bayesian network.
+</details>
+
+**D3.** Compute the number of free parameters needed to specify a joint distribution over 10 binary variables: (a) with no structure (fully general); (b) assuming all independent; (c) with a chain DAG.
+
+<details class="hint"><summary>Full solution</summary>
+(a) $2^{10} - 1 = 1023$ free parameters (full table minus normalisation).
+(b) $10 \cdot 1 = 10$ — one Bernoulli per variable.
+(c) $1 + 9 \cdot 2 = 19$ — root has $1$ parameter; each subsequent node has $2$ (conditional Bernoulli given the previous binary parent).
+**Structure dramatically reduces parameter count** — by orders of magnitude. This is why graphical models scale to many variables.
+</details>
+
+**D4.** For the collider $A \to B \leftarrow C$ with all binary variables: are $A$ and $C$ marginally independent? Are they conditionally independent given $B$?
+
+<details class="hint"><summary>Full solution</summary>
+Marginally: yes, $A \perp\!\!\!\perp C$ (no edge between them, and no other "active" path in the DAG).
+Conditionally on $B$: typically NOT independent. **Berkson's paradox**: observing the common effect $B$ creates a correlation between its causes. (Example: hospital admissions screen for severe illness; observing "in hospital" makes "has disease X" and "has disease Y" appear correlated even when they're independent in the population.)
+</details>
+
+**D5.** **Bayesian Information Criterion (BIC)** for selecting between models: $\mathrm{BIC} = -2 \log p(\mathcal{D} \mid \hat{\boldsymbol{w}}_{\mathrm{MLE}}) + k \log N$, where $k$ is the number of parameters and $N$ the data size. Why does adding $k \log N$ penalise complexity?
+
+<details class="hint"><summary>Full solution</summary>
+First term: $-2 \log$ likelihood, decreases with more complex models (better fit). Second term: penalty proportional to $k \log N$, grows with model size. **Adding parameters is rewarded only if they improve the fit by more than $\log N / 2$**. BIC is an asymptotic approximation to $-2 \log p(\mathcal{D} \mid M)$ (the *marginal likelihood*); the penalty makes "more complex" hypotheses pay a price.
+</details>
+
+::: {.fun-fact}
+**Judea Pearl**'s 1988 book *Probabilistic Reasoning in Intelligent Systems* crystallised Bayesian networks as a computational framework. Pearl's later work on **causal inference** (2000 book *Causality*) — which builds on the same DAG language — won him the **2011 Turing Award**. Independently, **Steffen Lauritzen** and **David Spiegelhalter** developed the *junction tree algorithm* for exact inference. Bayesian networks underpin modern Bayesian deep learning, probabilistic programming, and the entire field of causal inference.
+:::
+
+::: {.key-insight}
+**A graphical model encodes conditional independence structure via missing edges**, and the conditional independences encode the *causal mechanism* (in the structural-causal-model interpretation). Model selection isn't just about fitting — it's about choosing the *simplest* structure that explains the data, and BIC / AIC / cross-validation are tools for that.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **directed graphical model (Bayesian network)** is a DAG with one node per random variable. The joint distribution factorises as
+$$
+p(\boldsymbol{x}) = \prod_i p(x_i \mid \mathrm{Pa}(x_i)).
+$$
+
+The **local Markov property** says each node is conditionally independent of its non-descendants given its parents.
+
+The **global Markov property** ($\boldsymbol{X}_A \perp\!\!\!\perp \boldsymbol{X}_B \mid \boldsymbol{X}_C$) holds iff $C$ **d-separates** $A$ from $B$ in the DAG. d-separation rules:
+- A path is **blocked** at a chain or fork node *if* that node is in $C$.
+- A path is **blocked** at a collider *if* that collider and its descendants are *not* in $C$.
+
+**Model selection criteria**:
+- **Bayesian model evidence**: $p(\mathcal{D} \mid M) = \int p(\mathcal{D} \mid \boldsymbol{\theta}, M) p(\boldsymbol{\theta} \mid M) d\boldsymbol{\theta}$ — the marginal likelihood. Pick the model with highest evidence.
+- **BIC**: $-2 \log p(\mathcal{D} \mid \hat{\boldsymbol{w}}) + k \log N$, large-$N$ approximation to $-2 \log p(\mathcal{D} \mid M)$. Penalises complexity.
+- **AIC**: $-2 \log p(\mathcal{D} \mid \hat{\boldsymbol{w}}) + 2k$. Looser penalty; based on Kullback-Leibler approximation.
+- **Cross-validation**: empirical estimate of generalisation. The default for ML practice.
+
+::: {.callout-warning}
+**Sūtra.** *DAG = factorisation = conditional independence. Pick the simplest DAG that explains the data — and check generalisation, not training error.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Markov-equivalent DAGs are interchangeable."* — Their *probabilistic* implications are identical, but their **causal** interpretations differ. $A \to B$ and $B \to A$ predict the same correlations but different *interventions*.
+2. *"Conditioning on a collider is just regular conditioning."* — It *creates* a correlation between previously independent variables (Berkson's paradox). This is the source of many real-world selection biases.
+3. *"BIC always picks the right model."* — Only asymptotically (as $N \to \infty$). With small data, BIC may over-penalise.
+:::
+
+## Apply
+
+### Worked example
+
+A medical-diagnosis Bayesian network: disease $D$ → fever $F$ → ED visit $E$; disease $D$ → blood-marker $B$. Compute $P(D \mid E, B)$ in terms of the conditional tables.
+
+**Step 1.** Joint: $p(D, F, E, B) = p(D) p(F \mid D) p(E \mid F) p(B \mid D)$.
+
+**Step 2.** Marginal $p(E, B) = \sum_D \sum_F p(D, F, E, B) = \sum_D p(D) p(B \mid D) \sum_F p(F \mid D) p(E \mid F)$.
+
+**Step 3.** $p(D \mid E, B) = p(D, E, B) / p(E, B) = p(D) p(B \mid D) p(E \mid D) / p(E, B)$, where $p(E \mid D) = \sum_F p(F \mid D) p(E \mid F)$.
+
+**Conclusion:** The marginal observations $E, B$ both update beliefs about $D$. The DAG tells us exactly which conditional tables to multiply and which variables to sum out — the **junction tree algorithm** automates this.
+
+### Warm
+
+**W1.** Three variables fully connected: how many parameters?
+
+<details class="hint"><summary>Full solution</summary>
+$2^3 - 1 = 7$ (binary case).
+</details>
+
+**W2.** Chain $A \to B \to C$ all binary: how many parameters?
+
+<details class="hint"><summary>Full solution</summary>
+$1 + 2 + 2 = 5$. (Root $A$: 1 param. $B \mid A$: 2 params. $C \mid B$: 2 params.)
+</details>
+
+**W3.** AIC of two models: $M_1$ has AIC 100, $M_2$ has AIC 105. Which is better?
+
+<details class="hint"><summary>Full solution</summary>
+$M_1$ (lower AIC = better).
+</details>
+
+### Working
+
+**Wo1.** For a Markov chain $X_1 \to X_2 \to X_3 \to X_4$, show $X_1 \perp\!\!\!\perp X_4 \mid X_2$.
+
+<details class="hint"><summary>Full solution</summary>
+By d-separation: the unique path $X_1 - X_2 - X_3 - X_4$ has chain structures throughout. Conditioning on $X_2$ blocks the path. So $X_1 \perp\!\!\!\perp X_4 \mid X_2$. **This is exactly the Markov property** in the Markov-chain sense: future depends on past only through the most recent state.
+</details>
+
+**Wo2.** Explain why model evidence $p(\mathcal{D} \mid M) = \int p(\mathcal{D} \mid \boldsymbol{\theta}, M) p(\boldsymbol{\theta} \mid M) d\boldsymbol{\theta}$ implicitly penalises complexity.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For complex $M$, prior $p(\boldsymbol{\theta} \mid M)$ spreads over a larger volume — less mass per parameter setting.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Bayes' "Occam's razor" effect: complex models have priors spread thin; even if they fit best at some $\boldsymbol{\theta}^*$, the integral over the whole prior is small. **Simpler models concentrate prior mass on parameter regions consistent with the data — and win the marginal-likelihood race**. The Laplace approximation to the integral gives BIC; this is *why* BIC penalises complexity.
+</details>
+
+**Wo3.** Why is cross-validation usually preferred over AIC/BIC in modern ML?
+
+<details class="hint"><summary>Full solution</summary>
+AIC/BIC make assumptions: data is i.i.d., MLE is consistent, parameter count is meaningful. For deep nets these assumptions break (effective vs. nominal parameter count differ; overparametrised models with implicit regularisation). Cross-validation makes weaker assumptions: it directly estimates expected loss. So it's more reliable in modern practice — though more expensive.
+</details>
+
+### Stretch
+
+**S1.** A **causal intervention** $\mathrm{do}(X = x)$ severs $X$ from its parents in the graph, replacing $p(X \mid \mathrm{Pa}(X))$ with the point mass at $x$. Why is this different from *observing* $X = x$?
+
+<details class="hint"><summary>Full solution</summary>
+*Observing* $X = x$ uses Bayes' theorem to update other variables — including parents (running backwards through edges). *Intervening* on $X$ disconnects it from parents and propagates only *forward*. Example: observing rain ⇒ update belief that ground is wet AND update belief about clouds (parent of rain). Intervening on rain (sprinklers turn on) ⇒ ground gets wet, but clouds aren't updated. **Pearl's $\mathrm{do}$-calculus** formalises this distinction.
+</details>
+
+**S2.** **Causal discovery** algorithms (PC, GES) try to learn the DAG structure from observational data alone. Argue why this is generally impossible without assumptions.
+
+<details class="hint"><summary>Full solution</summary>
+Markov-equivalent DAGs (those that imply the same conditional independence) cannot be distinguished from observational data alone — they predict the same correlations and the same conditional distributions. To go further, you need: (a) interventions (randomised experiments), or (b) extra assumptions (faithfulness, no latent confounders, parametric form like linear Gaussian). **This is the central challenge of causal inference** — and why RCTs remain the gold standard.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **A DAG encodes a factorisation: each node is the conditional of itself given its parents. Missing edges = conditional independences.**
+2. **Markov-equivalent DAGs make the same probabilistic predictions but different causal predictions. Pure correlation doesn't distinguish them.**
+3. **Model selection trades fit for complexity: BIC / AIC / cross-validation are the tools. Cross-validation is the modern default.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you draw a DAG with one collider and one chain, and identify which independences hold?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you see "model evidence" in a Bayesian paper, do you think *integral of likelihood over prior*?
+
+- **3 yes:** move on to Lesson 24.
+- **2 yes:** redo D4 (collider) and S1, then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D4.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.models-and-erm`](../22-models-and-erm/index.qmd) — generic
+  framework for picking a model; this lesson specialises to graphical-model
+  structure.
+
+### What this unlocks
+
+- [`mml.linear-regression-mle`](../24-linear-regression-mle/index.qmd) —
+  the first ML algorithm we'll *derive* from these foundations.
+- Eventually, [`mml.gmm`](../29-gmm/index.qmd) and [`mml.pca-latent-variable`](../28-pca-latent-variable/index.qmd) — latent variable models are graphical models with hidden nodes.
+
+### Sister synthesis lesson
+
+[`t7.statistical-learning-theory`](../../tier-7-masters-tracks/01-statistical-learning-theory/index.qmd) — the rigorous learning-theory view of model classes and complexity penalties.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** LDA (Latent Dirichlet Allocation), Hidden Markov Models, Kalman filters, variational autoencoders — all are directed graphical models. Their structures encode crucial assumptions, and their inference algorithms exploit those structures.
+:::
+
+::: {.applied-callout}
+**Research.** Causal inference (Pearl, Rubin) is built on graphical models. Mendelian randomisation in epidemiology, instrumental-variable methods in econometrics, RCT analysis — all use causal DAGs.
+:::
+
+::: {.applied-callout}
+**Databases.** Bayesian networks underpin many probabilistic query processing systems (Niu et al. *Tuffy*) and probabilistic data integration.
+:::

@@ -1,0 +1,317 @@
+---
+title: "22 · Data, Models, Empirical Risk Minimisation"
+subtitle: "Every ML algorithm is a way to pick the best member of a function family — by minimising the average loss on the training set."
+lesson-id: "mml.models-and-erm"
+tier: "mml"
+prerequisites: ["mml.constrained-convex-optimisation"]
+unlocks: ["mml.graphical-models-model-selection"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute gradients of an MSE loss? — see
+   [MML — 15, Vector and Matrix Gradients](../15-vector-matrix-gradients/index.qmd).
+2. Do you know what i.i.d. samples are? — see
+   [MML — 17, Probability Spaces and Bayes](../17-probability-spaces-bayes/index.qmd).
+3. Can you state MLE? — see [MML — 19](../19-conjugacy-change-of-variables/index.qmd).
+4. Can you state gradient descent's update rule? — [MML — 20](../20-gradient-descent/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A regression dataset and three candidate models: a constant, a line, and a 5-degree polynomial. The widget shows training data and the model's fit. Increase model complexity to overfit; reduce to underfit.
+
+```{ojs}
+viewof N = Inputs.range([5, 60], {value: 20, step: 1, label: "N data points:"})
+viewof complexity = Inputs.range([0, 9], {value: 1, step: 1, label: "polynomial degree:"})
+viewof noise = Inputs.range([0, 1], {value: 0.3, step: 0.05, label: "noise std:"})
+viewof seed = Inputs.range([1, 50], {value: 7, step: 1, label: "seed:"})
+```
+
+```{ojs}
+{
+  function rng(s) { return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; }
+  const r = rng(seed);
+  const xs = [], ys = [];
+  for (let i = 0; i < N; i++) {
+    const x = -1 + 2 * (i + 0.5) / N + (r() - 0.5) * 0.1;
+    const truth = Math.sin(2 * Math.PI * x);
+    const y = truth + noise * 2 * (r() - 0.5);
+    xs.push(x); ys.push(y);
+  }
+  // Polynomial fit by normal equations
+  const D = complexity + 1;
+  // X matrix
+  const X = xs.map(x => Array.from({length: D}, (_, k) => Math.pow(x, k)));
+  // X^T X
+  const XtX = Array.from({length: D}, () => Array(D).fill(0));
+  for (let i = 0; i < D; i++) for (let j = 0; j < D; j++) for (let n = 0; n < N; n++) XtX[i][j] += X[n][i] * X[n][j];
+  const Xty = Array(D).fill(0);
+  for (let i = 0; i < D; i++) for (let n = 0; n < N; n++) Xty[i] += X[n][i] * ys[n];
+  // Solve via Gauss-Jordan
+  const A = XtX.map((row, i) => row.concat([Xty[i]]));
+  for (let i = 0; i < D; i++) {
+    let pivot = A[i][i];
+    if (Math.abs(pivot) < 1e-12) pivot = 1e-12;
+    for (let j = 0; j <= D; j++) A[i][j] /= pivot;
+    for (let k = 0; k < D; k++) if (k !== i) {
+      const f = A[k][i];
+      for (let j = 0; j <= D; j++) A[k][j] -= f * A[i][j];
+    }
+  }
+  const w = A.map(row => row[D]);
+  // Predict on a fine grid
+  const grid = [], truthGrid = [];
+  for (let xx = -1; xx <= 1; xx += 0.01) {
+    let yhat = 0;
+    for (let k = 0; k < D; k++) yhat += w[k] * Math.pow(xx, k);
+    grid.push({x: xx, y: yhat});
+    truthGrid.push({x: xx, y: Math.sin(2*Math.PI*xx)});
+  }
+  // Empirical MSE
+  let mse = 0;
+  for (let n = 0; n < N; n++) {
+    let yhat = 0;
+    for (let k = 0; k < D; k++) yhat += w[k] * Math.pow(xs[n], k);
+    mse += (yhat - ys[n]) ** 2;
+  }
+  mse /= N;
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Empirical MSE = ${mse.toFixed(4)}.  Model: polynomial degree ${complexity}.
+    </div>
+    ${Plot.plot({
+      width: 460, height: 300, x: {domain: [-1, 1]}, y: {domain: [-2, 2]},
+      marks: [
+        Plot.line(truthGrid, {x: "x", y: "y", stroke: "#aaa", strokeDasharray: "3 2"}),
+        Plot.dot(xs.map((x, i) => ({x, y: ys[i]})), {x: "x", y: "y", r: 3, fill: "steelblue"}),
+        Plot.line(grid, {x: "x", y: "y", stroke: "tomato", strokeWidth: 2})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Degree 0: underfits (just a constant). Degree 3: matches the truth well. Degree 9 with small $N$: overfits — passes through every data point but wiggles wildly. **Choosing model complexity matters; the training MSE alone doesn't capture this.**
+
+## Wonder
+
+1. As we crank up complexity, the *training* MSE keeps falling. But generalisation to new data eventually gets worse. Why?
+2. The "true" function $\sin(2\pi x)$ is degree-infinity (in a Taylor sense). Yet a polynomial of degree 3 generalises better than degree 9 on 20 noisy samples. What goes wrong?
+3. ERM (empirical risk minimisation) minimises average loss on the training set. The "true risk" is the expected loss on the population distribution. What's the relationship?
+4. We need to *pick* the right model complexity (regularisation, hyperparameters). What's the systematic way?
+
+## Discover
+
+Five problems building ERM, generalisation, regularisation.
+
+**D1.** Define the **empirical risk** $\hat R_N(\boldsymbol{w}) = \tfrac{1}{N} \sum_{n=1}^N L(y_n, f_{\boldsymbol{w}}(\boldsymbol{x}_n))$ and the **true risk** $R(\boldsymbol{w}) = \mathbb{E}_{(\boldsymbol{x}, y) \sim P}[L(y, f_{\boldsymbol{w}}(\boldsymbol{x}))]$. State why $\hat R_N \to R$ as $N \to \infty$.
+
+<details class="hint"><summary>Full solution</summary>
+**Law of large numbers.** For i.i.d. samples from $P$, the empirical average converges to the expectation. With finite $N$ there's *generalisation gap* $|\hat R_N - R|$, which shrinks as $\sqrt{1/N}$ (CLT) — and is what statistical learning theory bounds.
+</details>
+
+**D2.** **Empirical Risk Minimisation (ERM)** sets $\hat{\boldsymbol{w}} = \mathrm{argmin}_{\boldsymbol{w}} \hat R_N(\boldsymbol{w})$. Show that on a fixed dataset, ERM gives the same answer as MLE under appropriate loss-likelihood correspondence.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+MLE: $\hat \theta = \mathrm{argmax} \log p(\mathcal{D} \mid \theta) = \mathrm{argmax} \sum \log p(y_n \mid \boldsymbol{x}_n; \theta)$. ERM with loss $L = -\log p$: $\hat \theta = \mathrm{argmin} \sum -\log p$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**MLE = ERM with negative-log-likelihood loss.** Squared-error loss corresponds to Gaussian likelihood (Lesson 24); cross-entropy corresponds to categorical likelihood; etc. **Every loss function is, secretly, a probabilistic model.**
+</details>
+
+**D3.** A model with too few parameters can't represent the truth — **underfitting**. A model with too many overfits the noise — **overfitting**. Argue why the *test* error is a U-shape in model complexity.
+
+<details class="hint"><summary>Full solution</summary>
+**Bias-variance decomposition.** True risk = (bias)² + variance + irreducible noise.
+- **Bias**: how far the *best* model in the family is from the truth. Decreases as family grows.
+- **Variance**: how much the chosen model varies with different training sets. Increases as family grows.
+Sum has a minimum at a model class neither too simple nor too complex. Modern phenomenon: very large overparameterised neural networks *escape* this U-curve through implicit regularisation. **Double descent** (Belkin et al. 2019) — re-look at this when reading about it.
+</details>
+
+**D4.** **Regularisation** modifies the objective: $\min \hat R_N(\boldsymbol{w}) + \lambda \Omega(\boldsymbol{w})$, with $\Omega$ a penalty. Why does this often help generalisation, even though it makes the training fit *worse*?
+
+<details class="hint"><summary>Full solution</summary>
+Regularisation reduces variance by constraining the chosen model — at the cost of slightly higher bias. The trade-off is favourable when variance dominates (small $N$ relative to model complexity). **Ridge** ($\Omega = \lVert \boldsymbol{w}\rVert^2$), **Lasso** ($\Omega = \lVert \boldsymbol{w}\rVert_1$), **early stopping** (implicit regularisation), and **dropout** (stochastic regularisation) all live here.
+</details>
+
+**D5.** **Cross-validation** splits the training set into $K$ folds. Hold each out, train on the rest, evaluate on the held-out. Argue why this estimates *generalisation* better than training error alone.
+
+<details class="hint"><summary>Full solution</summary>
+Each fold's validation set is *unseen by training* — so its loss is a sample of true generalisation. Averaging over $K$ folds reduces variance. The model selected by minimum cross-validated error is the one that *generalises best to unseen data*, not the one that fits the training set best.
+</details>
+
+::: {.fun-fact}
+**Vladimir Vapnik** and **Alexey Chervonenkis** introduced ERM and what we now call **VC theory** in their 1971 paper *On the uniform convergence of relative frequencies of events to their probabilities*. The paper sat largely unread in the West until **Vapnik** emigrated to the US in 1990 and joined AT&T Bell Labs, where he developed **Support Vector Machines** (1992–95) — directly applying his theoretical framework. ERM remained the rigorous foundation of statistical learning until **Boltzmann-machine** and **deep learning** approaches showed that overparameterised models could generalise *even when* VC dimension was infinite — kicking off two decades of new theory.
+:::
+
+::: {.key-insight}
+**ERM is the universal recipe of supervised ML.** Pick a function family, pick a loss, minimise average loss over training data. Generalisation is *not* guaranteed — it's a tradeoff between bias (family too narrow) and variance (family too wide). Cross-validation is how you pick the right tradeoff; regularisation is how you bias the optimisation toward generalisable solutions.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A **supervised learning problem** has data $\mathcal{D} = \{(\boldsymbol{x}_n, y_n)\}_{n=1}^N$ drawn i.i.d. from a population $P(\boldsymbol{x}, y)$. A **model** is a parametric family $\mathcal{F} = \{f_{\boldsymbol{w}} : \boldsymbol{w} \in \Theta\}$. A **loss** $L(y, \hat y)$ measures the cost of predicting $\hat y$ when the truth is $y$.
+
+**Empirical risk:** $\hat R_N(\boldsymbol{w}) = \tfrac{1}{N} \sum_{n=1}^N L(y_n, f_{\boldsymbol{w}}(\boldsymbol{x}_n))$.
+
+**True risk:** $R(\boldsymbol{w}) = \mathbb{E}_{P}[L(y, f_{\boldsymbol{w}}(\boldsymbol{x}))]$.
+
+**ERM:** $\hat{\boldsymbol{w}}_{\mathrm{ERM}} = \mathrm{argmin}_{\boldsymbol{w}} \hat R_N(\boldsymbol{w})$. As $N \to \infty$, $\hat{\boldsymbol{w}}_{\mathrm{ERM}} \to \boldsymbol{w}^* = \mathrm{argmin} R$ under mild conditions (uniform LLN, learnability).
+
+**Bias-variance decomposition.** For squared-error loss:
+$$
+\mathbb{E}_{\mathcal{D}}[(\hat f(\boldsymbol{x}) - y)^2] = \underbrace{(\bar f(\boldsymbol{x}) - \mathbb{E}[y \mid \boldsymbol{x}])^2}_{\text{bias}^2} + \underbrace{\mathbb{E}_{\mathcal{D}}[(\hat f(\boldsymbol{x}) - \bar f(\boldsymbol{x}))^2]}_{\text{variance}} + \underbrace{\mathrm{Var}(y \mid \boldsymbol{x})}_{\text{noise}}.
+$$
+
+**Regularised ERM:** $\hat{\boldsymbol{w}} = \mathrm{argmin} \hat R_N(\boldsymbol{w}) + \lambda \Omega(\boldsymbol{w})$. Equivalent (by Lagrange duality) to a constraint on $\Omega$.
+
+**MAP estimation** = regularised ERM with $\Omega = -\log p_{\mathrm{prior}}(\boldsymbol{w})$. **Maximum likelihood** = ERM with $L = -\log p(y \mid \boldsymbol{x})$.
+
+**$K$-fold cross-validation.** Partition $\mathcal{D}$ into $K$ folds. Train on $K - 1$, evaluate on the held-out. Average over folds. The model with minimum CV error is selected.
+
+::: {.callout-warning}
+**Sūtra.** *ERM = pick function, pick loss, average over data. Generalisation needs bias-variance trade-off (= regularisation = cross-validation).*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Lower training loss is always better."* — Only up to capacity. After that, training loss continues to drop while test loss rises (overfitting).
+2. *"Cross-validation gives an unbiased estimate of test error."* — Approximately. With $K = N$ (leave-one-out CV), nearly unbiased. With smaller $K$, slightly biased but lower variance.
+3. *"MLE is the best estimator."* — Best in the asymptotic regime, but with small $N$ a regularised (MAP) estimator often generalises better.
+:::
+
+## Apply
+
+### Worked example
+
+A regression problem with $N = 100$ samples, candidate models of polynomial degrees $1, 3, 9$. Pick the best via 5-fold cross-validation.
+
+**Step 1.** Split data into 5 equal folds of 20 each.
+
+**Step 2.** For each model class (degree 1, 3, 9):
+For each fold $k = 1, \dots, 5$: train on the other 4 folds; compute MSE on fold $k$.
+Average the 5 MSEs.
+
+**Step 3.** Hypothetically: degree 1 has high bias (averages MSE $\approx 0.5$). Degree 3 has both low (averages $\approx 0.15$). Degree 9 has high variance (averages $\approx 0.4$). **Degree 3 wins.**
+
+**Step 4.** Train the final degree-3 model on all 100 data points using the chosen complexity.
+
+**Conclusion:** Cross-validation found the "sweet spot" — degree 3 has the bias-variance trade-off right. Degree 9 fits the training noise; degree 1 misses the underlying signal.
+
+### Warm
+
+**W1.** Two losses with the same minimum: which is the *one* to use?
+
+<details class="hint"><summary>Full solution</summary>
+Doesn't matter for the optimum, but the *optimisation dynamics* may differ. MSE has nice gradients; Huber loss is more robust to outliers; the choice depends on the application.
+</details>
+
+**W2.** Cross-validation error vs. training error: which is usually lower?
+
+<details class="hint"><summary>Full solution</summary>
+Training error is lower — by construction, the model fits the training data. Cross-validation error generalises and is usually higher.
+</details>
+
+**W3.** Doubling training data: bias up or down? Variance up or down?
+
+<details class="hint"><summary>Full solution</summary>
+Bias unchanged (model family is fixed). Variance down ($\sqrt{N}$ shrinkage). Generalisation improves.
+</details>
+
+### Working
+
+**Wo1.** Show that MSE-ERM on linear models gives the normal equations $\boldsymbol{X}^\top \boldsymbol{X} \boldsymbol{w} = \boldsymbol{X}^\top \boldsymbol{y}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\hat R_N(\boldsymbol{w}) = \tfrac{1}{N} \lVert \boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}\rVert^2$. Setting $\nabla \hat R_N = \tfrac{2}{N} \boldsymbol{X}^\top (\boldsymbol{X}\boldsymbol{w} - \boldsymbol{y}) = \boldsymbol{0}$ gives the normal equations. This is the closed-form linear-regression solution (Lesson 24).
+</details>
+
+**Wo2.** Cross-entropy loss for classification: $L(y, \hat{\boldsymbol{p}}) = -\sum_c y_c \log \hat p_c$ for one-hot $\boldsymbol{y}$. Show this is the negative log-likelihood of a categorical distribution.
+
+<details class="hint"><summary>Full solution</summary>
+$\log P(y \mid \hat{\boldsymbol{p}}) = \log \hat p_{c^*}$ where $c^*$ is the true class. With one-hot $\boldsymbol{y}$: $\log P = \sum_c y_c \log \hat p_c$. Negate to get the loss. **Categorical NLL = cross-entropy.** Confirms D2's equivalence: every loss is a probabilistic model.
+</details>
+
+**Wo3.** A model that achieves zero training error but high test error has *memorised*. State two ways to detect memorisation.
+
+<details class="hint"><summary>Full solution</summary>
+(1) **Generalisation gap**: train error close to 0, validation error high → memorisation. (2) **Label-shuffling test** (Zhang et al. 2017): retrain with shuffled labels; if the model still achieves low loss, it's memorising structure that isn't in the labels. **Memorisation is the dominant failure mode of overparametrised models** — and regularisation, data augmentation, and dropout are the main defences.
+</details>
+
+### Stretch
+
+**S1.** **PAC learning** says: a hypothesis class $\mathcal{F}$ is *probably approximately correct* learnable if for every $\epsilon, \delta > 0$, there exists $N$ such that with prob ≥ $1 - \delta$, the ERM hypothesis has true risk within $\epsilon$ of the best. Sketch why this is a stronger statement than ERM consistency.
+
+<details class="hint"><summary>Full solution</summary>
+ERM consistency (asymptotic): $\hat R \to R^*$ as $N \to \infty$. PAC (finite-sample): bound the gap $|R(\hat{\boldsymbol{w}}) - R^*|$ uniformly across $\mathcal{F}$, with explicit dependence on $N$, model complexity, and confidence. **VC dimension** characterises which $\mathcal{F}$ are PAC-learnable in $N$ polynomial in the inverse of $\epsilon, \delta$.
+</details>
+
+**S2.** **Double descent** (Belkin et al. 2019): for some overparametrised models, generalisation error decreases past the *second* time the model interpolates the training set. Speculate why.
+
+<details class="hint"><summary>Full solution</summary>
+Below interpolation threshold ($N > D$): standard U-curve. At threshold ($N = D$): variance peaks because the model can interpolate only via large weights. Above ($D > N$): many models interpolate; gradient descent + L2 implicit regularisation picks the *minimum-norm* interpolator, which has good test performance. Empirically: deep nets ride above the interpolation threshold and benefit from implicit regularisation. This is *the* central question of modern deep-learning theory.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **ERM minimises average loss on training data. Generalisation requires the bias-variance trade-off — under-complex models underfit, over-complex models overfit.**
+2. **Loss functions correspond to probabilistic likelihoods; MLE = ERM with NLL; MAP = regularised ERM.**
+3. **Cross-validation is the canonical way to choose model complexity (and other hyperparameters) by estimating true risk from data.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you describe the bias-variance decomposition in your own words?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you read "regularised loss" in a paper, do you instantly see "constrained ERM"?
+
+- **3 yes:** move on to Lesson 23.
+- **2 yes:** redo D3 and D5, then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D4.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.constrained-convex-optimisation`](../21-constrained-convex-optimisation/index.qmd) —
+  regularised ERM = constrained ERM, by Lagrangian duality.
+
+### What this unlocks
+
+- [`mml.graphical-models-model-selection`](../23-graphical-models-model-selection/index.qmd) — probabilistic modelling layered on top.
+- All later lessons (LR, PCA, GMM, SVM) are concrete instances of ERM.
+
+### Sister synthesis lesson
+
+[`t7.statistical-learning-theory`](../../tier-7-masters-tracks/01-statistical-learning-theory/index.qmd) — the rigorous PAC / VC-dimension treatment. This lesson provides the working ML view that connects to the Tier 7 theory.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every supervised learning algorithm is ERM under some loss. Every regularisation scheme is a prior or a constraint. Cross-validation is the universal hyperparameter-tuning method.
+:::
+
+::: {.applied-callout}
+**Research.** Generalisation theory (PAC, VC, Rademacher complexity, PAC-Bayes) all build on ERM. Recent learning theory: implicit regularisation, neural tangent kernels, double descent.
+:::
+
+::: {.applied-callout}
+**Databases.** Query-cost models are statistical models fit by ERM. Learned indices (Kraska et al. 2018) cast index lookup as regression over keys.
+:::
