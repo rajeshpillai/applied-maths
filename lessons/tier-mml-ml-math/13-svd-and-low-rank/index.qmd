@@ -1,0 +1,345 @@
+---
+title: "13 · SVD, Matrix Approximation, Matrix Phylogeny"
+subtitle: "Every matrix has a singular value decomposition — and truncating it gives the best low-rank approximation. The universal matrix decomposition."
+lesson-id: "mml.svd-and-low-rank"
+tier: "mml"
+prerequisites: ["mml.eigendecomposition", "t6.spectral-theorem"]
+unlocks: ["mml.differentiation-gradients"]
+applied-domains: ["ai-ml", "research", "databases"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state the spectral theorem for symmetric matrices? — see
+   [MML — 12, Eigendecomposition](../12-eigendecomposition/index.qmd).
+2. Do you know what an orthogonal matrix is and why $\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$? — see [MML — 08](../08-orthogonality/index.qmd).
+3. Can you compute the rank of a matrix? —
+   [MML — 05, Rank and Linear Mappings](../05-rank-and-linear-mappings/index.qmd).
+4. Have you seen [`t6.spectral-theorem`](../../tier-6-undergrad-advanced/04-spectral-theorem/index.qmd)? It's the synthesis-tier prerequisite.
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Take an image (or any matrix), compute its SVD, and reconstruct using only the top $k$ singular values. The widget below shows this directly on a small "image" matrix — slide $k$ from 1 to the full rank.
+
+```{ojs}
+viewof k = Inputs.range([1, 8], {value: 4, step: 1, label: "rank k:"})
+```
+
+```{ojs}
+{
+  // Fake 8x8 "image" via outer product mix.
+  const A = [];
+  for (let i = 0; i < 8; i++) {
+    const row = [];
+    for (let j = 0; j < 8; j++) {
+      row.push(Math.max(0, Math.cos(i*0.6) + Math.sin(j*0.5) + 0.4*Math.cos((i+j)*0.4)));
+    }
+    A.push(row);
+  }
+  // Compute SVD numerically (power iteration + deflation, naive).
+  function clone(M) { return M.map(r => r.slice()); }
+  function tr(M) {
+    const out = Array.from({length: M[0].length}, () => Array(M.length).fill(0));
+    for (let i = 0; i < M.length; i++) for (let j = 0; j < M[0].length; j++) out[j][i] = M[i][j];
+    return out;
+  }
+  function mul(A, B) {
+    const out = Array.from({length: A.length}, () => Array(B[0].length).fill(0));
+    for (let i = 0; i < A.length; i++)
+      for (let j = 0; j < B[0].length; j++)
+        for (let kk = 0; kk < B.length; kk++)
+          out[i][j] += A[i][kk] * B[kk][j];
+    return out;
+  }
+  function dot(u, v) { let s = 0; for (let i = 0; i < u.length; i++) s += u[i]*v[i]; return s; }
+  function norm(v) { return Math.sqrt(dot(v, v)); }
+  function scale(v, c) { return v.map(x => x * c); }
+  function sub(a, b) { return a.map((x, i) => x - b[i]); }
+
+  // Compute top-r singular triples by power iteration on (A A^T) then matching v = A^T u / sigma.
+  function topSVD(M, r) {
+    let R = clone(M);
+    const sigmas = [], us = [], vs = [];
+    for (let t = 0; t < r; t++) {
+      let u = Array(M.length).fill(0).map(() => Math.random() - 0.5);
+      for (let it = 0; it < 80; it++) {
+        // u <- R R^T u
+        const tmp = mul(R, mul(tr(R), u.map(x => [x]))).map(r => r[0]);
+        const n = norm(tmp);
+        if (n < 1e-10) break;
+        u = scale(tmp, 1 / n);
+      }
+      const Rtu = mul(tr(R), u.map(x => [x])).map(r => r[0]);
+      const sigma = norm(Rtu);
+      if (sigma < 1e-10) break;
+      const v = scale(Rtu, 1 / sigma);
+      sigmas.push(sigma); us.push(u); vs.push(v);
+      // R = R - sigma u v^T
+      for (let i = 0; i < R.length; i++) for (let j = 0; j < R[0].length; j++) R[i][j] -= sigma * u[i] * v[j];
+    }
+    return {sigmas, us, vs};
+  }
+  const svd = topSVD(A, 8);
+  const Ak = Array.from({length: 8}, () => Array(8).fill(0));
+  for (let t = 0; t < k; t++)
+    for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++)
+      Ak[i][j] += svd.sigmas[t] * svd.us[t][i] * svd.vs[t][j];
+
+  // Render side by side as colour cells.
+  function colorscale(v, vmin, vmax) {
+    const t = (v - vmin) / (vmax - vmin);
+    const g = Math.round(255 * (1 - t));
+    return `rgb(${255 - g}, ${255 - g}, 255)`;
+  }
+  const allVals = A.flat().concat(Ak.flat());
+  const vmin = Math.min(...allVals), vmax = Math.max(...allVals);
+  function grid(M) {
+    return `<table style="border-collapse: collapse;">
+      ${M.map(row => `<tr>${row.map(v =>
+        `<td style="width: 24px; height: 24px; background: ${colorscale(v, vmin, vmax)}; border: 1px solid #fff;"></td>`).join("")}</tr>`).join("")}
+    </table>`;
+  }
+  return html`<div style="display:flex; gap:30px; align-items:center; font: 13px sans-serif;">
+    <div>
+      <div style="margin-bottom:6px;">Original (rank 8)</div>
+      ${grid(A)}
+    </div>
+    <div>
+      <div style="margin-bottom:6px;">Rank-${k} reconstruction</div>
+      ${grid(Ak)}
+    </div>
+    <div>
+      <div>Singular values:</div>
+      <div>${svd.sigmas.slice(0, 8).map((s, i) => `σ${i+1} = ${s.toFixed(2)}`).join("<br/>")}</div>
+    </div>
+  </div>`;
+}
+```
+
+Slide $k$. At $k = 8$, perfect reconstruction. At $k = 1$, just the dominant pattern. The singular values $\sigma_1 \ge \sigma_2 \ge \dots$ tell you how much "energy" each component carries — and SVD says the truncation is **optimal**.
+
+## Wonder
+
+1. SVD exists for *every* matrix — not just symmetric, not just square. What is the right way to think of the eigenvalues of a non-square matrix?
+2. The "best rank-$k$ approximation" claim is bold. Best under what measure of distance — and could any other rank-$k$ matrix be closer?
+3. JPEG image compression and PCA both use SVD. What's the *same* trick they share?
+4. SVD generalises eigendecomposition. What does it look like when applied to a symmetric matrix?
+
+## Discover
+
+Six problems building from "SVD exists" to "truncation is optimal."
+
+**D1.** For $\boldsymbol{A} = \begin{pmatrix} 3 & 0 \\ 0 & 4 \end{pmatrix}$, write down the SVD $\boldsymbol{A} = \boldsymbol{U} \boldsymbol{\Sigma} \boldsymbol{V}^\top$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{U} = \boldsymbol{V} = \boldsymbol{I}$, $\boldsymbol{\Sigma} = \boldsymbol{A}$ (after swapping rows to descend). Actually convention requires singular values in decreasing order, so $\boldsymbol{\Sigma} = \mathrm{diag}(4, 3)$ and $\boldsymbol{U} = \boldsymbol{V} = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}$ to swap the basis. Diagonal matrices with non-negative entries are essentially their own SVDs (after re-ordering).
+</details>
+
+**D2.** For a symmetric PSD matrix $\boldsymbol{A}$, show the SVD coincides with the eigendecomposition.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A} = \boldsymbol{Q} \boldsymbol{\Lambda} \boldsymbol{Q}^\top$. Take $\boldsymbol{U} = \boldsymbol{V} = \boldsymbol{Q}$, $\boldsymbol{\Sigma} = \boldsymbol{\Lambda}$ (eigenvalues are non-negative for PSD). SVD = eigendecomposition. For *symmetric* but not PSD, eigenvalues can be negative; SVD takes their absolute values and absorbs the sign into $\boldsymbol{U}$ or $\boldsymbol{V}$.
+</details>
+
+**D3.** Show that for any $\boldsymbol{A}$, the matrix $\boldsymbol{A}^\top \boldsymbol{A}$ has eigendecomposition $\boldsymbol{V} \boldsymbol{\Sigma}^2 \boldsymbol{V}^\top$ where $\boldsymbol{\Sigma}^2 = \mathrm{diag}(\sigma_i^2)$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A} = \boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top$. $\boldsymbol{A}^\top \boldsymbol{A} = \boldsymbol{V}\boldsymbol{\Sigma}^\top \boldsymbol{U}^\top \boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top = \boldsymbol{V} \boldsymbol{\Sigma}^\top \boldsymbol{\Sigma} \boldsymbol{V}^\top = \boldsymbol{V} \boldsymbol{\Sigma}^2 \boldsymbol{V}^\top$. ✓
+**This gives a constructive recipe**: SVD of $\boldsymbol{A}$ = "diagonalise $\boldsymbol{A}^\top \boldsymbol{A}$, take square roots of eigenvalues, recover $\boldsymbol{U}$ from $\boldsymbol{A}\boldsymbol{v}_i / \sigma_i$." This is how textbook proofs of SVD existence go.
+</details>
+
+**D4.** Let $\boldsymbol{A}_k = \sum_{i=1}^k \sigma_i \boldsymbol{u}_i \boldsymbol{v}_i^\top$ — the **rank-$k$ truncation** of the SVD. Show $\mathrm{rank}(\boldsymbol{A}_k) = k$.
+
+<details class="hint"><summary>Full solution</summary>
+The image of $\boldsymbol{A}_k$ is spanned by $\{\boldsymbol{u}_1, \dots, \boldsymbol{u}_k\}$ — a $k$-dimensional subspace. So $\mathrm{rank}(\boldsymbol{A}_k) = k$ (assuming the singular values are all non-zero).
+</details>
+
+**D5.** **Eckart–Young theorem:** $\boldsymbol{A}_k$ is the closest rank-$k$ matrix to $\boldsymbol{A}$ in Frobenius norm:
+$$
+\min_{\mathrm{rank}(\boldsymbol{B}) \le k} \lVert \boldsymbol{A} - \boldsymbol{B}\rVert_F = \lVert \boldsymbol{A} - \boldsymbol{A}_k\rVert_F = \sqrt{\sum_{i > k} \sigma_i^2}.
+$$
+Sketch (don't prove rigorously) why this should be true.
+
+<details class="hint"><summary>Full solution</summary>
+Intuitively: in the SVD basis, the matrix has $\sigma_i$ along the diagonal. The "rank-$k$ truncation" zeros out everything beyond position $k$. Any other rank-$k$ matrix is a perturbation that either keeps some smaller singular value (paying a tail cost) or distorts the top-$k$ block (paying a larger cost). The clean truncation is optimal. A formal proof uses the Courant–Fischer min-max characterisation of singular values. **This is why SVD is the canonical compression / denoising tool.**
+</details>
+
+**D6.** For a matrix $\boldsymbol{A} \in \mathbb{R}^{m \times n}$ with $m \gg n$, the **economy SVD** has $\boldsymbol{U} \in \mathbb{R}^{m \times n}, \boldsymbol{\Sigma} \in \mathbb{R}^{n \times n}, \boldsymbol{V} \in \mathbb{R}^{n \times n}$. Why is this preferable to the "full" SVD with $\boldsymbol{U} \in \mathbb{R}^{m \times m}$?
+
+<details class="hint"><summary>Full solution</summary>
+For tall matrices, most of $\boldsymbol{U}$'s columns in the full SVD correspond to zero singular values — they're padding. The economy SVD drops them. Memory: $O(mn)$ vs $O(m^2)$. For $m = 10^6, n = 10^2$, that's $10^8$ entries instead of $10^{12}$. **Production SVD libraries default to economy form** for this reason. The user has to ask explicitly for the full SVD.
+</details>
+
+::: {.fun-fact}
+SVD was first proven for square matrices independently by **Beltrami** (1873) and **Jordan** (1874), and for general rectangular matrices by **Eckart and Young** (1936) — who also proved the optimality theorem now named after them. The "data-science era" application — using truncated SVD as *latent semantic indexing* on document-term matrices — was published by **Deerwester et al.** in 1990. **Sergey Brin and Larry Page's PageRank paper (1998)** uses related spectral tools. SVD predates the field of "machine learning" by a century, but it's the single most important matrix decomposition in modern data analysis.
+:::
+
+::: {.key-insight}
+**Every matrix has a singular value decomposition $\boldsymbol{A} = \boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top$ — orthogonal × diagonal × orthogonal.** Truncating to the top-$k$ singular values is the *best* rank-$k$ approximation. This single algorithm is the engine behind PCA, latent-semantic indexing, recommendation systems, image compression, denoising, LoRA fine-tuning, and most of modern matrix-analytics.
+:::
+
+## Name
+
+::: {.lesson-beat}
+The **Singular Value Decomposition (SVD)** of $\boldsymbol{A} \in \mathbb{R}^{m \times n}$ is
+$$
+\boldsymbol{A} = \boldsymbol{U} \boldsymbol{\Sigma} \boldsymbol{V}^\top,
+$$
+where $\boldsymbol{U} \in \mathbb{R}^{m \times m}$ is orthogonal (its columns the *left singular vectors*), $\boldsymbol{V} \in \mathbb{R}^{n \times n}$ is orthogonal (its columns the *right singular vectors*), and $\boldsymbol{\Sigma} \in \mathbb{R}^{m \times n}$ is "diagonal" with non-negative entries $\sigma_1 \ge \sigma_2 \ge \dots \ge 0$ — the **singular values**.
+
+The number of nonzero $\sigma_i$ equals $\mathrm{rank}(\boldsymbol{A})$.
+
+**Truncated SVD.** $\boldsymbol{A}_k = \sum_{i=1}^k \sigma_i \boldsymbol{u}_i \boldsymbol{v}_i^\top$ has rank $k$.
+
+**Eckart–Young theorem.** $\boldsymbol{A}_k$ minimises $\lVert \boldsymbol{A} - \boldsymbol{B}\rVert_F$ over all rank-$k$ $\boldsymbol{B}$, with $\lVert \boldsymbol{A} - \boldsymbol{A}_k\rVert_F^2 = \sum_{i > k} \sigma_i^2$.
+
+**Matrix phylogeny.** Different matrix shapes admit different decompositions. SVD is the **universal** one — applies to every real matrix. Symmetric → eigendecomposition. Symmetric PSD → Cholesky (triangular form). Square invertible → LU, QR. Each is faster than SVD in its niche, but SVD is the safe default.
+
+::: {.callout-warning}
+**Sūtra.** *Rotate, stretch, rotate — every matrix is three steps. Truncate the stretch for the best low-rank approximation.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Eigendecomposition and SVD are the same."* — Coincide for symmetric PSD matrices; otherwise different. SVD always has non-negative singular values; eigenvalues can be negative or complex.
+2. *"Truncated SVD always gives 'better' compression than other methods."* — It's optimal under Frobenius norm. For perceptual quality (JPEG image compression), DCT is preferred. For sparse + low-rank, robust PCA. SVD is one excellent default, not the only choice.
+3. *"SVD is unique."* — The singular values are unique. The singular vectors are unique only up to sign flips (and, for repeated singular values, up to rotation within each multiplicity block).
+:::
+
+## Apply
+
+### Worked example
+
+Find the SVD of $\boldsymbol{A} = \begin{pmatrix} 3 & 0 \\ 4 & 5 \end{pmatrix}$.
+
+**Step 1.** $\boldsymbol{A}^\top \boldsymbol{A} = \begin{pmatrix} 25 & 20 \\ 20 & 25 \end{pmatrix}$.
+
+**Step 2.** Eigenvalues: $\det(\boldsymbol{A}^\top \boldsymbol{A} - \lambda \boldsymbol{I}) = (25 - \lambda)^2 - 400 = 0 \Rightarrow \lambda = 45, 5$. So $\sigma_1 = \sqrt{45} = 3\sqrt 5$, $\sigma_2 = \sqrt 5$.
+
+**Step 3.** Eigenvectors of $\boldsymbol{A}^\top \boldsymbol{A}$: for $\lambda = 45$, $\boldsymbol{v}_1 = (1, 1)/\sqrt 2$. For $\lambda = 5$, $\boldsymbol{v}_2 = (1, -1)/\sqrt 2$.
+
+**Step 4.** $\boldsymbol{u}_i = \boldsymbol{A}\boldsymbol{v}_i / \sigma_i$:
+$\boldsymbol{u}_1 = \frac{1}{3\sqrt 5}\boldsymbol{A}(1,1)/\sqrt 2 = \frac{1}{3\sqrt{10}}(3, 9) = (1, 3)/\sqrt{10}$.
+$\boldsymbol{u}_2 = \frac{1}{\sqrt 5} \boldsymbol{A}(1, -1)/\sqrt 2 = \frac{1}{\sqrt{10}}(3, -1) = (3, -1)/\sqrt{10}$.
+
+**Step 5.** Verify $\boldsymbol{U}^\top \boldsymbol{U} = \boldsymbol{I}$: $(1, 3) \cdot (3, -1) = 0$. ✓ $\boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top = \boldsymbol{A}$ ✓.
+
+**Answer:** $\boldsymbol{U} = \frac{1}{\sqrt{10}}\begin{pmatrix} 1 & 3 \\ 3 & -1 \end{pmatrix}$, $\boldsymbol{\Sigma} = \mathrm{diag}(3\sqrt 5, \sqrt 5)$, $\boldsymbol{V} = \frac{1}{\sqrt 2}\begin{pmatrix} 1 & 1 \\ 1 & -1 \end{pmatrix}$.
+
+### Warm
+
+**W1.** Singular values of $\boldsymbol{I}_n$?
+
+<details class="hint"><summary>Full solution</summary>
+All $1$. (Each direction is preserved with no stretching.)
+</details>
+
+**W2.** Rank-1 SVD: write the matrix $(1, 2, 3)^\top (4, 5)$ in SVD form.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{u} = (1, 2, 3)/\sqrt{14}$, $\boldsymbol{v} = (4, 5)/\sqrt{41}$, $\sigma = \sqrt{14 \cdot 41} = \sqrt{574}$. Only one nonzero singular value.
+</details>
+
+**W3.** What's the SVD of $\boldsymbol{0}$ (the zero matrix)?
+
+<details class="hint"><summary>Full solution</summary>
+All singular values are 0; $\boldsymbol{U}, \boldsymbol{V}$ can be any orthogonal matrices.
+</details>
+
+### Working
+
+**Wo1.** Show that $\lVert \boldsymbol{A}\rVert_F^2 = \sum_i \sigma_i^2$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the SVD and the fact that orthogonal matrices preserve the Frobenius norm.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\lVert \boldsymbol{A}\rVert_F^2 = \mathrm{tr}(\boldsymbol{A}^\top \boldsymbol{A}) = \mathrm{tr}(\boldsymbol{V}\boldsymbol{\Sigma}^2 \boldsymbol{V}^\top) = \mathrm{tr}(\boldsymbol{\Sigma}^2) = \sum \sigma_i^2$. **The Frobenius norm "lives in singular values."** Together with Eckart–Young, this tells you exactly how much "signal" your truncation discards.
+</details>
+
+**Wo2.** A **pseudo-inverse** $\boldsymbol{A}^+ = \boldsymbol{V} \boldsymbol{\Sigma}^+ \boldsymbol{U}^\top$ where $\boldsymbol{\Sigma}^+$ inverts the non-zero singular values and zeros out the rest. Show that for full-rank $\boldsymbol{A}$, the least-squares solution to $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$ is $\boldsymbol{A}^+ \boldsymbol{b}$.
+
+<details class="hint"><summary>Full solution</summary>
+For full column-rank $\boldsymbol{A}$: $\boldsymbol{A}^\top \boldsymbol{A}$ is invertible. $(\boldsymbol{A}^\top \boldsymbol{A})^{-1} \boldsymbol{A}^\top = (\boldsymbol{V}\boldsymbol{\Sigma}^2 \boldsymbol{V}^\top)^{-1} \boldsymbol{V}\boldsymbol{\Sigma}^\top \boldsymbol{U}^\top = \boldsymbol{V}\boldsymbol{\Sigma}^{-2} \boldsymbol{V}^\top \boldsymbol{V} \boldsymbol{\Sigma}^\top \boldsymbol{U}^\top = \boldsymbol{V}\boldsymbol{\Sigma}^+ \boldsymbol{U}^\top = \boldsymbol{A}^+$. So least-squares $\boldsymbol{w} = (\boldsymbol{X}^\top \boldsymbol{X})^{-1} \boldsymbol{X}^\top \boldsymbol{y} = \boldsymbol{X}^+ \boldsymbol{y}$. **The pseudo-inverse handles rank-deficient cases automatically** — no Cholesky needed if you have SVD.
+</details>
+
+**Wo3.** SVD-based PCA: given a centred data matrix $\boldsymbol{X} \in \mathbb{R}^{N \times D}$, the SVD $\boldsymbol{X} = \boldsymbol{U}\boldsymbol{\Sigma}\boldsymbol{V}^\top$ gives the principal directions as the columns of $\boldsymbol{V}$ and principal scores as $\boldsymbol{U}\boldsymbol{\Sigma}$. Justify.
+
+<details class="hint"><summary>Full solution</summary>
+Covariance $\boldsymbol{\Sigma}_X = \boldsymbol{X}^\top \boldsymbol{X} / N = \boldsymbol{V} (\boldsymbol{\Sigma}^2 / N) \boldsymbol{V}^\top$. Eigendecomposition: eigenvectors of covariance are columns of $\boldsymbol{V}$ — the *principal directions*. Eigenvalues are $\sigma_i^2 / N$ — variances along each direction. Projections of data onto principal directions: $\boldsymbol{X}\boldsymbol{V} = \boldsymbol{U}\boldsymbol{\Sigma}$ — the **principal scores**. **SVD of $\boldsymbol{X}$ gives PCA directly** without ever forming $\boldsymbol{X}^\top \boldsymbol{X}$ — and is more numerically stable.
+</details>
+
+### Stretch
+
+**S1.** Modern **LoRA** (Low-Rank Adaptation) fine-tuning of large language models adds a low-rank correction $\boldsymbol{B}\boldsymbol{A}$ to a frozen pretrained weight matrix, with $\boldsymbol{B} \in \mathbb{R}^{D \times r}, \boldsymbol{A} \in \mathbb{R}^{r \times D}$, $r \ll D$. How is this related to SVD truncation?
+
+<details class="hint"><summary>Full solution</summary>
+The update $\boldsymbol{B}\boldsymbol{A}$ is a rank-$r$ matrix. Optimising over $\boldsymbol{B}, \boldsymbol{A}$ explicitly parameterises *low-rank perturbations* to the original weights. If we were given the optimal full-rank update, the best rank-$r$ approximation would be its truncated SVD (Eckart–Young). LoRA assumes that *task adaptation lives in a low-rank subspace* of weight space and parameterises that subspace directly — saving $\sim D^2 / 2 r D$ parameters per layer. The empirical success of LoRA (rank 8 often suffices for billion-parameter models) validates the low-rank-update assumption.
+</details>
+
+**S2.** Argue why SVD-based **image denoising** (zero out the small singular values) works: clean images tend to have *fast-decaying* singular spectra, while i.i.d. noise spreads roughly uniformly across singular values.
+
+<details class="hint"><summary>Full solution</summary>
+Natural images have low effective rank — large patches share structure (textures, edges) that compress into a few singular components. White noise has its variance distributed uniformly across all singular values (its singular value distribution follows the Marchenko-Pastur law). Truncating to the top-$k$ singular values keeps most of the image's energy but throws away most of the noise's. This is the essence of **PCA denoising**, and (in a more sophisticated form) of *robust PCA* and *singular spectrum analysis* for time series.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Every matrix has an SVD: rotate, stretch, rotate. Singular values are the canonical "size" of each direction.**
+2. **Truncating to the top-$k$ singular values is the best rank-$k$ approximation in Frobenius norm (Eckart–Young) — the canonical compression / denoising trick.**
+3. **SVD is the universal matrix decomposition: it generalises eigendecomposition, contains pseudo-inverse and PCA as immediate consequences, and underlies LoRA, LSI, PCA, and most matrix analytics.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state Eckart–Young in one breath?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "low rank approximation" anywhere in ML, do you instantly think *truncated SVD*?
+
+- **3 yes:** move on to Lesson 14.
+- **2 yes:** redo Wo3 (SVD-based PCA), then move on.
+- **0–1 yes:** re-read *Discover* problems D3 and D5.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.eigendecomposition`](../12-eigendecomposition/index.qmd) — SVD generalises eigendecomposition to non-square matrices.
+- [`t6.spectral-theorem`](../../tier-6-undergrad-advanced/04-spectral-theorem/index.qmd) — the synthesis-tier statement on which SVD existence rests.
+
+### What this unlocks
+
+- [`mml.differentiation-gradients`](../14-differentiation-gradients/index.qmd) — moving from linear algebra into calculus.
+- Eventually, [`mml.pca-variance-projection`](../26-pca-variance-projection/index.qmd) — PCA *is* SVD of centred data.
+
+### Sister synthesis lesson
+
+[`t6.spectral-theorem`](../../tier-6-undergrad-advanced/04-spectral-theorem/index.qmd) — the spectral-theorem view. This lesson adds: SVD existence proof via $\boldsymbol{A}^\top \boldsymbol{A}$, Eckart–Young, pseudo-inverse, LoRA / PCA / denoising applications.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** PCA = SVD of centred data. LoRA fine-tuning = explicit low-rank weight updates. Latent semantic indexing = truncated SVD of document-term matrix. PCA whitening, denoising, recommendation collaborative filtering — all SVD truncation.
+:::
+
+::: {.applied-callout}
+**Databases.** Approximate nearest-neighbour search on document embeddings uses SVD-projected indices. Recommender systems (Netflix Prize-era) factor user × item rating matrices via SVD.
+:::
+
+::: {.applied-callout}
+**Research.** Compressed sensing recovers sparse signals via low-rank matrix completion (Candès–Tao 2010). Climate-data principal components are SVDs of spatiotemporal anomaly matrices. Robust PCA decomposes a matrix into low-rank + sparse parts — the foundation of video background subtraction.
+:::

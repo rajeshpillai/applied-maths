@@ -1,0 +1,296 @@
+---
+title: "10 · Determinant, Trace, Eigenvalues"
+subtitle: "Three numbers that summarise a matrix — and three that don't change under change of basis."
+lesson-id: "mml.determinant-trace-eigen"
+tier: "mml"
+prerequisites: ["mml.projections-rotations", "t5.eigenvalues"]
+unlocks: ["mml.cholesky"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute the determinant of $\begin{pmatrix} 2 & 1 \\ 3 & 4 \end{pmatrix}$? — see
+   [Tier 5 — Matrices](../../tier-5-undergrad-core/01-matrices/index.qmd).
+2. Can you state what an eigenvalue/eigenvector is? — see
+   [Tier 5 — Eigenvalues](../../tier-5-undergrad-core/04-eigenvalues/index.qmd).
+3. Can you compute the trace of $\begin{pmatrix} 1 & 0 \\ 0 & 4 \end{pmatrix}$? — same prerequisite.
+4. Do you remember the change-of-basis formula $\boldsymbol{A}' = \boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S}$? — see [MML — 05](../05-rank-and-linear-mappings/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+Slide a $2 \times 2$ matrix's entries. The widget shows the matrix
+applied to a unit-circle worth of vectors. The **shape** of the
+resulting ellipse tells you the matrix's geometry:
+
+- **area** of the ellipse = $|\det \boldsymbol{A}|$;
+- **sum of axis lengths' squares** of the symmetric part = $\mathrm{tr}(\boldsymbol{A}^\top \boldsymbol{A})$ — the Frobenius norm squared;
+- **principal axes** of the ellipse = eigenvectors of $\boldsymbol{A}^\top \boldsymbol{A}$.
+
+```{ojs}
+viewof a11 = Inputs.range([-3, 3], {value: 2, step: 0.1, label: "a₁₁:"})
+viewof a12 = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "a₁₂:"})
+viewof a21 = Inputs.range([-3, 3], {value: 0, step: 0.1, label: "a₂₁:"})
+viewof a22 = Inputs.range([-3, 3], {value: 1, step: 0.1, label: "a₂₂:"})
+```
+
+```{ojs}
+{
+  const det = a11*a22 - a12*a21;
+  const tr  = a11 + a22;
+  const ellipse = [];
+  for (let t = 0; t <= 2 * Math.PI + 0.01; t += 0.05) {
+    const x = Math.cos(t), y = Math.sin(t);
+    ellipse.push({x: a11*x + a12*y, y: a21*x + a22*y});
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      tr(A) = <b>${tr.toFixed(2)}</b>,  det(A) = <b>${det.toFixed(2)}</b>,  area of image = <b>${Math.abs(det).toFixed(2)}π</b>
+    </div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-5, 5]}, y: {domain: [-5, 5]}, grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.line(ellipse, {x: "x", y: "y", stroke: "steelblue", strokeWidth: 2, fill: "rgba(70,130,180,0.15)"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+Drag to make $\det \boldsymbol{A} = 0$ — the ellipse collapses to a line. Drag to make $\boldsymbol{A}$ a rotation ($a_{11} = a_{22} = \cos\theta$, $a_{12} = -\sin\theta$, $a_{21} = \sin\theta$) — area stays 1.
+
+## Wonder
+
+1. The determinant equals the *area-scaling factor* of the unit square. What if the determinant is negative — what's happening?
+2. The trace is the sum of diagonal entries, but also the sum of eigenvalues. Why would those two be equal?
+3. If you change basis, all three (det, trace, eigenvalues) stay the same. Could there be more invariants?
+4. A matrix with all eigenvalues equal to zero — what does it do geometrically?
+
+## Discover
+
+Six problems building from determinant to eigenpair to invariants.
+
+**D1.** Compute $\det \boldsymbol{A}$ for $\boldsymbol{A} = \begin{pmatrix} 3 & 1 \\ 2 & 4 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$3 \cdot 4 - 1 \cdot 2 = 10$.
+</details>
+
+**D2.** For $\boldsymbol{A} = \begin{pmatrix} 2 & 1 \\ 0 & 3 \end{pmatrix}$, find eigenvalues by solving $\det(\boldsymbol{A} - \lambda \boldsymbol{I}) = 0$.
+
+<details class="hint"><summary>Full solution</summary>
+$\det \begin{pmatrix} 2 - \lambda & 1 \\ 0 & 3 - \lambda \end{pmatrix} = (2 - \lambda)(3 - \lambda) = 0$. Eigenvalues $\lambda_1 = 2, \lambda_2 = 3$. For triangular matrices the eigenvalues are the diagonal entries.
+</details>
+
+**D3.** Find an eigenvector for $\lambda_1 = 2$ in D2.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Solve $(\boldsymbol{A} - 2\boldsymbol{I})\boldsymbol{v} = \boldsymbol{0}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\begin{pmatrix} 0 & 1 \\ 0 & 1 \end{pmatrix} \boldsymbol{v} = \boldsymbol{0}$. Second entry zero, first free. $\boldsymbol{v} = (1, 0)$ (and any scalar multiple).
+</details>
+
+**D4.** Verify for D2: $\mathrm{tr}(\boldsymbol{A}) = \lambda_1 + \lambda_2$ and $\det \boldsymbol{A} = \lambda_1 \lambda_2$.
+
+<details class="hint"><summary>Full solution</summary>
+Trace: $2 + 3 = 5 = 2 + 3$. ✓ Determinant: $2 \cdot 3 = 6 = 2 \cdot 3$. ✓
+This is general: $\mathrm{tr}(\boldsymbol{A}) = \sum_i \lambda_i$ and $\det \boldsymbol{A} = \prod_i \lambda_i$. (Proof via Vieta's formulas for the characteristic polynomial.)
+</details>
+
+**D5.** Show that if $\lambda_1, \dots, \lambda_n$ are the eigenvalues of $\boldsymbol{A}$, then they are also the eigenvalues of $\boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S}$ for any invertible $\boldsymbol{S}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\det(\boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S} - \lambda \boldsymbol{I}) = \det(\boldsymbol{S}^{-1} (\boldsymbol{A} - \lambda \boldsymbol{I}) \boldsymbol{S}) = \det \boldsymbol{S}^{-1} \cdot \det(\boldsymbol{A} - \lambda \boldsymbol{I}) \cdot \det \boldsymbol{S} = \det(\boldsymbol{A} - \lambda \boldsymbol{I})$. The characteristic polynomials are equal, so the eigenvalues are equal. **Eigenvalues are invariants of the linear map**, not of the matrix.
+</details>
+
+**D6.** For a symmetric matrix $\boldsymbol{A} = \boldsymbol{A}^\top$, show that eigenvalues are real and eigenvectors with distinct eigenvalues are orthogonal.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+For orthogonality: if $\boldsymbol{A}\boldsymbol{v}_1 = \lambda_1 \boldsymbol{v}_1$ and $\boldsymbol{A}\boldsymbol{v}_2 = \lambda_2 \boldsymbol{v}_2$, compute $\boldsymbol{v}_1^\top \boldsymbol{A} \boldsymbol{v}_2$ two ways.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{v}_1^\top \boldsymbol{A} \boldsymbol{v}_2 = \lambda_2 \boldsymbol{v}_1^\top \boldsymbol{v}_2$ (using $\boldsymbol{A}\boldsymbol{v}_2 = \lambda_2 \boldsymbol{v}_2$).
+$\boldsymbol{v}_1^\top \boldsymbol{A} \boldsymbol{v}_2 = (\boldsymbol{A} \boldsymbol{v}_1)^\top \boldsymbol{v}_2 = \lambda_1 \boldsymbol{v}_1^\top \boldsymbol{v}_2$ (using $\boldsymbol{A}^\top = \boldsymbol{A}$).
+So $(\lambda_1 - \lambda_2) \boldsymbol{v}_1^\top \boldsymbol{v}_2 = 0$. If $\lambda_1 \ne \lambda_2$, the inner product is zero. (Reality of eigenvalues: similar argument with complex conjugates.)
+**This is why every covariance matrix (symmetric) has an orthogonal eigenbasis — and that's PCA in one line.**
+</details>
+
+::: {.fun-fact}
+The word **eigenvalue** is half-translated from German *Eigenwert* — "own value" — coined by **David Hilbert** circa 1904 in the context of integral operators. The original concept was much older: **Cauchy** in 1829 (vibrations of an elastic body), and **Lagrange** in 1762 (motions of a rotating rigid body) had both worked with "characteristic values" of symmetric matrices. The English-speaking world resisted the German for decades and used "characteristic value" — until quantum mechanics borrowed Hilbert's term wholesale.
+:::
+
+::: {.key-insight}
+**Determinant, trace, and eigenvalues are *intrinsic*** — they survive change of basis. Determinant tells you the volume scaling. Trace adds the eigenvalues. Eigenvalues say "in this direction the matrix acts like a scalar." Together they characterise the matrix up to similarity.
+:::
+
+## Name
+
+::: {.lesson-beat}
+The **determinant** of a square matrix $\boldsymbol{A} \in \mathbb{R}^{n \times n}$ is the scalar $\det \boldsymbol{A}$ equal to $|\det \boldsymbol{A}|$ = volume scaling factor of the unit cube under $\boldsymbol{x} \mapsto \boldsymbol{A}\boldsymbol{x}$, with sign $+1$ for orientation-preserving and $-1$ for orientation-reversing maps.
+
+The **trace** is $\mathrm{tr}(\boldsymbol{A}) = \sum_i a_{ii}$.
+
+An **eigenvalue / eigenvector pair** $(\lambda, \boldsymbol{v})$ satisfies $\boldsymbol{A}\boldsymbol{v} = \lambda \boldsymbol{v}$ with $\boldsymbol{v} \ne \boldsymbol{0}$. The eigenvalues are the roots of the **characteristic polynomial** $p_{\boldsymbol{A}}(\lambda) = \det(\boldsymbol{A} - \lambda \boldsymbol{I})$.
+
+Two foundational identities:
+$$
+\mathrm{tr}(\boldsymbol{A}) = \sum_i \lambda_i, \qquad \det \boldsymbol{A} = \prod_i \lambda_i.
+$$
+All three quantities (det, trace, set of eigenvalues) are **similarity invariants**: unchanged by $\boldsymbol{A} \to \boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S}$.
+
+::: {.callout-warning}
+**Sūtra.** *Determinant = volume; trace = sum of eigenvalues; eigenvalue = "the direction where the matrix is a scalar."*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"All matrices have $n$ linearly independent eigenvectors."* — Only if the characteristic polynomial has distinct roots (or the matrix is normal — including symmetric). $\begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$ has only one independent eigenvector despite being $2 \times 2$.
+2. *"Eigenvalues of $\boldsymbol{A}$ and $\boldsymbol{A}^\top$ are different."* — They're identical. $\boldsymbol{A}$ and $\boldsymbol{A}^\top$ have the same characteristic polynomial (det is invariant under transpose).
+3. *"Trace and determinant are independent."* — They are linked through the characteristic polynomial. For $2 \times 2$ matrices: $p(\lambda) = \lambda^2 - \mathrm{tr}(\boldsymbol{A}) \lambda + \det \boldsymbol{A}$.
+:::
+
+## Apply
+
+### Worked example
+
+For $\boldsymbol{A} = \begin{pmatrix} 4 & 1 \\ 2 & 3 \end{pmatrix}$, find all eigenvalues and eigenvectors.
+
+**Step 1.** Characteristic polynomial:
+$\det(\boldsymbol{A} - \lambda \boldsymbol{I}) = (4 - \lambda)(3 - \lambda) - 2 = \lambda^2 - 7\lambda + 10 = (\lambda - 5)(\lambda - 2)$.
+
+**Step 2.** Eigenvalues: $\lambda = 5, 2$. Check: trace $= 4 + 3 = 7 = 5 + 2$. ✓ Det $= 12 - 2 = 10 = 5 \cdot 2$. ✓
+
+**Step 3.** For $\lambda = 5$: $(\boldsymbol{A} - 5\boldsymbol{I}) \boldsymbol{v} = \boldsymbol{0}$ ⇒ $\begin{pmatrix} -1 & 1 \\ 2 & -2 \end{pmatrix} \boldsymbol{v} = \boldsymbol{0}$. First row: $-v_1 + v_2 = 0$, so $\boldsymbol{v}_1 = (1, 1)$.
+
+**Step 4.** For $\lambda = 2$: $\begin{pmatrix} 2 & 1 \\ 2 & 1 \end{pmatrix} \boldsymbol{v} = \boldsymbol{0}$. $2 v_1 + v_2 = 0$, so $\boldsymbol{v}_2 = (1, -2)$.
+
+**Answer:** $\boldsymbol{A}$ has eigenpairs $(5, (1, 1))$ and $(2, (1, -2))$. The matrix stretches along $(1, 1)$ by factor 5 and along $(1, -2)$ by factor 2. The two directions are *not* orthogonal because $\boldsymbol{A}$ is not symmetric.
+
+### Warm
+
+**W1.** What is $\det \boldsymbol{I}_n$?
+
+<details class="hint"><summary>Full solution</summary>
+$1$. The identity preserves volume and orientation.
+</details>
+
+**W2.** Trace and eigenvalues of $\begin{pmatrix} 5 & 0 & 0 \\ 0 & 3 & 0 \\ 0 & 0 & -1 \end{pmatrix}$?
+
+<details class="hint"><summary>Full solution</summary>
+Trace $= 7$. Eigenvalues $= 5, 3, -1$ (diagonal). $\det = -15$.
+</details>
+
+**W3.** What does $\det \boldsymbol{A} = 0$ imply about $\boldsymbol{A}$?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A}$ has zero as an eigenvalue, equivalently a non-trivial null space, equivalently is singular (no inverse), equivalently rank $< n$.
+</details>
+
+### Working
+
+**Wo1.** Prove $\det(\boldsymbol{A} \boldsymbol{B}) = \det \boldsymbol{A} \cdot \det \boldsymbol{B}$ for square $\boldsymbol{A}, \boldsymbol{B}$. (Just use the volume interpretation.)
+
+<details class="hint"><summary>Full solution</summary>
+Composition of linear maps scales volume by the product of the individual scalings. The signed area of $\boldsymbol{A}\boldsymbol{B}([0,1]^n)$ equals (signed area of $\boldsymbol{B}([0,1]^n)$) × (factor from $\boldsymbol{A}$). Algebraically, this is *Cauchy's multiplication theorem* (1812).
+</details>
+
+**Wo2.** Show that for any invertible $\boldsymbol{A}$, $\det \boldsymbol{A}^{-1} = 1 / \det \boldsymbol{A}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A} \boldsymbol{A}^{-1} = \boldsymbol{I}$, so $\det \boldsymbol{A} \cdot \det \boldsymbol{A}^{-1} = 1$. Thus $\det \boldsymbol{A}^{-1} = 1 / \det \boldsymbol{A}$.
+</details>
+
+**Wo3.** The *condition number* of a matrix is $\kappa(\boldsymbol{A}) = |\lambda_{\max}| / |\lambda_{\min}|$ for symmetric positive-definite $\boldsymbol{A}$. What does a large condition number mean for numerical stability of solving $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$?
+
+<details class="hint"><summary>Full solution</summary>
+Large $\kappa$ means the matrix stretches one direction much more than another. Tiny changes to $\boldsymbol{b}$ (or to the entries of $\boldsymbol{A}$) get amplified by factor $\kappa$ in the solution $\boldsymbol{x}$. **Multicollinearity in regression = large condition number** of $\boldsymbol{X}^\top \boldsymbol{X}$ = unstable regression weights. Ridge regression adds $\lambda \boldsymbol{I}$ to floor the smallest eigenvalue, taming $\kappa$ — Lesson 25.
+</details>
+
+### Stretch
+
+**S1.** A **Markov chain transition matrix** has rows that sum to 1 (stochastic matrix). Show that $\lambda = 1$ is always an eigenvalue, and find its eigenvector.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at the all-ones column vector $\boldsymbol{1} = (1, 1, \dots, 1)^\top$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For a row-stochastic matrix $\boldsymbol{P}$, $\boldsymbol{P} \boldsymbol{1} = \boldsymbol{1}$ — each row sums to 1, so each entry of $\boldsymbol{P}\boldsymbol{1}$ is the row sum, which is 1. So $\boldsymbol{1}$ is an eigenvector with eigenvalue 1. *The Perron–Frobenius theorem* says this is also the *largest* eigenvalue in magnitude — the stationary distribution lives in the corresponding *left* eigenspace.
+</details>
+
+**S2.** The **Hessian** of a smooth function $f : \mathbb{R}^n \to \mathbb{R}$ at a critical point is the matrix $\boldsymbol{H}$ of second partial derivatives. What do the *signs* of its eigenvalues tell you about whether the critical point is a min, max, or saddle?
+
+<details class="hint"><summary>Full solution</summary>
+All positive: local minimum (Hessian positive definite). All negative: local maximum. Mixed signs: saddle point. Zero eigenvalues: degenerate, need higher-order info. This is the multivariate version of "the second derivative tells you the curvature." We'll use this in Lesson 20 to analyse gradient descent.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Determinant = (signed) volume scaling; trace = sum of eigenvalues; eigenvalues = "directions where $\boldsymbol{A}$ acts like a scalar."**
+2. **All three are change-of-basis invariants — they belong to the linear map, not to the chosen matrix.**
+3. **Symmetric matrices have real eigenvalues and an orthonormal eigenbasis — the cleanest case in linear algebra, and the foundation of PCA, SVD, and the Laplacian eigenmaps.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you explain *why* the determinant equals the product of eigenvalues, to a friend, without notes?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see "eigenvalue $\lambda$" in a paper, do you instantly
+   reach for "direction where the matrix is a scalar"?
+
+- **3 yes:** move on to Lesson 11.
+- **2 yes:** redo D4 and Wo3, then move on.
+- **0–1 yes:** re-read *Discover* problems D5 and D6.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.projections-rotations`](../09-projections-rotations/index.qmd) —
+  rotations and projections gave us geometric examples of det = ±1, 0, 1.
+- [`t5.eigenvalues`](../../tier-5-undergrad-core/04-eigenvalues/index.qmd) —
+  the pure linear-algebra view of eigenvalues.
+
+### What this unlocks
+
+- [`mml.cholesky`](../11-cholesky/index.qmd) — the first decomposition
+  that uses these invariants directly.
+- Eventually, [`mml.svd-and-low-rank`](../13-svd-and-low-rank/index.qmd) and
+  [`mml.pca-eigenvector-high-dim`](../27-pca-eigenvector-high-dim/index.qmd) —
+  every modern decomposition runs on eigenvalues.
+
+### Sister synthesis lesson
+
+[`t5.eigenvalues`](../../tier-5-undergrad-core/04-eigenvalues/index.qmd) — the synthesis-tier eigenvalue lesson. This one adds ML interpretation: covariance, condition number, Hessian curvature.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Eigenvalues of the covariance matrix = variance in each principal direction (PCA). Eigenvalues of $\boldsymbol{X}^\top \boldsymbol{X}$ = singular values squared (regression conditioning). Eigenvalues of the Hessian = local curvature (optimisation theory, Newton's method, natural gradients).
+:::
+
+::: {.applied-callout}
+**Research.** PageRank is the dominant eigenvector of the web's transition matrix. The Google founders' 1998 thesis is essentially "compute that eigenvector." Eigenvalue methods are how spectral clustering finds communities in graphs.
+:::
+
+::: {.applied-callout}
+**Encryption.** Many lattice-based cryptosystems have security parameters tied to the smallest singular value (eigenvalue of a hardness matrix). Small eigenvalues → vulnerable; controlled eigenvalues → secure.
+:::

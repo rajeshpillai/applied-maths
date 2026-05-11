@@ -1,0 +1,307 @@
+---
+title: "11 · Cholesky Decomposition"
+subtitle: "Every symmetric positive-definite matrix is a square root times its transpose — and that square root is twice as fast to compute as anything else."
+lesson-id: "mml.cholesky"
+tier: "mml"
+prerequisites: ["mml.determinant-trace-eigen"]
+unlocks: ["mml.eigendecomposition"]
+applied-domains: ["ai-ml", "research", "systems"]
+estimated-minutes: 25
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you state when a matrix is symmetric? — see
+   [Tier 5 — Matrices](../../tier-5-undergrad-core/01-matrices/index.qmd).
+2. Can you compute the eigenvalues of a $2 \times 2$ matrix? — see
+   [MML — 10, Determinant, Trace, Eigenvalues](../10-determinant-trace-eigen/index.qmd).
+3. Do you remember what a triangular matrix is (lower / upper)?
+4. Can you state $(\boldsymbol{A} \boldsymbol{B})^\top = \boldsymbol{B}^\top \boldsymbol{A}^\top$? — see
+   [MML — 02, Matrices](../02-matrices/index.qmd).
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A symmetric matrix's "shape" is captured by its **quadratic form** $\boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x}$, which traces an ellipse (if $\boldsymbol{A}$ is positive definite). Slide the entries and watch the level set $\{\boldsymbol{x} : \boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x} = 1\}$.
+
+```{ojs}
+viewof a = Inputs.range([0.2, 5], {value: 2, step: 0.1, label: "A₁₁:"})
+viewof c = Inputs.range([0.2, 5], {value: 1, step: 0.1, label: "A₂₂:"})
+viewof b = Inputs.range([-3, 3], {value: 0.5, step: 0.05, label: "A₁₂ = A₂₁:"})
+```
+
+```{ojs}
+{
+  // For x^T A x = 1, parameterise.
+  const det = a*c - b*b;
+  const tr  = a + c;
+  // Eigenvalues of [a b; b c]
+  const disc = Math.sqrt(Math.max(0, (a-c)*(a-c) + 4*b*b));
+  const l1 = (tr + disc) / 2, l2 = (tr - disc) / 2;
+  const pd = l1 > 0 && l2 > 0;
+  // Ellipse via diagonalisation (numerical).
+  const series = [];
+  if (pd) {
+    // Use principal axes 1/sqrt(l1), 1/sqrt(l2), rotated.
+    // Eigenvector for l1.
+    let evx = 1, evy;
+    if (Math.abs(b) > 1e-7) evy = (l1 - a) / b;
+    else { evx = 1; evy = 0; }
+    const n = Math.sqrt(evx*evx + evy*evy);
+    evx /= n; evy /= n;
+    for (let t = 0; t <= 2*Math.PI + 0.01; t += 0.05) {
+      const u = Math.cos(t) / Math.sqrt(l1);
+      const v = Math.sin(t) / Math.sqrt(l2);
+      series.push({x: evx * u - evy * v, y: evy * u + evx * v});
+    }
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      eigenvalues: λ₁ = ${l1.toFixed(2)}, λ₂ = ${l2.toFixed(2)}.
+      Positive definite (both > 0)? <b>${pd ? "YES — Cholesky exists ✓" : "NO — no Cholesky"}</b>
+    </div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-3, 3]}, y: {domain: [-3, 3]}, grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        pd ? Plot.line(series, {x: "x", y: "y", stroke: "steelblue", strokeWidth: 2, fill: "rgba(70,130,180,0.15)"}) : Plot.text([{x:0,y:0}], {x:"x",y:"y", text:["not positive-definite"], fontSize: 14, fill: "tomato"})
+      ]
+    })}
+  </div>`;
+}
+```
+
+When both eigenvalues are positive, the level set is an *ellipse* — the matrix is **positive definite**, and Cholesky factorisation exists. When an eigenvalue is zero or negative, the ellipse becomes a parabola, hyperbola, or empty — and Cholesky fails.
+
+## Wonder
+
+1. Symmetric positive-definite matrices come up everywhere in ML (covariance matrices, $\boldsymbol{X}^\top \boldsymbol{X}$ for full-rank $\boldsymbol{X}$, kernel Gram matrices). Why is this *the* structural assumption to optimise for?
+2. The decomposition $\boldsymbol{A} = \boldsymbol{L} \boldsymbol{L}^\top$ exists only for SPD matrices. Why does positivity matter?
+3. If a "matrix square root" exists, is it unique? What does it mean to take a square root of a matrix anyway?
+4. Cholesky is twice as fast as LU because it exploits symmetry. What does "twice as fast" actually mean in terms of operation count?
+
+## Discover
+
+Six problems building from SPD to factorisation to applications.
+
+**D1.** Verify that $\boldsymbol{A} = \begin{pmatrix} 4 & 2 \\ 2 & 3 \end{pmatrix}$ is symmetric positive definite by computing eigenvalues.
+
+<details class="hint"><summary>Full solution</summary>
+Trace 7, det $12 - 4 = 8$. Eigenvalues satisfy $\lambda^2 - 7\lambda + 8 = 0$, giving $\lambda = (7 \pm \sqrt{17})/2 \approx 5.56, 1.44$. Both positive. SPD ✓.
+</details>
+
+**D2.** Find $\boldsymbol{L} = \begin{pmatrix} \ell_{11} & 0 \\ \ell_{21} & \ell_{22} \end{pmatrix}$ such that $\boldsymbol{L} \boldsymbol{L}^\top = \begin{pmatrix} 4 & 2 \\ 2 & 3 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\boldsymbol{L} \boldsymbol{L}^\top = \begin{pmatrix} \ell_{11}^2 & \ell_{11} \ell_{21} \\ \ell_{11} \ell_{21} & \ell_{21}^2 + \ell_{22}^2 \end{pmatrix}$. Match entries.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\ell_{11}^2 = 4 \Rightarrow \ell_{11} = 2$. $\ell_{11} \ell_{21} = 2 \Rightarrow \ell_{21} = 1$. $\ell_{21}^2 + \ell_{22}^2 = 3 \Rightarrow \ell_{22}^2 = 2 \Rightarrow \ell_{22} = \sqrt{2}$.
+$\boldsymbol{L} = \begin{pmatrix} 2 & 0 \\ 1 & \sqrt 2 \end{pmatrix}$.
+</details>
+
+**D3.** Use the Cholesky factor of D2 to solve $\boldsymbol{A} \boldsymbol{x} = \begin{pmatrix} 8 \\ 7 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\boldsymbol{L} \boldsymbol{L}^\top \boldsymbol{x} = \boldsymbol{b}$. Let $\boldsymbol{y} = \boldsymbol{L}^\top \boldsymbol{x}$. Solve $\boldsymbol{L}\boldsymbol{y} = \boldsymbol{b}$ first (forward substitution), then $\boldsymbol{L}^\top \boldsymbol{x} = \boldsymbol{y}$ (back substitution).
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{L}\boldsymbol{y} = \boldsymbol{b}$: $2 y_1 = 8 \Rightarrow y_1 = 4$. $y_1 + \sqrt 2 y_2 = 7 \Rightarrow y_2 = 3/\sqrt 2$.
+$\boldsymbol{L}^\top \boldsymbol{x} = \boldsymbol{y}$: $\sqrt 2 x_2 = 3/\sqrt 2 \Rightarrow x_2 = 3/2$. $2 x_1 + x_2 = 4 \Rightarrow x_1 = 5/4$. **Two triangular solves replaced one matrix inversion** — $O(n^3 / 3)$ vs $O(n^3)$ for LU.
+</details>
+
+**D4.** Show that if $\boldsymbol{A} = \boldsymbol{L}\boldsymbol{L}^\top$, then $\det \boldsymbol{A} = (\det \boldsymbol{L})^2 = \prod_i \ell_{ii}^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$\det \boldsymbol{A} = \det \boldsymbol{L} \cdot \det \boldsymbol{L}^\top = (\det \boldsymbol{L})^2$. For triangular $\boldsymbol{L}$, $\det \boldsymbol{L} = \prod \ell_{ii}$. So $\det \boldsymbol{A} = \prod \ell_{ii}^2$. **Cholesky gives the log-determinant for free as $\log \det \boldsymbol{A} = 2 \sum_i \log \ell_{ii}$** — useful in Gaussian likelihoods (Lesson 18).
+</details>
+
+**D5.** A covariance matrix $\boldsymbol{\Sigma} \in \mathbb{R}^{n \times n}$ is always symmetric and positive *semi*-definite. When does it fail to be strictly positive definite?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+A zero eigenvalue corresponds to a direction with zero variance.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{\Sigma}$ has a zero eigenvalue when there is a linear combination of variables with zero variance — i.e. a *deterministic* linear relationship between the variables. In ML, this happens when features are exactly collinear or when you have fewer data points than dimensions. Cholesky fails; you need a regularised version like $\boldsymbol{\Sigma} + \lambda \boldsymbol{I}$.
+</details>
+
+**D6.** To **sample** $\boldsymbol{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, generate $\boldsymbol{z} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$ and compute $\boldsymbol{x} = \boldsymbol{\mu} + \boldsymbol{L} \boldsymbol{z}$ where $\boldsymbol{\Sigma} = \boldsymbol{L} \boldsymbol{L}^\top$. Verify $\mathrm{Cov}(\boldsymbol{x}) = \boldsymbol{\Sigma}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\mathrm{Cov}(\boldsymbol{x}) = \mathrm{Cov}(\boldsymbol{L}\boldsymbol{z}) = \boldsymbol{L} \mathrm{Cov}(\boldsymbol{z}) \boldsymbol{L}^\top = \boldsymbol{L} \boldsymbol{I} \boldsymbol{L}^\top = \boldsymbol{L}\boldsymbol{L}^\top = \boldsymbol{\Sigma}$. ✓
+**Cholesky is the canonical way to sample multivariate Gaussians** — used everywhere from Gaussian processes to noise injection in DDPM diffusion models.
+</details>
+
+::: {.fun-fact}
+The Cholesky decomposition is named after **André-Louis Cholesky** (1875–1918), a French military officer who developed it for geodetic survey calculations while serving in WWI. He died in battle three months before the war ended; the method was discovered in his unpublished notebooks and published posthumously by his colleague Major Benoît in 1924. It became famous only after the rise of numerical computing in the 1950s, when its efficiency (half the cost of LU on symmetric matrices) made it a workhorse of every solver.
+:::
+
+::: {.key-insight}
+**Cholesky decomposition is "matrix square root" for SPD matrices.** $\boldsymbol{A} = \boldsymbol{L} \boldsymbol{L}^\top$ with $\boldsymbol{L}$ lower-triangular. It's twice as fast as LU because symmetry halves the work. And it's the *only* decomposition that simultaneously gives you (a) a system solver, (b) a $\log \det$, (c) a Gaussian sampler, all from the same lower-triangular factor.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A symmetric matrix $\boldsymbol{A} \in \mathbb{R}^{n \times n}$ is **positive definite** (SPD) if $\boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x} > 0$ for all $\boldsymbol{x} \ne \boldsymbol{0}$. Equivalently, all eigenvalues are strictly positive.
+
+The **Cholesky decomposition** of an SPD matrix is the unique factorisation
+$$
+\boldsymbol{A} = \boldsymbol{L} \boldsymbol{L}^\top
+$$
+where $\boldsymbol{L}$ is lower-triangular with strictly positive diagonal entries.
+
+The cost of computing $\boldsymbol{L}$ is roughly $\tfrac{1}{3} n^3$ multiply–adds — about half the cost of LU decomposition for general matrices.
+
+Once $\boldsymbol{L}$ is known:
+- Solving $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$ takes two triangular solves: $\boldsymbol{L}\boldsymbol{y} = \boldsymbol{b}$ then $\boldsymbol{L}^\top \boldsymbol{x} = \boldsymbol{y}$. Each is $O(n^2)$.
+- $\det \boldsymbol{A} = (\prod \ell_{ii})^2$.
+- $\log \det \boldsymbol{A} = 2 \sum \log \ell_{ii}$.
+- Sampling from $\mathcal{N}(\boldsymbol{\mu}, \boldsymbol{A})$: $\boldsymbol{x} = \boldsymbol{\mu} + \boldsymbol{L}\boldsymbol{z}, \boldsymbol{z} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I})$.
+
+::: {.callout-warning}
+**Sūtra.** *SPD ⇔ Cholesky exists; one triangular factor, four uses.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Every symmetric matrix has a Cholesky."* — Only positive *definite* ones. Indefinite symmetric matrices need LDL$^\top$ instead.
+2. *"Cholesky is unique."* — Yes, given the convention that diagonal entries are positive. Without that, $-\boldsymbol{L}$ also works (a sign flip), so we always take the positive-diagonal version.
+3. *"Cholesky and SVD give the same thing for SPD matrices."* — No. Cholesky is triangular × upper-triangular. SVD is orthogonal × diagonal × orthogonal. They're different decompositions with different uses.
+:::
+
+## Apply
+
+### Worked example
+
+Compute the Cholesky factor of $\boldsymbol{A} = \begin{pmatrix} 9 & 6 & 3 \\ 6 & 5 & 0 \\ 3 & 0 & 11 \end{pmatrix}$ and use it to compute $\log \det \boldsymbol{A}$.
+
+**Step 1.** $\ell_{11} = \sqrt{9} = 3$. $\ell_{21} = 6 / 3 = 2$. $\ell_{31} = 3 / 3 = 1$.
+
+**Step 2.** $\ell_{22}^2 = 5 - 4 = 1$, so $\ell_{22} = 1$. $\ell_{32} = (0 - 2 \cdot 1) / 1 = -2$.
+
+**Step 3.** $\ell_{33}^2 = 11 - 1 - 4 = 6$, so $\ell_{33} = \sqrt{6}$.
+
+**Step 4.** $\boldsymbol{L} = \begin{pmatrix} 3 & 0 & 0 \\ 2 & 1 & 0 \\ 1 & -2 & \sqrt 6 \end{pmatrix}$. Verify: $\boldsymbol{L}\boldsymbol{L}^\top$ reproduces $\boldsymbol{A}$.
+
+**Answer:** $\log \det \boldsymbol{A} = 2(\log 3 + \log 1 + \log \sqrt 6) = 2 \log 3 + \log 6 \approx 2.197 + 1.792 = 3.989$. Compare $\det \boldsymbol{A} = 9 \cdot 1 \cdot 6 = 54$, $\log 54 \approx 3.989$. ✓
+
+### Warm
+
+**W1.** Is $\boldsymbol{A} = \begin{pmatrix} 1 & 2 \\ 2 & 1 \end{pmatrix}$ positive definite?
+
+<details class="hint"><summary>Full solution</summary>
+Eigenvalues $\lambda^2 - 2\lambda - 3 = 0 \Rightarrow \lambda = 3, -1$. *Not* positive definite ($-1 < 0$). No Cholesky.
+</details>
+
+**W2.** Why is $\boldsymbol{X}^\top \boldsymbol{X}$ always positive *semi*-definite for any real $\boldsymbol{X}$?
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{x}^\top (\boldsymbol{X}^\top \boldsymbol{X}) \boldsymbol{x} = \lVert \boldsymbol{X}\boldsymbol{x}\rVert^2 \ge 0$. Strict positivity requires $\boldsymbol{X}\boldsymbol{x} = \boldsymbol{0} \Rightarrow \boldsymbol{x} = \boldsymbol{0}$, which holds iff $\boldsymbol{X}$ has independent columns (full column rank).
+</details>
+
+**W3.** Compute Cholesky of $\begin{pmatrix} 4 & 0 \\ 0 & 9 \end{pmatrix}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{L} = \begin{pmatrix} 2 & 0 \\ 0 & 3 \end{pmatrix}$. For diagonal matrices, Cholesky is "take the entry-wise square root of the diagonal."
+</details>
+
+### Working
+
+**Wo1.** Show that the Cholesky factor's diagonal entry $\ell_{ii}$ satisfies $\ell_{ii}^2 = a_{ii} - \sum_{k < i} \ell_{ik}^2$.
+
+<details class="hint"><summary>Full solution</summary>
+$a_{ii} = (\boldsymbol{L}\boldsymbol{L}^\top)_{ii} = \sum_k \ell_{ik}^2$. The $k = i$ term is $\ell_{ii}^2$; the rest are $k < i$ (since $\boldsymbol{L}$ is lower triangular, $\ell_{ik} = 0$ for $k > i$). Rearranged: $\ell_{ii}^2 = a_{ii} - \sum_{k < i} \ell_{ik}^2$. **The right-hand side must be positive for Cholesky to succeed** — and this is exactly when $\boldsymbol{A}$ is positive definite.
+</details>
+
+**Wo2.** Show that the Cholesky-based Gaussian sampler $\boldsymbol{x} = \boldsymbol{\mu} + \boldsymbol{L}\boldsymbol{z}$ has mean $\boldsymbol{\mu}$.
+
+<details class="hint"><summary>Full solution</summary>
+$\mathbb{E}[\boldsymbol{x}] = \boldsymbol{\mu} + \boldsymbol{L} \mathbb{E}[\boldsymbol{z}] = \boldsymbol{\mu} + \boldsymbol{L} \boldsymbol{0} = \boldsymbol{\mu}$. ✓
+</details>
+
+**Wo3.** Why does Cholesky have stability advantages over computing $\boldsymbol{A}^{-1}$ for solving $\boldsymbol{A}\boldsymbol{x} = \boldsymbol{b}$?
+
+<details class="hint"><summary>Full solution</summary>
+The condition number of $\boldsymbol{L}$ is $\sqrt{\kappa(\boldsymbol{A})}$ — the square root of $\boldsymbol{A}$'s. Operations on $\boldsymbol{L}$ amplify rounding error by $\sqrt{\kappa}$ instead of $\kappa^2$ (which is what direct inversion would do). For mildly ill-conditioned $\boldsymbol{A}$, Cholesky-based solves stay accurate where inversion-based solves explode. **Production numerical libraries never compute $\boldsymbol{A}^{-1}$ explicitly.**
+</details>
+
+### Stretch
+
+**S1.** A *rank-one update* of an SPD matrix: given Cholesky $\boldsymbol{A} = \boldsymbol{L}\boldsymbol{L}^\top$, can we compute Cholesky of $\boldsymbol{A} + \boldsymbol{v}\boldsymbol{v}^\top$ in $O(n^2)$ instead of $O(n^3)$? (Just sketch why this is possible.)
+
+<details class="hint"><summary>Full solution</summary>
+Yes — the *Cholesky update* algorithm performs $n$ Givens rotations on $[\boldsymbol{L}\ |\ \boldsymbol{v}]$ to re-triangularise. Cost: $O(n^2)$. This is what makes Kalman filtering, online Gaussian-process regression, and incremental SVD feasible — they keep adding data points, and recomputing from scratch would be $O(n^3)$ per step.
+</details>
+
+**S2.** In a Gaussian process, posterior predictions need $\boldsymbol{K}^{-1} \boldsymbol{y}$ where $\boldsymbol{K} \in \mathbb{R}^{N \times N}$ is the kernel Gram matrix. Why does scaling GP regression to $N > 10^4$ data points become problematic?
+
+<details class="hint"><summary>Full solution</summary>
+Computing the Cholesky of $\boldsymbol{K}$ is $O(N^3)$. At $N = 10^4$ that's $10^{12}$ flops — minutes on a GPU but a hard wall. Memory is $O(N^2)$ = 800 MB just for the matrix. **This is why "scalable GP" research is a major sub-field** — sparse approximations, inducing points, Nyström methods all try to dodge the cubic Cholesky cost. Without it, deep kernel learning would be infeasible.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Cholesky is the matrix square root of an SPD matrix — and the universal tool for SPD problems: solve, determinant, sample.**
+2. **Existence is exact: SPD ⇔ Cholesky exists with positive diagonal.**
+3. **It's twice as fast as LU and the canonical building block for Kalman filters, Gaussian processes, and multivariate Gaussian sampling.**
+:::
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you state the four things Cholesky gives you, from one triangular factor?
+2. Did you solve at least 5 of the 8 practice problems without
+   peeking at hints?
+3. When you see "sample a multivariate Gaussian" in code, do you
+   instantly think *Cholesky*?
+
+- **3 yes:** move on to Lesson 12.
+- **2 yes:** redo D6 (Gaussian sampling), then move on.
+- **0–1 yes:** re-read *Discover* problems D2 and D6.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.determinant-trace-eigen`](../10-determinant-trace-eigen/index.qmd) —
+  positive definiteness defined via positive eigenvalues.
+
+### What this unlocks
+
+- [`mml.eigendecomposition`](../12-eigendecomposition/index.qmd) — the
+  next decomposition, which works for general symmetric matrices, not
+  just SPD.
+- Eventually, [`mml.bayesian-linear-regression`](../25-bayesian-linear-regression/index.qmd), [`mml.gmm`](../29-gmm/index.qmd) — Gaussian likelihoods need Cholesky of covariance.
+
+### Sister synthesis lesson
+
+[`t6.spectral-theorem`](../../tier-6-undergrad-advanced/04-spectral-theorem/index.qmd) — the spectral theorem says symmetric matrices have orthonormal eigenbases; Cholesky is the *triangular* alternative when you don't need eigenvectors but do need speed.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Gaussian process regression, Bayesian neural networks, latent Gaussian models, Kalman filters, and multivariate Gaussian likelihoods all rely on Cholesky of a covariance matrix. PyMC, GPyTorch, and Stan use it under the hood.
+:::
+
+::: {.applied-callout}
+**Systems.** LAPACK's `dpotrf` and `dpotrs` (Cholesky factor + solve) are among the most-called functions in scientific computing. GPUs ship dedicated Cholesky kernels.
+:::
+
+::: {.applied-callout}
+**Research.** The simulation of correlated random processes (Monte Carlo finance, lattice physics, geostatistics) all use Cholesky to inject the right correlation structure into i.i.d. Gaussian noise.
+:::

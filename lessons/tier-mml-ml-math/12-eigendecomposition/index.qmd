@@ -1,0 +1,294 @@
+---
+title: "12 · Eigendecomposition and Diagonalisation"
+subtitle: "Find the basis where the matrix is diagonal — every operation becomes a coordinate-wise scaling."
+lesson-id: "mml.eigendecomposition"
+tier: "mml"
+prerequisites: ["mml.cholesky"]
+unlocks: ["mml.svd-and-low-rank"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 30
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Before you start, you should be able to say *yes* to all four:
+
+1. Can you compute eigenvalues / eigenvectors of a $2 \times 2$ matrix? — see
+   [MML — 10, Determinant, Trace, Eigenvalues](../10-determinant-trace-eigen/index.qmd).
+2. Can you state $\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$ for an orthogonal matrix? — see [MML — 08](../08-orthogonality/index.qmd).
+3. Can you state the change-of-basis formula $\boldsymbol{A}' = \boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S}$? — see [MML — 05](../05-rank-and-linear-mappings/index.qmd).
+4. Can you compute $\begin{pmatrix} 2 & 0 \\ 0 & 3 \end{pmatrix}^{10}$? (Diagonal matrix power.)
+
+If any answer is *no*, follow the link before continuing.
+:::
+
+## Touch
+
+A symmetric $2 \times 2$ matrix $\boldsymbol{A}$. The widget shows two pictures side by side: in the *standard basis* the unit circle becomes an ellipse with skewed axes, but in the *eigenbasis* the same operation is a clean coordinate-wise stretch.
+
+```{ojs}
+viewof a = Inputs.range([0.5, 4], {value: 2, step: 0.05, label: "A₁₁:"})
+viewof c = Inputs.range([0.5, 4], {value: 1, step: 0.05, label: "A₂₂:"})
+viewof b = Inputs.range([-2, 2], {value: 0.5, step: 0.05, label: "A₁₂ = A₂₁:"})
+```
+
+```{ojs}
+{
+  const tr = a + c, det = a*c - b*b;
+  const disc = Math.sqrt(Math.max(0, (a-c)*(a-c) + 4*b*b));
+  const l1 = (tr + disc)/2, l2 = (tr - disc)/2;
+  let evx = 1, evy = 0;
+  if (Math.abs(b) > 1e-7) evy = (l1 - a) / b;
+  const nev = Math.sqrt(evx*evx + evy*evy);
+  evx /= nev; evy /= nev;
+  // Eigenbasis = rotation by theta.
+  const theta = Math.atan2(evy, evx);
+  const circle = [];
+  const ellipse = [];
+  for (let t = 0; t <= 2 * Math.PI + 0.01; t += 0.05) {
+    const x = Math.cos(t), y = Math.sin(t);
+    circle.push({x, y});
+    ellipse.push({x: a*x + b*y, y: b*x + c*y});
+  }
+  const Plot = await import("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm");
+  return html`<div>
+    <div style="font:13px sans-serif; margin-bottom:4px;">
+      Eigenvalues: λ₁ = ${l1.toFixed(2)}, λ₂ = ${l2.toFixed(2)}.
+      Eigenbasis rotated by θ = ${(theta * 180/Math.PI).toFixed(1)}° from standard basis.
+    </div>
+    ${Plot.plot({
+      width: 460, height: 360,
+      x: {domain: [-5, 5]}, y: {domain: [-5, 5]}, grid: true,
+      marks: [
+        Plot.ruleX([0], {stroke: "#bbb"}),
+        Plot.ruleY([0], {stroke: "#bbb"}),
+        Plot.line(circle, {x:"x", y:"y", stroke:"#ccc"}),
+        Plot.line(ellipse, {x:"x", y:"y", stroke:"steelblue", strokeWidth: 2, fill:"rgba(70,130,180,0.15)"}),
+        Plot.arrow([{x1:0,y1:0,x2:l1*evx,y2:l1*evy}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"tomato", strokeWidth:2}),
+        Plot.arrow([{x1:0,y1:0,x2:-l2*evy,y2:l2*evx}], {x1:"x1",y1:"y1",x2:"x2",y2:"y2", stroke:"seagreen", strokeWidth:2})
+      ]
+    })}
+  </div>`;
+}
+```
+
+The red arrow points along the *principal axis* of the ellipse — the eigenvector for $\lambda_1$. The green arrow along the *minor axis* — eigenvector for $\lambda_2$. They are perpendicular (because $\boldsymbol{A}$ is symmetric). In the eigenbasis the matrix is **diagonal** with entries $\lambda_1, \lambda_2$ — and the same operation looks like "stretch by $\lambda_i$ along axis $i$."
+
+## Wonder
+
+1. Why does the *symmetric* matrix have *perpendicular* eigenvectors, while a general matrix doesn't?
+2. If you put the eigenvectors as columns of $\boldsymbol{V}$, what is $\boldsymbol{V}^{-1} \boldsymbol{A} \boldsymbol{V}$?
+3. The formula for $\boldsymbol{A}^k$ (the matrix raised to a power) is a sum of $n$ products, each requiring $O(n^3)$ — but in the eigenbasis it's *one* coordinate-wise raise to the power. What does that tell you about the cost of dynamical systems?
+4. The exponential of a matrix $e^{\boldsymbol{A}}$ — what's the natural way to define it?
+
+## Discover
+
+Six problems building from "find eigenvectors" to "diagonalisation".
+
+**D1.** For $\boldsymbol{A} = \begin{pmatrix} 4 & 1 \\ 1 & 4 \end{pmatrix}$, find the eigenvalues and orthonormal eigenvectors.
+
+<details class="hint"><summary>Full solution</summary>
+$\lambda^2 - 8\lambda + 15 = 0 \Rightarrow \lambda = 3, 5$.
+For $\lambda = 5$: $\begin{pmatrix} -1 & 1 \\ 1 & -1 \end{pmatrix} \boldsymbol{v} = \boldsymbol{0} \Rightarrow \boldsymbol{v}_1 \propto (1, 1)$. Normalise: $(1/\sqrt 2, 1/\sqrt 2)$.
+For $\lambda = 3$: $\boldsymbol{v}_2 \propto (1, -1)$, normalised $(1/\sqrt 2, -1/\sqrt 2)$.
+The eigenvectors are perpendicular ✓.
+</details>
+
+**D2.** Form $\boldsymbol{Q} = (\boldsymbol{v}_1 \ \boldsymbol{v}_2)$ and verify $\boldsymbol{Q}^\top \boldsymbol{A} \boldsymbol{Q} = \begin{pmatrix} 5 & 0 \\ 0 & 3 \end{pmatrix}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\boldsymbol{Q}^\top \boldsymbol{A} \boldsymbol{v}_i = \lambda_i \boldsymbol{Q}^\top \boldsymbol{v}_i$. Use orthonormality of $\boldsymbol{Q}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A}\boldsymbol{Q} = (\lambda_1 \boldsymbol{v}_1\ \lambda_2 \boldsymbol{v}_2) = \boldsymbol{Q} \mathrm{diag}(5, 3)$. So $\boldsymbol{Q}^\top \boldsymbol{A} \boldsymbol{Q} = \mathrm{diag}(5, 3)$ (using $\boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I}$). **In the eigenbasis, $\boldsymbol{A}$ is diagonal.**
+</details>
+
+**D3.** Use the eigendecomposition $\boldsymbol{A} = \boldsymbol{Q} \boldsymbol{\Lambda} \boldsymbol{Q}^\top$ from D1–D2 to compute $\boldsymbol{A}^{10}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\boldsymbol{A}^k = \boldsymbol{Q} \boldsymbol{\Lambda}^k \boldsymbol{Q}^\top$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{\Lambda}^{10} = \mathrm{diag}(5^{10}, 3^{10}) = \mathrm{diag}(9765625, 59049)$. So $\boldsymbol{A}^{10} = \boldsymbol{Q} \mathrm{diag}(9765625, 59049) \boldsymbol{Q}^\top$. **Raising a diagonal matrix to a power is trivial — one operation per entry. Eigendecomposition turns matrix powers from $O(n^3 \log k)$ into $O(n^3 + n k)$.**
+</details>
+
+**D4.** Show that for a symmetric matrix $\boldsymbol{A}$ with eigendecomposition $\boldsymbol{A} = \boldsymbol{Q} \boldsymbol{\Lambda} \boldsymbol{Q}^\top$, we have $\boldsymbol{A} = \sum_i \lambda_i \boldsymbol{v}_i \boldsymbol{v}_i^\top$ — the **spectral expansion**.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{Q}\boldsymbol{\Lambda}\boldsymbol{Q}^\top = \sum_i \lambda_i \boldsymbol{v}_i \boldsymbol{v}_i^\top$ by direct multiplication. Each $\boldsymbol{v}_i \boldsymbol{v}_i^\top$ is a *rank-1 projector*: it maps a vector to its component along $\boldsymbol{v}_i$. So $\boldsymbol{A}$ is a sum of rank-1 projectors weighted by eigenvalues. **Truncating the sum at the top-$k$ eigenvalues is best rank-$k$ approximation** — coming in Lesson 13 (SVD).
+</details>
+
+**D5.** Define $f(\boldsymbol{A}) = \boldsymbol{Q} f(\boldsymbol{\Lambda}) \boldsymbol{Q}^\top$ for any function $f$ (with $f(\boldsymbol{\Lambda})$ applied entry-wise on the diagonal). Compute $\sqrt{\boldsymbol{A}}$ for the matrix in D1.
+
+<details class="hint"><summary>Full solution</summary>
+$\sqrt{\boldsymbol{A}} = \boldsymbol{Q} \mathrm{diag}(\sqrt 5, \sqrt 3) \boldsymbol{Q}^\top$. Check: $\sqrt{\boldsymbol{A}}^2 = \boldsymbol{Q} \mathrm{diag}(5, 3) \boldsymbol{Q}^\top = \boldsymbol{A}$. ✓ **This defines $\boldsymbol{A}^{1/2}, e^{\boldsymbol{A}}, \log \boldsymbol{A}$ — every smooth function of a matrix.**
+</details>
+
+**D6.** Not every matrix is diagonalisable. Show that $\boldsymbol{A} = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$ has only one linearly independent eigenvector.
+
+<details class="hint"><summary>Full solution</summary>
+$\det(\boldsymbol{A} - \lambda \boldsymbol{I}) = (1 - \lambda)^2 = 0 \Rightarrow \lambda = 1$ (double). Eigenvectors: $(\boldsymbol{A} - \boldsymbol{I}) \boldsymbol{v} = \boldsymbol{0} \Rightarrow \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix} \boldsymbol{v} = \boldsymbol{0} \Rightarrow v_2 = 0$. Only one independent eigenvector $(1, 0)$.
+This **Jordan block** matrix is *defective*: not diagonalisable. For ML you rarely encounter these — covariance matrices are symmetric and always diagonalisable. But in general dynamical systems they appear (resonance, critically damped oscillators).
+</details>
+
+::: {.fun-fact}
+The spectral theorem — every symmetric matrix has an orthonormal eigenbasis — was proven for finite dimensions by **Cauchy** in 1829 and extended to infinite-dimensional operators by **David Hilbert** between 1904–1910 in his theory of integral operators. The infinite-dimensional version is the mathematical foundation of *quantum mechanics*: observables are self-adjoint (symmetric) operators, and their eigenvalues are the measurable values. The first ML application to use this same idea was *latent semantic analysis* (Deerwester et al., 1990) — proving that the same spectral machinery applies to documents-vs-terms.
+:::
+
+::: {.key-insight}
+**Diagonalising a symmetric matrix = finding the basis where every operation is coordinate-wise.** Once you have $\boldsymbol{A} = \boldsymbol{Q}\boldsymbol{\Lambda}\boldsymbol{Q}^\top$, *any function of $\boldsymbol{A}$* — power, square root, exponential, inverse, regularised inverse — becomes "do it to each $\lambda_i$ separately." This single trick collapses most of ML's heavy linear algebra.
+:::
+
+## Name
+
+::: {.lesson-beat}
+A matrix $\boldsymbol{A} \in \mathbb{R}^{n \times n}$ is **diagonalisable** if there exists invertible $\boldsymbol{S}$ such that $\boldsymbol{S}^{-1} \boldsymbol{A} \boldsymbol{S} = \boldsymbol{\Lambda}$ is diagonal. Equivalently, $\boldsymbol{A} = \boldsymbol{S} \boldsymbol{\Lambda} \boldsymbol{S}^{-1}$ where the columns of $\boldsymbol{S}$ are eigenvectors and the diagonal of $\boldsymbol{\Lambda}$ holds eigenvalues.
+
+A matrix is diagonalisable iff it has $n$ linearly independent eigenvectors.
+
+**Spectral theorem.** Every real symmetric matrix has an *orthonormal* eigenbasis. So if $\boldsymbol{A} = \boldsymbol{A}^\top$:
+$$
+\boldsymbol{A} = \boldsymbol{Q} \boldsymbol{\Lambda} \boldsymbol{Q}^\top, \qquad \boldsymbol{Q}^\top \boldsymbol{Q} = \boldsymbol{I},\ \boldsymbol{\Lambda}\ \text{diagonal real}.
+$$
+
+**Spectral expansion.** $\boldsymbol{A} = \sum_{i=1}^n \lambda_i \boldsymbol{v}_i \boldsymbol{v}_i^\top$ — sum of rank-1 projectors.
+
+**Functional calculus.** $f(\boldsymbol{A}) = \boldsymbol{Q} f(\boldsymbol{\Lambda}) \boldsymbol{Q}^\top$, where $f$ is applied entry-wise to the diagonal of $\boldsymbol{\Lambda}$. So $\boldsymbol{A}^k, e^{\boldsymbol{A}}, \boldsymbol{A}^{-1}$ all share the same eigenvectors as $\boldsymbol{A}$.
+
+::: {.callout-warning}
+**Sūtra.** *Symmetric matrix = orthonormal eigenbasis; in that basis, every function is coordinate-wise.*
+:::
+:::
+
+::: {.common-confusion}
+**Watch out:**
+
+1. *"Every matrix is diagonalisable."* — False. Defective matrices (with fewer eigenvectors than eigenvalues counted with multiplicity) are not. Symmetric matrices always are.
+2. *"Diagonalisation works in any basis."* — The eigenbasis is *the* basis where the matrix is diagonal. In the standard basis the matrix has its original form.
+3. *"Eigenvalues are stable under small perturbations."* — Single eigenvalues are stable, but **repeated** eigenvalues can split or swap with small perturbations, and the corresponding eigenvectors can swing wildly. Numerical eigenvalue computation is delicate.
+:::
+
+## Apply
+
+### Worked example
+
+Compute $e^{\boldsymbol{A}}$ for $\boldsymbol{A} = \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix}$ — the infinitesimal generator of 2D rotations.
+
+**Step 1.** Eigenvalues: $\det(\boldsymbol{A} - \lambda \boldsymbol{I}) = \lambda^2 + 1 = 0 \Rightarrow \lambda = \pm i$. Complex.
+
+**Step 2.** Eigenvectors over $\mathbb{C}$: for $\lambda = i$, $(\boldsymbol{A} - i\boldsymbol{I}) \boldsymbol{v} = 0 \Rightarrow \boldsymbol{v}_1 = (1, i)$. For $\lambda = -i$, $\boldsymbol{v}_2 = (1, -i)$.
+
+**Step 3.** $\boldsymbol{A} = \boldsymbol{V} \mathrm{diag}(i, -i) \boldsymbol{V}^{-1}$. Then $e^{\boldsymbol{A}} = \boldsymbol{V} \mathrm{diag}(e^i, e^{-i}) \boldsymbol{V}^{-1}$.
+
+**Step 4.** Using Euler's formula $e^{\pm i} = \cos 1 \pm i \sin 1$, and carrying out the matrix multiplication, gives $e^{\boldsymbol{A}} = \begin{pmatrix} \cos 1 & \sin 1 \\ -\sin 1 & \cos 1 \end{pmatrix}$ — the rotation matrix by 1 radian.
+
+**Conclusion:** $e^{\boldsymbol{A}}$ rotates by the angle determined by the magnitude of the imaginary eigenvalues. This is why "infinitesimal rotation" is a 2x2 antisymmetric matrix and its exponential is a finite rotation — the bridge from Lie algebras to Lie groups.
+
+### Warm
+
+**W1.** Is every diagonal matrix diagonalisable?
+
+<details class="hint"><summary>Full solution</summary>
+Yes — trivially, $\boldsymbol{I}^{-1} \boldsymbol{D} \boldsymbol{I} = \boldsymbol{D}$. The eigenvectors are the standard basis.
+</details>
+
+**W2.** Eigenvalues of $e^{\boldsymbol{A}}$ in terms of eigenvalues of $\boldsymbol{A}$?
+
+<details class="hint"><summary>Full solution</summary>
+If $\lambda_i$ are eigenvalues of $\boldsymbol{A}$, then $e^{\lambda_i}$ are eigenvalues of $e^{\boldsymbol{A}}$.
+</details>
+
+**W3.** For an orthogonal matrix $\boldsymbol{Q}$, what's the eigendecomposition look like — what kind of eigenvalues does it have?
+
+<details class="hint"><summary>Full solution</summary>
+Eigenvalues of $\boldsymbol{Q}$ lie on the unit circle in $\mathbb{C}$ (they have magnitude 1). Rotations have complex-conjugate eigenvalue pairs $e^{\pm i\theta}$; reflections have a $-1$ eigenvalue.
+</details>
+
+### Working
+
+**Wo1.** Show that if $\boldsymbol{A}$ is symmetric and $\lambda_1 \ne \lambda_2$ are distinct eigenvalues, the corresponding eigenvectors are orthogonal. (We sketched this in Lesson 10; flesh it out.)
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{A}\boldsymbol{v}_1 = \lambda_1 \boldsymbol{v}_1$, $\boldsymbol{A}\boldsymbol{v}_2 = \lambda_2 \boldsymbol{v}_2$. Compute $\boldsymbol{v}_1^\top \boldsymbol{A} \boldsymbol{v}_2$ two ways: $\lambda_2 \boldsymbol{v}_1^\top \boldsymbol{v}_2$ and $(\boldsymbol{A}\boldsymbol{v}_1)^\top \boldsymbol{v}_2 = \lambda_1 \boldsymbol{v}_1^\top \boldsymbol{v}_2$. So $(\lambda_2 - \lambda_1) \boldsymbol{v}_1^\top \boldsymbol{v}_2 = 0$. With $\lambda_1 \ne \lambda_2$ this forces $\boldsymbol{v}_1^\top \boldsymbol{v}_2 = 0$.
+</details>
+
+**Wo2.** A covariance matrix $\boldsymbol{\Sigma}$ has eigendecomposition $\boldsymbol{\Sigma} = \boldsymbol{U}\boldsymbol{\Lambda}\boldsymbol{U}^\top$. Write down a formula for $\boldsymbol{\Sigma}^{-1/2}$ (the "whitening" transform).
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{\Sigma}^{-1/2} = \boldsymbol{U} \boldsymbol{\Lambda}^{-1/2} \boldsymbol{U}^\top$. Applied to data, this *decorrelates and rescales* — every direction has unit variance. Used in batch normalisation, PCA whitening, Mahalanobis distance.
+</details>
+
+**Wo3.** For a symmetric matrix $\boldsymbol{A}$ with eigenvalues $\lambda_1 \ge \dots \ge \lambda_n$, what are the *maximum* and *minimum* of the Rayleigh quotient $\boldsymbol{x}^\top \boldsymbol{A} \boldsymbol{x} / \lVert \boldsymbol{x}\rVert^2$?
+
+<details class="hint"><summary>Full solution</summary>
+$\max = \lambda_1$ (achieved at $\boldsymbol{x} = \boldsymbol{v}_1$), $\min = \lambda_n$. This is the **Rayleigh principle** — the foundation of variational characterisations of eigenvalues, and of PCA (max variance under unit constraint).
+</details>
+
+### Stretch
+
+**S1.** For a symmetric PSD matrix $\boldsymbol{A}$, show that $\boldsymbol{A}^{1/2}$ (the principal square root, with non-negative eigenvalues) is itself symmetric and uniquely defined. Sketch why uniqueness fails for non-symmetric matrices.
+
+<details class="hint"><summary>Full solution</summary>
+Symmetry: $\boldsymbol{Q}\boldsymbol{\Lambda}^{1/2}\boldsymbol{Q}^\top$ is symmetric because $\boldsymbol{\Lambda}^{1/2}$ is. Uniqueness: any other symmetric PSD square root must share the same eigenbasis (since both commute with $\boldsymbol{A}$), and must have non-negative diagonal — same matrix.
+For non-symmetric matrices, "square root" is wildly non-unique. $\begin{pmatrix} 1 & 2 \\ 0 & 1 \end{pmatrix}$ has multiple square roots; **and a different power-series definition might not converge**. Symmetry tames functional calculus.
+</details>
+
+**S2.** A *graph Laplacian* $\boldsymbol{L} = \boldsymbol{D} - \boldsymbol{W}$ (diagonal of degrees minus adjacency matrix) of an undirected graph is symmetric PSD. Its eigenvalues encode the graph's **connectivity**: number of zero eigenvalues = number of connected components. Argue why.
+
+<details class="hint"><summary>Full solution</summary>
+$\boldsymbol{L} \boldsymbol{1}_C = \boldsymbol{0}$ for the indicator vector $\boldsymbol{1}_C$ of any connected component $C$ (every row of $\boldsymbol{L}$ restricted to $C$ has $|C_i|$ on diagonal minus the sum of edges to within-component vertices = 0). The dimension of the null space of $\boldsymbol{L}$ equals the number of components. *Spectral clustering* uses the eigenvectors of $\boldsymbol{L}$ corresponding to the smallest non-zero eigenvalues to find clusters even when the graph is connected.
+</details>
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Diagonalisation = change to the basis where the matrix is diagonal; in that basis, every function is coordinate-wise.**
+2. **The spectral theorem guarantees an *orthonormal* eigenbasis for every symmetric matrix — the cleanest case in linear algebra.**
+3. **Functional calculus: $f(\boldsymbol{A}) = \boldsymbol{Q} f(\boldsymbol{\Lambda}) \boldsymbol{Q}^\top$ gives you powers, square roots, exponentials, and inverses from one decomposition.**
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Can you explain *why* the spectral theorem requires symmetry, in one breath?
+2. Did you solve at least 6 of the 9 practice problems without
+   peeking at hints?
+3. When you see $\boldsymbol{A} = \boldsymbol{Q}\boldsymbol{\Lambda}\boldsymbol{Q}^\top$ in a paper, do you instantly think "now I can do *anything* with $\boldsymbol{A}$ easily"?
+
+- **3 yes:** move on to Lesson 13.
+- **2 yes:** redo D3 and D5, then move on.
+- **0–1 yes:** re-read *Discover* problems D2 and D4.
+
+## Connect
+
+### Prerequisites used
+
+- [`mml.cholesky`](../11-cholesky/index.qmd) — Cholesky was one
+  decomposition; eigendecomposition is another.
+
+### What this unlocks
+
+- [`mml.svd-and-low-rank`](../13-svd-and-low-rank/index.qmd) — SVD
+  generalises eigendecomposition to non-square matrices.
+- Eventually, [`mml.pca-variance-projection`](../26-pca-variance-projection/index.qmd) — PCA *is* eigendecomposition of the covariance matrix.
+
+### Sister synthesis lesson
+
+[`t6.spectral-theorem`](../../tier-6-undergrad-advanced/04-spectral-theorem/index.qmd) — the synthesis-tier statement of the spectral theorem. This lesson layers in ML applications: PCA, whitening, Rayleigh principle, graph Laplacians.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** PCA = eigendecomposition of covariance. Spectral clustering = eigendecomposition of graph Laplacian. Power iteration (used in PageRank) finds the dominant eigenpair without computing all of them.
+:::
+
+::: {.applied-callout}
+**Research.** Markov chain mixing time = ratio of dominant to second eigenvalue. Quantum mechanics = eigenstates of Hermitian operators. Stable PDE solvers = eigen-modes of differential operators.
+:::
+
+::: {.applied-callout}
+**Game dev.** Skeletal-animation blending uses matrix exponentials of antisymmetric matrices (Lie-group interpolation of rotations). Built directly on functional calculus from this lesson.
+:::
