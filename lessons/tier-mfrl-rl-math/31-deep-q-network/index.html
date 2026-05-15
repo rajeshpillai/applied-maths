@@ -2383,47 +2383,26 @@ window.Quarto = {
   </div>
 </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/32-policy-parameterization/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">32 · Parameterising Policies: Softmax and Gaussian</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/32-policy-parameterization/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">33 · The Policy Gradient Theorem</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/34-reinforce/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">34 · REINFORCE: Monte Carlo Policy Gradient</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/34-reinforce/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">35 · QAC: The Simplest Actor-Critic</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">36 · A2C: Advantage Estimation and Baseline Invariance</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">37 · Off-Policy Actor-Critic and Importance Sampling</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">38 · Deterministic Policy Gradient (DPG) and DDPG</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.qmd</span>
+  </li>
       </ul>
   </li>
       </ul>
@@ -2948,7 +2927,7 @@ Compute the effective time scale on which <span class="math inline">w^-</span> t
 <summary>
 Full solution
 </summary>
-Soft updates make <span class="math inline">w^-</span> an exponential moving average of <span class="math inline">w</span> with effective time-constant <span class="math inline">\sim 1/\tau</span>. Choosing <span class="math inline">\tau = 1/C</span> gives the same average lag as a hard sync every <span class="math inline">C</span> steps. The tracking is smoother (no discontinuous jumps) but the stabilising mechanism is identical: the target <span class="math inline">y_i</span> uses a slowly-moving copy of <span class="math inline">w</span> that does not chase the current parameters. DDPG (Lesson 38) prefers soft updates; DQN as published uses the hard sync.
+Soft updates make <span class="math inline">w^-</span> an exponential moving average of <span class="math inline">w</span> with effective time-constant <span class="math inline">\sim 1/\tau</span>. Choosing <span class="math inline">\tau = 1/C</span> gives the same average lag as a hard sync every <span class="math inline">C</span> steps. The tracking is smoother (no discontinuous jumps) but the stabilising mechanism is identical: the target <span class="math inline">y_i</span> uses a slowly-moving copy of <span class="math inline">w</span> that does not chase the current parameters. DDPG (Lesson 40) prefers soft updates; DQN as published uses the hard sync.
 </details>
 <p><strong>S2.</strong> Skim the DQN architecture: 84×84×4 input, two convolutional layers, one fully-connected layer, output head with 18 (Atari) action-values. Approximately how many parameters does this network have? (Order of magnitude is enough.)</p>
 <details class="hint">
@@ -2967,9 +2946,9 @@ The 2015 DQN architecture is ~1.7 million parameters, of which the final fully-c
 <section id="common-confusions" class="level3 common-confusion">
 <h3 class="anchored" data-anchor-id="common-confusions">Common confusions</h3>
 <ol type="1">
-<li><strong>“DQN solved RL.”</strong> No — DQN is one <em>value-based</em> algorithm; it works well for discrete-action tasks with rich observations and <em>enough</em> data, but it is brittle, sample-inefficient, and has no convergence guarantee. Continuous-action problems and many real-robot tasks need the actor-critic family covered in Lessons 35–38.</li>
+<li><strong>“DQN solved RL.”</strong> No — DQN is one <em>value-based</em> algorithm; it works well for discrete-action tasks with rich observations and <em>enough</em> data, but it is brittle, sample-inefficient, and has no convergence guarantee. Continuous-action problems and many real-robot tasks need the actor-critic family covered in Lessons 37–40.</li>
 <li><strong>“The target network is the same as a frozen network.”</strong> Half-right. The target network <em>is</em> frozen for <span class="math inline">C</span> steps — but then it gets refreshed from the current <span class="math inline">w</span>. The point is the <em>delay</em>, not permanent freezing.</li>
-<li><strong>“Replay buffers are off-policy correction.”</strong> No — they don’t reweight anything. They are a <em>de-correlation</em> trick. True off-policy correction uses <a href="../../../glossary.html">importance sampling</a> (Lesson 37), which DQN ignores. This is fine because Q-learning’s <span class="math inline">\max_{a'}</span> target doesn’t depend on the behaviour policy at all.</li>
+<li><strong>“Replay buffers are off-policy correction.”</strong> No — they don’t reweight anything. They are a <em>de-correlation</em> trick. True off-policy correction uses <a href="../../../glossary.html">importance sampling</a> (Lesson 39), which DQN ignores. This is fine because Q-learning’s <span class="math inline">\max_{a'}</span> target doesn’t depend on the behaviour policy at all.</li>
 </ol>
 </section>
 <section id="takeaways" class="level3">
@@ -2989,7 +2968,7 @@ The 2015 DQN architecture is ~1.7 million parameters, of which the final fully-c
 <li>Do you understand that DQN does not <em>prove</em> the deadly triad away — it <em>engineers around</em> it?</li>
 </ol>
 <ul>
-<li><strong>3 yes:</strong> continue to <a href="../../../lessons/tier-mfrl-rl-math/32-policy-parameterization/index.html">Lesson 32 — Policy Parameterisation</a>.</li>
+<li><strong>3 yes:</strong> continue to <a href="../../../lessons/tier-mfrl-rl-math/32-projected-bellman-operator/index.html">Lesson 32 — The Projected Bellman Operator</a>.</li>
 <li><strong>2 yes:</strong> redo P1 and P2.</li>
 <li><strong>0–1 yes:</strong> re-read <em>Discover</em>, especially Problem 4.</li>
 </ul>
@@ -3006,8 +2985,10 @@ The 2015 DQN architecture is ~1.7 million parameters, of which the final fully-c
 <section id="what-this-unlocks" class="level3">
 <h3 class="anchored" data-anchor-id="what-this-unlocks">What this unlocks</h3>
 <ul>
-<li><strong><a href="../../../lessons/tier-mfrl-rl-math/32-policy-parameterization/index.html">Policy Parameterisation</a></strong> — swap value-based learning for direct policy optimisation, which DQN cannot do for continuous actions.</li>
-<li>The actor-critic family (Lessons 35–38), which adopts DQN’s stabilisers and adds policy gradients.</li>
+<li><strong><a href="../../../lessons/tier-mfrl-rl-math/32-projected-bellman-operator/index.html">The Projected Bellman Operator</a></strong> — names <span class="math inline">\Pi_\mu T_\pi</span>, the operator whose contraction breaks under the deadly triad. Gives the geometric picture for why DQN’s engineering is needed.</li>
+<li><strong><a href="../../../lessons/tier-mfrl-rl-math/33-gradient-td/index.html">Gradient-TD: GTD, GTD2, TDC</a></strong> — the mathematical alternative DQN does not take: descend MSPBE honestly with a second parameter, and convergence under linear FA off-policy is recovered.</li>
+<li><strong><a href="../../../lessons/tier-mfrl-rl-math/34-policy-parameterization/index.html">Policy Parameterisation</a></strong> — swap value-based learning for direct policy optimisation, which DQN cannot do for continuous actions.</li>
+<li>The actor-critic family (Lessons 37–40), which adopts DQN’s stabilisers and adds policy gradients.</li>
 </ul>
 </section>
 <section id="where-this-matters" class="level3">
@@ -3019,7 +3000,7 @@ The 2015 DQN architecture is ~1.7 million parameters, of which the final fully-c
 <p><strong>Game development.</strong> DQN-style agents are how studios research super-human play in deterministic-environment games (board games, Atari, many puzzle games) and difficulty-tuning bots for action games. The sample efficiency is poor, but the wall-clock cost of running games at 1000× speed is low.</p>
 </div>
 <div class="applied-callout">
-<p><strong>Sister synthesis lesson.</strong> <a href="../../../lessons/tier-7-masters-tracks/06-rl-theory/index.html"><code>t7.rl-theory</code></a> gives the single-paragraph view of reinforcement learning that this track expands into 38 lessons.</p>
+<p><strong>Sister synthesis lesson.</strong> <a href="../../../lessons/tier-7-masters-tracks/06-rl-theory/index.html"><code>t7.rl-theory</code></a> gives the single-paragraph view of reinforcement learning that this track expands into 40 lessons.</p>
 </div>
 <div class="callout callout-style-simple callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">

@@ -2420,47 +2420,26 @@ window.Quarto = {
   </div>
 </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/32-policy-parameterization/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">32 · Parameterising Policies: Softmax and Gaussian</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/32-policy-parameterization/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">33 · The Policy Gradient Theorem</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/34-reinforce/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">34 · REINFORCE: Monte Carlo Policy Gradient</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/34-reinforce/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">35 · QAC: The Simplest Actor-Critic</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">36 · A2C: Advantage Estimation and Baseline Invariance</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">37 · Off-Policy Actor-Critic and Importance Sampling</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">38 · Deterministic Policy Gradient (DPG) and DDPG</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.qmd</span>
+  </li>
       </ul>
   </li>
       </ul>
@@ -3044,14 +3023,14 @@ Hint 1 — a nudge
 Full solution
 </summary>
 <p><span class="math inline">\mathbb{E}_p[f(X)] = \int f(x) p(x) dx = \int f(x) (p(x)/q(x)) q(x) dx = \mathbb{E}_q[(p(X)/q(X)) f(X)]</span>.</p>
-Estimator: <span class="math inline">\hat\theta = (1/n) \sum_i (p(X_i)/q(X_i)) f(X_i)</span> with <span class="math inline">X_i \sim q</span>. <strong>This is the foundation of off-policy RL</strong> — Lesson 37 develops it for actor-critic. The variance can blow up if <span class="math inline">p/q</span> is large, which is why off-policy methods are subtle.
+Estimator: <span class="math inline">\hat\theta = (1/n) \sum_i (p(X_i)/q(X_i)) f(X_i)</span> with <span class="math inline">X_i \sim q</span>. <strong>This is the foundation of off-policy RL</strong> — Lesson 39 develops it for actor-critic. The variance can blow up if <span class="math inline">p/q</span> is large, which is why off-policy methods are subtle.
 </details>
 <p><strong>S2.</strong> Suppose you can sample <span class="math inline">X</span> but the variance is enormous. <em>Control variates</em>: find a related random variable <span class="math inline">Y</span> with known mean <span class="math inline">\mu_Y</span> and high correlation with <span class="math inline">X</span>. Show that <span class="math inline">\hat\mu_X^{cv} = \bar X - c(\bar Y - \mu_Y)</span> is unbiased for <span class="math inline">\mathbb{E}[X]</span> and find the optimal <span class="math inline">c</span>.</p>
 <details class="hint">
 <summary>
 Full solution
 </summary>
-<span class="math inline">\mathbb{E}[\hat\mu_X^{cv}] = \mathbb{E}[X] - c(\mathbb{E}[Y] - \mu_Y) = \mathbb{E}[X]</span> (unbiased). Variance: <span class="math inline">\text{Var}(\hat\mu_X^{cv}) = \text{Var}(\bar X) + c^2 \text{Var}(\bar Y) - 2c \text{Cov}(\bar X, \bar Y)</span>. Minimise over <span class="math inline">c</span>: <span class="math inline">c^* = \text{Cov}(X, Y)/\text{Var}(Y)</span>, giving <span class="math inline">\text{Var}(\hat\mu_X^{cv}) = \text{Var}(\bar X)(1 - \rho^2)</span> where <span class="math inline">\rho</span> is correlation. <strong>Variance reduction by factor <span class="math inline">1 - \rho^2</span>.</strong> This is the seed of <em>advantage</em> in actor-critic (Lesson 36): subtracting a baseline correlated with the return reduces gradient variance.
+<span class="math inline">\mathbb{E}[\hat\mu_X^{cv}] = \mathbb{E}[X] - c(\mathbb{E}[Y] - \mu_Y) = \mathbb{E}[X]</span> (unbiased). Variance: <span class="math inline">\text{Var}(\hat\mu_X^{cv}) = \text{Var}(\bar X) + c^2 \text{Var}(\bar Y) - 2c \text{Cov}(\bar X, \bar Y)</span>. Minimise over <span class="math inline">c</span>: <span class="math inline">c^* = \text{Cov}(X, Y)/\text{Var}(Y)</span>, giving <span class="math inline">\text{Var}(\hat\mu_X^{cv}) = \text{Var}(\bar X)(1 - \rho^2)</span> where <span class="math inline">\rho</span> is correlation. <strong>Variance reduction by factor <span class="math inline">1 - \rho^2</span>.</strong> This is the seed of <em>advantage</em> in actor-critic (Lesson 38): subtracting a baseline correlated with the return reduces gradient variance.
 </details>
 <div class="fun-fact">
 <p>Stanislaw Ulam invented the Monte Carlo method in 1946 while recovering from encephalitis at Los Alamos. He was playing Solitaire and wondered what fraction of layouts were winnable. Combinatorial enumeration was hopeless, but he realised: <strong>just play many random games and count</strong>. With John von Neumann and Nicholas Metropolis, he developed the idea into a method for nuclear simulations. The name “Monte Carlo” came from Metropolis, after the casino — Ulam’s uncle was a chronic gambler.</p>

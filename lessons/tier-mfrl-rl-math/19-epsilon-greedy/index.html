@@ -2420,47 +2420,26 @@ window.Quarto = {
   </div>
 </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/32-policy-parameterization/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">32 · Parameterising Policies: Softmax and Gaussian</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/32-policy-parameterization/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">33 · The Policy Gradient Theorem</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/34-reinforce/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">34 · REINFORCE: Monte Carlo Policy Gradient</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/34-reinforce/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">35 · QAC: The Simplest Actor-Critic</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">36 · A2C: Advantage Estimation and Baseline Invariance</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">37 · Off-Policy Actor-Critic and Importance Sampling</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">38 · Deterministic Policy Gradient (DPG) and DDPG</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.qmd</span>
+  </li>
       </ul>
   </li>
       </ul>
@@ -3067,7 +3046,7 @@ Full solution
 <p><strong>Boltzmann.</strong> Probability of action <span class="math inline">a</span> scales with its <span class="math inline">\hat q</span>-value (soft greedy). Better-than-random actions are favoured <em>proportionally</em>, not just “the best one wins.” - <span class="math inline">\tau \to 0</span>: deterministic greedy. - <span class="math inline">\tau \to \infty</span>: uniform random.</p>
 <p><strong>vs.&nbsp;ε-greedy.</strong> ε-greedy treats all non-greedy actions equally; Boltzmann is “smart random” — explores good non-greedy actions more than bad ones.</p>
 <p><strong>When ε-greedy wins.</strong> When <span class="math inline">\hat q</span> is poorly scaled (large <span class="math inline">\hat q</span>-differences swamp the temperature) or when you just want a simple knob.</p>
-<strong>When Boltzmann wins.</strong> When the <em>ranking</em> of actions matters more than the gap, especially in policy-gradient methods (REINFORCE, Lesson 34) — which is where you’ll meet the soft-max policy parameterisation.
+<strong>When Boltzmann wins.</strong> When the <em>ranking</em> of actions matters more than the gap, especially in policy-gradient methods (REINFORCE, Lesson 36) — which is where you’ll meet the soft-max policy parameterisation.
 </details>
 <p><strong>S2.</strong> <em>UCB (Upper Confidence Bound) exploration.</em> Instead of random exploration, pick the action that maximises <span class="math inline">\hat q(s, a) + c \sqrt{\log N(s) / N(s, a)}</span>, where <span class="math inline">N(s)</span> is visits to <span class="math inline">s</span> and <span class="math inline">N(s, a)</span> visits to <span class="math inline">(s, a)</span>. Sketch why this is “intelligent exploration” — and what it costs.</p>
 <details class="hint">

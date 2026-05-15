@@ -2383,47 +2383,26 @@ window.Quarto = {
   </div>
 </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/32-policy-parameterization/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">32 · Parameterising Policies: Softmax and Gaussian</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/32-policy-parameterization/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">33 · The Policy Gradient Theorem</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/34-reinforce/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">34 · REINFORCE: Monte Carlo Policy Gradient</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/34-reinforce/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">35 · QAC: The Simplest Actor-Critic</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">36 · A2C: Advantage Estimation and Baseline Invariance</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">37 · Off-Policy Actor-Critic and Importance Sampling</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.qmd</span>
+  </li>
           <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../../lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">38 · Deterministic Policy Gradient (DPG) and DDPG</span></a>
-  </div>
-</li>
+ <span class="menu-text">lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.qmd</span>
+  </li>
       </ul>
   </li>
       </ul>
@@ -2853,7 +2832,7 @@ Full solution
 <li>Remove <strong>off-policy</strong> → on-policy <a href="../../../glossary.html#sarsa">Sarsa</a> (<a href="../../../lessons/tier-mfrl-rl-math/24-sarsa/index.html">Lesson 24</a>). Same policy generates data and is evaluated.</li>
 <li>Remove <strong>function approximation</strong> → tabular Q-learning (<a href="../../../lessons/tier-mfrl-rl-math/26-q-learning/index.html">Lesson 26</a>). One entry per <span class="math inline">(s, a)</span>.</li>
 </ul>
-Each of these is provably convergent under standard step-size conditions. The trouble starts only when all three are stacked together. :::
+Each of these is provably convergent under standard step-size conditions. The trouble starts only when all three are stacked together.
 </details>
 <div class="key-insight">
 <p><strong>The deadly triad: bootstrapping + off-policy + FA can diverge.</strong> Each ingredient on its own is fine. Together, they break the contraction arguments that guarantee stability in the tabular or on-policy or MC cases. This is not a sign of a buggy algorithm — it’s a real mathematical hazard that motivates every “trick” in modern deep RL.</p>
@@ -3030,6 +3009,8 @@ The <span class="math inline">\max_{a'} \hat q(s', a'; w)</span> — that maximu
 <h3 class="anchored" data-anchor-id="what-this-unlocks">What this unlocks</h3>
 <ul>
 <li><strong><a href="../../../lessons/tier-mfrl-rl-math/31-deep-q-network/index.html">DQN</a></strong> — the engineering attack on the deadly triad.</li>
+<li><strong><a href="../../../lessons/tier-mfrl-rl-math/32-projected-bellman-operator/index.html">The Projected Bellman Operator</a></strong> — names what’s broken when off-policy + bootstrapping + FA meet: the composition <span class="math inline">\Pi_\mu T_\pi</span> is no longer a contraction.</li>
+<li><strong><a href="../../../lessons/tier-mfrl-rl-math/33-gradient-td/index.html">Gradient-TD: GTD, GTD2, TDC</a></strong> — the road-not-taken: algorithms that solve the deadly triad mathematically rather than engineering around it.</li>
 </ul>
 </section>
 <section id="where-this-matters" class="level3">
@@ -3038,7 +3019,7 @@ The <span class="math inline">\max_{a'} \hat q(s', a'; w)</span> — that maximu
 <p><strong>AI / ML.</strong> Every deep value-based agent (DQN, Double DQN, Rainbow, distributional Q-learning, IQN) lives in the deadly triad. Their collective track record of <em>occasionally</em> diverging or saturating in real workloads — Atari games where DQN never escapes the first room, robotics where Q-values blow up after a buffer flush — is the deadly triad biting. Engineers add stabilisers; theorists try to break the triad properly. Both are still active research directions in 2026.</p>
 </div>
 <div class="applied-callout">
-<p><strong>Sister synthesis lesson.</strong> <a href="../../../lessons/tier-7-masters-tracks/06-rl-theory/index.html"><code>t7.rl-theory</code></a> gives the single-paragraph view of reinforcement learning that this track expands into 38 lessons.</p>
+<p><strong>Sister synthesis lesson.</strong> <a href="../../../lessons/tier-7-masters-tracks/06-rl-theory/index.html"><code>t7.rl-theory</code></a> gives the single-paragraph view of reinforcement learning that this track expands into 40 lessons.</p>
 </div>
 <div class="callout callout-style-simple callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
