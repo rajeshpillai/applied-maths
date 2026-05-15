@@ -15,12 +15,12 @@ status: "done"
 
 Before continuing, can you:
 
-1. State the **policy gradient theorem** ([Lesson 33](../33-policy-gradient-theorem/index.qmd)) —
+1. State the **policy gradient theorem** ([Lesson 35](../35-policy-gradient-theorem/index.qmd)) —
    $\nabla J(\theta) = \mathbb E[\nabla \log \pi \cdot q_\pi]$?
 2. Explain why a **Monte Carlo** mean estimator is unbiased given iid
    samples ([Lesson 16](../16-mean-estimation-from-samples/index.qmd))?
 3. Compute $\nabla_\theta \log \pi(a \mid s; \theta)$ for a softmax
-   ([Lesson 32](../32-policy-parameterization/index.qmd))?
+   ([Lesson 34](../34-policy-parameterization/index.qmd))?
 4. Define the discounted return $G_t = \sum_{k \ge 0} \gamma^k r_{t+k}$?
 
 If yes to all four, continue.
@@ -45,7 +45,7 @@ actions, and got this much return*. From that, somehow, $\theta$ improves.
 
 ## Wonder
 
-1. Lesson 33 said the policy gradient is $\mathbb E[\nabla \log \pi \cdot
+1. Lesson 35 said the policy gradient is $\mathbb E[\nabla \log \pi \cdot
    q_\pi]$. We don't know $q_\pi$. What's a sample-based unbiased substitute?
 2. The reward curve in the widget is jagged — sometimes one episode goes
    well, the next goes badly even with the same $\theta$. Why is the
@@ -114,7 +114,7 @@ exist precisely to fix this.
 
 ### Problem 4 — baselines
 
-Recall from [Lesson 33, S2](../33-policy-gradient-theorem/index.qmd): for
+Recall from [Lesson 35, S2](../35-policy-gradient-theorem/index.qmd): for
 any state-only function $b(s)$,
 $\mathbb E_{a \sim \pi(\cdot \mid s)}[\nabla \log \pi(a \mid s)\, b(s)] = 0$.
 Use this to write a *baseline-corrected* REINFORCE update:
@@ -126,7 +126,7 @@ Why does subtracting $b(s_t)$ leave the expected gradient unchanged?
 <details class="hint"><summary>Hint 1 — a nudge</summary>
 By linearity of expectation, $\mathbb E[\nabla \log \pi (G_t - b)] =
 \mathbb E[\nabla \log \pi G_t] - \mathbb E[\nabla \log \pi b]$. The second
-term is zero by Lesson 33 S2.
+term is zero by Lesson 35 S2.
 </details>
 <details class="hint"><summary>Full solution</summary>
 The baseline subtracts a *signal* whose expectation is zero. So the
@@ -190,7 +190,7 @@ We run one trajectory under $\pi$:
 With $\gamma = 1$:
 $G_0 = 1 + 0 + 2 = 3$, $G_1 = 0 + 2 = 2$, $G_2 = 2$.
 
-Score-function gradients (from the worked example in Lesson 33):
+Score-function gradients (from the worked example in Lesson 35):
 
 - $\nabla \log \pi(a_1) = e_1 - \pi = (0.5, -0.5)$.
 - $\nabla \log \pi(a_2) = e_2 - \pi = (-0.5, 0.5)$.
@@ -231,7 +231,7 @@ variance, not bias.
 
 <details class="hint"><summary>Full solution</summary>
 **Expectation:** unchanged (the baseline's contribution to the gradient is
-zero in expectation; Lesson 33, S2). **Variance:** can be substantially
+zero in expectation; Lesson 35, S2). **Variance:** can be substantially
 reduced if the baseline tracks the typical magnitude of $G_t$ at $s_t$.
 The optimal state-only baseline is the value $v_\pi(s)$.
 </details>
@@ -254,7 +254,7 @@ function of state alone (and even for time-only or constant). It does
 **P2.** Why can't the baseline depend on the *action*?
 
 <details class="hint"><summary>Hint 1 — a nudge</summary>
-Replay the proof in Lesson 33, S2: the inner sum over $a$ became zero
+Replay the proof in Lesson 35, S2: the inner sum over $a$ became zero
 because $b$ was constant in $a$. What if $b$ depends on $a$?
 </details>
 <details class="hint"><summary>Full solution</summary>
@@ -326,7 +326,7 @@ larger because the discount hasn't bitten yet).
    most common variant — *REINFORCE with baseline* — uses an estimate of
    $v_\pi(s)$ as the baseline, which is essentially actor-critic with the
    critic doing only baseline-fitting (not bootstrapping). The full
-   actor-critic family is Lessons 35–38.
+   actor-critic family is Lessons 37–40.
 :::
 
 ### Takeaways
@@ -346,7 +346,7 @@ larger because the discount hasn't bitten yet).
 2. Did you derive the baseline correction in *Discover* P4 yourself?
 3. Could you explain to a friend why REINFORCE is unbiased but slow?
 
-- **3 yes:** continue to [Lesson 35 — QAC](../35-actor-critic-qac/index.qmd).
+- **3 yes:** continue to [Lesson 37 — QAC](../37-actor-critic-qac/index.qmd).
 - **2 yes:** redo Discover P3 and P4.
 - **0–1 yes:** re-read *Discover* and *Apply*.
 
@@ -354,14 +354,14 @@ larger because the discount hasn't bitten yet).
 
 ### Prerequisites used
 
-- **[mfrl.policy-gradient-theorem](../33-policy-gradient-theorem/index.qmd)** —
+- **[mfrl.policy-gradient-theorem](../35-policy-gradient-theorem/index.qmd)** —
   the identity $\nabla J = \mathbb E[\nabla \log \pi \cdot q_\pi]$.
 - **[mfrl.mean-estimation-from-samples](../16-mean-estimation-from-samples/index.qmd)** —
   the unbiasedness of the sample mean (and of single-sample MC estimators).
 
 ### What this unlocks
 
-- **[QAC](../35-actor-critic-qac/index.qmd)** — replace $G_t$ by a
+- **[QAC](../37-actor-critic-qac/index.qmd)** — replace $G_t$ by a
   TD/bootstrap estimate of $q_\pi$.
 - All later actor-critic methods.
 
@@ -377,7 +377,7 @@ estimator. The skeleton you see here is everywhere in production.
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
 gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+track expands into 40 lessons.
 :::
 
 ::: {.callout-note collapse="true"}

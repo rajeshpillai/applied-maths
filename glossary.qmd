@@ -53,7 +53,7 @@ $q_\pi(s, a) = \mathbb{E}_\pi[G_t \mid s_t = s, a_t = a]$ — expected return fr
 
 A class of RL algorithms with two parameterised functions: an *actor* (policy $\pi_\theta$) and a *critic* (value $\hat v$ or $\hat q$). The critic is updated by TD; the actor is updated by policy gradient using the critic's value estimate.
 
-**First named in:** [MFRL — Lesson 35, QAC: The Simplest Actor-Critic](lessons/tier-mfrl-rl-math/35-actor-critic-qac/index.qmd)
+**First named in:** [MFRL — Lesson 37, QAC: The Simplest Actor-Critic](lessons/tier-mfrl-rl-math/37-actor-critic-qac/index.qmd)
 
 ### Addition {#addition}
 
@@ -84,7 +84,7 @@ The transpose of the cofactor matrix; satisfies $A \cdot \text{adj}(A) = |A| \cd
 
 $A_\pi(s, a) = q_\pi(s, a) - v_\pi(s)$ — how much better than the policy's average action $a$ is in state $s$. Used as a low-variance, unbiased substitute for $q$ in policy-gradient updates.
 
-**First named in:** [MFRL — Lesson 36, A2C: Advantage Estimation](lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.qmd)
+**First named in:** [MFRL — Lesson 38, A2C: Advantage Estimation](lessons/tier-mfrl-rl-math/38-advantage-actor-critic/index.qmd)
 
 ### Algebraic connectivity {#algebraic-connectivity}
 
@@ -199,7 +199,7 @@ Two related meanings, both about the number that "sets the scale":
 
 The lemma that $\mathbb{E}_{a \sim \pi}[\nabla \log \pi(a \mid s) \cdot b(s)] = 0$ for any function $b(s)$ of state alone. Subtracting any state-only baseline from $q_\pi$ inside the policy gradient leaves the expected gradient unchanged but can reduce variance.
 
-**First named in:** [MFRL — Lesson 36, A2C: Advantage Estimation](lessons/tier-mfrl-rl-math/36-advantage-actor-critic/index.qmd)
+**First named in:** [MFRL — Lesson 38, A2C: Advantage Estimation](lessons/tier-mfrl-rl-math/38-advantage-actor-critic/index.qmd)
 
 ### Basis {#basis}
 
@@ -521,7 +521,7 @@ A solid swept by translating a circle of radius $r$ along a perpendicular axis o
 
 Deterministic policy gradient with a neural-network actor and critic, replay buffer, soft target updates for both actor and critic, and additive exploration noise on the behaviour policy. The continuous-control workhorse of modern deep RL (Lillicrap et al. 2015).
 
-**First named in:** [MFRL — Lesson 38, DPG and DDPG](lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.qmd)
+**First named in:** [MFRL — Lesson 40, DPG and DDPG](lessons/tier-mfrl-rl-math/40-deterministic-actor-critic/index.qmd)
 
 ### Deadly triad {#deadly-triad}
 
@@ -575,7 +575,7 @@ A scalar attached to every square matrix that equals the signed $n$-volume of th
 
 For a deterministic policy $\mu(s; \theta)$, $\nabla_\theta J(\theta) = \mathbb{E}_s[\nabla_\theta \mu(s; \theta) \nabla_a q_\mu(s, a)|_{a=\mu(s;\theta)}]$. No log-derivative trick: the chain rule differentiates straight through the action (Silver et al. 2014).
 
-**First named in:** [MFRL — Lesson 38, DPG and DDPG](lessons/tier-mfrl-rl-math/38-deterministic-actor-critic/index.qmd)
+**First named in:** [MFRL — Lesson 40, DPG and DDPG](lessons/tier-mfrl-rl-math/40-deterministic-actor-critic/index.qmd)
 
 ### Difference of squares {#difference-of-squares}
 
@@ -1003,6 +1003,12 @@ The iterative rule $w \leftarrow w - \eta\,\nabla L(w)$: take a small step oppos
 
 **First named in:** [Tier 6, Lesson 10 — Gradient Methods and SGD Variants](lessons/tier-6-undergrad-advanced/10-gradient-methods/index.qmd)
 
+### Gradient-TD family {#gradient-td}
+
+A class of off-policy TD algorithms (GTD, GTD2, TDC, emphatic TD) that descend [MSPBE](#mspbe) honestly by carrying a second parameter $u$ that tracks $\mathbb{E}[\phi\phi^\top]^{-1}\,\mathbb{E}[\delta\,\phi]$ on a faster timescale than the main weights $w$. Converges with linear FA off-policy where semi-gradient TD diverges; price is variance and a slower clock.
+
+**First named in:** [MFRL — Lesson 33, Gradient-TD: GTD, GTD2, and TDC](lessons/tier-mfrl-rl-math/33-gradient-td/index.qmd)
+
 ### Graph {#graph}
 
 A pair $G = (V, E)$ of vertices and edges modelling pairwise relationships; edges may be directed, weighted, or neither.
@@ -1101,7 +1107,7 @@ A technique for finding $dy/dx$ from a relation $F(x, y) = 0$ by differentiating
 
 The identity $\mathbb{E}_{x \sim p}[f(x)] = \mathbb{E}_{x \sim q}[(p/q) f(x)]$ for densities $p, q$ with $q$ covering $p$. Reweights samples drawn under one distribution to estimate expectations under another — the bridge that makes off-policy learning work.
 
-**First named in:** [MFRL — Lesson 37, Off-Policy Actor-Critic](lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.qmd)
+**First named in:** [MFRL — Lesson 39, Off-Policy Actor-Critic](lessons/tier-mfrl-rl-math/39-off-policy-actor-critic/index.qmd)
 
 ### Inclusion–exclusion {#inclusion-exclusion}
 
@@ -1283,7 +1289,7 @@ Two adjacent angles whose non-shared sides form a straight line. A linear pair a
 
 The identity $\nabla_\theta f(\theta) = f(\theta) \nabla_\theta \log f(\theta)$ for $f > 0$. Inside an expectation, it converts the gradient of a density into a sample-able expectation (also called the score-function estimator or REINFORCE trick).
 
-**First named in:** [MFRL — Lesson 33, The Policy Gradient Theorem](lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.qmd)
+**First named in:** [MFRL — Lesson 35, The Policy Gradient Theorem](lessons/tier-mfrl-rl-math/35-policy-gradient-theorem/index.qmd)
 
 ### Logarithm {#logarithm}
 
@@ -1364,6 +1370,12 @@ The average of the absolute deviations of a data set from a chosen centre (usual
 If $f$ is continuous on $[a,b]$ and differentiable on $(a,b)$, there exists $c \in (a,b)$ with $f'(c) = (f(b)-f(a))/(b-a)$.
 
 **First named in:** [Tier 5, Lesson 15 — Continuity and Differentiability — Rigorous Foundation](lessons/tier-5-undergrad-core/15-real-analysis-foundation/index.qmd)
+
+### Mean-square projected Bellman error (MSPBE) {#mspbe}
+
+$\mathrm{MSPBE}(w) = \|\hat v_w - \Pi_\mu T_\pi \hat v_w\|_\mu^2$ — the squared $\mu$-weighted distance between the current value estimate and its [projected Bellman](#projected-bellman-operator) image. Zero exactly at the TD fixed point. The objective semi-gradient TD secretly descends and that [gradient-TD](#gradient-td) descends honestly.
+
+**First named in:** [MFRL — Lesson 32, The Projected Bellman Operator and MSPBE](lessons/tier-mfrl-rl-math/32-projected-bellman-operator/index.qmd)
 
 ### Measure {#measure}
 
@@ -1529,7 +1541,7 @@ A learning algorithm whose target depends on a policy different from the one gen
 
 Actor-critic where data is generated by a behaviour policy $\beta$ different from the target policy $\pi_\theta$. The actor's gradient is reweighted by importance ratios $\pi_\theta(a \mid s) / \beta(a \mid s)$.
 
-**First named in:** [MFRL — Lesson 37, Off-Policy Actor-Critic](lessons/tier-mfrl-rl-math/37-off-policy-actor-critic/index.qmd)
+**First named in:** [MFRL — Lesson 39, Off-Policy Actor-Critic](lessons/tier-mfrl-rl-math/39-off-policy-actor-critic/index.qmd)
 
 ### On-policy {#on-policy}
 
@@ -1747,7 +1759,7 @@ Computing the value function $v_\pi$ of a fixed policy $\pi$, either by closed-f
 
 The identity $\nabla_\theta J(\theta) = \mathbb{E}_{(s,a) \sim \pi_\theta}[\nabla_\theta \log \pi_\theta(a \mid s)\, q_{\pi_\theta}(s,a)]$. Lets the gradient of expected return be estimated from samples without knowing the dynamics.
 
-**First named in:** [MFRL — Lesson 33, The Policy Gradient Theorem](lessons/tier-mfrl-rl-math/33-policy-gradient-theorem/index.qmd)
+**First named in:** [MFRL — Lesson 35, The Policy Gradient Theorem](lessons/tier-mfrl-rl-math/35-policy-gradient-theorem/index.qmd)
 
 ### Policy improvement {#policy-improvement}
 
@@ -1850,6 +1862,12 @@ A number between 0 and 1 measuring how likely an event is. For equally likely ou
 $(fg)' = f'g + fg'$ — never $f'g'$.
 
 **First named in:** [Tier 4, Lesson 4 — Differentiation Rules](lessons/tier-4-precalc-calculus/04-differentiation-rules/index.qmd)
+
+### Projected Bellman operator {#projected-bellman-operator}
+
+The composition $\Pi_\mu T_\pi$: project onto the feature span $\mathcal{F}$ under the $\mu$-weighted norm, then apply the Bellman operator $T_\pi$. On-policy ($\mu = \mu_\pi$) it is a $\gamma$-contraction in $\|\cdot\|_\mu$ with a unique TD fixed point; off-policy ($\mu = \mu_b$) the contraction can break and the iteration can diverge — one face of the deadly triad.
+
+**First named in:** [MFRL — Lesson 32, The Projected Bellman Operator and MSPBE](lessons/tier-mfrl-rl-math/32-projected-bellman-operator/index.qmd)
 
 ### Proof {#proof}
 
@@ -1997,7 +2015,7 @@ A convex polygon with all sides equal AND all interior angles equal. Inscribes i
 
 Stochastic gradient ascent on $J(\theta)$ that uses the observed Monte Carlo return $G_t$ as an unbiased single-sample estimator of $q_{\pi_\theta}(s_t, a_t)$ inside the policy gradient theorem (Williams 1992).
 
-**First named in:** [MFRL — Lesson 34, REINFORCE](lessons/tier-mfrl-rl-math/34-reinforce/index.qmd)
+**First named in:** [MFRL — Lesson 36, REINFORCE](lessons/tier-mfrl-rl-math/36-reinforce/index.qmd)
 
 ### Related rates {#related-rates}
 
@@ -2227,7 +2245,7 @@ A topological space that locally looks like $\mathbb{R}^n$, with overlapping coo
 
 A parameterised discrete policy $\pi(a \mid s; \theta) = \exp(h(s,a;\theta)) / \sum_{a'}\exp(h(s,a';\theta))$, where $h$ is a learnable preference. Smoothly interpolates between uniform random and greedy.
 
-**First named in:** [MFRL — Lesson 32, Parameterising Policies](lessons/tier-mfrl-rl-math/32-policy-parameterization/index.qmd)
+**First named in:** [MFRL — Lesson 34, Parameterising Policies](lessons/tier-mfrl-rl-math/34-policy-parameterization/index.qmd)
 
 ### Solution of an equation {#solution-of-an-equation}
 
@@ -2350,6 +2368,12 @@ The quantity $\delta_t = r_{t+1} + \gamma v(s_{t+1}) - v(s_t)$: the gap between 
 The one-step temporal-difference update $v(s) \leftarrow v(s) + \alpha[r + \gamma v(s') - v(s)]$; estimates $v_\pi$ from sampled transitions without waiting for episode end.
 
 **First named in:** [MFRL — Lesson 23, TD(0)](lessons/tier-mfrl-rl-math/23-td-state-values/index.qmd)
+
+### TDC {#tdc}
+
+"TD with gradient correction" — the lowest-variance member of the [gradient-TD family](#gradient-td). Per-sample updates: $w \leftarrow w + \alpha[\delta\,\phi - \gamma\,\phi'(\phi^\top u)]$ and $u \leftarrow u + \beta(\delta - \phi^\top u)\,\phi$ with $\beta > \alpha$. Reduces to semi-gradient TD when $u = 0$; same fixed point as GTD2 but typically faster.
+
+**First named in:** [MFRL — Lesson 33, Gradient-TD: GTD, GTD2, and TDC](lessons/tier-mfrl-rl-math/33-gradient-td/index.qmd)
 
 ### Terminating decimal {#terminating-decimal}
 

@@ -1,0 +1,698 @@
+---
+title: "33 · Gradient-TD: GTD, GTD2, and TDC"
+subtitle: "What semi-gradient TD would be if it stopped cheating. Honest gradient on MSPBE — at the cost of a second parameter and a slower clock."
+lesson-id: "mfrl.gradient-td"
+tier: "mfrl"
+prerequisites: ["mfrl.projected-bellman-operator", "mfrl.stochastic-gradient-descent", "mfrl.q-learning-with-fa"]
+unlocks: []
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 35
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you read on.
+
+1. Can you write **MSPBE** in terms of $\Pi_\mu$, $T_\pi$, and $\hat v_w$
+   from [Lesson 32](../32-projected-bellman-operator/index.qmd)?
+2. Can you state the **semi-gradient TD** update and explain which gradient
+   term it discards?
+3. Are you comfortable with one step of [SGD](/glossary.qmd#stochastic-gradient-descent)
+   on an expectation $\mathbb{E}[L(w, X)]$ using a single sample $X$?
+4. Can you describe **Baird's counterexample** from
+   [Lesson 30](../30-q-learning-with-fa/index.qmd) in one sentence?
+
+If any answer is no, revisit the named lesson before continuing.
+:::
+
+## Touch
+
+L29's [key insight](../29-td-with-function-approximation/index.qmd#discover)
+was a confession: *the error is full; the gradient is half*. Semi-gradient
+TD took the gradient of the prediction $\hat v(s; w)$, but pretended the
+target $r + \gamma\, \hat v(s'; w)$ did not depend on $w$.
+
+Take out two coloured pens. Sketch on paper:
+
+- **Red:** the term semi-gradient TD already differentiates,
+  $\nabla_w \hat v(s; w) = \phi(s)$.
+- **Blue:** the term it threw away, $\gamma\,\nabla_w \hat v(s'; w) =
+  \gamma\,\phi(s')$.
+
+What does the *full* gradient of $\tfrac{1}{2}\delta^2$ look like if you
+keep both pens?
+
+$$\nabla_w \tfrac{1}{2}\delta^2 \;=\; \delta \cdot \bigl(\,\underbrace{-\phi(s)}_{\text{red}} \;+\; \underbrace{\gamma\,\phi(s')}_{\text{blue}}\,\bigr).$$
+
+Adding blue back is what *residual gradient* did — L29 warned that it finds
+the wrong fixed point in mis-specified models and learns slowly. Adding
+blue is not the right fix.
+
+The right fix is different. It says: stop trying to descend
+$\tfrac12 \delta^2$ at all. **Descend MSPBE instead.**
+
+::: {.lesson-beat}
+Semi-gradient TD descends the right objective — MSPBE — but by an unsound
+update (it ignores the target's $w$-dependence). Residual gradient
+descends the wrong objective ($\tfrac12 \delta^2$) by a sound update.
+Gradient-TD descends the right objective by a sound update. The price:
+**a second parameter** and a slower clock.
+:::
+
+## Wonder
+
+Sit with these.
+
+1. What does it mean to "take the gradient of MSPBE"? MSPBE involves the
+   projection $\Pi_\mu$, which involves $\mu$ and $\Phi$ — but does it
+   depend on $w$?
+2. The gradient of MSPBE will turn out to be a *product of expectations*.
+   Why is that a problem when you only have one sample per step?
+3. If the bottleneck is a product of expectations, what could you keep
+   around between time steps to break it apart?
+4. Two parameters $w$ and $u$, two updates per step. What goes wrong if
+   you update them at the same rate?
+
+## Discover
+
+Six problems. The first three set up the obstruction; the next three
+break it.
+
+### Problem 1 — MSPBE in expectation form
+
+For linear FA with $\hat v_w = \Phi w$, the **MSPBE** from
+[L32](../32-projected-bellman-operator/index.qmd#name) is
+
+$$\mathrm{MSPBE}(w) \;=\; \|\Phi w - \Pi_\mu T_\pi \Phi w\|_\mu^2.$$
+
+Use the matrix form of $\Pi_\mu$ from L32's Name beat to show that
+
+$$\mathrm{MSPBE}(w) \;=\; \mathbb{E}_\mu[\delta\,\phi]^\top \;\mathbb{E}_\mu[\phi \phi^\top]^{-1}\; \mathbb{E}_\mu[\delta\,\phi],$$
+
+where $\delta = r + \gamma\,\phi(s')^\top w - \phi(s)^\top w$ is the TD
+error along a sample transition $(s, r, s')$, and expectations are over
+$s \sim \mu$, transition $(s, r, s') \sim p(\cdot \mid s, \pi)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The Bellman residual is $T_\pi \Phi w - \Phi w$. In matrix form on samples,
+that's $\mathbb{E}_\mu[\delta\,\phi]$ — a $d$-vector, the *expected TD
+update direction*. The projected residual squared in $\|\cdot\|_\mu$
+contracts this $d$-vector through the inverse Gram matrix
+$\mathbb{E}_\mu[\phi \phi^\top]^{-1}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Let $A = \Phi^\top D_\mu \Phi = \mathbb{E}_\mu[\phi \phi^\top]$ and
+$b_w = \Phi^\top D_\mu (T_\pi \Phi w - \Phi w) = \mathbb{E}_\mu[\delta\,\phi]$
+(the $w$-dependence is in $\delta$). Using
+$\Pi_\mu = \Phi A^{-1} \Phi^\top D_\mu$:
+
+$$\Pi_\mu (T_\pi \Phi w - \Phi w) \;=\; \Phi A^{-1} b_w.$$
+
+Take the $\mu$-weighted norm of $\Pi_\mu(T_\pi \Phi w - \Phi w)$:
+
+$$\|\Phi A^{-1} b_w\|_\mu^2
+\;=\; (A^{-1} b_w)^\top \Phi^\top D_\mu \Phi (A^{-1} b_w)
+\;=\; b_w^\top A^{-1} A A^{-1} b_w
+\;=\; b_w^\top A^{-1} b_w.$$
+
+So $\mathrm{MSPBE}(w) = \mathbb{E}_\mu[\delta\,\phi]^\top
+\mathbb{E}_\mu[\phi \phi^\top]^{-1} \mathbb{E}_\mu[\delta\,\phi]$ — a
+weighted-norm form of the *expected TD update direction*.
+</details>
+
+### Problem 2 — the true gradient is a product
+
+Take $\nabla_w \mathrm{MSPBE}(w)$. You may use the fact that
+$\mathbb{E}_\mu[\phi \phi^\top]$ does not depend on $w$. Show that
+
+$$\nabla_w \mathrm{MSPBE}(w) \;=\; -2\,\mathbb{E}_\mu\bigl[(\phi - \gamma\,\phi')\,\phi^\top\bigr]\;\mathbb{E}_\mu[\phi \phi^\top]^{-1}\;\mathbb{E}_\mu[\delta\,\phi].$$
+
+(Here $\phi = \phi(s)$ and $\phi' = \phi(s')$.) Why is this an obstacle
+to one-step SGD?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\delta$ depends on $w$ through $\delta = r + \gamma\,\phi'^\top w
+- \phi^\top w$, so
+$\nabla_w \delta = -(\phi - \gamma\,\phi')$. Apply the chain rule to
+$b_w^\top A^{-1} b_w$, treating $A^{-1}$ as $w$-independent.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+$\nabla_w b_w = \mathbb{E}_\mu[\nabla_w \delta\,\phi^\top]^\top
+= -\mathbb{E}_\mu[(\phi - \gamma\,\phi')\,\phi^\top]^\top$. Apply the
+matrix calculus identity $\nabla_w (b_w^\top M b_w) = 2 (\nabla_w b_w)
+M b_w$ for symmetric $M$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+By the chain rule:
+
+$$\nabla_w \mathrm{MSPBE}(w) \;=\; 2 (\nabla_w b_w)\, A^{-1}\, b_w
+\;=\; -2\,\mathbb{E}_\mu[(\phi - \gamma\,\phi')\,\phi^\top]\;A^{-1}\;\mathbb{E}_\mu[\delta\,\phi].$$
+
+(The sign comes from $\nabla_w \delta = -(\phi - \gamma\,\phi')$.)
+
+This gradient is a **product of two expectations**: $\mathbb{E}_\mu[(\phi
+- \gamma\,\phi')\,\phi^\top]$ on the left, and
+$\mathbb{E}_\mu[\delta\,\phi]$ inside the $A^{-1}$ on the right. With one
+sample, you'd need to estimate *both* expectations independently — the
+**double-sampling problem**. If you used the same sample for both, the
+products of stochastic terms would not be an unbiased estimate of the
+product of expectations; in general $\mathbb{E}[XY] \ne \mathbb{E}[X]\,\mathbb{E}[Y]$.
+
+So *plain* SGD on MSPBE is unimplementable without two independent samples
+of the same transition — which off-policy data simply doesn't give you.
+</details>
+
+### Problem 3 — break the product with a second parameter
+
+Introduce a new vector $u \in \mathbb{R}^d$ that *tracks*
+$A^{-1} \mathbb{E}_\mu[\delta\,\phi]$ — the right-hand expectation. Suppose
+we update $u$ to minimise
+
+$$L(u; w) \;=\; \mathbb{E}_\mu\bigl[(\delta - \phi^\top u)^2\bigr].$$
+
+Show that the minimiser $u^\star$ of $L$ (for fixed $w$) is exactly
+$A^{-1} \mathbb{E}_\mu[\delta\,\phi]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take $\nabla_u L = 0$ and solve.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\nabla_u L = -2 \mathbb{E}_\mu[(\delta - \phi^\top u)\,\phi] = 0$ gives
+
+$$\mathbb{E}_\mu[\phi \phi^\top]\, u^\star = \mathbb{E}_\mu[\delta\,\phi],
+\qquad u^\star = A^{-1}\,\mathbb{E}_\mu[\delta\,\phi].$$
+
+So $u^\star$ is exactly the inner expectation we needed. The trick: keep
+$u$ around between time steps, and update it slowly with SGD on $L(u; w)$.
+Now the gradient of MSPBE factors as
+$\nabla_w \mathrm{MSPBE} \;\approx\; -2\,\mathbb{E}_\mu[(\phi - \gamma
+\phi')\,\phi^\top]\, u$, which **is** estimable from one sample as
+$-2 (\phi - \gamma \phi')\,(\phi^\top u)$.
+</details>
+
+### Problem 4 — the GTD2 update
+
+Combine Problems 2 and 3. Write down the per-sample updates for $w$ and
+$u$. Use step sizes $\alpha$ (for $w$) and $\beta$ (for $u$).
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$w$ moves opposite the gradient of MSPBE (factor in step size, drop the $-2$).
+$u$ moves opposite the gradient of $L(u; w)$ at the current sample.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**GTD2** per-sample update on $(s, r, s')$:
+
+$$\begin{aligned}
+\delta \;&\leftarrow\; r + \gamma\,\phi'^\top w - \phi^\top w \\
+w \;&\leftarrow\; w + \alpha\,(\phi - \gamma\,\phi')\,(\phi^\top u) \\
+u \;&\leftarrow\; u + \beta\,(\delta - \phi^\top u)\,\phi
+\end{aligned}$$
+
+The $w$-update has the same shape as semi-gradient TD — *TD-error-like
+quantity times a feature vector* — but the "TD-error-like quantity" is now
+$\phi^\top u$, not $\delta$, and the feature it multiplies is
+$(\phi - \gamma\,\phi')$, not $\phi$.
+
+(*GTD1* used a slightly different update; *GTD2* is the cleaner variant
+introduced by Sutton, Maei et al. in their 2009 sequel paper.)
+</details>
+
+### Problem 5 — TDC: same fixed point, less variance
+
+The GTD2 $w$-update can be re-written using $\delta$ explicitly. Show that
+the equivalent algebraic form
+
+$$w \;\leftarrow\; w + \alpha\,\delta\,\phi \;-\; \alpha\,\gamma\,\phi'\,(\phi^\top u)$$
+
+has the same fixed point as GTD2 but typically much lower variance.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+At the fixed point, $\mathbb{E}[(\delta - \phi^\top u)\phi] = 0$, so
+$\mathbb{E}[\delta\,\phi] = A u$. Substitute that into GTD2's $w$-update
+and see what you get.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+GTD2 update: $w \leftarrow w + \alpha (\phi - \gamma \phi') (\phi^\top u)$.
+Expand: $\alpha (\phi^\top u)\,\phi - \alpha\,\gamma\,(\phi^\top u)\,\phi'$.
+On expectation this is $\alpha\,(A u) - \alpha\,\gamma\,\mathbb{E}[\phi'
+\phi^\top]\,u$. At the fixed point, $A u = \mathbb{E}[\delta\,\phi]$, so
+the first term becomes $\alpha\,\mathbb{E}[\delta\,\phi]$ — the
+semi-gradient TD direction. The second term is a correction.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**TDC** ("TD with gradient correction"):
+
+$$\begin{aligned}
+\delta \;&\leftarrow\; r + \gamma\,\phi'^\top w - \phi^\top w \\
+w \;&\leftarrow\; w + \alpha\,\delta\,\phi \;-\; \alpha\,\gamma\,\phi'\,(\phi^\top u) \\
+u \;&\leftarrow\; u + \beta\,(\delta - \phi^\top u)\,\phi
+\end{aligned}$$
+
+The first $w$-term is identical to **semi-gradient TD**. The second term
+is the **correction** that makes the update an *honest* gradient of
+MSPBE — paid for by carrying $u$.
+
+In expectation: $\mathbb{E}[\delta\,\phi - \gamma\,\phi'\,(\phi^\top u)]
+= \mathbb{E}[\delta\,\phi] - \gamma\,\mathbb{E}[\phi'\,\phi^\top]\,u$, and
+at the joint fixed point $A u = \mathbb{E}[\delta\,\phi]$ this becomes
+$A u - \gamma\,\mathbb{E}[\phi' \phi^\top] u = (A - \gamma\,\mathbb{E}[\phi'
+\phi^\top])\,u$. Setting this to zero gives the same equation as GTD2's
+fixed point.
+
+**Why TDC has lower variance.** GTD2's update is $\alpha (\phi - \gamma
+\phi')(\phi^\top u)$ — a product of two random vectors, each variance-y.
+TDC replaces the first random vector with $\delta\,\phi$ (whose mean is
+$A u$ at the fixed point, with smaller variance than $A u$ recomputed via
+$\phi(\phi^\top u)$). The correction term then subtracts only the *bias*,
+not the full estimator. In practice TDC needs fewer samples than GTD2 to
+reach the same accuracy.
+</details>
+
+### Problem 6 — Baird's counterexample: divergence vs convergence
+
+[Baird's 7-state counterexample](../30-q-learning-with-fa/index.qmd) is a
+linear-FA MDP where semi-gradient TD with off-policy data **diverges**
+geometrically: weights grow without bound. Without redoing the construction
+here, argue (using Problems 4 and 5) why **TDC converges** on the same
+MDP, given the GTD/TDC convergence theorem (Sutton, Maei et al., 2009):
+under linear FA, off-policy data with bounded importance weights, and
+two-time-scale step sizes ($\beta \to 0$ slower than $\alpha$),
+$(w_t, u_t)$ converges almost surely to a fixed point of MSPBE.
+
+<details class="hint"><summary>Full solution</summary>
+The semi-gradient TD analysis of Baird's example shows that the expected
+update is $\mathbb{E}[\text{update}] = -\alpha\,M w$ for an
+**unstable** $M$ (some eigenvalues with positive real part). That makes
+the iteration diverge.
+
+The gradient-TD updates are designed so that the expected joint
+$(w, u)$-update descends MSPBE. As a function of $w$, MSPBE is
+**lower-bounded by zero**; as long as the gradient estimator is unbiased
+in expectation, the iteration cannot diverge to infinity. Two-time-scale
+analysis (Borkar 1997) then shows the slow timescale converges to a
+fixed point of MSPBE — exactly the projected Bellman fixed point we
+named in [L32](../32-projected-bellman-operator/index.qmd).
+
+In short: **TDC converges on Baird's counterexample**, where semi-gradient
+TD diverges. This is the headline result of the gradient-TD program. The
+deadly triad is mathematically defused — at the price of $u$, $\beta$,
+and slower wall-clock convergence.
+</details>
+
+::: {.fun-fact}
+The gradient-TD line was opened by **Sutton, Maei, Precup, Bhatnagar,
+Silver, Szepesvári, and Wiewiora (2009)** with the paper "A convergent
+$O(n)$ temporal-difference algorithm for off-policy learning with linear
+function approximation" (NeurIPS). The original GTD update was clean but
+slow; **Sutton, Maei et al. (2009b, ICML)** released GTD2 and TDC the
+same year. Why didn't gradient-TD take over deep RL? Variance was the
+main issue: $u$ is itself noisy, so the correction can swing wildly with
+neural-network features. DQN's engineering (target networks, replay
+buffers) gave more reliable practical performance, even without the
+convergence guarantee. The road-not-taken stayed not-taken.
+:::
+
+::: {.key-insight}
+Gradient-TD is **what semi-gradient TD would be if it stopped cheating**.
+The "cheat" was treating the target as $w$-independent. The fix is not
+to put the missing gradient back (that's residual gradient, which targets
+the wrong objective). The fix is to descend MSPBE itself — and the cost
+of that honesty is a second parameter $u$ tracking
+$\mathbb{E}[\phi \phi^\top]^{-1}\,\mathbb{E}[\delta\,\phi]$, and a slower
+clock for $u$ than for $w$. **The deadly triad is mathematically defused;
+the engineering trade-off is variance.**
+:::
+
+## Name
+
+::: {.lesson-beat}
+
+The **[gradient-TD family](/glossary.qmd#gradient-td)** consists of
+SGD-style algorithms that descend MSPBE by tracking a second parameter
+$u \in \mathbb{R}^d$ on a *slower* timescale than the main weights $w$:
+
+**GTD2** per-sample updates:
+
+$$\begin{aligned}
+w \;&\leftarrow\; w + \alpha\,(\phi - \gamma\,\phi')\,(\phi^\top u) \\
+u \;&\leftarrow\; u + \beta\,(\delta - \phi^\top u)\,\phi
+\end{aligned}$$
+
+**[TDC](/glossary.qmd#tdc)** (TD with gradient correction) — equivalent
+fixed point, lower variance:
+
+$$\begin{aligned}
+w \;&\leftarrow\; w + \alpha\,\delta\,\phi \;-\; \alpha\,\gamma\,\phi'\,(\phi^\top u) \\
+u \;&\leftarrow\; u + \beta\,(\delta - \phi^\top u)\,\phi
+\end{aligned}$$
+
+Under linear FA, off-policy data with bounded importance weights, and
+two-time-scale Robbins–Monro step sizes
+($\alpha, \beta \to 0$ with $\beta / \alpha \to 0$), $(w_t, u_t)$
+converges almost surely to a fixed point of MSPBE — the **projected
+Bellman fixed point** of [L32](../32-projected-bellman-operator/index.qmd)
+— even when semi-gradient TD diverges.
+
+:::
+
+In one mnemonic line:
+
+> *Two parameters, two clocks: $w$ chases the projected Bellman point,
+> $u$ tracks the gradient correction.*
+
+## Apply
+
+### Worked example — TDC on a 2-state off-policy chain
+
+Two states $\{1, 2\}$. Target policy $\pi$ goes $1 \to 1$, $2 \to 1$
+(absorbing at 1). Behaviour policy $b$ samples uniformly over the two
+states. Reward $r = 0$, $\gamma = 0.9$. Features
+$\phi(1) = (1, 0)^\top$, $\phi(2) = (1, 2)^\top$.
+
+The on-policy stationary distribution of $\pi$ puts all mass on state 1,
+so the true value function under $\pi$ is $v_\pi = (0, 0)^\top$
+(absorbing at the zero-reward state). The TD fixed point of MSPBE under
+$\mu_b = (\tfrac12, \tfrac12)$ is also $w^\star = (0, 0)$ in this
+setup (the only $w$ in the feature span that gives $\hat v = 0$).
+
+Initialise $w = (1, 1)^\top$, $u = (0, 0)^\top$, $\alpha = 0.1$,
+$\beta = 0.01$ (so $\beta < \alpha$). Sample one transition $(s = 2,
+r = 0, s' = 1)$ — behaviour visits state 2, target sends it to state 1.
+
+1. $\delta = 0 + 0.9 \cdot \phi(1)^\top w - \phi(2)^\top w
+   = 0.9 \cdot 1 - 3 = -2.1$.
+2. **TDC $w$-update.** $\phi^\top u = 0$, so the correction term is 0
+   on the first step. $w \leftarrow (1, 1) + 0.1 \cdot (-2.1) \cdot
+   (1, 2) = (1 - 0.21,\, 1 - 0.42) = (0.79,\, 0.58)$.
+3. **$u$-update.** $u \leftarrow (0, 0) + 0.01 \cdot (-2.1 - 0)\cdot
+   (1, 2) = (-0.021,\, -0.042)$.
+
+On the next step, $u \ne 0$, so the correction term becomes active and
+pulls the $w$-update toward the projected Bellman direction.
+
+Run this for 10 000 steps and you find $w_t \to (0, 0)$. Semi-gradient
+TD on this off-policy data tends to drift instead — the on-policy
+mismatch breaks the contraction (see
+[L32 Stretch S1](../32-projected-bellman-operator/index.qmd#practice---stretch)).
+
+### Practice — Warm
+
+**W1.** Write the GTD2 update on a single transition $(s, r, s')$ with
+features $\phi(s) = (1, s)^\top$, $\gamma = 0.5$, $\alpha = 0.1$,
+$\beta = 0.01$. Use $s = 1$, $r = 1$, $s' = 2$, initial $w = (0, 0)$,
+$u = (0, 0)$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compute $\delta$ first; then both updates.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\delta = 1 + 0.5 \cdot \phi(2)^\top w - \phi(1)^\top w = 1 + 0 - 0 = 1$.
+$\phi^\top u = 0$. $\phi - \gamma\,\phi' = (1, 1) - 0.5 \cdot (1, 2) =
+(0.5, 0)$. **GTD2** $w$: stays $(0, 0)$ because $\phi^\top u = 0$. $u$:
+$u \leftarrow (0, 0) + 0.01 \cdot (1 - 0) \cdot (1, 1) = (0.01, 0.01)$.
+
+First step: $u$ moves, $w$ stays. The auxiliary parameter has to warm up
+before it can correct the main update.
+</details>
+
+**W2.** Same setup as W1 but use **TDC** instead of GTD2.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+TDC's $w$-update has a semi-gradient TD piece plus a correction.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\delta = 1$, $\phi^\top u = 0$. $w$: $w \leftarrow (0, 0) + 0.1 \cdot 1
+\cdot (1, 1) - 0.1 \cdot 0.5 \cdot (1, 2) \cdot 0 = (0.1, 0.1)$. The
+correction term vanishes (because $\phi^\top u = 0$), so TDC reduces to
+*semi-gradient TD* on the first step. $u$: same as W1, $(0.01, 0.01)$.
+
+**Key contrast with GTD2:** TDC's first step moves $w$ immediately —
+it doesn't have to wait for $u$ to warm up. That's part of why TDC is
+faster in practice.
+</details>
+
+**W3.** Why does TDC update $u$ on the *fast* timescale and $w$ on the
+*slow* timescale? (Some treatments invert this — flag what's
+conventional.)
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The convergence proof requires $u$ to track $A^{-1}\,\mathbb{E}[\delta\,\phi]$
+*as a function of $w$*. For that tracking to be accurate, $u$ must move
+*faster* than $w$, so it equilibrates between $w$-updates.
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Convention:** $u$ uses the larger step size $\beta$ (fast), $w$ uses
+the smaller $\alpha$ (slow); typically $\beta / \alpha \to \infty$ as
+$t \to \infty$, or equivalently $\alpha_t / \beta_t \to 0$.
+
+The reason: the convergence proof uses **two-time-scale stochastic
+approximation** (Borkar 1997). From $w$'s perspective, $u$ has already
+converged to its $w$-dependent optimum $u^\star(w) = A^{-1}\,
+\mathbb{E}[\delta(w)\,\phi]$; from $u$'s perspective, $w$ is frozen. That
+separation requires $u$ to equilibrate faster than $w$ moves.
+
+Some early gradient-TD papers swap the notation — the *unique* parameter
+is "the slow one" in the convergence-proof sense, whichever symbol you
+give it. Here we follow Sutton & Barto's convention: $\alpha$ on $w$,
+$\beta$ on $u$, with $\beta > \alpha$. (Yes, that means the "slow" $w$
+uses the smaller step size — confusing because "slow" feels like "small"
+but in this context "slow" means "moves less per unit time," which is
+exactly what a smaller step achieves.)
+</details>
+
+### Practice — Working
+
+**P1.** Show that, *in expectation*, the GTD2 $w$-update equals
+$-\tfrac12 \nabla_w \mathrm{MSPBE}(w)$ when $u$ has reached its
+$w$-dependent optimum $u^\star(w) = A^{-1}\,\mathbb{E}[\delta\,\phi]$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+From Problem 2's solution,
+$\nabla_w \mathrm{MSPBE} = -2\,\mathbb{E}[(\phi - \gamma\,\phi')\,\phi^\top]\,A^{-1}\,\mathbb{E}[\delta\,\phi]
+= -2\,\mathbb{E}[(\phi - \gamma\,\phi')\,\phi^\top]\,u^\star(w)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The GTD2 update is $\Delta w = \alpha\,(\phi - \gamma\,\phi')\,(\phi^\top u)$.
+Take expectation and substitute $u = u^\star(w)$:
+
+$$\mathbb{E}[\Delta w] = \alpha\,\mathbb{E}[(\phi - \gamma\,\phi')\,\phi^\top]\,u^\star(w)
+= \alpha\,\mathbb{E}[(\phi - \gamma\,\phi')\,\phi^\top]\,A^{-1}\,\mathbb{E}[\delta\,\phi]$$
+$$= -\tfrac{\alpha}{2}\,\nabla_w \mathrm{MSPBE}(w).$$
+
+So GTD2 is **honest stochastic gradient descent on MSPBE** (modulo the
+constant factor 2 and the assumption that $u$ has equilibrated). That is
+precisely the convergence guarantee Problem 6 cited.
+</details>
+
+**P2.** Verify TDC reduces to *semi-gradient TD* when $u \equiv 0$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Look at TDC's $w$-update with $u = 0$ plugged in.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$w \leftarrow w + \alpha\,\delta\,\phi - \alpha\,\gamma\,\phi'\,(\phi^\top \cdot 0)
+= w + \alpha\,\delta\,\phi$ — exactly the semi-gradient TD update from
+L29. So TDC is "semi-gradient TD plus a correction the auxiliary
+parameter learns." When $u$ is at its initial zero, TDC *is*
+semi-gradient TD. As $u$ warms up the correction kicks in, and at the
+fixed point the correction exactly cancels the semi-gradient bias that
+would otherwise drag $w$ to the wrong place under off-policy data.
+</details>
+
+**P3.** A student says: "Gradient-TD only matters off-policy. On-policy,
+semi-gradient TD is fine, so we should always use semi-gradient TD when we
+can." Is this right?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+What does the deadly triad require for divergence to even be possible?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Half right.** On-policy linear FA semi-gradient TD converges
+(Tsitsiklis–Van Roy 1997), and TDC's correction term equals zero in
+expectation in that regime — so TDC offers no theoretical advantage
+on-policy and gives up some speed. **In practice, when you know you're
+on-policy with linear FA, use semi-gradient TD.**
+
+But many practitioners aren't sure if they're on-policy. Experience
+replay (DQN) breaks the on-policy property by definition. Off-policy
+evaluation of one policy from another's trajectories (recommender
+systems, medical RL) is off-policy by construction. In those settings,
+TDC's convergence guarantee is meaningful. The cost (a second parameter,
+slower convergence) is sometimes worth paying.
+</details>
+
+### Practice — Stretch
+
+**S1.** **Emphatic TD** is a different fix for the deadly triad: instead
+of carrying an auxiliary parameter, it *re-weights* the per-sample TD
+update by a state-dependent factor $F_t$ that compensates for the
+off-policy mismatch. Sketch (informally) why this might work, and state
+one practical disadvantage relative to TDC.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The deadly triad arose because $\mu_b \ne \mu_\pi$. What if you could
+construct sample weights that recovered $\mu_\pi$-norm contraction
+behaviour?
+</details>
+<details class="hint"><summary>Full solution</summary>
+**Emphatic TD (ETD)** (Sutton, Mahmood & White, 2016) introduces a
+recursive weight $F_t$ that essentially counts "how much would the target
+policy have visited this state, given the trajectory so far?". Re-weighting
+the standard TD update by $F_t$ restores a contraction property in the
+*emphatic norm* — and ETD converges with linear FA off-policy.
+
+**Practical disadvantage:** $F_t$ can have **very high variance** under
+off-policy data, especially when the target and behaviour policies
+differ a lot. Numerical instability is the usual symptom. TDC's $u$ is
+also noisy but is bounded by the geometry of $\phi$; $F_t$ has no such
+bound and can blow up.
+
+Both ETD and TDC are correct convergent algorithms; both have variance
+issues; neither has displaced the engineering DQN does. Sutton & Barto
+§11.7 give a clean comparison.
+</details>
+
+**S2.** Convert the TDC update to the **off-policy** setting using
+importance sampling. (Behaviour $b$ generates data, target $\pi$ is
+evaluated. Per-step importance ratio
+$\rho_t = \pi(a_t \mid s_t) / b(a_t \mid s_t)$.) Where does $\rho_t$ enter
+the TDC update?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Every place an expectation under $\mu_\pi$ is being approximated by an
+empirical average over $\mu_b$-data, weight the sample by $\rho_t$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Off-policy TDC:
+
+$$\begin{aligned}
+\delta_t \;&\leftarrow\; r_t + \gamma\,\phi_{t+1}^\top w - \phi_t^\top w \\
+w \;&\leftarrow\; w + \alpha\,\rho_t\,\bigl[\delta_t\,\phi_t - \gamma\,\phi_{t+1}\,(\phi_t^\top u)\bigr] \\
+u \;&\leftarrow\; u + \beta\,\rho_t\,(\delta_t - \phi_t^\top u)\,\phi_t
+\end{aligned}$$
+
+The importance ratio $\rho_t$ multiplies the *entire* per-sample update —
+both for $w$ and for $u$ — to convert the $\mu_b$-empirical average into
+an estimator of the $\mu_\pi$-expectation. That extra $\rho_t$ factor is
+exactly where the variance creeps in: $\rho_t$ can be large when
+$\pi(a \mid s) \gg b(a \mid s)$.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"Gradient-TD is just TD with the missing gradient added back."** No.
+   That's *residual gradient*, which targets $\tfrac12\,\delta^2$ — the
+   *wrong* objective when $v_\pi \notin \mathcal{F}$. Gradient-TD targets
+   MSPBE — the *right* objective. The two algorithms find different
+   fixed points; one is the projected Bellman point, one is not.
+2. **"$u$ is a value function."** It's not. $u$ has the same dimension as
+   $w$ ($d$ features) and lives in feature-space, but it represents
+   $A^{-1}\,\mathbb{E}[\delta\,\phi]$ — a "gradient correction." Calling
+   it a value-function approximator is a category error.
+3. **"Two-time-scale just means use different step sizes."** Stronger
+   than that: the proof needs $\beta_t / \alpha_t \to \infty$
+   asymptotically. In practice constant ratios like $\beta = 10 \alpha$
+   work, but the asymptotic regime is what licenses the convergence
+   theorem.
+:::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **Gradient-TD descends MSPBE honestly.** Semi-gradient TD's "cheat"
+   (ignore the target's $w$-dependence) is replaced by a real gradient
+   estimator, paid for with a second parameter $u$ tracking
+   $A^{-1}\,\mathbb{E}[\delta\,\phi]$.
+2. **TDC = semi-gradient TD + correction.** When $u = 0$ TDC *is*
+   semi-gradient TD. As $u$ warms up the correction cancels the
+   off-policy bias. At the fixed point, the corrected update has
+   expectation zero — MSPBE is at a minimum.
+3. **The deadly triad is defused, but variance is not.** TDC converges
+   where semi-gradient TD diverges (Baird's counterexample). Why didn't
+   it take over? Variance from $u$ is the practical cost, and DQN's
+   engineering tricks dominate when the workload is forgiving.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you write down TDC's two updates from memory?
+2. Did you verify in Problem 5 that TDC and GTD2 have the same fixed
+   point but different per-sample variance?
+3. Could you explain to a friend why "ignore the target's gradient" was
+   wrong, and why "put the target's gradient back" was *also* wrong?
+
+- **3 yes:** continue to
+  [Lesson 34 — Policy Parameterisation](../34-policy-parameterization/index.qmd).
+- **2 yes:** redo Problem 5, then move on.
+- **0–1 yes:** re-derive Problem 2 and Problem 4 by hand.
+
+## Connect
+
+### Prerequisites used
+
+- **[mfrl.projected-bellman-operator](../32-projected-bellman-operator/index.qmd)** —
+  MSPBE is the objective; the projected Bellman fixed point is the
+  thing TDC converges to.
+- **[mfrl.stochastic-gradient-descent](../22-stochastic-gradient-descent/index.qmd)** —
+  every per-sample update here is SGD on an expectation, with the
+  Robbins–Monro step-size conditions in the background.
+- **[mfrl.q-learning-with-fa](../30-q-learning-with-fa/index.qmd)** —
+  the lesson where divergence first appeared; gradient-TD is the
+  alternative that didn't take that route.
+
+### What this unlocks
+
+Nothing else in this track depends on gradient-TD. This is the
+**road-not-taken** branch of the FA arc — the mathematically clean answer
+to the deadly triad, which the rest of modern deep RL declined in favour
+of DQN's engineering. The next lesson resumes the main thread with
+[policy parameterisation](../34-policy-parameterization/index.qmd) and
+the actor-critic family.
+
+### Where this matters
+
+::: {.applied-callout}
+**Research.** Off-policy policy evaluation under linear FA is a live
+research area — recommender-system A/B-testing, off-policy medical RL,
+counterfactual reasoning in causal inference. In those settings divergence
+is not an acceptable failure mode, and the gradient-TD family (along
+with emphatic TD and recent gradient-Q variants) are the convergent
+options.
+:::
+
+::: {.applied-callout}
+**AI / ML.** Modern off-policy actor-critic (DDPG, SAC, TD3) descends
+neither MSPBE nor MSTDE cleanly — they use semi-gradient updates and
+trust engineering (target networks, twin critics, clipped double Q) to
+suppress the divergence the gradient-TD family solves theoretically.
+Understanding *what* the engineering is suppressing is the value of this
+lesson.
+:::
+
+::: {.applied-callout}
+**Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
+mentions gradient-TD as the "convergent alternative to DQN" without
+deriving it. This lesson is the derivation.
+:::
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §8.4 (gradient-TD methods); also Sutton, Maei et al.
+  NeurIPS 2009 (GTD), ICML 2009 (GTD2, TDC); Sutton & Barto, *RL: An
+  Introduction* (2nd ed.), §11.7.
+- The "stop cheating" framing (key-insight) is borrowed from Sutton's own
+  exposition in the 2009 papers — he uses the words "the algorithm we
+  presented previously is *not* a true stochastic gradient method."
+- Touchstones honoured: Russian problem-first sequencing (Problems 1–6
+  derive GTD2 and TDC before they're named); Better Explained "Aha!"
+  framing (semi-gradient = cheat; gradient-TD = honest); two-coloured-pen
+  Touch builds the residual-vs-projection distinction physically before
+  it's named.
+:::

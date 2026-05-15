@@ -1,0 +1,676 @@
+---
+title: "32 · The Projected Bellman Operator and MSPBE"
+subtitle: "Geometrically: a wall, a target, and a Bellman push. On-policy the round-trip is a contraction; off-policy it need not be."
+lesson-id: "mfrl.projected-bellman-operator"
+tier: "mfrl"
+prerequisites: ["mfrl.td-with-function-approximation", "mfrl.q-learning-with-fa", "t4.dot-cross-product", "t5.partial-derivatives"]
+unlocks: ["mfrl.gradient-td"]
+applied-domains: ["ai-ml", "research"]
+estimated-minutes: 35
+status: "done"
+---
+
+::: {.preflight-check}
+### Pre-flight check {.mt-0}
+
+Be honest before you read on.
+
+1. Can you state the **semi-gradient TD** update from
+   [Lesson 29](../29-td-with-function-approximation/index.qmd) and say what
+   "semi" means?
+2. Can you compute a [dot product](/glossary.qmd#dot-product), and weight it
+   by a probability distribution
+   $\langle x, y \rangle_\mu = \sum_s \mu(s)\, x(s)\, y(s)$?
+3. Can you name the three ingredients of the **deadly triad** from
+   [Lesson 30](../30-q-learning-with-fa/index.qmd)?
+4. Do you know what a **$\gamma$-contraction** in a norm is — i.e. an
+   operator $T$ with $\|Tu - Tv\| \le \gamma\,\|u - v\|$?
+
+If any answer is no, revisit the named lesson or glossary entry before
+continuing.
+:::
+
+## Touch
+
+There are three states: $A$, $B$, $C$. Their true values are
+
+$$v_\pi(A) = 1,\quad v_\pi(B) = 1,\quad v_\pi(C) = 3.$$
+
+You don't have a table — you have *two knobs* $w_1$ and $w_2$, and your
+estimate is forced to obey
+
+$$\hat v(s) \;=\; w_1 \;+\; w_2 \cdot s,
+\qquad s \in \{1, 2, 3\}\ \text{for}\ A, B, C.$$
+
+Try a few settings of $(w_1, w_2)$. For each, write down $\hat v(A)$,
+$\hat v(B)$, $\hat v(C)$, and the squared error
+$E = (1 - \hat v(A))^2 + (1 - \hat v(B))^2 + (3 - \hat v(C))^2$.
+
+| $w_1$ | $w_2$ | $\hat v(A)$ | $\hat v(B)$ | $\hat v(C)$ | $E$ |
+|------:|------:|------------:|------------:|------------:|----:|
+| $0$   | $1$   | $1$         | $2$         | $3$         | $1$ |
+| $-1$  | $\tfrac{4}{3}$ | $\tfrac{1}{3}$ | $\tfrac{5}{3}$ | $3$ | $\approx 0.89$ |
+| $-\tfrac{1}{3}$ | $1$ | $\tfrac{2}{3}$ | $\tfrac{5}{3}$ | $\tfrac{8}{3}$ | $\approx 0.67$ |
+| $\tfrac{1}{3}$  | $1$ | $\tfrac{4}{3}$ | $\tfrac{7}{3}$ | $\tfrac{10}{3}$ | $\approx 2.0$ |
+
+No setting hits all three targets exactly. The third row is the lowest error
+you can reach.
+
+::: {.lesson-beat}
+There is no $(w_1, w_2)$ that makes $\hat v$ equal $v_\pi$. With two knobs
+you can produce only a 2-D *plane* of possible $\hat v$ values inside the
+3-D space $\mathbb{R}^3$. The truth lives off that plane. You can get
+*closest to it*, but you cannot reach it.
+:::
+
+## Wonder
+
+Sit with these. Don't write yet.
+
+1. The set of all $\hat v$ you can produce by varying $(w_1, w_2)$ — what
+   shape is it inside $\mathbb{R}^3$?
+2. If we said state $B$ matters twice as much as $A$ or $C$, would the
+   "best" setting of the knobs change?
+3. The fitting rule is linear in $(w_1, w_2)$. Does that make finding the
+   best setting easy, or just possible?
+4. Suppose you don't know $v_\pi$; you only see TD targets
+   $r + \gamma \hat v(s')$ — which themselves depend on $(w_1, w_2)$. Does
+   the "best fit" idea still make sense when the target *moves*?
+
+## Discover
+
+Five problems. Each is small.
+
+### Problem 1 — the feature span is a plane
+
+Write each state's feature vector
+$\phi(s) = (1, s)^\top$. Stack them as rows of a matrix
+
+$$\Phi \;=\; \begin{pmatrix} 1 & 1 \\ 1 & 2 \\ 1 & 3 \end{pmatrix}.$$
+
+Then $\hat v = \Phi w$ where $w = (w_1, w_2)^\top$. Describe the set
+$\{\Phi w : w \in \mathbb{R}^2\}$ as a subset of $\mathbb{R}^3$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The two columns of $\Phi$ are the two feature vectors viewed across all
+states. What does varying $w$ do to combinations of those columns?
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\Phi w$ is a linear combination of the two columns of $\Phi$. Varying
+$w \in \mathbb{R}^2$ traces out the **span** of those columns — a 2-D
+subspace of $\mathbb{R}^3$. We call this subspace the **feature span**
+and write it $\mathcal{F} = \mathrm{span}(\Phi) \subset \mathbb{R}^{|S|}$.
+Every realisable $\hat v$ lives on $\mathcal{F}$. Any $v$ off $\mathcal{F}$
+— the true $v_\pi$ in the Touch — is not reachable by linear FA, no
+matter how you tune $w$.
+</details>
+
+### Problem 2 — the closest point on the plane
+
+Equip $\mathbb{R}^{|S|}$ with the $\mu$-weighted inner product
+
+$$\langle x, y \rangle_\mu \;=\; \sum_s \mu(s)\, x(s)\, y(s),
+\qquad \|x\|_\mu \;=\; \sqrt{\langle x, x \rangle_\mu}.$$
+
+For any $v \in \mathbb{R}^{|S|}$ there is a unique point $\Pi_\mu v$ in
+$\mathcal{F}$ that minimises $\|v - \Pi_\mu v\|_\mu$. State (without proof)
+why such a point exists and is unique, and write down what $\Pi_\mu v$ is
+when $v$ already lies in $\mathcal{F}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+You can pull two facts off the shelf from linear algebra: closed convex
+subsets of a finite-dimensional inner-product space contain a unique
+closest point to any external point; and projecting a point that's already
+in the subspace gives the point itself.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\mathcal{F}$ is a finite-dimensional linear subspace; the $\mu$-weighted
+inner product gives $\mathbb{R}^{|S|}$ a Hilbert-space structure (every
+$\mu(s) > 0$ on the support). The orthogonal-projection theorem then
+guarantees a unique $\Pi_\mu v \in \mathcal{F}$ minimising
+$\|v - \cdot\|_\mu$. If $v \in \mathcal{F}$ then $\Pi_\mu v = v$ — the
+closest point in a subspace to a point already in the subspace is itself.
+**$\Pi_\mu$ is linear** (it's a composition of linear maps), and idempotent
+($\Pi_\mu^2 = \Pi_\mu$).
+</details>
+
+### Problem 3 — projection is non-expansive
+
+Show that for any $u, v \in \mathbb{R}^{|S|}$,
+
+$$\|\Pi_\mu u - \Pi_\mu v\|_\mu \;\le\; \|u - v\|_\mu.$$
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use the Pythagorean theorem. The residual $v - \Pi_\mu v$ is orthogonal to
+$\mathcal{F}$ in $\langle \cdot, \cdot \rangle_\mu$. Drop the residual
+component and see what remains.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Decompose $u - v = (\Pi_\mu u - \Pi_\mu v) + (\text{residual})$ where the
+two parts are orthogonal in the $\mu$-norm. Pythagoras gives
+$\|u - v\|_\mu^2 = \|\Pi_\mu u - \Pi_\mu v\|_\mu^2 + \|\text{residual}\|_\mu^2$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$\Pi_\mu u - \Pi_\mu v \in \mathcal{F}$ (the subspace is closed under
+subtraction). The residual $(u - \Pi_\mu u) - (v - \Pi_\mu v)$ is the
+difference of two vectors each orthogonal to $\mathcal{F}$, so is itself
+orthogonal to $\mathcal{F}$. The two pieces are orthogonal in
+$\langle \cdot, \cdot \rangle_\mu$. By Pythagoras
+
+$$\|u - v\|_\mu^2 \;=\; \|\Pi_\mu u - \Pi_\mu v\|_\mu^2
+\;+\; \|(u - \Pi_\mu u) - (v - \Pi_\mu v)\|_\mu^2,$$
+
+so $\|\Pi_\mu u - \Pi_\mu v\|_\mu^2 \le \|u - v\|_\mu^2$. **Projection
+never lengthens distances** — it's *non-expansive* (1-Lipschitz) in the
+norm whose inner product it's orthogonal to.
+</details>
+
+### Problem 4 — on-policy: the composition is a contraction
+
+Recall from [L29 Stretch S1](../29-td-with-function-approximation/index.qmd#practice---stretch)
+the result we cited without proof: when $\mu$ is the *on-policy stationary
+distribution* of $\pi$, the Bellman operator $T_\pi$, defined by
+
+$$(T_\pi v)(s) \;=\; \sum_a \pi(a \mid s) \sum_{s', r} p(s', r \mid s, a)\,\bigl[r + \gamma\, v(s')\bigr],$$
+
+is a $\gamma$-contraction in $\|\cdot\|_\mu$: $\|T_\pi u - T_\pi v\|_\mu \le
+\gamma\, \|u - v\|_\mu$. Use that, plus Problem 3, to show that the
+**composed operator** $\Pi_\mu T_\pi$ is a $\gamma$-contraction in
+$\|\cdot\|_\mu$. Conclude using Banach's fixed-point theorem
+([L11](../11-contraction-mapping-theorem/index.qmd)) that $\Pi_\mu T_\pi$
+has a **unique fixed point** $v^\star \in \mathcal{F}$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Chain the two Lipschitz bounds. Apply $T_\pi$ first, then $\Pi_\mu$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+For any $u, v$,
+
+$$
+\|\Pi_\mu T_\pi u - \Pi_\mu T_\pi v\|_\mu
+\;\le\; \|T_\pi u - T_\pi v\|_\mu \qquad \text{(Problem 3)}
+$$
+
+$$
+\le\; \gamma\,\|u - v\|_\mu \qquad \text{(on-policy Bellman contraction)}.
+$$
+
+So $\Pi_\mu T_\pi$ is a $\gamma$-contraction. Banach
+([L11](../11-contraction-mapping-theorem/index.qmd)) gives a unique fixed
+point $v^\star \in \mathcal{F}$ — the **TD fixed point** — and iteration
+$v_{n+1} = \Pi_\mu T_\pi v_n$ converges geometrically from any starting
+point. **This is what semi-gradient TD with linear FA on-policy actually
+converges to** (Tsitsiklis–Van Roy 1997).
+</details>
+
+### Problem 5 — off-policy: the contraction can break
+
+Suppose the data is generated by a *behaviour* policy $b$, not $\pi$. The
+sampling distribution is then $\mu_b$, the stationary distribution of $b$,
+not the on-policy $\mu_\pi$. The Bellman operator we still want to apply
+is $T_\pi$ (we're evaluating $\pi$, not $b$). Argue informally — without a
+proof — why $T_\pi$ need not be a $\gamma$-contraction in $\|\cdot\|_{\mu_b}$,
+and conclude what this means for $\Pi_{\mu_b} T_\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The Bellman contraction on-policy uses the stationary property
+$\sum_s \mu_\pi(s)\, p_\pi(s' \mid s) = \mu_\pi(s')$. The same identity
+fails for $\mu_b$ paired with $T_\pi$'s transition kernel.
+</details>
+<details class="hint"><summary>Full solution</summary>
+The on-policy proof of "$T_\pi$ is a $\gamma$-contraction in
+$\|\cdot\|_{\mu_\pi}$" leans on the fact that $\mu_\pi$ is *stationary
+under $\pi$*: pushing mass forward by one step of $\pi$ does not change
+$\mu_\pi$. Off-policy, the data distribution is $\mu_b$, but $T_\pi$
+operates with $\pi$'s kernel. Those don't match. The cancellation that made
+the contraction work no longer applies. Concretely you can construct
+counterexamples where $\|T_\pi u - T_\pi v\|_{\mu_b}$ exceeds
+$\|u - v\|_{\mu_b}$ — i.e. $T_\pi$ *expands* the off-policy norm.
+
+When the Bellman half of the round-trip is expansive, the projection half
+can't always pull things back: $\Pi_{\mu_b} T_\pi$ need not be a
+contraction, the fixed point need not be unique (or even exist), and the
+iteration $v_{n+1} = \Pi_{\mu_b} T_\pi v_n$ can diverge. **This is the
+deadly triad in one picture**: function approximation (the projection),
+bootstrapping (the Bellman operator), and off-policy data (the wrong
+weighting) together break the contraction argument.
+</details>
+
+::: {.fun-fact}
+The composition $\Pi_\mu T_\pi$ is exactly what John Tsitsiklis and Benjamin
+Van Roy used in their 1997 *IEEE Transactions on Automatic Control* paper
+"An Analysis of Temporal-Difference Learning with Function Approximation"
+to give the first rigorous convergence proof for TD(0) with linear FA.
+The proof is essentially Problem 4 — the rest of the paper handles the
+stochastic-approximation bookkeeping that gets you from "fixed point of an
+operator" to "limit of the stochastic update". Twenty-eight years later
+their conditions still define the boundary of safe.
+:::
+
+::: {.key-insight}
+The projection is a **wall**: $\hat v$ can never leave the feature span.
+The Bellman update wants to push the value somewhere on the other side
+of the wall; the projection drags it back. On-policy weighting keeps that
+drag *short enough* — at most $\gamma$-shrink per round-trip — that the
+dance converges to a single point. Off-policy weighting lets the
+drag *grow*: the Bellman push can expand, and the projection can no
+longer fix it. Divergence becomes possible — not certain, but no longer
+ruled out.
+:::
+
+## Name
+
+::: {.lesson-beat}
+
+Let $\Phi \in \mathbb{R}^{|S| \times d}$ be the feature matrix and
+$\mathcal{F} = \{\Phi w : w \in \mathbb{R}^d\}$ the **feature span**. Let
+$\mu$ be a probability distribution on $S$ with $\mu(s) > 0$ for all $s$
+in the support.
+
+The **[projection operator](/glossary.qmd#projected-bellman-operator)
+$\Pi_\mu : \mathbb{R}^{|S|} \to \mathcal{F}$** sends each $v$ to the unique
+closest point in $\mathcal{F}$ under the $\mu$-weighted norm. In matrix
+form,
+
+$$\Pi_\mu \;=\; \Phi\,(\Phi^\top D_\mu \Phi)^{-1}\,\Phi^\top D_\mu,
+\qquad D_\mu = \mathrm{diag}(\mu).$$
+
+The **projected Bellman operator** is the composition
+$\Pi_\mu T_\pi$. Its fixed points in $\mathcal{F}$ are the TD-style
+solutions.
+
+The **[mean-square projected Bellman error](/glossary.qmd#mspbe) (MSPBE)**
+of a weight vector $w$ is
+
+$$\mathrm{MSPBE}(w) \;=\; \bigl\|\,\hat v_w \;-\; \Pi_\mu T_\pi \hat v_w\,\bigr\|_\mu^2.$$
+
+Its zeros are exactly the TD fixed points: $\mathrm{MSPBE}(w^\star) = 0$
+iff $\hat v_{w^\star} = \Pi_\mu T_\pi \hat v_{w^\star}$.
+
+:::
+
+In one mnemonic line:
+
+> *The projection is the wall; the Bellman is the push; on-policy the
+> round-trip shrinks.*
+
+## Apply
+
+### Worked example — the 3-state chain from Touch
+
+States $A$, $B$, $C$ with $s = 1, 2, 3$; true values $v_\pi = (1, 1, 3)^\top$;
+features $\phi(s) = (1, s)^\top$; uniform weighting $\mu = (\tfrac13,
+\tfrac13, \tfrac13)$.
+
+**Step 1: build $\Phi$ and $D_\mu$.**
+
+$$\Phi = \begin{pmatrix}1 & 1 \\ 1 & 2 \\ 1 & 3\end{pmatrix},
+\qquad D_\mu = \tfrac{1}{3}\, I_3.$$
+
+**Step 2: compute the projection matrix.**
+
+$$\Phi^\top D_\mu \Phi
+= \tfrac{1}{3}\begin{pmatrix}3 & 6 \\ 6 & 14\end{pmatrix}
+= \begin{pmatrix}1 & 2 \\ 2 & \tfrac{14}{3}\end{pmatrix}.$$
+
+Its inverse is $\frac{1}{1 \cdot \tfrac{14}{3} - 4}
+\begin{pmatrix}\tfrac{14}{3} & -2 \\ -2 & 1\end{pmatrix}
+= \frac{3}{2}\begin{pmatrix}\tfrac{14}{3} & -2 \\ -2 & 1\end{pmatrix}
+= \begin{pmatrix}7 & -3 \\ -3 & \tfrac{3}{2}\end{pmatrix}.$
+
+**Step 3: project $v_\pi$.**
+
+The least-squares weights are $w^\star = (\Phi^\top D_\mu \Phi)^{-1}\,
+\Phi^\top D_\mu\, v_\pi$. Compute
+
+$$\Phi^\top D_\mu\, v_\pi = \tfrac{1}{3}\begin{pmatrix}5 \\ 12\end{pmatrix}
+= \begin{pmatrix}\tfrac{5}{3} \\ 4\end{pmatrix},$$
+
+then
+
+$$w^\star = \begin{pmatrix}7 & -3 \\ -3 & \tfrac{3}{2}\end{pmatrix}
+\begin{pmatrix}\tfrac{5}{3} \\ 4\end{pmatrix}
+= \begin{pmatrix}\tfrac{35}{3} - 12 \\ -5 + 6\end{pmatrix}
+= \begin{pmatrix}-\tfrac{1}{3} \\ 1\end{pmatrix}.$$
+
+So the projection is
+
+$$\Pi_\mu v_\pi \;=\; \Phi w^\star
+= \begin{pmatrix}-\tfrac{1}{3} + 1 \\ -\tfrac{1}{3} + 2 \\ -\tfrac{1}{3} + 3\end{pmatrix}
+= \begin{pmatrix}\tfrac{2}{3} \\ \tfrac{5}{3} \\ \tfrac{8}{3}\end{pmatrix}.$$
+
+**Step 4: check the residual is orthogonal.**
+
+The residual is $v_\pi - \Pi_\mu v_\pi = (\tfrac{1}{3}, -\tfrac{2}{3},
+\tfrac{1}{3})^\top$. Its $\mu$-weighted inner product with
+$(1, 1, 1)^\top$ (the first feature) is
+$\tfrac{1}{3}(\tfrac{1}{3} - \tfrac{2}{3} + \tfrac{1}{3}) = 0$. With
+$(1, 2, 3)^\top$ (the second feature):
+$\tfrac{1}{3}(\tfrac{1}{3} - \tfrac{4}{3} + 1) = 0$. **The residual is
+orthogonal to $\mathcal{F}$ in $\langle \cdot, \cdot \rangle_\mu$**, as
+the theory promised.
+
+### Practice — Warm
+
+**W1.** With features $\phi(s) = (1, s)^\top$ on three states and uniform
+$\mu$, what is $\Pi_\mu v$ for $v = (1, 2, 3)^\top$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$v$ lies on the feature span: try $w_1 = 0$, $w_2 = 1$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v = (1, 2, 3) = \Phi (0, 1)^\top$, so $v \in \mathcal{F}$ and $\Pi_\mu v
+= v$. Projecting a point already in the subspace returns the point itself
+(idempotency).
+</details>
+
+**W2.** Same features, same $\mu$. What is $\Pi_\mu v$ for $v = (1, 1, 1)^\top$?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$v$ is the all-ones vector; that's $\Phi (1, 0)^\top$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+$v = \Phi (1, 0)^\top$, so $v \in \mathcal{F}$ and $\Pi_\mu v = v$.
+Constant vectors are always in the span when one feature is the bias
+$\phi_1 = 1$.
+</details>
+
+**W3.** Write the matrix $\Pi_\mu$ in full for the worked example.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+$\Pi_\mu = \Phi (\Phi^\top D_\mu \Phi)^{-1} \Phi^\top D_\mu$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Using the pieces from the worked example:
+
+$$\Pi_\mu = \Phi \begin{pmatrix}7 & -3 \\ -3 & \tfrac{3}{2}\end{pmatrix}
+\Phi^\top D_\mu.$$
+
+Multiplying out:
+
+$$\Pi_\mu = \tfrac{1}{6}\begin{pmatrix}
+5 & 2 & -1 \\
+2 & 2 & 2 \\
+-1 & 2 & 5
+\end{pmatrix}.$$
+
+Row sums are $1$ (consistent with $\Pi_\mu \mathbf 1 = \mathbf 1$). The
+matrix is idempotent: $\Pi_\mu^2 = \Pi_\mu$ — you can check by
+re-multiplying. It is **not** symmetric in the standard sense; it is
+self-adjoint with respect to $\langle \cdot, \cdot \rangle_\mu$, which
+means $D_\mu \Pi_\mu = (D_\mu \Pi_\mu)^\top$. Verify:
+$D_\mu \Pi_\mu = \tfrac{1}{18}\begin{pmatrix}5 & 2 & -1 \\ 2 & 2 & 2 \\ -1
+& 2 & 5\end{pmatrix}$ is symmetric.
+</details>
+
+### Practice — Working
+
+**P1.** Re-do the worked example with weighting $\mu = (\tfrac12, \tfrac14,
+\tfrac14)$. Does the best $w$ change? Compute $\Pi_\mu v_\pi$.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+The least-squares normal equations are
+$\Phi^\top D_\mu \Phi\, w = \Phi^\top D_\mu\, v_\pi$. Rebuild both sides.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+With $D_\mu = \mathrm{diag}(\tfrac12, \tfrac14, \tfrac14)$:
+$\Phi^\top D_\mu \Phi = \begin{pmatrix}1 & \tfrac{7}{4} \\ \tfrac{7}{4} &
+\tfrac{15}{4}\end{pmatrix}$, $\Phi^\top D_\mu v_\pi = \begin{pmatrix}
+\tfrac{3}{2} \\ \tfrac{11}{4}\end{pmatrix}$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Solving the $2 \times 2$ system:
+$\det = \tfrac{15}{4} - \tfrac{49}{16} = \tfrac{11}{16}$. Then
+$w^\star = \tfrac{16}{11}\begin{pmatrix}\tfrac{15}{4} & -\tfrac{7}{4} \\
+-\tfrac{7}{4} & 1\end{pmatrix}\begin{pmatrix}\tfrac{3}{2} \\
+\tfrac{11}{4}\end{pmatrix}$. Working through: $w_1^\star = \tfrac{16}{11}
+\cdot \tfrac{1}{4}(\tfrac{15 \cdot 3}{2} - \tfrac{7 \cdot 11}{4}) =
+\tfrac{16}{11} \cdot \tfrac{1}{4} \cdot \tfrac{90 - 77}{4}
+= \tfrac{16 \cdot 13}{11 \cdot 16} = \tfrac{13}{11}$. And $w_2^\star =
+\tfrac{16}{11} \cdot \tfrac{1}{4}(-\tfrac{21}{2} + 11)
+= \tfrac{16}{11} \cdot \tfrac{1}{4} \cdot \tfrac{1}{2}
+= \tfrac{2}{11}$. **Change of $\mu$ changes the projection.** Heavier
+weight on $A$ pulls the fit closer to $v_\pi(A) = 1$, lighter weight on
+$C$ lets the fit miss $v_\pi(C) = 3$ by more.
+</details>
+
+**P2.** A student writes: "The projection $\Pi$ is the same matrix no
+matter what $\mu$ we use; only the *measure of error* changes." Refute in
+one short paragraph.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Compare W3 and P1.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Different $\mu$ give different projections — see P1 vs the worked example,
+where $\Pi_\mu v_\pi$ changed from $(\tfrac{2}{3}, \tfrac{5}{3}, \tfrac{8}{3})$
+to $(\Phi w^\star)$ with $w^\star = (\tfrac{13}{11}, \tfrac{2}{11})$. The
+formula $\Pi_\mu = \Phi (\Phi^\top D_\mu \Phi)^{-1} \Phi^\top D_\mu$
+literally has $D_\mu$ in it. "Project onto the feature span" is incomplete
+as a recipe — *in what norm?* must be specified. The norm chooses which
+errors matter, and that choice is encoded in $\mu$.
+</details>
+
+**P3.** State the relationship between $\Pi_\mu T_\pi$ and **semi-gradient
+TD** (Lesson 29). What does semi-gradient TD converge to in the
+on-policy linear-FA regime?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Use Problem 4 (Discover) and Tsitsiklis–Van Roy (the fun-fact).
+</details>
+<details class="hint"><summary>Full solution</summary>
+Tsitsiklis–Van Roy (1997) showed that, under linear FA and on-policy
+sampling with Robbins–Monro step sizes, semi-gradient TD's parameter
+$w_t$ converges (with probability 1) to the unique $w^\star$ satisfying
+$\hat v_{w^\star} = \Pi_{\mu_\pi} T_\pi \hat v_{w^\star}$. In words: the
+algorithm finds the **TD fixed point** — the fixed point of the projected
+Bellman operator $\Pi_\mu T_\pi$ — which is exactly where MSPBE($w$) is
+zero. This *names* what we said in L29 was happening without naming.
+</details>
+
+### Practice — Stretch
+
+**S1.** Construct an off-policy weighting $\mu_b$ on 2 states that makes
+the Bellman operator $T_\pi$ *expansive* in $\|\cdot\|_{\mu_b}$ — i.e.
+find $u, v$ with $\|T_\pi u - T_\pi v\|_{\mu_b} > \|u - v\|_{\mu_b}$. Use
+$\gamma = 0.9$ and any deterministic $\pi$. This is the off-policy half of
+the deadly-triad story.
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Take two states where $\pi$ sends almost all mass to one state, but $\mu_b$
+puts almost all weight on the other. The Bellman operator pushes mass
+forward by $\pi$; if $\mu_b$ doesn't match, the norm can magnify the
+difference.
+</details>
+<details class="hint"><summary>Hint 2 — the technique</summary>
+Two states $\{1, 2\}$. Policy $\pi$ goes $1 \to 2$ and $2 \to 2$
+(absorbing). On-policy $\mu_\pi$ puts most mass on state 2. Choose
+$\mu_b = (0.99, 0.01)$ — opposite of stationary. Take $u = (1, 0)$,
+$v = (0, 0)$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+With $\pi$: $T_\pi v(s) = r(s) + \gamma\, v(\pi(s))$ on this deterministic
+setup (taking $r = 0$ for simplicity). So $T_\pi u(s_1) = 0.9 \cdot u(2)
+= 0$ and $T_\pi u(s_2) = 0.9 \cdot u(2) = 0$. Thus $T_\pi u = (0, 0) =
+T_\pi v$. That gives $\|T_\pi u - T_\pi v\|_{\mu_b} = 0$ — a contraction
+of $u$ to itself, no expansion. We need a different setup.
+
+Try $\pi$: $1 \to 1$, $2 \to 1$. Then $T_\pi u = (0.9 \cdot u_1, 0.9 \cdot
+u_1)$. Pick $u = (1, 0)$, $v = (0, 0)$. $T_\pi u = (0.9, 0.9)$, $T_\pi v
+= (0, 0)$. With $\mu_b = (0.01, 0.99)$:
+$\|u - v\|_{\mu_b}^2 = 0.01 \cdot 1 + 0.99 \cdot 0 = 0.01$, so
+$\|u-v\|_{\mu_b} = 0.1$.
+$\|T_\pi u - T_\pi v\|_{\mu_b}^2 = 0.01 \cdot 0.81 + 0.99 \cdot 0.81 = 0.81$,
+so $\|T_\pi u - T_\pi v\|_{\mu_b} = 0.9$.
+
+Ratio $0.9 / 0.1 = 9 \gg \gamma$. **The Bellman operator expanded by a
+factor of 9 in this off-policy norm.** Compose with projection and the
+fixed-point iteration can diverge.
+
+The intuition: state 1 is rare under $\mu_b$, but it's where $\pi$ sends
+everything. The Bellman push amplifies "what does the value at state 1
+look like" — and $\mu_b$ has nearly stopped measuring state 1.
+</details>
+
+**S2.** Show that the *Bellman error* $\|T_\pi \hat v_w - \hat v_w\|_\mu^2$
+and the *projected* Bellman error $\|\Pi_\mu T_\pi \hat v_w - \hat v_w\|_\mu^2$
+are different objectives. Which one does semi-gradient TD secretly
+descend?
+
+<details class="hint"><summary>Hint 1 — a nudge</summary>
+Decompose $T_\pi \hat v_w - \hat v_w = (T_\pi \hat v_w - \Pi_\mu T_\pi
+\hat v_w) + (\Pi_\mu T_\pi \hat v_w - \hat v_w)$. The two pieces are
+orthogonal in $\langle \cdot, \cdot \rangle_\mu$ because $\hat v_w$ and
+$\Pi_\mu T_\pi \hat v_w$ both live in $\mathcal{F}$ while the first piece
+is in $\mathcal{F}^\perp$.
+</details>
+<details class="hint"><summary>Full solution</summary>
+Pythagoras in $\langle \cdot, \cdot \rangle_\mu$:
+
+$$\|T_\pi \hat v_w - \hat v_w\|_\mu^2 \;=\;
+\underbrace{\|T_\pi \hat v_w - \Pi_\mu T_\pi \hat v_w\|_\mu^2}_{\text{distance to }\mathcal{F}}
+\;+\; \underbrace{\|\Pi_\mu T_\pi \hat v_w - \hat v_w\|_\mu^2}_{\mathrm{MSPBE}(w)}.$$
+
+The first term measures how far the Bellman image is from the feature span
+— a quantity that depends only on the model and the features, *not on
+$w$*. The second term is exactly MSPBE. So the Bellman error decomposes
+as a $w$-independent constant plus MSPBE. **Semi-gradient TD descends
+MSPBE (when it converges), not the full Bellman error.** That distinction
+is what makes semi-gradient TD work despite the moving target — it's
+chasing a $w$-meaningful objective, not a fictitious one. It is also why
+*residual gradient* (full SGD on $\|T_\pi \hat v_w - \hat v_w\|^2$) finds
+the wrong fixed point in mis-specified models: the residual-gradient
+objective is contaminated by the $w$-independent first term.
+</details>
+
+::: {.common-confusion}
+### Common confusions
+
+1. **"$\Pi$ is just the closest point geometrically."** No — *geometry*
+   here depends on $\mu$. With Euclidean weighting you get one closest
+   point; with $\mu$-weighted you get another. Two different "closest"
+   answers from two different inner products. The same feature span; the
+   same target $v$; different projections.
+2. **"MSPBE is just the squared TD error."** No. The TD error is $\delta$;
+   summing $\mathbb{E}_\mu[\delta^2]$ gives the **mean-square TD error
+   (MSTDE)**, *not* MSPBE. MSPBE measures distance to the *projected*
+   target, which is the only meaningful thing when the target lives off
+   the feature span. The two objectives have different minimisers and
+   different gradients — gradient-TD ([L33](../33-gradient-td/index.qmd))
+   exists precisely to descend MSPBE rather than MSTDE.
+3. **"Off-policy plus FA always diverges."** No. The **deadly triad**
+   needs **all three**: FA, bootstrapping, off-policy data. Off-policy
+   *Monte Carlo* (no bootstrapping) with FA converges. Off-policy
+   bootstrapping with *tabular* (no FA) converges. Tabular plus
+   bootstrapping plus off-policy (Q-learning) converges. Mix all three
+   and the contraction argument breaks — but breaking is *possible*, not
+   *necessary*. DQN runs the deadly triad daily and mostly works.
+:::
+
+### Takeaways
+
+If you remember nothing else from this lesson, remember these:
+
+1. **The feature span is a wall.** Your estimate $\hat v_w$ can never
+   leave it; the best you can hope for is the projection of the truth
+   onto that wall.
+2. **On-policy, the round-trip shrinks; off-policy, it can grow.** The
+   projection is always non-expansive, but the Bellman operator is only
+   a contraction in the *on-policy* norm. Match the weighting to the
+   policy and convergence follows; mismatch them and divergence becomes
+   possible.
+3. **MSPBE is the objective that knows about the wall.** Semi-gradient
+   TD secretly descends MSPBE — that's what its fixed point is. The next
+   lesson builds the algorithm that *actually* descends MSPBE by honest
+   gradient.
+
+### Self-Assessment
+
+Be honest with yourself.
+
+1. Could you sketch (on paper) why $\Pi_\mu T_\pi$ is a $\gamma$-contraction
+   on-policy, without notes?
+2. Did you compute the projection in P1 with a different $\mu$ and watch
+   the answer change?
+3. Can you explain — to a friend — why the *deadly triad* needs all three
+   ingredients to bite, and which one each existing convergence theorem
+   relaxes?
+
+- **3 yes:** continue to
+  [Lesson 33 — Gradient-TD](../33-gradient-td/index.qmd).
+- **2 yes:** redo S2, then move on.
+- **0–1 yes:** re-derive Problem 4 by hand and replay Problem 5.
+
+## Connect
+
+### Prerequisites used
+
+- **[mfrl.td-with-function-approximation](../29-td-with-function-approximation/index.qmd)** —
+  the algorithm whose fixed point we just named. Stretch S1 of L29
+  *mentioned* the projection; this lesson promotes it to a named object.
+- **[mfrl.q-learning-with-fa](../30-q-learning-with-fa/index.qmd)** — the
+  lesson where the deadly triad first appears. Problem 5 above explains
+  *why* the triad bites: the Bellman operator stops being a contraction
+  in the off-policy norm.
+- **[t4.dot-cross-product](../../tier-4-precalc-calculus/14-dot-cross-product/index.qmd)** —
+  inner products, orthogonality, the basis for the $\mu$-weighted norm.
+- **[t5.partial-derivatives](../../tier-5-undergrad-core/05-partial-derivatives/index.qmd)** —
+  needed to derive the normal equations $\Phi^\top D_\mu \Phi\, w = \Phi^\top D_\mu\, v$.
+
+### What this unlocks
+
+- **[Gradient-TD: GTD, GTD2, TDC](../33-gradient-td/index.qmd)** — the
+  family of algorithms that descends MSPBE by honest gradient, breaking
+  the deadly triad's curse at the cost of variance and a second parameter.
+- Retroactively, this lesson **names** what
+  [L29 Stretch S1](../29-td-with-function-approximation/index.qmd#practice---stretch)
+  and [L30 Problem 3](../30-q-learning-with-fa/index.qmd) were really
+  about — the projected Bellman operator, $\Pi_\mu T_\pi$, the silent
+  protagonist of the entire FA arc.
+
+### Where this matters
+
+::: {.applied-callout}
+**AI / ML.** Every modern value-based algorithm — DQN, Double-DQN, Rainbow,
+SAC's critic — is implicitly minimising MSPBE-ish objectives in feature
+spaces defined by neural networks. The deadly-triad reasoning above is why
+those algorithms need engineering tricks (target networks, replay buffers,
+double Q) to stay stable: they live in the regime where the clean
+contraction argument no longer applies.
+:::
+
+::: {.applied-callout}
+**Research.** The projected Bellman operator is the central object of
+*approximate dynamic programming theory*. Bertsekas's two-volume *Dynamic
+Programming and Optimal Control* (2017) develops convergence theorems for
+ADP algorithms by analysing fixed points of $\Pi T$ under various
+projections — including non-Euclidean ones (averagers, aggregators).
+Sutton & Barto Chapter 11 also organises the deadly-triad discussion
+around MSPBE.
+:::
+
+::: {.applied-callout}
+**Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
+sketches the theoretical-RL view from 30,000 feet; MSPBE and the
+projected Bellman operator are the two objects that arc draws into
+sharper focus.
+:::
+
+::: {.callout-note collapse="true"}
+## Author's notes
+
+- Source: Shiyu Zhao, *Mathematical Foundations of Reinforcement Learning*
+  (Springer 2025), §8.3–§8.4 (projected Bellman, MSPBE). Cite freely;
+  never transcribe Zhao's prose.
+- Also cross-referenced: Sutton & Barto, *Reinforcement Learning: An
+  Introduction* (2nd ed.), §11.4 (the geometry of linear value-function
+  approximation) for the wall/push picture; Tsitsiklis & Van Roy (1997)
+  for the on-policy convergence proof; Bertsekas, *Dynamic Programming
+  and Optimal Control, Vol. II* (4th ed.), Chap. 6 for the projected
+  Bellman framework.
+- Touchstones honoured: 3Blue1Brown visual intuition (the wall and the
+  push), Better Explained "Aha!" framing (the round-trip
+  contraction-or-expansion picture), Gelfand-style problem-first
+  sequencing (the contraction theorem is *derived* through Problems 3–4
+  before being named).
+:::

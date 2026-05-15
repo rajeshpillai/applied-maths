@@ -32,7 +32,7 @@ world*, reached incrementally.
 **Curriculum complete: 254 lessons across four tracks** —
 synthesis Tiers 1–7 (105 lessons), CBSE / NCERT Class 8–12 (75 lessons),
 Kiselev Russian classical (36 lessons), and Mathematics for
-Reinforcement Learning (38 lessons).
+Reinforcement Learning (40 lessons).
 
 Begin at [01 · What is a Number?](lessons/tier-1-foundations/01-what-is-a-number/index.qmd) — or jump
 to a Tier 7 capstone such as [15 · The Langlands Program](lessons/tier-7-masters-tracks/15-langlands-program/index.qmd).
@@ -98,7 +98,7 @@ prerequisite declarations** (probability from Tier 3, linear algebra
 from Tier 5, gradient descent from Tier 6, contraction-mapping
 foundations from Tier 5/Tier 7).
 
-**Track complete: 38 lessons covering MDPs through deep deterministic
+**Track complete: 40 lessons covering MDPs through deep deterministic
 policy gradient.** Start at the [RL Math Track Overview](mfrl/index.qmd),
 or jump to the [tier index](lessons/tier-mfrl-rl-math/index.qmd) for
 the full per-lesson list.

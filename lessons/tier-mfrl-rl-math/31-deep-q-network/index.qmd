@@ -290,7 +290,7 @@ time-constant $\sim 1/\tau$. Choosing $\tau = 1/C$ gives the same average
 lag as a hard sync every $C$ steps. The tracking is smoother (no
 discontinuous jumps) but the stabilising mechanism is identical: the target
 $y_i$ uses a slowly-moving copy of $w$ that does not chase the current
-parameters. DDPG (Lesson 38) prefers soft updates; DQN as published uses
+parameters. DDPG (Lesson 40) prefers soft updates; DQN as published uses
 the hard sync.
 </details>
 
@@ -317,13 +317,13 @@ which is ~50 hours of game-play.
    well for discrete-action tasks with rich observations and *enough* data,
    but it is brittle, sample-inefficient, and has no convergence guarantee.
    Continuous-action problems and many real-robot tasks need the
-   actor-critic family covered in Lessons 35–38.
+   actor-critic family covered in Lessons 37–40.
 2. **"The target network is the same as a frozen network."** Half-right.
    The target network *is* frozen for $C$ steps — but then it gets refreshed
    from the current $w$. The point is the *delay*, not permanent freezing.
 3. **"Replay buffers are off-policy correction."** No — they don't reweight
    anything. They are a *de-correlation* trick. True off-policy correction
-   uses [importance sampling](/glossary.qmd) (Lesson 37), which DQN
+   uses [importance sampling](/glossary.qmd) (Lesson 39), which DQN
    ignores. This is fine because Q-learning's $\max_{a'}$ target doesn't
    depend on the behaviour policy at all.
 :::
@@ -352,7 +352,7 @@ Be honest with yourself.
 3. Do you understand that DQN does not *prove* the deadly triad away — it
    *engineers around* it?
 
-- **3 yes:** continue to [Lesson 32 — Policy Parameterisation](../32-policy-parameterization/index.qmd).
+- **3 yes:** continue to [Lesson 32 — The Projected Bellman Operator](../32-projected-bellman-operator/index.qmd).
 - **2 yes:** redo P1 and P2.
 - **0–1 yes:** re-read *Discover*, especially Problem 4.
 
@@ -365,10 +365,18 @@ Be honest with yourself.
 
 ### What this unlocks
 
-- **[Policy Parameterisation](../32-policy-parameterization/index.qmd)** —
+- **[The Projected Bellman Operator](../32-projected-bellman-operator/index.qmd)** —
+  names $\Pi_\mu T_\pi$, the operator whose contraction breaks under the
+  deadly triad. Gives the geometric picture for why DQN's engineering is
+  needed.
+- **[Gradient-TD: GTD, GTD2, TDC](../33-gradient-td/index.qmd)** — the
+  mathematical alternative DQN does not take: descend MSPBE honestly with
+  a second parameter, and convergence under linear FA off-policy is
+  recovered.
+- **[Policy Parameterisation](../34-policy-parameterization/index.qmd)** —
   swap value-based learning for direct policy optimisation, which DQN
   cannot do for continuous actions.
-- The actor-critic family (Lessons 35–38), which adopts DQN's stabilisers
+- The actor-critic family (Lessons 37–40), which adopts DQN's stabilisers
   and adds policy gradients.
 
 ### Where this matters
@@ -392,7 +400,7 @@ sample efficiency is poor, but the wall-clock cost of running games at
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
 gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+track expands into 40 lessons.
 :::
 
 ::: {.callout-note collapse="true"}

@@ -13,8 +13,8 @@ status: "done"
 ::: {.preflight-check}
 ### Pre-flight check {.mt-0}
 
-1. Can you state **QAC** ([Lesson 35](../35-actor-critic-qac/index.qmd))?
-2. Did you prove the **baseline invariance** lemma in Lesson 33, S2 — that
+1. Can you state **QAC** ([Lesson 37](../37-actor-critic-qac/index.qmd))?
+2. Did you prove the **baseline invariance** lemma in Lesson 35, S2 — that
    $\mathbb E_{a \sim \pi}[\nabla \log \pi(a \mid s)\, b(s)] = 0$?
 3. Do you remember the relation between $v$ and $q$:
    $v_\pi(s) = \sum_a \pi(a \mid s) q_\pi(s, a)$?
@@ -51,7 +51,7 @@ Same task. Same network. Same step size. The only thing different is
 
 ### Problem 1 — recall baseline invariance
 
-From Lesson 33, S2: for any function $b(s)$ of state alone,
+From Lesson 35, S2: for any function $b(s)$ of state alone,
 $\mathbb E_{a \sim \pi(\cdot \mid s)}[\nabla_\theta \log \pi(a \mid s)\, b(s)] = 0$.
 What does this imply about subtracting $b(s)$ from $q_\pi(s, a)$ inside the
 policy gradient theorem?
@@ -302,7 +302,7 @@ direction. Same magnitude. Variance per sample is what differs.
    The expectation is unchanged. This is the baseline-invariance lemma in
    action.
 2. **"Action-dependent baselines work too."** No — they bias the gradient
-   (Lesson 34, P2). Only state-only (or time-only) baselines preserve
+   (Lesson 36, P2). Only state-only (or time-only) baselines preserve
    unbiasedness.
 3. **"Advantage requires a $\hat q$ network."** No — the 1-step TD error
    $\delta = r + \gamma \hat v(s') - \hat v(s)$ is an unbiased estimate of
@@ -328,7 +328,7 @@ direction. Same magnitude. Variance per sample is what differs.
 2. Did you derive the TD error → advantage relationship in *Discover* P4?
 3. Could you sketch A2C pseudo-code?
 
-- **3 yes:** continue to [Lesson 37 — Off-Policy AC](../37-off-policy-actor-critic/index.qmd).
+- **3 yes:** continue to [Lesson 39 — Off-Policy AC](../39-off-policy-actor-critic/index.qmd).
 - **2 yes:** redo P2 and S2.
 - **0–1 yes:** re-derive Discover P4.
 
@@ -336,16 +336,16 @@ direction. Same magnitude. Variance per sample is what differs.
 
 ### Prerequisites used
 
-- **[mfrl.actor-critic-qac](../35-actor-critic-qac/index.qmd)** — the
+- **[mfrl.actor-critic-qac](../37-actor-critic-qac/index.qmd)** — the
   actor-critic skeleton with $\hat q$.
-- **[mfrl.policy-gradient-theorem](../33-policy-gradient-theorem/index.qmd)** —
+- **[mfrl.policy-gradient-theorem](../35-policy-gradient-theorem/index.qmd)** —
   the baseline-invariance lemma proved in S2.
 
 ### What this unlocks
 
-- **[Off-policy AC](../37-off-policy-actor-critic/index.qmd)** — extend
+- **[Off-policy AC](../39-off-policy-actor-critic/index.qmd)** — extend
   A2C to behaviour ≠ target via importance sampling.
-- **[DDPG](../38-deterministic-actor-critic/index.qmd)** — the
+- **[DDPG](../40-deterministic-actor-critic/index.qmd)** — the
   deterministic-policy continuous-control variant.
 
 ### Where this matters
@@ -361,7 +361,7 @@ invariance lemma is the theoretical hook that makes advantage estimation
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
 gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+track expands into 40 lessons.
 :::
 
 ::: {.callout-note collapse="true"}

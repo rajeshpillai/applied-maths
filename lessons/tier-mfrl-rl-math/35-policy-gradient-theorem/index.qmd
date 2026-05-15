@@ -16,7 +16,7 @@ status: "done"
 Before you start, can you:
 
 1. Compute $\nabla_\theta \log \pi(a \mid s; \theta)$ for a softmax policy?
-   ([Lesson 32, P2](../32-policy-parameterization/index.qmd))
+   ([Lesson 34, P2](../34-policy-parameterization/index.qmd))
 2. State what an [expected value](/glossary.qmd#expected-value) is and how
    to switch between $\mathbb E$-notation and an explicit sum/integral?
 3. Write down the [chain rule](/glossary.qmd#chain-rule) for derivatives?
@@ -62,7 +62,7 @@ Sit with these.
 2. We don't know the dynamics $p(s' \mid s, a)$ explicitly. Could we
    possibly compute $\nabla_\theta J$ without it?
 3. You already know how to differentiate $\log \pi(a \mid s; \theta)$ — you
-   did it in [Lesson 32, P2](../32-policy-parameterization/index.qmd).
+   did it in [Lesson 34, P2](../34-policy-parameterization/index.qmd).
    Is that going to turn out useful?
 
 ## Discover
@@ -232,7 +232,7 @@ States $\{s_1, s_2\}$, actions $\{a_1, a_2\}$. State-independent softmax
 preferences $\theta = (\theta_1, \theta_2)$, so
 $\pi(a_1) = e^{\theta_1}/(e^{\theta_1} + e^{\theta_2})$, etc.
 
-From [Lesson 32, P2](../32-policy-parameterization/index.qmd):
+From [Lesson 34, P2](../34-policy-parameterization/index.qmd):
 $\nabla_\theta \log \pi(a_1) = (1 - \pi(a_1),\ -\pi(a_2)) = e_1 - \pi$,
 where $e_1 = (1, 0)$.
 
@@ -299,7 +299,7 @@ unchosen actions, $\pi = 0$ and $\log \pi = -\infty$ — derivative
 undefined. Either way, the score-function gradient cannot be used.
 **Stochastic policies are essential** for the (stochastic) policy gradient
 theorem. (For *deterministic* policies, a different theorem — the
-**deterministic policy gradient** of [Lesson 38](../38-deterministic-actor-critic/index.qmd) —
+**deterministic policy gradient** of [Lesson 40](../40-deterministic-actor-critic/index.qmd) —
 takes its place, and works through differentiation w.r.t. the action.)
 </details>
 
@@ -334,7 +334,7 @@ $\mathbb E_{\pi_\theta}[G_t \mid s_t = s, a_t = a] = q_{\pi_\theta}(s, a)$.
 Yes. By definition, the conditional expectation of the return given $(s,
 a)$ is $q_\pi(s, a)$. Substituting the *random* return $G_t$ for $q_\pi(s,
 a)$ yields an unbiased estimator. This substitution *is* REINFORCE —
-[Lesson 34](../34-reinforce/index.qmd).
+[Lesson 36](../36-reinforce/index.qmd).
 </details>
 
 ### Practice — Stretch
@@ -369,7 +369,7 @@ make precise.
 **S2.** Rewrite the policy gradient theorem using $v_\pi$ as a baseline:
 prove $\mathbb E_{a \sim \pi(\cdot \mid s)}[\nabla_\theta \log \pi(a \mid s)
 \, b(s)] = 0$ for any function $b$ of $s$ alone. (You'll use this in
-[Lesson 36 (A2C)](../36-advantage-actor-critic/index.qmd).)
+[Lesson 38 (A2C)](../38-advantage-actor-critic/index.qmd).)
 
 <details class="hint"><summary>Hint 1 — a nudge</summary>
 $\sum_a \pi(a \mid s) \nabla_\theta \log \pi(a \mid s) = \nabla_\theta
@@ -391,12 +391,12 @@ $A_\pi(s, a) = q_\pi(s, a) - v_\pi(s)$ and lower variance.
    dynamics drop out by the log-derivative trick. This is what makes
    model-free policy-gradient RL possible.
 2. **"$q_\pi$ is needed exactly."** No — any *unbiased estimator* of
-   $q_\pi$ works, and that's why REINFORCE (Lesson 34) and actor-critic
-   (Lesson 35) substitute different estimators (Monte Carlo return; TD
+   $q_\pi$ works, and that's why REINFORCE (Lesson 36) and actor-critic
+   (Lesson 37) substitute different estimators (Monte Carlo return; TD
    estimate of $q$).
 3. **"The PG theorem applies to deterministic policies too."** No — the
    stated form needs $\log \pi$, which fails for deterministic $\pi$. The
-   *deterministic* policy gradient (Lesson 38) is a separate theorem.
+   *deterministic* policy gradient (Lesson 40) is a separate theorem.
 :::
 
 ### Takeaways
@@ -420,7 +420,7 @@ $A_\pi(s, a) = q_\pi(s, a) - v_\pi(s)$ and lower variance.
 3. Could you verify P3 (substituting $G_t$ for $q_\pi(s, a)$ is unbiased)
    without notes?
 
-- **3 yes:** continue to [Lesson 34 — REINFORCE](../34-reinforce/index.qmd).
+- **3 yes:** continue to [Lesson 36 — REINFORCE](../36-reinforce/index.qmd).
 - **2 yes:** redo S1.
 - **0–1 yes:** re-derive Discover Problems 3–5.
 
@@ -428,16 +428,16 @@ $A_\pi(s, a) = q_\pi(s, a) - v_\pi(s)$ and lower variance.
 
 ### Prerequisites used
 
-- **[mfrl.policy-parameterization](../32-policy-parameterization/index.qmd)** —
+- **[mfrl.policy-parameterization](../34-policy-parameterization/index.qmd)** —
   $\nabla_\theta \log \pi$ for softmax and Gaussian.
 - **t5.partial-derivatives** — gradient of a scalar function w.r.t. a
   vector parameter; chain rule.
 
 ### What this unlocks
 
-- **[REINFORCE](../34-reinforce/index.qmd)** — substitute the MC return
+- **[REINFORCE](../36-reinforce/index.qmd)** — substitute the MC return
   for $q_\pi$.
-- **[QAC](../35-actor-critic-qac/index.qmd)** — substitute a TD estimate
+- **[QAC](../37-actor-critic-qac/index.qmd)** — substitute a TD estimate
   for $q_\pi$.
 - All later actor-critic methods (Lessons 36–38), every one of which is
   a different choice of estimator for $q_\pi$.
@@ -461,7 +461,7 @@ optimisation.
 ::: {.applied-callout}
 **Sister synthesis lesson.** [`t7.rl-theory`](../../tier-7-masters-tracks/06-rl-theory/index.qmd)
 gives the single-paragraph view of reinforcement learning that this
-track expands into 38 lessons.
+track expands into 40 lessons.
 :::
 
 ::: {.callout-note collapse="true"}
